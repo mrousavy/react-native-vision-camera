@@ -76,16 +76,9 @@ extension CameraSession {
       captureSession.addOutput(photoOutput)
 
       // 2. Configure
-      if photo.enableHighQualityPhotos {
-        // TODO: In iOS 16 this will be removed in favor of maxPhotoDimensions.
-        photoOutput.isHighResolutionCaptureEnabled = true
-        if #available(iOS 13.0, *) {
-          // TODO: Test if this actually does any fusion or if this just calls the captureOutput twice. If the latter, remove it.
-          photoOutput.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput.isVirtualDeviceConstituentPhotoDeliverySupported
-          photoOutput.maxPhotoQualityPrioritization = .quality
-        } else {
-          photoOutput.isDualCameraDualPhotoDeliveryEnabled = photoOutput.isDualCameraDualPhotoDeliverySupported
-        }
+      if #available(iOS 13.0, *) {
+        let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
+        photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
@@ -205,7 +198,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
-  func configurePixelFormat(configuration: CameraConfiguration) throws {
+  func configureVideoOutputFormat(configuration: CameraConfiguration) throws {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
       // Video is not enabled
@@ -218,6 +211,22 @@ extension CameraSession {
     videoOutput.videoSettings = [
       String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
     ]
+  }
+
+  func configurePhotoOutputFormat(configuration _: CameraConfiguration) throws {
+    guard let videoDeviceInput, let photoOutput else {
+      // Photo is not enabled
+      return
+    }
+
+    // Configure the PhotoOutput Settings to use the given max-resolution.
+    // We need to run this after device.activeFormat has been set, otherwise the resolution is different.
+    let format = videoDeviceInput.device.activeFormat
+    if #available(iOS 16.0, *) {
+      photoOutput.maxPhotoDimensions = format.photoDimensions
+    } else {
+      photoOutput.isHighResolutionCaptureEnabled = true
+    }
   }
 
   // pragma MARK: Side-Props
@@ -235,9 +244,9 @@ extension CameraSession {
         throw CameraError.format(.invalidFps(fps: Int(fps)))
       }
 
-      let duration = CMTimeMake(value: 1, timescale: fps)
-      device.activeVideoMinFrameDuration = duration
-      device.activeVideoMaxFrameDuration = duration
+      let minFps = configuration.enableLowLightBoost ? fps / 2 : fps
+      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: fps)
+      device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: minFps)
     } else {
       device.activeVideoMinFrameDuration = CMTime.invalid
       device.activeVideoMaxFrameDuration = CMTime.invalid

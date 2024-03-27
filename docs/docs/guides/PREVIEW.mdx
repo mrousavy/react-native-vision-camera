@@ -1,0 +1,53 @@
+---
+id: preview
+title: Preview
+sidebar_label: Preview
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo_capture.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## The Preview View
+
+The `<Camera>` React component renders a Preview view for the Camera.
+
+### FPS
+
+The Preview view is running at the same frame rate as the Video stream, configured by the [`fps`](/docs/api/interfaces/CameraProps#fps) prop, or 30 FPS by default.
+
+```tsx
+<Camera {...props} fps={60} />
+```
+
+### Resolution
+
+On iOS, the Video resolution also determines the Preview resolution, so if you Camera format has a low Video resolution, your Preview will also be in low resolution:
+
+```ts
+const lowResolutionFormat = useCameraFormat(device, [
+  { videoResolution: { width: 640, height: 480 } },
+])
+```
+
+On Android, the Preview will always be in full HD, or the Preview View's size, whichever is smaller.
+
+### Overlays and Masks
+
+On Android, the Preview View supports two implementation modes which are controllable through the [`androidPreviewViewType`](/docs/api/interfaces/CameraProps#androidpreviewviewtype) prop:
+
+- `"surface-view"`: Uses a [`SurfaceView`](https://developer.android.com/reference/android/view/SurfaceView) for rendering. This is more efficient and supports HDR rendering, but doesn't support masks, transparency, rotations or clipping.
+- `"texture-view"`: Uses a [`TextureView`](https://developer.android.com/reference/android/view/TextureView) for rendering. This is less efficient and doesn't support HDR rendering, but supports masks, transparency, rotations and clipping.
+
+```tsx
+<Camera {...props} androidPreviewViewType="texture-view" />
+```
+
+<br />
+
+#### 🚀 Next section: [Taking Photos](./taking-photos)

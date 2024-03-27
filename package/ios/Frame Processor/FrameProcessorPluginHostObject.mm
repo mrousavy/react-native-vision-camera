@@ -38,11 +38,17 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
             options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
           }
 
-          // Call actual Frame Processor Plugin
-          id result = [_plugin callback:frame withArguments:options];
+          @try {
+            // Call actual Frame Processor Plugin
+            id result = [_plugin callback:frame withArguments:options];
 
-          // Convert result value to jsi::Value (possibly undefined)
-          return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);
+            // Convert result value to jsi::Value (possibly undefined)
+            return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);
+          } @catch (NSException* exception) {
+            // Objective-C plugin threw an error.
+            NSString* message = [NSString stringWithFormat:@"%@: %@", exception.name, exception.reason];
+            throw jsi::JSError(runtime, message.UTF8String);
+          }
         });
   }
 

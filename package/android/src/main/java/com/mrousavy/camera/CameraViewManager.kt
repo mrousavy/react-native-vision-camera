@@ -9,12 +9,17 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.PreviewViewType
+import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 
 @Suppress("unused")
 class CameraViewManager : ViewGroupManager<CameraView>() {
+  companion object {
+    const val TAG = "CameraView"
+  }
   public override fun createViewInstance(context: ThemedReactContext): CameraView = CameraView(context)
 
   override fun onAfterUpdateTransaction(view: CameraView) {
@@ -28,6 +33,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraStarted", MapBuilder.of("registrationName", "onStarted"))
       .put("cameraStopped", MapBuilder.of("registrationName", "onStopped"))
+      .put("cameraShutter", MapBuilder.of("registrationName", "onShutter"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
       .put("cameraCodeScanned", MapBuilder.of("registrationName", "onCodeScanned"))
       .build()
@@ -57,6 +63,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   @ReactProp(name = "audio")
   fun setAudio(view: CameraView, audio: Boolean) {
     view.audio = audio
+  }
+
+  @ReactProp(name = "enableLocation")
+  fun setEnableLocation(view: CameraView, enableLocation: Boolean) {
+    view.enableLocation = enableLocation
   }
 
   @ReactProp(name = "enableFrameProcessor")
@@ -129,6 +140,16 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     }
   }
 
+  @ReactProp(name = "androidPreviewViewType")
+  fun setAndroidPreviewViewType(view: CameraView, androidPreviewViewType: String?) {
+    if (androidPreviewViewType != null) {
+      val newMode = PreviewViewType.fromUnionValue(androidPreviewViewType)
+      view.androidPreviewViewType = newMode
+    } else {
+      view.androidPreviewViewType = PreviewViewType.SURFACE_VIEW
+    }
+  }
+
   // TODO: Change when TurboModules release.
   // We're treating -1 as "null" here, because when I make the fps parameter
   // of type "Int?" the react bridge throws an error.
@@ -140,6 +161,16 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   @ReactProp(name = "photoHdr")
   fun setPhotoHdr(view: CameraView, photoHdr: Boolean) {
     view.photoHdr = photoHdr
+  }
+
+  @ReactProp(name = "photoQualityBalance")
+  fun setPhotoQualityBalance(view: CameraView, photoQualityBalance: String?) {
+    if (photoQualityBalance != null) {
+      val newMode = QualityBalance.fromUnionValue(photoQualityBalance)
+      view.photoQualityBalance = newMode
+    } else {
+      view.photoQualityBalance = QualityBalance.BALANCED
+    }
   }
 
   @ReactProp(name = "videoHdr")
@@ -195,9 +226,5 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     } else {
       view.codeScannerOptions = null
     }
-  }
-
-  companion object {
-    const val TAG = "CameraView"
   }
 }

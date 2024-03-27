@@ -94,13 +94,20 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, st
   NSString* key = [NSString stringWithUTF8String:name.c_str()];
   NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
   VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
-  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withProxy:proxy withOptions:optionsObjc];
-  if (plugin == nil) {
-    return jsi::Value::undefined();
-  }
 
-  auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
-  return jsi::Object::createFromHostObject(runtime, pluginHostObject);
+  @try {
+    FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withProxy:proxy withOptions:optionsObjc];
+    if (plugin == nil) {
+      return jsi::Value::undefined();
+    }
+
+    auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
+    return jsi::Object::createFromHostObject(runtime, pluginHostObject);
+  } @catch (NSException* exception) {
+    // Objective-C plugin threw an error when initializing.
+    NSString* message = [NSString stringWithFormat:@"%@: %@", exception.name, exception.reason];
+    throw jsi::JSError(runtime, message.UTF8String);
+  }
 }
 
 jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {

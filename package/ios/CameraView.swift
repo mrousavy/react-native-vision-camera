@@ -25,7 +25,6 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
-  @objc var enableHighQualityPhotos = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
   // use cases
@@ -35,11 +34,13 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var enableFrameProcessor = false
   @objc var codeScannerOptions: NSDictionary?
   @objc var pixelFormat: NSString?
+  @objc var enableLocation = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
   @objc var videoHdr = false
   @objc var photoHdr = false
+  @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
   // other props
@@ -61,6 +62,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onError: RCTDirectEventBlock?
   @objc var onStarted: RCTDirectEventBlock?
   @objc var onStopped: RCTDirectEventBlock?
+  @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
   // zoom
@@ -85,6 +87,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
   private var currentConfigureCall: DispatchTime?
+  var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
 
   var previewView: PreviewView
   #if DEBUG
@@ -148,6 +151,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
     return .off
   }
 
+  func getPhotoQualityBalance() -> QualityBalance {
+    if let photoQualityBalance = photoQualityBalance as? String,
+       let balance = try? QualityBalance(jsValue: photoQualityBalance) {
+      return balance
+    }
+    return .balanced
+  }
+
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
@@ -168,7 +179,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Photo
       if photo {
-        config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
+        config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
                                                                   enableDepthData: enableDepthData,
                                                                   enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
       } else {
@@ -199,6 +210,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
       } else {
         config.codeScanner = .disabled
       }
+
+      // Location tagging
+      config.enableLocation = enableLocation && isActive
 
       // Video Stabilization
       if let jsVideoStabilizationMode = videoStabilizationMode as? String {
@@ -318,6 +332,15 @@ public final class CameraView: UIView, CameraSessionDelegate {
     onStopped([:])
   }
 
+  func onCaptureShutter(shutterType: ShutterType) {
+    guard let onShutter = onShutter else {
+      return
+    }
+    onShutter([
+      "type": shutterType.jsValue,
+    ])
+  }
+
   func onFrame(sampleBuffer: CMSampleBuffer) {
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
@@ -326,6 +349,11 @@ public final class CameraView: UIView, CameraSessionDelegate {
         frameProcessor.call(frame)
       }
     #endif
+
+    for callback in snapshotOnFrameListeners {
+      callback(sampleBuffer)
+    }
+    snapshotOnFrameListeners.removeAll()
 
     #if DEBUG
       if let fpsGraph {

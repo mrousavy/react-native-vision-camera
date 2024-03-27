@@ -28,7 +28,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var audioOutput: AVCaptureAudioDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
   // State
+  var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
+  var didCancelRecording = false
   var isRecording = false
 
   // Callbacks
@@ -37,7 +39,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   // Public accessors
   var maxZoom: Double {
     if let device = videoDeviceInput?.device {
-      return device.maxAvailableVideoZoomFactor
+      return device.activeFormat.videoMaxZoomFactor
     }
     return 1.0
   }
@@ -153,10 +155,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.formatChanged {
             try self.configureFormat(configuration: config, device: device)
           }
-          // 5. After step 2. and 4., we also need to configure the PixelFormat.
-          //    This needs to be done AFTER we updated the `format`, as this controls the supported PixelFormats.
+          // 5. After step 2. and 4., we also need to configure some output properties that depend on format.
+          //    This needs to be done AFTER we updated the `format`, as this controls the supported properties.
           if difference.outputsChanged || difference.formatChanged {
-            try self.configurePixelFormat(configuration: config)
+            try self.configureVideoOutputFormat(configuration: config)
+            try self.configurePhotoOutputFormat(configuration: config)
           }
           // 6. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
@@ -214,6 +217,19 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             // Unlock Capture Session again and submit configuration to Hardware
             self.audioCaptureSession.commitConfiguration()
             ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
+          } catch {
+            self.onConfigureError(error)
+          }
+        }
+      }
+
+      // Set up Location streaming (on location queue)
+      if difference.locationChanged {
+        CameraQueues.locationQueue.async {
+          do {
+            ReactLogger.log(level: .info, message: "Beginning Location Output configuration...")
+            try self.configureLocationOutput(configuration: config)
+            ReactLogger.log(level: .info, message: "Finished Location Output configuration!")
           } catch {
             self.onConfigureError(error)
           }

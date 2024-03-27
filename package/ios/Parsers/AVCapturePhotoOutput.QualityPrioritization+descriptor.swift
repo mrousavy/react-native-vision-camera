@@ -11,19 +11,17 @@ import Foundation
 
 @available(iOS 13.0, *)
 extension AVCapturePhotoOutput.QualityPrioritization {
-  init?(withString string: String) {
-    switch string {
-    case "speed":
+  init(fromQualityBalance qualityBalance: QualityBalance) {
+    switch qualityBalance {
+    case .speed:
       self = .speed
       return
-    case "quality":
-      self = .quality
-      return
-    case "balanced":
+    case .balanced:
       self = .balanced
       return
-    default:
-      return nil
+    case .quality:
+      self = .quality
+      return
     }
   }
 }

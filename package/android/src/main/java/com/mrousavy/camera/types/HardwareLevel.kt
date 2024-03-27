@@ -23,8 +23,8 @@ enum class HardwareLevel(override val unionValue: String) : JSUnionValue {
   fun isAtLeast(level: HardwareLevel): Boolean = this.rank >= level.rank
 
   companion object {
-    fun fromCameraCharacteristics(cameraCharacteristics: CameraCharacteristics): HardwareLevel =
-      when (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)) {
+    fun fromCameraHardwareLevel(hardwareLevel: Int): HardwareLevel =
+      when (hardwareLevel) {
         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY -> LEGACY
         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED -> LIMITED
         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL -> EXTERNAL

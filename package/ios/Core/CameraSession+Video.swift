@@ -10,6 +10,8 @@ import AVFoundation
 import Foundation
 import UIKit
 
+private let INSUFFICIENT_STORAGE_ERROR_CODE = -11807
+
 extension CameraSession {
   /**
    Starts a video + audio recording with a custom Asset Writer.
@@ -47,14 +49,25 @@ extension CameraSession {
 
         self.isRecording = false
         self.recordingSession = nil
+
+        if self.didCancelRecording {
+          ReactLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
+          onError(.capture(.recordingCanceled))
+          do {
+            ReactLogger.log(level: .info, message: "Deleting temporary video file...")
+            try FileManager.default.removeItem(at: recordingSession.url)
+          } catch {
+            self.delegate?.onError(.capture(.fileError(cause: error)))
+          }
+          return
+        }
+
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
         if let error = error as NSError? {
           ReactLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
           // Something went wrong, we have an error
-          if error.domain == "capture/aborted" {
-            onError(.capture(.aborted))
-          } else if error.code == -11807 {
+          if error.code == INSUFFICIENT_STORAGE_ERROR_CODE {
             onError(.capture(.insufficientStorage))
           } else {
             onError(.capture(.unknown(message: "An unknown recording error occured! \(error.code) \(error.description)")))
@@ -89,6 +102,7 @@ extension CameraSession {
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
+                                                    metadataProvider: self.metadataProvider,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
@@ -118,6 +132,7 @@ extension CameraSession {
         // start recording session with or without audio.
         // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         try recordingSession.start(clock: self.captureSession.clock)
+        self.didCancelRecording = false
         self.recordingSession = recordingSession
         self.isRecording = true
 
@@ -149,6 +164,14 @@ extension CameraSession {
         return nil
       }
     }
+  }
+
+  /**
+   Cancels an active recording.
+   */
+  func cancelRecording(promise: Promise) {
+    didCancelRecording = true
+    stopRecording(promise: promise)
   }
 
   /**

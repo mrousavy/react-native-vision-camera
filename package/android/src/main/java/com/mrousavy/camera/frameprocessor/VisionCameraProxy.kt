@@ -45,6 +45,7 @@ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
     return view ?: throw ViewNotFoundError(viewId)
   }
 
+  @Suppress("unused")
   @DoNotStrip
   @Keep
   fun setFrameProcessor(viewId: Int, frameProcessor: FrameProcessor) {
@@ -54,6 +55,7 @@ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
     }
   }
 
+  @Suppress("unused")
   @DoNotStrip
   @Keep
   fun removeFrameProcessor(viewId: Int) {
@@ -63,6 +65,7 @@ class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
     }
   }
 
+  @Suppress("unused")
   @DoNotStrip
   @Keep
   fun initFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin? =

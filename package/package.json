@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera",
-  "version": "3.9.2",
+  "version": "4.0.0-beta.11",
   "description": "A powerful, high-performance React Native Camera library.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -23,7 +23,6 @@
     "ios/**/*.mm",
     "ios/**/*.cpp",
     "ios/**/*.swift",
-    "ios/VisionCamera.xcodeproj/project.pbxproj",
     "app.plugin.js",
     "VisionCamera.podspec",
     "README.md"
@@ -34,7 +33,7 @@
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "start": "cd example && yarn start",
     "build": "bob build",
-    "release": "release-it",
+    "release": "bob build && release-it",
     "pods": "cd example && yarn pods",
     "bootstrap": "yarn && cd example && yarn && yarn pods",
     "check-android": "scripts/ktlint.sh && scripts/clang-format.sh",
@@ -98,7 +97,7 @@
     "react": "^18.2.0",
     "react-native": "^0.72.3",
     "react-native-builder-bob": "^0.21.3",
-    "react-native-worklets-core": "^0.3.0",
+    "react-native-worklets-core": "^0.4.0",
     "release-it": "^16.1.3",
     "typescript": "^5.1.6"
   },

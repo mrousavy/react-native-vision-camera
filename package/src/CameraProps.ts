@@ -5,12 +5,18 @@ import { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
 
-export type FrameProcessor = {
+export interface FrameProcessor {
   frameProcessor: (frame: Frame) => void
   type: 'frame-processor'
 }
 
-// TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
+export interface OnShutterEvent {
+  /**
+   * The type of the media that was captured in this `onShutter` event.
+   */
+  type: 'photo' | 'snapshot'
+}
+
 // TODO: Use RCT_ENUM_PARSER for stuff like torch, videoStabilizationMode, and orientation
 // TODO: Use Photo HostObject for stuff like depthData, portraitEffects, etc.
 // TODO: Add RAW capture support
@@ -56,6 +62,8 @@ export interface CameraProps extends ViewProps {
   video?: boolean
   /**
    * Enables **audio capture** for video recordings (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/recording-videos))
+   *
+   * Note: Requires audio permission.
    */
   audio?: boolean
   /**
@@ -79,6 +87,12 @@ export interface CameraProps extends ViewProps {
    * - With a Frame Processor: `yuv`
    */
   pixelFormat?: 'native' | 'yuv' | 'rgb'
+  /**
+   * Enables location streaming to add GPS EXIF tags to captured photos and videos.
+   *
+   * Note: Requires location permission.
+   */
+  enableLocation?: boolean
   //#endregion
 
   //#region Common Props (torch, zoom)
@@ -142,12 +156,22 @@ export interface CameraProps extends ViewProps {
   format?: CameraDeviceFormat
   /**
    * Specifies the Preview's resize mode.
-   * * `"cover"`: Keep aspect ratio and fill entire parent view (centered).
-   * * `"contain"`: Keep aspect ratio and make sure the entire content is visible inside the parent view, even if it introduces additional blank areas (centered).
+   * - `"cover"`: Keep aspect ratio and fill entire parent view (centered).
+   * - `"contain"`: Keep aspect ratio and make sure the entire content is visible inside the parent view, even if it introduces additional blank areas (centered).
    *
    * @default "cover"
    */
   resizeMode?: 'cover' | 'contain'
+  /**
+   * Specifies the implementation mode for the Preview View on Android.
+   * - `"surface-view"`: Uses a [`SurfaceView`](https://developer.android.com/reference/android/view/SurfaceView) for rendering.
+   * This is more efficient and supports HDR rendering, but doesn't support masks, transparency, rotations or clipping.
+   * - `"texture-view"`: Uses a [`TextureView`](https://developer.android.com/reference/android/view/TextureView) for rendering.
+   * This is less efficient and doesn't support HDR rendering, but supports masks, transparency, rotations and clipping.
+   *
+   * @default 'surface-view'
+   */
+  androidPreviewViewType?: 'surface-view' | 'texture-view'
   /**
    * Specify the frames per second this camera should stream frames at.
    *
@@ -166,6 +190,15 @@ export interface CameraProps extends ViewProps {
    * Make sure the given {@linkcode format} supports HDR (see {@linkcode CameraDeviceFormat.supportsPhotoHdr format.supportsPhotoHdr}).
    */
   photoHdr?: boolean
+  /**
+   * Configures the photo pipeline for a specific quality balance prioritization.
+   * - `'speed'`: Prioritizes fast capture speed over quality (faster edge-detection, distortion correction, AF/AE/AWB times, etc.)
+   * - `'balanced'`: A balanced set of prioritization configurations
+   * - `'quality'`: Prioritizes high quality capture over speed (higher accuracy edge-detection, distortion correction, AF/AE/AWB times, etc.)
+   *
+   * @default 'balanced'
+   */
+  photoQualityBalance?: 'speed' | 'balanced' | 'quality'
   /**
    * Enables or disables lossy buffer compression for the video stream.
    * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
@@ -209,6 +242,9 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables low-light boost on this camera device.
    *
+   * Enabling low light boost allows the FPS rate to be throttled to up to half of what it is set to to allow for more
+   * exposure in low light conditions.
+   *
    * Make sure the given {@linkcode device} supports low-light-boost (see {@linkcode CameraDevice.supportsLowLightBoost device.supportsLowLightBoost}).
    */
   lowLightBoost?: boolean
@@ -238,20 +274,7 @@ export interface CameraProps extends ViewProps {
    */
   enablePortraitEffectsMatteDelivery?: boolean
   /**
-   * Indicates whether the Camera should prepare the photo pipeline to provide maximum quality photos.
-   *
-   * This enables:
-   * * High Resolution Capture ([`isHighResolutionCaptureEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/1648721-ishighresolutioncaptureenabled))
-   * * Virtual Device fusion for greater detail ([`isVirtualDeviceConstituentPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3192189-isvirtualdeviceconstituentphotod))
-   * * Dual Device fusion for greater detail ([`isDualCameraDualPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/2873917-isdualcameradualphotodeliveryena))
-   * * Sets the maximum quality prioritization to `.quality` ([`maxPhotoQualityPrioritization`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3182995-maxphotoqualityprioritization))
-   *
-   * @platform iOS
-   * @default false
-   */
-  enableHighQualityPhotos?: boolean
-  /**
-   * If `true`, show a debug view to display the FPS of the Camera session.
+   * If `true`, show a debug view to display the FPS of the Video Pipeline (Frame Processor).
    * This is useful for debugging your Frame Processor's speed.
    *
    * @default false
@@ -279,6 +302,12 @@ export interface CameraProps extends ViewProps {
    * Called when the camera stopped the session (`isActive={false}`)
    */
   onStopped?: () => void
+  /**
+   * Called just before a photo or snapshot is captured.
+   *
+   * Inside this callback you can play a custom shutter sound or show visual feedback to the user.
+   */
+  onShutter?: (event: OnShutterEvent) => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *

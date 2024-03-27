@@ -85,10 +85,6 @@ export interface CameraDeviceFormat {
    */
   fieldOfView: number
   /**
-   * The maximum zoom factor (e.g. `128`)
-   */
-  maxZoom: number
-  /**
    * Specifies whether this format supports HDR mode for video capture
    */
   supportsVideoHdr: boolean

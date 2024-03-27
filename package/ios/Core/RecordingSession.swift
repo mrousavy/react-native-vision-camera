@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 
 // MARK: - BufferType
@@ -72,6 +73,7 @@ class RecordingSession {
 
   init(url: URL,
        fileType: AVFileType,
+       metadataProvider: MetadataProvider,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
 
@@ -81,6 +83,10 @@ class RecordingSession {
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
+
+    // Assign the metadata item to the asset writer
+    let metadataItems = metadataProvider.createVideoMetadata()
+    assetWriter.metadata.append(contentsOf: metadataItems)
   }
 
   deinit {

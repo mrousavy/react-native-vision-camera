@@ -13,6 +13,7 @@ import Foundation
 enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
+  case location = "location-permission-denied"
 
   var code: String {
     return rawValue
@@ -22,6 +23,8 @@ enum PermissionError: String {
     switch self {
     case .microphone:
       return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
+    case .location:
+      return "The Location permission was denied! If you want to capture photos or videos without location tags, pass `enableLocation={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }
@@ -173,20 +176,26 @@ enum SessionError {
 
 enum CaptureError {
   case recordingInProgress
+  case recordingCanceled
   case noRecordingInProgress
-  case fileError
+  case fileError(cause: Error)
+  case imageDataAccessError
   case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
   case photoNotEnabled
-  case aborted
+  case snapshotFailed
+  case timedOut
   case insufficientStorage
+  case failedWritingMetadata(cause: Error?)
   case unknown(message: String? = nil)
 
   var code: String {
     switch self {
     case .recordingInProgress:
       return "recording-in-progress"
+    case .recordingCanceled:
+      return "recording-canceled"
     case .noRecordingInProgress:
       return "no-recording-in-progress"
     case .fileError:
@@ -197,12 +206,18 @@ enum CaptureError {
       return "create-recorder-error"
     case .videoNotEnabled:
       return "video-not-enabled"
+    case .imageDataAccessError:
+      return "image-data-access-error"
+    case .snapshotFailed:
+      return "snapshot-failed"
+    case .timedOut:
+      return "timed-out"
     case .photoNotEnabled:
       return "photo-not-enabled"
     case .insufficientStorage:
       return "insufficient-storage"
-    case .aborted:
-      return "aborted"
+    case .failedWritingMetadata:
+      return "failed-writing-metadata"
     case .unknown:
       return "unknown"
     }
@@ -212,20 +227,28 @@ enum CaptureError {
     switch self {
     case .recordingInProgress:
       return "There is already an active video recording in progress! Did you call startRecording() twice?"
+    case .recordingCanceled:
+      return "The active recording was canceled."
     case .noRecordingInProgress:
       return "There was no active video recording in progress! Did you call stopRecording() twice?"
-    case .fileError:
-      return "An unexpected File IO error occured!"
+    case let .fileError(cause: cause):
+      return "An unexpected File IO error occurred! Error: \(cause.localizedDescription)"
     case let .createTempFileError(message: message):
       return "Failed to create a temporary file! \(message ?? "(no additional message)")"
     case let .createRecorderError(message: message):
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case .videoNotEnabled:
       return "Video capture is disabled! Pass `video={true}` to enable video recordings."
+    case .snapshotFailed:
+      return "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
-    case .aborted:
-      return "The capture has been stopped before any input data arrived."
+    case .imageDataAccessError:
+      return "An unexpected error occurred while trying to access the image data!"
+    case .timedOut:
+      return "The capture timed out."
+    case let .failedWritingMetadata(cause: cause):
+      return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):

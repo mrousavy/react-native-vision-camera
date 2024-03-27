@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 
 @objc(CameraViewManager)
@@ -67,9 +68,21 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
+  final func cancelRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let component = getCameraView(withTag: node)
+    component.cancelRecording(promise: Promise(resolver: resolve, rejecter: reject))
+  }
+
+  @objc
   final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
+  }
+
+  @objc
+  final func takeSnapshot(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let component = getCameraView(withTag: node)
+    component.takeSnapshot(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
 
   @objc
@@ -96,6 +109,12 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
+  final func getLocationPermissionStatus() -> String {
+    let status = CLLocationManager.authorizationStatus()
+    return status.descriptor
+  }
+
+  @objc
   final func requestCameraPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
     AVCaptureDevice.requestAccess(for: .video) { granted in
       let result: AVAuthorizationStatus = granted ? .authorized : .denied
@@ -108,6 +127,13 @@ final class CameraViewManager: RCTViewManager {
     AVCaptureDevice.requestAccess(for: .audio) { granted in
       let result: AVAuthorizationStatus = granted ? .authorized : .denied
       resolve(result.descriptor)
+    }
+  }
+
+  @objc
+  final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
+    CLLocationManager.requestAccess(for: .whenInUse) { status in
+      resolve(status.descriptor)
     }
   }
 

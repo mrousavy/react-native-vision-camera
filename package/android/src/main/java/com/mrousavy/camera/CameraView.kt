@@ -2,17 +2,15 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
+import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
-import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
-import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -20,10 +18,15 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.PreviewViewType
+import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
+import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.utils.runOnUiThread
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 //
@@ -55,6 +58,7 @@ class CameraView(context: Context) :
   var audio = false
   var enableFrameProcessor = false
   var pixelFormat: PixelFormat = PixelFormat.NATIVE
+  var enableLocation = false
 
   // props that require format reconfiguring
   var format: CameraDeviceFormat? = null
@@ -62,6 +66,7 @@ class CameraView(context: Context) :
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
+  var photoQualityBalance = QualityBalance.BALANCED
   var lowLightBoost = false
   var enableGpuBuffers = false
 
@@ -71,6 +76,11 @@ class CameraView(context: Context) :
   var zoom: Float = 1f // in "factor"
   var exposure: Double = 1.0
   var orientation: Orientation = Orientation.PORTRAIT
+  var androidPreviewViewType: PreviewViewType = PreviewViewType.SURFACE_VIEW
+    set(value) {
+      field = value
+      updatePreviewType()
+    }
   var enableZoomGesture = false
     set(value) {
       field = value
@@ -78,7 +88,7 @@ class CameraView(context: Context) :
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
-      previewView.resizeMode = value
+      previewView.scaleType = value.toScaleType()
       field = value
     }
   var enableFpsGraph = false
@@ -92,28 +102,36 @@ class CameraView(context: Context) :
 
   // private properties
   private var isMounted = false
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
-  internal val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
 
   // session
   internal val cameraSession: CameraSession
-  private val previewView: PreviewView
-  private var currentConfigureCall: Long = System.currentTimeMillis()
   internal var frameProcessor: FrameProcessor? = null
+  internal val previewView: PreviewView
+  private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
   private var fpsGraph: FpsGraphView? = null
 
   init {
-    this.installHierarchyFitter()
     clipToOutline = true
-    cameraSession = CameraSession(context, cameraManager, this)
-    previewView = cameraSession.createPreviewView(context)
-    previewView.layoutParams = LayoutParams(
-      LayoutParams.MATCH_PARENT,
-      LayoutParams.MATCH_PARENT,
-      Gravity.CENTER
-    )
+    cameraSession = CameraSession(context, this)
+    previewView = PreviewView(context).also {
+      it.installHierarchyFitter()
+      it.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
+      it.layoutParams = LayoutParams(
+        LayoutParams.MATCH_PARENT,
+        LayoutParams.MATCH_PARENT,
+        Gravity.CENTER
+      )
+      it.previewStreamState.observe(cameraSession) { state ->
+        when (state) {
+          PreviewView.StreamState.STREAMING -> onStarted()
+          PreviewView.StreamState.IDLE -> onStopped()
+          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
+        }
+      }
+    }
     addView(previewView)
   }
 
@@ -123,12 +141,6 @@ class CameraView(context: Context) :
       isMounted = true
       invokeOnViewReady()
     }
-    update()
-  }
-
-  override fun onDetachedFromWindow() {
-    super.onDetachedFromWindow()
-    update()
   }
 
   fun destroy() {
@@ -140,7 +152,7 @@ class CameraView(context: Context) :
     val now = System.currentTimeMillis()
     currentConfigureCall = now
 
-    coroutineScope.launch {
+    mainCoroutineScope.launch {
       cameraSession.configure { config ->
         if (currentConfigureCall != now) {
           // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
@@ -152,25 +164,28 @@ class CameraView(context: Context) :
         // Input Camera Device
         config.cameraId = cameraId
 
+        // Preview
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
+
         // Photo
         if (photo) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr))
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr, photoQualityBalance))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
 
-        // Video/Frame Processor
+        // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(
-            CameraConfiguration.Video(
-              videoHdr,
-              pixelFormat,
-              enableFrameProcessor,
-              enableGpuBuffers
-            )
-          )
+          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(videoHdr, pixelFormat))
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
+        }
+
+        // Frame Processor
+        if (enableFrameProcessor) {
+          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(Unit))
+        } else {
+          config.frameProcessor = CameraConfiguration.Output.Disabled.create()
         }
 
         // Audio
@@ -179,6 +194,9 @@ class CameraView(context: Context) :
         } else {
           config.audio = CameraConfiguration.Output.Disabled.create()
         }
+
+        // Location
+        config.enableLocation = enableLocation && this@CameraView.isActive
 
         // Code Scanner
         val codeScanner = codeScannerOptions
@@ -198,7 +216,7 @@ class CameraView(context: Context) :
 
         // Side-Props
         config.fps = fps
-        config.enableLowLightBoost = lowLightBoost ?: false
+        config.enableLowLightBoost = lowLightBoost
         config.torch = torch
         config.exposure = exposure
 
@@ -206,7 +224,7 @@ class CameraView(context: Context) :
         config.zoom = zoom
 
         // isActive
-        config.isActive = isActive && isAttachedToWindow
+        config.isActive = this@CameraView.isActive
       }
     }
   }
@@ -244,6 +262,13 @@ class CameraView(context: Context) :
     }
   }
 
+  private fun updatePreviewType() {
+    runOnUiThread {
+      previewView.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
+      update()
+    }
+  }
+
   override fun onFrame(frame: Frame) {
     frameProcessor?.call(frame)
 
@@ -264,6 +289,10 @@ class CameraView(context: Context) :
 
   override fun onStopped() {
     invokeOnStopped()
+  }
+
+  override fun onShutter(type: ShutterType) {
+    invokeOnShutter(type)
   }
 
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {

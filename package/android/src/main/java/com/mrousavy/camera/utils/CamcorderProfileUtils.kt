@@ -24,7 +24,7 @@ class CamcorderProfileUtils {
         else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
       }
 
-    fun findClosestCamcorderProfileQuality(cameraId: String, resolution: Size, allowLargerSize: Boolean): Int {
+    private fun findClosestCamcorderProfileQuality(cameraId: String, resolution: Size, allowLargerSize: Boolean): Int {
       // Iterate through all available CamcorderProfiles and find the one that matches the closest
       val targetResolution = resolution.width * resolution.height
       val cameraIdInt = cameraId.toIntOrNull()

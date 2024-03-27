@@ -10,10 +10,20 @@ export type ConfigProps = {
    */
   enableMicrophonePermission?: boolean
   /**
-   * The text to show in the native dialog when asking for Camera Permissions.
+   * Whether to add Location Permissions to the native manifest or not.
+   * @default false
+   */
+  enableLocationPermission?: boolean
+  /**
+   * The text to show in the native dialog when asking for Microphone Permissions.
    * @default 'Allow $(PRODUCT_NAME) to access your microphone'
    */
   microphonePermissionText?: string
+  /**
+   * The text to show in the native dialog when asking for Location Permissions.
+   * @default 'Allow $(PRODUCT_NAME) to access your location'
+   */
+  locationPermissionText?: string
   /**
    * Whether to enable the Frame Processors runtime, or explicitly disable it.
    * Disabling Frame Processors will make your app smaller as the C++ files will not be compiled.

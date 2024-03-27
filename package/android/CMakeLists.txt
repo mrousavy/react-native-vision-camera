@@ -11,6 +11,10 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+# Enables OpenGL/EGL HardwareBuffer and EGLImageKHR APIs
+add_definitions(-DEGL_EGLEXT_PROTOTYPES)
+add_definitions(-DGL_GLEXT_PROTOTYPES)
+
 if (ENABLE_FRAME_PROCESSORS)
         add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
 else()
@@ -26,10 +30,6 @@ add_library(
         ../cpp/MutableRawBuffer.cpp
         # Java JNI
         src/main/cpp/VisionCamera.cpp
-        src/main/cpp/VideoPipeline.cpp
-        src/main/cpp/PassThroughShader.cpp
-        src/main/cpp/OpenGLContext.cpp
-        src/main/cpp/OpenGLRenderer.cpp
         src/main/cpp/MutableJByteBuffer.cpp
         # Frame Processor
         src/main/cpp/frameprocessor/FrameHostObject.cpp
@@ -65,8 +65,6 @@ target_link_libraries(
         ReactAndroid::jsi                   # <-- RN: JSI
         ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
         fbjni::fbjni                        # <-- fbjni
-        GLESv2                              # <-- OpenGL (for VideoPipeline)
-        EGL                                 # <-- OpenGL (EGL) (for VideoPipeline)
 )
 
 # Optionally also add Frame Processors here

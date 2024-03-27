@@ -16,9 +16,6 @@ import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.types.*
 import com.mrousavy.camera.utils.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.*
 
 @ReactModule(name = CameraViewModule.TAG)
@@ -40,36 +37,29 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
+  private val backgroundCoroutineScope = CoroutineScope(CameraQueues.cameraExecutor.asCoroutineDispatcher())
 
   override fun invalidate() {
     super.invalidate()
-    if (coroutineScope.isActive) {
-      coroutineScope.cancel("CameraViewModule has been destroyed.")
+    if (backgroundCoroutineScope.isActive) {
+      backgroundCoroutineScope.cancel("CameraViewModule has been destroyed.")
     }
   }
 
   override fun getName(): String = TAG
 
   private suspend fun findCameraView(viewId: Int): CameraView =
-    suspendCoroutine { continuation ->
-      UiThreadUtil.runOnUiThread {
-        Log.d(TAG, "Finding view $viewId...")
-        val view = if (reactApplicationContext != null) {
-          UIManagerHelper.getUIManager(
-            reactApplicationContext,
-            viewId
-          )?.resolveView(viewId) as CameraView?
-        } else {
-          null
-        }
-        Log.d(TAG, if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
-        if (view != null) {
-          continuation.resume(view)
-        } else {
-          continuation.resumeWithException(ViewNotFoundError(viewId))
-        }
-      }
+    runOnUiThreadAndWait {
+      Log.d(TAG, "Finding view $viewId...")
+      val context = reactApplicationContext ?: throw Error("React Context was null!")
+
+      val view = UIManagerHelper.getUIManager(
+        context,
+        viewId
+      )?.resolveView(viewId) as CameraView?
+      Log.d(TAG, if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+      if (view == null) throw ViewNotFoundError(viewId)
+      return@runOnUiThreadAndWait view
     }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
@@ -85,7 +75,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.takePhoto(options)
@@ -93,10 +83,26 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @ReactMethod
+  fun takeSnapshot(viewTag: Int, jsOptions: ReadableMap, promise: Promise) {
+    backgroundCoroutineScope.launch {
+      val view = findCameraView(viewTag)
+      runOnUiThread {
+        try {
+          val options = SnapshotOptions.fromJSValue(jsOptions)
+          val result = view.takeSnapshot(options)
+          promise.resolve(result)
+        } catch (e: Throwable) {
+          promise.reject(e)
+        }
+      }
+    }
+  }
+
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
   fun startRecording(viewTag: Int, jsOptions: ReadableMap, onRecordCallback: Callback) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
         val options = RecordVideoOptions(jsOptions)
@@ -114,7 +120,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun pauseRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.pauseRecording()
@@ -125,7 +131,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun resumeRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.resumeRecording()
@@ -136,7 +142,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.stopRecording()
@@ -146,8 +152,19 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
+  fun cancelRecording(viewTag: Int, promise: Promise) {
+    backgroundCoroutineScope.launch {
+      val view = findCameraView(viewTag)
+      withPromise(promise) {
+        view.cancelRecording()
+        return@withPromise null
+      }
+    }
+  }
+
+  @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.focus(point)
@@ -161,63 +178,69 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun getCameraPermissionStatus(): String {
-    val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
+  private fun getPermission(permission: String): PermissionStatus {
+    val status = ContextCompat.checkSelfPermission(reactApplicationContext, permission)
     var parsed = PermissionStatus.fromPermissionStatus(status)
-    if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.CAMERA)) {
+    if (parsed == PermissionStatus.DENIED && canRequestPermission(permission)) {
       parsed = PermissionStatus.NOT_DETERMINED
     }
-    return parsed.unionValue
+    return parsed
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getCameraPermissionStatus(): String {
+    val status = getPermission(Manifest.permission.CAMERA)
+    return status.unionValue
   }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun getMicrophonePermissionStatus(): String {
-    val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
-    var parsed = PermissionStatus.fromPermissionStatus(status)
-    if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.RECORD_AUDIO)) {
-      parsed = PermissionStatus.NOT_DETERMINED
+    val status = getPermission(Manifest.permission.RECORD_AUDIO)
+    return status.unionValue
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getLocationPermissionStatus(): String {
+    val fineStatus = getPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    if (fineStatus == PermissionStatus.GRANTED) {
+      return fineStatus.unionValue
     }
-    return parsed.unionValue
+
+    val coarseStatus = getPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    return coarseStatus.unionValue
+  }
+
+  private fun requestPermission(permission: String, promise: Promise) {
+    val activity = reactApplicationContext.currentActivity
+    if (activity is PermissionAwareActivity) {
+      val currentRequestCode = sharedRequestCode++
+      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
+        if (requestCode == currentRequestCode) {
+          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
+          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
+          promise.resolve(parsed.unionValue)
+          return@PermissionListener true
+        }
+        return@PermissionListener false
+      }
+      activity.requestPermissions(arrayOf(permission), currentRequestCode, listener)
+    } else {
+      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
+    }
   }
 
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
-    val activity = reactApplicationContext.currentActivity
-    if (activity is PermissionAwareActivity) {
-      val currentRequestCode = sharedRequestCode++
-      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
-        if (requestCode == currentRequestCode) {
-          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
-          promise.resolve(parsed.unionValue)
-          return@PermissionListener true
-        }
-        return@PermissionListener false
-      }
-      activity.requestPermissions(arrayOf(Manifest.permission.CAMERA), currentRequestCode, listener)
-    } else {
-      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
-    }
+    requestPermission(Manifest.permission.CAMERA, promise)
   }
 
   @ReactMethod
   fun requestMicrophonePermission(promise: Promise) {
-    val activity = reactApplicationContext.currentActivity
-    if (activity is PermissionAwareActivity) {
-      val currentRequestCode = sharedRequestCode++
-      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
-        if (requestCode == currentRequestCode) {
-          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
-          promise.resolve(parsed.unionValue)
-          return@PermissionListener true
-        }
-        return@PermissionListener false
-      }
-      activity.requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), currentRequestCode, listener)
-    } else {
-      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
-    }
+    requestPermission(Manifest.permission.RECORD_AUDIO, promise)
+  }
+
+  @ReactMethod
+  fun requestLocationPermission(promise: Promise) {
+    requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, promise)
   }
 }

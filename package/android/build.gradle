@@ -108,9 +108,9 @@ android {
   }
 
   defaultConfig {
-    minSdkVersion safeExtGet("minSdkVersion", 26)
-    compileSdkVersion safeExtGet("compileSdkVersion", 33)
-    targetSdkVersion safeExtGet("targetSdkVersion", 33)
+    minSdkVersion safeExtGet("minSdkVersion", 21)
+    compileSdkVersion safeExtGet("compileSdkVersion", 34)
+    targetSdkVersion safeExtGet("targetSdkVersion", 34)
     versionCode 1
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
@@ -167,6 +167,17 @@ android {
 dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-android:+"
+
+  // CameraX dependency
+  def camerax_version = "1.4.0-alpha04"
+  implementation "androidx.camera:camera-core:${camerax_version}"
+  implementation "androidx.camera:camera-camera2:${camerax_version}"
+  implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+  implementation "androidx.camera:camera-video:${camerax_version}"
+  implementation "androidx.camera:camera-view:${camerax_version}"
+  implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+  // Some Coroutines extension functions
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
   if (enableCodeScanner) {

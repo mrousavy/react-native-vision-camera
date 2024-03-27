@@ -1,8 +1,12 @@
 package com.mrousavy.camera.types
 
 import android.util.Size
+import androidx.camera.video.FallbackStrategy
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
+import kotlin.math.abs
 
 data class CameraDeviceFormat(
   val videoWidth: Int,
@@ -14,7 +18,6 @@ data class CameraDeviceFormat(
   val minISO: Double,
   val maxISO: Double,
   val fieldOfView: Double,
-  val maxZoom: Double,
   val videoStabilizationModes: List<VideoStabilizationMode>,
   val autoFocusSystem: AutoFocusSystem,
   val supportsVideoHdr: Boolean,
@@ -26,6 +29,23 @@ data class CameraDeviceFormat(
     get() = Size(photoWidth, photoHeight)
   val videoSize: Size
     get() = Size(videoWidth, videoHeight)
+
+  private val qualitySizes = mapOf<Quality, Int>(
+    Quality.SD to 720 * 480,
+    Quality.HD to 1280 * 720,
+    Quality.FHD to 1920 * 1080,
+    Quality.UHD to 3840 * 2160
+  )
+
+  private fun getQualitySelector(size: Size): QualitySelector {
+    val targetSize = size.width * size.height
+    val entry = qualitySizes.minBy { abs(targetSize - it.value) }
+    val targetQuality = entry.key
+    return QualitySelector.from(targetQuality, FallbackStrategy.higherQualityOrLowerThan(targetQuality))
+  }
+
+  val videoQualitySelector: QualitySelector
+    get() = getQualitySelector(videoSize)
 
   companion object {
     fun fromJSValue(value: ReadableMap): CameraDeviceFormat {
@@ -47,7 +67,6 @@ data class CameraDeviceFormat(
         value.getDouble("minISO"),
         value.getDouble("maxISO"),
         value.getDouble("fieldOfView"),
-        value.getDouble("maxZoom"),
         videoStabilizationModes,
         autoFocusSystem,
         value.getBoolean("supportsVideoHdr"),
