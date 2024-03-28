@@ -8,6 +8,7 @@
 
 import AVFoundation
 import Foundation
+import UIKit
 
 /**
  A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
@@ -61,6 +62,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(deviceOrientationChanged),
+                                           name: UIDevice.orientationDidChangeNotification,
+                                           object: nil)
   }
 
   deinit {
@@ -73,6 +78,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
+    NotificationCenter.default.removeObserver(self,
+                                              name: UIDevice.orientationDidChangeNotification,
+                                              object: nil)
   }
 
   /**
@@ -233,6 +241,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     // Start/Stop session
     if configuration.isActive {
       captureSession.startRunning()
+      updateCaptureSessionInputOrientation()
       delegate?.onCameraStarted()
     } else {
       captureSession.stopRunning()
@@ -287,6 +296,36 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       // restart capture session after an error occured
       CameraQueues.cameraQueue.async {
         self.captureSession.startRunning()
+        self.updateCaptureSessionInputOrientation()
+      }
+    }
+  }
+
+  @objc
+  func deviceOrientationChanged(notification _: Notification) {
+    updateCaptureSessionInputOrientation()
+  }
+
+  func updateCaptureSessionInputOrientation() {
+    // Lock the camera session, to be sure that it doesn't conflict with other session changes.
+    CameraQueues.cameraQueue.async {
+      // Because statusBarOrientation requires it, as it's an UI operation.
+      DispatchQueue.main.async {
+        let interfaceOrientation = UIApplication.shared.statusBarOrientation // Set up orientation for all connections.
+        for connection in self.captureSession.connections {
+          switch interfaceOrientation {
+          case .portrait:
+            connection.videoOrientation = .portrait
+          case .landscapeLeft:
+            connection.videoOrientation = .landscapeLeft
+          case .landscapeRight:
+            connection.videoOrientation = .landscapeRight
+          case .portraitUpsideDown:
+            connection.videoOrientation = .portraitUpsideDown
+          case .unknown:
+            connection.videoOrientation = .portrait
+          }
+        }
       }
     }
   }
