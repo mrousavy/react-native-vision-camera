@@ -201,8 +201,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         throw CaptureAbortedError(false)
       }
 
+      // 2. Stop the current repeating request to make room for the single photo request
+      session.stopRepeating()
       try {
-        // 2. Once precapture AF/AE/AWB successfully locked, capture the actual photo
+        // 3. Once precapture AF/AE/AWB successfully locked, capture the actual photo
         val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
         if (needsFlash) {
           singleRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
@@ -210,7 +212,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         }
         return session.capture(singleRequest.build(), enableShutterSound)
       } finally {
-        // 3. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
+        // 4. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
         val idleRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
         session.setRepeatingRequest(idleRequest.build(), null, null)
       }
