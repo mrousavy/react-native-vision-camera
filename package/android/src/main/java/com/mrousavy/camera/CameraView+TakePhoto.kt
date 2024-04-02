@@ -19,7 +19,6 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
 
   val flash = options["flash"] as? String ?: "off"
   val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
-  val enablePrecapture = options["enablePrecapture"] as? Boolean ?: false
 
   val photo = cameraSession.takePhoto(
     Flash.fromUnionValue(flash),
