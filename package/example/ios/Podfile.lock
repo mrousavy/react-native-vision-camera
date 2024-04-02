@@ -462,7 +462,7 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - SocketRocket (0.6.1)
-  - VisionCamera (4.0.0-beta.9):
+  - VisionCamera (4.0.0-beta.11):
     - React
     - React-callinvoker
     - React-Core
@@ -692,7 +692,7 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 65334558bd08752e6a2512ba73bf125696bfad0f
+  VisionCamera: f797cdf867b24774ffafb637e4c1e1c5a386e2fc
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
 PODFILE CHECKSUM: 27f53791141a3303d814e09b55770336416ff4eb

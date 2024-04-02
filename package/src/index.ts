@@ -12,6 +12,8 @@ export * from './Point'
 export * from './VideoFile'
 export * from './CodeScanner'
 
+export * from './AudioModule'
+
 export * from './devices/getCameraFormat'
 export * from './devices/getCameraDevice'
 export * from './devices/Templates'

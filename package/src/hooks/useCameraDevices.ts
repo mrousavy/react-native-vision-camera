@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CameraDevice } from '../CameraDevice'
-import { CameraDevices } from '../CameraDevices'
+import { CameraDevices } from '../CameraDevicesModule'
 
 /**
  * Get all available Camera Devices this phone has.
