@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -12,6 +13,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
@@ -96,6 +98,7 @@ class CameraSession(private val context: Context, private val callback: Callback
   private val lifecycleRegistry = LifecycleRegistry(this)
   private var recording: Recording? = null
   private var isRecordingCanceled = false
+  private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
@@ -481,8 +484,9 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     photoOutput.flashMode = flash.toFlashMode()
     photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
+    val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
 
-    val photoFile = photoOutput.takePicture(context, enableShutterSound, metadataProvider, callback, CameraQueues.cameraExecutor)
+    val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
     val isMirrored = photoFile.metadata.isReversedHorizontal
 
     val bitmapOptions = BitmapFactory.Options().also {
@@ -494,6 +498,20 @@ class CameraSession(private val context: Context, private val callback: Callback
     val orientation = outputOrientation
 
     return Photo(photoFile.uri.path, width, height, orientation, isMirrored)
+  }
+
+  private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
+    if (CameraInfo.mustPlayShutterSound()) {
+      Log.i(TAG, "This phone must play a shutter sound due to regional restrictions, enabling shutter sound...")
+      return true
+    }
+
+    if (enable && audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
+      Log.i(TAG, "Ringer mode is silent (${audioManager.ringerMode}), disabling shutter sound...")
+      return false
+    }
+
+    return enable
   }
 
   @OptIn(ExperimentalPersistentRecording::class)
