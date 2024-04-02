@@ -9,6 +9,7 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.uimanager.common.UIManagerType
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.ViewNotFoundError
@@ -55,10 +56,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     suspendCoroutine { continuation ->
       UiThreadUtil.runOnUiThread {
         Log.d(TAG, "Finding view $viewId...")
+        val uiManagerType = if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) UIManagerType.FABRIC else UIManagerType.DEFAULT
         val view = if (reactApplicationContext != null) {
           UIManagerHelper.getUIManager(
             reactApplicationContext,
-            viewId
+            uiManagerType
           )?.resolveView(viewId) as CameraView?
         } else {
           null
