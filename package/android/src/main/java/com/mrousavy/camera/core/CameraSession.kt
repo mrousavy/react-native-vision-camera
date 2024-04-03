@@ -13,7 +13,6 @@ import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
@@ -501,11 +500,6 @@ class CameraSession(private val context: Context, private val callback: Callback
   }
 
   private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
-    if (CameraInfo.mustPlayShutterSound()) {
-      Log.i(TAG, "This phone must play a shutter sound due to regional restrictions, enabling shutter sound...")
-      return true
-    }
-
     if (enable && audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
       Log.i(TAG, "Ringer mode is silent (${audioManager.ringerMode}), disabling shutter sound...")
       return false
