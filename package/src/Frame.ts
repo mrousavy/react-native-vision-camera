@@ -118,6 +118,11 @@ export interface Frame {
   toSkImage(): SkImage
 }
 
+interface PlatformBuffer {
+  pointer: number
+  delete: () => void
+}
+
 /** @internal */
 export interface FrameInternal extends Frame {
   /**
@@ -134,4 +139,13 @@ export interface FrameInternal extends Frame {
    * @internal
    */
   decrementRefCount(): void
+  /**
+   * Get the native platform buffer of the Frame.
+   * - On Android, this is a `AHardwareBuffer*`
+   * - On iOS, this is a `CMSampleBufferRef`
+   *
+   * This is a private API, do not use this.
+   * @internal
+   */
+  getPlatformBuffer(): PlatformBuffer
 }
