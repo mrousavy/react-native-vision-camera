@@ -87,8 +87,22 @@ export interface Frame {
   toString(): string
 }
 
+/**
+ * A managed memory pointer to a native platform buffer
+ */
 interface PlatformBuffer {
-  pointer: number
+  /**
+   * A uint64_t/uintptr_t to the native platform buffer.
+   * - On iOS; this points to a `CMSampleBufferRef`
+   * - On Android; this points to a `AHardwareBuffer*`
+   */
+  pointer: bigint
+  /**
+   * Delete this reference to the platform buffer again.
+   * There might still be other references, so it does not guarantee buffer deletion.
+   *
+   * This must always be called, otherwise the pipeline will stall.
+   */
   delete(): void
 }
 

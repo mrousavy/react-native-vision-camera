@@ -155,20 +155,23 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Conversion methods
   if (name == "getPlatformBuffer") {
     auto getPlatformBuffer = JSI_FUNC {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+      
+      // Box-cast to uintptr (just 64-bit address)
       CMSampleBufferRef buffer = this->frame.buffer;
-      intptr_t pointer = reinterpret_cast<intptr_t>(&buffer);
-      _refCount++;
+      uintptr_t pointer = reinterpret_cast<uintptr_t>(&buffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
-        _refCount--;
+        // no-op
         return jsi::Value::undefined();
       };
 
       jsi::Object result(runtime);
-      result.setProperty(runtime, "pointer", jsi::Value(pointer));
+      result.setProperty(runtime, "pointer", jsi::BigInt::fromUint64(runtime, pointer));
       result.setProperty(runtime, "delete",
                          jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
-      return buffer;
+      return result;
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getPlatformBuffer"), 0, getPlatformBuffer);
   }

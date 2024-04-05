@@ -2,7 +2,7 @@ import { DependencyList, useMemo } from 'react'
 import type { Frame, FrameInternal } from '../Frame'
 import { FrameProcessor } from '../CameraProps'
 import { VisionCameraProxy } from '../FrameProcessorPlugins'
-import { AlphaType, ColorType, ImageInfo, Skia, SkImage, SkSurface } from '@shopify/react-native-skia'
+import { Skia, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { useSharedValue } from 'react-native-worklets-core'
 
 /**
@@ -86,13 +86,7 @@ export function useSkiaFrameProcessor(
         }
 
         const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-        const imageInfo: ImageInfo = {
-          width: frame.width,
-          height: frame.height,
-          alphaType: AlphaType.Opaque,
-          colorType: ColorType.RGBA_8888,
-        }
-        const image = Skia.Image.MakeImageFromPlatformBuffer(imageInfo, platformBuffer.pointer)
+        const image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
         if (image == null) {
           // something went wrong while converting
           throw new Error('Failed to convert Frame to SkImage!')
@@ -105,6 +99,8 @@ export function useSkiaFrameProcessor(
         frameProcessor(frame, { surface: surface.value, frame: image })
         const end2 = performance.now()
         console.log(`Skia render took ${(end2 - start2).toFixed(2)}ms!`)
+
+        platformBuffer.delete()
       }, 'frame-processor')
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
