@@ -1,6 +1,5 @@
 import type { Orientation } from './Orientation'
 import { PixelFormat } from './PixelFormat'
-import { SkImage } from '@shopify/react-native-skia'
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
@@ -86,41 +85,11 @@ export interface Frame {
    * ```
    */
   toString(): string
-  /**
-   * Convert this Frame to a Skia Image.
-   *
-   * The resulting {@linkcode SkImage} can be rendered to a Skia context inside the Frame Processor
-   * to perform drawing operations.
-   *
-   * @throws if Skia is not properly installed.
-   *
-   * @example
-   * ```ts
-   * const surface = useSharedValue(undefined)
-   * const invertColorFilter = ...
-   * const frameProcessor = useFrameProcessor((frame) => {
-   *   'worklet'
-   *
-   *   // 1. Convert Frame to a drawable Skia Image
-   *   const image = frame.toSkImage()
-   *   if (surface.value == null) {
-   *     // 2. Create Skia Surface (with size of the Frame)
-   *     surface.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
-   *   }
-   *   // 3. Draw everything, and use an invert colors filter!
-   *   const canvas = surface.value.getCanvas()
-   *   canvas.drawImage(image, 0, 0, invertColorFilter)
-   *   // 4. Flush to perform draw
-   *   surface.value.flush()
-   * }, [invertColorFilter, surface])
-   * ```
-   */
-  toSkImage(): SkImage
 }
 
 interface PlatformBuffer {
   pointer: number
-  delete: () => void
+  delete(): void
 }
 
 /** @internal */
