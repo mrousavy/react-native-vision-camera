@@ -160,7 +160,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       
       // Box-cast to uintptr (just 64-bit address)
       CMSampleBufferRef buffer = this->frame.buffer;
-      uintptr_t pointer = reinterpret_cast<uintptr_t>(&buffer);
+      uintptr_t pointer = reinterpret_cast<uintptr_t>(buffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
         // no-op
