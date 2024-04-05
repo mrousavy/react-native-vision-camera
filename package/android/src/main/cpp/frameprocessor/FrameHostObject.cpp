@@ -127,11 +127,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         AHardwareBuffer_release(hardwareBuffer);
         return jsi::Value::undefined();
       };
+      jsi::Function deleteFuncValue = jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc);
 
       jsi::Object buffer(runtime);
-      buffer.setProperty(runtime, "pointer", jsi::Value(pointer));
-      buffer.setProperty(runtime, "delete",
-                         jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
+      buffer.setProperty(runtime, "pointer", jsi::Value(static_cast<double>(pointer)));
+      buffer.setProperty(runtime, "delete", deleteFuncValue);
       return buffer;
 #else
       throw jsi::JSError(runtime, "Cannot get Platform Buffer - getPlatformBuffer() requires HardwareBuffers, which are "
