@@ -103,10 +103,10 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
+    "@shopify/react-native-skia": "*",
     "react": "*",
     "react-native": "*",
-    "react-native-worklets-core": "*",
-    "@shopify/react-native-skia": "*"
+    "react-native-worklets-core": "*"
   },
   "peerDependenciesMeta": {
     "react-native-worklets-core": {

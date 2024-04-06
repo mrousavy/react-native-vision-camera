@@ -11,11 +11,21 @@ import {
   useFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
+  useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
-import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
+import Reanimated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedGestureHandler,
+  useAnimatedProps,
+  useAnimatedReaction,
+  useDerivedValue,
+  useFrameCallback,
+  useSharedValue,
+} from 'react-native-reanimated'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
@@ -29,6 +39,8 @@ import { useIsFocused } from '@react-navigation/core'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
+import { Skia, SkImage, useCanvasRef, DrawingNodeProps, Canvas, Image, Rect } from '@shopify/react-native-skia'
+import { useSharedValue as useSharedValueWorklets } from 'react-native-worklets-core'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -45,6 +57,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const location = useLocationPermission()
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
+  const canvasRef = useCanvasRef()
 
   // check if camera page is active
   const isFocussed = useIsFocused()
@@ -178,13 +191,40 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useFrameProcessor((frame) => {
+  const offscreenResult = useSharedValueWorklets<SkImage | null>(null)
+  const frameProcessor = useSkiaFrameProcessor((frame, skia) => {
     'worklet'
 
-    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-    examplePlugin(frame)
-    exampleKotlinSwiftPlugin(frame)
+    console.log(`Beginning render... (${frame.width}x${frame.height})`)
+
+    const canvas = skia.surface.getCanvas()
+    const rect = Skia.XYWHRect(frame.width * 0.2, frame.height * 0.5, frame.width * 0.3, frame.width * 0.3)
+    const paint = Skia.Paint()
+    const color = Skia.Color('red')
+    paint.setColor(color)
+    canvas.drawRect(rect, paint)
+
+    canvas.drawImage(skia.frame, 0, 0)
+
+    skia.surface.flush()
+
+    offscreenResult.value?.dispose()
+    const snapshot = skia.surface.makeImageSnapshot()
+    offscreenResult.value = snapshot.makeNonTextureImage()
+    snapshot.dispose()
+
+    console.log('Finished render!')
   }, [])
+
+  const lastRenderedFrame = useSharedValue<SkImage | null>(null)
+  const currentRenderedFrame = useSharedValue<SkImage | null>(null)
+  useFrameCallback(() => {
+    'worklet'
+    console.log('----> UI update!')
+    lastRenderedFrame.value = currentRenderedFrame.value
+    lastRenderedFrame.value?.dispose()
+    currentRenderedFrame.value = offscreenResult.value
+  }, true)
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
@@ -193,10 +233,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     <View style={styles.container}>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
-          <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
+          <Reanimated.View onTouchEnd={onFocusTap} style={[StyleSheet.absoluteFill, { marginTop: 150 }]}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
-                style={StyleSheet.absoluteFill}
+                style={{ borderWidth: 1, borderColor: 'green', position: 'absolute', width: 170, height: 170 }}
                 device={device}
                 isActive={isActive}
                 ref={camera}
@@ -207,24 +247,31 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 format={format}
                 fps={fps}
                 photoHdr={photoHdr}
-                videoHdr={videoHdr}
                 photoQualityBalance="quality"
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
-                enableFpsGraph={true}
+                enableFpsGraph={false}
                 orientation="portrait"
                 photo={true}
                 video={true}
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
                 frameProcessor={frameProcessor}
+                pixelFormat="rgb"
               />
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
       )}
+
+      <Canvas
+        style={{ borderWidth: 1, borderColor: 'red', position: 'absolute', left: 170, width: 170, height: 170, marginTop: 150 }}
+        ref={canvasRef}
+        mode="default">
+        <Image fit="cover" width={170} height={170} x={0} y={0} image={currentRenderedFrame} />
+      </Canvas>
 
       <CaptureButton
         style={styles.captureButton}
