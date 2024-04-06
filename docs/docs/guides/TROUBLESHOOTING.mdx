@@ -61,7 +61,7 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    ```tsx
    <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
    ```
-5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `id` and `hardwareLevel`.
    ```tsx
    const devices = Camera.getAvailableCameraDevices()
    console.log(JSON.stringify(d, null, 2))
@@ -116,7 +116,7 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    ```tsx
    <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
    ```
-6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `id` and `hardwareLevel`.
    ```tsx
    const devices = Camera.getAvailableCameraDevices()
    console.log(JSON.stringify(d, null, 2))

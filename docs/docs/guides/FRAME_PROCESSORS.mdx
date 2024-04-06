@@ -245,7 +245,7 @@ Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugi
 When running frame processors, it is often important to choose an appropriate [format](/docs/guides/formats). Here are some general tips to consider:
 
 * If you are running heavy AI/ML calculations in your frame processor, make sure to [select a format](/docs/guides/formats) that has a lower resolution to optimize it's performance. You can also resize the Frame on-demand.
-* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformats). Some plugins (like Tensorflow Lite Models) don't work with `yuv`, so use a [`pixelFormat`](/docs/api/interfaces/CameraProps#pixelformat) of `rgb` instead.
+* Sometimes a frame processor plugin only works with specific [pixel format](/docs/guides/pixel-formats). Some plugins (like Tensorflow Lite Models) don't work with `yuv`, so use a [`pixelFormat`](/docs/api/interfaces/CameraProps#pixelformat) of `rgb` instead.
 * Some Frame Processor plugins don't work with HDR formats. In this case you need to disable [`videoHdr`](/docs/api/interfaces/CameraProps#videohdr).
 
 ## Benchmarks
