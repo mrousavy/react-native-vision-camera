@@ -191,7 +191,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const offscreenResult = useSharedValueWorklets<SkImage | null>(null)
+  const offscreenTextureQueue = useSharedValueWorklets<SkImage[]>([])
   const frameProcessor = useSkiaFrameProcessor((frame, skia) => {
     'worklet'
 
@@ -208,10 +208,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     skia.surface.flush()
 
-    offscreenResult.value?.dispose()
+    while (offscreenTextureQueue.value.length > 0) {
+      // close all old textures, pop() is atomically and therefore thread-safe.
+      const texture = offscreenTextureQueue.value.pop()
+      if (texture == null) break
+      texture.dispose()
+    }
+    // convert the current canvas result to an SkImage
     const snapshot = skia.surface.makeImageSnapshot()
-    offscreenResult.value = snapshot.makeNonTextureImage()
-    snapshot.dispose()
+    // copy the SkImage from the GPU to the CPU, since we will render it later on
+    // another thread which doesn't have the same GPU memory as this thread.
+    const copy = snapshot.makeNonTextureImage()
+    // add it atomically to the textures array
+    offscreenTextureQueue.value.push(copy)
+    if (snapshot !== copy) {
+      // dispose the GPU only image
+      snapshot.dispose()
+    }
   }, [])
 
   const currentRenderedFrame = useSharedValue<SkImage | null>(null)
@@ -219,7 +232,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     'worklet'
     console.log('----> UI update!')
 
-    if (offscreenResult.value == null) {
+    // atomically pop() the latest rendered frame/texture from our queue
+    const result = offscreenTextureQueue.value.pop()
+    if (result == null) {
       // we don't have a new Frame from the Camera yet, skip render.
       return
     }
@@ -227,9 +242,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     // dispose the last rendered frame
     currentRenderedFrame.value?.dispose()
 
-    // copy over the offscreenResult as a new frame, and unset it so it's ready for a new value
-    currentRenderedFrame.value = offscreenResult.value
-    offscreenResult.value = null
+    // set a new one which will be rendered then
+    currentRenderedFrame.value = result
   }, true)
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
