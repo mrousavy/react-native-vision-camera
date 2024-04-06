@@ -74,8 +74,6 @@ export function useSkiaFrameProcessor(
       return createFrameProcessor((frame) => {
         'worklet'
 
-        const start1 = performance.now()
-
         if (surface.value == null) {
           // create a new surface with the size of the Frame
           surface.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
@@ -92,13 +90,7 @@ export function useSkiaFrameProcessor(
           throw new Error('Failed to convert Frame to SkImage!')
         }
 
-        const end1 = performance.now()
-        console.log(`Skia prepare took ${(end1 - start1).toFixed(2)}ms!`)
-
-        const start2 = performance.now()
         frameProcessor(frame, { surface: surface.value, frame: image })
-        const end2 = performance.now()
-        console.log(`Skia render took ${(end2 - start2).toFixed(2)}ms!`)
 
         platformBuffer.delete()
       }, 'frame-processor')

@@ -195,7 +195,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useSkiaFrameProcessor((frame, skia) => {
     'worklet'
 
-    console.log(`Beginning render... (${frame.width}x${frame.height})`)
+    console.log(`Skia update... (${frame.width}x${frame.height})`)
 
     const canvas = skia.surface.getCanvas()
     const rect = Skia.XYWHRect(frame.width * 0.2, frame.height * 0.5, frame.width * 0.3, frame.width * 0.3)
@@ -212,18 +212,24 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     const snapshot = skia.surface.makeImageSnapshot()
     offscreenResult.value = snapshot.makeNonTextureImage()
     snapshot.dispose()
-
-    console.log('Finished render!')
   }, [])
 
-  const lastRenderedFrame = useSharedValue<SkImage | null>(null)
   const currentRenderedFrame = useSharedValue<SkImage | null>(null)
   useFrameCallback(() => {
     'worklet'
     console.log('----> UI update!')
-    lastRenderedFrame.value = currentRenderedFrame.value
-    lastRenderedFrame.value?.dispose()
+
+    if (offscreenResult.value == null) {
+      // we don't have a new Frame from the Camera yet, skip render.
+      return
+    }
+
+    // dispose the last rendered frame
+    currentRenderedFrame.value?.dispose()
+
+    // copy over the offscreenResult as a new frame, and unset it so it's ready for a new value
     currentRenderedFrame.value = offscreenResult.value
+    offscreenResult.value = null
   }, true)
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
