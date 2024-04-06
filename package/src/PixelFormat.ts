@@ -7,8 +7,7 @@
  * Most ML models operate in either `yuv` (recommended) or `rgb`.
  *
  * - `yuv`: Frame is in YUV pixel-format (Y'CbCr 4:2:0 or NV21, 8-bit)
- * - `rgb`: Frame is in RGB pixel-format (RGB or RGBA, 8-bit)
- * - `native`: Frame is in the Camera's native Hardware Buffer format (PRIVATE). This is the most efficient Format.
+ * - `rgb`: Frame is in RGB pixel-format (RGBA or BGRA, 8-bit)
  * - `unknown`: Frame has unknown/unsupported pixel-format.
  */
-export type PixelFormat = 'yuv' | 'rgb' | 'native' | 'unknown'
+export type PixelFormat = 'yuv' | 'rgb' | 'unknown'

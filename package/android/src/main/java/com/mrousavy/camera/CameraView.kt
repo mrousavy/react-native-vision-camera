@@ -57,7 +57,7 @@ class CameraView(context: Context) :
   var video = false
   var audio = false
   var enableFrameProcessor = false
-  var pixelFormat: PixelFormat = PixelFormat.NATIVE
+  var pixelFormat: PixelFormat = PixelFormat.YUV
   var enableLocation = false
 
   // props that require format reconfiguring
@@ -176,14 +176,14 @@ class CameraView(context: Context) :
 
         // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(videoHdr, pixelFormat))
+          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(videoHdr))
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
         }
 
         // Frame Processor
         if (enableFrameProcessor) {
-          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(Unit))
+          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(pixelFormat))
         } else {
           config.frameProcessor = CameraConfiguration.Output.Disabled.create()
         }

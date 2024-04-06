@@ -67,26 +67,18 @@ export interface CameraProps extends ViewProps {
    */
   audio?: boolean
   /**
-   * Specifies the pixel format for the video pipeline.
+   * Specifies the pixel format of Frames streamed from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors).
    *
-   * Make sure the given {@linkcode format} supports the given {@linkcode pixelFormat}.
-   *
-   * Affects:
-   * * {@linkcode frameProcessor}: The format of Frames from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors).
-   * While `'native'` and `'yuv'` are the most efficient formats, some ML models (such as TensorFlow Face Detection Models) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
-   * * {@linkcode video}: The format of Frames streamed in the Video Pipeline. The format `'native'` is most efficient here.
+   * While `'yuv'` is the most efficient format, some ML models (such as TensorFlow Face Detection Models) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
    *
    * The following values are supported:
    *
-   * - `native`: The hardware native GPU buffer format. This is the most efficient format. (`PRIVATE` on Android, sometimes YUV on iOS)
-   * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
-   * - `rgb`: The RGB (RGB, RGBA or ABGRA, 8-bit) format. This is least efficient and requires explicit conversion.
+   * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the most efficient format.
+   * - `rgb`: The RGB (RGBA or BGRA, 8-bit) format. This is less efficient format and sometimes requires explicit conversion.
    *
-   * @default
-   * - Without a Frame Processor: `native`
-   * - With a Frame Processor: `yuv`
+   * @default 'yuv'
    */
-  pixelFormat?: 'native' | 'yuv' | 'rgb'
+  pixelFormat?: 'yuv' | 'rgb'
   /**
    * Enables location streaming to add GPS EXIF tags to captured photos and videos.
    *
@@ -147,7 +139,6 @@ export interface CameraProps extends ViewProps {
    * - {@linkcode fps}: `format.minFps`...`format.maxFps`
    * - {@linkcode videoHdr}: `format.supportsVideoHdr`
    * - {@linkcode photoHdr}: `format.supportsPhotoHdr`
-   * - {@linkcode pixelFormat}: `format.pixelFormats``
    * - {@linkcode enableDepthData}: `format.supportsDepthCapture``
    * - {@linkcode videoStabilizationMode}: `format.videoStabilizationModes``
    *

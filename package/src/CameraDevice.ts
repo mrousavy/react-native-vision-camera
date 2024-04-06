@@ -1,5 +1,4 @@
 import { Orientation } from './Orientation'
-import type { PixelFormat } from './PixelFormat'
 
 /**
  * Represents the camera device position.
@@ -53,7 +52,6 @@ export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinemat
  * - Photo Resolution (`photoWidth`/`photoHeight`)
  * - Possible FPS ranges (`fps`)
  * - Video Stabilization Modes (`videoStabilizationModes`)
- * - Pixel Formats (`pixelFormats`)
  */
 export interface CameraDeviceFormat {
   /**
@@ -112,13 +110,6 @@ export interface CameraDeviceFormat {
    * All supported video stabilization modes
    */
   videoStabilizationModes: VideoStabilizationMode[]
-  /**
-   * Specifies this format's supported pixel-formats.
-   * In most cases, this is `['native', 'yuv']`, some iPhones also support `'rgb'`.
-   *
-   * Any value represented here can be used to configure the Camera to stream Frames in the given {@linkcode PixelFormat}.
-   */
-  pixelFormats: PixelFormat[]
 }
 
 /**

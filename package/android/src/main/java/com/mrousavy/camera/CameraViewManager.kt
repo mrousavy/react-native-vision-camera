@@ -81,7 +81,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       val newPixelFormat = PixelFormat.fromUnionValue(pixelFormat)
       view.pixelFormat = newPixelFormat
     } else {
-      view.pixelFormat = PixelFormat.NATIVE
+      view.pixelFormat = PixelFormat.YUV
     }
   }
 

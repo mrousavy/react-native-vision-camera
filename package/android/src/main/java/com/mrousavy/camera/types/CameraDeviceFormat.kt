@@ -22,7 +22,6 @@ data class CameraDeviceFormat(
   val autoFocusSystem: AutoFocusSystem,
   val supportsVideoHdr: Boolean,
   val supportsPhotoHdr: Boolean,
-  val pixelFormats: List<PixelFormat>,
   val supportsDepthCapture: Boolean
 ) {
   val photoSize: Size
@@ -52,9 +51,6 @@ data class CameraDeviceFormat(
       val modes = value.getArray("videoStabilizationModes") ?: throw InvalidTypeScriptUnionError("format", value.toString())
       val videoStabilizationModes = modes.toArrayList().map { VideoStabilizationMode.fromUnionValue(it as String) }
 
-      val formats = value.getArray("pixelFormats") ?: throw InvalidTypeScriptUnionError("format", value.toString())
-      val pixelFormats = formats.toArrayList().map { PixelFormat.fromUnionValue(it as String) }
-
       val autoFocusSystem = AutoFocusSystem.fromUnionValue(value.getString("autoFocusSystem"))
 
       return CameraDeviceFormat(
@@ -71,7 +67,6 @@ data class CameraDeviceFormat(
         autoFocusSystem,
         value.getBoolean("supportsVideoHdr"),
         value.getBoolean("supportsPhotoHdr"),
-        pixelFormats,
         value.getBoolean("supportsDepthCapture")
       )
     }

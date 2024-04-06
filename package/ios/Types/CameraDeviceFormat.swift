@@ -33,8 +33,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   let supportsVideoHdr: Bool
   let supportsPhotoHdr: Bool
 
-  let pixelFormats: [PixelFormat]
-
   let supportsDepthCapture: Bool
 
   init(fromFormat format: AVCaptureDevice.Format) {
@@ -51,7 +49,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     autoFocusSystem = AutoFocusSystem(fromFocusSystem: format.autoFocusSystem)
     supportsVideoHdr = format.supportsVideoHdr
     supportsPhotoHdr = format.supportsPhotoHdr
-    pixelFormats = CameraDeviceFormat.getAllPixelFormats()
     supportsDepthCapture = format.supportsDepthCapture
   }
 
@@ -72,8 +69,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     autoFocusSystem = try AutoFocusSystem(jsValue: jsAutoFocusSystem)
     supportsVideoHdr = jsValue["supportsVideoHdr"] as! Bool
     supportsPhotoHdr = jsValue["supportsPhotoHdr"] as! Bool
-    let jsPixelFormats = jsValue["pixelFormats"] as! [String]
-    pixelFormats = try jsPixelFormats.map { try PixelFormat(jsValue: $0) }
     supportsDepthCapture = jsValue["supportsDepthCapture"] as! Bool
     // swiftlint:enable force_cast
   }
@@ -98,18 +93,11 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "supportsPhotoHdr": supportsPhotoHdr,
       "minFps": minFps,
       "maxFps": maxFps,
-      "pixelFormats": pixelFormats.map(\.jsValue),
       "supportsDepthCapture": supportsDepthCapture,
     ]
   }
 
   var description: String {
-    return "\(photoWidth)x\(photoHeight) | \(videoWidth)x\(videoHeight)@\(maxFps) (ISO: \(minISO)..\(maxISO), Pixel Formats: \(pixelFormats))"
-  }
-
-  // On iOS, all PixelFormats are always supported for every format (it can convert natively)
-  private static func getAllPixelFormats() -> [PixelFormat] {
-    let availablePixelFormats = AVCaptureVideoDataOutput().availableVideoPixelFormatTypes
-    return availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
+    return "\(photoWidth)x\(photoHeight) | \(videoWidth)x\(videoHeight)@\(maxFps) (ISO: \(minISO)..\(maxISO))"
   }
 }

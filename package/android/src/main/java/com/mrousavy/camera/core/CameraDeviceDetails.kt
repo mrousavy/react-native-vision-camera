@@ -26,7 +26,6 @@ import com.mrousavy.camera.types.AutoFocusSystem
 import com.mrousavy.camera.types.DeviceType
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.Position
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.CamcorderProfileUtils
@@ -134,14 +133,6 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
     return array
   }
 
-  private fun createPixelFormats(): ReadableArray {
-    // Every output in Camera2 supports YUV and NATIVE
-    val array = Arguments.createArray()
-    array.pushString(PixelFormat.YUV.unionValue)
-    array.pushString(PixelFormat.NATIVE.unionValue)
-    return array
-  }
-
   private fun buildFormatMap(photoSize: Size, videoSize: Size, fpsRange: Range<Int>): ReadableMap {
     val map = Arguments.createMap()
     map.putInt("photoHeight", photoSize.height)
@@ -158,7 +149,6 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putString("autoFocusSystem", autoFocusSystem.unionValue)
     map.putArray("videoStabilizationModes", createStabilizationModes())
-    map.putArray("pixelFormats", createPixelFormats())
     return map
   }
 

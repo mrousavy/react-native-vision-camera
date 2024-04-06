@@ -333,10 +333,11 @@ class CameraSession(private val context: Context, private val callback: Callback
     // 4. Frame Processor
     val frameProcessorConfig = configuration.frameProcessor as? CameraConfiguration.Output.Enabled<CameraConfiguration.FrameProcessor>
     if (frameProcessorConfig != null) {
-      Log.i(TAG, "Creating Frame Processor output...")
+      val pixelFormat = frameProcessorConfig.config.pixelFormat
+      Log.i(TAG, "Creating $pixelFormat Frame Processor output...")
       val analyzer = ImageAnalysis.Builder().also { analysis ->
         analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
-        analysis.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+        analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
         if (format != null) {
           Log.i(TAG, "Frame Processor size: ${format.videoSize}")
           val resolutionSelector = ResolutionSelector.Builder().forSize(format.videoSize)
