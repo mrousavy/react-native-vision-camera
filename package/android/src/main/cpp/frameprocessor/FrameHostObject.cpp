@@ -121,17 +121,17 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 #if __ANDROID_API__ >= 26
       AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
-      intptr_t pointer = reinterpret_cast<intptr_t>(hardwareBuffer);
+      uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
+        __android_log_print(ANDROID_LOG_INFO, "Frame", "Releasing HardwareBuffer...");
         AHardwareBuffer_release(hardwareBuffer);
         return jsi::Value::undefined();
       };
-      jsi::Function deleteFuncValue = jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc);
 
       jsi::Object buffer(runtime);
-      buffer.setProperty(runtime, "pointer", jsi::Value(static_cast<double>(pointer)));
-      buffer.setProperty(runtime, "delete", deleteFuncValue);
+      buffer.setProperty(runtime, "pointer", jsi::BigInt::fromUint64(runtime, pointer));
+      buffer.setProperty(runtime, "delete", jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
       return buffer;
 #else
       throw jsi::JSError(runtime, "Cannot get Platform Buffer - getPlatformBuffer() requires HardwareBuffers, which are "
