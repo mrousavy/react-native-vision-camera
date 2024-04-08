@@ -3,6 +3,7 @@ package com.mrousavy.camera.example;
 import android.media.Image;
 import android.util.Log;
 
+import com.mrousavy.camera.core.FrameInvalidError;
 import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.mrousavy.camera.frameprocessor.SharedArray;
@@ -22,7 +23,7 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     private static final String TAG = "ExamplePlugin";
 
     @Override
-    public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) {
+    public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) throws FrameInvalidError {
         if (params == null) return null;
         Image image = frame.getImage();
 

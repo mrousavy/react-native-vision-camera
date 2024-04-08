@@ -4,7 +4,6 @@ import android.graphics.Matrix;
 import android.hardware.HardwareBuffer;
 import android.media.Image;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.OptIn;
 import androidx.camera.core.ExperimentalGetImage;
@@ -49,8 +48,12 @@ public class Frame {
     }
 
     @OptIn(markerClass = ExperimentalGetImage.class)
-    public synchronized Image getImage() {
-        return imageProxy.getImage();
+    public synchronized Image getImage() throws FrameInvalidError {
+        Image image = imageProxy.getImage();
+        if (image == null) {
+            throw new FrameInvalidError();
+        }
+        return image;
     }
 
     @SuppressWarnings("unused")
@@ -132,7 +135,7 @@ public class Frame {
             throw new HardwareBuffersNotAvailableError();
         }
         assertIsValid();
-        return image.getHardwareBuffer();
+        return getImage().getHardwareBuffer();
     }
 
     @SuppressWarnings("unused")
@@ -152,6 +155,6 @@ public class Frame {
     }
 
     private synchronized void close() {
-        image.close();
+        imageProxy.close();
     }
 }
