@@ -99,7 +99,7 @@
     "react-native": "^0.72.3",
     "react-native-builder-bob": "^0.21.3",
     "react-native-reanimated": "^3.8.1",
-    "react-native-worklets-core": "^0.4.0",
+    "react-native-worklets-core": "^0.5.0",
     "release-it": "^16.1.3",
     "typescript": "^5.1.6"
   },
@@ -107,8 +107,8 @@
     "@shopify/react-native-skia": "*",
     "react": "*",
     "react-native": "*",
-    "react-native-worklets-core": "*",
-    "react-native-reanimated": "*"
+    "react-native-reanimated": "*",
+    "react-native-worklets-core": "*"
   },
   "peerDependenciesMeta": {
     "react-native-worklets-core": {
