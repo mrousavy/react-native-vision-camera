@@ -24,7 +24,6 @@ import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
-import com.mrousavy.camera.utils.runOnUiThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -257,7 +256,7 @@ class CameraView(context: Context) :
   }
 
   private fun updatePreview() {
-    runOnUiThread {
+    mainCoroutineScope.launch {
       if (preview && previewView == null) {
         // User enabled Preview, add the PreviewView
         previewView = createPreviewView()
