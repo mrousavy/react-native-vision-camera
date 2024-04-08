@@ -198,22 +198,22 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Skia update... (${frame.width}x${frame.height})`)
 
     const canvas = skia.surface.getCanvas()
-    const rect = Skia.XYWHRect(frame.width * 0.2, frame.height * 0.5, frame.width * 0.3, frame.width * 0.3)
+
+    const black = Skia.Color('black')
+    canvas.clear(black)
+
+    const x = performance.now() % 1000
+
+    canvas.drawImage(skia.frame, 0, 0)
+
+    const rect = Skia.XYWHRect(frame.width * 0.2, frame.height * 0.3, x * 1.3, x)
     const paint = Skia.Paint()
     const color = Skia.Color('red')
     paint.setColor(color)
     canvas.drawRect(rect, paint)
 
-    canvas.drawImage(skia.frame, 0, 0)
-
     skia.surface.flush()
 
-    while (offscreenTextureQueue.value.length > 0) {
-      // close all old textures, pop() is atomically and therefore thread-safe.
-      const texture = offscreenTextureQueue.value.pop()
-      if (texture == null) break
-      texture.dispose()
-    }
     // convert the current canvas result to an SkImage
     const snapshot = skia.surface.makeImageSnapshot()
     // copy the SkImage from the GPU to the CPU, since we will render it later on
@@ -221,9 +221,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     const copy = snapshot.makeNonTextureImage()
     // add it atomically to the textures array
     offscreenTextureQueue.value.push(copy)
-    if (snapshot !== copy) {
-      // dispose the GPU only image
-      snapshot.dispose()
+    // dispose the GPU only image
+    snapshot.dispose()
+
+    while (offscreenTextureQueue.value.length > 1) {
+      // close all old textures, pop() is atomically and therefore thread-safe.
+      const texture = offscreenTextureQueue.value.shift()
+      if (texture == null) break
+      texture.dispose()
     }
   }, [])
 
@@ -256,7 +261,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           <Reanimated.View onTouchEnd={onFocusTap} style={[StyleSheet.absoluteFill, { marginTop: 150 }]}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
-                style={{ borderWidth: 1, borderColor: 'green', position: 'absolute', width: 170, height: 170 }}
+                style={{ borderWidth: 1, borderColor: 'green', position: 'absolute', width: 170, height: 250 }}
                 device={device}
                 isActive={isActive}
                 ref={camera}
@@ -287,10 +292,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       )}
 
       <Canvas
-        style={{ borderWidth: 1, borderColor: 'red', position: 'absolute', left: 170, width: 170, height: 170, marginTop: 150 }}
+        style={{ borderWidth: 1, borderColor: 'red', position: 'absolute', left: 170, width: 170, height: 250, marginTop: 150 }}
         ref={canvasRef}
         mode="default">
-        <Image fit="cover" width={170} height={170} x={0} y={0} image={currentRenderedFrame} />
+        <Image fit="cover" width={170} height={250} x={0} y={0} image={currentRenderedFrame} />
       </Canvas>
 
       <CaptureButton

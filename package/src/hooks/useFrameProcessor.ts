@@ -90,8 +90,11 @@ export function useSkiaFrameProcessor(
           throw new Error('Failed to convert Frame to SkImage!')
         }
 
-        frameProcessor(frame, { surface: surface.value, frame: image })
+        const imageCopy = image.makeNonTextureImage()
+        frameProcessor(frame, { surface: surface.value, frame: imageCopy })
 
+        imageCopy.dispose()
+        image.dispose()
         platformBuffer.delete()
       }, 'frame-processor')
     },
