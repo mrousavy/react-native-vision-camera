@@ -31,6 +31,8 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var recordingSession: RecordingSession?
   var isRecording = false
 
+  var recordingTimestamps = RecordingTimestamps()
+
   // Callbacks
   weak var delegate: CameraSessionDelegate?
 

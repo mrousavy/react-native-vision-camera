@@ -6,6 +6,21 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
+// MARK: - RecordingTimestamps
+
+struct RecordingTimestamps {
+  var actualRecordingStartedAt: Double?
+  var actualTorchOnAt: Double?
+  var actualTorchOffAt: Double?
+  var actualRecordingEndedAt: Double?
+  var requestTorchOnAt: Double?
+  var requestTorchOffAt: Double?
+  var actualBackgroundTorchOnAt: Double?
+  var actualBackgroundTorchOffAt: Double?
+  var requestBackgroundTorchOnAt: Double?
+  var requestBackgroundTorchOffAt: Double?
+}
+
 import AVFoundation
 import Foundation
 import UIKit
@@ -61,10 +76,23 @@ extension CameraSession {
           }
         } else {
           if status == .completed {
+            let metadata = [
+              "actualRecordingStartedAt": self.recordingTimestamps.actualRecordingStartedAt,
+              "actualTorchOnAt": self.recordingTimestamps.actualTorchOnAt,
+              "actualTorchOffAt": self.recordingTimestamps.actualTorchOffAt,
+              "actualRecordingEndedAt": self.recordingTimestamps.actualRecordingEndedAt,
+              "requestTorchOnAt": self.recordingTimestamps.requestTorchOnAt,
+              "requestTorchOffAt": self.recordingTimestamps.requestTorchOffAt,
+              "requestBackgroundTorchOnAt": self.recordingTimestamps.requestBackgroundTorchOnAt,
+              "requestBackgroundTorchOffAt": self.recordingTimestamps.requestBackgroundTorchOffAt,
+              "actualBackgroundTorchOnAt": self.recordingTimestamps.actualBackgroundTorchOnAt,
+              "actualBackgroundTorchOffAt": self.recordingTimestamps.actualBackgroundTorchOffAt,
+            ]
             // Recording was successfully saved
             let video = Video(path: recordingSession.url.absoluteString,
                               duration: recordingSession.duration,
-                              size: recordingSession.size ?? CGSize.zero)
+                              size: recordingSession.size ?? CGSize.zero,
+                              metadata: metadata)
             onVideoRecorded(video)
           } else {
             // Recording wasn't saved and we don't have an error either.
@@ -121,6 +149,55 @@ extension CameraSession {
         self.recordingSession = recordingSession
         self.isRecording = true
 
+        var backgroundDelay = DispatchTimeInterval.milliseconds(Int(self.configuration!.backgroundDelay))
+        var backgroundTorchEnd = DispatchTimeInterval.milliseconds(Int(self.configuration!.backgroundDelay) + Int(self.configuration!.backgroundDuration))
+
+        if Int(self.configuration!.backgroundDelay) > 0 {
+          self.setTorchMode("off", torchLevelVal: self.configuration!.torchLevel)
+        }
+
+        let recordingStartTimestamp = NSDate().timeIntervalSince1970
+        ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
+        self.recordingTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
+
+        var torchDelay = DispatchTimeInterval.milliseconds(Int(self.configuration!.torchDelay))
+        var torchEnd = DispatchTimeInterval.milliseconds(Int(self.configuration!.torchDelay) + Int(self.configuration!.torchDuration))
+
+        if let backgroundLevelValue = self.configuration!.backgroundLevel as? Double {
+          if backgroundLevelValue > 0.0 && self.configuration!.enableBackgroundTorch && Int(self.configuration!.backgroundDelay) > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + backgroundDelay) {
+              self.recordingTimestamps.requestBackgroundTorchOnAt = NSDate().timeIntervalSince1970
+              self.setBackgroundLight(self.configuration!.backgroundLevel, torchMode: "on")
+              self.recordingTimestamps.actualBackgroundTorchOnAt = NSDate().timeIntervalSince1970
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + backgroundTorchEnd) {
+              self.recordingTimestamps.requestBackgroundTorchOffAt = NSDate().timeIntervalSince1970
+              self.setTorchMode("off", torchLevelVal: self.configuration!.torchLevel)
+              self.recordingTimestamps.actualBackgroundTorchOffAt = NSDate().timeIntervalSince1970
+            }
+          }
+        }
+
+        if Int(self.configuration!.torchDuration) > 0 {
+          DispatchQueue.main.asyncAfter(deadline: .now() + torchDelay) {
+            self.recordingTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
+            self.setTorchMode("off", torchLevelVal: self.configuration!.torchLevel)
+            self.setTorchMode("on", torchLevelVal: self.configuration!.torchLevel)
+            self.recordingTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
+          }
+
+          DispatchQueue.main.asyncAfter(deadline: .now() + torchEnd) {
+            self.recordingTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
+            self.setTorchMode("off", torchLevelVal: self.configuration!.torchLevel)
+            if let backgroundLevelValue = self.configuration!.backgroundLevel as? Double {
+              if backgroundLevelValue > 0.0 && self.configuration!.enableBackgroundTorch && Int(self.configuration!.backgroundDelay) > 0 {
+                self.setBackgroundLight(self.configuration!.backgroundLevel, torchMode: "on")
+              }
+            }
+            self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
+          }
+        }
+
         let end = DispatchTime.now()
         ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as NSError {
@@ -145,6 +222,9 @@ extension CameraSession {
         }
         // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         recordingSession.stop(clock: self.captureSession.clock)
+        let recordingStopTimestamp = NSDate().timeIntervalSince1970
+        ReactLogger.log(level: .info, message: "recordingStopTimestamp:  \(recordingStopTimestamp)")
+        self.recordingTimestamps.actualRecordingEndedAt = NSDate().timeIntervalSince1970
         // There might be late frames, so maybe we need to still provide more Frames to the RecordingSession. Let's keep isRecording true for now.
         return nil
       }

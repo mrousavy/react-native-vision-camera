@@ -22,11 +22,14 @@ struct Video {
    * The size of the video, in pixels.
    */
   var size: CGSize
+  // FAHAD
+  var metadata: [String: Double?]
 
   func toJSValue() -> NSDictionary {
     return [
       "path": path,
       "duration": duration,
+      "metadata": metadata,
       "width": size.width,
       "height": size.height,
     ]
