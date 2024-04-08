@@ -124,7 +124,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
-        __android_log_print(ANDROID_LOG_INFO, "Frame", "Releasing HardwareBuffer...");
         AHardwareBuffer_release(hardwareBuffer);
         return jsi::Value::undefined();
       };
