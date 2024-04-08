@@ -88,7 +88,7 @@ data class CameraConfiguration(
   /**
    * Throw this to abort a call to configure { ... } and apply no changes.
    */
-  class AbortThrow: Throwable()
+  class AbortThrow : Throwable()
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()

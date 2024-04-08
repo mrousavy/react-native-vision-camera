@@ -130,7 +130,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       jsi::Object buffer(runtime);
       buffer.setProperty(runtime, "pointer", jsi::BigInt::fromUint64(runtime, pointer));
-      buffer.setProperty(runtime, "delete", jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
+      buffer.setProperty(runtime, "delete",
+                         jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
       return buffer;
 #else
       throw jsi::JSError(runtime, "Cannot get Platform Buffer - getPlatformBuffer() requires HardwareBuffers, which are "

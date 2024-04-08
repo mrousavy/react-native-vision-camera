@@ -157,7 +157,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto getPlatformBuffer = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
-      
+
       // Box-cast to uintptr (just 64-bit address)
       CMSampleBufferRef buffer = this->frame.buffer;
       uintptr_t pointer = reinterpret_cast<uintptr_t>(buffer);

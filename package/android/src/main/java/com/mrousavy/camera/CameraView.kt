@@ -276,14 +276,14 @@ class CameraView(context: Context) :
     }
   }
 
-  private fun createPreviewView(): PreviewView {
-    return PreviewView(context).also {
+  private fun createPreviewView(): PreviewView =
+    PreviewView(context).also {
       it.installHierarchyFitter()
       it.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
       it.layoutParams = LayoutParams(
-          LayoutParams.MATCH_PARENT,
-          LayoutParams.MATCH_PARENT,
-          Gravity.CENTER
+        LayoutParams.MATCH_PARENT,
+        LayoutParams.MATCH_PARENT,
+        Gravity.CENTER
       )
       it.previewStreamState.observe(cameraSession) { state ->
         when (state) {
@@ -293,7 +293,6 @@ class CameraView(context: Context) :
         }
       }
     }
-  }
 
   override fun onFrame(frame: Frame) {
     frameProcessor?.call(frame)
