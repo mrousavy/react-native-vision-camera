@@ -59,12 +59,7 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, c
   auto frameProcessorType = frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
 
-  jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
-  if (frameProcessorType == "frame-processor") {
-    frameProcessor = JFrameProcessor::create(worklet, _workletContext);
-  } else {
-    throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
-  }
+  jni::local_ref<JFrameProcessor::javaobject> frameProcessor = JFrameProcessor::create(worklet, _workletContext);
 
   auto setFrameProcessorMethod = javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>("setFrameProcessor");
   setFrameProcessorMethod(_javaPart, viewTag, frameProcessor);

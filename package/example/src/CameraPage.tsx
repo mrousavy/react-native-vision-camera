@@ -84,7 +84,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const format = useCameraFormat(device, [
     { fps: targetFps },
     { videoAspectRatio: screenAspectRatio },
-    { videoResolution: 'max' },
+    { videoResolution: { width: 720, height: 720 } },
     { photoAspectRatio: screenAspectRatio },
     { photoResolution: 'max' },
   ])
@@ -192,37 +192,27 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, [location])
 
   const offscreenTextureQueue = useSharedValueWorklets<SkImage[]>([])
-  const frameProcessor = useSkiaFrameProcessor((frame, skia) => {
+  const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
-    console.log(`Skia update... (${frame.width}x${frame.height})`)
-
-    const canvas = skia.surface.getCanvas()
+    console.log(`🌹 Skia update! (${frame.width}x${frame.height})`)
 
     const black = Skia.Color('black')
-    canvas.clear(black)
+    frame.clear(black)
 
-    const x = performance.now() % 1000
+    frame.render()
 
-    canvas.drawImage(skia.frame, 0, 0)
-
-    const rect = Skia.XYWHRect(frame.width * 0.2, frame.height * 0.3, x * 1.3, x)
+    const w = frame.height * 0.2
+    const h = frame.width * 0.2
+    const rect = Skia.XYWHRect(frame.width * 0.5 - w / 2, frame.height * 0.5 - h / 2, w, h)
     const paint = Skia.Paint()
     const color = Skia.Color('red')
     paint.setColor(color)
-    canvas.drawRect(rect, paint)
 
-    skia.surface.flush()
+    frame.drawRect(rect, paint)
 
-    // convert the current canvas result to an SkImage
-    const snapshot = skia.surface.makeImageSnapshot()
-    // copy the SkImage from the GPU to the CPU, since we will render it later on
-    // another thread which doesn't have the same GPU memory as this thread.
-    const copy = snapshot.makeNonTextureImage()
-    // add it atomically to the textures array
-    offscreenTextureQueue.value.push(copy)
-    // dispose the GPU only image
-    snapshot.dispose()
+    const snapshot = frame.snapshot
+    offscreenTextureQueue.value.push(snapshot)
 
     while (offscreenTextureQueue.value.length > 1) {
       // close all old textures, pop() is atomically and therefore thread-safe.
@@ -235,7 +225,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const currentRenderedFrame = useSharedValue<SkImage | null>(null)
   useFrameCallback(() => {
     'worklet'
-    console.log('----> UI update!')
+    console.log('⏳ UI update!')
 
     // atomically pop() the latest rendered frame/texture from our queue
     const result = offscreenTextureQueue.value.pop()

@@ -73,11 +73,7 @@ void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, co
     auto currentBridge = [RCTBridge currentBridge];
     auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
-    if (frameProcessorType == "frame-processor") {
-      view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
-    } else {
-      throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
-    }
+    view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
   });
 }
 
