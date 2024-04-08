@@ -51,9 +51,10 @@ function getRotationDegrees(orientation: Orientation): number {
 }
 
 function getPortraitSize(frame: Frame): { width: number; height: number } {
+  'worklet'
   if (frame.orientation === 'landscape-left' || frame.orientation === 'landscape-right') {
     // it is rotated to some side, so we need to apply rotations first.
-    return { width: frame.height, height: frame.height }
+    return { width: frame.height, height: frame.width }
   } else {
     // it is already rotated upright.
     return { width: frame.width, height: frame.height }
