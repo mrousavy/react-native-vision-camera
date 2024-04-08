@@ -1,11 +1,11 @@
-import { SkCanvas, SkPaint, SkSurface, Skia } from '@shopify/react-native-skia'
+import { SkCanvas, SkImage, SkPaint, SkSurface, Skia } from '@shopify/react-native-skia'
 import { Platform } from 'react-native'
 import { Frame, FrameInternal } from '../Frame'
 import { DependencyList, useMemo } from 'react'
-import { FrameProcessor } from '../CameraProps'
-import { useSharedValue } from 'react-native-worklets-core'
-import { createFrameProcessor } from './useFrameProcessor'
+import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 import { Orientation } from '../Orientation'
+import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
+import { DrawableFrameProcessor } from '../CameraProps'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -19,6 +19,11 @@ export interface DrawableFrame extends Frame, SkCanvas {
    * @param paint An optional Paint object, for example for applying filters/shaders to the Camera Frame.
    */
   render(paint?: SkPaint): void
+  /**
+   * A private method to dispose the internally created Textures after rendering has completed.
+   * @internal
+   */
+  dispose(): void
   /**
    * A private lazy property accessed by the native Frame Processor Plugin system
    * to get the actual Frame Host Object.
@@ -45,92 +50,155 @@ function getRotationDegrees(orientation: Orientation): number {
   }
 }
 
-export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => void, dependencies: DependencyList): FrameProcessor {
-  const surface = useSharedValue<SkSurface | null>(null)
+/**
+ * Create a new Frame Processor function which you can pass to the `<Camera>`.
+ * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
+ *
+ * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
+ *
+ * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+ */
+export function createSkiaFrameProcessor(
+  frameProcessor: DrawableFrameProcessor['frameProcessor'],
+  surfaceHolder: ISharedValue<SkSurface | null>,
+  offscreenTextures: ISharedValue<SkImage[]>,
+): DrawableFrameProcessor {
+  const getSkiaSurface = (frame: Frame): SkSurface => {
+    'worklet'
+    if (surfaceHolder.value == null) {
+      // create a new surface with the size of the Frame
+      surfaceHolder.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
+      if (surfaceHolder.value == null) {
+        // it is still null, something went wrong while creating it
+        throw new Error(`Failed to create ${frame.width}x${frame.height} Skia Surface!`)
+      }
+    }
+    return surfaceHolder.value
+  }
 
-  return useMemo(
-    () => {
-      return createFrameProcessor((frame) => {
+  const createDrawableFrameProxy = (frame: Frame, canvas: SkCanvas): DrawableFrame => {
+    'worklet'
+
+    // Convert Frame to SkImage/Texture
+    const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
+    let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
+    if (NEEDS_CPU_COPY) {
+      // on iOS, we need to do a CPU copy of the Texture, as otherwise we sometimes
+      // encounter flickering issues.
+      // TODO: Fix this on the native side so we can avoid the extra CPU copy!
+      const copy = image.makeNonTextureImage()
+      image.dispose()
+      image = copy
+    }
+
+    return new Proxy(frame as DrawableFrame, {
+      has: (_, property: keyof DrawableFrame) => {
         'worklet'
+        console.log(`Hasing ${property}`)
+        switch (property) {
+          case 'render':
+          case '__frame':
+          case 'dispose':
+            // it is something we overwrote in JS
+            return true
+          default:
+            // check if the HostObjects have that property
+            return Object.hasOwn(frame, property) || Object.hasOwn(canvas, property)
+        }
+      },
+      get: (_, property: keyof DrawableFrame) => {
+        'worklet'
+        console.log(`Getting ${property}`)
+        if (property === 'render') {
+          return (paint?: SkPaint) => {
+            'worklet'
+            // rotate canvas to properly account for Frame orientation
+            canvas.save()
+            const rotation = getRotationDegrees(frame.orientation)
+            canvas.rotate(rotation, frame.width / 2, frame.height / 2)
+            // render the Camera Frame to the Canvas
+            if (paint != null) canvas.drawImage(image, 0, 0, paint)
+            else canvas.drawImage(image, 0, 0)
 
-        const start1 = performance.now()
-
-        // 1. Set up Skia Surface with size of Frame
-        if (surface.value == null) {
-          // create a new surface with the size of the Frame
-          surface.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
-          if (surface.value == null) {
-            // it is still null, something went wrong while creating it
-            throw new Error(`Failed to create ${frame.width}x${frame.height} Skia Surface!`)
+            // restore transforms/rotations again
+            canvas.restore()
+          }
+        } else if (property === '__frame') {
+          // a hidden property accessed by the native Frame Processor Plugin system
+          // to get the actual Frame Host Object.
+          return frame
+        } else if (property === 'dispose') {
+          return () => {
+            'worklet'
+            // dispose the Frame and the SkImage/Texture
+            image.dispose()
+            platformBuffer.delete()
           }
         }
 
-        // 2. Convert Frame (Platform Buffer) to SkImage so we can render it
-        const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-        let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
-        if (NEEDS_CPU_COPY) {
-          // on iOS, we need to do a CPU copy of the Texture, as otherwise we sometimes
-          // encounter flickering issues.
-          // TODO: Fix this on the native side so we can avoid the extra CPU copy!
-          const copy = image.makeNonTextureImage()
-          image.dispose()
-          image = copy
-        }
+        // @ts-expect-error types are rough for Proxy
+        return frame[property] ?? canvas[property]
+      },
+    })
+  }
 
-        const end1 = performance.now()
+  return {
+    frameProcessor: wrapFrameProcessorWithRefCounting((frame) => {
+      'worklet'
 
-        console.log(`Prepare took ${(end1 - start1).toFixed(2)}ms.`)
-        const start2 = performance.now()
+      console.log('1. get surface')
 
-        // 3. Prepare DrawableFrame proxy
-        const canvas = surface.value.getCanvas()
-        const drawableFrame = new Proxy(frame as DrawableFrame, {
-          get: (_, property) => {
-            'worklet'
-            if (property === 'render') {
-              return (paint?: SkPaint) => {
-                'worklet'
-                // rotate canvas to properly account for Frame orientation
-                canvas.save()
-                const rotation = getRotationDegrees(frame.orientation)
-                canvas.rotate(rotation, frame.width / 2, frame.height / 2)
-                // render the Camera Frame to the Canvas
-                if (paint != null) canvas.drawImage(image, 0, 0, paint)
-                else canvas.drawImage(image, 0, 0)
+      // 1. Set up Skia Surface with size of Frame
+      const surface = getSkiaSurface(frame)
 
-                // restore transforms/rotations again
-                canvas.restore()
-              }
-            } else if (property === '__frame') {
-              // a hidden property accessed by the native Frame Processor Plugin system
-              // to get the actual Frame Host Object.
-              return frame
-            } else if (property === 'snapshot') {
-              const snapshot = surface.value!.makeImageSnapshot()
-              const copy = snapshot.makeNonTextureImage()
-              snapshot.dispose()
-              return copy
-            }
+      console.log('2. prepare frame')
+      // 2. Create DrawableFrame proxy which internally creates an SkImage/Texture
+      const canvas = surface.getCanvas()
+      const drawableFrame = createDrawableFrameProxy(frame, canvas)
 
-            // @ts-expect-error types are rough for Proxy
-            return frame[property] ?? canvas[property]
-          },
-        })
+      console.log('2. clear canvas')
+      // 3. Clear the current Canvas
+      const black = Skia.Color('black')
+      canvas.clear(black)
 
-        // 4. Run any user drawing operations
-        frameProcessor(drawableFrame)
+      console.log('2. run code')
+      // 4. Run any user drawing operations
+      frameProcessor(drawableFrame)
 
-        // 5. Flush draw operations and submit to GPU
-        surface.value.flush()
+      // 5. Flush draw operations and submit to GPU
+      surface.flush()
 
-        // 6. Clean up any resources
-        image.dispose()
-        platformBuffer.delete()
-        const end2 = performance.now()
+      // 6. Delete the SkImage/Texture that holds the Frame
+      drawableFrame.dispose()
 
-        console.log(`Render took ${(end2 - start2).toFixed(2)}ms.`)
-      }, 'drawable-skia')
-    },
+      // 7. Capture rendered results as a Texture/SkImage to later render to screen
+      const snapshot = surface.makeImageSnapshot()
+      const snapshotCopy = snapshot.makeNonTextureImage()
+      snapshot.dispose()
+      offscreenTextures.value.push(snapshotCopy)
+
+      // 8. Close old textures that are still in the queue.
+      while (offscreenTextures.value.length > 1) {
+        // shift() atomically removes the first element, and is therefore thread-safe.
+        const texture = offscreenTextures.value.shift()
+        if (texture == null) break
+        texture.dispose()
+      }
+    }),
+    type: 'drawable-skia',
+    offscreenTextures: offscreenTextures,
+  }
+}
+
+export function useSkiaFrameProcessor(
+  frameProcessor: DrawableFrameProcessor['frameProcessor'],
+  dependencies: DependencyList,
+): DrawableFrameProcessor {
+  const surface = useSharedValue<SkSurface | null>(null)
+  const offscreenTextures = useSharedValue<SkImage[]>([])
+
+  return useMemo(
+    () => createSkiaFrameProcessor(frameProcessor, surface, offscreenTextures),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     dependencies,
   )

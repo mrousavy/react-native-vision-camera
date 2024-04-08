@@ -1,9 +1,9 @@
 import React from 'react'
-import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods } from 'react-native'
+import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, View } from 'react-native'
 import type { CameraDevice } from './CameraDevice'
 import type { ErrorWithCause } from './CameraError'
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
-import type { CameraProps, FrameProcessor, OnShutterEvent } from './CameraProps'
+import type { CameraProps, OnShutterEvent, DrawableFrameProcessor, ReadonlyFrameProcessor } from './CameraProps'
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile'
 import type { Point } from './Point'
@@ -13,6 +13,7 @@ import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
 import type { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
 import { TakeSnapshotOptions } from './Snapshot'
+import { SkiaCameraCanvas } from './SkiaCameraCanvas'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -47,6 +48,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
 interface CameraState {
   isRecordingWithFlash: boolean
 }
+type FrameProcessor = DrawableFrameProcessor | ReadonlyFrameProcessor
 //#endregion
 
 //#region Camera Component
@@ -578,10 +580,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
 
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
-    const pixelFormat = props.pixelFormat ?? (frameProcessor != null ? 'yuv' : 'native')
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
 
-    return (
+    const result = (
       <NativeCameraView
         {...props}
         cameraId={device.id}
@@ -597,10 +598,24 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
-        pixelFormat={pixelFormat}
         enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
       />
     )
+
+    if (frameProcessor?.type === 'drawable-skia') {
+      return (
+        <View {...props}>
+          {result}
+          <SkiaCameraCanvas
+            style={{ flex: 1, borderWidth: 1, borderColor: 'red' }}
+            offscreenTextures={frameProcessor.offscreenTextures}
+            resizeMode={props.resizeMode}
+          />
+        </View>
+      )
+    } else {
+      return result
+    }
   }
 }
 //#endregion

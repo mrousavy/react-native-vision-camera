@@ -1,10 +1,6 @@
 import { DependencyList, useMemo } from 'react'
-import type { Frame, FrameInternal } from '../Frame'
-import { FrameProcessor } from '../CameraProps'
-import { VisionCameraProxy } from '../FrameProcessorPlugins'
-import { Skia, SkImage, SkSurface } from '@shopify/react-native-skia'
-import { useSharedValue } from 'react-native-worklets-core'
-import { Platform } from 'react-native'
+import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
+import { ReadonlyFrameProcessor } from '../CameraProps'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -14,25 +10,10 @@ import { Platform } from 'react-native'
  *
  * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
  */
-export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
+export function createFrameProcessor(frameProcessor: ReadonlyFrameProcessor['frameProcessor']): ReadonlyFrameProcessor {
   return {
-    frameProcessor: (frame: Frame) => {
-      'worklet'
-      // Increment ref-count by one
-      const internal = frame as FrameInternal
-      internal.incrementRefCount()
-      try {
-        // Call sync frame processor
-        frameProcessor(frame)
-      } catch (e) {
-        // Re-throw error on JS Thread
-        VisionCameraProxy.throwJSError(e)
-      } finally {
-        // Potentially delete Frame if we were the last ref (no runAsync)
-        internal.decrementRefCount()
-      }
-    },
-    type: type,
+    frameProcessor: wrapFrameProcessorWithRefCounting(frameProcessor),
+    type: 'readonly',
   }
 }
 
@@ -54,56 +35,10 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  * }, [])
  * ```
  */
-export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies)
-}
-
-interface SkiaContext {
-  surface: SkSurface
-  frame: SkImage
-}
-
-const NEEDS_CPU_COPY = Platform.OS === 'ios'
-
-export function useSkiaFrameProcessor(
-  frameProcessor: (frame: Frame, context: SkiaContext) => void,
+export function useFrameProcessor(
+  frameProcessor: ReadonlyFrameProcessor['frameProcessor'],
   dependencies: DependencyList,
-): FrameProcessor {
-  const surface = useSharedValue<SkSurface | null>(null)
-
-  return useMemo(
-    () => {
-      return createFrameProcessor((frame) => {
-        'worklet'
-
-        if (surface.value == null) {
-          // create a new surface with the size of the Frame
-          surface.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
-          if (surface.value == null) {
-            // it is still null, something went wrong while creating it
-            throw new Error(`Failed to create ${frame.width}x${frame.height} Skia Surface!`)
-          }
-        }
-
-        const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-        let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
-        if (NEEDS_CPU_COPY) {
-          // on iOS, we need to do a CPU copy of the Texture, as otherwise we sometimes
-          // encounter flickering issues.
-          // TODO: Fix this on the native side so we can avoid the extra CPU copy!
-          const copy = image.makeNonTextureImage()
-          image.dispose()
-          image = copy
-        }
-
-        frameProcessor(frame, { surface: surface.value, frame: image })
-
-        image.dispose()
-        platformBuffer.delete()
-      }, 'frame-processor')
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies,
-  )
+): ReadonlyFrameProcessor {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => createFrameProcessor(frameProcessor), dependencies)
 }

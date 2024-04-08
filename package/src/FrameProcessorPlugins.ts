@@ -1,11 +1,11 @@
 import type { Frame, FrameInternal } from './Frame'
-import type { FrameProcessor } from './CameraProps'
 import { CameraRuntimeError } from './CameraError'
 
 // only import typescript types
 import type TWorklets from 'react-native-worklets-core'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
+import type { DrawableFrameProcessor, ReadonlyFrameProcessor } from './CameraProps'
 
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
@@ -25,7 +25,13 @@ export interface FrameProcessorPlugin {
 }
 
 interface TVisionCameraProxy {
-  setFrameProcessor(viewTag: number, frameProcessor: FrameProcessor): void
+  /**
+   * @internal
+   */
+  setFrameProcessor(viewTag: number, frameProcessor: ReadonlyFrameProcessor | DrawableFrameProcessor): void
+  /**
+   * @internal
+   */
   removeFrameProcessor(viewTag: number): void
   /**
    * Creates a new instance of a native Frame Processor Plugin.
@@ -250,4 +256,29 @@ export function runAsync(frame: Frame, func: () => void): void {
 
   // Call in separate background context
   runOnAsyncContext(frame, func)
+}
+
+/**
+ * A private API to wrap a Frame Processor with a ref-counting mechanism
+ * @internal
+ */
+export function wrapFrameProcessorWithRefCounting(
+  frameProcessor: ReadonlyFrameProcessor['frameProcessor'],
+): ReadonlyFrameProcessor['frameProcessor'] {
+  return (frame) => {
+    'worklet'
+    // Increment ref-count by one
+    const internal = frame as FrameInternal
+    internal.incrementRefCount()
+    try {
+      // Call sync frame processor
+      frameProcessor(frame)
+    } catch (e) {
+      // Re-throw error on JS Thread
+      VisionCameraProxy.throwJSError(e)
+    } finally {
+      // Potentially delete Frame if we were the last ref (no runAsync)
+      internal.decrementRefCount()
+    }
+  }
 }

@@ -8,7 +8,6 @@ import {
   PhotoFile,
   useCameraDevice,
   useCameraFormat,
-  useFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
   useSkiaFrameProcessor,
@@ -16,16 +15,7 @@ import {
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
-import Reanimated, {
-  Extrapolate,
-  interpolate,
-  useAnimatedGestureHandler,
-  useAnimatedProps,
-  useAnimatedReaction,
-  useDerivedValue,
-  useFrameCallback,
-  useSharedValue,
-} from 'react-native-reanimated'
+import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
@@ -36,11 +26,8 @@ import IonIcon from 'react-native-vector-icons/Ionicons'
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
-import { examplePlugin } from './frame-processors/ExamplePlugin'
-import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { Skia, SkImage, useCanvasRef, DrawingNodeProps, Canvas, Image, Rect } from '@shopify/react-native-skia'
-import { useSharedValue as useSharedValueWorklets } from 'react-native-worklets-core'
+import { Skia } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -57,7 +44,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const location = useLocationPermission()
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
-  const canvasRef = useCanvasRef()
 
   // check if camera page is active
   const isFocussed = useIsFocused()
@@ -191,7 +177,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const offscreenTextureQueue = useSharedValueWorklets<SkImage[]>([])
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
@@ -210,36 +195,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     paint.setColor(color)
 
     frame.drawRect(rect, paint)
-
-    const snapshot = frame.snapshot
-    offscreenTextureQueue.value.push(snapshot)
-
-    while (offscreenTextureQueue.value.length > 1) {
-      // close all old textures, pop() is atomically and therefore thread-safe.
-      const texture = offscreenTextureQueue.value.shift()
-      if (texture == null) break
-      texture.dispose()
-    }
   }, [])
-
-  const currentRenderedFrame = useSharedValue<SkImage | null>(null)
-  useFrameCallback(() => {
-    'worklet'
-    console.log('⏳ UI update!')
-
-    // atomically pop() the latest rendered frame/texture from our queue
-    const result = offscreenTextureQueue.value.pop()
-    if (result == null) {
-      // we don't have a new Frame from the Camera yet, skip render.
-      return
-    }
-
-    // dispose the last rendered frame
-    currentRenderedFrame.value?.dispose()
-
-    // set a new one which will be rendered then
-    currentRenderedFrame.value = result
-  }, true)
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
@@ -280,13 +236,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </Reanimated.View>
         </PinchGestureHandler>
       )}
-
-      <Canvas
-        style={{ borderWidth: 1, borderColor: 'red', position: 'absolute', left: 170, width: 170, height: 250, marginTop: 150 }}
-        ref={canvasRef}
-        mode="default">
-        <Image fit="cover" width={170} height={250} x={0} y={0} image={currentRenderedFrame} />
-      </Canvas>
 
       <CaptureButton
         style={styles.captureButton}

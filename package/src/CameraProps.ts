@@ -1,13 +1,21 @@
 import type { ViewProps } from 'react-native'
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice'
 import type { CameraRuntimeError } from './CameraError'
-import { CodeScanner } from './CodeScanner'
+import type { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
+import type { ISharedValue } from 'react-native-worklets-core'
+import type { SkImage } from '@shopify/react-native-skia'
+import type { DrawableFrame } from './hooks/useSkiaFrameProcessor'
 
-export interface FrameProcessor {
+export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
-  type: 'frame-processor'
+  type: 'readonly'
+}
+export interface DrawableFrameProcessor {
+  frameProcessor: (frame: DrawableFrame) => void
+  type: 'drawable-skia'
+  offscreenTextures: ISharedValue<SkImage[]>
 }
 
 export interface OnShutterEvent {
@@ -315,7 +323,7 @@ export interface CameraProps extends ViewProps {
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```
    */
-  frameProcessor?: FrameProcessor
+  frameProcessor?: ReadonlyFrameProcessor | DrawableFrameProcessor
   /**
    * A CodeScanner that can detect QR-Codes or Barcodes using platform-native APIs.
    *
