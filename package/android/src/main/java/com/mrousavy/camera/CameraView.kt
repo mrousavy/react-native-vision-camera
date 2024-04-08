@@ -146,7 +146,7 @@ class CameraView(context: Context) :
           // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
           // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
           Log.i(TAG, "A new configure { ... } call arrived, aborting this one...")
-          return@configure
+          throw CameraConfiguration.AbortThrow()
         }
 
         // Input Camera Device

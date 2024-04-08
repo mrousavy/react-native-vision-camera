@@ -22,13 +22,13 @@ import UIKit
 
 public final class CameraView: UIView, CameraSessionDelegate {
   // pragma MARK: React Properties
-  
+
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
-  
+
   // use cases
   @objc var photo = false
   @objc var video = false
@@ -42,7 +42,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       updatePreview()
     }
   }
-  
+
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -51,7 +51,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
-  
+
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -73,7 +73,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
-  
+
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -92,14 +92,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
-  
+
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
   private var currentConfigureCall: DispatchTime?
   var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
 
-  var previewView: PreviewView? = nil
+  var previewView: PreviewView?
   #if DEBUG
     var fpsGraph: RCTFPSGraph?
   #endif
@@ -181,7 +181,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
         // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
         ReactLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
-        return
+        throw CameraConfiguration.AbortThrow.abort
       }
 
       // Input Camera Device
@@ -292,7 +292,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       }
     #endif
   }
-  
+
   func updatePreview() {
     if preview && previewView == nil {
       // Create PreviewView and add it
@@ -303,7 +303,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       previewView?.removeFromSuperview()
       previewView = nil
     }
-    
+
     if let previewView {
       // Update resizeMode from React
       let parsed = try? ResizeMode(jsValue: resizeMode as String)

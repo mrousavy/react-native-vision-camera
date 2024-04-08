@@ -137,7 +137,12 @@ class CameraSession(private val context: Context, private val callback: Callback
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
       val config = CameraConfiguration.copyOf(this.configuration)
-      lambda(config)
+      try {
+        lambda(config)
+      } catch (e: CameraConfiguration.AbortThrow) {
+        // config changes have been aborted.
+        return
+      }
       val diff = CameraConfiguration.difference(this.configuration, config)
       this.configuration = config
 

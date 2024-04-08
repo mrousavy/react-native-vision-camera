@@ -109,7 +109,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
         try lambda(config)
+      } catch CameraConfiguration.AbortThrow.abort {
+        // call has been aborted and changes shall be discarded
+        return
       } catch {
+        // another error occured, possibly while trying to parse enums
         self.onConfigureError(error)
         return
       }

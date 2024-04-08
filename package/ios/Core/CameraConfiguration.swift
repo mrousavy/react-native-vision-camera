@@ -76,6 +76,13 @@ class CameraConfiguration {
 
   // pragma MARK: Types
 
+  /**
+   Throw this to abort calls to configure { ... } and apply no changes.
+   */
+  enum AbortThrow: Error {
+    case abort
+  }
+
   struct Difference {
     let inputChanged: Bool
     let outputsChanged: Bool
