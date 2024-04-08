@@ -4,6 +4,7 @@ import { FrameProcessor } from '../CameraProps'
 import { VisionCameraProxy } from '../FrameProcessorPlugins'
 import { Skia, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { useSharedValue } from 'react-native-worklets-core'
+import { Platform } from 'react-native'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -63,6 +64,8 @@ interface SkiaContext {
   frame: SkImage
 }
 
+const NEEDS_CPU_COPY = Platform.OS === 'ios'
+
 export function useSkiaFrameProcessor(
   frameProcessor: (frame: Frame, context: SkiaContext) => void,
   dependencies: DependencyList,
@@ -84,16 +87,18 @@ export function useSkiaFrameProcessor(
         }
 
         const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-        const image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
-        if (image == null) {
-          // something went wrong while converting
-          throw new Error('Failed to convert Frame to SkImage!')
+        let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
+        if (NEEDS_CPU_COPY) {
+          // on iOS, we need to do a CPU copy of the Texture, as otherwise we sometimes
+          // encounter flickering issues.
+          // TODO: Fix this on the native side so we can avoid the extra CPU copy!
+          const copy = image.makeNonTextureImage()
+          image.dispose()
+          image = copy
         }
 
-        const imageCopy = image.makeNonTextureImage()
-        frameProcessor(frame, { surface: surface.value, frame: imageCopy })
+        frameProcessor(frame, { surface: surface.value, frame: image })
 
-        imageCopy.dispose()
         image.dispose()
         platformBuffer.delete()
       }, 'frame-processor')
