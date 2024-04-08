@@ -1,8 +1,15 @@
 package com.mrousavy.camera.frameprocessor;
 
+import android.graphics.Matrix;
 import android.hardware.HardwareBuffer;
 import android.media.Image;
 import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.OptIn;
+import androidx.camera.core.ExperimentalGetImage;
+import androidx.camera.core.ImageProxy;
+
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.FrameInvalidError;
 import com.mrousavy.camera.core.HardwareBuffersNotAvailableError;
@@ -11,26 +18,20 @@ import com.mrousavy.camera.types.Orientation;
 import java.lang.IllegalStateException;
 
 public class Frame {
-    private final Image image;
-    private final boolean isMirrored;
-    private final long timestamp;
-    private final Orientation orientation;
+    private final ImageProxy imageProxy;
     private int refCount = 0;
 
-    public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
-        this.image = image;
-        this.timestamp = timestamp;
-        this.orientation = orientation;
-        this.isMirrored = isMirrored;
+    public Frame(ImageProxy image) {
+        this.imageProxy = image;
     }
 
     private void assertIsValid() throws FrameInvalidError {
-        if (!getIsImageValid(image)) {
+        if (!getIsImageValid(imageProxy)) {
             throw new FrameInvalidError();
         }
     }
 
-    private synchronized boolean getIsImageValid(Image image) {
+    private synchronized boolean getIsImageValid(ImageProxy image) {
         if (refCount <= 0) return false;
         try {
             // will throw an exception if the image is already closed
@@ -43,71 +44,81 @@ public class Frame {
         }
     }
 
+    public synchronized ImageProxy getImageProxy() {
+        return imageProxy;
+    }
+
+    @OptIn(markerClass = ExperimentalGetImage.class)
     public synchronized Image getImage() {
-        return image;
+        return imageProxy.getImage();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized int getWidth() throws FrameInvalidError {
         assertIsValid();
-        return image.getWidth();
+        return imageProxy.getWidth();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized int getHeight() throws FrameInvalidError {
         assertIsValid();
-        return image.getHeight();
+        return imageProxy.getHeight();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized boolean getIsValid() throws FrameInvalidError {
         assertIsValid();
-        return getIsImageValid(image);
+        return getIsImageValid(imageProxy);
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized boolean getIsMirrored() throws FrameInvalidError {
         assertIsValid();
-        return isMirrored;
+        Matrix matrix = imageProxy.getImageInfo().getSensorToBufferTransformMatrix();
+        float[] values = new float[9];
+        matrix.getValues(values);
+        // Check if the X scale factor is negative, indicating a horizontal flip.
+        return values[0] < 0;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized long getTimestamp() throws FrameInvalidError {
         assertIsValid();
-        return timestamp;
+        return imageProxy.getImageInfo().getTimestamp();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized Orientation getOrientation() throws FrameInvalidError {
         assertIsValid();
-        return orientation;
+        int degrees = imageProxy.getImageInfo().getRotationDegrees();
+        return Orientation.Companion.fromRotationDegrees(degrees);
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized PixelFormat getPixelFormat() throws FrameInvalidError {
         assertIsValid();
-        return PixelFormat.Companion.fromImageFormat(image.getFormat());
+        return PixelFormat.Companion.fromImageFormat(imageProxy.getFormat());
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized int getPlanesCount() throws FrameInvalidError {
         assertIsValid();
-        return image.getPlanes().length;
+        return imageProxy.getPlanes().length;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public synchronized int getBytesPerRow() throws FrameInvalidError {
         assertIsValid();
-        return image.getPlanes()[0].getRowStride();
+        return imageProxy.getPlanes()[0].getRowStride();
     }
 
     @SuppressWarnings("unused")
