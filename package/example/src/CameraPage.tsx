@@ -180,9 +180,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
-    console.log(`🌹 Skia update! (${frame.width}x${frame.height})`)
-
-    const black = Skia.Color('black')
+    const black = Skia.Color('red')
     frame.clear(black)
 
     frame.render()
@@ -207,7 +205,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           <Reanimated.View onTouchEnd={onFocusTap} style={[StyleSheet.absoluteFill, { marginTop: 150 }]}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
-                style={{ borderWidth: 1, borderColor: 'green', position: 'absolute', width: 170, height: 250 }}
+                style={StyleSheet.absoluteFill}
                 device={device}
                 isActive={isActive}
                 ref={camera}

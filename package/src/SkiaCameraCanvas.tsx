@@ -1,6 +1,6 @@
 import { Canvas, Image, SkImage } from '@shopify/react-native-skia'
-import React, { useState } from 'react'
-import { ViewProps } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { LayoutChangeEvent, ViewProps } from 'react-native'
 import { CameraProps } from './CameraProps'
 import { ISharedValue } from 'react-native-worklets-core'
 import { useFrameCallback, useSharedValue } from 'react-native-reanimated'
@@ -24,8 +24,6 @@ export function SkiaCameraCanvas({ offscreenTextures, resizeMode, children, ...p
   useFrameCallback(() => {
     'worklet'
 
-    console.log('⏳ UI update!')
-
     // 1. atomically pop() the latest rendered frame/texture from our queue
     const latestTexture = offscreenTextures.value.pop()
     if (latestTexture == null) {
@@ -40,10 +38,15 @@ export function SkiaCameraCanvas({ offscreenTextures, resizeMode, children, ...p
     texture.value = latestTexture
   })
 
+  const onLayout = useCallback(({ nativeEvent: { layout } }: LayoutChangeEvent) => {
+    setWidth(Math.round(layout.width))
+    setHeight(Math.round(layout.height))
+  }, [])
+
   return (
-    <Canvas {...props}>
+    <Canvas {...props} onLayout={onLayout}>
       {children}
-      <Image x={0} y={0} width={150} height={150} fit={resizeMode} image={texture} />
+      <Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
     </Canvas>
   )
 }

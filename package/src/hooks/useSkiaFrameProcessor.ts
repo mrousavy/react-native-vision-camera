@@ -50,6 +50,16 @@ function getRotationDegrees(orientation: Orientation): number {
   }
 }
 
+function getPortraitSize(frame: Frame): { width: number; height: number } {
+  if (frame.orientation === 'landscape-left' || frame.orientation === 'landscape-right') {
+    // it is rotated to some side, so we need to apply rotations first.
+    return { width: frame.height, height: frame.height }
+  } else {
+    // it is already rotated upright.
+    return { width: frame.width, height: frame.height }
+  }
+}
+
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
  * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
@@ -67,10 +77,11 @@ export function createSkiaFrameProcessor(
     'worklet'
     if (surfaceHolder.value == null) {
       // create a new surface with the size of the Frame
-      surfaceHolder.value = Skia.Surface.MakeOffscreen(frame.width, frame.height)
+      const size = getPortraitSize(frame)
+      surfaceHolder.value = Skia.Surface.MakeOffscreen(size.width, size.height)
       if (surfaceHolder.value == null) {
         // it is still null, something went wrong while creating it
-        throw new Error(`Failed to create ${frame.width}x${frame.height} Skia Surface!`)
+        throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
     }
     return surfaceHolder.value
@@ -92,23 +103,8 @@ export function createSkiaFrameProcessor(
     }
 
     return new Proxy(frame as DrawableFrame, {
-      has: (_, property: keyof DrawableFrame) => {
-        'worklet'
-        console.log(`Hasing ${property}`)
-        switch (property) {
-          case 'render':
-          case '__frame':
-          case 'dispose':
-            // it is something we overwrote in JS
-            return true
-          default:
-            // check if the HostObjects have that property
-            return Object.hasOwn(frame, property) || Object.hasOwn(canvas, property)
-        }
-      },
       get: (_, property: keyof DrawableFrame) => {
         'worklet'
-        console.log(`Getting ${property}`)
         if (property === 'render') {
           return (paint?: SkPaint) => {
             'worklet'
@@ -146,22 +142,17 @@ export function createSkiaFrameProcessor(
     frameProcessor: wrapFrameProcessorWithRefCounting((frame) => {
       'worklet'
 
-      console.log('1. get surface')
-
       // 1. Set up Skia Surface with size of Frame
       const surface = getSkiaSurface(frame)
 
-      console.log('2. prepare frame')
       // 2. Create DrawableFrame proxy which internally creates an SkImage/Texture
       const canvas = surface.getCanvas()
       const drawableFrame = createDrawableFrameProxy(frame, canvas)
 
-      console.log('2. clear canvas')
       // 3. Clear the current Canvas
       const black = Skia.Color('black')
       canvas.clear(black)
 
-      console.log('2. run code')
       // 4. Run any user drawing operations
       frameProcessor(drawableFrame)
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, View } from 'react-native'
+import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, View, StyleSheet } from 'react-native'
 import type { CameraDevice } from './CameraDevice'
 import type { ErrorWithCause } from './CameraError'
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
@@ -609,7 +609,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         <View {...props}>
           {result}
           <SkiaCameraCanvas
-            style={{ flex: 1, borderWidth: 1, borderColor: 'red' }}
+            style={StyleSheet.absoluteFill}
             offscreenTextures={frameProcessor.offscreenTextures}
             resizeMode={props.resizeMode}
           />
