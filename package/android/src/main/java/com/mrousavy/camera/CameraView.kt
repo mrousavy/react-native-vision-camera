@@ -59,6 +59,11 @@ class CameraView(context: Context) :
   var enableFrameProcessor = false
   var pixelFormat: PixelFormat = PixelFormat.YUV
   var enableLocation = false
+  var preview = true
+    set(value) {
+      field = value
+      updatePreview()
+    }
 
   // props that require format reconfiguring
   var format: CameraDeviceFormat? = null
@@ -79,7 +84,7 @@ class CameraView(context: Context) :
   var androidPreviewViewType: PreviewViewType = PreviewViewType.SURFACE_VIEW
     set(value) {
       field = value
-      updatePreviewType()
+      updatePreview()
     }
   var enableZoomGesture = false
     set(value) {
@@ -88,8 +93,8 @@ class CameraView(context: Context) :
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
-      previewView.scaleType = value.toScaleType()
       field = value
+      updatePreview()
     }
   var enableFpsGraph = false
     set(value) {
@@ -107,7 +112,7 @@ class CameraView(context: Context) :
   // session
   internal val cameraSession: CameraSession
   internal var frameProcessor: FrameProcessor? = null
-  internal val previewView: PreviewView
+  internal var previewView: PreviewView? = null
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
@@ -116,23 +121,7 @@ class CameraView(context: Context) :
   init {
     clipToOutline = true
     cameraSession = CameraSession(context, this)
-    previewView = PreviewView(context).also {
-      it.installHierarchyFitter()
-      it.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
-      it.layoutParams = LayoutParams(
-        LayoutParams.MATCH_PARENT,
-        LayoutParams.MATCH_PARENT,
-        Gravity.CENTER
-      )
-      it.previewStreamState.observe(cameraSession) { state ->
-        when (state) {
-          PreviewView.StreamState.STREAMING -> onStarted()
-          PreviewView.StreamState.IDLE -> onStopped()
-          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
-        }
-      }
-    }
-    addView(previewView)
+    updatePreview()
   }
 
   override fun onAttachedToWindow() {
@@ -165,7 +154,12 @@ class CameraView(context: Context) :
         config.cameraId = cameraId
 
         // Preview
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
+        val previewView = previewView
+        if (previewView != null) {
+          config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
+        } else {
+          config.preview = CameraConfiguration.Output.Disabled.create()
+        }
 
         // Photo
         if (photo) {
@@ -262,10 +256,43 @@ class CameraView(context: Context) :
     }
   }
 
-  private fun updatePreviewType() {
+  private fun updatePreview() {
     runOnUiThread {
-      previewView.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
+      if (preview && previewView == null) {
+        // User enabled Preview, add the PreviewView
+        previewView = createPreviewView()
+        addView(previewView)
+      } else if (!preview && previewView != null) {
+        // User disabled Preview, remove the PreviewView
+        removeView(previewView)
+        previewView = null
+      }
+      previewView?.let {
+        // Update implementation type from React
+        it.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
+        // Update scale type from React
+        it.scaleType = resizeMode.toScaleType()
+      }
       update()
+    }
+  }
+
+  private fun createPreviewView(): PreviewView {
+    return PreviewView(context).also {
+      it.installHierarchyFitter()
+      it.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
+      it.layoutParams = LayoutParams(
+          LayoutParams.MATCH_PARENT,
+          LayoutParams.MATCH_PARENT,
+          Gravity.CENTER
+      )
+      it.previewStreamState.observe(cameraSession) { state ->
+        when (state) {
+          PreviewView.StreamState.STREAMING -> onStarted()
+          PreviewView.StreamState.IDLE -> onStopped()
+          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
+        }
+      }
     }
   }
 

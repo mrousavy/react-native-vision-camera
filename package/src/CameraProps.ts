@@ -61,6 +61,14 @@ export interface CameraProps extends ViewProps {
 
   //#region Use-cases
   /**
+   * Enables **preview** streaming.
+   *
+   * Preview is enabled by default, and disabled when using a Skia Frame Processor as
+   * Skia will use the video stream as it's preview.
+   * @default true
+   */
+  preview?: boolean
+  /**
    * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://react-native-vision-camera.com/docs/guides/taking-photos))
    */
   photo?: boolean

@@ -581,6 +581,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
+    const isRenderingWithSkia = frameProcessor?.type === 'drawable-skia'
 
     const result = (
       <NativeCameraView
@@ -599,6 +600,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
         enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
+        preview={isRenderingWithSkia ? false : props.preview ?? true}
       />
     )
 

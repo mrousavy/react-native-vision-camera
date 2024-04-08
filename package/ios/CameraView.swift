@@ -22,11 +22,13 @@ import UIKit
 
 public final class CameraView: UIView, CameraSessionDelegate {
   // pragma MARK: React Properties
+  
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
+  
   // use cases
   @objc var photo = false
   @objc var video = false
@@ -35,6 +37,12 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var codeScannerOptions: NSDictionary?
   @objc var pixelFormat: NSString?
   @objc var enableLocation = false
+  @objc var preview = true {
+    didSet {
+      updatePreview()
+    }
+  }
+  
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -43,6 +51,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
+  
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -52,8 +61,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
-      let parsed = try? ResizeMode(jsValue: resizeMode as String)
-      previewView.resizeMode = parsed ?? .cover
+      updatePreview()
     }
   }
 
@@ -65,6 +73,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
+  
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -83,13 +92,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
+  
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
   private var currentConfigureCall: DispatchTime?
   var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
 
-  var previewView: PreviewView
+  var previewView: PreviewView? = nil
   #if DEBUG
     var fpsGraph: RCTFPSGraph?
   #endif
@@ -99,11 +109,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
   override public init(frame: CGRect) {
     // Create CameraSession
     cameraSession = CameraSession()
-    previewView = cameraSession.createPreviewView(frame: frame)
     super.init(frame: frame)
     cameraSession.delegate = self
-
-    addSubview(previewView)
+    updatePreview()
   }
 
   @available(*, unavailable)
@@ -123,8 +131,10 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   override public func layoutSubviews() {
-    previewView.frame = frame
-    previewView.bounds = bounds
+    if let previewView {
+      previewView.frame = frame
+      previewView.bounds = bounds
+    }
   }
 
   func getPixelFormat() -> PixelFormat {
@@ -281,6 +291,24 @@ public final class CameraView: UIView, CameraSessionDelegate {
         fpsGraph = nil
       }
     #endif
+  }
+  
+  func updatePreview() {
+    if preview && previewView == nil {
+      // Create PreviewView and add it
+      previewView = cameraSession.createPreviewView(frame: frame)
+      addSubview(previewView!)
+    } else if !preview && previewView != nil {
+      // Remove PreviewView and destroy it
+      previewView?.removeFromSuperview()
+      previewView = nil
+    }
+    
+    if let previewView {
+      // Update resizeMode from React
+      let parsed = try? ResizeMode(jsValue: resizeMode as String)
+      previewView.resizeMode = parsed ?? .cover
+    }
   }
 
   // pragma MARK: Event Invokers
