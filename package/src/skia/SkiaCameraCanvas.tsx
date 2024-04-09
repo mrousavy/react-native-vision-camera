@@ -1,9 +1,10 @@
-import { Canvas, Image, SkImage } from '@shopify/react-native-skia'
 import React, { useCallback, useState } from 'react'
 import { LayoutChangeEvent, ViewProps } from 'react-native'
 import type { CameraProps } from '../CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
 import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
+import type { SkImage } from '@shopify/react-native-skia'
+import { SkiaProxy } from '../dependencies/SkiaProxy'
 
 interface SkiaCameraCanvasProps extends ViewProps {
   /**
@@ -18,12 +19,7 @@ interface SkiaCameraCanvasProps extends ViewProps {
   resizeMode: CameraProps['resizeMode']
 }
 
-export function SkiaCameraCanvas({
-  offscreenTextures,
-  resizeMode = 'cover',
-  children,
-  ...props
-}: SkiaCameraCanvasProps): React.ReactElement {
+function SkiaCameraCanvasImpl({ offscreenTextures, resizeMode = 'cover', children, ...props }: SkiaCameraCanvasProps): React.ReactElement {
   const texture = ReanimatedProxy.useSharedValue<SkImage | null>(null)
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
@@ -51,9 +47,11 @@ export function SkiaCameraCanvas({
   }, [])
 
   return (
-    <Canvas {...props} onLayout={onLayout} pointerEvents="none">
+    <SkiaProxy.Canvas {...props} onLayout={onLayout} pointerEvents="none">
       {children}
-      <Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
-    </Canvas>
+      <SkiaProxy.Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
+    </SkiaProxy.Canvas>
   )
 }
+
+export const SkiaCameraCanvas = React.memo(SkiaCameraCanvasImpl)

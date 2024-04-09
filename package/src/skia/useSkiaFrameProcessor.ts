@@ -1,4 +1,3 @@
-import { SkCanvas, SkImage, SkPaint, SkSurface, Skia } from '@shopify/react-native-skia'
 import { Platform } from 'react-native'
 import { Frame, FrameInternal } from '../Frame'
 import { DependencyList, useMemo } from 'react'
@@ -7,6 +6,8 @@ import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import { DrawableFrameProcessor } from '../CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
+import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
+import { SkiaProxy } from '../dependencies/SkiaProxy'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -82,6 +83,8 @@ export function createSkiaFrameProcessor(
   surfaceHolder: ISharedValue<SkSurface | null>,
   offscreenTextures: ISharedValue<SkImage[]>,
 ): DrawableFrameProcessor {
+  const Skia = SkiaProxy.Skia
+
   const getSkiaSurface = (frame: Frame): SkSurface => {
     'worklet'
     if (surfaceHolder.value == null) {
