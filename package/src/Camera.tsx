@@ -606,13 +606,13 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
     if (frameProcessor?.type === 'drawable-skia') {
       return (
-        <View {...props} pointerEvents="box-none">
-          {result}
+        <View style={props.style} pointerEvents="box-none">
           <SkiaCameraCanvas
             style={StyleSheet.absoluteFill}
             offscreenTextures={frameProcessor.offscreenTextures}
             resizeMode={props.resizeMode}
           />
+          {result}
         </View>
       )
     } else {
