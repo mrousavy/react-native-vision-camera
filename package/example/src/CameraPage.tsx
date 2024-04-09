@@ -202,7 +202,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     <View style={styles.container}>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
-          <Reanimated.View onTouchEnd={onFocusTap} style={[StyleSheet.absoluteFill, { marginTop: 150 }]}>
+          <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 style={StyleSheet.absoluteFill}

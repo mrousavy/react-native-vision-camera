@@ -18,7 +18,12 @@ interface SkiaCameraCanvasProps extends ViewProps {
   resizeMode: CameraProps['resizeMode']
 }
 
-export function SkiaCameraCanvas({ offscreenTextures, resizeMode, children, ...props }: SkiaCameraCanvasProps): React.ReactElement {
+export function SkiaCameraCanvas({
+  offscreenTextures,
+  resizeMode = 'cover',
+  children,
+  ...props
+}: SkiaCameraCanvasProps): React.ReactElement {
   const texture = useSharedValue<SkImage | null>(null)
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
