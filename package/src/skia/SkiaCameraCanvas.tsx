@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react'
 import { LayoutChangeEvent, ViewProps } from 'react-native'
 import type { CameraProps } from '../CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
-import { useFrameCallback, useSharedValue } from 'react-native-reanimated'
+import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
 
 interface SkiaCameraCanvasProps extends ViewProps {
   /**
@@ -24,11 +24,11 @@ export function SkiaCameraCanvas({
   children,
   ...props
 }: SkiaCameraCanvasProps): React.ReactElement {
-  const texture = useSharedValue<SkImage | null>(null)
+  const texture = ReanimatedProxy.useSharedValue<SkImage | null>(null)
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
 
-  useFrameCallback(() => {
+  ReanimatedProxy.useFrameCallback(() => {
     'worklet'
 
     // 1. atomically pop() the latest rendered frame/texture from our queue

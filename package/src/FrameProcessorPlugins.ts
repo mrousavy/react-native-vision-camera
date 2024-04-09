@@ -142,14 +142,6 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
   throwJSError: throwJSError,
-  // TODO: Remove this in the next version
-  // @ts-expect-error
-  getFrameProcessorPlugin: (name, options) => {
-    console.warn(
-      '"getFrameProcessorPlugin" has been renamed to "initFrameProcessorPlugin". This function will be removed in the next release.',
-    )
-    return proxy.initFrameProcessorPlugin(name, options)
-  },
 }
 
 declare global {

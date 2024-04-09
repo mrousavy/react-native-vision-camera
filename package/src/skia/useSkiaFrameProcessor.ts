@@ -2,10 +2,11 @@ import { SkCanvas, SkImage, SkPaint, SkSurface, Skia } from '@shopify/react-nati
 import { Platform } from 'react-native'
 import { Frame, FrameInternal } from '../Frame'
 import { DependencyList, useMemo } from 'react'
-import { ISharedValue, useSharedValue } from 'react-native-worklets-core'
 import { Orientation } from '../Orientation'
 import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import { DrawableFrameProcessor } from '../CameraProps'
+import type { ISharedValue } from 'react-native-worklets-core'
+import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -224,8 +225,8 @@ export function useSkiaFrameProcessor(
   frameProcessor: (frame: DrawableFrame) => void,
   dependencies: DependencyList,
 ): DrawableFrameProcessor {
-  const surface = useSharedValue<SkSurface | null>(null)
-  const offscreenTextures = useSharedValue<SkImage[]>([])
+  const surface = WorkletsProxy.useSharedValue<SkSurface | null>(null)
+  const offscreenTextures = WorkletsProxy.useSharedValue<SkImage[]>([])
 
   return useMemo(
     () => createSkiaFrameProcessor(frameProcessor, surface, offscreenTextures),
