@@ -3,7 +3,7 @@ import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMet
 import type { CameraDevice } from './CameraDevice'
 import type { ErrorWithCause } from './CameraError'
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
-import type { CameraProps, OnShutterEvent, DrawableFrameProcessor, ReadonlyFrameProcessor } from './CameraProps'
+import type { CameraProps, OnShutterEvent } from './CameraProps'
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile'
 import type { Point } from './Point'
@@ -12,8 +12,9 @@ import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
 import type { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
-import { TakeSnapshotOptions } from './Snapshot'
-import { SkiaCameraCanvas } from './SkiaCameraCanvas'
+import type { TakeSnapshotOptions } from './Snapshot'
+import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
+import type { Frame } from './Frame'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -48,7 +49,6 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
 interface CameraState {
   isRecordingWithFlash: boolean
 }
-type FrameProcessor = DrawableFrameProcessor | ReadonlyFrameProcessor
 //#endregion
 
 //#region Camera Component
@@ -85,7 +85,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   static displayName = 'Camera'
   /** @internal */
   displayName = Camera.displayName
-  private lastFrameProcessor: FrameProcessor | undefined
+  private lastFrameProcessor: ((frame: Frame) => void) | undefined
   private isNativeViewMounted = false
 
   private readonly ref: React.RefObject<RefType>
@@ -535,7 +535,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 
   //#region Lifecycle
-  private setFrameProcessor(frameProcessor: FrameProcessor): void {
+  private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     VisionCameraProxy.setFrameProcessor(this.handle, frameProcessor)
   }
 
@@ -547,8 +547,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.isNativeViewMounted = true
     if (this.props.frameProcessor != null) {
       // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
-      this.setFrameProcessor(this.props.frameProcessor)
-      this.lastFrameProcessor = this.props.frameProcessor
+      this.setFrameProcessor(this.props.frameProcessor.frameProcessor)
+      this.lastFrameProcessor = this.props.frameProcessor.frameProcessor
     }
   }
 
@@ -558,10 +558,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const frameProcessor = this.props.frameProcessor
     if (frameProcessor !== this.lastFrameProcessor) {
       // frameProcessor argument identity changed. Update native to reflect the change.
-      if (frameProcessor != null) this.setFrameProcessor(frameProcessor)
+      if (frameProcessor != null) this.setFrameProcessor(frameProcessor.frameProcessor)
       else this.unsetFrameProcessor()
 
-      this.lastFrameProcessor = frameProcessor
+      this.lastFrameProcessor = frameProcessor?.frameProcessor
     }
   }
   //#endregion

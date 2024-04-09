@@ -5,7 +5,6 @@ import { CameraRuntimeError } from './CameraError'
 import type TWorklets from 'react-native-worklets-core'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
-import type { DrawableFrameProcessor, ReadonlyFrameProcessor } from './CameraProps'
 
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
@@ -28,7 +27,7 @@ interface TVisionCameraProxy {
   /**
    * @internal
    */
-  setFrameProcessor(viewTag: number, frameProcessor: ReadonlyFrameProcessor | DrawableFrameProcessor): void
+  setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void): void
   /**
    * @internal
    */
@@ -260,11 +259,10 @@ export function runAsync(frame: Frame, func: () => void): void {
 
 /**
  * A private API to wrap a Frame Processor with a ref-counting mechanism
+ * @worklet
  * @internal
  */
-export function wrapFrameProcessorWithRefCounting(
-  frameProcessor: ReadonlyFrameProcessor['frameProcessor'],
-): ReadonlyFrameProcessor['frameProcessor'] {
+export function wrapFrameProcessorWithRefCounting(frameProcessor: (frame: Frame) => void): (frame: Frame) => void {
   return (frame) => {
     'worklet'
     // Increment ref-count by one

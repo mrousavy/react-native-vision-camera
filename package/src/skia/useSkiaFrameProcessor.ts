@@ -68,9 +68,11 @@ function getPortraitSize(frame: Frame): { width: number; height: number } {
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
  * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+ *
+ * @worklet
  */
 export function createSkiaFrameProcessor(
-  frameProcessor: DrawableFrameProcessor['frameProcessor'],
+  frameProcessor: (frame: DrawableFrame) => void,
   surfaceHolder: ISharedValue<SkSurface | null>,
   offscreenTextures: ISharedValue<SkImage[]>,
 ): DrawableFrameProcessor {
@@ -182,8 +184,36 @@ export function createSkiaFrameProcessor(
   }
 }
 
+/**
+ * Returns a memoized Skia Frame Processor function wich you can pass to the `<Camera>`.
+ *
+ * The Skia Frame Processor alows you to draw ontop of the Frame, and will manage it's internal offscreen Skia Canvas
+ * and onscreen Skia preview view.
+ *
+ * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
+ *
+ * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
+ *
+ * @worklet
+ * @param frameProcessor The Frame Processor
+ * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
+ * @returns The memoized Skia Frame Processor.
+ * @example
+ * ```ts
+ * const frameProcessor = useSkiaFrameProcessor((frame) => {
+ *   'worklet'
+ *   const faces = scanFaces(frame)
+ *
+ *   frame.render()
+ *   for (const face of faces) {
+ *     const rect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
+ *     frame.drawRect(rect)
+ *   }
+ * }, [])
+ * ```
+ */
 export function useSkiaFrameProcessor(
-  frameProcessor: DrawableFrameProcessor['frameProcessor'],
+  frameProcessor: (frame: DrawableFrame) => void,
   dependencies: DependencyList,
 ): DrawableFrameProcessor {
   const surface = useSharedValue<SkSurface | null>(null)

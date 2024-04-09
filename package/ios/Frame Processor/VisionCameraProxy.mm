@@ -65,9 +65,8 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   return result;
 }
 
-void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& object) {
-  auto frameProcessorType = object.getProperty(runtime, "type").asString(runtime).utf8(runtime);
-  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, object.getProperty(runtime, "frameProcessor"));
+void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, const std::shared_ptr<jsi::Function>& function) {
+  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, function);
 
   RCTExecuteOnMainQueue(^{
     auto currentBridge = [RCTBridge currentBridge];
@@ -114,8 +113,9 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
         runtime, jsi::PropNameID::forUtf8(runtime, "setFrameProcessor"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           auto viewTag = arguments[0].asNumber();
-          auto object = arguments[1].asObject(runtime);
-          this->setFrameProcessor(runtime, static_cast<int>(viewTag), object);
+          auto frameProcessor = arguments[1].asObject(runtime).asFunction(runtime);
+          auto sharedFunction = std::make_shared<jsi::Function>(std::move(frameProcessor));
+          this->setFrameProcessor(runtime, static_cast<int>(viewTag), sharedFunction);
           return jsi::Value::undefined();
         });
   }

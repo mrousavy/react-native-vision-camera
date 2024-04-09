@@ -1,6 +1,7 @@
 import { DependencyList, useMemo } from 'react'
 import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
-import { ReadonlyFrameProcessor } from '../CameraProps'
+import type { ReadonlyFrameProcessor } from '../CameraProps'
+import { Frame } from '../Frame'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -9,8 +10,9 @@ import { ReadonlyFrameProcessor } from '../CameraProps'
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
  * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+ * @worklet
  */
-export function createFrameProcessor(frameProcessor: ReadonlyFrameProcessor['frameProcessor']): ReadonlyFrameProcessor {
+export function createFrameProcessor(frameProcessor: (frame: Frame) => void): ReadonlyFrameProcessor {
   return {
     frameProcessor: wrapFrameProcessorWithRefCounting(frameProcessor),
     type: 'readonly',
@@ -23,6 +25,7 @@ export function createFrameProcessor(frameProcessor: ReadonlyFrameProcessor['fra
  *
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
+ * @worklet
  * @param frameProcessor The Frame Processor
  * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
  * @returns The memoized Frame Processor.
@@ -35,10 +38,7 @@ export function createFrameProcessor(frameProcessor: ReadonlyFrameProcessor['fra
  * }, [])
  * ```
  */
-export function useFrameProcessor(
-  frameProcessor: ReadonlyFrameProcessor['frameProcessor'],
-  dependencies: DependencyList,
-): ReadonlyFrameProcessor {
+export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): ReadonlyFrameProcessor {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => createFrameProcessor(frameProcessor), dependencies)
 }

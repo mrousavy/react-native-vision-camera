@@ -6,14 +6,13 @@ import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
 import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
-import type { DrawableFrame } from './hooks/useSkiaFrameProcessor'
 
 export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
   type: 'readonly'
 }
 export interface DrawableFrameProcessor {
-  frameProcessor: (frame: DrawableFrame) => void
+  frameProcessor: (frame: Frame) => void
   type: 'drawable-skia'
   offscreenTextures: ISharedValue<SkImage[]>
 }

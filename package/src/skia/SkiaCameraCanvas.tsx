@@ -1,13 +1,15 @@
 import { Canvas, Image, SkImage } from '@shopify/react-native-skia'
 import React, { useCallback, useState } from 'react'
 import { LayoutChangeEvent, ViewProps } from 'react-native'
-import { CameraProps } from './CameraProps'
-import { ISharedValue } from 'react-native-worklets-core'
+import type { CameraProps } from '../CameraProps'
+import type { ISharedValue } from 'react-native-worklets-core'
 import { useFrameCallback, useSharedValue } from 'react-native-reanimated'
 
 interface SkiaCameraCanvasProps extends ViewProps {
   /**
-   * The offscreen textures that have been rendered by the Skia Frame Processor
+   * The offscreen textures queue that have been rendered by the Skia Frame Processor.
+   *
+   * This view will always pop the latest Texture from this queue and render it.
    */
   offscreenTextures: ISharedValue<SkImage[]>
   /**
