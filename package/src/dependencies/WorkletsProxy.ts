@@ -18,4 +18,11 @@ const proxy = new Proxy(
   },
 )
 
+/**
+ * A proxy object that lazy-imports react-native-worklets-core as soon as the
+ * caller tries to access a property on {@linkcode WorkletsProxy}.
+ *
+ * If react-native-worklets-core is not installed, accessing anything on
+ * {@linkcode WorkletsProxy} will throw.
+ */
 export const WorkletsProxy = proxy as unknown as TWorklets

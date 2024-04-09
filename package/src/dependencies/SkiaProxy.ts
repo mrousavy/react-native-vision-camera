@@ -18,4 +18,11 @@ const proxy = new Proxy(
   },
 )
 
+/**
+ * A proxy object that lazy-imports @shopify/react-native-skia as soon as the
+ * caller tries to access a property on {@linkcode SkiaProxy}.
+ *
+ * If @shopify/react-native-skia is not installed, accessing anything on
+ * {@linkcode SkiaProxy} will throw.
+ */
 export const SkiaProxy = proxy as unknown as TSkia

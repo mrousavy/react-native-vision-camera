@@ -18,4 +18,11 @@ const proxy = new Proxy(
   },
 )
 
+/**
+ * A proxy object that lazy-imports react-native-reanimated as soon as the
+ * caller tries to access a property on {@linkcode ReanimatedProxy}.
+ *
+ * If react-native-reanimated is not installed, accessing anything on
+ * {@linkcode ReanimatedProxy} will throw.
+ */
 export const ReanimatedProxy = proxy as unknown as TReanimated
