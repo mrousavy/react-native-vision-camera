@@ -403,24 +403,22 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   /**
-   Gets the orientation of the CameraView's images (CMSampleBuffers).
+   Gets the orientation of the CameraView's frames (CMSampleBuffers),
+   relative to the phone in portrait mode.
+   
+   For example, an orientation of `.right` means that the buffer is in landscape.
    */
   private var bufferOrientation: UIImage.Orientation {
     guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
       return .up
     }
-    let orientation = cameraSession.configuration?.orientation ?? .portrait
-
-    // TODO: I think this is wrong.
-    switch orientation {
-    case .portrait:
-      return cameraPosition == .front ? .leftMirrored : .right
-    case .landscapeLeft:
-      return cameraPosition == .front ? .downMirrored : .up
-    case .portraitUpsideDown:
-      return cameraPosition == .front ? .rightMirrored : .left
-    case .landscapeRight:
-      return cameraPosition == .front ? .upMirrored : .down
+    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
+    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
+    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
+    if cameraPosition == .front {
+      return .upMirrored
+    } else {
+      return .up
     }
   }
 }
