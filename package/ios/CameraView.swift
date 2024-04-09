@@ -405,7 +405,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   /**
    Gets the orientation of the CameraView's frames (CMSampleBuffers),
    relative to the phone in portrait mode.
-   
+
    For example, an orientation of `.right` means that the buffer is in landscape.
    */
   private var bufferOrientation: UIImage.Orientation {
