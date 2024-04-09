@@ -51,7 +51,7 @@ export function SkiaCameraCanvas({
   }, [])
 
   return (
-    <Canvas {...props} onLayout={onLayout}>
+    <Canvas {...props} onLayout={onLayout} pointerEvents="none">
       {children}
       <Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
     </Canvas>
