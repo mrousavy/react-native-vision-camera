@@ -27,7 +27,7 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { Skia } from '@shopify/react-native-skia'
+import { BlurStyle, ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -180,19 +180,31 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
-    const black = Skia.Color('red')
-    frame.clear(black)
-
+    // Step 1: Draw the original image
     frame.render()
 
-    const w = frame.height * 0.2
-    const h = frame.width * 0.2
-    const rect = Skia.XYWHRect(frame.width * 0.5 - w / 2, frame.height * 0.5 - h / 2, w, h)
-    const paint = Skia.Paint()
-    const color = Skia.Color('red')
-    paint.setColor(color)
+    const face = { x: frame.width * 0.4, y: frame.height * 0.4, width: frame.width * 0.2, height: frame.height * 0.2 }
+    const centerX = face.x + face.width / 2
+    const centerY = face.y + face.height / 2
+    const radius = Math.min(face.width, face.height) / 2
 
-    frame.drawRect(rect, paint)
+    const blurRadius = 10
+    const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Clamp, null)
+
+    const paint = Skia.Paint()
+    paint.setImageFilter(blurFilter)
+
+    frame.save()
+
+    // Define a circular clipping path
+    const path = Skia.Path.Make()
+    path.addCircle(centerX, centerY, radius)
+    frame.clipPath(path, ClipOp.Intersect, true)
+
+    const faceRect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
+
+    frame.drawImageRect(frame.__skImage, faceRect, faceRect, paint)
+    frame.restore()
   }, [])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
