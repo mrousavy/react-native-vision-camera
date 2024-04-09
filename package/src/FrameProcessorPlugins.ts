@@ -4,6 +4,17 @@ import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
 import { WorkletsProxy } from './dependencies/WorkletsProxy'
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
+  // eslint-disable-next-line no-var
+  var __ErrorUtils:
+    | {
+        reportFatalError: (error: unknown) => void
+      }
+    | undefined
+}
+
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
 
@@ -73,9 +84,14 @@ try {
     error.name = 'Frame Processor Error'
     // @ts-expect-error this is react-native specific
     error.jsEngine = 'VisionCamera'
+
     // From react-native:
-    // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
-    global.ErrorUtils.reportFatalError(error)
+    // @ts-expect-error ErrorUtils is in global.
+    if (global.ErrorUtils != null)
+      // @ts-expect-error the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
+      global.ErrorUtils.reportFatalError(error)
+    else if (global.__ErrorUtils != null) global.__ErrorUtils.reportFatalError(error)
+    else console.error('Frame Processor Error:', error)
   })
   throwJSError = (error) => {
     'worklet'
@@ -141,17 +157,6 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
   throwJSError: throwJSError,
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
-  // eslint-disable-next-line no-var
-  var __ErrorUtils:
-    | {
-        reportFatalError: (error: unknown) => void
-      }
-    | undefined
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
