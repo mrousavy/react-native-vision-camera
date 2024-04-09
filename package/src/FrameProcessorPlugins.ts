@@ -1,10 +1,8 @@
 import type { Frame, FrameInternal } from './Frame'
 import { CameraRuntimeError } from './CameraError'
-
-// only import typescript types
-import type TWorklets from 'react-native-worklets-core'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
+import { WorkletsProxy } from './dependencies/WorkletsProxy'
 
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
@@ -64,9 +62,10 @@ let throwJSError = (error: unknown): void => {
 try {
   assertJSIAvailable()
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { Worklets } = require('react-native-worklets-core') as typeof TWorklets
+  // this will lazyily require the react-native-worklets-core dependency. If this throws, worklets are not available.
+  const Worklets = WorkletsProxy.Worklets
 
+  // fill the stubs with the actual native Worklets implementations
   const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
     const error = new Error()
     error.message = message
