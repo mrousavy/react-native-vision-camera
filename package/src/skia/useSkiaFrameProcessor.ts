@@ -30,6 +30,11 @@ export interface DrawableFrame extends Frame, SkCanvas {
    * @internal
    */
   readonly __frame: Frame
+  /**
+   * A private lazy property that holds the SkImage.
+   * @internal
+   */
+  readonly __skImage: SkImage
 }
 
 const NEEDS_CPU_COPY = Platform.OS === 'ios'
@@ -126,6 +131,9 @@ export function createSkiaFrameProcessor(
           // a hidden property accessed by the native Frame Processor Plugin system
           // to get the actual Frame Host Object.
           return frame
+        } else if (property === '__skImage') {
+          // a hidden property that holds the skImage
+          return image
         } else if (property === 'dispose') {
           return () => {
             'worklet'
@@ -135,8 +143,8 @@ export function createSkiaFrameProcessor(
           }
         }
 
-        // @ts-expect-error types are rough for Proxy
-        return frame[property] ?? canvas[property]
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        return frame[property as keyof Frame] ?? canvas[property as keyof SkCanvas]
       },
     })
   }
