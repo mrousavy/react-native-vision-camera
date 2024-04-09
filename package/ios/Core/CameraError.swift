@@ -184,6 +184,7 @@ enum CaptureError {
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
   case photoNotEnabled
+  case focusRequiresPreview
   case snapshotFailed
   case timedOut
   case insufficientStorage
@@ -212,6 +213,8 @@ enum CaptureError {
       return "snapshot-failed"
     case .timedOut:
       return "timed-out"
+    case .focusRequiresPreview:
+      return "focus-requires-preview"
     case .photoNotEnabled:
       return "photo-not-enabled"
     case .insufficientStorage:
@@ -247,6 +250,8 @@ enum CaptureError {
       return "An unexpected error occurred while trying to access the image data!"
     case .timedOut:
       return "The capture timed out."
+    case .focusRequiresPreview:
+      return "Focus requires preview={...} to be enabled!"
     case let .failedWritingMetadata(cause: cause):
       return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
