@@ -180,16 +180,21 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
-    // Step 1: Draw the original image
     frame.render()
 
-    const face = { x: frame.width * 0.4, y: frame.height * 0.4, width: frame.width * 0.2, height: frame.height * 0.2 }
-    const centerX = face.x + face.width / 2
-    const centerY = face.y + face.height / 2
-    const radius = Math.min(face.width, face.height) / 2
+    const time = (performance.now() % 10000) / 1000
+    const radius = 150
+    const centerX = frame.width / 2
+    const centerY = frame.height / 2
+    const width = frame.width * 0.45
+    const speed = 3
+    const x = centerX + radius * Math.cos((time * 2 * Math.PI) / speed) - width / 2
+    const y = centerY + radius * Math.sin((time * 2 * Math.PI) / speed) - width / 2
+
+    const face = { x: x, y: y, width: width, height: width }
 
     const blurRadius = 10
-    const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Clamp, null)
+    const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
 
     const paint = Skia.Paint()
     paint.setImageFilter(blurFilter)
@@ -198,7 +203,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     // Define a circular clipping path
     const path = Skia.Path.Make()
-    path.addCircle(centerX, centerY, radius)
+    path.addCircle(face.x + face.width / 2, face.y + face.height / 2, face.width / 2)
     frame.clipPath(path, ClipOp.Intersect, true)
 
     const faceRect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
