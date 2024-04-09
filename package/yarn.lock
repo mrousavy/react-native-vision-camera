@@ -6744,10 +6744,10 @@ react-native-reanimated@^3.8.1:
     convert-source-map "^2.0.0"
     invariant "^2.2.4"
 
-react-native-worklets-core@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-0.5.0.tgz#b4c948009bb77604930716c04da6a88e708c3616"
-  integrity sha512-mhupmI4ikjMJokYMMQCaUjS5ADEmTleSr4Bt8lAfXBdALrDeikEgwvmlGuec3/yue2/JeVCD+D59cBH/1xCBrw==
+react-native-worklets-core@^1.0.0-beta.0:
+  version "1.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.0.0-beta.0.tgz#aface630bef48a1896ac67a091e19846c2d338f5"
+  integrity sha512-7lZxBqhxj33C3/DhfVbCbs6MmF8KsxOwPURvGPHRE2hRcF4TCjOTJNVhKVG/NmjBP/4B/nBKaZCBLAT7orw+UQ==
   dependencies:
     string-hash-64 "^1.0.3"
 
