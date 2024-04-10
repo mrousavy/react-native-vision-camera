@@ -198,22 +198,28 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
-  func configureVideoOutputFormat(configuration: CameraConfiguration) throws {
+  func configureVideoOutputFormat(configuration: CameraConfiguration) {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
       // Video is not enabled
       return
     }
 
-    // Configure the VideoOutput Settings to use the given Pixel Format.
-    // We need to run this after device.activeFormat has been set, otherwise the VideoOutput can't stream the given Pixel Format.
-    let pixelFormatType = try video.getPixelFormat(for: videoOutput)
-    videoOutput.videoSettings = [
-      String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
-    ]
+    do {
+      // Configure the VideoOutput Settings to use the given Pixel Format.
+      // We need to run this after device.activeFormat has been set, otherwise the VideoOutput can't stream the given Pixel Format.
+      let pixelFormatType = try video.getPixelFormat(for: videoOutput)
+      videoOutput.videoSettings = [
+        String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
+      ]
+    } catch {
+      // Catch the error and send to JS as a soft-exception.
+      // The default PixelFormat will be used.
+      onConfigureError(error)
+    }
   }
 
-  func configurePhotoOutputFormat(configuration _: CameraConfiguration) throws {
+  func configurePhotoOutputFormat(configuration _: CameraConfiguration) {
     guard let videoDeviceInput, let photoOutput else {
       // Photo is not enabled
       return

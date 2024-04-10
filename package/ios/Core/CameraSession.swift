@@ -162,8 +162,8 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           // 5. After step 2. and 4., we also need to configure some output properties that depend on format.
           //    This needs to be done AFTER we updated the `format`, as this controls the supported properties.
           if difference.outputsChanged || difference.formatChanged {
-            try self.configureVideoOutputFormat(configuration: config)
-            try self.configurePhotoOutputFormat(configuration: config)
+            self.configureVideoOutputFormat(configuration: config)
+            self.configurePhotoOutputFormat(configuration: config)
           }
           // 6. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
