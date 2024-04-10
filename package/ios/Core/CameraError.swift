@@ -125,7 +125,7 @@ enum DeviceError {
       let found = availableFormats.map { $0.toString() }
       return "No compatible PixelFormat was found! VisionCamera will fallback to the default PixelFormat (\(defaultFormat.toString())). " +
         "Try selecting a different format or disable videoHdr={..} and enableBufferCompression={..}. " +
-        "Tried using one of these PixelFormats: \(tried), but only these PixelFormats are supported by this format: \(found)"
+        "Tried using one of these PixelFormats: \(tried), but the current format only supports these PixelFormats: \(found)"
     }
   }
 }
