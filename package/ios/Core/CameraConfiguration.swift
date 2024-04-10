@@ -171,7 +171,7 @@ class CameraConfiguration {
    A Video Output configuration
    */
   struct Video: Equatable {
-    var pixelFormat: PixelFormat = .native
+    var pixelFormat: PixelFormat = .yuv
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
@@ -217,7 +217,7 @@ extension CameraConfiguration.Video {
 
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if enableHdr == true {
-      guard pixelFormat == .native || pixelFormat == .yuv else {
+      guard pixelFormat == .yuv else {
         throw CameraError.format(.incompatiblePixelFormatWithHDR)
       }
 
@@ -237,35 +237,33 @@ extension CameraConfiguration.Video {
     }
 
     // If we don't use HDR, we can use any other custom pixel format.
+    var targetFormats: [OSType] = []
     switch pixelFormat {
     case .yuv:
       // YUV 4:2:0 8-bit (full/limited video colors; uncompressed)
-      var targetFormats = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
-                           kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+      targetFormats = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                       kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
       if enableBufferCompression {
         // YUV 4:2:0 8-bit (full/limited video colors; compressed)
         targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange, at: 0)
         targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange, at: 0)
       }
-      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-        throw CameraError.device(.pixelFormatNotSupported)
-      }
-      return format
     case .rgb:
       // RGBA 8-bit (uncompressed)
-      var targetFormats = [kCVPixelFormatType_32BGRA]
+      targetFormats = [kCVPixelFormatType_32BGRA]
       if enableBufferCompression {
         // RGBA 8-bit (compressed)
         targetFormats.insert(kCVPixelFormatType_Lossy_32BGRA, at: 0)
       }
-      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-        throw CameraError.device(.pixelFormatNotSupported)
-      }
-      return format
-    case .native:
-      return defaultFormat
     case .unknown:
       throw CameraError.parameter(.invalid(unionName: "pixelFormat", receivedValue: "unknown"))
     }
+
+    guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
+      throw CameraError.device(.pixelFormatNotSupported(defaultFormat: defaultFormat,
+                                                        targetFormats: targetFormats,
+                                                        availableFormats: videoOutput.availableVideoPixelFormatTypes))
+    }
+    return format
   }
 }

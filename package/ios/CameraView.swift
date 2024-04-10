@@ -150,7 +150,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         }
       }
     }
-    return .native
+    return .yuv
   }
 
   func getTorch() -> Torch {

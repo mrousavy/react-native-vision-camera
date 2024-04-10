@@ -68,19 +68,38 @@ enum ParameterError {
 
 // MARK: - DeviceError
 
-enum DeviceError: String {
-  case configureError = "configuration-error"
-  case noDevice = "no-device"
-  case invalid = "invalid-device"
-  case flashUnavailable = "flash-unavailable"
-  case microphoneUnavailable = "microphone-unavailable"
-  case lowLightBoostNotSupported = "low-light-boost-not-supported"
-  case focusNotSupported = "focus-not-supported"
-  case notAvailableOnSimulator = "camera-not-available-on-simulator"
-  case pixelFormatNotSupported = "pixel-format-not-supported"
+enum DeviceError {
+  case configureError
+  case noDevice
+  case invalid
+  case flashUnavailable
+  case microphoneUnavailable
+  case lowLightBoostNotSupported
+  case focusNotSupported
+  case notAvailableOnSimulator
+  case pixelFormatNotSupported(defaultFormat: FourCharCode, targetFormats: [FourCharCode], availableFormats: [FourCharCode])
 
   var code: String {
-    return rawValue
+    switch self {
+    case .configureError:
+      return "configuration-error"
+    case .noDevice:
+      return "no-device"
+    case .invalid:
+      return "invalid-device"
+    case .flashUnavailable:
+      return "flash-unavailable"
+    case .microphoneUnavailable:
+      return "microphone-unavailable"
+    case .lowLightBoostNotSupported:
+      return "low-light-boost-not-supported"
+    case .focusNotSupported:
+      return "focus-not-supported"
+    case .notAvailableOnSimulator:
+      return "camera-not-available-on-simulator"
+    case .pixelFormatNotSupported:
+      return "pixel-format-not-supported"
+    }
   }
 
   var message: String {
@@ -101,8 +120,12 @@ enum DeviceError: String {
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:
       return "The Camera is not available on the iOS Simulator!"
-    case .pixelFormatNotSupported:
-      return "The given pixelFormat is not supported on the given Camera Device!"
+    case let .pixelFormatNotSupported(defaultFormat: defaultFormat, targetFormats: targetFormats, availableFormats: availableFormats):
+      let tried = targetFormats.map { $0.toString() }
+      let found = availableFormats.map { $0.toString() }
+      return "No compatible PixelFormat was found! VisionCamera will fallback to the default PixelFormat (\(defaultFormat.toString())). " +
+        "Try selecting a different format or disable videoHdr={..} and enableBufferCompression={..}. " +
+        "Tried using one of these PixelFormats: \(tried), but only these PixelFormats are supported by this format: \(found)"
     }
   }
 }
