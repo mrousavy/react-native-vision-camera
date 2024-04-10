@@ -203,7 +203,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     // Define a circular clipping path
     const path = Skia.Path.Make()
-    path.addCircle(face.x + face.width / 2, face.y + face.height / 2, face.width / 2)
+    const margin = 10
+    path.addCircle(face.x + face.width / 2 + margin, face.y + face.height / 2 + margin, face.width / 2 - 2 * margin)
     frame.clipPath(path, ClipOp.Intersect, true)
 
     const faceRect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
@@ -238,7 +239,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
-                enableFpsGraph={false}
+                enableFpsGraph={true}
                 orientation="portrait"
                 photo={true}
                 video={true}

@@ -1,4 +1,3 @@
-import { Platform } from 'react-native'
 import { Frame, FrameInternal } from '../Frame'
 import { DependencyList, useMemo } from 'react'
 import { Orientation } from '../Orientation'
@@ -38,8 +37,6 @@ export interface DrawableFrame extends Frame, SkCanvas {
    */
   readonly __skImage: SkImage
 }
-
-const NEEDS_CPU_COPY = Platform.OS === 'ios'
 
 function getRotationDegrees(orientation: Orientation): number {
   'worklet'
@@ -104,15 +101,7 @@ export function createSkiaFrameProcessor(
 
     // Convert Frame to SkImage/Texture
     const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-    let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
-    if (NEEDS_CPU_COPY) {
-      // on iOS, we need to do a CPU copy of the Texture, as otherwise we sometimes
-      // encounter flickering issues.
-      // TODO: Fix this on the native side so we can avoid the extra CPU copy!
-      const copy = image.makeNonTextureImage()
-      image.dispose()
-      image = copy
-    }
+    const image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
 
     return new Proxy(frame as DrawableFrame, {
       get: (_, property: keyof DrawableFrame) => {
