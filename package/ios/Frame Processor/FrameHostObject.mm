@@ -58,67 +58,40 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "width") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value((double)frame.width);
   }
   if (name == "height") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value((double)frame.height);
   }
   if (name == "orientation") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     NSString* orientation = [NSString stringWithParsed:frame.orientation];
     return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
   }
   if (name == "isMirrored") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value(frame.isMirrored);
   }
   if (name == "timestamp") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value(frame.timestamp);
   }
   if (name == "pixelFormat") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::String::createFromUtf8(runtime, frame.pixelFormat.UTF8String);
   }
   if (name == "isValid") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     // unsafely access the Frame and try to see if it's valid
     Frame* frame = this->frame;
     return jsi::Value(frame != nil && frame.isValid);
   }
   if (name == "bytesPerRow") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value((double)frame.bytesPerRow);
   }
   if (name == "planesCount") {
-    // Lock Frame so it cannot be deallocated while we access it
-    std::lock_guard lock(this->_mutex);
-
     Frame* frame = this->getFrame();
     return jsi::Value((double)frame.planesCount);
   }
@@ -126,7 +99,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Internal methods
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
       // Increment our self-counted ref count by one.
@@ -137,7 +109,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
       // Decrement our self-counted ref count by one.
@@ -155,9 +126,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Conversion methods
   if (name == "getPlatformBuffer") {
     auto getPlatformBuffer = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
-      std::lock_guard lock(this->_mutex);
-
       // Box-cast to uintptr (just 64-bit address)
       CMSampleBufferRef buffer = this->frame.buffer;
       uintptr_t pointer = reinterpret_cast<uintptr_t>(buffer);
@@ -177,9 +145,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
-      std::lock_guard lock(this->_mutex);
-
       // Get CPU readable Pixel Buffer from Frame and write it to a jsi::ArrayBuffer
       Frame* frame = this->getFrame();
       auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
@@ -215,9 +180,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toString") {
     auto toString = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
-      std::lock_guard lock(this->_mutex);
-
       // Print debug description (width, height)
       Frame* frame = this->getFrame();
       NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu %@ Frame", frame.width, frame.height, frame.pixelFormat];
