@@ -116,7 +116,7 @@ public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> argum
   if (arguments != null && arguments.get("codeType") instanceof String) {
     // ...
   } else {
-    throw new Exception("codeType property has to be a string!");
+    throw new RuntimeException("codeType property has to be a string!");
   }
 }
 ```
