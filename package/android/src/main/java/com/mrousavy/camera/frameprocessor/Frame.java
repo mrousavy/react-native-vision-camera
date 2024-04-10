@@ -30,7 +30,7 @@ public class Frame {
         }
     }
 
-    public ImageProxy getImageProxy() {
+    public ImageProxy getImageProxy() throws FrameInvalidError {
         assertIsValid();
         return imageProxy;
     }
