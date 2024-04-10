@@ -6,6 +6,7 @@
 --disable redundantReturn
 --disable wrapMultilineStatementBraces
 --disable organizeDeclarations
+--disable preferForLoop
 
 --enable markTypes
 
