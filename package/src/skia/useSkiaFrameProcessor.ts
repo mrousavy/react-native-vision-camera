@@ -7,6 +7,7 @@ import type { ISharedValue } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
+import { Platform } from 'react-native'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -65,6 +66,8 @@ function getPortraitSize(frame: Frame): { width: number; height: number } {
   }
 }
 
+const NEEDS_CPU_COPY = Platform.OS === 'ios'
+
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
  * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
@@ -106,7 +109,15 @@ export function createSkiaFrameProcessor(
 
     // Convert Frame to SkImage/Texture
     const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-    const image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
+    let image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
+    if (NEEDS_CPU_COPY) {
+      // On some backends (e.g. Metal/iOS) we cannot use a Texture from this Thread
+      // and render it on the UI thread later. In this case, we need to make an explicit
+      // CPU copy of the Texture, otherwise it will flicker and fail to render.
+      const copy = image.makeNonTextureImage()
+      image.dispose()
+      image = copy
+    }
 
     return new Proxy(frame as DrawableFrame, {
       get: (_, property: keyof DrawableFrame) => {
