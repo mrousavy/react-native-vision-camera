@@ -82,14 +82,17 @@ export function createSkiaFrameProcessor(
 ): DrawableFrameProcessor {
   const Skia = SkiaProxy.Skia
 
+  // TODO: We currently use a separate Value for that. SkSurface has width() and height(), but for some reason it's garbage values.
+  const surfaceSize = WorkletsProxy.Worklets.createSharedValue({ width: 0, height: 0 })
+
   const getSkiaSurface = (frame: Frame): SkSurface => {
     'worklet'
     const size = getPortraitSize(frame)
-    if (surfaceHolder.value == null || surfaceHolder.value.width() !== size.width || surfaceHolder.value.height() !== size.height) {
-      console.log(`Creating ${size.width}x${size.height} Surface...`)
+    if (surfaceHolder.value == null || surfaceSize.value.width !== frame.width || surfaceSize.value.height !== frame.height) {
       // create a new surface with the size of the Frame
       surfaceHolder.value?.dispose()
       surfaceHolder.value = Skia.Surface.MakeOffscreen(size.width, size.height)
+      surfaceSize.value = { width: frame.width, height: frame.height }
       if (surfaceHolder.value == null) {
         // it is still null, something went wrong while creating it
         throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
