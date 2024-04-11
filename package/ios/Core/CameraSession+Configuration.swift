@@ -214,10 +214,16 @@ extension CameraSession {
 
     // Configure the VideoOutput Settings to use the given Pixel Format.
     // We need to run this after device.activeFormat has been set, otherwise the VideoOutput can't stream the given Pixel Format.
-    let pixelFormatType = try video.getPixelFormat(for: videoOutput)
-    videoOutput.videoSettings = [
-      String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
-    ]
+    if let pixelFormatType = try video.getPixelFormat(for: videoOutput) {
+      // Use a custom passed pixelFormat (yuv, rgb, HDR, compressed, ...)
+      videoOutput.videoSettings = [
+        String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
+      ]
+    } else {
+      // According to https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutput/1389945-videosettings#discussion,
+      // setting `videoSettings` to an empty dictionary configures the output to use the "device-native format".
+      videoOutput.videoSettings = [:]
+    }
   }
 
   // pragma MARK: Side-Props
