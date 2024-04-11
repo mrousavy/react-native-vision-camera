@@ -327,7 +327,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
-  - react-native-skia (1.1.0):
+  - react-native-skia (1.2.0):
     - RCT-Folly (= 2021.07.22.00)
     - React
     - React-callinvoker
@@ -675,7 +675,7 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
-  react-native-skia: b40922558d5f457f8182072d0acaace2ac5e80d2
+  react-native-skia: 85375dbf1b2d5f8464decb2f93024d0d8f391eef
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets-core: 81033d42d22985176f9d1ef97378df02c092232e
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
