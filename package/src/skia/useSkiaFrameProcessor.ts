@@ -87,6 +87,7 @@ export function createSkiaFrameProcessor(
     const size = getPortraitSize(frame)
     if (surfaceHolder.value == null || surfaceHolder.value.width() !== size.width || surfaceHolder.value.height() !== size.height) {
       // create a new surface with the size of the Frame
+      surfaceHolder.value?.dispose()
       surfaceHolder.value = Skia.Surface.MakeOffscreen(size.width, size.height)
       if (surfaceHolder.value == null) {
         // it is still null, something went wrong while creating it
