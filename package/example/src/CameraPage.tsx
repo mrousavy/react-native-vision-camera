@@ -27,7 +27,7 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { BlurStyle, ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
+import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({

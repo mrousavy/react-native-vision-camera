@@ -1,5 +1,5 @@
 import { Frame, FrameInternal } from '../Frame'
-import { DependencyList, useMemo } from 'react'
+import { DependencyList, useEffect, useMemo } from 'react'
 import { Orientation } from '../Orientation'
 import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import { DrawableFrameProcessor } from '../CameraProps'
@@ -224,6 +224,19 @@ export function useSkiaFrameProcessor(
 ): DrawableFrameProcessor {
   const surface = WorkletsProxy.useSharedValue<SkSurface | null>(null)
   const offscreenTextures = WorkletsProxy.useSharedValue<SkImage[]>([])
+
+  useEffect(() => {
+    return () => {
+      // on unmount, clean everything
+      surface.value?.dispose()
+      surface.value = null
+      while (offscreenTextures.value.length > 0) {
+        const texture = offscreenTextures.value.shift()
+        if (texture == null) break
+        texture.dispose()
+      }
+    }
+  }, [offscreenTextures, surface])
 
   return useMemo(
     () => createSkiaFrameProcessor(frameProcessor, surface, offscreenTextures),
