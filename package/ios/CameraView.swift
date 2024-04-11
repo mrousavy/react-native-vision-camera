@@ -45,13 +45,12 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // other props
   @objc var isActive = false
   @objc var torch = "off"
-  @objc var torchLevel: NSNumber = 0.7
+  @objc var torchLevel: NSNumber = 0
   @objc var torchDelay: NSNumber = 0
   @objc var torchDuration: NSNumber = 0
-  @objc var backgroundLevel: NSNumber = 0.0
+  @objc var backgroundLevel: NSNumber = 0
   @objc var backgroundDelay: NSNumber = 0
   @objc var backgroundDuration: NSNumber = 0
-  @objc var enableBackgroundTorch = false
   @objc var isTorchOn = false
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var exposure: NSNumber = 1.0
@@ -242,7 +241,6 @@ public final class CameraView: UIView, CameraSessionDelegate {
       config.backgroundLevel = backgroundLevel.doubleValue as NSNumber
       config.backgroundDelay = backgroundDelay.doubleValue as NSNumber
       config.backgroundDuration = backgroundDuration.doubleValue as NSNumber
-      config.enableBackgroundTorch = true
 
       // Zoom
       config.zoom = zoom.doubleValue
