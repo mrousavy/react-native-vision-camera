@@ -54,10 +54,9 @@ JVisionCameraProxy::~JVisionCameraProxy() {
 #endif
 }
 
-void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& frameProcessor) {
+void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& function) {
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessor);
-
+  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, function);
   jni::local_ref<JFrameProcessor::javaobject> frameProcessor = JFrameProcessor::create(worklet, _workletContext);
 
   auto setFrameProcessorMethod = javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>("setFrameProcessor");

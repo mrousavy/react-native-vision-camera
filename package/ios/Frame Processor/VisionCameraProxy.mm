@@ -67,12 +67,13 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
 
 void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, const std::shared_ptr<jsi::Function>& function) {
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, function);
+  FrameProcessor* frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
 
   RCTExecuteOnMainQueue(^{
     auto currentBridge = [RCTBridge currentBridge];
     auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
+    view.frameProcessor = frameProcessor;
   });
 }
 
