@@ -22,7 +22,10 @@ struct Video {
    * The size of the video, in pixels.
    */
   var size: CGSize
-  // FAHAD
+    
+  /**
+   * Extra info for storing date time for record on / off
+   */
   var metadata: [String: Double?]
 
   func toJSValue() -> NSDictionary {
