@@ -45,8 +45,8 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   return result;
 }
 
-void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& frameProcessor) {
-  _javaProxy->cthis()->setFrameProcessor(viewTag, runtime, object);
+void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& function) {
+  _javaProxy->cthis()->setFrameProcessor(viewTag, runtime, function);
 }
 
 void VisionCameraProxy::removeFrameProcessor(int viewTag) {

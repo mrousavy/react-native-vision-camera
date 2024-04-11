@@ -33,7 +33,7 @@ using namespace facebook;
 - (void)callWithFrameHostObject:(std::shared_ptr<FrameHostObject>)frameHostObject {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
-  
+
   // Use a jsi::Scope to indicate that all values allocated in a Frame Processor shall be picked up by GC if possible
   jsi::Scope scope(runtime);
 
