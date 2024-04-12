@@ -91,6 +91,52 @@ export interface CameraProps extends ViewProps {
    */
   torch?: 'off' | 'on'
   /**
+   * Specifies the torch level of the current camera. This value ranges from 0.0 to 1.0
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   */
+  torchLevel?: number
+  /**
+   * Specifies a delay before the torch turns on during a recording session.
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   * @default 0
+   */
+  torchDelay?: number
+  /**
+   * Specifies the duration for which the torch is on during a recording session.
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   * @default 0
+   */
+  torchDuration?: number
+  /**
+   * Specifies the background torch level of the current camera. This value ranges from 0.0 to 1.0.
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   */
+  backgroundLevel?: number
+  /**
+   * Specifies a delay before the background torch turns on during a recording session.
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   * @default 0
+   */
+  backgroundDelay?: number
+  /**
+   * Specifies the duration for which the background torch is on during a recording session.
+   *
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
+   *
+   * @default 0
+   */
+  backgroundDuration?: number
+  /**
    * Specifies the zoom factor of the current camera, in "factor"/scale.
    *
    * This value ranges from `minZoom` (e.g. `1`) to `maxZoom` (e.g. `128`). It is recommended to set this value

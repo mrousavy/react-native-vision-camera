@@ -35,6 +35,13 @@ class CameraConfiguration {
   var fps: Int32?
   var enableLowLightBoost = false
   var torch: Torch = .off
+  var torchLevel: NSNumber = 0
+  var torchDelay: NSNumber = 0
+  var torchDuration: NSNumber = 0
+  var backgroundLevel: NSNumber = 0
+  var backgroundDelay: NSNumber = 0
+  var backgroundDuration: NSNumber = 0
+  var isTorchOn = false
 
   // Zoom
   var zoom: CGFloat?
@@ -61,6 +68,12 @@ class CameraConfiguration {
       fps = other.fps
       enableLowLightBoost = other.enableLowLightBoost
       torch = other.torch
+      torchLevel = other.torchLevel
+      torchDelay = other.torchDelay
+      torchDuration = other.torchDuration
+      backgroundLevel = other.backgroundLevel
+      backgroundDelay = other.backgroundDelay
+      backgroundDuration = other.backgroundDuration
       zoom = other.zoom
       exposure = other.exposure
       isActive = other.isActive
