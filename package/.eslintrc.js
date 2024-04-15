@@ -79,7 +79,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback|useFrameProcessor)',
+        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback|useFrameProcessor|useSkiaFrameProcessor)',
       },
     ],
   },
