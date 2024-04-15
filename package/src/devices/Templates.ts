@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native'
-import { FormatFilter } from './getCameraFormat'
+import type { FormatFilter } from './getCameraFormat'
 
 type PredefinedTemplates =
   | 'Video'

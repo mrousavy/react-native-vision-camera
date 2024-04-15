@@ -1,4 +1,4 @@
-import { PhotoFile } from './PhotoFile'
+import type { PhotoFile } from './PhotoFile'
 
 export interface TakeSnapshotOptions {
   /**

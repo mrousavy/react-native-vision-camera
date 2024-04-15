@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { CameraDevice, CameraDeviceFormat } from '../CameraDevice'
-import { FormatFilter, getCameraFormat } from '../devices/getCameraFormat'
+import type { CameraDevice, CameraDeviceFormat } from '../CameraDevice'
+import type { FormatFilter } from '../devices/getCameraFormat'
+import { getCameraFormat } from '../devices/getCameraFormat'
 
 /**
  * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.

@@ -1,4 +1,4 @@
-import { Point } from './Point'
+import type { Point } from './Point'
 
 /**
  * The type of the code to scan.

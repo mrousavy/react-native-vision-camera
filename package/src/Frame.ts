@@ -1,5 +1,5 @@
 import type { Orientation } from './Orientation'
-import { PixelFormat } from './PixelFormat'
+import type { PixelFormat } from './PixelFormat'
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.

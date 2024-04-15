@@ -1,8 +1,9 @@
-import { withPlugins, AndroidConfig, ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins'
+import type { ConfigPlugin } from '@expo/config-plugins'
+import { withPlugins, AndroidConfig, createRunOncePlugin } from '@expo/config-plugins'
 import { withDisableFrameProcessorsAndroid } from './withDisableFrameProcessorsAndroid'
 import { withDisableFrameProcessorsIOS } from './withDisableFrameProcessorsIOS'
 import { withAndroidMLKitVisionModel } from './withAndroidMLKitVisionModel'
-import { ConfigProps } from './@types'
+import type { ConfigProps } from './@types'
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const pkg = require('../../../package.json')
 

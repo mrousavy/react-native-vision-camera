@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { LayoutChangeEvent, ViewProps } from 'react-native'
+import type { LayoutChangeEvent, ViewProps } from 'react-native'
 import type { CameraProps } from '../CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
 import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'

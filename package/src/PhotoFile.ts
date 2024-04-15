@@ -1,4 +1,4 @@
-import { Orientation } from './Orientation'
+import type { Orientation } from './Orientation'
 import type { TemporaryFile } from './TemporaryFile'
 
 export interface TakePhotoOptions {
