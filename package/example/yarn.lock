@@ -5254,11 +5254,6 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-fast-tflite@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-native-fast-tflite/-/react-native-fast-tflite-1.2.0.tgz#8813d268402675c58d050adaa407c241aa2b6d41"
-  integrity sha512-1hpDXU+XDJ/fHtI7v0ThJj9/bn/utk7C7FLE2Fa60sJawHcsOAxdOlh92BJzhxpYHBMO9367Jlr5f2bKC1DZmA==
-
 react-native-gesture-handler@^2.12.1:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.14.0.tgz#d6aec0d8b2e55c67557fd6107e828c0a1a248be8"
@@ -5329,6 +5324,11 @@ react-native-video@^5.2.1:
     keymirror "^0.1.1"
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
+
+react-native-vision-camera-face-detector@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera-face-detector/-/react-native-vision-camera-face-detector-1.4.2.tgz#fce9b99b4fc3b41163cc39a4e55df182d67e47ae"
+  integrity sha512-aw7NbHgkavpxBbYOQMBhsz/HYJR6egeGCcram/Hb432jmw4US+9yLvUoTWk+Evv3yvShzvLzI4i9cGHn3I1BkA==
 
 react-native-worklets-core@^1.0.0-beta.2:
   version "1.0.0-beta.2"
@@ -6280,11 +6280,6 @@ vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
-
-vision-camera-resize-plugin@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/vision-camera-resize-plugin/-/vision-camera-resize-plugin-2.1.1.tgz#e146963f6a0ce7688718031e384999f0f44f7d47"
-  integrity sha512-5Vpn2NyRPrj05n+bcZdBXFFhxdzZt247gDvSz/EA+swmFYZcq+WDuT5UOAeukWEIG2Uk3JLHq6RSVd97HK6vgA==
 
 vlq@^1.0.0:
   version "1.0.1"

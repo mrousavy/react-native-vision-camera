@@ -26,8 +26,12 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
+import type { SkPoint } from '@shopify/react-native-skia'
+import { ClipOp, PaintStyle, PointMode, Skia, TileMode } from '@shopify/react-native-skia'
 import { useTensorflowModel } from 'react-native-fast-tflite'
+import { useResizePlugin } from 'vision-camera-resize-plugin'
+import type { Face } from 'react-native-vision-camera-face-detector'
+import { detectFaces } from 'react-native-vision-camera-face-detector'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -177,50 +181,66 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const plugin = useTensorflowModel(require('./centerface_w640_h480.tflite'))
-  const model = plugin.model
-
+  // idk why but for some reason the face bounding boxes are divided by 2?
+  const MULTIPLIER = 2
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
     frame.render()
 
-    if (model == null) {
-      console.log('Model is loading...')
-      return
-    }
+    const result = detectFaces({
+      frame: frame,
+      options: {
+        performanceMode: 'fast',
+        contourMode: 'all',
+        landmarkMode: 'none',
+      },
+    })
 
-    const results = model.runSync([0])
-
-    const time = (performance.now() % 10000) / 1000
-    const radius = 150
-    const centerX = frame.width / 2
-    const centerY = frame.height / 2
-    const width = frame.width * 0.45
-    const speed = 3
-    const x = centerX + radius * Math.cos((time * 2 * Math.PI) / speed) - width / 2
-    const y = centerY + radius * Math.sin((time * 2 * Math.PI) / speed) - width / 2
-
-    const face = { x: x, y: y, width: width, height: width }
-
-    const blurRadius = 10
+    const blurRadius = 20
     const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
-
     const paint = Skia.Paint()
     paint.setImageFilter(blurFilter)
 
-    frame.save()
+    const debug = Skia.Paint()
+    debug.setColor(Skia.Color('red'))
 
-    // Define a circular clipping path
-    const path = Skia.Path.Make()
-    const margin = 10
-    path.addCircle(face.x + face.width / 2 + margin, face.y + face.height / 2 + margin, face.width / 2 - 2 * margin)
-    frame.clipPath(path, ClipOp.Intersect, true)
+    for (const face of result.faces as unknown as Face[]) {
+      // detect faces
 
-    const faceRect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
+      if (face.contours == null) {
+        console.log('no countours for this face!')
+        continue
+      }
 
-    frame.drawImageRect(frame.__skImage, faceRect, faceRect, paint)
-    frame.restore()
+      const path = Skia.Path.Make() // Function to add a series of points to the path
+      const addContourToPath = (pointsArray: SkPoint[]) => {
+        if (pointsArray.length > 0) {
+          path.moveTo(pointsArray[0].x * 2, pointsArray[0].y * 2)
+          pointsArray.slice(1).forEach((point) => {
+            path.lineTo(point.x * 2, point.y * 2)
+          })
+          path.close() // Close each contour to complete its loop
+        }
+      }
+
+      // Iterate over each key in the contours object to add to the path
+      Object.keys(face.contours).forEach((key) => {
+        addContourToPath(face.contours[key])
+      })
+
+      // Save the current state of the canvas
+      frame.save()
+
+      // Set the path as the clipping region
+      frame.clipPath(path, ClipOp.Intersect, true)
+
+      // Draw the image with the blur filter applied within the clipping region
+      frame.drawImage(frame.__skImage, 0, 0, paint)
+
+      // Restore the canvas to remove the clip
+      frame.restore()
+    }
   }, [])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
