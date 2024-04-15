@@ -1,50 +1,10 @@
-diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h b/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
-index b2bb75b..9a8d031 100644
---- a/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
-+++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
-@@ -21,11 +21,11 @@ public:
-     auto image = JsiSkImage::fromValue(runtime, arguments[0]);
-     image->makeNonTextureImage();
-
--    uint64_t pointer = getContext()->makePlatformBuffer(image);
-+    uint64_t pointer = getContext()->makeNativeBuffer(image);
-     jsi::HostFunctionType deleteFunc =
-         [=](jsi::Runtime &runtime, const jsi::Value &thisArg,
-             const jsi::Value *args, size_t count) -> jsi::Value {
--      getContext()->releasePlatformBuffer(pointer);
-+      getContext()->releaseNativeBuffer(pointer);
-       return jsi::Value::undefined();
-     };
-     return jsi::BigInt::fromUint64(runtime, pointer);
-@@ -36,7 +36,7 @@ public:
-     jsi::BigInt pointer = arguments[0].asBigInt(runtime);
-     const uintptr_t platformBufferPointer = pointer.asUint64(runtime);
-
--    getContext()->releasePlatformBuffer(platformBufferPointer);
-+    getContext()->releaseNativeBuffer(platformBufferPointer);
-     return jsi::Value::undefined();
-   }
-
-diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
-index 19ae0b9..f3dfcab 100644
---- a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
-+++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
-@@ -31,7 +31,7 @@ public:
-     jsi::BigInt pointer = arguments[0].asBigInt(runtime);
-     const uintptr_t platformBufferPointer = pointer.asUint64(runtime);
-     void *rawPointer = reinterpret_cast<void *>(platformBufferPointer);
--    auto image = getContext()->makeImageFromPlatformBuffer(rawPointer);
-+    auto image = getContext()->makeImageFromNativeBuffer(rawPointer);
-     if (image == nullptr) {
-       throw std::runtime_error("Failed to convert PlatformBuffer to SkImage!");
-     }
 diff --git a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h b/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h
 index 03a038e..7f03215 100644
 --- a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h
 +++ b/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h
 @@ -134,17 +134,17 @@ public:
    virtual sk_sp<SkSurface> makeOffscreenSurface(int width, int height) = 0;
-
+ 
    /**
 -   * Creates an image from a native platform buffer.
 +   * Creates an image from a native buffer.
@@ -55,13 +15,13 @@ index 03a038e..7f03215 100644
     */
 -  virtual sk_sp<SkImage> makeImageFromPlatformBuffer(void *buffer) = 0;
 +  virtual sk_sp<SkImage> makeImageFromNativeBuffer(void *buffer) = 0;
-
+ 
 -  virtual void releasePlatformBuffer(uint64_t pointer) = 0;
 +  virtual void releaseNativeBuffer(uint64_t pointer) = 0;
-
+ 
 -  virtual uint64_t makePlatformBuffer(sk_sp<SkImage> image) = 0;
 +  virtual uint64_t makeNativeBuffer(sk_sp<SkImage> image) = 0;
-
+ 
    /**
     * Return the Platform specific font manager
 diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm
@@ -71,7 +31,7 @@ index 0c73eee..5738746 100644
 @@ -92,9 +92,8 @@
        dContext->flushAndSubmit();
      }
-
+ 
 -    id<MTLCommandBuffer> commandBuffer(
 -        [ThreadContextHolder::ThreadSkiaMetalContext
 -                .commandQueue commandBuffer]);
@@ -85,18 +45,18 @@ index 92dd6eb..b3bbc32 100644
 --- a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.h
 +++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.h
 @@ -59,11 +59,11 @@ public:
-
+ 
    sk_sp<SkImage> takeScreenshotFromViewTag(size_t tag) override;
-
+ 
 -  sk_sp<SkImage> makeImageFromPlatformBuffer(void *buffer) override;
 +  sk_sp<SkImage> makeImageFromNativeBuffer(void *buffer) override;
-
+ 
 -  uint64_t makePlatformBuffer(sk_sp<SkImage> image) override;
 +  uint64_t makeNativeBuffer(sk_sp<SkImage> image) override;
-
+ 
 -  void releasePlatformBuffer(uint64_t pointer) override;
 +  void releaseNativeBuffer(uint64_t pointer) override;
-
+ 
    virtual void performStreamOperation(
        const std::string &sourceUri,
 diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm
@@ -106,22 +66,22 @@ index b3134ee..50953dc 100644
 @@ -1,11 +1,12 @@
 -#include "RNSkiOSPlatformContext.h"
 +#import "RNSkiOSPlatformContext.h"
-
+ 
  #import <CoreMedia/CMSampleBuffer.h>
  #import <React/RCTUtils.h>
  #include <thread>
  #include <utility>
-
+ 
 -#include "SkiaMetalSurfaceFactory.h"
 +#import "SkiaCVPixelBufferUtils.h"
 +#import "SkiaMetalSurfaceFactory.h"
-
+ 
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wdocumentation"
 @@ -57,7 +58,7 @@
    std::thread(loader).detach();
  }
-
+ 
 -void RNSkiOSPlatformContext::releasePlatformBuffer(uint64_t pointer) {
 +void RNSkiOSPlatformContext::releaseNativeBuffer(uint64_t pointer) {
    CMSampleBufferRef sampleBuffer = reinterpret_cast<CMSampleBufferRef>(pointer);
@@ -130,7 +90,7 @@ index b3134ee..50953dc 100644
 @@ -68,64 +69,95 @@
    }
  }
-
+ 
 -uint64_t RNSkiOSPlatformContext::makePlatformBuffer(sk_sp<SkImage> image) {
 +uint64_t RNSkiOSPlatformContext::makeNativeBuffer(sk_sp<SkImage> image) {
 +  // 0. If Image is not in BGRA, convert to BGRA as only BGRA is supported.
@@ -158,7 +118,7 @@ index b3134ee..50953dc 100644
    image->readPixels(nullptr, info, const_cast<void *>(buf->data()), bytesPerRow,
                      0, 0);
 -  auto pixelData = const_cast<void *>(buf->data());
-
+ 
 -  // Create a CVPixelBuffer from the raw pixel data
 -  CVPixelBufferRef pixelBuffer = nullptr;
 -  // OSType pixelFormatType = MapSkColorTypeToOSType(image->colorType());
@@ -217,7 +177,7 @@ index b3134ee..50953dc 100644
 +    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" +
 +                             std::to_string(height) + " IOSurface!");
    }
-
+ 
 -  // Wrap the CVPixelBuffer in a CMSampleBuffer
 -  CMSampleBufferRef sampleBuffer = nullptr;
 +  // 4. Copy over the memory from the pixels into the IOSurface
@@ -235,7 +195,7 @@ index b3134ee..50953dc 100644
 +        "Failed to create CVPixelBuffer from SkImage! Return value: " +
 +        std::to_string(result));
 +  }
-
+ 
 +  // 6. Create CMSampleBuffer base information
    CMFormatDescriptionRef formatDescription = nullptr;
    CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, pixelBuffer,
@@ -250,7 +210,7 @@ index b3134ee..50953dc 100644
 +  timingInfo.duration = kCMTimeInvalid;
 +  timingInfo.presentationTimeStamp = kCMTimeZero;
 +  timingInfo.decodeTimeStamp = kCMTimeInvalid;
-
+ 
 -  // Create the sample buffer.
 +  // 7. Wrap the CVPixelBuffer in a CMSampleBuffer
 +  CMSampleBufferRef sampleBuffer = nullptr;
@@ -270,16 +230,16 @@ index b3134ee..50953dc 100644
 +        "Failed to wrap CVPixelBuffer in CMSampleBuffer! Return value: " +
 +        std::to_string(status));
    }
-
+ 
 -  // Return sampleBuffer casted to uint64_t
 +  // 8. Return CMsampleBuffer casted to uint64_t
    return reinterpret_cast<uint64_t>(sampleBuffer);
  }
-
+ 
 @@ -149,35 +183,9 @@
    return SkiaMetalSurfaceFactory::makeOffscreenSurface(width, height);
  }
-
+ 
 -sk_sp<SkImage>
 -RNSkiOSPlatformContext::makeImageFromPlatformBuffer(void *buffer) {
 +sk_sp<SkImage> RNSkiOSPlatformContext::makeImageFromNativeBuffer(void *buffer) {
@@ -312,7 +272,7 @@ index b3134ee..50953dc 100644
 -  return texture;
 +  return SkiaMetalSurfaceFactory::makeTextureFromCMSampleBuffer(sampleBuffer);
  }
-
+ 
  sk_sp<SkFontMgr> RNSkiOSPlatformContext::createFontMgr() {
 diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaCVPixelBufferUtils.h b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaCVPixelBufferUtils.h
 new file mode 100644
@@ -729,14 +689,14 @@ index 8d9ac40..439fcd8 100644
 +++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.h
 @@ -11,25 +11,19 @@
  #pragma clang diagnostic pop
-
+ 
  using SkiaMetalContext = struct SkiaMetalContext {
 -  id<MTLCommandQueue> commandQueue = nullptr;
 +  id<MTLDevice> device = nil;
 +  id<MTLCommandQueue> commandQueue = nil;
    sk_sp<GrDirectContext> skContext = nullptr;
  };
-
+ 
 -class ThreadContextHolder {
 -public:
 -  static thread_local SkiaMetalContext ThreadSkiaMetalContext;
@@ -747,11 +707,11 @@ index 8d9ac40..439fcd8 100644
    static sk_sp<SkSurface> makeWindowedSurface(id<MTLTexture> texture, int width,
                                                int height);
    static sk_sp<SkSurface> makeOffscreenSurface(int width, int height);
-
+ 
 -  static sk_sp<SkImage> makeTextureFromImage(sk_sp<SkImage> image);
 +  static sk_sp<SkImage>
 +  makeTextureFromCMSampleBuffer(CMSampleBufferRef sampleBuffer);
-
+ 
 -private:
 -  static id<MTLDevice> device;
 -  static bool
@@ -764,26 +724,26 @@ index 0e95d2c..e62956d 100644
 +++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.mm
 @@ -1,6 +1,7 @@
  #import "RNSkLog.h"
-
+ 
 -#include "SkiaMetalSurfaceFactory.h"
 +#import "SkiaCVPixelBufferUtils.h"
 +#import "SkiaMetalSurfaceFactory.h"
-
+ 
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wdocumentation"
 @@ -17,8 +18,6 @@
-
+ 
  #pragma clang diagnostic pop
-
+ 
 -thread_local SkiaMetalContext ThreadContextHolder::ThreadSkiaMetalContext;
 -
  struct OffscreenRenderContext {
    id<MTLTexture> texture;
-
+ 
 @@ -38,40 +37,59 @@
    }
  };
-
+ 
 -id<MTLDevice> SkiaMetalSurfaceFactory::device = MTLCreateSystemDefaultDevice();
 -
 -bool SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
@@ -838,7 +798,7 @@ index 0e95d2c..e62956d 100644
 +      reinterpret_cast<SkiaMetalContext *>(state);
 +  return *currentContext;
  }
-
+ 
  sk_sp<SkSurface>
  SkiaMetalSurfaceFactory::makeWindowedSurface(id<MTLTexture> texture, int width,
                                               int height) {
@@ -849,20 +809,20 @@ index 0e95d2c..e62956d 100644
 -  }
    GrMtlTextureInfo fbInfo;
    fbInfo.fTexture.retain((__bridge void *)texture);
-
+ 
    GrBackendRenderTarget backendRT(width, height, fbInfo);
-
+ 
 +  auto &context = getSkiaContext();
    auto skSurface = SkSurfaces::WrapBackendRenderTarget(
 -      ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(), backendRT,
 -      kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
 +      context.skContext.get(), backendRT, kTopLeft_GrSurfaceOrigin,
 +      kBGRA_8888_SkColorType, nullptr, nullptr);
-
+ 
    if (skSurface == nullptr || skSurface->getCanvas() == nullptr) {
      RNSkia::RNSkLogger::logToConsole(
 @@ -83,13 +101,9 @@
-
+ 
  sk_sp<SkSurface> SkiaMetalSurfaceFactory::makeOffscreenSurface(int width,
                                                                 int height) {
 -  if (!SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
@@ -875,11 +835,11 @@ index 0e95d2c..e62956d 100644
 +  auto &context = getSkiaContext();
 +  auto ctx = new OffscreenRenderContext(context.device, context.skContext,
 +                                        context.commandQueue, width, height);
-
+ 
    // Create a GrBackendTexture from the Metal texture
    GrMtlTextureInfo info;
 @@ -98,20 +112,49 @@
-
+ 
    // Create a SkSurface from the GrBackendTexture
    auto surface = SkSurfaces::WrapBackendTexture(
 -      ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(),
@@ -888,10 +848,10 @@ index 0e95d2c..e62956d 100644
 +      context.skContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, 0,
 +      kBGRA_8888_SkColorType, nullptr, nullptr,
        [](void *addr) { delete (OffscreenRenderContext *)addr; }, ctx);
-
+ 
    return surface;
  }
-
+ 
 -sk_sp<SkImage>
 -SkiaMetalSurfaceFactory::makeTextureFromImage(sk_sp<SkImage> image) {
 -  if (!SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
