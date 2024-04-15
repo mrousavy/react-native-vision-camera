@@ -26,11 +26,8 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import type { SkPoint } from '@shopify/react-native-skia'
-import { ClipOp, PaintStyle, PointMode, Skia, TileMode } from '@shopify/react-native-skia'
-import { useTensorflowModel } from 'react-native-fast-tflite'
-import { useResizePlugin } from 'vision-camera-resize-plugin'
-import type { Face } from 'react-native-vision-camera-face-detector'
+import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
+import type { Contours, Face } from 'react-native-vision-camera-face-detector'
 import { detectFaces } from 'react-native-vision-camera-face-detector'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
@@ -181,67 +178,57 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  // idk why but for some reason the face bounding boxes are divided by 2?
-  const MULTIPLIER = 2
-  const frameProcessor = useSkiaFrameProcessor((frame) => {
-    'worklet'
+  const blurRadius = 25
+  const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
+  const paint = Skia.Paint()
+  paint.setImageFilter(blurFilter)
 
-    frame.render()
+  // idk why but for some reason the face landmarks are divided by 2 relative to the Frame?
+  const MULTIPLIER = 1.9
+  const frameProcessor = useSkiaFrameProcessor(
+    (frame) => {
+      'worklet'
 
-    const result = detectFaces({
-      frame: frame,
-      options: {
-        performanceMode: 'fast',
-        contourMode: 'all',
-        landmarkMode: 'none',
-      },
-    })
+      frame.render()
 
-    const blurRadius = 20
-    const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
-    const paint = Skia.Paint()
-    paint.setImageFilter(blurFilter)
-
-    const debug = Skia.Paint()
-    debug.setColor(Skia.Color('red'))
-
-    for (const face of result.faces as unknown as Face[]) {
-      // detect faces
-
-      if (face.contours == null) {
-        console.log('no countours for this face!')
-        continue
-      }
-
-      const path = Skia.Path.Make() // Function to add a series of points to the path
-      const addContourToPath = (pointsArray: SkPoint[]) => {
-        if (pointsArray.length > 0) {
-          path.moveTo(pointsArray[0].x * 2, pointsArray[0].y * 2)
-          pointsArray.slice(1).forEach((point) => {
-            path.lineTo(point.x * 2, point.y * 2)
-          })
-          path.close() // Close each contour to complete its loop
-        }
-      }
-
-      // Iterate over each key in the contours object to add to the path
-      Object.keys(face.contours).forEach((key) => {
-        addContourToPath(face.contours[key])
+      const result = detectFaces({
+        frame: frame,
+        options: {
+          performanceMode: 'fast',
+          contourMode: 'all',
+          landmarkMode: 'none',
+          classificationMode: 'none',
+        },
       })
 
-      // Save the current state of the canvas
-      frame.save()
+      const faces = result.faces as unknown as Face[]
 
-      // Set the path as the clipping region
-      frame.clipPath(path, ClipOp.Intersect, true)
+      for (const face of faces) {
+        if (face.contours == null) {
+          console.log('no countours for this face!')
+          continue
+        }
 
-      // Draw the image with the blur filter applied within the clipping region
-      frame.drawImage(frame.__skImage, 0, 0, paint)
+        const path = Skia.Path.Make()
 
-      // Restore the canvas to remove the clip
-      frame.restore()
-    }
-  }, [])
+        const necessaryContours: (keyof Contours)[] = ['FACE', 'LEFT_CHEEK', 'RIGHT_CHEEK']
+        for (const key of necessaryContours) {
+          const points = face.contours[key]
+          path.moveTo(points[0].x * MULTIPLIER, points[0].y * MULTIPLIER)
+          points.slice(1).forEach((point) => {
+            path.lineTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+          })
+          path.close()
+        }
+
+        frame.save()
+        frame.clipPath(path, ClipOp.Intersect, true)
+        frame.drawImage(frame.__skImage, 0, 0, paint)
+        frame.restore()
+      }
+    },
+    [paint],
+  )
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
