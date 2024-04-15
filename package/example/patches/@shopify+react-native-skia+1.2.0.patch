@@ -1,0 +1,565 @@
+diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm
+index 0c73eee..5738746 100644
+--- a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm
++++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkMetalCanvasProvider.mm
+@@ -92,9 +92,8 @@
+       dContext->flushAndSubmit();
+     }
+ 
+-    id<MTLCommandBuffer> commandBuffer(
+-        [ThreadContextHolder::ThreadSkiaMetalContext
+-                .commandQueue commandBuffer]);
++    auto &context = SkiaMetalSurfaceFactory::getSkiaContext();
++    id<MTLCommandBuffer> commandBuffer = context.commandQueue.commandBuffer;
+     [commandBuffer presentDrawable:currentDrawable];
+     [commandBuffer commit];
+   }
+diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm
+index b3134ee..644cbf7 100644
+--- a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm
++++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/RNSkiOSPlatformContext.mm
+@@ -1,11 +1,12 @@
+-#include "RNSkiOSPlatformContext.h"
++#import "RNSkiOSPlatformContext.h"
+ 
+ #import <CoreMedia/CMSampleBuffer.h>
+ #import <React/RCTUtils.h>
+ #include <thread>
+ #include <utility>
+ 
+-#include "SkiaMetalSurfaceFactory.h"
++#import "SkiaCVPixelBufferUtils.h"
++#import "SkiaMetalSurfaceFactory.h"
+ 
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Wdocumentation"
+@@ -57,7 +58,7 @@
+   std::thread(loader).detach();
+ }
+ 
+-void RNSkiOSPlatformContext::releasePlatformBuffer(uint64_t pointer) {
++void RNSkiOSPlatformContext::releaseNativeBuffer(uint64_t pointer) {
+   CMSampleBufferRef sampleBuffer = reinterpret_cast<CMSampleBufferRef>(pointer);
+   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+   if (sampleBuffer) {
+@@ -68,64 +69,94 @@
+   }
+ }
+ 
+-uint64_t RNSkiOSPlatformContext::makePlatformBuffer(sk_sp<SkImage> image) {
++uint64_t RNSkiOSPlatformContext::makeNativeBuffer(sk_sp<SkImage> image) {
++  // 0. If Image is not in BGRA, convert to BGRA as only BGRA is supported.
++  if (image->colorType() != kBGRA_8888_SkColorType) {
++    // on iOS, 32_BGRA is the only supported RGB format for CVPixelBuffers.
++    image = image->makeColorTypeAndColorSpace(
++        ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(),
++        kBGRA_8888_SkColorType, SkColorSpace::MakeSRGB());
++    if (image == nullptr) {
++      throw std::runtime_error(
++          "Failed to convert image to BGRA_8888 colortype! Only BGRA_8888 "
++          "PlatformBuffers are supported.");
++    }
++  }
++
++  // 1. Get image info
+   auto bytesPerPixel = image->imageInfo().bytesPerPixel();
+   int bytesPerRow = image->width() * bytesPerPixel;
+   auto buf = SkData::MakeUninitialized(image->width() * image->height() *
+                                        bytesPerPixel);
+   SkImageInfo info = SkImageInfo::Make(image->width(), image->height(),
+                                        image->colorType(), image->alphaType());
++  // 2. Copy pixels into our buffer
+   image->readPixels(nullptr, info, const_cast<void *>(buf->data()), bytesPerRow,
+                     0, 0);
+-  auto pixelData = const_cast<void *>(buf->data());
+ 
+-  // Create a CVPixelBuffer from the raw pixel data
+-  CVPixelBufferRef pixelBuffer = nullptr;
+-  // OSType pixelFormatType = MapSkColorTypeToOSType(image->colorType());
+-
+-  // You will need to fill in the details for creating the pixel buffer
+-  // CVPixelBufferCreateWithBytes or CVPixelBufferCreateWithPlanarBytes
+-  // Create the CVPixelBuffer with the image data
+-  void *context = static_cast<void *>(
+-      new sk_sp<SkData>(buf)); // Create a copy for the context
+-  CVReturn r = CVPixelBufferCreateWithBytes(
+-      nullptr, // allocator
+-      image->width(), image->height(), kCVPixelFormatType_32BGRA,
+-      pixelData,                                         // pixel data
+-      bytesPerRow,                                       // bytes per row
+-      [](void *releaseRefCon, const void *baseAddress) { // release callback
+-        auto buf = static_cast<sk_sp<SkData> *>(releaseRefCon);
+-        buf->reset(); // This effectively calls unref on the SkData object
+-        delete buf;   // Cleanup the dynamically allocated context
+-      },
+-      context,     // release callback context
+-      nullptr,     // pixel buffer attributes
+-      &pixelBuffer // the newly created pixel buffer
+-  );
+-
+-  if (r != kCVReturnSuccess) {
+-    return 0; // or handle error appropriately
++  // 3. Create an IOSurface (GPU + CPU memory)
++  CFMutableDictionaryRef dict = CFDictionaryCreateMutable(
++      kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks,
++      &kCFTypeDictionaryValueCallBacks);
++  int width = image->width();
++  int height = image->height();
++  int pitch = width * bytesPerPixel;
++  int size = width * height * bytesPerPixel;
++  OSType pixelFormat = kCVPixelFormatType_32BGRA;
++  CFDictionarySetValue(
++      dict, kIOSurfaceBytesPerRow,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pitch));
++  CFDictionarySetValue(
++      dict, kIOSurfaceBytesPerElement,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bytesPerPixel));
++  CFDictionarySetValue(
++      dict, kIOSurfaceWidth,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &width));
++  CFDictionarySetValue(
++      dict, kIOSurfaceHeight,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &height));
++  CFDictionarySetValue(
++      dict, kIOSurfacePixelFormat,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pixelFormat));
++  CFDictionarySetValue(
++      dict, kIOSurfaceAllocSize,
++      CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &size));
++  IOSurfaceRef surface = IOSurfaceCreate(dict);
++  if (surface == nil) {
++    throw std::runtime_error("Failed to create " + std::to_string(width) + "x" +
++                             std::to_string(height) + " IOSurface!");
+   }
+ 
+-  // Wrap the CVPixelBuffer in a CMSampleBuffer
+-  CMSampleBufferRef sampleBuffer = nullptr;
++  // 4. Copy over the memory from the pixels into the IOSurface
++  IOSurfaceLock(surface, 0, nil);
++  void *base = IOSurfaceGetBaseAddress(surface);
++  memcpy(base, buf->data(), buf->size());
++  IOSurfaceUnlock(surface, 0, nil);
++
++  // 5. Create a CVPixelBuffer from the IOSurface
++  CVPixelBufferRef pixelBuffer = nullptr;
++  CVReturn result =
++      CVPixelBufferCreateWithIOSurface(nil, surface, nil, &pixelBuffer);
++  if (result != kCVReturnSuccess) {
++    throw std::runtime_error(
++        "Failed to create CVPixelBuffer from SkImage! Return value: " +
++        std::to_string(result));
++  }
+ 
++  // 6. Create CMSampleBuffer base information
+   CMFormatDescriptionRef formatDescription = nullptr;
+   CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, pixelBuffer,
+                                                &formatDescription);
+-
+-  // Assuming no specific timing is required, we initialize the timing info to
+-  // zero.
+   CMSampleTimingInfo timingInfo = {0};
+-  timingInfo.duration = kCMTimeInvalid; // Indicate an unknown duration.
+-  timingInfo.presentationTimeStamp = kCMTimeZero; // Start at time zero.
+-  timingInfo.decodeTimeStamp = kCMTimeInvalid;    // No specific decode time.
++  timingInfo.duration = kCMTimeInvalid;
++  timingInfo.presentationTimeStamp = kCMTimeZero;
++  timingInfo.decodeTimeStamp = kCMTimeInvalid;
+ 
+-  // Create the sample buffer.
++  // 7. Wrap the CVPixelBuffer in a CMSampleBuffer
++  CMSampleBufferRef sampleBuffer = nullptr;
+   OSStatus status = CMSampleBufferCreateReadyWithImageBuffer(
+       kCFAllocatorDefault, pixelBuffer, formatDescription, &timingInfo,
+       &sampleBuffer);
+-
+   if (status != noErr) {
+     if (formatDescription) {
+       CFRelease(formatDescription);
+@@ -133,10 +164,12 @@
+     if (pixelBuffer) {
+       CFRelease(pixelBuffer);
+     }
+-    return 0;
++    throw std::runtime_error(
++        "Failed to wrap CVPixelBuffer in CMSampleBuffer! Return value: " +
++        std::to_string(status));
+   }
+ 
+-  // Return sampleBuffer casted to uint64_t
++  // 8. Return CMsampleBuffer casted to uint64_t
+   return reinterpret_cast<uint64_t>(sampleBuffer);
+ }
+ 
+@@ -149,35 +182,9 @@
+   return SkiaMetalSurfaceFactory::makeOffscreenSurface(width, height);
+ }
+ 
+-sk_sp<SkImage>
+-RNSkiOSPlatformContext::makeImageFromPlatformBuffer(void *buffer) {
++sk_sp<SkImage> RNSkiOSPlatformContext::makeImageFromNativeBuffer(void *buffer) {
+   CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)buffer;
+-  // DO the CPU transfer (debugging only)
+-  //  Step 1: Extract the CVPixelBufferRef from the CMSampleBufferRef
+-  CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+-
+-  // Step 2: Lock the pixel buffer to access the raw pixel data
+-  CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+-
+-  // Step 3: Get information about the image
+-  void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
+-  size_t width = CVPixelBufferGetWidth(pixelBuffer);
+-  size_t height = CVPixelBufferGetHeight(pixelBuffer);
+-  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+-
+-  // Assuming the pixel format is 32BGRA, which is common for iOS video frames.
+-  // You might need to adjust this based on the actual pixel format.
+-  SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType,
+-                                       kUnpremul_SkAlphaType);
+-
+-  // Step 4: Create an SkImage from the pixel buffer
+-  sk_sp<SkData> data =
+-      SkData::MakeWithoutCopy(baseAddress, height * bytesPerRow);
+-  sk_sp<SkImage> image = SkImages::RasterFromData(info, data, bytesPerRow);
+-  auto texture = SkiaMetalSurfaceFactory::makeTextureFromImage(image);
+-  // Step 5: Unlock the pixel buffer
+-  CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+-  return texture;
++  return SkiaMetalSurfaceFactory::makeTextureFromCMSampleBuffer(sampleBuffer);
+ }
+ 
+ sk_sp<SkFontMgr> RNSkiOSPlatformContext::createFontMgr() {
+diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaCVPixelBufferUtils.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaCVPixelBufferUtils.mm
+new file mode 100644
+index 0000000..15e7309
+--- /dev/null
++++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaCVPixelBufferUtils.mm
+@@ -0,0 +1,149 @@
++//
++//  SkiaCVPixelBufferUtils.mm
++//  react-native-skia
++//
++//  Created by Marc Rousavy on 10.04.24.
++//
++
++#import "SkiaCVPixelBufferUtils.h"
++#import "SkiaMetalSurfaceFactory.h"
++
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wdocumentation"
++#import "include/core/SkColorSpace.h"
++#import <include/gpu/GrBackendSurface.h>
++#pragma clang diagnostic pop
++
++#include <TargetConditionals.h>
++#if TARGET_RT_BIG_ENDIAN
++#define FourCC2Str(fourcc)                                                     \
++  (const char[]) {                                                             \
++    *((char *)&fourcc), *(((char *)&fourcc) + 1), *(((char *)&fourcc) + 2),    \
++        *(((char *)&fourcc) + 3), 0                                            \
++  }
++#else
++#define FourCC2Str(fourcc)                                                     \
++  (const char[]) {                                                             \
++    *(((char *)&fourcc) + 3), *(((char *)&fourcc) + 2),                        \
++        *(((char *)&fourcc) + 1), *(((char *)&fourcc) + 0), 0                  \
++  }
++#endif
++
++// pragma MARK: Base
++
++SkiaCVPixelBufferUtils::CVPixelBufferBaseFormat
++SkiaCVPixelBufferUtils::getCVPixelBufferBaseFormat(
++    CVPixelBufferRef pixelBuffer) {
++  OSType format = CVPixelBufferGetPixelFormatType(pixelBuffer);
++
++  switch (format) {
++  case kCVPixelFormatType_32BGRA:
++  case kCVPixelFormatType_32RGBA:
++    return CVPixelBufferBaseFormat::rgb;
++  default:
++    [[unlikely]] throw std::runtime_error(
++        "CVPixelBuffer has unsupported pixel-format! " +
++        std::string(FourCC2Str(format)));
++  }
++}
++
++// pragma MARK: RGB
++
++SkColorType SkiaCVPixelBufferUtils::RGB::getCVPixelBufferColorType(
++    CVPixelBufferRef pixelBuffer) {
++  OSType format = CVPixelBufferGetPixelFormatType(pixelBuffer);
++
++  switch (format) {
++  case kCVPixelFormatType_32BGRA:
++    [[likely]] return kBGRA_8888_SkColorType;
++  case kCVPixelFormatType_32RGBA:
++    return kRGBA_8888_SkColorType;
++  // This can be extended with branches for specific RGB formats if new Apple
++  // uses new formats.
++  default:
++    [[unlikely]] throw std::runtime_error(
++        "CVPixelBuffer has unknown RGB format! " +
++        std::string(FourCC2Str(format)));
++  }
++}
++
++GrBackendTexture SkiaCVPixelBufferUtils::RGB::getSkiaTextureForCVPixelBuffer(
++    CVPixelBufferRef pixelBuffer) {
++  return getSkiaTextureForCVPixelBufferPlane(pixelBuffer, /* planeIndex */ 0);
++}
++
++// pragma MARK: CVPixelBuffer -> Skia Texture
++
++GrBackendTexture SkiaCVPixelBufferUtils::getSkiaTextureForCVPixelBufferPlane(
++    CVPixelBufferRef pixelBuffer, size_t planeIndex) {
++  // 1. Get cache
++  CVMetalTextureCacheRef textureCache = getTextureCache();
++
++  // 2. Get MetalTexture from CMSampleBuffer
++  CVMetalTextureRef textureHolder;
++  size_t width = CVPixelBufferGetWidthOfPlane(pixelBuffer, planeIndex);
++  size_t height = CVPixelBufferGetHeightOfPlane(pixelBuffer, planeIndex);
++  MTLPixelFormat pixelFormat =
++      getMTLPixelFormatForCVPixelBufferPlane(pixelBuffer, planeIndex);
++  CVReturn result = CVMetalTextureCacheCreateTextureFromImage(
++      kCFAllocatorDefault, textureCache, pixelBuffer, nil, pixelFormat, width,
++      height, planeIndex, &textureHolder);
++  if (result != kCVReturnSuccess) [[unlikely]] {
++    throw std::runtime_error(
++        "Failed to create Metal Texture from CMSampleBuffer! Result: " +
++        std::to_string(result));
++  }
++
++  // 2. Unwrap the underlying MTLTexture
++  id<MTLTexture> mtlTexture = CVMetalTextureGetTexture(textureHolder);
++  if (mtlTexture == nil) [[unlikely]] {
++    throw std::runtime_error(
++        "Failed to get MTLTexture from CVMetalTextureRef!");
++  }
++
++  // 3. Wrap MTLTexture in Skia's GrBackendTexture
++  GrMtlTextureInfo textureInfo;
++  textureInfo.fTexture.retain((__bridge void *)mtlTexture);
++  GrBackendTexture texture =
++      GrBackendTexture((int)mtlTexture.width, (int)mtlTexture.height,
++                       skgpu::Mipmapped::kNo, textureInfo);
++  CFRelease(textureHolder);
++  return texture;
++}
++
++// pragma MARK: getTextureCache()
++
++CVMetalTextureCacheRef SkiaCVPixelBufferUtils::getTextureCache() {
++  static thread_local CVMetalTextureCacheRef textureCache = nil;
++  if (textureCache == nil) {
++    // Create a new Texture Cache
++    auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault, nil,
++                                            MTLCreateSystemDefaultDevice(), nil,
++                                            &textureCache);
++    if (result != kCVReturnSuccess || textureCache == nil) {
++      throw std::runtime_error("Failed to create Metal Texture Cache!");
++    }
++  }
++  return textureCache;
++}
++
++// pragma MARK: Get CVPixelBuffer MTLPixelFormat
++
++MTLPixelFormat SkiaCVPixelBufferUtils::getMTLPixelFormatForCVPixelBufferPlane(
++    CVPixelBufferRef pixelBuffer, size_t planeIndex) {
++  size_t width = CVPixelBufferGetWidthOfPlane(pixelBuffer, planeIndex);
++  size_t bytesPerRow =
++      CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, planeIndex);
++  double bytesPerPixel = round(static_cast<double>(bytesPerRow) / width);
++  if (bytesPerPixel == 1) {
++    return MTLPixelFormatR8Unorm;
++  } else if (bytesPerPixel == 2) {
++    return MTLPixelFormatRG8Unorm;
++  } else if (bytesPerPixel == 4) {
++    return MTLPixelFormatBGRA8Unorm;
++  } else [[unlikely]] {
++    throw std::runtime_error("Invalid bytes per row! Expected 1 (R), 2 (RG) or "
++                             "4 (RGBA), but received " +
++                             std::to_string(bytesPerPixel));
++  }
++}
+diff --git a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.mm b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.mm
+index 0e95d2c..e62956d 100644
+--- a/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.mm
++++ b/node_modules/@shopify/react-native-skia/ios/RNSkia-iOS/SkiaMetalSurfaceFactory.mm
+@@ -1,6 +1,7 @@
+ #import "RNSkLog.h"
+ 
+-#include "SkiaMetalSurfaceFactory.h"
++#import "SkiaCVPixelBufferUtils.h"
++#import "SkiaMetalSurfaceFactory.h"
+ 
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Wdocumentation"
+@@ -17,8 +18,6 @@
+ 
+ #pragma clang diagnostic pop
+ 
+-thread_local SkiaMetalContext ThreadContextHolder::ThreadSkiaMetalContext;
+-
+ struct OffscreenRenderContext {
+   id<MTLTexture> texture;
+ 
+@@ -38,40 +37,59 @@
+   }
+ };
+ 
+-id<MTLDevice> SkiaMetalSurfaceFactory::device = MTLCreateSystemDefaultDevice();
+-
+-bool SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
+-    SkiaMetalContext *skiaMetalContext) {
+-  if (skiaMetalContext->skContext == nullptr) {
+-    skiaMetalContext->commandQueue =
+-        id<MTLCommandQueue>(CFRetain((GrMTLHandle)[device newCommandQueue]));
+-    skiaMetalContext->skContext = GrDirectContext::MakeMetal(
+-        (__bridge void *)device,
+-        (__bridge void *)skiaMetalContext->commandQueue);
+-    if (skiaMetalContext->skContext == nullptr) {
+-      RNSkia::RNSkLogger::logToConsole("Couldn't create a Skia Metal Context");
+-      return false;
++const SkiaMetalContext &SkiaMetalSurfaceFactory::getSkiaContext() {
++  // this key is just used as a pointer reference.
++  static const auto key = 1;
++
++  void *state = dispatch_get_specific(&key);
++  if (state == nullptr) {
++    NSLog(@"Re-creating SkiaContext...");
++    SkiaMetalContext *context = new SkiaMetalContext();
++    context->device = MTLCreateSystemDefaultDevice();
++    context->commandQueue = [context->device newCommandQueue];
++    sk_sp<GrDirectContext> skContext =
++        GrDirectContext::MakeMetal((__bridge void *)context->device,
++                                   (__bridge void *)context->commandQueue);
++    if (skContext == nullptr) {
++      throw std::runtime_error("Failed to create Metal Skia Context!");
+     }
++    context->skContext = skContext;
++
++    state = reinterpret_cast<void *>(context);
++
++#pragma clang diagnostic push
++#pragma clang diagnostic ignored "-Wdeprecated-declarations"
++    // Instead of using thread_local, we store the current SkContext
++    // in the current dispatch queue's specific storage.
++    // The problem with thread_local is that Dispatch Queues on iOS
++    // may use multiple Threads, even when using serial (non-concurrent)
++    // attributes, which caused the SkContext to re-initialize
++    // even though it should remain the same - this caused flickering
++    // in NativeBuffer() APIs (e.g. VisionCamera or Video)
++    dispatch_queue_t currentQueue = dispatch_get_current_queue();
++#pragma clang diagnostic pop
++    dispatch_queue_set_specific(currentQueue, &key, state, [](void *data) {
++      delete reinterpret_cast<SkiaMetalContext *>(data);
++    });
+   }
+-  return true;
++
++  SkiaMetalContext *currentContext =
++      reinterpret_cast<SkiaMetalContext *>(state);
++  return *currentContext;
+ }
+ 
+ sk_sp<SkSurface>
+ SkiaMetalSurfaceFactory::makeWindowedSurface(id<MTLTexture> texture, int width,
+                                              int height) {
+-  // Get render context for current thread
+-  if (!SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
+-          &ThreadContextHolder::ThreadSkiaMetalContext)) {
+-    return nullptr;
+-  }
+   GrMtlTextureInfo fbInfo;
+   fbInfo.fTexture.retain((__bridge void *)texture);
+ 
+   GrBackendRenderTarget backendRT(width, height, fbInfo);
+ 
++  auto &context = getSkiaContext();
+   auto skSurface = SkSurfaces::WrapBackendRenderTarget(
+-      ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(), backendRT,
+-      kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
++      context.skContext.get(), backendRT, kTopLeft_GrSurfaceOrigin,
++      kBGRA_8888_SkColorType, nullptr, nullptr);
+ 
+   if (skSurface == nullptr || skSurface->getCanvas() == nullptr) {
+     RNSkia::RNSkLogger::logToConsole(
+@@ -83,13 +101,9 @@
+ 
+ sk_sp<SkSurface> SkiaMetalSurfaceFactory::makeOffscreenSurface(int width,
+                                                                int height) {
+-  if (!SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
+-          &ThreadContextHolder::ThreadSkiaMetalContext)) {
+-    return nullptr;
+-  }
+-  auto ctx = new OffscreenRenderContext(
+-      device, ThreadContextHolder::ThreadSkiaMetalContext.skContext,
+-      ThreadContextHolder::ThreadSkiaMetalContext.commandQueue, width, height);
++  auto &context = getSkiaContext();
++  auto ctx = new OffscreenRenderContext(context.device, context.skContext,
++                                        context.commandQueue, width, height);
+ 
+   // Create a GrBackendTexture from the Metal texture
+   GrMtlTextureInfo info;
+@@ -98,20 +112,49 @@
+ 
+   // Create a SkSurface from the GrBackendTexture
+   auto surface = SkSurfaces::WrapBackendTexture(
+-      ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(),
+-      backendTexture, kTopLeft_GrSurfaceOrigin, 0, kBGRA_8888_SkColorType,
+-      nullptr, nullptr,
++      context.skContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, 0,
++      kBGRA_8888_SkColorType, nullptr, nullptr,
+       [](void *addr) { delete (OffscreenRenderContext *)addr; }, ctx);
+ 
+   return surface;
+ }
+ 
+-sk_sp<SkImage>
+-SkiaMetalSurfaceFactory::makeTextureFromImage(sk_sp<SkImage> image) {
+-  if (!SkiaMetalSurfaceFactory::createSkiaDirectContextIfNecessary(
+-          &ThreadContextHolder::ThreadSkiaMetalContext)) {
+-    throw std::runtime_error("Failed to create Skia Context for this Thread!");
++sk_sp<SkImage> SkiaMetalSurfaceFactory::makeTextureFromCMSampleBuffer(
++    CMSampleBufferRef sampleBuffer) {
++  auto &context = getSkiaContext();
++
++  if (!CMSampleBufferIsValid(sampleBuffer)) [[unlikely]] {
++    throw std::runtime_error("The given CMSampleBuffer is not valid!");
++  }
++
++  CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
++
++  SkiaCVPixelBufferUtils::CVPixelBufferBaseFormat format =
++      SkiaCVPixelBufferUtils::getCVPixelBufferBaseFormat(pixelBuffer);
++  switch (format) {
++  case SkiaCVPixelBufferUtils::CVPixelBufferBaseFormat::rgb: {
++    // CVPixelBuffer is in any RGB format.
++    SkColorType colorType =
++        SkiaCVPixelBufferUtils::RGB::getCVPixelBufferColorType(pixelBuffer);
++    GrBackendTexture texture =
++        SkiaCVPixelBufferUtils::RGB::getSkiaTextureForCVPixelBuffer(
++            pixelBuffer);
++    return SkImages::AdoptTextureFrom(context.skContext.get(), texture,
++                                      kTopLeft_GrSurfaceOrigin, colorType,
++                                      kOpaque_SkAlphaType);
++  }
++  case SkiaCVPixelBufferUtils::CVPixelBufferBaseFormat::yuv: {
++    // CVPixelBuffer is in any YUV format, multi-plane
++    GrYUVABackendTextures textures =
++        SkiaCVPixelBufferUtils::YUV::getSkiaTextureForCVPixelBuffer(
++            pixelBuffer);
++    return SkImages::TextureFromYUVATextures(context.skContext.get(), textures);
++  }
++  default:
++    [[unlikely]] {
++      throw std::runtime_error("Failed to convert PlatformBuffer to SkImage - "
++                               "PlatformBuffer has unsupported PixelFormat! " +
++                               std::to_string(static_cast<int>(format)));
++    }
+   }
+-  return SkImages::TextureFromImage(
+-      ThreadContextHolder::ThreadSkiaMetalContext.skContext.get(), image);
+ }
