@@ -19,5 +19,5 @@ export const createModuleProxy = <TModule>(name: string, getModule: () => Import
       return target.module[property as keyof typeof holder.module]
     },
   })
-  return proxy as TModule
+  return proxy as unknown as TModule
 }
