@@ -7,8 +7,6 @@ const pak = require('../package.json')
 const root = path.resolve(__dirname, '..')
 const modules = Object.keys({ ...pak.peerDependencies })
 
-const defaultConfig = getDefaultConfig(__dirname)
-
 /**
  * Metro configuration
  * https://facebook.github.io/metro/docs/configuration
@@ -21,7 +19,6 @@ const config = {
   // We need to make sure that only one version is loaded for peerDependencies
   // So we block them at the root, and alias them to the versions in example's node_modules
   resolver: {
-    assetExts: [...defaultConfig.resolver?.assetExts, 'tflite'],
     blacklistRE: exclusionList(
       modules.map(
         (m) =>
@@ -45,4 +42,4 @@ const config = {
   },
 }
 
-module.exports = mergeConfig(defaultConfig, config)
+module.exports = mergeConfig(getDefaultConfig(__dirname), config)
