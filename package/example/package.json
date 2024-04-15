@@ -30,7 +30,8 @@
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^10.0.0",
     "react-native-video": "^5.2.1",
-    "react-native-worklets-core": "^1.0.0-beta.2"
+    "react-native-worklets-core": "^1.0.0-beta.2",
+    "vision-camera-resize-plugin": "^2.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.10",

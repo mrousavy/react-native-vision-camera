@@ -1,17 +1,16 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import { GestureResponderEvent, StyleSheet, Text, View } from 'react-native'
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
+import type { GestureResponderEvent } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
+import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
+import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  CameraProps,
-  CameraRuntimeError,
-  PhotoFile,
   useCameraDevice,
   useCameraFormat,
   useLocationPermission,
   useMicrophonePermission,
   useSkiaFrameProcessor,
-  VideoFile,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -28,6 +27,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
+import { useTensorflowModel } from 'react-native-fast-tflite'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -177,10 +177,20 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
+  const plugin = useTensorflowModel(require('./centerface_w640_h480.tflite'))
+  const model = plugin.model
+
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
 
     frame.render()
+
+    if (model == null) {
+      console.log('Model is loading...')
+      return
+    }
+
+    const results = model.runSync([0])
 
     const time = (performance.now() % 10000) / 1000
     const radius = 150
