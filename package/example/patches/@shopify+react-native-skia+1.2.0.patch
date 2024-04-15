@@ -1,3 +1,43 @@
+diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h b/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
+index b2bb75b..9a8d031 100644
+--- a/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
++++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiPlatformBuffer.h
+@@ -21,11 +21,11 @@ public:
+     auto image = JsiSkImage::fromValue(runtime, arguments[0]);
+     image->makeNonTextureImage();
+ 
+-    uint64_t pointer = getContext()->makePlatformBuffer(image);
++    uint64_t pointer = getContext()->makeNativeBuffer(image);
+     jsi::HostFunctionType deleteFunc =
+         [=](jsi::Runtime &runtime, const jsi::Value &thisArg,
+             const jsi::Value *args, size_t count) -> jsi::Value {
+-      getContext()->releasePlatformBuffer(pointer);
++      getContext()->releaseNativeBuffer(pointer);
+       return jsi::Value::undefined();
+     };
+     return jsi::BigInt::fromUint64(runtime, pointer);
+@@ -36,7 +36,7 @@ public:
+     jsi::BigInt pointer = arguments[0].asBigInt(runtime);
+     const uintptr_t platformBufferPointer = pointer.asUint64(runtime);
+ 
+-    getContext()->releasePlatformBuffer(platformBufferPointer);
++    getContext()->releaseNativeBuffer(platformBufferPointer);
+     return jsi::Value::undefined();
+   }
+ 
+diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
+index 19ae0b9..f3dfcab 100644
+--- a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
++++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkImageFactory.h
+@@ -31,7 +31,7 @@ public:
+     jsi::BigInt pointer = arguments[0].asBigInt(runtime);
+     const uintptr_t platformBufferPointer = pointer.asUint64(runtime);
+     void *rawPointer = reinterpret_cast<void *>(platformBufferPointer);
+-    auto image = getContext()->makeImageFromPlatformBuffer(rawPointer);
++    auto image = getContext()->makeImageFromNativeBuffer(rawPointer);
+     if (image == nullptr) {
+       throw std::runtime_error("Failed to convert PlatformBuffer to SkImage!");
+     }
 diff --git a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h b/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h
 index 03a038e..7f03215 100644
 --- a/node_modules/@shopify/react-native-skia/cpp/rnskia/RNSkPlatformContext.h
