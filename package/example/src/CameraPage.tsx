@@ -28,7 +28,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
 import type { Contours, Face } from 'react-native-vision-camera-face-detector'
-import { detectFaces } from 'react-native-vision-camera-face-detector'
+import { useFaceDetector } from 'react-native-vision-camera-face-detector'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -51,7 +51,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground()
   const isActive = isFocussed && isForeground
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back')
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front')
   const [enableHdr, setEnableHdr] = useState(false)
   const [flash, setFlash] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
@@ -184,7 +184,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   paint.setImageFilter(blurFilter)
 
   // idk why but for some reason the face landmarks are divided by 2 relative to the Frame?
-  const MULTIPLIER = 1.9
+  const MULTIPLIER = 1
+  const { detectFaces } = useFaceDetector({
+    performanceMode: 'fast',
+    contourMode: 'all',
+    landmarkMode: 'none',
+    classificationMode: 'none',
+  })
+
   const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
       'worklet'
@@ -193,17 +200,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       const result = detectFaces({
         frame: frame,
-        options: {
-          performanceMode: 'fast',
-          contourMode: 'all',
-          landmarkMode: 'none',
-          classificationMode: 'none',
-        },
       })
 
-      const faces = result.faces as unknown as Face[]
-
-      for (const face of faces) {
+      for (const face of result.faces) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (face.contours == null) {
           console.log('no countours for this face!')
           continue
@@ -214,20 +214,25 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         const necessaryContours: (keyof Contours)[] = ['FACE', 'LEFT_CHEEK', 'RIGHT_CHEEK']
         for (const key of necessaryContours) {
           const points = face.contours[key]
-          path.moveTo(points[0].x * MULTIPLIER, points[0].y * MULTIPLIER)
-          points.slice(1).forEach((point) => {
-            path.lineTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+          points.forEach((point, index) => {
+            if (index === 0) {
+              // it's a starting point
+              path.moveTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+            } else {
+              // it's a continuation
+              path.lineTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+            }
           })
           path.close()
         }
 
         frame.save()
         frame.clipPath(path, ClipOp.Intersect, true)
-        frame.drawImage(frame.__skImage, 0, 0, paint)
+        frame.render(paint)
         frame.restore()
       }
     },
-    [paint],
+    [detectFaces, paint],
   )
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
