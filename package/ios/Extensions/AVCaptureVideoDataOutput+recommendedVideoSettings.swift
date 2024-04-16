@@ -10,14 +10,29 @@ import AVFoundation
 import Foundation
 
 extension AVCaptureVideoDataOutput {
+  private func supportsCodec(_ videoCodec: AVVideoCodecType, writingTo fileType: AVFileType) -> Bool {
+    let availableCodecs = availableVideoCodecTypesForAssetWriter(writingTo: fileType)
+    return availableCodecs.contains(videoCodec)
+  }
+
   /**
    Get the recommended options for an [AVAssetWriter] with the desired [RecordVideoOptions].
    */
   func recommendedVideoSettings(forOptions options: RecordVideoOptions) throws -> [String: Any] {
     let settings: [String: Any]?
     if let videoCodec = options.codec {
-      settings = recommendedVideoSettings(forVideoCodecType: videoCodec, assetWriterOutputFileType: options.fileType)
+      // User passed a custom codec
+      if supportsCodec(videoCodec, writingTo: options.fileType) {
+        // The codec is supported, use it
+        settings = recommendedVideoSettings(forVideoCodecType: videoCodec, assetWriterOutputFileType: options.fileType)
+        ReactLogger.log(level: .info, message: "Using codec \(videoCodec)...")
+      } else {
+        // The codec is not supported, fall-back to default
+        settings = recommendedVideoSettingsForAssetWriter(writingTo: options.fileType)
+        ReactLogger.log(level: .info, message: "Codec \(videoCodec) is not supported, falling back to default...")
+      }
     } else {
+      // User didn't pass a custom codec, just use default
       settings = recommendedVideoSettingsForAssetWriter(writingTo: options.fileType)
     }
     guard var settings else {
