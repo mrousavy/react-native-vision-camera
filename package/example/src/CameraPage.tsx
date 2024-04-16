@@ -1,17 +1,16 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import { GestureResponderEvent, StyleSheet, Text, View } from 'react-native'
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
+import type { GestureResponderEvent } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
+import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
+import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  CameraProps,
-  CameraRuntimeError,
-  PhotoFile,
   useCameraDevice,
   useCameraFormat,
   useLocationPermission,
   useMicrophonePermission,
   useSkiaFrameProcessor,
-  VideoFile,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -28,6 +27,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { ClipOp, Skia, TileMode } from '@shopify/react-native-skia'
+import type { Contours, Face } from 'react-native-vision-camera-face-detector'
+import { useFaceDetector } from 'react-native-vision-camera-face-detector'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -50,7 +51,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground()
   const isActive = isFocussed && isForeground
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back')
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front')
   const [enableHdr, setEnableHdr] = useState(false)
   const [flash, setFlash] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
@@ -177,41 +178,62 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useSkiaFrameProcessor((frame) => {
-    'worklet'
+  const blurRadius = 25
+  const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
+  const paint = Skia.Paint()
+  paint.setImageFilter(blurFilter)
 
-    frame.render()
+  // idk why but for some reason the face landmarks are divided by 2 relative to the Frame?
+  const MULTIPLIER = 1
+  const { detectFaces } = useFaceDetector({
+    performanceMode: 'fast',
+    contourMode: 'all',
+    landmarkMode: 'none',
+    classificationMode: 'none',
+  })
 
-    const time = (performance.now() % 10000) / 1000
-    const radius = 150
-    const centerX = frame.width / 2
-    const centerY = frame.height / 2
-    const width = frame.width * 0.45
-    const speed = 3
-    const x = centerX + radius * Math.cos((time * 2 * Math.PI) / speed) - width / 2
-    const y = centerY + radius * Math.sin((time * 2 * Math.PI) / speed) - width / 2
+  const frameProcessor = useSkiaFrameProcessor(
+    (frame) => {
+      'worklet'
 
-    const face = { x: x, y: y, width: width, height: width }
+      frame.render()
 
-    const blurRadius = 10
-    const blurFilter = Skia.ImageFilter.MakeBlur(blurRadius, blurRadius, TileMode.Repeat, null)
+      const result = detectFaces({
+        frame: frame,
+      })
 
-    const paint = Skia.Paint()
-    paint.setImageFilter(blurFilter)
+      for (const face of result.faces) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (face.contours == null) {
+          console.log('no countours for this face!')
+          continue
+        }
 
-    frame.save()
+        const path = Skia.Path.Make()
 
-    // Define a circular clipping path
-    const path = Skia.Path.Make()
-    const margin = 10
-    path.addCircle(face.x + face.width / 2 + margin, face.y + face.height / 2 + margin, face.width / 2 - 2 * margin)
-    frame.clipPath(path, ClipOp.Intersect, true)
+        const necessaryContours: (keyof Contours)[] = ['FACE', 'LEFT_CHEEK', 'RIGHT_CHEEK']
+        for (const key of necessaryContours) {
+          const points = face.contours[key]
+          points.forEach((point, index) => {
+            if (index === 0) {
+              // it's a starting point
+              path.moveTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+            } else {
+              // it's a continuation
+              path.lineTo(point.x * MULTIPLIER, point.y * MULTIPLIER)
+            }
+          })
+          path.close()
+        }
 
-    const faceRect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
-
-    frame.drawImageRect(frame.__skImage, faceRect, faceRect, paint)
-    frame.restore()
-  }, [])
+        frame.save()
+        frame.clipPath(path, ClipOp.Intersect, true)
+        frame.render(paint)
+        frame.restore()
+      }
+    },
+    [detectFaces, paint],
+  )
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr

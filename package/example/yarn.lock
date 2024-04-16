@@ -5325,6 +5325,11 @@ react-native-video@^5.2.1:
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
 
+react-native-vision-camera-face-detector@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera-face-detector/-/react-native-vision-camera-face-detector-1.5.0.tgz#4f940b088c0e7d4abd04e8de40b75daf1183cf35"
+  integrity sha512-2p8KxSdHBT58d3lI731SGxISkTktnT5tMAP2MDF2J0kQMD1EZ4u9c3ULk90fZVY3jvqlKGHJ8Esqv9/45uMT0g==
+
 react-native-worklets-core@^1.0.0-beta.2:
   version "1.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.0.0-beta.2.tgz#ee72834557b8585c0400653f0a52427e25fdd57d"
