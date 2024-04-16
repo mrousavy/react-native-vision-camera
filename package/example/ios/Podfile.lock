@@ -525,10 +525,6 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - SocketRocket (0.6.1)
-  - vision-camera-resize-plugin (2.1.1):
-    - RCT-Folly (= 2021.07.22.00)
-    - React-Core
-    - VisionCamera
   - VisionCamera (4.0.0-beta.13):
     - React
     - React-callinvoker
@@ -593,7 +589,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
-  - vision-camera-resize-plugin (from `../node_modules/vision-camera-resize-plugin`)
   - VisionCamera (from `../..`)
   - VisionCameraFaceDetector (from `../node_modules/react-native-vision-camera-face-detector`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -720,8 +715,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-static-safe-area-insets"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
-  vision-camera-resize-plugin:
-    :path: "../node_modules/vision-camera-resize-plugin"
   VisionCamera:
     :path: "../.."
   VisionCameraFaceDetector:
@@ -797,7 +790,6 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  vision-camera-resize-plugin: cef68705394b21ef3ec186a8638f683df7440358
   VisionCamera: 0070916075536a3d2a2beaaa056a711492f379f2
   VisionCameraFaceDetector: 9cdc4149c540dbb4995761d66c4f591b5952e652
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
