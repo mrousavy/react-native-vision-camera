@@ -121,7 +121,7 @@ render() {
 
 ## Code result
 
-The Code Scanner will call your [`onCodeScanned`](/docs/api/interfaces/CodeScanner#oncodescanned) callback with all detected codes ([`Code`](/docs/api/interfaces/Code)), including their decoded string value, and their coordinates on the screen relative to the Preview.
+The Code Scanner will call your [`onCodeScanned`](/docs/api/interfaces/CodeScanner#oncodescanned) callback with all detected codes ([`Code`](/docs/api/interfaces/Code)), including their decoded string value, and their coordinates on the screen relative to subject area of the Code Scanner (the [`frame`](/docs/api/interfaces/Code#frame)).
 
 ## UPC-A vs EAN-13 codes
 
