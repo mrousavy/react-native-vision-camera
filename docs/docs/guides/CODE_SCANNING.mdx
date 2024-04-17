@@ -119,16 +119,9 @@ render() {
 </TabItem>
 </Tabs>
 
-## Separate Output
-
-Since the Code Scanner is a separate camera output (just like photo or video), it cannot be attached simultaneously with photo and video enabled.
-You need to disable either `photo`, `video`, or the `codeScanner`.
-
 ## Code result
 
 The Code Scanner will call your [`onCodeScanned`](/docs/api/interfaces/CodeScanner#oncodescanned) callback with all detected codes ([`Code`](/docs/api/interfaces/Code)), including their decoded string value, and their coordinates on the screen relative to the Preview.
-
-<br />
 
 ## UPC-A vs EAN-13 codes
 
