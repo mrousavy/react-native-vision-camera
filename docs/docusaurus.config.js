@@ -25,17 +25,9 @@ module.exports = {
       darkTheme: themes.palenight,
       additionalLanguages: [
         'bash',
-        'ts',
-        'console',
         'json',
-        'groovy',
-        'java',
-        'swift',
         'kotlin',
         'ruby',
-        'cmake',
-        'xml',
-        'logcat'
       ],
     },
     announcementBar: {
