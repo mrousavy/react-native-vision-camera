@@ -147,10 +147,10 @@ const onDraw = useDrawCallback((canvas) => {
 
 ### Call functions
 
-And you can also call back to the React-JS thread by using `createRunInJsFn(...)`:
+And you can also call back to the React-JS thread by using `createRunOnJS(...)`:
 
 ```tsx
-const onFaceDetected = Worklets.createRunInJsFn((face: Face) => {
+const onFaceDetected = Worklets.createRunOnJS((face: Face) => {
   navigation.push("FiltersPage", { face: face })
 })
 
