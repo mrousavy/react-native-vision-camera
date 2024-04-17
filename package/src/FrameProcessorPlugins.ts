@@ -77,7 +77,7 @@ try {
   const Worklets = WorkletsProxy.Worklets
 
   // fill the stubs with the actual native Worklets implementations
-  const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
+  const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined) => {
     const error = new Error()
     error.message = message
     error.stack = stack
@@ -102,7 +102,7 @@ try {
 
   isAsyncContextBusy = Worklets.createSharedValue(false)
   const asyncContext = Worklets.createContext('VisionCamera.async')
-  runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
+  runOnAsyncContext = asyncContext.createRunAsync((frame: Frame, func: () => void) => {
     'worklet'
     try {
       // Call long-running function
@@ -117,7 +117,7 @@ try {
 
       isAsyncContextBusy.value = false
     }
-  }, asyncContext)
+  })
   hasWorklets = true
 } catch (e) {
   // Worklets are not installed, so Frame Processors are disabled.
