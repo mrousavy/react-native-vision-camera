@@ -92,6 +92,7 @@ export function createSkiaFrameProcessor(
   offscreenTextures: ISharedValue<SkImage[]>,
 ): DrawableFrameProcessor {
   const Skia = SkiaProxy.Skia
+  const Worklets = WorkletsProxy.Worklets
 
   const getSkiaSurface = (frame: Frame): SkSurface => {
     'worklet'
@@ -114,7 +115,7 @@ export function createSkiaFrameProcessor(
     // causing 10 different Surfaces to exist in memory.
     // A true workaround would be to expose Skia Contexts to JS in RN Skia,
     // but for now this is fine.
-    const threadId = WorkletsProxy.Worklets.getCurrentThreadId()
+    const threadId = Worklets.getCurrentThreadId()
     const size = getPortraitSize(frame)
     if (
       surfaceHolder.value[threadId] == null ||
