@@ -8,6 +8,7 @@ import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
+import { InteractionManager } from 'react-native'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -261,13 +262,15 @@ export function useSkiaFrameProcessor(
 
   useEffect(() => {
     return () => {
-      // on unmount, clean everything
-      Object.values(surface.value).forEach((cache) => cache.surface.dispose())
-      while (offscreenTextures.value.length > 0) {
-        const texture = offscreenTextures.value.shift()
-        if (texture == null) break
-        texture.dispose()
-      }
+      InteractionManager.runAfterInteractions(() => {
+        // on unmount, clean everything
+        Object.values(surface.value).forEach((cache) => cache.surface.dispose())
+        while (offscreenTextures.value.length > 0) {
+          const texture = offscreenTextures.value.shift()
+          if (texture == null) break
+          texture.dispose()
+        }
+      })
     }
   }, [offscreenTextures, surface])
 
