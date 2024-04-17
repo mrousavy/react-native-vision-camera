@@ -10,7 +10,7 @@ import { getCameraFormat } from '../devices/getCameraFormat'
  * This means the first item you pass will have a higher priority than the second, and so on.
  *
  * @param device The Camera Device you're currently using
- * @param filter The filter you want to use. The format that matches your filter the closest will be returned
+ * @param filters The filters you want to use. The format that matches your filter the closest will be returned
  * @returns The format that matches your filter the closest.
  * @example
  * ```ts
