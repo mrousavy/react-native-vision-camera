@@ -11,14 +11,13 @@
     "lint": "eslint . --fix",
     "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "typescript": "tsc --noEmit",
-    "postinstall": "patch-package"
   },
   "dependencies": {
     "@react-native-camera-roll/camera-roll": "^5.7.2",
     "@react-native-community/blur": "^4.3.2",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
-    "@shopify/react-native-skia": "^1.2.0",
+    "@shopify/react-native-skia": "^1.2.1",
     "react": "^18.2.0",
     "react-native": "^0.72.3",
     "react-native-gesture-handler": "^2.12.1",
@@ -46,7 +45,6 @@
     "eslint": "^8.46.0",
     "eslint-plugin-prettier": "^5.0.0",
     "metro-react-native-babel-preset": "^0.77.0",
-    "patch-package": "^8.0.0",
     "prettier": "^3.2.4",
     "typescript": "^5.1.6"
   }

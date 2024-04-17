@@ -90,10 +90,10 @@ export interface Frame {
 /**
  * A managed memory pointer to a native platform buffer
  */
-interface PlatformBuffer {
+interface NativeBuffer {
   /**
    * A uint64_t/uintptr_t to the native platform buffer.
-   * - On iOS; this points to a `CMSampleBufferRef`
+   * - On iOS; this points to a `CVPixelBufferRef`
    * - On Android; this points to a `AHardwareBuffer*`
    */
   pointer: bigint
@@ -125,10 +125,10 @@ export interface FrameInternal extends Frame {
   /**
    * Get the native platform buffer of the Frame.
    * - On Android, this is a `AHardwareBuffer*`
-   * - On iOS, this is a `CMSampleBufferRef`
+   * - On iOS, this is a `CVPixelBufferRef`
    *
    * This is a private API, do not use this.
    * @internal
    */
-  getPlatformBuffer(): PlatformBuffer
+  getNativeBuffer(): NativeBuffer
 }

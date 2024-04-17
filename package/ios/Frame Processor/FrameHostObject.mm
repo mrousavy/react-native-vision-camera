@@ -33,7 +33,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     // Conversion
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
-    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPlatformBuffer")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNativeBuffer")));
   }
 
   return result;
@@ -124,14 +124,14 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   // Conversion methods
-  if (name == "getPlatformBuffer") {
-    auto getPlatformBuffer = JSI_FUNC {
+  if (name == "getNativeBuffer") {
+    auto getNativeBuffer = JSI_FUNC {
       // Box-cast to uintptr (just 64-bit address)
       CMSampleBufferRef buffer = this->frame.buffer;
       uintptr_t pointer = reinterpret_cast<uintptr_t>(buffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
-        // no-op
+        // no-op as memory is managed by the parent Frame (decrementRefCount())
         return jsi::Value::undefined();
       };
 
@@ -141,7 +141,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                          jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
       return result;
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getPlatformBuffer"), 0, getPlatformBuffer);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getNativeBuffer"), 0, getNativeBuffer);
   }
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_FUNC {

@@ -50,7 +50,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     // Conversion
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
-    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPlatformBuffer")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNativeBuffer")));
   }
 
   return result;
@@ -113,8 +113,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   // Conversion methods
-  if (name == "getPlatformBuffer") {
-    jsi::HostFunctionType getPlatformBuffer = JSI_FUNC {
+  if (name == "getNativeBuffer") {
+    jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
       if (!this->frame) {
         throw jsi::JSError(runtime, "Cannot get Platform Buffer - this Frame is already closed!");
       }
@@ -134,11 +134,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                          jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
       return buffer;
 #else
-      throw jsi::JSError(runtime, "Cannot get Platform Buffer - getPlatformBuffer() requires HardwareBuffers, which are "
+      throw jsi::JSError(runtime, "Cannot get Platform Buffer - getNativeBuffer() requires HardwareBuffers, which are "
                                   "only available on Android API 26 or above. Set your app's minSdk version to 26 and try again.");
 #endif
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getPlatformBuffer"), 0, getPlatformBuffer);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getNativeBuffer"), 0, getNativeBuffer);
   }
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {

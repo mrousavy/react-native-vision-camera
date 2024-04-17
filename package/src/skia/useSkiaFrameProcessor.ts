@@ -106,8 +106,8 @@ export function createSkiaFrameProcessor(
     'worklet'
 
     // Convert Frame to SkImage/Texture
-    const platformBuffer = (frame as FrameInternal).getPlatformBuffer()
-    const image = Skia.Image.MakeImageFromPlatformBuffer(platformBuffer.pointer)
+    const nativeBuffer = (frame as FrameInternal).getNativeBuffer()
+    const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
 
     return new Proxy(frame as DrawableFrame, {
       get: (_, property: keyof DrawableFrame) => {
@@ -138,7 +138,7 @@ export function createSkiaFrameProcessor(
             'worklet'
             // dispose the Frame and the SkImage/Texture
             image.dispose()
-            platformBuffer.delete()
+            nativeBuffer.delete()
           }
         }
 
