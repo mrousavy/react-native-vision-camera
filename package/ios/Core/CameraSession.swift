@@ -239,6 +239,14 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           }
         }
       }
+
+      // Check if Hardware Cost is okay
+      if #available(iOS 16.0, *) {
+        if self.captureSession.hardwareCost > 1 {
+          // Throw this error to the user, but don't abort the configuration. Maybe it still works.
+          self.onConfigureError(CameraError.session(.hardwareCostTooHigh(cost: self.captureSession.hardwareCost)))
+        }
+      }
     }
   }
 

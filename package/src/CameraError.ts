@@ -28,6 +28,7 @@ export type SessionError =
   | 'session/audio-in-use-by-other-app'
   | 'session/no-outputs'
   | 'session/audio-session-failed-to-activate'
+  | 'session/hardware-cost-too-high'
   | 'session/invalid-output-configuration'
 export type CodeScannerError =
   | 'code-scanner/not-compatible-with-outputs'

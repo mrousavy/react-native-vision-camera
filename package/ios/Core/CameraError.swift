@@ -171,6 +171,7 @@ enum SessionError {
   case cameraNotReady
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
+  case hardwareCostTooHigh(cost: Float)
 
   var code: String {
     switch self {
@@ -180,6 +181,8 @@ enum SessionError {
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
+    case .hardwareCostTooHigh:
+      return "hardware-cost-too-high"
     }
   }
 
@@ -191,6 +194,10 @@ enum SessionError {
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
+    case let .hardwareCostTooHigh(cost: cost):
+      return "The session's hardware-cost is too high! (Expected: <=1.0, Received: \(cost)) " +
+        "See https://developer.apple.com/documentation/avfoundation/avcapturesession/3950869-hardwarecost " +
+        "for more information."
     }
   }
 }

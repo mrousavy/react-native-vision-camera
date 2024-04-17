@@ -271,8 +271,11 @@ class CameraSession(private val context: Context, private val callback: Callback
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
         if (format != null) {
           Log.i(TAG, "Photo size: ${format.photoSize}")
-          val resolutionSelector = ResolutionSelector.Builder().forSize(format.photoSize)
-          photo.setResolutionSelector(resolutionSelector.build())
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.photoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+            .build()
+          photo.setResolutionSelector(resolutionSelector)
         }
       }.build()
       photoOutput = photo
@@ -324,8 +327,11 @@ class CameraSession(private val context: Context, private val callback: Callback
         }
         if (format != null) {
           Log.i(TAG, "Video size: ${format.videoSize}")
-          val resolutionSelector = ResolutionSelector.Builder().forSize(format.videoSize)
-          video.setResolutionSelector(resolutionSelector.build())
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.videoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+            .build()
+          video.setResolutionSelector(resolutionSelector)
         }
       }.build()
       videoOutput = video
@@ -345,8 +351,11 @@ class CameraSession(private val context: Context, private val callback: Callback
         analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
         if (format != null) {
           Log.i(TAG, "Frame Processor size: ${format.videoSize}")
-          val resolutionSelector = ResolutionSelector.Builder().forSize(format.videoSize)
-          analysis.setResolutionSelector(resolutionSelector.build())
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.videoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+            .build()
+          analysis.setResolutionSelector(resolutionSelector)
         }
       }.build()
       val pipeline = FrameProcessorPipeline(callback)
@@ -360,7 +369,11 @@ class CameraSession(private val context: Context, private val callback: Callback
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
       Log.i(TAG, "Creating CodeScanner output...")
-      val analyzer = ImageAnalysis.Builder().build()
+      val analyzer = ImageAnalysis.Builder().also { analysis ->
+        val targetSize = Size(1280, 720)
+        val resolutionSelector = ResolutionSelector.Builder().forSize(targetSize).build()
+        analysis.setResolutionSelector(resolutionSelector)
+      }.build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
       analyzer.setAnalyzer(CameraQueues.analyzerExecutor, pipeline)
       codeScannerOutput = analyzer
