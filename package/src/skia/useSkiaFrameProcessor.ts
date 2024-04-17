@@ -28,13 +28,13 @@ export interface DrawableFrame extends Frame, SkCanvas {
    */
   dispose(): void
   /**
-   * A private lazy property accessed by the native Frame Processor Plugin system
+   * A private property accessed by the native Frame Processor Plugin system
    * to get the actual Frame Host Object.
    * @internal
    */
   readonly __frame: Frame
   /**
-   * A private lazy property that holds the SkImage.
+   * A private property that holds the SkImage.
    * @internal
    */
   readonly __skImage: SkImage
@@ -264,7 +264,9 @@ export function useSkiaFrameProcessor(
     return () => {
       InteractionManager.runAfterInteractions(() => {
         // on unmount, clean everything
-        Object.values(surface.value).forEach((cache) => cache.surface.dispose())
+        const surfaces = Object.values(surface.value).map((v) => v.surface)
+        surface.value = {}
+        surfaces.forEach((s) => s.dispose())
         while (offscreenTextures.value.length > 0) {
           const texture = offscreenTextures.value.shift()
           if (texture == null) break
