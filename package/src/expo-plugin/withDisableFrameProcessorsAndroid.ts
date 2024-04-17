@@ -1,4 +1,5 @@
-import { ConfigPlugin, withGradleProperties } from '@expo/config-plugins'
+import type { ConfigPlugin } from '@expo/config-plugins'
+import { withGradleProperties } from '@expo/config-plugins'
 
 /**
  * Set the `VisionCamera_disableFrameProcessors` value in the static `gradle.properties` file.

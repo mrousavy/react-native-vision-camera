@@ -12,7 +12,6 @@ import Foundation
 enum PixelFormat: String, JSUnionValue {
   case yuv
   case rgb
-  case native
   case unknown
 
   init(jsValue: String) throws {

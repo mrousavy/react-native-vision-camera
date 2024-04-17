@@ -1,13 +1,20 @@
 import type { ViewProps } from 'react-native'
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice'
 import type { CameraRuntimeError } from './CameraError'
-import { CodeScanner } from './CodeScanner'
+import type { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
+import type { ISharedValue } from 'react-native-worklets-core'
+import type { SkImage } from '@shopify/react-native-skia'
 
-export interface FrameProcessor {
+export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
-  type: 'frame-processor'
+  type: 'readonly'
+}
+export interface DrawableFrameProcessor {
+  frameProcessor: (frame: Frame) => void
+  type: 'drawable-skia'
+  offscreenTextures: ISharedValue<SkImage[]>
 }
 
 export interface OnShutterEvent {
@@ -52,6 +59,14 @@ export interface CameraProps extends ViewProps {
   isActive: boolean
 
   //#region Use-cases
+  /**
+   * Enables **preview** streaming.
+   *
+   * Preview is enabled by default, and disabled when using a Skia Frame Processor as
+   * Skia will use the video stream as it's preview.
+   * @default true
+   */
+  preview?: boolean
   /**
    * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://react-native-vision-camera.com/docs/guides/taking-photos))
    */
@@ -315,7 +330,7 @@ export interface CameraProps extends ViewProps {
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```
    */
-  frameProcessor?: FrameProcessor
+  frameProcessor?: ReadonlyFrameProcessor | DrawableFrameProcessor
   /**
    * A CodeScanner that can detect QR-Codes or Barcodes using platform-native APIs.
    *

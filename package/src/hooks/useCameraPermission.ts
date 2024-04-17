@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Camera, CameraPermissionRequestResult, CameraPermissionStatus } from '../Camera'
+import type { CameraPermissionRequestResult, CameraPermissionStatus } from '../Camera'
+import { Camera } from '../Camera'
 import { AppState } from 'react-native'
 
 interface PermissionState {

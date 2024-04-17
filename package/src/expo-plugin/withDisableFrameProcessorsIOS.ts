@@ -1,4 +1,5 @@
-import { ConfigPlugin, withPodfileProperties } from '@expo/config-plugins'
+import type { ConfigPlugin } from '@expo/config-plugins'
+import { withPodfileProperties } from '@expo/config-plugins'
 
 /**
  * Set the `disableFrameProcessors` inside of the XcodeProject.

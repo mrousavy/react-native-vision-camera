@@ -85,6 +85,11 @@ data class CameraConfiguration(
       get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
   }
 
+  /**
+   * Throw this to abort a call to configure { ... } and apply no changes.
+   */
+  class AbortThrow : Throwable()
+
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 

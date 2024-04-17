@@ -54,7 +54,7 @@ Return values will automatically be converted to JS values, assuming they are re
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   return "cat";
 }
 ```
@@ -74,7 +74,7 @@ You can also manipulate the buffer and return it (or a copy of it) by returning 
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   Frame resizedFrame = new Frame(/* ... */);
   return resizedFrame;
 }
@@ -112,11 +112,11 @@ To let the user know that something went wrong you can use Exceptions:
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   if (arguments != null && arguments.get("codeType") instanceof String) {
     // ...
   } else {
-    throw new Exception("codeType property has to be a string!");
+    throw new RuntimeException("codeType property has to be a string!");
   }
 }
 ```
@@ -149,7 +149,7 @@ For example, a realtime video chat application might use WebRTC to send the fram
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   if (arguments == null) {
     return null;
   }

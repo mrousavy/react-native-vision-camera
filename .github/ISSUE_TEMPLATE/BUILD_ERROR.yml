@@ -32,10 +32,10 @@ body:
       render: json
       placeholder: >
         "dependencies": {
-          "react-native": "^0.72.3",
-          "react-native-reanimated": "^3.4.2",
-          "react-native-vision-camera": "^3.0.0",
-          "react-native-worklets-core": "^0.2.0",
+          "react-native": "^0.73.4",
+          "react-native-reanimated": "^3.9.0",
+          "react-native-vision-camera": "^4.0.0",
+          "react-native-worklets-core": "^1.0.0",
           ...
         },
     validations:

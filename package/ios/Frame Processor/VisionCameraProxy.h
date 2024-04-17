@@ -32,7 +32,7 @@ public:
   }
 
 private:
-  void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& frameProcessor);
+  void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const std::shared_ptr<jsi::Function>& frameProcessor);
   void removeFrameProcessor(jsi::Runtime& runtime, int viewTag);
   jsi::Value initFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
 

@@ -34,6 +34,9 @@ using namespace facebook;
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
 
+  // Use a jsi::Scope to indicate that all values allocated in a Frame Processor shall be picked up by GC if possible
+  jsi::Scope scope(runtime);
+
   // Wrap HostObject as JSI Value
   auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
   jsi::Value jsValue(std::move(argument));

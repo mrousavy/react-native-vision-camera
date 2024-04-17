@@ -50,6 +50,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     // Conversion
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNativeBuffer")));
   }
 
   return result;
@@ -60,6 +61,40 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
+  // Properties
+  if (name == "isValid") {
+    return jsi::Value(this->frame && this->frame->getIsValid());
+  }
+  if (name == "width") {
+    return jsi::Value(this->frame->getWidth());
+  }
+  if (name == "height") {
+    return jsi::Value(this->frame->getHeight());
+  }
+  if (name == "isMirrored") {
+    return jsi::Value(this->frame->getIsMirrored());
+  }
+  if (name == "orientation") {
+    auto orientation = this->frame->getOrientation();
+    auto string = orientation->getUnionValue();
+    return jsi::String::createFromUtf8(runtime, string->toStdString());
+  }
+  if (name == "pixelFormat") {
+    auto pixelFormat = this->frame->getPixelFormat();
+    auto string = pixelFormat->getUnionValue();
+    return jsi::String::createFromUtf8(runtime, string->toStdString());
+  }
+  if (name == "timestamp") {
+    return jsi::Value(static_cast<double>(this->frame->getTimestamp()));
+  }
+  if (name == "bytesPerRow") {
+    return jsi::Value(this->frame->getBytesPerRow());
+  }
+  if (name == "planesCount") {
+    return jsi::Value(this->frame->getPlanesCount());
+  }
+
+  // Internal Methods
   if (name == "incrementRefCount") {
     jsi::HostFunctionType incrementRefCount = JSI_FUNC {
       // Increment retain count by one.
@@ -76,19 +111,34 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
-  if (name == "toString") {
-    jsi::HostFunctionType toString = JSI_FUNC {
+
+  // Conversion methods
+  if (name == "getNativeBuffer") {
+    jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
       if (!this->frame) {
-        return jsi::String::createFromUtf8(runtime, "[closed frame]");
+        throw jsi::JSError(runtime, "Cannot get Platform Buffer - this Frame is already closed!");
       }
-      auto width = this->frame->getWidth();
-      auto height = this->frame->getHeight();
-      auto format = this->frame->getPixelFormat();
-      auto formatString = format->getUnionValue();
-      auto str = std::to_string(width) + " x " + std::to_string(height) + " " + formatString->toString() + " Frame";
-      return jsi::String::createFromUtf8(runtime, str);
+#if __ANDROID_API__ >= 26
+      AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
+      AHardwareBuffer_acquire(hardwareBuffer);
+      uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
+      jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
+                                             size_t count) -> jsi::Value {
+        AHardwareBuffer_release(hardwareBuffer);
+        return jsi::Value::undefined();
+      };
+
+      jsi::Object buffer(runtime);
+      buffer.setProperty(runtime, "pointer", jsi::BigInt::fromUint64(runtime, pointer));
+      buffer.setProperty(runtime, "delete",
+                         jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "delete"), 0, deleteFunc));
+      return buffer;
+#else
+      throw jsi::JSError(runtime, "Cannot get Platform Buffer - getNativeBuffer() requires HardwareBuffers, which are "
+                                  "only available on Android API 26 or above. Set your app's minSdk version to 26 and try again.");
+#endif
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getNativeBuffer"), 0, getNativeBuffer);
   }
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {
@@ -144,37 +194,19 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
-
-  if (name == "isValid") {
-    return jsi::Value(this->frame && this->frame->getIsValid());
-  }
-  if (name == "width") {
-    return jsi::Value(this->frame->getWidth());
-  }
-  if (name == "height") {
-    return jsi::Value(this->frame->getHeight());
-  }
-  if (name == "isMirrored") {
-    return jsi::Value(this->frame->getIsMirrored());
-  }
-  if (name == "orientation") {
-    auto orientation = this->frame->getOrientation();
-    auto string = orientation->getUnionValue();
-    return jsi::String::createFromUtf8(runtime, string->toStdString());
-  }
-  if (name == "pixelFormat") {
-    auto pixelFormat = this->frame->getPixelFormat();
-    auto string = pixelFormat->getUnionValue();
-    return jsi::String::createFromUtf8(runtime, string->toStdString());
-  }
-  if (name == "timestamp") {
-    return jsi::Value(static_cast<double>(this->frame->getTimestamp()));
-  }
-  if (name == "bytesPerRow") {
-    return jsi::Value(this->frame->getBytesPerRow());
-  }
-  if (name == "planesCount") {
-    return jsi::Value(this->frame->getPlanesCount());
+  if (name == "toString") {
+    jsi::HostFunctionType toString = JSI_FUNC {
+      if (!this->frame) {
+        return jsi::String::createFromUtf8(runtime, "[closed frame]");
+      }
+      auto width = this->frame->getWidth();
+      auto height = this->frame->getHeight();
+      auto format = this->frame->getPixelFormat();
+      auto formatString = format->getUnionValue();
+      auto str = std::to_string(width) + " x " + std::to_string(height) + " " + formatString->toString() + " Frame";
+      return jsi::String::createFromUtf8(runtime, str);
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
 
   // fallback to base implementation

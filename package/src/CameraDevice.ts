@@ -1,4 +1,4 @@
-import { Orientation } from './Orientation'
+import type { Orientation } from './Orientation'
 
 /**
  * Represents the camera device position.

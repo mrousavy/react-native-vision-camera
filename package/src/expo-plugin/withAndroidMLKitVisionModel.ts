@@ -1,5 +1,6 @@
-import { ConfigPlugin, withGradleProperties } from '@expo/config-plugins'
-import { ConfigProps } from './@types'
+import type { ConfigPlugin } from '@expo/config-plugins'
+import { withGradleProperties } from '@expo/config-plugins'
+import type { ConfigProps } from './@types'
 
 /**
  * Set the `VisionCamera_enableCodeScanner` value in the static `gradle.properties` file.

@@ -35,8 +35,9 @@ public abstract class FrameProcessorPlugin {
      * @return You can return any primitive, map or array you want.
      *         See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
      *         table for a list of supported types.
+     * @throws Throwable Any Java error that will be rethrown in JavaScript.
      */
     @DoNotStrip
     @Keep
-    public abstract @Nullable Object callback(@NonNull Frame frame, @Nullable Map<String, Object> params);
+    public abstract @Nullable Object callback(@NonNull Frame frame, @Nullable Map<String, Object> params) throws Throwable;
 }

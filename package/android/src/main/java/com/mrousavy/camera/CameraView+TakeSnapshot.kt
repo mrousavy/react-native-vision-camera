@@ -4,6 +4,7 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.SnapshotFailedError
+import com.mrousavy.camera.core.SnapshotFailedPreviewNotEnabledError
 import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.types.SnapshotOptions
 import com.mrousavy.camera.utils.FileUtils
@@ -12,6 +13,7 @@ private const val TAG = "CameraView.takeSnapshot"
 
 fun CameraView.takeSnapshot(options: SnapshotOptions): WritableMap {
   Log.i(TAG, "Capturing snapshot of Camera View...")
+  val previewView = previewView ?: throw SnapshotFailedPreviewNotEnabledError()
   val bitmap = previewView.bitmap ?: throw SnapshotFailedError()
 
   onShutter(ShutterType.SNAPSHOT)

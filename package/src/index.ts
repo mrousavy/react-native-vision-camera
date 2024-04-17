@@ -22,3 +22,5 @@ export * from './hooks/useCameraFormat'
 export * from './hooks/useCameraPermission'
 export * from './hooks/useFrameProcessor'
 export * from './hooks/useCodeScanner'
+
+export * from './skia/useSkiaFrameProcessor'

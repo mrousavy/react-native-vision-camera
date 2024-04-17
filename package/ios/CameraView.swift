@@ -22,11 +22,13 @@ import UIKit
 
 public final class CameraView: UIView, CameraSessionDelegate {
   // pragma MARK: React Properties
+
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
+
   // use cases
   @objc var photo = false
   @objc var video = false
@@ -35,6 +37,12 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var codeScannerOptions: NSDictionary?
   @objc var pixelFormat: NSString?
   @objc var enableLocation = false
+  @objc var preview = true {
+    didSet {
+      updatePreview()
+    }
+  }
+
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -43,6 +51,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
+
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -52,8 +61,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
-      let parsed = try? ResizeMode(jsValue: resizeMode as String)
-      previewView.resizeMode = parsed ?? .cover
+      updatePreview()
     }
   }
 
@@ -65,6 +73,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
+
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -83,13 +92,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
+
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
   private var currentConfigureCall: DispatchTime?
   var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
 
-  var previewView: PreviewView
+  var previewView: PreviewView?
   #if DEBUG
     var fpsGraph: RCTFPSGraph?
   #endif
@@ -99,11 +109,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
   override public init(frame: CGRect) {
     // Create CameraSession
     cameraSession = CameraSession()
-    previewView = cameraSession.createPreviewView(frame: frame)
     super.init(frame: frame)
     cameraSession.delegate = self
-
-    addSubview(previewView)
+    updatePreview()
   }
 
   @available(*, unavailable)
@@ -123,8 +131,10 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   override public func layoutSubviews() {
-    previewView.frame = frame
-    previewView.bounds = bounds
+    if let previewView {
+      previewView.frame = frame
+      previewView.bounds = bounds
+    }
   }
 
   func getPixelFormat() -> PixelFormat {
@@ -140,7 +150,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         }
       }
     }
-    return .native
+    return .yuv
   }
 
   func getTorch() -> Torch {
@@ -171,7 +181,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
         // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
         ReactLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
-        return
+        throw CameraConfiguration.AbortThrow.abort
       }
 
       // Input Camera Device
@@ -283,6 +293,24 @@ public final class CameraView: UIView, CameraSessionDelegate {
     #endif
   }
 
+  func updatePreview() {
+    if preview && previewView == nil {
+      // Create PreviewView and add it
+      previewView = cameraSession.createPreviewView(frame: frame)
+      addSubview(previewView!)
+    } else if !preview && previewView != nil {
+      // Remove PreviewView and destroy it
+      previewView?.removeFromSuperview()
+      previewView = nil
+    }
+
+    if let previewView {
+      // Update resizeMode from React
+      let parsed = try? ResizeMode(jsValue: resizeMode as String)
+      previewView.resizeMode = parsed ?? .cover
+    }
+  }
+
   // pragma MARK: Event Invokers
 
   func onError(_ error: CameraError) {
@@ -375,24 +403,22 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   /**
-   Gets the orientation of the CameraView's images (CMSampleBuffers).
+   Gets the orientation of the CameraView's frames (CMSampleBuffers),
+   relative to the phone in portrait mode.
+
+   For example, an orientation of `.right` means that the buffer is in landscape.
    */
   private var bufferOrientation: UIImage.Orientation {
     guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
       return .up
     }
-    let orientation = cameraSession.configuration?.orientation ?? .portrait
-
-    // TODO: I think this is wrong.
-    switch orientation {
-    case .portrait:
-      return cameraPosition == .front ? .leftMirrored : .right
-    case .landscapeLeft:
-      return cameraPosition == .front ? .downMirrored : .up
-    case .portraitUpsideDown:
-      return cameraPosition == .front ? .rightMirrored : .left
-    case .landscapeRight:
-      return cameraPosition == .front ? .upMirrored : .down
+    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
+    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
+    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
+    if cameraPosition == .front {
+      return .upMirrored
+    } else {
+      return .up
     }
   }
 }

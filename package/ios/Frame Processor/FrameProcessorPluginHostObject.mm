@@ -28,7 +28,16 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
         runtime, jsi::PropNameID::forUtf8(runtime, "call"), 2,
         [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           // Frame is first argument
-          auto frameHostObject = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
+          auto frameHolder = arguments[0].asObject(runtime);
+          std::shared_ptr<FrameHostObject> frameHostObject;
+          if (frameHolder.isHostObject<FrameHostObject>(runtime)) {
+            // User directly passed FrameHostObject
+            frameHostObject = frameHolder.getHostObject<FrameHostObject>(runtime);
+          } else {
+            // User passed a wrapper, e.g. DrawableFrame which contains the FrameHostObject as a hidden property
+            jsi::Object actualFrame = frameHolder.getPropertyAsObject(runtime, "__frame");
+            frameHostObject = actualFrame.asHostObject<FrameHostObject>(runtime);
+          }
           Frame* frame = frameHostObject->frame;
 
           // Options are second argument (possibly undefined)

@@ -50,6 +50,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.cameraId = cameraId
   }
 
+  @ReactProp(name = "preview", defaultBoolean = true)
+  fun setPreview(view: CameraView, preview: Boolean) {
+    view.preview = preview
+  }
+
   @ReactProp(name = "photo")
   fun setPhoto(view: CameraView, photo: Boolean) {
     view.photo = photo

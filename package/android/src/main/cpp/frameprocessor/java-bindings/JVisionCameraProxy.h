@@ -28,7 +28,7 @@ public:
   ~JVisionCameraProxy();
   static void registerNatives();
 
-  void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessor);
+  void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& frameProcessor);
   void removeFrameProcessor(int viewTag);
   jni::local_ref<JFrameProcessorPlugin::javaobject> initFrameProcessorPlugin(const std::string& name,
                                                                              jni::local_ref<JMap<jstring, jobject>> options);

@@ -1,5 +1,5 @@
 import type { Orientation } from './Orientation'
-import { PixelFormat } from './PixelFormat'
+import type { PixelFormat } from './PixelFormat'
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
@@ -87,6 +87,25 @@ export interface Frame {
   toString(): string
 }
 
+/**
+ * A managed memory pointer to a native platform buffer
+ */
+interface NativeBuffer {
+  /**
+   * A uint64_t/uintptr_t to the native platform buffer.
+   * - On iOS; this points to a `CVPixelBufferRef`
+   * - On Android; this points to a `AHardwareBuffer*`
+   */
+  pointer: bigint
+  /**
+   * Delete this reference to the platform buffer again.
+   * There might still be other references, so it does not guarantee buffer deletion.
+   *
+   * This must always be called, otherwise the pipeline will stall.
+   */
+  delete(): void
+}
+
 /** @internal */
 export interface FrameInternal extends Frame {
   /**
@@ -103,4 +122,13 @@ export interface FrameInternal extends Frame {
    * @internal
    */
   decrementRefCount(): void
+  /**
+   * Get the native platform buffer of the Frame.
+   * - On Android, this is a `AHardwareBuffer*`
+   * - On iOS, this is a `CVPixelBufferRef`
+   *
+   * This is a private API, do not use this.
+   * @internal
+   */
+  getNativeBuffer(): NativeBuffer
 }

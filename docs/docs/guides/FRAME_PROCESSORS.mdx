@@ -54,7 +54,7 @@ Because they are written in JS, Frame Processors are simple, powerful, extensibl
 
 ### react-native-worklets-core
 
-Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher. Install it:
+Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 1.0.0 or higher. Install it:
 
 ```sh
 npm i react-native-worklets-core
@@ -147,10 +147,10 @@ const onDraw = useDrawCallback((canvas) => {
 
 ### Call functions
 
-And you can also call back to the React-JS thread by using `createRunInJsFn(...)`:
+And you can also call back to the React-JS thread by using `createRunOnJS(...)`:
 
 ```tsx
-const onFaceDetected = Worklets.createRunInJsFn((face: Face) => {
+const onFaceDetected = Worklets.createRunOnJS((face: Face) => {
   navigation.push("FiltersPage", { face: face })
 })
 
