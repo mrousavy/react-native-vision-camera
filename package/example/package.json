@@ -10,7 +10,7 @@
     "pods": "cd ios && bundle install && bundle exec pod install",
     "lint": "eslint . --fix",
     "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
-    "typescript": "tsc --noEmit",
+    "typescript": "tsc --noEmit"
   },
   "dependencies": {
     "@react-native-camera-roll/camera-roll": "^5.7.2",
