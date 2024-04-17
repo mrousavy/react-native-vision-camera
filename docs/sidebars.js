@@ -1,7 +1,7 @@
 module.exports = {
   visionSidebar: {
     Guides: [
-      'guides/setup',
+      'guides/getting-started',
       'guides/devices',
       'guides/lifecycle',
       'guides/formats',
