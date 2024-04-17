@@ -120,6 +120,7 @@ class CameraView(context: Context) :
   init {
     clipToOutline = true
     cameraSession = CameraSession(context, this)
+    this.installHierarchyFitter()
     updatePreview()
   }
 
