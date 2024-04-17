@@ -227,25 +227,6 @@ export interface CameraProps extends ViewProps {
    */
   enableBufferCompression?: boolean
   /**
-   * Enables or disables GPU-sampled buffers for the video stream. This only takes effect when using a {@linkcode frameProcessor}.
-   *
-   * When recording a Video ({@linkcode video}) while a Frame Processor is running ({@linkcode frameProcessor}),
-   * the {@linkcode Frame | Frames} will need to be forwarded to the Media Encoder.
-   *
-   * - When `enableGpuBuffers` is `false`, the Video Pipeline will use CPU buffers causing an additional copy
-   * from the Frame Processor to the Media Encoder, which potentially results in increased latency.
-   * - When `enableGpuBuffers` is `true`, the Video Pipeline will use shared GPU buffers which greatly increases
-   * it's efficiency as an additional buffer copy is avoided.
-   * (See [`USAGE_GPU_SAMPLED_IMAGE`](https://developer.android.com/reference/android/hardware/HardwareBuffer#USAGE_GPU_SAMPLED_IMAGE))
-   *
-   * In general, it is recommended to set this to `true` if possible, as this can increase performance and efficiency of the Video Pipeline.
-   *
-   * @experimental This is an experimental feature flag, use at your own risk. Some devices (especially Samsungs) may crash when trying to use GPU buffers.
-   * @platform Android (API 29+)
-   * @default false
-   */
-  enableGpuBuffers?: boolean
-  /**
    * Enables or disables low-light boost on this camera device.
    *
    * Enabling low light boost allows the FPS rate to be throttled to up to half of what it is set to to allow for more

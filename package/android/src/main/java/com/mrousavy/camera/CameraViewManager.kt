@@ -105,11 +105,6 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.enableFpsGraph = enableFpsGraph
   }
 
-  @ReactProp(name = "enableGpuBuffers")
-  fun setEnableGpuBuffers(view: CameraView, enableGpuBuffers: Boolean) {
-    view.enableGpuBuffers = enableGpuBuffers
-  }
-
   @ReactProp(name = "videoStabilizationMode")
   fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
     if (videoStabilizationMode != null) {
