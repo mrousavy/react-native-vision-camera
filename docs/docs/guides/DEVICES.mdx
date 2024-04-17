@@ -48,7 +48,7 @@ const device = useCameraDevice('back')
 
 ```ts
 const devices = Camera.getAvailableCameraDevices()
-const device = devices.find((d) => d.position === 'back')
+const device = getCameraDevice(devices, 'back')
 ```
 
 </TabItem>
@@ -91,15 +91,15 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
 
 Here's a list of some Camera Devices an iPhone 13 Pro has:
 
-- Back Wide Angle Camera (`['wide-angle-camera']`)
-- Back Ultra-Wide Angle Camera (`['ultra-wide-angle-camera']`)
-- Back Telephoto Camera (`['telephoto-camera']`)
-- Back Dual Camera (Wide + Telephoto)
-- Back Dual-Wide Camera (Ultra-Wide + Wide)
-- Back Triple Camera (Ultra-Wide + Wide + Telephoto)
-- Back LiDAR Camera (Wide + LiDAR-Depth)
-- Front Wide Angle (`['wide-angle-camera']`)
-- Front True-Depth (Wide + Depth)
+- Back Wide Angle Camera **1x** (`['wide-angle-camera']`)
+- Back Ultra-Wide Angle Camera **0.5x** (`['ultra-wide-angle-camera']`)
+- Back Telephoto Camera **3x** (`['telephoto-camera']`)
+- Back Dual Camera **1x** + **3x** (`['wide-angle-camera', 'telephoto-camera']`)
+- Back Dual-Wide Camera **0.5x** + **1x** (`['ultra-wide-angle-camera', 'wide-angle-camera']`)
+- Back Triple Camera **0.5x** + **1x** + **3x** (`['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']`)
+- Back LiDAR Camera **1x** (`['wide-angle-camera']` + depth)
+- Front Wide Angle **1x** (`['wide-angle-camera']`)
+- Front True-Depth **1x** (`['wide-angle-camera']` + depth)
 
 ### Selecting Multi-Cams
 
