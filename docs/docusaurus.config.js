@@ -19,8 +19,8 @@ module.exports = {
       respectPrefersColorScheme: true
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
-      darkTheme: require('prism-react-renderer/themes/palenight'),
+      theme: require('prism-react-renderer').themes.github,
+      darkTheme: require('prism-react-renderer').themes.palenight,
       additionalLanguages: ['swift', 'java', 'kotlin'],
     },
     announcementBar: {
