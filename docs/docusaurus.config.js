@@ -23,7 +23,20 @@ module.exports = {
     prism: {
       theme: themes.github,
       darkTheme: themes.palenight,
-      additionalLanguages: ['bash'],
+      additionalLanguages: [
+        'bash',
+        'ts',
+        'console',
+        'json',
+        'groovy',
+        'java',
+        'swift',
+        'kotlin',
+        'ruby',
+        'cmake',
+        'xml',
+        'logcat'
+      ],
     },
     announcementBar: {
       id: 'shadowlens',
