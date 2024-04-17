@@ -72,7 +72,6 @@ class CameraView(context: Context) :
   var photoHdr = false
   var photoQualityBalance = QualityBalance.BALANCED
   var lowLightBoost = false
-  var enableGpuBuffers = false
 
   // other props
   var isActive = false
