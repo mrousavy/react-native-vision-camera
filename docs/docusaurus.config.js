@@ -28,6 +28,8 @@ module.exports = {
         'json',
         'kotlin',
         'ruby',
+        'cmake',
+        'groovy',
       ],
     },
     announcementBar: {
