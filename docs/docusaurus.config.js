@@ -62,6 +62,11 @@ module.exports = {
           position: 'left'
         },
         {
+          href: 'https://mrousavy.com/projects/shadowlens',
+          label: 'ShadowLens',
+          position: 'left'
+        },
+        {
           href: 'https://github.com/mrousavy/react-native-vision-camera',
           label: 'GitHub',
           position: 'right',
