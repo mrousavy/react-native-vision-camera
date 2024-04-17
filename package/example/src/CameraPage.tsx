@@ -71,7 +71,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const format = useCameraFormat(device, [
     { fps: targetFps },
     { videoAspectRatio: screenAspectRatio },
-    { videoResolution: { width: 720, height: 720 } },
+    { videoResolution: 'max' },
     { photoAspectRatio: screenAspectRatio },
     { photoResolution: 'max' },
   ])
