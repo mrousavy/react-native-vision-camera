@@ -162,7 +162,7 @@ class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
-    var qualityBalance = QualityBalance.balanced
+    var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
   }
@@ -199,22 +199,10 @@ extension CameraConfiguration.Video {
    If HDR is disabled, this will return whatever the user specified as a pixelFormat, or the most efficient format as a fallback.
    */
   func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType {
-    // as per documentation, the first value is always the most efficient format
-    var defaultFormat = videoOutput.availableVideoPixelFormatTypes.first!
-    if enableBufferCompression {
-      // use compressed format instead if we enabled buffer compression
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange) {
-        // YUV 4:2:0 8-bit (limited video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange
-      }
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange) {
-        // YUV 4:2:0 8-bit (full video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange
-      }
-    }
-
+    let available = videoOutput.availableVideoPixelFormatTypes.map { $0.toString() }
+    ReactLogger.log(level: .info, message: "Available Pixel Formats: \(available), finding best match... " +
+                    "(pixelFormat=\"\(pixelFormat)\", enableHdr={\(enableHdr)}, enableBufferCompression={\(enableBufferCompression)})")
+    
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if enableHdr == true {
       guard pixelFormat == .yuv else {
@@ -260,10 +248,10 @@ extension CameraConfiguration.Video {
     }
 
     guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-      throw CameraError.device(.pixelFormatNotSupported(defaultFormat: defaultFormat,
-                                                        targetFormats: targetFormats,
+      throw CameraError.device(.pixelFormatNotSupported(targetFormats: targetFormats,
                                                         availableFormats: videoOutput.availableVideoPixelFormatTypes))
     }
+    ReactLogger.log(level: .info, message: "Using PixelFormat: \(format.toString())...")
     return format
   }
 }

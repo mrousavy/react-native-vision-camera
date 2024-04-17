@@ -77,7 +77,7 @@ enum DeviceError {
   case lowLightBoostNotSupported
   case focusNotSupported
   case notAvailableOnSimulator
-  case pixelFormatNotSupported(defaultFormat: FourCharCode, targetFormats: [FourCharCode], availableFormats: [FourCharCode])
+  case pixelFormatNotSupported(targetFormats: [FourCharCode], availableFormats: [FourCharCode])
 
   var code: String {
     switch self {
@@ -120,10 +120,10 @@ enum DeviceError {
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:
       return "The Camera is not available on the iOS Simulator!"
-    case let .pixelFormatNotSupported(defaultFormat: defaultFormat, targetFormats: targetFormats, availableFormats: availableFormats):
+    case let .pixelFormatNotSupported(targetFormats: targetFormats, availableFormats: availableFormats):
       let tried = targetFormats.map { $0.toString() }
       let found = availableFormats.map { $0.toString() }
-      return "No compatible PixelFormat was found! VisionCamera will fallback to the default PixelFormat (\(defaultFormat.toString())). " +
+      return "No compatible PixelFormat was found! VisionCamera will fallback to the default PixelFormat. " +
         "Try selecting a different format or disable videoHdr={..} and enableBufferCompression={..}. " +
         "Tried using one of these PixelFormats: \(tried), but the current format only supports these PixelFormats: \(found)"
     }
