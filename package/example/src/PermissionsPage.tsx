@@ -1,9 +1,10 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ImageRequireSource, Linking } from 'react-native'
-
+import type { ImageRequireSource } from 'react-native'
+import { Linking } from 'react-native'
 import { StyleSheet, View, Text, Image } from 'react-native'
-import { Camera, CameraPermissionStatus } from 'react-native-vision-camera'
+import type { CameraPermissionStatus } from 'react-native-vision-camera'
+import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants'
 import type { Routes } from './Routes'
 

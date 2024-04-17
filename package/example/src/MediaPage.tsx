@@ -1,15 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  PermissionsAndroid,
-  Platform,
-  Image,
-  ImageLoadEventData,
-  NativeSyntheticEvent,
-} from 'react-native'
-import Video, { LoadError, OnLoadData } from 'react-native-video'
+import type { ImageLoadEventData, NativeSyntheticEvent } from 'react-native'
+import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform, Image } from 'react-native'
+import type { LoadError, OnLoadData } from 'react-native-video'
+import Video from 'react-native-video'
 import { SAFE_AREA_PADDING } from './Constants'
 import { useIsForeground } from './hooks/useIsForeground'
 import { PressableOpacity } from 'react-native-pressable-opacity'
