@@ -26,7 +26,7 @@ extension AVCaptureDevice.DeviceType {
       return "wide-angle-camera"
     default:
       // e.g. Infra-Red, LiDAR, Depth Data, USB or Continuity Camera Devices
-      ReactLogger.log(level: .error, message: "Unknown AVCaptureDevice.DeviceType (\(rawValue))! Falling back to wide-angle-camera..")
+      VisionLogger.log(level: .error, message: "Unknown AVCaptureDevice.DeviceType (\(rawValue))! Falling back to wide-angle-camera..")
       return "wide-angle-camera"
     }
   }

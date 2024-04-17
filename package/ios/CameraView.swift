@@ -171,7 +171,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
-    ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
+    VisionLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
     let now = DispatchTime.now()
     currentConfigureCall = now
 
@@ -180,7 +180,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       guard currentConfigureCall == now else {
         // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
         // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
-        ReactLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
+        VisionLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
         throw CameraConfiguration.AbortThrow.abort
       }
 
@@ -314,7 +314,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // pragma MARK: Event Invokers
 
   func onError(_ error: CameraError) {
-    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
+    VisionLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = onError else {
       return
     }
@@ -337,7 +337,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   func onSessionInitialized() {
-    ReactLogger.log(level: .info, message: "Camera initialized!")
+    VisionLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = onInitialized else {
       return
     }
@@ -345,7 +345,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   func onCameraStarted() {
-    ReactLogger.log(level: .info, message: "Camera started!")
+    VisionLogger.log(level: .info, message: "Camera started!")
     guard let onStarted = onStarted else {
       return
     }
@@ -353,7 +353,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   func onCameraStopped() {
-    ReactLogger.log(level: .info, message: "Camera stopped!")
+    VisionLogger.log(level: .info, message: "Camera stopped!")
     guard let onStopped = onStopped else {
       return
     }

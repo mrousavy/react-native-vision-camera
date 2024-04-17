@@ -200,9 +200,9 @@ extension CameraConfiguration.Video {
    */
   func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType {
     let available = videoOutput.availableVideoPixelFormatTypes.map { $0.toString() }
-    ReactLogger.log(level: .info, message: "Available Pixel Formats: \(available), finding best match... " +
+    VisionLogger.log(level: .info, message: "Available Pixel Formats: \(available), finding best match... " +
                     "(pixelFormat=\"\(pixelFormat)\", enableHdr={\(enableHdr)}, enableBufferCompression={\(enableBufferCompression)})")
-    
+
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if enableHdr == true {
       guard pixelFormat == .yuv else {
@@ -251,7 +251,7 @@ extension CameraConfiguration.Video {
       throw CameraError.device(.pixelFormatNotSupported(targetFormats: targetFormats,
                                                         availableFormats: videoOutput.availableVideoPixelFormatTypes))
     }
-    ReactLogger.log(level: .info, message: "Using PixelFormat: \(format.toString())...")
+    VisionLogger.log(level: .info, message: "Using PixelFormat: \(format.toString())...")
     return format
   }
 }

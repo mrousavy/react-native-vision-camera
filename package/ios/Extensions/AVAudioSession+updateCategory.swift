@@ -17,10 +17,10 @@ extension AVAudioSession {
                       mode: AVAudioSession.Mode,
                       options: AVAudioSession.CategoryOptions = []) throws {
     if self.category != category || categoryOptions.rawValue != options.rawValue || self.mode != mode {
-      ReactLogger.log(level: .info,
+      VisionLogger.log(level: .info,
                       message: "Changing AVAudioSession category from \(self.category.rawValue) -> \(category.rawValue)")
       try setCategory(category, mode: mode, options: options)
-      ReactLogger.log(level: .info, message: "AVAudioSession category changed!")
+      VisionLogger.log(level: .info, message: "AVAudioSession category changed!")
     }
   }
 }

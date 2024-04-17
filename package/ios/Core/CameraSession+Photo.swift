@@ -36,7 +36,7 @@ extension CameraSession {
         return
       }
 
-      ReactLogger.log(level: .info, message: "Capturing photo...")
+      VisionLogger.log(level: .info, message: "Capturing photo...")
 
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings()

@@ -22,7 +22,7 @@ extension CameraSession {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
       let start = DispatchTime.now()
-      ReactLogger.log(level: .info, message: "Starting Video recording...")
+      VisionLogger.log(level: .info, message: "Starting Video recording...")
 
       // Get Video Output
       guard let videoOutput = self.videoOutput else {
@@ -51,10 +51,10 @@ extension CameraSession {
         self.recordingSession = nil
 
         if self.didCancelRecording {
-          ReactLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
+          VisionLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
           onError(.capture(.recordingCanceled))
           do {
-            ReactLogger.log(level: .info, message: "Deleting temporary video file...")
+            VisionLogger.log(level: .info, message: "Deleting temporary video file...")
             try FileManager.default.removeItem(at: recordingSession.url)
           } catch {
             self.delegate?.onError(.capture(.fileError(cause: error)))
@@ -62,10 +62,10 @@ extension CameraSession {
           return
         }
 
-        ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+        VisionLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
         if let error = error as NSError? {
-          ReactLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
+          VisionLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
           // Something went wrong, we have an error
           if error.code == INSUFFICIENT_STORAGE_ERROR_CODE {
             onError(.capture(.insufficientStorage))
@@ -95,7 +95,7 @@ extension CameraSession {
         return
       }
 
-      ReactLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
+      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
       let tempURL = URL(string: "file://\(tempFilePath)")!
 
       do {
@@ -109,7 +109,7 @@ extension CameraSession {
         if enableAudio,
            let audioOutput = self.audioOutput,
            let audioInput = self.audioDeviceInput {
-          ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
+          VisionLogger.log(level: .info, message: "Enabling Audio for Recording...")
           // Activate Audio Session asynchronously
           CameraQueues.audioQueue.async {
             do {
@@ -137,7 +137,7 @@ extension CameraSession {
         self.isRecording = true
 
         let end = DispatchTime.now()
-        ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
+        VisionLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as NSError {
         if let error = error as? CameraError {
           onError(error)

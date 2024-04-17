@@ -25,11 +25,11 @@ extension AVCaptureVideoDataOutput {
       if supportsCodec(videoCodec, writingTo: options.fileType) {
         // The codec is supported, use it
         settings = recommendedVideoSettings(forVideoCodecType: videoCodec, assetWriterOutputFileType: options.fileType)
-        ReactLogger.log(level: .info, message: "Using codec \(videoCodec)...")
+        VisionLogger.log(level: .info, message: "Using codec \(videoCodec)...")
       } else {
         // The codec is not supported, fall-back to default
         settings = recommendedVideoSettingsForAssetWriter(writingTo: options.fileType)
-        ReactLogger.log(level: .info, message: "Codec \(videoCodec) is not supported, falling back to default...")
+        VisionLogger.log(level: .info, message: "Codec \(videoCodec) is not supported, falling back to default...")
       }
     } else {
       // User didn't pass a custom codec, just use default
@@ -47,7 +47,7 @@ extension AVCaptureVideoDataOutput {
       }
       var compressionSettings = settings[AVVideoCompressionPropertiesKey] as? [String: Any] ?? [:]
       let currentBitRate = compressionSettings[AVVideoAverageBitRateKey] as? NSNumber
-      ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate?.doubleValue.description ?? "nil") bps to \(bitsPerSecond) bps...")
+      VisionLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate?.doubleValue.description ?? "nil") bps to \(bitsPerSecond) bps...")
 
       compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: bitsPerSecond)
       settings[AVVideoCompressionPropertiesKey] = compressionSettings
@@ -59,7 +59,7 @@ extension AVCaptureVideoDataOutput {
          let currentBitRate = compressionSettings[AVVideoAverageBitRateKey] as? NSNumber {
         // Multiply the current value by the given multiplier
         let newBitRate = Int(currentBitRate.doubleValue * bitRateMultiplier)
-        ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate) bps to \(newBitRate) bps...")
+        VisionLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate) bps to \(newBitRate) bps...")
 
         compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: newBitRate)
         settings[AVVideoCompressionPropertiesKey] = compressionSettings
