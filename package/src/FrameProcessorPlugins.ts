@@ -179,6 +179,7 @@ function setLastFrameProcessorCall(frameProcessorFuncId: string, value: number):
  * @param fps The target FPS rate at which the given function should be executed
  * @param func The function to execute.
  * @returns The result of the function if it was executed, or `undefined` otherwise.
+ * @worklet
  * @example
  *
  * ```ts
@@ -219,6 +220,7 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
  *
  * @param frame The current Frame of the Frame Processor.
  * @param func The function to execute.
+ * @worklet
  * @example
  *
  * ```ts
