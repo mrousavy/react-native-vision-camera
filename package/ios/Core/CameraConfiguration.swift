@@ -201,7 +201,7 @@ extension CameraConfiguration.Video {
   func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType {
     let available = videoOutput.availableVideoPixelFormatTypes.map { $0.toString() }
     VisionLogger.log(level: .info, message: "Available Pixel Formats: \(available), finding best match... " +
-                    "(pixelFormat=\"\(pixelFormat)\", enableHdr={\(enableHdr)}, enableBufferCompression={\(enableBufferCompression)})")
+      "(pixelFormat=\"\(pixelFormat)\", enableHdr={\(enableHdr)}, enableBufferCompression={\(enableBufferCompression)})")
 
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if enableHdr == true {

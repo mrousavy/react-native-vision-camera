@@ -8,6 +8,8 @@
 
 import Foundation
 
+// MARK: - LogLevel
+
 enum LogLevel: String {
   case debug
   case info
@@ -15,18 +17,18 @@ enum LogLevel: String {
   case error
 }
 
+// MARK: - VisionLogger
+
 enum VisionLogger {
-  static var staticFormatter: DateFormatter? = nil
+  static var staticFormatter: DateFormatter?
   static var formatter: DateFormatter {
-    get {
-      guard let staticFormatter else {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        self.staticFormatter = formatter
-        return formatter
-      }
-      return staticFormatter
+    guard let staticFormatter else {
+      let formatter = DateFormatter()
+      formatter.dateFormat = "HH:mm:ss.SSS"
+      self.staticFormatter = formatter
+      return formatter
     }
+    return staticFormatter
   }
 
   /**

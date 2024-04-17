@@ -190,7 +190,7 @@ class RecordingSession {
     // Request a stop at the given time. Frames with later timestamps (e.g. early frames, while we are waiting for late frames) will be dropped.
     stopTimestamp = currentTime
     VisionLogger.log(level: .info,
-                    message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
+                     message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
     // Start a timeout that will force-stop the session if none of the late frames actually arrive
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
@@ -255,13 +255,14 @@ class RecordingSession {
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
       VisionLogger.log(level: .error,
-                      message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
+                       message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
       finish()
     }
 
     // 5. If we finished writing both the last video and audio buffers, finish the recording
     if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
-      VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
+      VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), " +
+        "finishing RecordingSession...")
       finish()
     }
   }

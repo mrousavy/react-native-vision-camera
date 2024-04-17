@@ -18,7 +18,7 @@ extension AVAudioSession {
                       options: AVAudioSession.CategoryOptions = []) throws {
     if self.category != category || categoryOptions.rawValue != options.rawValue || self.mode != mode {
       VisionLogger.log(level: .info,
-                      message: "Changing AVAudioSession category from \(self.category.rawValue) -> \(category.rawValue)")
+                       message: "Changing AVAudioSession category from \(self.category.rawValue) -> \(category.rawValue)")
       try setCategory(category, mode: mode, options: options)
       VisionLogger.log(level: .info, message: "AVAudioSession category changed!")
     }
