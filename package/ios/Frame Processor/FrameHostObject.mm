@@ -127,8 +127,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "getNativeBuffer") {
     auto getNativeBuffer = JSI_FUNC {
       // Box-cast to uintptr (just 64-bit address)
-      CMSampleBufferRef buffer = this->frame.buffer;
-      uintptr_t pointer = reinterpret_cast<uintptr_t>(buffer);
+      CMSampleBufferRef sampleBuffer = this->frame.buffer;
+      CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+      uintptr_t pointer = reinterpret_cast<uintptr_t>(pixelBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                              size_t count) -> jsi::Value {
         // no-op as memory is managed by the parent Frame (decrementRefCount())
