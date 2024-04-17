@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import type { Orientation } from '../Orientation'
 import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import type { DrawableFrameProcessor } from '../CameraProps'
-import type { ISharedValue } from 'react-native-worklets-core'
+import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
@@ -66,6 +66,16 @@ function getPortraitSize(frame: Frame): { width: number; height: number } {
   }
 }
 
+type ThreadID = ReturnType<IWorkletNativeApi['getCurrentThreadId']>
+type SurfaceCache = Record<
+  ThreadID,
+  {
+    surface: SkSurface
+    width: number
+    height: number
+  }
+>
+
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
  * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
@@ -78,28 +88,50 @@ function getPortraitSize(frame: Frame): { width: number; height: number } {
  */
 export function createSkiaFrameProcessor(
   frameProcessor: (frame: DrawableFrame) => void,
-  surfaceHolder: ISharedValue<SkSurface | null>,
+  surfaceHolder: ISharedValue<SurfaceCache>,
   offscreenTextures: ISharedValue<SkImage[]>,
 ): DrawableFrameProcessor {
   const Skia = SkiaProxy.Skia
 
-  // TODO: We currently use a separate Value for that. SkSurface has width() and height(), but for some reason it's garbage values.
-  const surfaceSize = WorkletsProxy.Worklets.createSharedValue({ width: 0, height: 0 })
-
   const getSkiaSurface = (frame: Frame): SkSurface => {
     'worklet'
+
+    // 1. The Frame Processor runs on an iOS `DispatchQueue`, which might use
+    //    multiple C++ Threads between runs (it's still serial though - not concurrent!)
+    // 2. react-native-skia uses `thread_local` Skia Contexts (`GrDirectContext`),
+    //    which means if a new Thread calls a Skia method, it also uses a new
+    //    Skia Context.
+    //
+    // This will cause issues if we cache the `SkSurface` between renders,
+    // as the next render might be on a different C++ Thread.
+    // When the next render uses a different C++ Thread, it will also use a
+    // different Skia Context (`GrDirectContext`) for creating the SkImage,
+    // than the one used for creating the `SkSurface` in the first render.
+    // This will cause the render to fail, as an SkImage can only be rendered
+    // to an SkSurface if both were created on the same Skia Context.
+    // To prevent this, we cache the SkSurface on a per-thread basis,
+    // so in my tests the DispatchQueue uses up to 10 different Threads,
+    // causing 10 different Surfaces to exist in memory.
+    // A true workaround would be to expose Skia Contexts to JS in RN Skia,
+    // but for now this is fine.
+    const threadId = WorkletsProxy.Worklets.getCurrentThreadId()
     const size = getPortraitSize(frame)
-    if (surfaceHolder.value == null || surfaceSize.value.width !== frame.width || surfaceSize.value.height !== frame.height) {
-      // create a new surface with the size of the Frame
-      surfaceHolder.value?.dispose()
-      surfaceHolder.value = Skia.Surface.MakeOffscreen(size.width, size.height)
-      surfaceSize.value = { width: frame.width, height: frame.height }
-      if (surfaceHolder.value == null) {
-        // it is still null, something went wrong while creating it
+    if (
+      surfaceHolder.value[threadId] == null ||
+      surfaceHolder.value[threadId]?.width !== size.width ||
+      surfaceHolder.value[threadId]?.height !== size.height
+    ) {
+      const surface = Skia.Surface.MakeOffscreen(size.width, size.height)
+      if (surface == null) {
+        // skia surface couldn't be allocated
         throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
+      surfaceHolder.value[threadId]?.surface.dispose()
+      surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
-    return surfaceHolder.value
+    const surface = surfaceHolder.value[threadId]?.surface
+    if (surface == null) throw new Error(`Couldn't find Surface in Thread-cache! ID: ${threadId}`)
+    return surface
   }
 
   const createDrawableFrameProxy = (frame: Frame, canvas: SkCanvas): DrawableFrame => {
@@ -223,14 +255,13 @@ export function useSkiaFrameProcessor(
   frameProcessor: (frame: DrawableFrame) => void,
   dependencies: DependencyList,
 ): DrawableFrameProcessor {
-  const surface = WorkletsProxy.useSharedValue<SkSurface | null>(null)
+  const surface = WorkletsProxy.useSharedValue<SurfaceCache>({})
   const offscreenTextures = WorkletsProxy.useSharedValue<SkImage[]>([])
 
   useEffect(() => {
     return () => {
       // on unmount, clean everything
-      surface.value?.dispose()
-      surface.value = null
+      Object.values(surface.value).forEach((cache) => cache.surface.dispose())
       while (offscreenTextures.value.length > 0) {
         const texture = offscreenTextures.value.shift()
         if (texture == null) break
