@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets}",
-    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "#{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
   }
