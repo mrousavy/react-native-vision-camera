@@ -30,6 +30,7 @@ import com.mrousavy.camera.types.Position
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.CamcorderProfileUtils
 import kotlin.math.atan2
+import kotlin.math.min
 import kotlin.math.sqrt
 
 @SuppressLint("RestrictedApi")
