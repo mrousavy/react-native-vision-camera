@@ -120,8 +120,11 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
       val maxFps = fpsRanges.maxOf { it.upper }
 
       videoSizes.forEach { videoSize ->
+        // not every size supports the maximum FPS range
         val maxFpsForSize = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize) ?: maxFps
-        val fpsRange = Range(minFps, maxFpsForSize)
+        // if the FPS range for this size is even smaller than min FPS, we need to clamp that as well.
+        val minFpsForSize = min(minFps, maxFpsForSize)
+        val fpsRange = Range(minFpsForSize, maxFpsForSize)
 
         photoSizes.forEach { photoSize ->
           val map = buildFormatMap(photoSize, videoSize, fpsRange)
