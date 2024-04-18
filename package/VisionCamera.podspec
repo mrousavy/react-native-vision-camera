@@ -4,15 +4,15 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
 
-forceDisableFrameProcessors = false
-if defined?($VCDisableFrameProcessors)
-  Pod::UI.puts "[VisionCamera] $VCDisableFrameProcesors is set to #{$VCDisableFrameProcessors}!"
-  forceDisableFrameProcessors = $VCDisableFrameProcessors
+enableFrameProcessors = true
+if defined?($VCEnableFrameProcessors)
+  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
+  enableFrameProcessors = $VCEnableFrameProcessors
 end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
-hasWorklets = File.exist?(workletsPath) && !forceDisableFrameProcessors
+hasWorklets = File.exist?(workletsPath) && enableFrameProcessors
 Pod::UI.puts("[VisionCamera] react-native-worklets-core #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!")
 
 Pod::Spec.new do |s|

@@ -28,9 +28,11 @@ export type ConfigProps = {
    * Whether to enable the Frame Processors runtime, or explicitly disable it.
    * Disabling Frame Processors will make your app smaller as the C++ files will not be compiled.
    * See [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors)
-   * @default false
+   *
+   * Note: When react-native-worklets-core is not installed, Frame Processors are automatically disabled anyways.
+   * @default true
    */
-  disableFrameProcessors?: boolean
+  enableFrameProcessors?: boolean
   /**
    * Whether to enable the QR/Barcode Scanner Model.
    *
