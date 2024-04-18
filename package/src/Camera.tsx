@@ -441,6 +441,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * the user has permitted the app to use the location.
    *
    * To actually prompt the user for location permission, use {@linkcode Camera.requestLocationPermission | requestLocationPermission()}.
+   *
+   * Note: This method will throw a `system/location-not-enabled` error if the Location APIs are not enabled at build-time.
+   * See [the "GPS Location Tags" documentation](https://react-native-vision-camera.com/docs/guides/location) for more information.
    */
   public static getLocationPermissionStatus(): CameraPermissionStatus {
     return CameraModule.getLocationPermissionStatus()

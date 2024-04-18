@@ -272,27 +272,27 @@ The Frame Processor API spawns a secondary JavaScript Runtime which consumes a s
 
 ### Android
 
-Inside your `gradle.properties` file, add the `disableFrameProcessors` flag:
+Inside your `gradle.properties` file, add the `enableFrameProcessors` flag and set it to `false`:
 
 ```groovy
-VisionCamera_disableFrameProcessors=true
+VisionCamera_enableFrameProcessors=false
 ```
 
 Then, clean and rebuild your project.
 
 ### iOS
 
-Inside your `Podfile`, add the `VCDisableFrameProcessors` flag:
+Inside your `Podfile`, add the `VCEnableFrameProcessors` flag and set it to `false`:
 
 ```ruby
-$VCDisableFrameProcessors = true
+$VCEnableFrameProcessors = false
 ```
 
 </TabItem>
 
 <TabItem value="expo">
 
-Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `disableFrameProcessors` flag to the `react-native-vision-camera` plugin:
+Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `enableFrameProcessors` flag to the `react-native-vision-camera` plugin and set it to `false`:
 
 ```json
 {
@@ -302,7 +302,7 @@ Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add 
       "react-native-vision-camera",
       {
         // ...
-        "disableFrameProcessors": true
+        "enableFrameProcessors": false
       }
     ]
   ]
