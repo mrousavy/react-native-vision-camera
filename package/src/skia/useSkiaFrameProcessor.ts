@@ -262,7 +262,8 @@ export function useSkiaFrameProcessor(
   useEffect(() => {
     return () => {
       // on unmount, we clean up the resources on the Worklet Context.
-      // this causes it to definitely run after the Frame Processor has finished executing
+      // this causes it to run _after_ the Frame Processor has finished executing,
+      // if it is currently executing - so we avoid race conditions here.
       VisionCameraProxy.workletContext?.runAsync(() => {
         'worklet'
         const surfaces = Object.values(surface.value).map((v) => v.surface)
