@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.location.LocationRequest
 import android.util.Log
 import androidx.core.content.ContextCompat
 
@@ -46,5 +47,15 @@ class MetadataProvider(val context: Context) : LocationListener {
   override fun onLocationChanged(location: Location) {
     Log.i(TAG, "Location updated: ${location.latitude}, ${location.longitude}")
     this.location = location
+  }
+
+  override fun onProviderDisabled(provider: String) {
+    super.onProviderDisabled(provider)
+    Log.i(TAG, "Location Provider $provider has been disabled.")
+  }
+
+  override fun onProviderEnabled(provider: String) {
+    super.onProviderEnabled(provider)
+    Log.i(TAG, "Location Provider $provider has been enabled.")
   }
 }
