@@ -41,6 +41,10 @@ public:
   jsi::Runtime& getWorkletRuntime() {
     return _workletContext->getWorkletRuntime();
   }
+
+  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext() {
+    return _workletContext;
+  }
 #endif
 
 private:
