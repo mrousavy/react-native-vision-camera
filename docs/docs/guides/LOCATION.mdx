@@ -135,4 +135,54 @@ Use the [`enableLocation`](/docs/api/interfaces/CameraProps#enablelocation) prop
 Once enabled, all captured photos (see ["Taking Photos"](taking-photos)) and videos (see ["Recording Videos"](recording-videos)) will contain location tags.
 
 
+### Enable or disable Location APIs
+
+Location APIs are considered privacy-sensitive APIs by Apple.
+When you are not using privacy-sensitive APIs (like location) but still include them in your app's code, the Apple review team might reject your app.
+
+To avoid that, you can disable the location APIs and VisionCamera will not compile those privacy-sensitive APIs into your app.
+Simply set the required flag before building your app:
+
+<Tabs
+  groupId="environment"
+  defaultValue="rn"
+  values={[
+    {label: 'React Native', value: 'rn'},
+    {label: 'Expo', value: 'expo'}
+  ]}>
+<TabItem value="rn">
+
+Inside your `Podfile`, add the `VCEnableLocation` flag and set it to `false`:
+
+```ruby
+$VCEnableLocation = false
+```
+
+</TabItem>
+
+<TabItem value="expo">
+
+Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `enableLocation` flag to the `react-native-vision-camera` plugin and set it to `false`:
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        // ...
+        "enableLocation": false
+      }
+    ]
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
+
+Then rebuild your app and any location-related APIs will be excluded from the build.
+
+
 #### 🚀 Next section: [Performance](performance)

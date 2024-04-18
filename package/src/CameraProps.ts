@@ -98,6 +98,9 @@ export interface CameraProps extends ViewProps {
    * Enables location streaming to add GPS EXIF tags to captured photos and videos.
    *
    * Note: Requires location permission.
+   *
+   * Note: This property will throw a `system/location-not-enabled` error if the Location APIs are not enabled at build-time.
+   * See [the "GPS Location Tags" documentation](https://react-native-vision-camera.com/docs/guides/location) for more information.
    */
   enableLocation?: boolean
   //#endregion

@@ -60,6 +60,7 @@ export type CaptureError =
 export type SystemError =
   | 'system/camera-module-not-found'
   | 'system/camera-is-restricted'
+  | 'system/location-not-enabled'
   | 'system/no-camera-manager'
   | 'system/frame-processors-unavailable'
   | 'system/recording-while-frame-processing-unavailable'

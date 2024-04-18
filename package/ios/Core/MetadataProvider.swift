@@ -13,10 +13,12 @@ import Foundation
  A Provider for Photo (AVCapturePhoto) EXIF metadata, and Video (AVAssetWriter) metadata.
  */
 class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer {
-  /**
-   Get or set the location provider to also set GPS tags for captured photos or videos.
-   */
-  var locationProvider: LocationProvider?
+  #if VISION_CAMERA_ENABLE_LOCATION
+    /**
+     Get or set the location provider to also set GPS tags for captured photos or videos.
+     */
+    var locationProvider: LocationProvider?
+  #endif
 
   // MARK: - Photo Metadata
 
@@ -32,12 +34,14 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
       properties[kCGImagePropertyExifDictionary as String] = exifDictionary
     }
 
-    // Add GPS Location EXIF info
-    if let locationProvider,
-       let location = locationProvider.location {
-      let locationExif = location.toEXIF(heading: locationProvider.heading)
-      properties[kCGImagePropertyGPSDictionary as String] = locationExif
-    }
+    #if VISION_CAMERA_ENABLE_LOCATION
+      // Add GPS Location EXIF info
+      if let locationProvider,
+         let location = locationProvider.location {
+        let locationExif = location.toEXIF(heading: locationProvider.heading)
+        properties[kCGImagePropertyGPSDictionary as String] = locationExif
+      }
+    #endif
 
     return properties
   }
@@ -51,11 +55,13 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
     let brandingMetadata = createBrandingMetadaItem()
     metadata.append(brandingMetadata)
 
-    if let location = locationProvider?.location {
-      // Add GPS Location metadata
-      let locationMetadata = createLocationMetadataItem(location: location)
-      metadata.append(locationMetadata)
-    }
+    #if VISION_CAMERA_ENABLE_LOCATION
+      if let location = locationProvider?.location {
+        // Add GPS Location metadata
+        let locationMetadata = createLocationMetadataItem(location: location)
+        metadata.append(locationMetadata)
+      }
+    #endif
 
     return metadata
   }

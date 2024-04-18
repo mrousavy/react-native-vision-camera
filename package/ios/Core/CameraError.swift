@@ -317,6 +317,27 @@ enum CodeScannerError {
   }
 }
 
+// MARK: - SystemError
+
+enum SystemError {
+  case locationNotEnabled
+
+  var code: String {
+    switch self {
+    case .locationNotEnabled:
+      return "location-not-enabled"
+    }
+  }
+
+  var message: String {
+    switch self {
+    case .locationNotEnabled:
+      return "Location is not enabled, so VisionCamera did not compile the Location APIs. " +
+        "Set $VCEnableLocation in your Podfile, or enableLocation in the expo config plugin and rebuild."
+    }
+  }
+}
+
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -327,6 +348,7 @@ enum CameraError: Error {
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
   case codeScanner(_ id: CodeScannerError)
+  case system(_ id: SystemError)
   case unknown(message: String? = nil, cause: NSError? = nil)
 
   var code: String {
@@ -345,6 +367,8 @@ enum CameraError: Error {
       return "capture/\(id.code)"
     case let .codeScanner(id: id):
       return "code-scanner/\(id.code)"
+    case let .system(id: id):
+      return "system/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -365,6 +389,8 @@ enum CameraError: Error {
     case let .capture(id: id):
       return id.message
     case let .codeScanner(id: id):
+      return id.message
+    case let .system(id: id):
       return id.message
     case let .unknown(message: message, cause: cause):
       return message ?? cause?.description ?? "An unexpected error occured."

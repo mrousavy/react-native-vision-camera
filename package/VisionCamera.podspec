@@ -10,6 +10,14 @@ if defined?($VCEnableFrameProcessors)
   enableFrameProcessors = $VCEnableFrameProcessors
 end
 
+enableLocation = true
+if defined?($VCEnableLocation)
+  Pod::UI.puts "[VisionCamera] $VCEnableLocation is set to #{$VCEnableLocation}!"
+  enableLocation = $VCEnableLocation
+else
+  Pod::UI.puts "[VisionCamera] Building with CLLocation APIs as $VCEnableLocation is not set.."
+end
+
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath) && enableFrameProcessors
@@ -29,7 +37,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets}",
-    "OTHER_SWIFT_FLAGS" => "$(inherited) #{hasWorklets ? "-D VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "#{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
   }
