@@ -1,5 +1,6 @@
 import type * as Worklets from 'react-native-worklets-core'
-import { createModuleProxy } from './ModuleProxy'
+import { createModuleProxy, OptionalDependencyNotInstalledError } from './ModuleProxy'
+
 type TWorklets = typeof Worklets
 
 /**
@@ -9,4 +10,10 @@ type TWorklets = typeof Worklets
  * If react-native-worklets-core is not installed, accessing anything on
  * {@linkcode WorkletsProxy} will throw.
  */
-export const WorkletsProxy = createModuleProxy<TWorklets>('react-native-worklets-core', () => require('react-native-worklets-core'))
+export const WorkletsProxy = createModuleProxy<TWorklets>(() => {
+  try {
+    return require('react-native-worklets-core')
+  } catch (e) {
+    throw new OptionalDependencyNotInstalledError('react-native-worklets-core')
+  }
+})

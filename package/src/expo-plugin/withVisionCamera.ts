@@ -1,9 +1,10 @@
 import type { ConfigPlugin } from '@expo/config-plugins'
 import { withPlugins, AndroidConfig, createRunOncePlugin } from '@expo/config-plugins'
-import { withDisableFrameProcessorsAndroid } from './withDisableFrameProcessorsAndroid'
-import { withDisableFrameProcessorsIOS } from './withDisableFrameProcessorsIOS'
+import { withEnableFrameProcessorsAndroid } from './withEnableFrameProcessorsAndroid'
+import { withEnableFrameProcessorsIOS } from './withEnableFrameProcessorsIOS'
 import { withAndroidMLKitVisionModel } from './withAndroidMLKitVisionModel'
 import type { ConfigProps } from './@types'
+import { withEnableLocationIOS } from './withEnableLocationIOS'
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const pkg = require('../../../package.json')
 
@@ -31,9 +32,14 @@ const withCamera: ConfigPlugin<ConfigProps> = (config, props = {}) => {
   if (props.enableMicrophonePermission) androidPermissions.push('android.permission.RECORD_AUDIO')
   if (props.enableLocationPermission) androidPermissions.push('android.permission.ACCESS_FINE_LOCATION')
 
-  if (props.disableFrameProcessors) {
-    config = withDisableFrameProcessorsAndroid(config)
-    config = withDisableFrameProcessorsIOS(config)
+  if (props.enableLocationPermission != null) {
+    // set Podfile property to build location-related stuff
+    config = withEnableLocationIOS(config, props.enableLocationPermission)
+  }
+  if (props.enableFrameProcessors != null) {
+    // set Podfile property to build frame-processor-related stuff
+    config = withEnableFrameProcessorsAndroid(config, props.enableFrameProcessors)
+    config = withEnableFrameProcessorsIOS(config, props.enableFrameProcessors)
   }
 
   if (props.enableCodeScanner) config = withAndroidMLKitVisionModel(config, props)

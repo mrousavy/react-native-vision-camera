@@ -110,8 +110,12 @@ final class CameraViewManager: RCTViewManager {
 
   @objc
   final func getLocationPermissionStatus() -> String {
-    let status = CLLocationManager.authorizationStatus()
-    return status.descriptor
+    #if VISION_CAMERA_ENABLE_LOCATION
+      let status = CLLocationManager.authorizationStatus()
+      return status.descriptor
+    #else
+      return CLAuthorizationStatus.restricted.descriptor
+    #endif
   }
 
   @objc
@@ -132,9 +136,14 @@ final class CameraViewManager: RCTViewManager {
 
   @objc
   final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
-    CLLocationManager.requestAccess(for: .whenInUse) { status in
-      resolve(status.descriptor)
-    }
+    #if VISION_CAMERA_ENABLE_LOCATION
+      CLLocationManager.requestAccess(for: .whenInUse) { status in
+        resolve(status.descriptor)
+      }
+    #else
+      let promise = Promise(resolver: resolver, rejecter: rejecter)
+      promise.reject(error: .system(.locationNotEnabled))
+    #endif
   }
 
   // MARK: Private
