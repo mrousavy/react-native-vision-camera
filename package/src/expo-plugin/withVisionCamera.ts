@@ -27,13 +27,17 @@ const withCamera: ConfigPlugin<ConfigProps> = (config, props = {}) => {
     // Location permission
     config.ios.infoPlist.NSLocationWhenInUseUsageDescription =
       props.locationPermissionText ?? (config.ios.infoPlist.NSLocationWhenInUseUsageDescription as string | undefined) ?? LOCATION_USAGE
-    config = withEnableLocationIOS(config)
   }
   const androidPermissions = ['android.permission.CAMERA']
   if (props.enableMicrophonePermission) androidPermissions.push('android.permission.RECORD_AUDIO')
   if (props.enableLocationPermission) androidPermissions.push('android.permission.ACCESS_FINE_LOCATION')
 
+  if (props.enableLocationPermission != null) {
+    // set Podfile property to build location-related stuff
+    config = withEnableLocationIOS(config, props.enableLocationPermission)
+  }
   if (props.enableFrameProcessors != null) {
+    // set Podfile property to build frame-processor-related stuff
     config = withEnableFrameProcessorsAndroid(config, props.enableFrameProcessors)
     config = withEnableFrameProcessorsIOS(config, props.enableFrameProcessors)
   }
