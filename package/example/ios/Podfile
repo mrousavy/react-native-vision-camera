@@ -47,8 +47,5 @@ target 'VisionCameraExample' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
-
-    # Define "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" Swift compiler flag if frame processor are enabled
-    set_frame_processor_swift_flag_in_example_project(installer)
   end
 end
