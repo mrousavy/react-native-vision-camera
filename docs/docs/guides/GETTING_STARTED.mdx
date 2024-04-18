@@ -204,7 +204,9 @@ If your app has permission to use the Camera and Microphone, simply use the [`us
 ```tsx
 function App() {
   const device = useCameraDevice('back')
+  const { hasPermission } = useCameraPermission()
 
+  if (!hasPermission) return <PermissionsPage />
   if (device == null) return <NoCameraDeviceError />
   return (
     <Camera

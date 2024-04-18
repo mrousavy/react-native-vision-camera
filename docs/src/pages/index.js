@@ -9,7 +9,7 @@ import { Analytics } from '@vercel/analytics/react'
 
 const features = [
   {
-    title: 'Feature-rich',
+    title: 'Powerful 💪',
     imageUrl: './img/example.png',
     description: (
       <>
@@ -18,7 +18,7 @@ const features = [
     ),
   },
   {
-    title: 'Easy to use',
+    title: 'Easy to use 🥨',
     imageUrl: './img/example_intro.png',
     description: (
       <>
@@ -27,7 +27,7 @@ const features = [
     ),
   },
   {
-    title: 'Rich Developer Support',
+    title: 'Great Developer Experience 📚',
     imageUrl: './img/example_error.png',
     description: (
       <>
