@@ -7,12 +7,18 @@ sidebar_label: Drawing to a Frame (Skia)
 import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl'
+export const size = { width: 283, height: 535 }
 
-<div class="image-container">
-  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
-    <image href={useBaseUrl("img/demo_drawing.mp4")} x="18" y="33" width="247" height="469" />
-    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
-  </svg>
+<div class="image-container" style={size} >
+  <video
+    xmlns="http://www.w3.org/1999/xhtml"
+    style={{ position: 'absolute', ...size, transform: 'scale(0.88)' }}
+    autoPlay
+    muted
+    loop>
+    <source src={useBaseUrl("img/demo_drawing.mp4")} type="video/mp4" />
+  </video>
+  <img src={useBaseUrl("img/frame.png")} style={{ position: 'absolute', ...size }} />
 </div>
 
 ## Skia Frame Processors
