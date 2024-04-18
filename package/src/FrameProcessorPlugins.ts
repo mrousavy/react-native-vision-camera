@@ -60,6 +60,10 @@ interface TVisionCameraProxy {
   throwJSError(error: unknown): void
   /**
    * Get the Frame Processor Runtime Worklet Context.
+   *
+   * This is the serial [DispatchQueue](https://developer.apple.com/documentation/dispatch/dispatchqueue)
+   * / [Executor](https://developer.android.com/reference/java/util/concurrent/Executor) the
+   * video/frame processor pipeline is running on.
    */
   workletContext: IWorkletContext | undefined
 }
