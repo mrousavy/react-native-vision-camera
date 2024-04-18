@@ -1,5 +1,6 @@
 import type * as Reanimated from 'react-native-reanimated'
-import { createModuleProxy } from './ModuleProxy'
+import { createModuleProxy, OptionalDependencyNotInstalledError } from './ModuleProxy'
+
 type TReanimated = typeof Reanimated
 
 /**
@@ -9,4 +10,10 @@ type TReanimated = typeof Reanimated
  * If react-native-reanimated is not installed, accessing anything on
  * {@linkcode ReanimatedProxy} will throw.
  */
-export const ReanimatedProxy = createModuleProxy<TReanimated>('react-native-reanimated', () => require('react-native-reanimated'))
+export const ReanimatedProxy = createModuleProxy<TReanimated>(() => {
+  try {
+    return require('react-native-reanimated')
+  } catch (e) {
+    throw new OptionalDependencyNotInstalledError('react-native-reanimated')
+  }
+})
