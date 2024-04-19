@@ -14,6 +14,7 @@ module.exports = {
         label: 'Realtime Frame Processing',
         items: [
           'guides/frame-processors',
+          'guides/frame-processors-interacting',
           'guides/frame-processor-plugins',
           'guides/pixel-formats',
           'guides/frame-processors-tips',
