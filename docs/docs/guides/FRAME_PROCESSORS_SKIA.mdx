@@ -108,12 +108,17 @@ The Camera Frame is a GPU-texture-backed `SkImage`, and it's coordinate system i
 - (`0`, `0`) is top left
 - (`frame.width`, `frame.height`) is bottom right
 
-### Limitations
+### Performance
 
-1. On Android, Skia Frame Processors currently only work with the `rgb` [pixel format](/docs/guides/pixel-formats). On iOS, you can use both `yuv` and `rgb`.
-2. Skia Frame Processors are currently preview-only. Any content drawn to the `Frame` will not be visible in captured photos, snapshots or videos.
+Just like normal Frame Processors, Skia Frame Processors are _really fast_. Skia is GPU-accelerated by Metal and OpenGL, and VisionCamera Frames are streamed as efficiently as possible using GPU-buffers and textures.
 
-    We at [Margelo](https://margelo.io) have worked a lot with 2D/3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need to capture drawn content to photos or videos, [**reach out to us**](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
+A Skia Frame Processor can run and render at up to 500 FPS, depending on how complex the rendering code is.
+
+:::info
+Skia Frame Processors are currently preview-only. Any content drawn to the `Frame` will not be visible in captured photos, snapshots or videos.
+
+We at [**Margelo**](https://margelo.io) have worked a lot with 2D/3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need to capture drawn content to photos or videos, [**reach out to us**](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
+:::
 
 <br />
 
