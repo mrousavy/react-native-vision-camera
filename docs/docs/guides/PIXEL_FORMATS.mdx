@@ -52,6 +52,10 @@ function App() {
 
 As a general tip, try to always use YUV if possible. If you have some specific models (e.g. Face Detectors), try converting them to YUV (4:2:0) instead of trying to run your Camera in RGB, as the conversion beforehand will be worth the effort.
 
+:::info
+A 4k Frame in `yuv` is roughly **12 MB**, while a 4k Frame in `rgb` is roughly **31 MB**.
+:::
+
 ### HDR
 
 When HDR is enabled, a different pixel format (10-bit instead of 8-bit) will be chosen. Make sure your Frame Processor can handle these formats, or disable HDR. See ["Understanding YpCbCr Image Formats"](https://developer.apple.com/documentation/accelerate/conversion/understanding_ypcbcr_image_formats) for more information.
