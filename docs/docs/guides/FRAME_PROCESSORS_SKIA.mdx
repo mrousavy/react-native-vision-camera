@@ -55,7 +55,7 @@ npm i react-native-reanimated
 A Skia Frame Processor, just like any other [Frame Processor](/docs/guides/frame-processors), runs synchronously for every Camera Frame.
 Instead of a [`Frame`](/docs/api/interfaces/Frame), it is called with a [`DrawableFrame`](/docs/api/interfaces/DrawableFrame), which extends the Frame with a drawing canvas.
 
-To create a Skia Frame Processor, use the [`useSkiaFrameProcessor`](/docs/api/useskiaframeprocessor) hook.
+To create a Skia Frame Processor, use the [`useSkiaFrameProcessor`](/docs/api#useskiaframeprocessor) hook.
 In a Skia Frame Processor the caller is responsible for rendering the Camera Frame, so [`Frame.render()`](/docs/api/interfaces/DrawableFrame#render) must always be called:
 
 ```ts
