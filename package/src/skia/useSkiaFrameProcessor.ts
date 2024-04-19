@@ -193,18 +193,20 @@ export function createSkiaFrameProcessor(
       const canvas = surface.getCanvas()
       const drawableFrame = createDrawableFrameProxy(frame, canvas)
 
-      // 3. Clear the current Canvas
-      const black = Skia.Color('black')
-      canvas.clear(black)
+      try {
+        // 3. Clear the current Canvas
+        const black = Skia.Color('black')
+        canvas.clear(black)
 
-      // 4. Run any user drawing operations
-      frameProcessor(drawableFrame)
+        // 4. Run any user drawing operations
+        frameProcessor(drawableFrame)
 
-      // 5. Flush draw operations and submit to GPU
-      surface.flush()
-
-      // 6. Delete the SkImage/Texture that holds the Frame
-      drawableFrame.dispose()
+        // 5. Flush draw operations and submit to GPU
+        surface.flush()
+      } finally {
+        // 6. Delete the SkImage/Texture that holds the Frame
+        drawableFrame.dispose()
+      }
 
       // 7. Capture rendered results as a Texture/SkImage to later render to screen
       const snapshot = surface.makeImageSnapshot()
