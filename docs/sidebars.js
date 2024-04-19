@@ -15,7 +15,7 @@ module.exports = {
         items: [
           'guides/frame-processors',
           'guides/frame-processors-interacting',
-          'guides/frame-processor-plugins',
+          'guides/frame-processor-plugins-community',
           'guides/pixel-formats',
           'guides/frame-processors-tips',
           'guides/skia-frame-processors',
