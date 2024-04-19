@@ -141,9 +141,63 @@ Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugi
 
 ### Creating native Frame Processor Plugins
 
-VisionCamera provides an easy-to-use API for creating native Frame Processor Plugins, which are used to either wrap existing algorithms (example: ["MLKit Face Detection"](https://developers.google.com/ml-kit/vision/face-detection)), or build your own custom algorithms.
-It's binding point is a simple callback function that gets called with the native frame type (`CMSampleBuffer` or `Image`), that you can use for any kind of processing.
-The native plugin can accept parameters (e.g. for configuration) and return any kind of values for result, which are bridged through JSI.
+VisionCamera provides an easy-to-use API for creating native Frame Processor Plugins, which you can use to either wrap existing algorithms (e.g. the iOS/Android ["MLKit Face Detection"](https://developers.google.com/ml-kit/vision/face-detection) API), or to build your own custom algorithms.
+
+A Frame Processor Plugin is a single native class which contains an initializer and a callback function that receives the native `Frame` (`CMSampleBuffer` or `Image`):
+
+<Tabs
+  groupId="platform"
+  defaultValue="ios"
+  values={[
+    {label: 'iOS Example (Swift)', value: 'ios'},
+    {label: 'Android Example (Java)', value: 'android'}
+  ]}>
+<TabItem value="ios">
+
+```swift title="FaceDetectorPlugin.swift"
+@objc(FaceDetector)
+public class FaceDetectorPlugin: FrameProcessorPlugin {
+  private let sensitivity: Double
+
+  public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]) {
+    super.init(proxy: proxy, options: options)
+    sensitivity = options["sensitivity"] as Double
+  }
+
+  public override func callback(_ frame: Frame, withArguments args: [AnyHashable: Any]) -> Any {
+    let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer)
+    let faces = MLKit.detectFaces(imageBuffer, sensitivity)
+    return faces.map { face in face.toJson() }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="android">
+
+```java title="FaceDetectorPlugin.java"
+public class FaceDetectorPlugin extends FrameProcessorPlugin {
+  private final Double sensitivity;
+
+  public FaceDetectorPlugin(VisionCameraProxyHolder proxy, Map<String, Object> options) {
+    super();
+    sensitivity = options.get("sensitivity") as Double;
+  }
+
+  @Override
+  public Object callback(Frame frame, Map<String, Object> params) {
+    Image image = frame.getImage();
+    Array<Face> faces = MLKit.detectFaces(image, sensitivity);
+    return faces.stream().map(f -> f.toJson());
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+The native plugin can accept parameters (e.g. for configuration) and return any kind of values for result, which are automatically converted to- and from JavaScript values.
 
 See: ["Creating Frame Processor Plugins"](/docs/guides/frame-processors-plugins-overview).
 

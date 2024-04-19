@@ -30,6 +30,7 @@ module.exports = {
         'ruby',
         'cmake',
         'groovy',
+        'java',
       ],
     },
     announcementBar: {
