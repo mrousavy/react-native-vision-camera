@@ -3,7 +3,7 @@ import type { PixelFormat } from './PixelFormat'
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
- * At a 4k resolution, a Frame can be 1.5MB in size.
+ * At a 4k resolution, a raw Frame can be 12MB in size.
  *
  * @example
  * ```ts

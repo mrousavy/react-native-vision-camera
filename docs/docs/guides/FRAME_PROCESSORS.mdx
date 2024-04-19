@@ -17,17 +17,18 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 
 ## What are frame processors?
 
-Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to process frames the camera "sees".
-Inside those functions you can call **Frame Processor Plugins**, which are high performance native functions specifically designed for certain use-cases.
+Frame Processors are JavaScript functions that are called for each Frame the Camera "sees".
 
-For example, you might want to create an object detector app without writing any native code, while still achieving native performance:
+Inside those functions you can analyze the Frame in realtime using native [Frame Processor Plugins](#native-frame-processor-plugins) or draw directly onto the Frame using [Skia Frame Processors](skia-frame-processors).
+
+For example, the [vision-camera-image-labeler](https://github.com/mrousavy/vision-camera-image-labeler) plugin can detect objects at 60+ FPS:
 
 ```jsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     const objects = detectObjects(frame)
-    console.log(`Detected ${objects.length} objects.`)
+    console.log(`You're looking at a ${objects[0].name}.`)
   }, [])
 
   return (
@@ -39,10 +40,10 @@ function App() {
 }
 ```
 
-Frame processors are by far not limited to object detection, other examples include:
+Due to the extensible plugin-based nature, Frame Processors can be used for all sorts of things, like:
 
 * **ML** for **facial recognition**
-* Using **Tensorflow**, **MLKit Vision**, **Apple Vision** or other libraries
+* Using **Tensorflow**/**TFLite**, **MLKit Vision**, **Apple Vision** or other libraries
 * Creating **realtime video-chats** using **WebRTC** to directly send the camera frames over the network
 * Creating scanners for custom codes such as **Snapchat's SnapCodes** or **Apple's AppClips**
 * Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
@@ -50,10 +51,7 @@ Frame processors are by far not limited to object detection, other examples incl
 * **Drawing** boxes, text, overlays, or colors on the screen in realtime
 * Rendering **filters** and shaders such as Blur, inverted colors, beauty filter, or more on the screen
 
-Because they are written in JS, Frame Processors are simple, powerful, extensible and easy to create while still running at native performance. (Frame Processors can run up to 1000 times a second!) Also, you can use fast-refresh to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the object detector's sensitivity in live apps without pushing a native update.
-
-### react-native-worklets-core
-
+:::info
 Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 1.0.0 or higher. Install it:
 
 ```sh
@@ -70,11 +68,12 @@ module.exports = {
   ],
 }
 ```
+:::
 
 ## The `Frame`
 
-A Frame Processor is called for every Camera frame, and exposes information about the frame in the [`Frame`](/docs/api/interfaces/Frame) parameter.
-The [`Frame`](/docs/api/interfaces/Frame) parameter wraps the native GPU-based frame buffer in a C++ HostObject (a ~1.5MB buffer at 4k), and allows you to access information such as it's resolution or pixel format directly from JS:
+A Camera Frame is a GPU-based pixel buffer, usually in YUV or RGB format.
+The [`Frame`](/docs/api/interfaces/Frame) object contains these GPU-based pixel buffers, and exposes them to JavaScript. For example, to log information about the Frame such as it's resolution or pixel format, simply access it's properties:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
@@ -83,7 +82,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-Additionally, you can also directly access the Frame's pixel data using [`toArrayBuffer()`](/docs/api/interfaces/Frame#toarraybuffer):
+To directly access the Frame's pixel data use [`toArrayBuffer()`](/docs/api/interfaces/Frame#toarraybuffer):
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
@@ -96,8 +95,13 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-It is however recommended to use native **Frame Processor Plugins** for processing, as those are much faster than JavaScript and can sometimes operate with the GPU buffer directly.
-You can simply pass a `Frame` to a native Frame Processor Plugin directly.
+While you can process the Frame's pixel data in JavaScript, it is recommended to use native [Frame Processor Plugins](#native-frame-processor-plugins) instead for better performance and GPU-acceleration.
+
+:::tip
+At 4k resolution, a raw Frame is roughly **12MB** in size, so if your Camera is running at 60 FPS, roughly **700MB** are flowing through your Frame Processor **per second**.
+
+Such amounts of data cannot be copied or serialized fast enough, so VisionCamera uses [JSI](https://reactnative.dev/docs/the-new-architecture/landing-page#fast-javascriptnative-interfacing) to directly expose the GPU-based buffers from C++ to JavaScript.
+:::
 
 ## Interacting with Frame Processors
 
