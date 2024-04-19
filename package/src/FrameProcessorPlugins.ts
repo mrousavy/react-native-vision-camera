@@ -3,6 +3,7 @@ import { CameraRuntimeError } from './CameraError'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
 import { WorkletsProxy } from './dependencies/WorkletsProxy'
+import type { IWorkletContext } from 'react-native-worklets-core'
 
 declare global {
   // eslint-disable-next-line no-var
@@ -57,6 +58,14 @@ interface TVisionCameraProxy {
    * Throws the given error.
    */
   throwJSError(error: unknown): void
+  /**
+   * Get the Frame Processor Runtime Worklet Context.
+   *
+   * This is the serial [DispatchQueue](https://developer.apple.com/documentation/dispatch/dispatchqueue)
+   * / [Executor](https://developer.android.com/reference/java/util/concurrent/Executor) the
+   * video/frame processor pipeline is running on.
+   */
+  workletContext: IWorkletContext | undefined
 }
 
 const errorMessage = 'Frame Processors are not available, react-native-worklets-core is not installed!'
@@ -134,6 +143,7 @@ let proxy: TVisionCameraProxy = {
     throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
   throwJSError: throwJSError,
+  workletContext: undefined,
 }
 if (hasWorklets) {
   // Install native Frame Processor Runtime Manager
@@ -157,6 +167,7 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
   throwJSError: throwJSError,
+  workletContext: undefined,
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {

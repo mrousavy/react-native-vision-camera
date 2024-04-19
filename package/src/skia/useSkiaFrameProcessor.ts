@@ -2,13 +2,12 @@ import type { Frame, FrameInternal } from '../Frame'
 import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
 import type { Orientation } from '../Orientation'
-import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
+import { VisionCameraProxy, wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import type { DrawableFrameProcessor } from '../CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
-import { InteractionManager } from 'react-native'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -262,8 +261,11 @@ export function useSkiaFrameProcessor(
 
   useEffect(() => {
     return () => {
-      InteractionManager.runAfterInteractions(() => {
-        // on unmount, clean everything
+      // on unmount, we clean up the resources on the Worklet Context.
+      // this causes it to run _after_ the Frame Processor has finished executing,
+      // if it is currently executing - so we avoid race conditions here.
+      VisionCameraProxy.workletContext?.runAsync(() => {
+        'worklet'
         const surfaces = Object.values(surface.value).map((v) => v.surface)
         surface.value = {}
         surfaces.forEach((s) => s.dispose())

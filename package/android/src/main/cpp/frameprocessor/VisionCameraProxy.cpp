@@ -42,6 +42,7 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("setFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("removeFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("initFrameProcessorPlugin")));
+  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("workletContext")));
   return result;
 }
 
@@ -75,8 +76,7 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           this->setFrameProcessor(static_cast<int>(viewTag), runtime, sharedFunction);
           return jsi::Value::undefined();
         });
-  }
-  if (name == "removeFrameProcessor") {
+  } else if (name == "removeFrameProcessor") {
     return jsi::Function::createFromHostFunction(
         runtime, jsi::PropNameID::forUtf8(runtime, "removeFrameProcessor"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
@@ -84,8 +84,7 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           this->removeFrameProcessor(static_cast<int>(viewTag));
           return jsi::Value::undefined();
         });
-  }
-  if (name == "initFrameProcessorPlugin") {
+  } else if (name == "initFrameProcessorPlugin") {
     return jsi::Function::createFromHostFunction(
         runtime, jsi::PropNameID::forUtf8(runtime, "initFrameProcessorPlugin"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
@@ -97,6 +96,9 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 
           return this->initFrameProcessorPlugin(runtime, pluginName, options);
         });
+  } else if (name == "workletContext") {
+    std::shared_ptr<RNWorklet::JsiWorkletContext> context = _javaProxy->cthis()->getWorkletContext();
+    return jsi::Object::createFromHostObject(runtime, context);
   }
 
   return jsi::Value::undefined();
