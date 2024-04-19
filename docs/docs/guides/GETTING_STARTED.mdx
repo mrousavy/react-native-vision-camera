@@ -1,5 +1,5 @@
 ---
-id: setup
+id: getting-started
 title: Getting Started
 sidebar_label: Getting Started
 slug: /guides
@@ -42,9 +42,7 @@ npx expo install react-native-vision-camera
 </TabItem>
 </Tabs>
 
-VisionCamera requires **iOS 12 or higher**, and **Android-SDK version 26 or higher**. See [Troubleshooting](/docs/guides/troubleshooting) if you're having installation issues.
-
-> **(Optional)** If you want to use [Frame Processors](/docs/guides/frame-processors), you need to install [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 1.0.0 or higher.
+VisionCamera requires **iOS 12 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/guides/troubleshooting) if you're having installation issues.
 
 ## Updating manifests
 
@@ -204,7 +202,9 @@ If your app has permission to use the Camera and Microphone, simply use the [`us
 ```tsx
 function App() {
   const device = useCameraDevice('back')
+  const { hasPermission } = useCameraPermission()
 
+  if (!hasPermission) return <PermissionsPage />
   if (device == null) return <NoCameraDeviceError />
   return (
     <Camera

@@ -20,11 +20,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 Camera Devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
 * **Physical**: A physical Camera Device is a **camera lens on your phone**. Different physical Camera Devices have different specifications, such as different capture formats, resolutions, zoom levels, and more. Some phones have multiple physical Camera Devices.
-
-  > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_
+  Examples:
+  - "Backside Wide-Angle Camera"
+  - "Frontside Wide-Angle Camera (FaceTime HD)"
+  - "Ultra-Wide-Angle back camera"
 * **Virtual**: A virtual camera device is a **combination of one or more physical camera devices**, and provides features such as _virtual-device-switchover_ while zooming (see video on the right) or _combined photo delivery_ from all physical cameras to produce higher quality images.
-
-  > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
+  Examples:
+  - "Triple-Camera"
+  - "Dual-Wide-Angle Camera"
 
 ## Select the default Camera
 
@@ -48,7 +51,7 @@ const device = useCameraDevice('back')
 
 ```ts
 const devices = Camera.getAvailableCameraDevices()
-const device = devices.find((d) => d.position === 'back')
+const device = getCameraDevice(devices, 'back')
 ```
 
 </TabItem>
@@ -91,15 +94,15 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
 
 Here's a list of some Camera Devices an iPhone 13 Pro has:
 
-- Back Wide Angle Camera (`['wide-angle-camera']`)
-- Back Ultra-Wide Angle Camera (`['ultra-wide-angle-camera']`)
-- Back Telephoto Camera (`['telephoto-camera']`)
-- Back Dual Camera (Wide + Telephoto)
-- Back Dual-Wide Camera (Ultra-Wide + Wide)
-- Back Triple Camera (Ultra-Wide + Wide + Telephoto)
-- Back LiDAR Camera (Wide + LiDAR-Depth)
-- Front Wide Angle (`['wide-angle-camera']`)
-- Front True-Depth (Wide + Depth)
+- Back Wide Angle Camera **1x** (`['wide-angle-camera']`)
+- Back Ultra-Wide Angle Camera **0.5x** (`['ultra-wide-angle-camera']`)
+- Back Telephoto Camera **3x** (`['telephoto-camera']`)
+- Back Dual Camera **1x** + **3x** (`['wide-angle-camera', 'telephoto-camera']`)
+- Back Dual-Wide Camera **0.5x** + **1x** (`['ultra-wide-angle-camera', 'wide-angle-camera']`)
+- Back Triple Camera **0.5x** + **1x** + **3x** (`['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']`)
+- Back LiDAR Camera **1x** (`['wide-angle-camera']` + depth)
+- Front Wide Angle **1x** (`['wide-angle-camera']`)
+- Front True-Depth **1x** (`['wide-angle-camera']` + depth)
 
 ### Selecting Multi-Cams
 

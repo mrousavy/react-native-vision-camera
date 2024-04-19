@@ -1,7 +1,7 @@
 module.exports = {
   visionSidebar: {
     Guides: [
-      'guides/setup',
+      'guides/getting-started',
       'guides/devices',
       'guides/lifecycle',
       'guides/formats',
@@ -14,7 +14,8 @@ module.exports = {
         label: 'Realtime Frame Processing',
         items: [
           'guides/frame-processors',
-          'guides/frame-processor-plugins',
+          'guides/frame-processors-interacting',
+          'guides/frame-processor-plugins-community',
           'guides/pixel-formats',
           'guides/frame-processors-tips',
           'guides/skia-frame-processors',

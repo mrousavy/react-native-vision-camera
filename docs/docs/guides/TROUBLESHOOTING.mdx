@@ -90,11 +90,11 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    5. Set `minSdkVersion` to `26` or higher
    6. Set `ndkVersion` to `"23.1.7779620"` or higher
    7. Update the Gradle Build-Tools version to `7.3.1` or higher:
-      ```
+      ```groovy
       classpath("com.android.tools.build:gradle:7.3.1")
       ```
 6. Make sure your Gradle Wrapper version is `7.5.1` or higher. In `gradle-wrapper.properties`, set:
-   ```
+   ```sh
    distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-all.zip
    ```
 7. Try building without Frame Processors. Set `VisionCamera_enableFrameProcessors = false` in your `gradle.properties`, and try rebuilding.

@@ -64,13 +64,16 @@ import { Camera, useCameraDevice, CameraProps } from 'react-native-vision-camera
 import Reanimated, { useAnimatedProps, useSharedValue } from 'react-native-reanimated'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 
+// highlight-start
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 })
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
+// highlight-end
 
 export function App() {
   const device = useCameraDevice('back')
+  // highlight-next-line
   const zoom = useSharedValue(device.neutralZoom)
 
   const zoomOffset = useSharedValue(0);
@@ -88,18 +91,22 @@ export function App() {
       )
     })
 
+  // highlight-start
   const animatedProps = useAnimatedProps<CameraProps>(
     () => ({ zoom: zoom.value }),
     [zoom]
   )
+  // highlight-end
 
   if (device == null) return <NoCameraDeviceError />
   return (
     <GestureDetector gesture={gesture}>
+      // highlight-next-line
       <ReanimatedCamera
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
+        // highlight-next-line
         animatedProps={animatedProps}
       />
     </GestureDetector>

@@ -157,8 +157,8 @@ export interface CameraProps extends ViewProps {
    * - {@linkcode fps}: `format.minFps`...`format.maxFps`
    * - {@linkcode videoHdr}: `format.supportsVideoHdr`
    * - {@linkcode photoHdr}: `format.supportsPhotoHdr`
-   * - {@linkcode enableDepthData}: `format.supportsDepthCapture``
-   * - {@linkcode videoStabilizationMode}: `format.videoStabilizationModes``
+   * - {@linkcode enableDepthData}: `format.supportsDepthCapture`
+   * - {@linkcode videoStabilizationMode}: `format.videoStabilizationModes`
    *
    * In other words; {@linkcode enableDepthData} can only be set to true if {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture} is true.
    */

@@ -1,0 +1,119 @@
+---
+id: frame-processors-interacting
+title: Interacting with Frame Processors
+sidebar_label: Interacting with Frame Processors
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## Interacting with Frame Processors
+
+### Access JS values
+
+Since Frame Processors run in [Worklets](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md), you can directly use JS values such as React state which are readonly-copied into the Frame Processor:
+
+```tsx
+// User can look for specific objects
+const targetObject = 'banana'
+
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const objects = detectObjects(frame)
+  const bananas = objects.filter((o) => o.type === targetObject)
+  console.log(`Detected ${bananas} bananas!`)
+}, [targetObject])
+```
+
+### Shared Values
+
+You can also easily read from, and assign to [Shared Values](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md#shared-values), which can be written to from inside a Frame Processor and read from any other context (either React JS, Skia, or Reanimated):
+
+```tsx
+const bananas = useSharedValue([])
+
+// Detect Bananas in Frame Processor
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const objects = detectObjects(frame)
+  bananas.value = objects.filter((o) => o.type === 'banana')
+}, [bananas])
+
+// Draw bananas in a Skia Canvas
+const onDraw = useDrawCallback((canvas) => {
+  for (const banana of bananas.value) {
+    const rect = Skia.XYWHRect(banana.x,
+                               banana.y,
+                               banana.width,
+                               banana.height)
+    const paint = Skia.Paint()
+    paint.setColor(Skia.Color('red'))
+    frame.drawRect(rect, paint)
+  }
+})
+```
+
+### Call functions
+
+And you can also call back to the React-JS thread by using `createRunOnJS(...)`:
+
+```tsx
+const onFaceDetected = Worklets.createRunOnJS((face: Face) => {
+  navigation.push("FiltersPage", { face: face })
+})
+
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const faces = scanFaces(frame)
+  if (faces.length > 0) {
+    onFaceDetected(faces[0])
+  }
+}, [onFaceDetected])
+```
+
+## Threading
+
+By default, Frame Processors run synchronously in the Camera pipeline. A Frame Processor has to finish executing before the next Frame arrives, otherwise the new Frame will be dropped.
+For example, if your Camera is running at **30 FPS**, your Frame Processor has **33ms** to finish executing before the next Frame arrives. At **60 FPS**, you only have **16ms**.
+
+### Running asynchronously
+
+For longer running processing, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log("I'm running synchronously at 60 FPS!")
+
+  runAsync(frame, () => {
+    'worklet'
+    console.log("I'm running asynchronously, possibly at a lower FPS rate!")
+  })
+}, [])
+```
+
+### Running at a throttled FPS rate
+
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps):
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log("I'm running synchronously at 60 FPS!")
+
+  runAtTargetFps(2, () => {
+    'worklet'
+    console.log("I'm running synchronously at 2 FPS!")
+  })
+}, [])
+```
+
+#### 🚀 Next section: [Zooming](/docs/guides/zooming) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))

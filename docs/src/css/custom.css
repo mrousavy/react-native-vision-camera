@@ -84,6 +84,9 @@ a:hover {
 .theme-code-block {
   display: flow-root;
 }
+.theme-admonition {
+  display: flow-root;
+}
 
 @media (max-width: 600px) {
   .hero__title {

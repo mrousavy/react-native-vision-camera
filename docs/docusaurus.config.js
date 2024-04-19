@@ -1,3 +1,5 @@
+const { themes } = require('prism-react-renderer')
+
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 A powerful, high-performance React Native Camera library.',
@@ -19,9 +21,17 @@ module.exports = {
       respectPrefersColorScheme: true
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
-      darkTheme: require('prism-react-renderer/themes/palenight'),
-      additionalLanguages: ['swift', 'java', 'kotlin'],
+      theme: themes.github,
+      darkTheme: themes.palenight,
+      additionalLanguages: [
+        'bash',
+        'json',
+        'kotlin',
+        'ruby',
+        'cmake',
+        'groovy',
+        'java',
+      ],
     },
     announcementBar: {
       id: 'shadowlens',
@@ -50,6 +60,11 @@ module.exports = {
         {
           href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
           label: 'Example App',
+          position: 'left'
+        },
+        {
+          href: 'https://mrousavy.com/projects/shadowlens',
+          label: 'ShadowLens',
           position: 'left'
         },
         {

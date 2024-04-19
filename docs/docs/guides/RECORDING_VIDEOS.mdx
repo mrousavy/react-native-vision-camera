@@ -111,6 +111,10 @@ camera.current.startRecording({
 })
 ```
 
+:::tip
+If the device does not support `h265`, VisionCamera will automatically fall-back to a supported codec like `h264` instead.
+:::
+
 ### Video Bit Rate
 
 Videos are recorded with a target bit-rate, which the encoder aims to match as closely as possible. A lower bit-rate means less quality (and less file size), a higher bit-rate means higher quality (and larger file size) since it can assign more bits to moving pixels.

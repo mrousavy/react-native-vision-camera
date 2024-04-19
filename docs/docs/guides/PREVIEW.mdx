@@ -15,7 +15,19 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 
 ## The Preview View
 
-The `<Camera>` React component renders a Preview view for the Camera.
+The `<Camera>` component renders a Preview view for the Camera.
+It can be styled like any other view, although in most cases you would want to just use `style={{ flex: 1 }}`.
+
+### Resize Mode
+
+The Preview's scaling mode can be configured through the [`resizeMode`](/docs/api/interfaces/CameraProps#resizemode) property, which can be either `"cover"` (center-crop to fill the view) or `"contain"` (scale to fit inside the view, potentially with black spacings).
+
+### Disable Preview
+
+If you don't need to display a Preview, you can set <code>[preview](/docs/api/interfaces/CameraProps#preview)=&#123;false&#125;</code>.
+Since the Preview is a separate output stream, disabling it will save resources.
+
+[Skia Frame Processors](/docs/guides/skia-frame-processors) will disable the native Preview to use a custom Skia Canvas instead.
 
 ### FPS
 
