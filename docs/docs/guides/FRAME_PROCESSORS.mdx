@@ -19,7 +19,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 
 Frame Processors are JavaScript functions that are called for each Frame the Camera "sees".
 
-Inside those functions you can analyze the Frame in realtime using native [Frame Processor Plugins](#native-frame-processor-plugins) or draw directly onto the Frame using [Skia Frame Processors](skia-frame-processors).
+Inside those functions you can analyze the Frame in realtime using native [Frame Processor Plugins](#native-frame-processor-plugins-community) or draw directly onto the Frame using [Skia Frame Processors](skia-frame-processors).
 
 For example, the [vision-camera-image-labeler](https://github.com/mrousavy/vision-camera-image-labeler) plugin can detect objects at 60+ FPS:
 
@@ -88,7 +88,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-While you can process the Frame's pixel data in JavaScript, it is recommended to use native [Frame Processor Plugins](#native-frame-processor-plugins) instead for better performance and GPU-acceleration.
+While you can process the Frame's pixel data in JavaScript, it is recommended to use native [Frame Processor Plugins](#native-frame-processor-plugins-community) instead for better performance and GPU-acceleration.
 
 :::tip
 At 4k resolution, a raw Frame is roughly **12MB** in size, so if your Camera is running at 60 FPS, roughly **700MB** are flowing through your Frame Processor **per second**.
@@ -137,7 +137,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [labelImage])
 ```
 
-Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugins) to discover available community plugins.
+Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugins-community) to discover available community plugins.
 
 ### Creating native Frame Processor Plugins
 
