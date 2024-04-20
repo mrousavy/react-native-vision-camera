@@ -9,7 +9,7 @@
 #pragma once
 
 #import "Frame.h"
-#import "VisionCameraProxy.h"
+#import "VisionCameraProxyHolder.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN

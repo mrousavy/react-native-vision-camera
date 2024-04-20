@@ -10,7 +10,7 @@
 
 #import "Frame.h"
 #import "FrameProcessorPlugin.h"
-#import "VisionCameraProxy.h"
+#import "VisionCameraProxyHolder.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
