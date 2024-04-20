@@ -42,9 +42,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
 
-  s.dependency "React"
   s.dependency "React-Core"
-  s.dependency "React-callinvoker"
 
   s.subspec 'Core' do |core|
     # VisionCamera Core Swift codebase
@@ -66,6 +64,8 @@ Pod::Spec.new do |s|
 
   s.subspec 'FrameProcessors' do |fp|
     # VisionCamera Frame Processors C++ codebase (optional)
+    fp.dependency "React"
+    fp.dependency "React-callinvoker"
     fp.dependency "VisionCamera/Core"
     fp.dependency "react-native-worklets-core"
 
