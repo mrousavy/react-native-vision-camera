@@ -75,7 +75,7 @@ Pod::Spec.new do |s|
     fp.source_files = [
       # C++ sources
       "ios/Frame Processor/*.{m,mm,cpp}",
-      "cpp/**/*.{h,cpp}",
+      "cpp/**/*.{cpp}",
       # Swift/Objective-C visible headers
       "ios/Frame Processor/Frame.h",
       "ios/Frame Processor/FrameProcessor.h",
