@@ -73,11 +73,19 @@ Pod::Spec.new do |s|
     fp.dependency "react-native-worklets-core"
 
     fp.source_files = [
-      "ios/Frame Processor/*.{h,m,mm,cpp}",
-      "cpp/**/*.{h,cpp}"
+      # C++ sources
+      "ios/Frame Processor/*.{m,mm,cpp}",
+      "cpp/**/*.{h,cpp}",
+      # Swift/Objective-C visible headers
+      "ios/Frame Processor/Frame.h",
+      "ios/Frame Processor/FrameProcessor.h",
+      "ios/Frame Processor/SharedArray.h",
+      "ios/Frame Processor/VisionCameraProxyDelegate.h",
+      "ios/Frame Processor/VisionCameraProxyHolder.h",
+      "ios/Frame Processor/VisionCameraInstaller.h",
     ]
     fp.preserve_paths = [
-      "ios/Frame Processor/*.h"
+      "ios/Frame Processor/*.h",
       "cpp/**/*.h",
     ]
 
