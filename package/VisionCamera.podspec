@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets}",
-    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
   }
 
   s.requires_arc = true
@@ -57,7 +57,11 @@ Pod::Spec.new do |s|
       "ios/Types/*.{m,mm,swift}",
       "ios/CameraBridge.h",
     ]
-    s.preserve_paths = "ios/**/*.h"
+    core.preserve_paths = "ios/**/*.h"
+
+    core.pod_target_xcconfig = {
+      "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
+    }
   end
 
   s.subspec 'FrameProcessors' do |fp|
@@ -69,7 +73,6 @@ Pod::Spec.new do |s|
       "ios/Frame Processor/*.{h,m,mm}",
       "cpp/**/*.{h,cpp}"
     ]
-
     fp.preserve_paths = [
       "cpp/**/*.h",
       "ios/Frame Processor/*.h"
