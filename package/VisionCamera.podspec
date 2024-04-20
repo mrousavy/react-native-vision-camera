@@ -55,7 +55,6 @@ Pod::Spec.new do |s|
       "ios/Types/*.{m,mm,swift}",
       "ios/CameraBridge.h",
     ]
-    core.preserve_paths = "ios/**/*.h"
 
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
@@ -74,8 +73,10 @@ Pod::Spec.new do |s|
 
     fp.source_files = [
       # C++ sources
-      "ios/Frame Processor/*.{m,mm,cpp}",
-      "cpp/**/*.{cpp}",
+      "ios/Frame Processor/*.{h,m,mm,cpp}",
+      "cpp/**/*.{h,cpp}",
+    ]
+    fp.public_header_files = [
       # Swift/Objective-C visible headers
       "ios/Frame Processor/Frame.h",
       "ios/Frame Processor/FrameProcessor.h",
@@ -85,10 +86,6 @@ Pod::Spec.new do |s|
       "ios/Frame Processor/VisionCameraProxyDelegate.h",
       "ios/Frame Processor/VisionCameraProxyHolder.h",
       "ios/Frame Processor/VisionCameraInstaller.h",
-    ]
-    fp.preserve_paths = [
-      "ios/Frame Processor/*.h",
-      "cpp/**/*.h",
     ]
 
     fp.pod_target_xcconfig = {
