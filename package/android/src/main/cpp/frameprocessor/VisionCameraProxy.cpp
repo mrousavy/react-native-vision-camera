@@ -97,8 +97,10 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           return this->initFrameProcessorPlugin(runtime, pluginName, options);
         });
   } else if (name == "workletContext") {
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     std::shared_ptr<RNWorklet::JsiWorkletContext> context = _javaProxy->cthis()->getWorkletContext();
     return jsi::Object::createFromHostObject(runtime, context);
+#endif
   }
 
   return jsi::Value::undefined();
