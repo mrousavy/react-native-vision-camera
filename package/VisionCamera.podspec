@@ -20,8 +20,13 @@ end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
-hasWorklets = File.exist?(workletsPath) && enableFrameProcessors
-Pod::UI.puts("[VisionCamera] react-native-worklets-core #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!")
+hasWorklets = File.exist?(workletsPath)
+if hasWorklets
+  Pod::UI.puts("[VisionCamera] react-native-worklets-core found, Frame Processors #{enableFrameProcessors ? "enabled" : "disabled"}!")
+else
+  Pod::UI.puts("[VisionCamera] react-native-worklets-core not found - Frame Processors are #{hasWorklets ? "enabled" : "disabled"}!")
+  enableFrameProcessors = false
+end
 
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
@@ -36,8 +41,8 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets}",
-    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{hasWorklets ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{enableFrameProcessors}",
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableFrameProcessors ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
   }
 
   s.requires_arc = true
@@ -60,37 +65,39 @@ Pod::Spec.new do |s|
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     }
 
-    if hasWorklets
+    if enableFrameProcessors
       core.dependency "VisionCamera/FrameProcessors"
     end
   end
 
-  s.subspec 'FrameProcessors' do |fp|
-    # VisionCamera Frame Processors C++ codebase (optional)
-    fp.dependency "React"
-    fp.dependency "React-callinvoker"
-    fp.dependency "react-native-worklets-core"
+  if enableFrameProcessors
+    s.subspec 'FrameProcessors' do |fp|
+      # VisionCamera Frame Processors C++ codebase (optional)
+      fp.dependency "React"
+      fp.dependency "React-callinvoker"
+      fp.dependency "react-native-worklets-core"
 
-    fp.source_files = [
-      # C++ sources
-      "ios/Frame Processor/*.{h,m,mm,cpp}",
-      "cpp/**/*.{h,cpp}",
-    ]
-    fp.public_header_files = [
-      # Swift/Objective-C visible headers
-      "ios/Frame Processor/Frame.h",
-      "ios/Frame Processor/FrameProcessor.h",
-      "ios/Frame Processor/FrameProcessorPlugin.h",
-      "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-      "ios/Frame Processor/SharedArray.h",
-      "ios/Frame Processor/VisionCameraProxyDelegate.h",
-      "ios/Frame Processor/VisionCameraProxyHolder.h",
-      "ios/Frame Processor/VisionCameraInstaller.h",
-    ]
+      fp.source_files = [
+        # C++ sources
+        "ios/Frame Processor/*.{h,m,mm,cpp}",
+        "cpp/**/*.{h,cpp}",
+      ]
+      fp.public_header_files = [
+        # Swift/Objective-C visible headers
+        "ios/Frame Processor/Frame.h",
+        "ios/Frame Processor/FrameProcessor.h",
+        "ios/Frame Processor/FrameProcessorPlugin.h",
+        "ios/Frame Processor/FrameProcessorPluginRegistry.h",
+        "ios/Frame Processor/SharedArray.h",
+        "ios/Frame Processor/VisionCameraProxyDelegate.h",
+        "ios/Frame Processor/VisionCameraProxyHolder.h",
+        "ios/Frame Processor/VisionCameraInstaller.h",
+      ]
 
-    fp.pod_target_xcconfig = {
-      "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-      "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
-    }
+      fp.pod_target_xcconfig = {
+        "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
+        "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
+      }
+    end
   end
 end
