@@ -60,13 +60,16 @@ Pod::Spec.new do |s|
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     }
+
+    if hasWorklets
+      core.dependency "VisionCamera/FrameProcessors"
+    end
   end
 
   s.subspec 'FrameProcessors' do |fp|
     # VisionCamera Frame Processors C++ codebase (optional)
     fp.dependency "React"
     fp.dependency "React-callinvoker"
-    fp.dependency "VisionCamera/Core"
     fp.dependency "react-native-worklets-core"
 
     fp.source_files = [
@@ -80,7 +83,7 @@ Pod::Spec.new do |s|
 
     fp.pod_target_xcconfig = {
       "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-      "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
+      "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
     }
   end
 end

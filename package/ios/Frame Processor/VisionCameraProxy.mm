@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
+#import "VisionCameraProxyHolder.h"
 #import "FrameHostObject.h"
 #import "FrameProcessor.h"
 #import "FrameProcessorPluginHostObject.h"
@@ -17,36 +18,22 @@
 #import "JSINSObjectConversion.h"
 #import "WKTJsiWorklet.h"
 
-#import <React/RCTBridge+Private.h>
-#import <React/RCTBridge.h>
-#import <React/RCTUIManager.h>
-#import <React/RCTUtils.h>
-#import <ReactCommon/RCTTurboModuleManager.h>
-
-// Swift forward-declarations
-__attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
-@interface CameraQueues : NSObject
-@property(nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
-@end
-
-__attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
-@interface CameraView : UIView
-@property(nonatomic, copy) FrameProcessor* _Nullable frameProcessor;
-@end
-
 using namespace facebook;
 
-VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker) {
+VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime,
+                                     std::shared_ptr<react::CallInvoker> callInvoker,
+                                     id<VisionCameraProxyDelegate> delegate) {
   _callInvoker = callInvoker;
+  _delegate = delegate;
 
   NSLog(@"VisionCameraProxy: Creating Worklet Context...");
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
     // Run on React JS Runtime
     callInvoker->invokeAsync(std::move(f));
   };
-  auto runOnWorklet = [](std::function<void()>&& f) {
+  auto runOnWorklet = [delegate](std::function<void()>&& f) {
     // Run on Frame Processor Worklet Runtime
-    dispatch_async(CameraQueues.videoQueue, [f = std::move(f)]() { f(); });
+    dispatch_async(delegate.dispatchQueue, [f = std::move(f)]() { f(); });
   };
 
   _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera", &runtime, runOnJS, runOnWorklet);
@@ -67,8 +54,6 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
 }
 
 void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, const std::shared_ptr<jsi::Function>& function) {
-  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, function);
-  FrameProcessor* frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
 
   RCTExecuteOnMainQueue(^{
     auto currentBridge = [RCTBridge currentBridge];
@@ -114,18 +99,27 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
     return jsi::Function::createFromHostFunction(
         runtime, jsi::PropNameID::forUtf8(runtime, "setFrameProcessor"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-          auto viewTag = arguments[0].asNumber();
-          auto frameProcessor = arguments[1].asObject(runtime).asFunction(runtime);
-          auto sharedFunction = std::make_shared<jsi::Function>(std::move(frameProcessor));
-          this->setFrameProcessor(runtime, static_cast<int>(viewTag), sharedFunction);
+          auto jsViewTag = arguments[0].asNumber();
+          auto jsWorklet = arguments[1].asObject(runtime).asFunction(runtime);
+          auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, jsWorklet);
+          
+          // Call Swift delegate to set the Frame Processor (maybe on UI Thread)
+          FrameProcessor* frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
+          NSNumber* viewTag = [NSNumber numberWithDouble:jsViewTag];
+          [_delegate setFrameProcessor:frameProcessor forView:viewTag];
+          
           return jsi::Value::undefined();
         });
   } else if (name == "removeFrameProcessor") {
     return jsi::Function::createFromHostFunction(
         runtime, jsi::PropNameID::forUtf8(runtime, "removeFrameProcessor"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-          auto viewTag = arguments[0].asNumber();
-          this->removeFrameProcessor(runtime, static_cast<int>(viewTag));
+          auto jsViewTag = arguments[0].asNumber();
+          
+          // Call Swift delegate to remove Frame Processor (maybe on UI Thread)
+          NSNumber* viewTag = [NSNumber numberWithDouble:jsViewTag];
+          [_delegate removeFrameProcessorForView:viewTag];
+          
           return jsi::Value::undefined();
         });
   } else if (name == "initFrameProcessorPlugin") {
@@ -146,39 +140,3 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 
   return jsi::Value::undefined();
 }
-
-@implementation VisionCameraProxyHolder {
-  VisionCameraProxy* _proxy;
-}
-
-- (instancetype)initWithProxy:(void*)proxy {
-  if (self = [super init]) {
-    _proxy = (VisionCameraProxy*)proxy;
-  }
-  return self;
-}
-
-- (VisionCameraProxy*)proxy {
-  return _proxy;
-}
-
-@end
-
-@implementation VisionCameraInstaller
-
-+ (BOOL)installToBridge:(RCTBridge* _Nonnull)bridge {
-  RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
-  if (!cxxBridge.runtime) {
-    return NO;
-  }
-
-  jsi::Runtime& runtime = *(jsi::Runtime*)cxxBridge.runtime;
-
-  // global.VisionCameraProxy
-  auto visionCameraProxy = std::make_shared<VisionCameraProxy>(runtime, bridge.jsCallInvoker);
-  runtime.global().setProperty(runtime, "VisionCameraProxy", jsi::Object::createFromHostObject(runtime, visionCameraProxy));
-
-  return YES;
-}
-
-@end

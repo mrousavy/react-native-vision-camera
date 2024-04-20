@@ -8,19 +8,24 @@
 
 #pragma once
 
-#import <Foundation/Foundation.h>
-#import <React/RCTBridge.h>
+#ifndef __cplusplus
+#error VisionCameraProxy.h has to be compiled with C++!
+#endif
 
-#ifdef __cplusplus
+#import <Foundation/Foundation.h>
+
 #import "WKTJsiWorkletContext.h"
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
+#import "VisionCameraProxyDelegate.h"
 
 using namespace facebook;
 
 class VisionCameraProxy : public jsi::HostObject {
 public:
-  explicit VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
+  explicit VisionCameraProxy(jsi::Runtime& runtime,
+                             std::shared_ptr<react::CallInvoker> callInvoker,
+                             id<VisionCameraProxyDelegate> delegate);
   ~VisionCameraProxy();
 
 public:
@@ -39,25 +44,5 @@ private:
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
   std::shared_ptr<react::CallInvoker> _callInvoker;
+  id<VisionCameraProxyDelegate> _delegate;
 };
-#endif
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface VisionCameraProxyHolder : NSObject
-
-- (_Nonnull instancetype)initWithProxy:(void*)proxy;
-
-#ifdef __cplusplus
-- (VisionCameraProxy*)proxy;
-#endif
-
-@end
-
-@interface VisionCameraInstaller : NSObject
-
-+ (BOOL)installToBridge:(RCTBridge*)bridge;
-
-@end
-
-NS_ASSUME_NONNULL_END

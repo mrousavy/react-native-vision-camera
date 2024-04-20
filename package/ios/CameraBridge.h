@@ -20,5 +20,7 @@
 #import "Frame.h"
 #import "FrameProcessor.h"
 #import "SharedArray.h"
-#import "VisionCameraProxy.h"
+#import "VisionCameraProxyDelegate.h"
+#import "VisionCameraProxyHolder.h"
+#import "VisionCameraProxyInstaller.h"
 #endif
