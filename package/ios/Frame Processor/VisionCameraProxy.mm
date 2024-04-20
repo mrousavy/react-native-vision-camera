@@ -11,7 +11,6 @@
 #import <jsi/jsi.h>
 
 #import "VisionCameraProxyHolder.h"
-#import "FrameHostObject.h"
 #import "FrameProcessor.h"
 #import "FrameProcessorPluginHostObject.h"
 #import "FrameProcessorPluginRegistry.h"
@@ -102,12 +101,12 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           auto jsViewTag = arguments[0].asNumber();
           auto jsWorklet = arguments[1].asObject(runtime).asFunction(runtime);
           auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, jsWorklet);
-          
+
           // Call Swift delegate to set the Frame Processor (maybe on UI Thread)
           FrameProcessor* frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet context:_workletContext];
           NSNumber* viewTag = [NSNumber numberWithDouble:jsViewTag];
           [_delegate setFrameProcessor:frameProcessor forView:viewTag];
-          
+
           return jsi::Value::undefined();
         });
   } else if (name == "removeFrameProcessor") {
@@ -115,11 +114,11 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
         runtime, jsi::PropNameID::forUtf8(runtime, "removeFrameProcessor"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           auto jsViewTag = arguments[0].asNumber();
-          
+
           // Call Swift delegate to remove Frame Processor (maybe on UI Thread)
           NSNumber* viewTag = [NSNumber numberWithDouble:jsViewTag];
           [_delegate removeFrameProcessorForView:viewTag];
-          
+
           return jsi::Value::undefined();
         });
   } else if (name == "initFrameProcessorPlugin") {
