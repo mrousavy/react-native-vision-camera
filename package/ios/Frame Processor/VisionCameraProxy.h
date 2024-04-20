@@ -14,17 +14,16 @@
 
 #import <Foundation/Foundation.h>
 
+#import "VisionCameraProxyDelegate.h"
 #import "WKTJsiWorkletContext.h"
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
-#import "VisionCameraProxyDelegate.h"
 
 using namespace facebook;
 
 class VisionCameraProxy : public jsi::HostObject {
 public:
-  explicit VisionCameraProxy(jsi::Runtime& runtime,
-                             std::shared_ptr<react::CallInvoker> callInvoker,
+  explicit VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker,
                              id<VisionCameraProxyDelegate> delegate);
   ~VisionCameraProxy();
 

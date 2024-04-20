@@ -5,9 +5,9 @@
 //  Created by Marc Rousavy on 20.04.24.
 //
 
-#import <Foundation/Foundation.h>
 #import "VisionCameraProxyHolder.h"
 #import "VisionCameraProxy.h"
+#import <Foundation/Foundation.h>
 
 @implementation VisionCameraProxyHolder {
   VisionCameraProxy* _proxy;

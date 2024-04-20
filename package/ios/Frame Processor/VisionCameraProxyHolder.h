@@ -7,8 +7,8 @@
 
 #pragma once
 
-#import <Foundation/Foundation.h>
 #import "FrameProcessor.h"
+#import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
 #import "VisionCameraProxy.h"
