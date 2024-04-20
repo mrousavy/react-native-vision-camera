@@ -79,6 +79,7 @@ Pod::Spec.new do |s|
       # Swift/Objective-C visible headers
       "ios/Frame Processor/Frame.h",
       "ios/Frame Processor/FrameProcessor.h",
+      "ios/Frame Processor/FrameProcessorPlugin.h",
       "ios/Frame Processor/SharedArray.h",
       "ios/Frame Processor/VisionCameraProxyDelegate.h",
       "ios/Frame Processor/VisionCameraProxyHolder.h",

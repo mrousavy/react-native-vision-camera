@@ -19,6 +19,7 @@
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "Frame.h"
 #import "FrameProcessor.h"
+#import "FrameProcessorPlugin.h"
 #import "SharedArray.h"
 #import "VisionCameraInstaller.h"
 #import "VisionCameraProxyDelegate.h"
