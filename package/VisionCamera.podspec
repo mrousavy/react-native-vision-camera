@@ -4,18 +4,22 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
 
-enableFrameProcessors = true
-if defined?($VCEnableFrameProcessors)
-  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
-  enableFrameProcessors = $VCEnableFrameProcessors
-end
+Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
 
 enableLocation = true
 if defined?($VCEnableLocation)
   Pod::UI.puts "[VisionCamera] $VCEnableLocation is set to #{$VCEnableLocation}!"
   enableLocation = $VCEnableLocation
 else
-  Pod::UI.puts "[VisionCamera] Building with CLLocation APIs as $VCEnableLocation is not set.."
+  Pod::UI.puts "[VisionCamera] $VCEnableLocation is not set, enabling CLLocation APIs by default..."
+end
+
+enableFrameProcessors = true
+if defined?($VCEnableFrameProcessors)
+  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
+  enableFrameProcessors = $VCEnableFrameProcessors
+else
+  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is not set, enabling Frame Processors if Worklets is installed..."
 end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
