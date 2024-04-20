@@ -12,7 +12,6 @@
 
 #import <React/RCTEventEmitter.h>
 #import <React/RCTFPSGraph.h>
-#import <React/RCTLog.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
 
@@ -20,6 +19,7 @@
 #import "Frame.h"
 #import "FrameProcessor.h"
 #import "FrameProcessorPlugin.h"
+#import "FrameProcessorPluginRegistry.h"
 #import "SharedArray.h"
 #import "VisionCameraInstaller.h"
 #import "VisionCameraProxyDelegate.h"

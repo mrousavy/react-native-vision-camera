@@ -9,6 +9,7 @@
 #pragma once
 
 #import "Frame.h"
+#import "FrameProcessorPluginRegistry.h"
 #import "VisionCameraProxyHolder.h"
 #import <Foundation/Foundation.h>
 

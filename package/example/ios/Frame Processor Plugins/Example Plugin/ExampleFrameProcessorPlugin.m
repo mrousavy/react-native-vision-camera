@@ -8,7 +8,6 @@
 #if __has_include(<VisionCamera/FrameProcessorPlugin.h>)
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
-#import <VisionCamera/FrameProcessorPluginRegistry.h>
 #import <VisionCamera/Frame.h>
 #import <VisionCamera/SharedArray.h>
 
