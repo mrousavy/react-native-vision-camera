@@ -22,5 +22,5 @@
 #import "SharedArray.h"
 #import "VisionCameraProxyDelegate.h"
 #import "VisionCameraProxyHolder.h"
-#import "VisionCameraProxyInstaller.h"
+#import "VisionCameraInstaller.h"
 #endif

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#import "VisionCameraProxy.h"
+#import "VisionCameraProxyHolder.h"
 #import <Foundation/Foundation.h>
 
 #ifdef __cplusplus

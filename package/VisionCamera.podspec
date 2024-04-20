@@ -73,12 +73,12 @@ Pod::Spec.new do |s|
     fp.dependency "react-native-worklets-core"
 
     fp.source_files = [
-      "ios/Frame Processor/*.{h,m,mm}",
+      "ios/Frame Processor/*.{h,m,mm,cpp}",
       "cpp/**/*.{h,cpp}"
     ]
     fp.preserve_paths = [
-      "cpp/**/*.h",
       "ios/Frame Processor/*.h"
+      "cpp/**/*.h",
     ]
 
     fp.pod_target_xcconfig = {
