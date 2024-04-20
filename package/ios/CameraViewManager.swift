@@ -135,13 +135,13 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
+  final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     #if VISION_CAMERA_ENABLE_LOCATION
       CLLocationManager.requestAccess(for: .whenInUse) { status in
         resolve(status.descriptor)
       }
     #else
-      let promise = Promise(resolver: resolver, rejecter: rejecter)
+      let promise = Promise(resolver: resolve, rejecter: reject)
       promise.reject(error: .system(.locationNotEnabled))
     #endif
   }
