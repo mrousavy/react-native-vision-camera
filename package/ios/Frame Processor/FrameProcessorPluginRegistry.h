@@ -15,6 +15,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// forward-declare the Plugin - caller should always include anyways.
+@class FrameProcessorPlugin;
+
 @interface FrameProcessorPluginRegistry : NSObject
 
 typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* proxy, NSDictionary* _Nullable options);
