@@ -378,7 +378,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       return
     }
     onAverageFpsChanged([
-      "averageFps": averageFps
+      "averageFps": averageFps,
     ])
   }
 

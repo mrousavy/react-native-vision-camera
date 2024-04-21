@@ -9,11 +9,11 @@ import Foundation
 
 class FpsSampleCollector {
   private var timestamps: [UInt64] = []
-  private var timer: Timer? = nil
-  var delegate: Delegate? = nil
-  
+  private var timer: Timer?
+  var delegate: Delegate?
+
   func start() {
-    self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timer in
+    timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timer in
       guard let self else {
         timer.invalidate()
         return
@@ -22,26 +22,26 @@ class FpsSampleCollector {
       delegate.onAverageFpsChanged(averageFps: self.averageFps)
     })
   }
-  
+
   func stop() {
-    self.timer?.invalidate()
-    self.timer = nil
+    timer?.invalidate()
+    timer = nil
   }
-  
+
   /**
    Add a new timestamp to the FPS samples.
    */
   func onTick() {
     let now = DispatchTime.now().uptimeNanoseconds
     timestamps.append(now)
-    
+
     // filter out any timestamps that are older than 1 second
-    timestamps = timestamps.filter({ timestamp in
+    timestamps = timestamps.filter { timestamp in
       let differenceMs = (now - timestamp) / 1_000_000
       return differenceMs < 1000
-    })
+    }
   }
-  
+
   /**
    Gets the current average FPS.
    */
@@ -50,13 +50,13 @@ class FpsSampleCollector {
           let lastTimestamp = timestamps.last else {
       return 0.0
     }
-    
+
     let totalDurationMs = (lastTimestamp - firstTimestamp) / 1_000_000
     let averageFrameDurationMs = Double(totalDurationMs) / Double(timestamps.count - 1)
-    
+
     return 1000.0 / averageFrameDurationMs
   }
-  
+
   protocol Delegate {
     func onAverageFpsChanged(averageFps: Double)
   }
