@@ -10,7 +10,7 @@ import Foundation
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
   extension CameraViewManager: VisionCameraProxyDelegate {
-    func getDispatchQueue() -> dispatch_queue_t {
+    func getDispatchQueue() -> DispatchQueue {
       return CameraQueues.videoQueue
     }
 
