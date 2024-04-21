@@ -4,7 +4,14 @@ import { StyleSheet, Text } from 'react-native'
 import { View } from 'react-native'
 
 interface Props extends ViewProps {
+  /**
+   * The current average FPS samples over time. One sample should be 1 second
+   */
   averageFpsSamples: number[]
+  /**
+   * The target FPS rate
+   */
+  targetMaxFps: number
 }
 
 export const MAX_BARS = 30
@@ -13,8 +20,11 @@ const WIDTH = 100
 const HEIGHT = 65
 const BAR_WIDTH = WIDTH / MAX_BARS
 
-export function FpsGraph({ averageFpsSamples, style, ...props }: Props): React.ReactElement {
-  const maxFps = useMemo(() => averageFpsSamples.reduce((prev, curr) => Math.max(prev, curr), 0), [averageFpsSamples])
+export function FpsGraph({ averageFpsSamples, targetMaxFps, style, ...props }: Props): React.ReactElement {
+  const maxFps = useMemo(() => {
+    const currentMaxFps = averageFpsSamples.reduce((prev, curr) => Math.max(prev, curr), 0)
+    return Math.max(currentMaxFps, targetMaxFps)
+  }, [averageFpsSamples, targetMaxFps])
   const latestFps = averageFpsSamples[averageFpsSamples.length - 1]
 
   return (
@@ -35,15 +45,17 @@ const styles = StyleSheet.create({
   container: {
     width: WIDTH,
     height: HEIGHT,
-    backgroundColor: 'black',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
   bar: {
     width: BAR_WIDTH,
     height: 5,
-    backgroundColor: 'red',
+    backgroundColor: 'rgb(243, 74, 77)',
   },
   centerContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -53,6 +65,7 @@ const styles = StyleSheet.create({
   text: {
     position: 'absolute',
     fontWeight: 'bold',
-    color: 'white',
+    fontSize: 14,
+    color: 'rgb(255, 255, 255)',
   },
 })

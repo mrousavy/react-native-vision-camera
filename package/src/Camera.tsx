@@ -637,7 +637,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
             resizeMode={props.resizeMode}
           />
         )}
-        {enableFpsGraph && <FpsGraph style={styles.fpsGraph} averageFpsSamples={this.state.averageFpsSamples} />}
+        {enableFpsGraph && (
+          <FpsGraph style={styles.fpsGraph} averageFpsSamples={this.state.averageFpsSamples} targetMaxFps={props.format?.maxFps ?? 60} />
+        )}
       </NativeCameraView>
     )
   }
