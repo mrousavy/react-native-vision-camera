@@ -424,7 +424,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     // Unbind all currently bound use-cases before rebinding
     if (currentUseCases.isNotEmpty()) {
-      Log.i(TAG, "Unbinding ${useCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
+      Log.i(TAG, "Unbinding ${currentUseCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
       provider.unbind(*currentUseCases.toTypedArray())
     }
 
@@ -432,6 +432,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     Log.i(TAG, "Binding ${useCases.size} use-cases...")
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
 
+    // Update currentUseCases for next unbind
     currentUseCases = useCases
 
     // Listen to Camera events
