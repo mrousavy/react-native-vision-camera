@@ -8,7 +8,7 @@
 
 #pragma once
 
-#import "../Frame Processor/SharedArray.h"
+#import "SharedArray.h"
 #import <React/RCTBridgeModule.h>
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>

@@ -81,19 +81,19 @@ Pod::Spec.new do |s|
       # VisionCamera Frame Processors C++ codebase (optional)
       fp.source_files = [
         # C++ sources
-        "ios/Frame Processor/**/*.{h,m,mm}",
+        "ios/FrameProcessors/**/*.{h,m,mm}",
         "cpp/**/*.{h,cpp}",
       ]
       fp.public_header_files = [
         # Swift/Objective-C visible headers
-        "ios/Frame Processor/Frame.h",
-        "ios/Frame Processor/FrameProcessor.h",
-        "ios/Frame Processor/FrameProcessorPlugin.h",
-        "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-        "ios/Frame Processor/SharedArray.h",
-        "ios/Frame Processor/VisionCameraProxyDelegate.h",
-        "ios/Frame Processor/VisionCameraProxyHolder.h",
-        "ios/Frame Processor/VisionCameraInstaller.h",
+        "ios/FrameProcessors/Frame.h",
+        "ios/FrameProcessors/FrameProcessor.h",
+        "ios/FrameProcessors/FrameProcessorPlugin.h",
+        "ios/FrameProcessors/FrameProcessorPluginRegistry.h",
+        "ios/FrameProcessors/SharedArray.h",
+        "ios/FrameProcessors/VisionCameraProxyDelegate.h",
+        "ios/FrameProcessors/VisionCameraProxyHolder.h",
+        "ios/FrameProcessors/VisionCameraInstaller.h",
       ]
 
       fp.pod_target_xcconfig = {
