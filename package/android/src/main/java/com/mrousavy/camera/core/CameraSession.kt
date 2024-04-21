@@ -84,8 +84,7 @@ class CameraSession(private val context: Context, private val callback: Callback
   private var videoOutput: VideoCapture<Recorder>? = null
   private var frameProcessorOutput: ImageAnalysis? = null
   private var codeScannerOutput: ImageAnalysis? = null
-  private val useCases: List<UseCase>
-    get() = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
+  private var currentUseCases: List<UseCase> = emptyList()
 
   // Camera Outputs State
   private val metadataProvider = MetadataProvider(context)
@@ -162,7 +161,6 @@ class CameraSession(private val context: Context, private val callback: Callback
         // Build up session or update any props
         if (diff.outputsChanged) {
           // 1. outputs changed, re-create them
-          closeCurrentOutputs(provider)
           configureOutputs(config)
         }
         if (diff.deviceChanged || diff.outputsChanged) {
@@ -383,20 +381,13 @@ class CameraSession(private val context: Context, private val callback: Callback
     Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
   }
 
-  private fun closeCurrentOutputs(provider: ProcessCameraProvider) {
-    if (useCases.isEmpty()) {
-      return
-    }
-    Log.i(TAG, "Unbinding ${useCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
-    provider.unbind(*useCases.toTypedArray())
-  }
-
   @SuppressLint("RestrictedApi")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
 
     // Outputs
+    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
     if (useCases.isEmpty()) {
       throw NoOutputsError()
     }
@@ -431,9 +422,18 @@ class CameraSession(private val context: Context, private val callback: Callback
       cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
     }
 
+    // Unbind all currently bound use-cases before rebinding
+    if (currentUseCases.isNotEmpty()) {
+      Log.i(TAG, "Unbinding ${currentUseCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
+      provider.unbind(*currentUseCases.toTypedArray())
+    }
+
     // Bind it all together (must be on UI Thread)
     Log.i(TAG, "Binding ${useCases.size} use-cases...")
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+
+    // Update currentUseCases for next unbind
+    currentUseCases = useCases
 
     // Listen to Camera events
     var lastState = CameraState.Type.OPENING
@@ -513,9 +513,8 @@ class CameraSession(private val context: Context, private val callback: Callback
     BitmapFactory.decodeFile(photoFile.uri.path, bitmapOptions)
     val width = bitmapOptions.outWidth
     val height = bitmapOptions.outHeight
-    val orientation = outputOrientation
 
-    return Photo(photoFile.uri.path, width, height, orientation, isMirrored)
+    return Photo(photoFile.uri.path, width, height, outputOrientation, isMirrored)
   }
 
   private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
