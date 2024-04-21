@@ -13,7 +13,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JJSUnionValue : public JavaClass<JJSUnionValue> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/types/JSUnionValue;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/core/types/JSUnionValue;";
 
   local_ref<JString> getUnionValue() {
     const auto getUnionValueMethod = getClass()->getMethod<JString()>("getUnionValue");

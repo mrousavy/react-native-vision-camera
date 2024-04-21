@@ -1,4 +1,4 @@
-import type { Frame, FrameInternal } from './Frame'
+import type { Frame, FrameInternal } from './types/Frame'
 import { CameraRuntimeError } from './CameraError'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'

@@ -1,20 +1,20 @@
 import React from 'react'
-import { requireNativeComponent, findNodeHandle, View, StyleSheet } from 'react-native'
-import type { CameraDevice } from './CameraDevice'
+import { requireNativeComponent, findNodeHandle, StyleSheet } from 'react-native'
+import type { CameraDevice } from './types/CameraDevice'
 import type { ErrorWithCause, CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
-import type { CameraProps, OnShutterEvent } from './CameraProps'
+import type { CameraProps, OnShutterEvent } from './types/CameraProps'
 import { CameraModule } from './NativeCameraModule'
-import type { PhotoFile, TakePhotoOptions } from './PhotoFile'
-import type { Point } from './Point'
-import type { RecordVideoOptions, VideoFile } from './VideoFile'
+import type { PhotoFile, TakePhotoOptions } from './types/PhotoFile'
+import type { Point } from './types/Point'
+import type { RecordVideoOptions, VideoFile } from './types/VideoFile'
 import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription, NativeSyntheticEvent, NativeMethods } from 'react-native'
-import type { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
-import type { TakeSnapshotOptions } from './Snapshot'
+import type { Code, CodeScanner, CodeScannerFrame } from './types/CodeScanner'
+import type { TakeSnapshotOptions } from './types/Snapshot'
 import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
-import type { Frame } from './Frame'
+import type { Frame } from './types/Frame'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -586,7 +586,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
     const isRenderingWithSkia = frameProcessor?.type === 'drawable-skia'
 
-    const result = (
+    return (
       <NativeCameraView
         {...props}
         cameraId={device.id}
@@ -603,24 +603,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
         enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
-        preview={isRenderingWithSkia ? false : props.preview ?? true}
-      />
-    )
-
-    if (frameProcessor?.type === 'drawable-skia') {
-      return (
-        <View style={props.style} pointerEvents="box-none">
+        preview={isRenderingWithSkia ? false : props.preview ?? true}>
+        {frameProcessor?.type === 'drawable-skia' && (
           <SkiaCameraCanvas
-            style={StyleSheet.absoluteFill}
+            style={styles.customPreviewView}
             offscreenTextures={frameProcessor.offscreenTextures}
             resizeMode={props.resizeMode}
           />
-          {result}
-        </View>
-      )
-    } else {
-      return result
-    }
+        )}
+      </NativeCameraView>
+    )
   }
 }
 //#endregion
@@ -631,3 +623,9 @@ const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
   // @ts-expect-error because the type declarations are kinda wrong, no?
   Camera,
 )
+
+const styles = StyleSheet.create({
+  customPreviewView: {
+    flex: 1,
+  },
+})

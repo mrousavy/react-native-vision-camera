@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { CameraDevice, CameraPosition } from '../CameraDevice'
+import type { CameraDevice, CameraPosition } from '../types/CameraDevice'
 import type { DeviceFilter } from '../devices/getCameraDevice'
 import { getCameraDevice } from '../devices/getCameraDevice'
 import { useCameraDevices } from './useCameraDevices'

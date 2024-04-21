@@ -1,8 +1,8 @@
 import type { DependencyList } from 'react'
 import { useMemo } from 'react'
 import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
-import type { ReadonlyFrameProcessor } from '../CameraProps'
-import type { Frame } from '../Frame'
+import type { ReadonlyFrameProcessor } from '../types/CameraProps'
+import type { Frame } from '../types/Frame'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
