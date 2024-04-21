@@ -398,7 +398,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     // Wrap input with a vendor extension if needed (see https://developer.android.com/media/camera/camera-extensions)
     val isStreamingHDR = useCases.any { !it.currentConfig.dynamicRange.isSDR }
-    val needsImageAnalysis = codeScannerOutput != null
+    val needsImageAnalysis = codeScannerOutput != null || frameProcessorOutput != null
     val photoOptions = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
     val enableHdrExtension = photoOptions != null && photoOptions.config.enableHdr
     if (enableHdrExtension) {
