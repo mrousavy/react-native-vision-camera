@@ -70,13 +70,24 @@ static def findNodeModules(baseDir) {
   throw new GradleException("react-native-vision-camera: Failed to find node_modules/ path!")
 }
 
+logger.warn("[VisionCamera] Thank you for using VisionCamera ❤️")
+
 def nodeModules = findNodeModules(projectDir)
+loggger.warn("[VisionCamera] node_modules found at $nodeModules")
 
 def enableFrameProcessors = safeExtGetBool('VisionCamera_enableFrameProcessors', true)
-def hasWorklets = enableFrameProcessors && findProject(":react-native-worklets-core") != null
-logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
+loggger.warn("[VisionCamera] VisionCamera_enableFrameProcessors is set to $enableFrameProcessors!")
+
+def hasWorklets = findProject(":react-native-worklets-core") != null
+if (hasWorklets) {
+  loggger.warn("[VisionCamera] react-native-worklets-core found, Frame Processors are ${enableFrameProcessors ? "enabled" : "disabled"}!")
+} else {
+  loggger.warn("[VisionCamera] react-native-worklets-core not found, Frame Processors are disabled!")
+  enableFrameProcessors = false
+}
 
 def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
+loggger.warn("[VisionCamera] VisionCamera_enableCodeScanner is set to $enableCodeScanner!")
 
 repositories {
   google()
@@ -121,7 +132,7 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets ? "ON" : "OFF"}"
+                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -190,7 +201,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
   }
 
-  if (hasWorklets) {
+  if (enableFrameProcessors) {
     // Frame Processor integration (optional)
     implementation project(":react-native-worklets-core")
   }

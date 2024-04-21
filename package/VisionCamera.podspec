@@ -26,9 +26,9 @@ Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at 
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath)
 if hasWorklets
-  Pod::UI.puts("[VisionCamera] react-native-worklets-core found, Frame Processors #{enableFrameProcessors ? "enabled" : "disabled"}!")
+  Pod::UI.puts("[VisionCamera] react-native-worklets-core found, Frame Processors are #{enableFrameProcessors ? "enabled" : "disabled"}!")
 else
-  Pod::UI.puts("[VisionCamera] react-native-worklets-core not found - Frame Processors are #{hasWorklets ? "enabled" : "disabled"}!")
+  Pod::UI.puts("[VisionCamera] react-native-worklets-core not found - Frame Processors are disabled!")
   enableFrameProcessors = false
 end
 
