@@ -23,8 +23,8 @@ public:
     _data = data;
     _freeOnDealloc = freeOnDealloc;
   }
-  explicit MutableRawBuffer(size_t size): MutableRawBuffer(new uint8_t[size], size, true) { }
-  
+  explicit MutableRawBuffer(size_t size) : MutableRawBuffer(new uint8_t[size], size, true) {}
+
   ~MutableRawBuffer() {
     if (_freeOnDealloc) {
       delete[] _data;

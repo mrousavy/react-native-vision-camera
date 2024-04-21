@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
       - 'package/android/**'
       - 'package/example/android/**'
       - 'package/yarn.lock'
@@ -14,7 +13,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
       - 'package/android/**'
       - 'package/example/android/**'
       - 'package/yarn.lock'
