@@ -73,21 +73,21 @@ static def findNodeModules(baseDir) {
 logger.warn("[VisionCamera] Thank you for using VisionCamera ❤️")
 
 def nodeModules = findNodeModules(projectDir)
-loggger.warn("[VisionCamera] node_modules found at $nodeModules")
+logger.warn("[VisionCamera] node_modules found at $nodeModules")
 
 def enableFrameProcessors = safeExtGetBool('VisionCamera_enableFrameProcessors', true)
-loggger.warn("[VisionCamera] VisionCamera_enableFrameProcessors is set to $enableFrameProcessors!")
+logger.warn("[VisionCamera] VisionCamera_enableFrameProcessors is set to $enableFrameProcessors!")
 
 def hasWorklets = findProject(":react-native-worklets-core") != null
 if (hasWorklets) {
-  loggger.warn("[VisionCamera] react-native-worklets-core found, Frame Processors are ${enableFrameProcessors ? "enabled" : "disabled"}!")
+  logger.warn("[VisionCamera] react-native-worklets-core found, Frame Processors are ${enableFrameProcessors ? "enabled" : "disabled"}!")
 } else {
-  loggger.warn("[VisionCamera] react-native-worklets-core not found, Frame Processors are disabled!")
+  logger.warn("[VisionCamera] react-native-worklets-core not found, Frame Processors are disabled!")
   enableFrameProcessors = false
 }
 
 def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
-loggger.warn("[VisionCamera] VisionCamera_enableCodeScanner is set to $enableCodeScanner!")
+logger.warn("[VisionCamera] VisionCamera_enableCodeScanner is set to $enableCodeScanner!")
 
 repositories {
   google()
