@@ -51,24 +51,26 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
 
-  s.dependency "React-Core"
-
   s.subspec 'Core' do |core|
     # VisionCamera Core Swift codebase
-    core.source_files = [
-      "ios/*.{m,mm,swift}",
-      "ios/Core/*.{m,mm,swift}",
-      "ios/Extensions/*.{m,mm,swift}",
-      "ios/Parsers/*.{m,mm,swift}",
-      "ios/React Utils/*.{m,mm,swift}",
-      "ios/Types/*.{m,mm,swift}",
-      "ios/CameraBridge.h",
-    ]
+    core.source_files = "ios/Core/**/*.swift"
 
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     }
+  end
 
+  s.subspec 'React' do |core|
+    # VisionCamera React-specific Swift codebase
+    core.source_files = [
+      "ios/React/**/*.swift",
+      "ios/React/**/*.{h,m}",
+    ]
+    core.public_header_files = [
+      "ios/React/CameraBridge.h"
+    ]
+
+    core.dependency "React-Core"
     if enableFrameProcessors
       core.dependency "VisionCamera/FrameProcessors"
     end
@@ -77,13 +79,9 @@ Pod::Spec.new do |s|
   if enableFrameProcessors
     s.subspec 'FrameProcessors' do |fp|
       # VisionCamera Frame Processors C++ codebase (optional)
-      fp.dependency "React"
-      fp.dependency "React-callinvoker"
-      fp.dependency "react-native-worklets-core"
-
       fp.source_files = [
         # C++ sources
-        "ios/Frame Processor/*.{h,m,mm,cpp}",
+        "ios/Frame Processor/**/*.{h,m,mm}",
         "cpp/**/*.{h,cpp}",
       ]
       fp.public_header_files = [
@@ -102,6 +100,10 @@ Pod::Spec.new do |s|
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
         "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
       }
+
+      fp.dependency "React"
+      fp.dependency "React-callinvoker"
+      fp.dependency "react-native-worklets-core"
     end
   end
 end
