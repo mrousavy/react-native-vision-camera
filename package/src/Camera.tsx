@@ -15,6 +15,7 @@ import type { Code, CodeScanner, CodeScannerFrame } from './types/CodeScanner'
 import type { TakeSnapshotOptions } from './types/Snapshot'
 import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
 import type { Frame } from './types/Frame'
+import { FpsGraph, MAX_BARS } from './FpsGraph'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -29,17 +30,24 @@ export interface OnErrorEvent {
   message: string
   cause?: ErrorWithCause
 }
+interface AverageFpsChangedEvent {
+  averageFps: number
+}
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onShutter' | 'frameProcessor' | 'codeScanner'> & {
+  // private intermediate props
   cameraId: string
   enableFrameProcessor: boolean
   codeScannerOptions?: Omit<CodeScanner, 'onCodeScanned'>
+  // private events
+  onViewReady: (event: NativeSyntheticEvent<void>) => void
+  onAverageFpsChanged?: (event: NativeSyntheticEvent<AverageFpsChangedEvent>) => void
+  // public events wrapped with NativeSyntheticEvent<T>
   onInitialized?: (event: NativeSyntheticEvent<void>) => void
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
   onStarted?: (event: NativeSyntheticEvent<void>) => void
   onStopped?: (event: NativeSyntheticEvent<void>) => void
   onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
-  onViewReady: (event: NativeSyntheticEvent<void>) => void
 }
 type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
   videoBitRateOverride?: number
@@ -48,6 +56,7 @@ type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'o
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
 interface CameraState {
   isRecordingWithFlash: boolean
+  averageFpsSamples: number[]
 }
 //#endregion
 
@@ -94,6 +103,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   constructor(props: CameraProps) {
     super(props)
     this.onViewReady = this.onViewReady.bind(this)
+    this.onAverageFpsChanged = this.onAverageFpsChanged.bind(this)
     this.onInitialized = this.onInitialized.bind(this)
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
@@ -104,6 +114,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.lastFrameProcessor = undefined
     this.state = {
       isRecordingWithFlash: false,
+      averageFpsSamples: [],
     }
   }
 
@@ -555,6 +566,21 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
   }
 
+  private onAverageFpsChanged({ nativeEvent: { averageFps } }: NativeSyntheticEvent<AverageFpsChangedEvent>): void {
+    this.setState((state) => {
+      const averageFpsSamples = [...state.averageFpsSamples, averageFps]
+      while (averageFpsSamples.length >= MAX_BARS + 1) {
+        // we keep a maximum of 30 FPS samples in our history
+        averageFpsSamples.shift()
+      }
+
+      return {
+        ...state,
+        averageFpsSamples: averageFpsSamples,
+      }
+    })
+  }
+
   /** @internal */
   componentDidUpdate(): void {
     if (!this.isNativeViewMounted) return
@@ -572,7 +598,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor, codeScanner, ...props } = this.props
+    const { device, frameProcessor, codeScanner, enableFpsGraph, ...props } = this.props
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (device == null) {
@@ -593,6 +619,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         ref={this.ref}
         torch={torch}
         onViewReady={this.onViewReady}
+        onAverageFpsChanged={enableFpsGraph ? this.onAverageFpsChanged : undefined}
         onInitialized={this.onInitialized}
         onCodeScanned={this.onCodeScanned}
         onStarted={this.onStarted}
@@ -602,7 +629,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
-        enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
         preview={isRenderingWithSkia ? false : props.preview ?? true}>
         {frameProcessor?.type === 'drawable-skia' && (
           <SkiaCameraCanvas
@@ -611,6 +637,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
             resizeMode={props.resizeMode}
           />
         )}
+        {enableFpsGraph && <FpsGraph style={styles.fpsGraph} averageFpsSamples={this.state.averageFpsSamples} />}
       </NativeCameraView>
     )
   }
@@ -627,5 +654,9 @@ const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
 const styles = StyleSheet.create({
   customPreviewView: {
     flex: 1,
+  },
+  fpsGraph: {
+    marginLeft: 15,
+    marginTop: 30,
   },
 })

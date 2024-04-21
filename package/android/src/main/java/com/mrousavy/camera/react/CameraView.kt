@@ -41,7 +41,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
   FrameLayout(context),
-  CameraSession.Callback {
+  CameraSession.Callback,
+  FpsSampleCollector.Callback {
   companion object {
     const val TAG = "CameraView"
   }
@@ -95,11 +96,6 @@ class CameraView(context: Context) :
       field = value
       updatePreview()
     }
-  var enableFpsGraph = false
-    set(value) {
-      field = value
-      updateFpsGraph()
-    }
 
   // code scanner
   var codeScannerOptions: CodeScannerOptions? = null
@@ -113,9 +109,7 @@ class CameraView(context: Context) :
   internal var frameProcessor: FrameProcessor? = null
   internal var previewView: PreviewView? = null
   private var currentConfigureCall: Long = System.currentTimeMillis()
-
-  // other
-  private var fpsGraph: FpsGraphView? = null
+  private val fpsSampleCollector = FpsSampleCollector(this)
 
   init {
     clipToOutline = true
@@ -127,9 +121,18 @@ class CameraView(context: Context) :
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     if (!isMounted) {
+      // Notifies JS view that the native view is now available
       isMounted = true
       invokeOnViewReady()
     }
+    // start collecting FPS samples
+    fpsSampleCollector.start()
+  }
+
+  override fun onDetachedFromWindow() {
+    super.onDetachedFromWindow()
+    // stop collecting FPS samples
+    fpsSampleCollector.stop()
   }
 
   fun destroy() {
@@ -244,18 +247,6 @@ class CameraView(context: Context) :
     }
   }
 
-  private fun updateFpsGraph() {
-    if (enableFpsGraph) {
-      if (fpsGraph != null) return
-      fpsGraph = FpsGraphView(context)
-      addView(fpsGraph)
-    } else {
-      if (fpsGraph == null) return
-      removeView(fpsGraph)
-      fpsGraph = null
-    }
-  }
-
   private fun updatePreview() {
     mainCoroutineScope.launch {
       if (preview && previewView == null) {
@@ -296,9 +287,11 @@ class CameraView(context: Context) :
     }
 
   override fun onFrame(frame: Frame) {
-    frameProcessor?.call(frame)
+    // Update average FPS samples
+    fpsSampleCollector.onTick()
 
-    fpsGraph?.onTick()
+    // Call JS Frame Processor
+    frameProcessor?.call(frame)
   }
 
   override fun onError(error: Throwable) {
@@ -323,5 +316,9 @@ class CameraView(context: Context) :
 
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {
     invokeOnCodeScanned(codes, scannerFrame)
+  }
+
+  override fun onAverageFpsChanged(averageFps: Double) {
+    invokeOnAverageFpsChanged(averageFps)
   }
 }
