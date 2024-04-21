@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { CameraDevice, CameraDeviceFormat } from '../CameraDevice'
+import type { CameraDevice, CameraDeviceFormat } from '../types/CameraDevice'
 import type { FormatFilter } from '../devices/getCameraFormat'
 import { getCameraFormat } from '../devices/getCameraFormat'
 

@@ -1,5 +1,5 @@
 import { NativeModules, NativeEventEmitter } from 'react-native'
-import type { CameraDevice } from './CameraDevice'
+import type { CameraDevice } from './types/CameraDevice'
 
 const CameraDevicesManager = NativeModules.CameraDevices as {
   getConstants: () => {
