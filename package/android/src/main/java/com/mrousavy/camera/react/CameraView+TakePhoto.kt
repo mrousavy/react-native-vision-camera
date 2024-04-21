@@ -1,14 +1,11 @@
 package com.mrousavy.camera.react
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.*
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.types.Flash
-import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
 
 private const val TAG = "CameraView.takePhoto"
 

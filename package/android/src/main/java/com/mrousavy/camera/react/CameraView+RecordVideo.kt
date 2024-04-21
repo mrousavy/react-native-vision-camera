@@ -3,10 +3,10 @@ package com.mrousavy.camera.react
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
-import com.facebook.react.bridge.*
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Callback
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.MicrophonePermissionError
-import com.mrousavy.camera.core.code
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.Video
 import com.mrousavy.camera.react.utils.makeErrorMap

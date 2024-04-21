@@ -1,6 +1,8 @@
 package com.mrousavy.camera.react.utils
 
-import com.facebook.react.bridge.*
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
 
 private fun makeErrorCauseMap(throwable: Throwable): ReadableMap {
   val map = Arguments.createMap()

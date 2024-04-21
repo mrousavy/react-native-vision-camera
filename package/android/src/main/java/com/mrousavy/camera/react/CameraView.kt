@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
+// TODO: Support videoCodec and videoBitRate on Android
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :

@@ -1,4 +1,4 @@
-package com.mrousavy.camera.core.types
+package com.mrousavy.camera.react
 
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap

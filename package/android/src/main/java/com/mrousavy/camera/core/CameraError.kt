@@ -25,10 +25,10 @@ abstract class CameraError(
    * A throwable that caused this error.
    */
   cause: Throwable? = null
-) : Throwable("[$domain/$id] $message", cause)
-
-val CameraError.code: String
-  get() = "$domain/$id"
+) : Throwable("[$domain/$id] $message", cause) {
+  val code: String
+    get() = "$domain/$id"
+}
 
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 class MicrophonePermissionError :

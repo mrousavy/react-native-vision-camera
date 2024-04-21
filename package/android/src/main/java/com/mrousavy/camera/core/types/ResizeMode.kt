@@ -1,6 +1,5 @@
 package com.mrousavy.camera.core.types
 
-import androidx.camera.core.ViewPort.ScaleType
 import androidx.camera.view.PreviewView
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 

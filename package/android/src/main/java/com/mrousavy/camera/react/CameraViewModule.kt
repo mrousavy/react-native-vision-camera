@@ -4,7 +4,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.facebook.react.bridge.*
+import com.facebook.react.bridge.Callback
+import com.facebook.react.bridge.Promise
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
@@ -14,14 +19,20 @@ import com.mrousavy.camera.BuildConfig
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.ViewNotFoundError
-import com.mrousavy.camera.core.types.*
+import com.mrousavy.camera.core.types.PermissionStatus
+import com.mrousavy.camera.core.types.RecordVideoOptions
+import com.mrousavy.camera.core.types.SnapshotOptions
 import com.mrousavy.camera.core.utils.runOnUiThread
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.react.utils.makeErrorMap
 import com.mrousavy.camera.react.utils.withPromise
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
