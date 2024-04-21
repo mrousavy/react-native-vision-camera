@@ -23,4 +23,3 @@ BreakConstructorInitializers: BeforeColon
 AllowShortFunctionsOnASingleLine: Empty
 IndentCaseLabels: true
 NamespaceIndentation: Inner
-

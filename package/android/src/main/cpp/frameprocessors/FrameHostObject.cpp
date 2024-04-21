@@ -15,8 +15,6 @@
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
 
-#include "FinalAction.h"
-
 namespace vision {
 
 using namespace facebook;
@@ -145,7 +143,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 #if __ANDROID_API__ >= 26
       AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
-      finally([&]() { AHardwareBuffer_release(hardwareBuffer); });
 
       AHardwareBuffer_Desc bufferDescription;
       AHardwareBuffer_describe(hardwareBuffer, &bufferDescription);
@@ -176,11 +173,16 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       if (result != 0) {
         throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
       }
-      finally([&]() { AHardwareBuffer_unlock(hardwareBuffer, nullptr); });
 
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
       memcpy(destinationBuffer, buffer, sizeof(uint8_t) * size);
+
+      // unlock read lock
+      AHardwareBuffer_unlock(hardwareBuffer, nullptr);
+
+      // release JNI reference
+      AHardwareBuffer_release(hardwareBuffer);
 
       return arrayBuffer;
 #else

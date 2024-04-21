@@ -53,7 +53,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     # VisionCamera Core Swift codebase
-    core.source_files = "ios/Core/**/*.swift"
+    core.source_files = [
+      "ios/Core/**/*.swift"
+    ]
 
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
@@ -80,25 +82,22 @@ Pod::Spec.new do |s|
     s.subspec 'FrameProcessors' do |fp|
       # VisionCamera Frame Processors C++ codebase (optional)
       fp.source_files = [
-        # C++ sources
-        "ios/Frame Processor/**/*.{h,m,mm}",
-        "cpp/**/*.{h,cpp}",
+        "ios/FrameProcessors/**/*.{h,m,mm}"
       ]
       fp.public_header_files = [
         # Swift/Objective-C visible headers
-        "ios/Frame Processor/Frame.h",
-        "ios/Frame Processor/FrameProcessor.h",
-        "ios/Frame Processor/FrameProcessorPlugin.h",
-        "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-        "ios/Frame Processor/SharedArray.h",
-        "ios/Frame Processor/VisionCameraProxyDelegate.h",
-        "ios/Frame Processor/VisionCameraProxyHolder.h",
-        "ios/Frame Processor/VisionCameraInstaller.h",
+        "ios/FrameProcessors/Frame.h",
+        "ios/FrameProcessors/FrameProcessor.h",
+        "ios/FrameProcessors/FrameProcessorPlugin.h",
+        "ios/FrameProcessors/FrameProcessorPluginRegistry.h",
+        "ios/FrameProcessors/SharedArray.h",
+        "ios/FrameProcessors/VisionCameraProxyDelegate.h",
+        "ios/FrameProcessors/VisionCameraProxyHolder.h",
+        "ios/FrameProcessors/VisionCameraInstaller.h",
       ]
 
       fp.pod_target_xcconfig = {
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-        "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
       }
 
       fp.dependency "React"

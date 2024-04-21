@@ -26,8 +26,6 @@ endif()
 add_library(
         ${PACKAGE_NAME}
         SHARED
-        # Shared C++
-        ../cpp/MutableRawBuffer.cpp
         # Java JNI
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/MutableJByteBuffer.cpp
@@ -48,7 +46,6 @@ add_library(
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
-        "../cpp"
         "src/main/cpp"
         "src/main/cpp/frameprocessors"
         "src/main/cpp/frameprocessors/java-bindings"
