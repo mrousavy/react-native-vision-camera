@@ -29,7 +29,7 @@ jobs:
         run: |
           ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml --relative --editorconfig=./.editorconfig
         continue-on-error: true
-      - uses: yutailang0119/action-ktlint@v3
+      - uses: yutailang0119/action-ktlint@v4
         with:
           report-path: ./package/android/build/*.xml
         continue-on-error: false
