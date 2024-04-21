@@ -3,7 +3,7 @@ import { requireNativeComponent, findNodeHandle, StyleSheet } from 'react-native
 import type { CameraDevice } from './types/CameraDevice'
 import type { ErrorWithCause, CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
-import type { CameraProps, OnShutterEvent } from './types/CameraProps'
+import type { CameraProps, DrawableFrameProcessor, OnShutterEvent, ReadonlyFrameProcessor } from './types/CameraProps'
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './types/PhotoFile'
 import type { Point } from './types/Point'
@@ -59,6 +59,10 @@ interface CameraState {
   averageFpsSamples: number[]
 }
 //#endregion
+
+function isSkiaFrameProcessor(frameProcessor?: ReadonlyFrameProcessor | DrawableFrameProcessor): frameProcessor is DrawableFrameProcessor {
+  return frameProcessor?.type === 'drawable-skia'
+}
 
 //#region Camera Component
 /**
@@ -610,7 +614,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
-    const isRenderingWithSkia = frameProcessor?.type === 'drawable-skia'
+    const isRenderingWithSkia = isSkiaFrameProcessor(frameProcessor)
 
     return (
       <NativeCameraView
@@ -630,7 +634,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
         preview={isRenderingWithSkia ? false : props.preview ?? true}>
-        {frameProcessor?.type === 'drawable-skia' && (
+        {isRenderingWithSkia && (
           <SkiaCameraCanvas
             style={styles.customPreviewView}
             offscreenTextures={frameProcessor.offscreenTextures}
@@ -658,6 +662,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fpsGraph: {
+    elevation: 1,
     marginLeft: 15,
     marginTop: 30,
   },
