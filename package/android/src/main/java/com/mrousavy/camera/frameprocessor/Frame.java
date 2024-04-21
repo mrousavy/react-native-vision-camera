@@ -12,8 +12,8 @@ import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.FrameInvalidError;
 import com.mrousavy.camera.core.HardwareBuffersNotAvailableError;
-import com.mrousavy.camera.types.PixelFormat;
-import com.mrousavy.camera.types.Orientation;
+import com.mrousavy.camera.core.types.PixelFormat;
+import com.mrousavy.camera.core.types.Orientation;
 import java.lang.IllegalStateException;
 
 public class Frame {

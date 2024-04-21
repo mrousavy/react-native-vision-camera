@@ -1,6 +1,6 @@
 package com.mrousavy.camera.core
 
-import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.core.types.VideoStabilizationMode
 
 abstract class CameraError(
   /**

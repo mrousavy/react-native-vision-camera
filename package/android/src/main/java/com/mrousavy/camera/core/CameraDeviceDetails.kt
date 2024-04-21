@@ -20,15 +20,15 @@ import androidx.camera.video.Recorder
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.extensions.id
-import com.mrousavy.camera.extensions.toJSValue
-import com.mrousavy.camera.types.AutoFocusSystem
-import com.mrousavy.camera.types.DeviceType
-import com.mrousavy.camera.types.HardwareLevel
-import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.Position
-import com.mrousavy.camera.types.VideoStabilizationMode
-import com.mrousavy.camera.utils.CamcorderProfileUtils
+import com.mrousavy.camera.core.extensions.id
+import com.mrousavy.camera.react.extensions.toJSValue
+import com.mrousavy.camera.core.types.AutoFocusSystem
+import com.mrousavy.camera.core.types.DeviceType
+import com.mrousavy.camera.core.types.HardwareLevel
+import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.Position
+import com.mrousavy.camera.core.types.VideoStabilizationMode
+import com.mrousavy.camera.core.utils.CamcorderProfileUtils
 import kotlin.math.atan2
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -48,7 +48,7 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
   private val supportsFocus = getSupportsFocus()
   private val supportsRawCapture = false
   private val supportsDepthCapture = false
-  private val autoFocusSystem = if (supportsFocus) AutoFocusSystem.CONTRAST_DETECTION else AutoFocusSystem.NONE
+  private val autoFocusSystem = if (supportsFocus) com.mrousavy.camera.core.types.AutoFocusSystem.CONTRAST_DETECTION else com.mrousavy.camera.core.types.AutoFocusSystem.NONE
   private val previewCapabilities = PreviewCapabilitiesImpl.from(cameraInfo)
   private val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo, Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
   private val supports10BitHdr = getSupports10BitHDR()
