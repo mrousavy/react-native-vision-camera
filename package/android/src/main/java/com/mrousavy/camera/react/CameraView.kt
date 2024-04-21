@@ -21,8 +21,8 @@ import com.mrousavy.camera.core.types.ResizeMode
 import com.mrousavy.camera.core.types.ShutterType
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
-import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.frameprocessors.Frame
+import com.mrousavy.camera.frameprocessors.FrameProcessor
 import com.mrousavy.camera.react.extensions.installHierarchyFitter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

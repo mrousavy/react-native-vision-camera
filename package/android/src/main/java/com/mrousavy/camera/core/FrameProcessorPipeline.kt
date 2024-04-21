@@ -4,7 +4,7 @@ import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis.Analyzer
 import androidx.camera.core.ImageProxy
-import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessors.Frame
 
 class FrameProcessorPipeline(private val callback: CameraSession.Callback) : Analyzer {
   @OptIn(ExperimentalGetImage::class)

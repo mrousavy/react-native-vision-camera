@@ -24,8 +24,8 @@ import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.SnapshotOptions
 import com.mrousavy.camera.core.utils.runOnUiThread
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
-import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
-import com.mrousavy.camera.frameprocessor.VisionCameraProxy
+import com.mrousavy.camera.frameprocessors.VisionCameraInstaller
+import com.mrousavy.camera.frameprocessors.VisionCameraProxy
 import com.mrousavy.camera.react.utils.makeErrorMap
 import com.mrousavy.camera.react.utils.withPromise
 import kotlinx.coroutines.CoroutineScope

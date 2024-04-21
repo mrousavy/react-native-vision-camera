@@ -12,7 +12,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 
 import com.mrousavy.camera.react.CameraPackage;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry;
 
 public class MainApplication extends Application implements ReactApplication {
   // Register the Frame Processor Plugins for our app

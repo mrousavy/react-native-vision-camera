@@ -60,7 +60,7 @@ import com.mrousavy.camera.core.types.Video
 import com.mrousavy.camera.core.types.VideoStabilizationMode
 import com.mrousavy.camera.core.utils.FileUtils
 import com.mrousavy.camera.core.utils.runOnUiThread
-import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessors.Frame
 import java.io.Closeable
 import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex

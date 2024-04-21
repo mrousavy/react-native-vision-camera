@@ -1,4 +1,4 @@
-package com.mrousavy.camera.frameprocessor;
+package com.mrousavy.camera.frameprocessors;
 
 import androidx.annotation.Keep;
 
