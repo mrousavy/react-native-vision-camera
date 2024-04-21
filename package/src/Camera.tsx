@@ -627,6 +627,5 @@ const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
 const styles = StyleSheet.create({
   customPreviewView: {
     flex: 1,
-    zIndex: 999,
   },
 })
