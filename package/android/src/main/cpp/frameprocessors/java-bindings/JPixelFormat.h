@@ -14,7 +14,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JPixelFormat : public JavaClass<JPixelFormat, JJSUnionValue> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/types/PixelFormat;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/core/types/PixelFormat;";
 };
 
 } // namespace vision

@@ -16,7 +16,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessors/FrameProcessorPlugin;";
 
 public:
   /**

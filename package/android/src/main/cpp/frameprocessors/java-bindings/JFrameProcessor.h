@@ -23,7 +23,7 @@ using namespace facebook;
 
 struct JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
 public:
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessor;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessors/FrameProcessor;";
   static void registerNatives();
   static jni::local_ref<JFrameProcessor::javaobject> create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
                                                             const std::shared_ptr<RNWorklet::JsiWorkletContext>& context);

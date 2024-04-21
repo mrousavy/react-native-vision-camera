@@ -56,7 +56,7 @@ private:
 #endif
 
   static auto constexpr TAG = "VisionCameraProxy";
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraProxy;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessors/VisionCameraProxy;";
 
   explicit JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis, jsi::Runtime* jsRuntime,
                               const std::shared_ptr<facebook::react::CallInvoker>& jsCallInvoker,

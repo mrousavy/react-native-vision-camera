@@ -17,7 +17,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JFrame : public JavaClass<JFrame> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/Frame;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessors/Frame;";
 
 public:
   int getWidth() const;

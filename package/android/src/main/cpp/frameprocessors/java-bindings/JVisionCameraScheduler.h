@@ -25,7 +25,7 @@ using namespace facebook;
  */
 class JVisionCameraScheduler : public jni::HybridClass<JVisionCameraScheduler> {
 public:
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraScheduler;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessors/VisionCameraScheduler;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 

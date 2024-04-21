@@ -14,7 +14,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JOrientation : public JavaClass<JOrientation, JJSUnionValue> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/types/Orientation;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/core/types/Orientation;";
 };
 
 } // namespace vision
