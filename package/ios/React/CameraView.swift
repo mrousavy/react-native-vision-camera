@@ -20,7 +20,7 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView, CameraSessionDelegate {
+public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector.Delegate {
   // pragma MARK: React Properties
 
   // props that require reconfiguring
@@ -57,7 +57,6 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var exposure: NSNumber = 1.0
-  @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
@@ -72,6 +71,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onStopped: RCTDirectEventBlock?
   @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
+  @objc var onAverageFpsChanged: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
 
   // zoom
@@ -86,9 +86,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   // pragma MARK: Internal Properties
-  var cameraSession: CameraSession
+  var cameraSession = CameraSession()
+  var previewView: PreviewView?
   var isMounted = false
-  var isReady = false
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
@@ -96,21 +96,16 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
-  private var currentConfigureCall: DispatchTime?
   var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
-
-  var previewView: PreviewView?
-  #if DEBUG
-    var fpsGraph: RCTFPSGraph?
-  #endif
+  private var currentConfigureCall: DispatchTime?
+  private let fpsSampleCollector = FpsSampleCollector()
 
   // pragma MARK: Setup
 
   override public init(frame: CGRect) {
-    // Create CameraSession
-    cameraSession = CameraSession()
     super.init(frame: frame)
     cameraSession.delegate = self
+    fpsSampleCollector.delegate = self
     updatePreview()
   }
 
@@ -123,10 +118,13 @@ public final class CameraView: UIView, CameraSessionDelegate {
     super.willMove(toSuperview: newSuperview)
 
     if newSuperview != nil {
+      fpsSampleCollector.start()
       if !isMounted {
         isMounted = true
         onViewReady?(nil)
       }
+    } else {
+      fpsSampleCollector.stop()
     }
   }
 
@@ -268,29 +266,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
       pinchScaleOffset = zoom.doubleValue
     }
 
-    // Set up Debug FPS Graph
-    if changedProps.contains("enableFpsGraph") {
-      DispatchQueue.main.async {
-        self.setupFpsGraph()
-      }
-    }
-
     // Prevent phone from going to sleep
     UIApplication.shared.isIdleTimerDisabled = isActive
-  }
-
-  func setupFpsGraph() {
-    #if DEBUG
-      if enableFpsGraph {
-        if fpsGraph != nil { return }
-        fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
-        fpsGraph!.layer.zPosition = 9999.0
-        addSubview(fpsGraph!)
-      } else {
-        fpsGraph?.removeFromSuperview()
-        fpsGraph = nil
-      }
-    #endif
   }
 
   func updatePreview() {
@@ -370,6 +347,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   func onFrame(sampleBuffer: CMSampleBuffer) {
+    fpsSampleCollector.onTick()
+
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
@@ -382,14 +361,6 @@ public final class CameraView: UIView, CameraSessionDelegate {
       callback(sampleBuffer)
     }
     snapshotOnFrameListeners.removeAll()
-
-    #if DEBUG
-      if let fpsGraph {
-        DispatchQueue.main.async {
-          fpsGraph.onTick(CACurrentMediaTime())
-        }
-      }
-    #endif
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
@@ -399,6 +370,15 @@ public final class CameraView: UIView, CameraSessionDelegate {
     onCodeScanned([
       "codes": codes.map { $0.toJSValue() },
       "frame": scannerFrame.toJSValue(),
+    ])
+  }
+
+  func onAverageFpsChanged(averageFps: Double) {
+    guard let onAverageFpsChanged else {
+      return
+    }
+    onAverageFpsChanged([
+      "averageFps": averageFps,
     ])
   }
 

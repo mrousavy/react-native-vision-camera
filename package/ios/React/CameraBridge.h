@@ -11,7 +11,6 @@
 #import <Foundation/Foundation.h>
 
 #import <React/RCTEventEmitter.h>
-#import <React/RCTFPSGraph.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
 

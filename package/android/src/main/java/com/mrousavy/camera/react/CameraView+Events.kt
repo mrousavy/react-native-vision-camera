@@ -75,6 +75,17 @@ fun CameraView.invokeOnViewReady() {
   this.sendEvent(event)
 }
 
+fun CameraView.invokeOnAverageFpsChanged(averageFps: Double) {
+  Log.i(CameraView.TAG, "invokeOnAverageFpsChanged($averageFps)")
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val data = Arguments.createMap()
+  data.putDouble("averageFps", averageFps)
+
+  val event = AverageFpsChangedEvent(surfaceId, id, data)
+  this.sendEvent(event)
+}
+
 fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>, scannerFrame: CodeScannerFrame) {
   val codes = Arguments.createArray()
   barcodes.forEach { barcode ->

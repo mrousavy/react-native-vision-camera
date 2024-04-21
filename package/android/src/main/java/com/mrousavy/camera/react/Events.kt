@@ -24,6 +24,11 @@ class CameraShutterEvent(surfaceId: Int, viewId: Int, private val data: Writable
   override fun getEventData() = data
 }
 
+class AverageFpsChangedEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) : Event<CameraShutterEvent>(surfaceId, viewId) {
+  override fun getEventName() = "averageFpsChanged"
+  override fun getEventData() = data
+}
+
 class CameraErrorEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) : Event<CameraErrorEvent>(surfaceId, viewId) {
   override fun getEventName() = "cameraError"
   override fun getEventData() = data

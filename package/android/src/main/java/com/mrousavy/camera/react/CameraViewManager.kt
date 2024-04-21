@@ -34,6 +34,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       .put("cameraStarted", MapBuilder.of("registrationName", "onStarted"))
       .put("cameraStopped", MapBuilder.of("registrationName", "onStopped"))
       .put("cameraShutter", MapBuilder.of("registrationName", "onShutter"))
+      .put("averageFpsChanged", MapBuilder.of("registrationName", "onAverageFpsChanged"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
       .put("cameraCodeScanned", MapBuilder.of("registrationName", "onCodeScanned"))
       .build()
@@ -98,11 +99,6 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   @ReactProp(name = "enableZoomGesture")
   fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
     view.enableZoomGesture = enableZoomGesture
-  }
-
-  @ReactProp(name = "enableFpsGraph")
-  fun setEnableFpsGraph(view: CameraView, enableFpsGraph: Boolean) {
-    view.enableFpsGraph = enableFpsGraph
   }
 
   @ReactProp(name = "videoStabilizationMode")
