@@ -327,7 +327,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
-  - react-native-skia (1.2.1):
+  - react-native-skia (1.2.3):
     - RCT-Folly (= 2021.07.22.00)
     - React
     - React-callinvoker
@@ -467,16 +467,16 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - SocketRocket (0.6.1)
-  - VisionCamera (4.0.0-beta.16):
-    - VisionCamera/Core (= 4.0.0-beta.16)
-    - VisionCamera/FrameProcessors (= 4.0.0-beta.16)
-    - VisionCamera/React (= 4.0.0-beta.16)
-  - VisionCamera/Core (4.0.0-beta.16)
-  - VisionCamera/FrameProcessors (4.0.0-beta.16):
+  - VisionCamera (4.0.0-beta.17):
+    - VisionCamera/Core (= 4.0.0-beta.17)
+    - VisionCamera/FrameProcessors (= 4.0.0-beta.17)
+    - VisionCamera/React (= 4.0.0-beta.17)
+  - VisionCamera/Core (4.0.0-beta.17)
+  - VisionCamera/FrameProcessors (4.0.0-beta.17):
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.0.0-beta.16):
+  - VisionCamera/React (4.0.0-beta.17):
     - React-Core
     - VisionCamera/FrameProcessors
   - Yoga (1.14.0)
@@ -682,7 +682,7 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
-  react-native-skia: 787a5145bd719269182bcc1ad311d36ab56affaa
+  react-native-skia: d368ae81d61c0253df36106ea76324b5a5519ddc
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets-core: ff2156b19b8f4a979fa0db52659e39a755b1454b
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
@@ -708,9 +708,9 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: f3bb394c7c842ff1ced88ee49294b329eb6d952f
+  VisionCamera: 83ca8822d076bbdef9b5642c3285fee80b185a8c
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
 PODFILE CHECKSUM: 66976ac26c778d788a06e6c1bab624e6a1233cdd
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.11.3
