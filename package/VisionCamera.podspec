@@ -53,7 +53,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     # VisionCamera Core Swift codebase
-    core.source_files = "ios/Core/**/*.swift"
+    core.source_files = [
+      "ios/Core/**/*.swift"
+    ]
 
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
@@ -80,9 +82,7 @@ Pod::Spec.new do |s|
     s.subspec 'FrameProcessors' do |fp|
       # VisionCamera Frame Processors C++ codebase (optional)
       fp.source_files = [
-        # C++ sources
-        "ios/FrameProcessors/**/*.{h,m,mm}",
-        "cpp/**/*.{h,cpp}",
+        "ios/FrameProcessors/**/*.{h,m,mm}"
       ]
       fp.public_header_files = [
         # Swift/Objective-C visible headers
@@ -98,7 +98,6 @@ Pod::Spec.new do |s|
 
       fp.pod_target_xcconfig = {
         "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-        "HEADER_SEARCH_PATHS" => "$(inherited) \"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
       }
 
       fp.dependency "React"

@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <functional>
 #include <jsi/jsi.h>
 #include <memory>
 
@@ -19,18 +18,25 @@ using namespace facebook;
 class MutableRawBuffer : public jsi::MutableBuffer {
 
 public:
-  explicit MutableRawBuffer(size_t size);
-  explicit MutableRawBuffer(uint8_t* data, size_t size, bool freeOnDealloc);
-  ~MutableRawBuffer();
+  explicit MutableRawBuffer(size_t size) {
+    _size = size;
+    _data = new uint8_t[size];
+  }
+  ~MutableRawBuffer() {
+    delete[] _data;
+  }
 
 public:
-  uint8_t* data() override;
-  size_t size() const override;
+  uint8_t* data() override {
+    return _data;
+  }
+  size_t size() const override {
+    return _size;
+  }
 
 private:
   uint8_t* _data;
   size_t _size;
-  bool _freeOnDealloc;
 };
 
 } // namespace vision
