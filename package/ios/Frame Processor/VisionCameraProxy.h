@@ -8,10 +8,13 @@
 
 #pragma once
 
-#import <Foundation/Foundation.h>
-#import <React/RCTBridge.h>
+#ifndef __cplusplus
+#error VisionCameraProxy.h has to be compiled with C++!
+#endif
 
-#ifdef __cplusplus
+#import <Foundation/Foundation.h>
+
+#import "VisionCameraProxyDelegate.h"
 #import "WKTJsiWorkletContext.h"
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
@@ -20,7 +23,8 @@ using namespace facebook;
 
 class VisionCameraProxy : public jsi::HostObject {
 public:
-  explicit VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
+  explicit VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker,
+                             id<VisionCameraProxyDelegate> delegate);
   ~VisionCameraProxy();
 
 public:
@@ -32,32 +36,12 @@ public:
   }
 
 private:
-  void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const std::shared_ptr<jsi::Function>& frameProcessor);
-  void removeFrameProcessor(jsi::Runtime& runtime, int viewTag);
-  jsi::Value initFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
+  void setFrameProcessor(jsi::Runtime& runtime, double viewTag, jsi::Function&& frameProcessor);
+  void removeFrameProcessor(jsi::Runtime& runtime, double viewTag);
+  jsi::Value initFrameProcessorPlugin(jsi::Runtime& runtime, const jsi::String& name, const jsi::Object& options);
 
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
   std::shared_ptr<react::CallInvoker> _callInvoker;
+  id<VisionCameraProxyDelegate> _delegate;
 };
-#endif
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface VisionCameraProxyHolder : NSObject
-
-- (_Nonnull instancetype)initWithProxy:(void*)proxy;
-
-#ifdef __cplusplus
-- (VisionCameraProxy*)proxy;
-#endif
-
-@end
-
-@interface VisionCameraInstaller : NSObject
-
-+ (BOOL)installToBridge:(RCTBridge*)bridge;
-
-@end
-
-NS_ASSUME_NONNULL_END

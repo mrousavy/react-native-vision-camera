@@ -10,10 +10,13 @@
 
 #import "Frame.h"
 #import "FrameProcessorPlugin.h"
-#import "VisionCameraProxy.h"
+#import "VisionCameraProxyHolder.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+// forward-declare the Plugin - caller should always include anyways.
+@class FrameProcessorPlugin;
 
 @interface FrameProcessorPluginRegistry : NSObject
 

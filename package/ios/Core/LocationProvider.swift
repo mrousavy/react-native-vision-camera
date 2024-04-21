@@ -23,11 +23,15 @@ class LocationProvider {
   }
 
   private var authorizationStatus: CLAuthorizationStatus {
-    if #available(iOS 14.0, *) {
-      return locationManager.authorizationStatus
-    } else {
-      return CLLocationManager.authorizationStatus()
-    }
+    #if VISION_CAMERA_ENABLE_LOCATION
+      if #available(iOS 14.0, *) {
+        return locationManager.authorizationStatus
+      } else {
+        return CLLocationManager.authorizationStatus()
+      }
+    #else
+      return .restricted
+    #endif
   }
 
   var hasPermission: Bool {

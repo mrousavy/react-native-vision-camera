@@ -16,9 +16,9 @@
 //
 
 #import "JSINSObjectConversion.h"
-#import "../Frame Processor/Frame.h"
-#import "../Frame Processor/FrameHostObject.h"
-#import "../Frame Processor/SharedArray.h"
+#import "Frame.h"
+#import "FrameHostObject.h"
+#import "SharedArray.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
