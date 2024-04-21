@@ -1,3 +1,4 @@
+require 'cocoapods'
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -47,5 +48,28 @@ target 'VisionCameraExample' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+    # Enable or disable our Example FP Plugins depending on FPs are enabled or not.
+    # In CI, we disable FPs to test if everything builds without FPs, so we also need to
+    # disable the FP plugins there.
+    podspec_path = File.join(__dir__, '../../VisionCamera.podspec')
+    podspec = Pod::Specification.from_file(podspec_path)
+    enableFrameProcessors = false
+    begin
+      podspec.subspec_by_name('VisionCamera/FrameProcessors')
+      Pod::UI.puts "Frame Processors are enabled."
+      enableFrameProcessors = true
+    rescue => e
+      Pod::UI.puts "Frame Processors are not enabled."
+      enableFrameProcessors = false
+    end
+    installer.generated_projects.each do |project|
+      project.targets.each do |target|
+        target.build_configurations.each do |config|
+          config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] ||= ''
+          config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] << ' VISION_CAMERA_ENABLE_FRAME_PROCESSORS'
+        end
+      end
+    end
   end
 end
