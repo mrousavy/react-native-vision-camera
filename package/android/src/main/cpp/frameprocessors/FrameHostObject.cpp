@@ -176,12 +176,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       if (result != 0) {
         throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
       }
-      finally([&]() {
-        int result = AHardwareBuffer_unlock(hardwareBuffer, nullptr);
-        if (result != 0) {
-          throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
-        }
-      });
+      finally([&]() { AHardwareBuffer_unlock(hardwareBuffer, nullptr); });
 
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
