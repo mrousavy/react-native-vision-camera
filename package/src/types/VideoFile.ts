@@ -1,4 +1,4 @@
-import type { CameraCaptureError } from './CameraError'
+import type { CameraCaptureError } from '../CameraError'
 import type { TemporaryFile } from './TemporaryFile'
 
 export interface RecordVideoOptions {
