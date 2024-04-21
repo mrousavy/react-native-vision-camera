@@ -1,5 +1,5 @@
 import React from 'react'
-import { requireNativeComponent, findNodeHandle, View, StyleSheet } from 'react-native'
+import { requireNativeComponent, findNodeHandle, StyleSheet } from 'react-native'
 import type { CameraDevice } from './types/CameraDevice'
 import type { ErrorWithCause, CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
@@ -586,7 +586,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
     const isRenderingWithSkia = frameProcessor?.type === 'drawable-skia'
 
-    const result = (
+    return (
       <NativeCameraView
         {...props}
         cameraId={device.id}
@@ -603,24 +603,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
         enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
-        preview={isRenderingWithSkia ? false : props.preview ?? true}
-      />
-    )
-
-    if (frameProcessor?.type === 'drawable-skia') {
-      return (
-        <View style={props.style} pointerEvents="box-none">
+        preview={isRenderingWithSkia ? false : props.preview ?? true}>
+        {frameProcessor?.type === 'drawable-skia' && (
           <SkiaCameraCanvas
-            style={StyleSheet.absoluteFill}
+            style={styles.customPreviewView}
             offscreenTextures={frameProcessor.offscreenTextures}
             resizeMode={props.resizeMode}
           />
-          {result}
-        </View>
-      )
-    } else {
-      return result
-    }
+        )}
+      </NativeCameraView>
+    )
   }
 }
 //#endregion
@@ -631,3 +623,10 @@ const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
   // @ts-expect-error because the type declarations are kinda wrong, no?
   Camera,
 )
+
+const styles = StyleSheet.create({
+  customPreviewView: {
+    flex: 1,
+    zIndex: 999,
+  },
+})
