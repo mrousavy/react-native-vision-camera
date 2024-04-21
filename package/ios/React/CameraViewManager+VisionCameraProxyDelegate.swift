@@ -9,6 +9,9 @@ import Foundation
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
+  /**
+   * A binding for implementing the protocol required by the Frame Processors runtime.
+   */
   extension CameraViewManager: VisionCameraProxyDelegate {
     func getDispatchQueue() -> DispatchQueue {
       return CameraQueues.videoQueue
