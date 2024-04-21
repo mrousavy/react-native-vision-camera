@@ -19,7 +19,7 @@ data class CameraDeviceFormat(
   val maxISO: Double,
   val fieldOfView: Double,
   val videoStabilizationModes: List<VideoStabilizationMode>,
-  val autoFocusSystem: _root_ide_package_.com.mrousavy.camera.core.types.AutoFocusSystem,
+  val autoFocusSystem: AutoFocusSystem,
   val supportsVideoHdr: Boolean,
   val supportsPhotoHdr: Boolean,
   val supportsDepthCapture: Boolean
@@ -51,7 +51,7 @@ data class CameraDeviceFormat(
       val modes = value.getArray("videoStabilizationModes") ?: throw InvalidTypeScriptUnionError("format", value.toString())
       val videoStabilizationModes = modes.toArrayList().map { VideoStabilizationMode.fromUnionValue(it as String) }
 
-      val autoFocusSystem = _root_ide_package_.com.mrousavy.camera.core.types.AutoFocusSystem.fromUnionValue(value.getString("autoFocusSystem"))
+      val autoFocusSystem = AutoFocusSystem.fromUnionValue(value.getString("autoFocusSystem"))
 
       return CameraDeviceFormat(
         value.getInt("videoWidth"),

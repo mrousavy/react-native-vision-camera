@@ -14,13 +14,13 @@ import com.mrousavy.camera.BuildConfig
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.ViewNotFoundError
+import com.mrousavy.camera.core.types.*
+import com.mrousavy.camera.core.utils.runOnUiThread
+import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.react.utils.makeErrorMap
-import com.mrousavy.camera.core.utils.runOnUiThread
-import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 import com.mrousavy.camera.react.utils.withPromise
-import com.mrousavy.camera.core.types.*
 import kotlinx.coroutines.*
 
 @ReactModule(name = CameraViewModule.TAG)
