@@ -18,12 +18,17 @@ using namespace facebook;
 class MutableRawBuffer : public jsi::MutableBuffer {
 
 public:
-  explicit MutableRawBuffer(size_t size) {
+  explicit MutableRawBuffer(uint8_t* data, size_t size, bool freeOnDealloc) {
     _size = size;
-    _data = new uint8_t[size];
+    _data = data;
+    _freeOnDealloc = freeOnDealloc;
   }
+  explicit MutableRawBuffer(size_t size): MutableRawBuffer(new uint8_t[size], size, true) { }
+  
   ~MutableRawBuffer() {
-    delete[] _data;
+    if (_freeOnDealloc) {
+      delete[] _data;
+    }
   }
 
 public:
@@ -37,6 +42,7 @@ public:
 private:
   uint8_t* _data;
   size_t _size;
+  bool _freeOnDealloc;
 };
 
 } // namespace vision
