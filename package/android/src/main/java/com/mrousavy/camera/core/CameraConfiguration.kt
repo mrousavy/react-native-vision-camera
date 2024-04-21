@@ -1,13 +1,13 @@
 package com.mrousavy.camera.core
 
 import androidx.camera.core.Preview.SurfaceProvider
-import com.mrousavy.camera.types.CameraDeviceFormat
-import com.mrousavy.camera.types.CodeType
-import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.PixelFormat
-import com.mrousavy.camera.types.QualityBalance
-import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.core.types.CameraDeviceFormat
+import com.mrousavy.camera.core.types.CodeType
+import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.PixelFormat
+import com.mrousavy.camera.core.types.QualityBalance
+import com.mrousavy.camera.core.types.Torch
+import com.mrousavy.camera.core.types.VideoStabilizationMode
 
 data class CameraConfiguration(
   // Input

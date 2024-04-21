@@ -100,8 +100,6 @@ jobs:
         run: yarn install --frozen-lockfile --cwd ..
       - name: Remove worklets, skia and reanimated
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
-      - name: Remove Example Plugins
-        run: rm -rf "Frame Processor Plugins/"
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2

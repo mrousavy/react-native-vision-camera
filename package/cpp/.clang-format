@@ -9,7 +9,7 @@ IndentWidth: 2
 ColumnLimit: 140
 
 # Includes
-SortIncludes: true
+SortIncludes: CaseSensitive
 SortUsingDeclarations: true
 
 # Pointer and reference alignment

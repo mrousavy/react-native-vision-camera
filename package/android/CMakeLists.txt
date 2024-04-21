@@ -32,16 +32,16 @@ add_library(
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/MutableJByteBuffer.cpp
         # Frame Processor
-        src/main/cpp/frameprocessor/FrameHostObject.cpp
-        src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
-        src/main/cpp/frameprocessor/JSIJNIConversion.cpp
-        src/main/cpp/frameprocessor/VisionCameraProxy.cpp
-        src/main/cpp/frameprocessor/java-bindings/JSharedArray.cpp
-        src/main/cpp/frameprocessor/java-bindings/JFrame.cpp
-        src/main/cpp/frameprocessor/java-bindings/JFrameProcessor.cpp
-        src/main/cpp/frameprocessor/java-bindings/JFrameProcessorPlugin.cpp
-        src/main/cpp/frameprocessor/java-bindings/JVisionCameraProxy.cpp
-        src/main/cpp/frameprocessor/java-bindings/JVisionCameraScheduler.cpp
+        src/main/cpp/frameprocessors/FrameHostObject.cpp
+        src/main/cpp/frameprocessors/FrameProcessorPluginHostObject.cpp
+        src/main/cpp/frameprocessors/JSIJNIConversion.cpp
+        src/main/cpp/frameprocessors/VisionCameraProxy.cpp
+        src/main/cpp/frameprocessors/java-bindings/JSharedArray.cpp
+        src/main/cpp/frameprocessors/java-bindings/JFrame.cpp
+        src/main/cpp/frameprocessors/java-bindings/JFrameProcessor.cpp
+        src/main/cpp/frameprocessors/java-bindings/JFrameProcessorPlugin.cpp
+        src/main/cpp/frameprocessors/java-bindings/JVisionCameraProxy.cpp
+        src/main/cpp/frameprocessors/java-bindings/JVisionCameraScheduler.cpp
 )
 
 # Header Search Paths (includes)
@@ -50,8 +50,8 @@ target_include_directories(
         PRIVATE
         "../cpp"
         "src/main/cpp"
-        "src/main/cpp/frameprocessor"
-        "src/main/cpp/frameprocessor/java-bindings"
+        "src/main/cpp/frameprocessors"
+        "src/main/cpp/frameprocessors/java-bindings"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper

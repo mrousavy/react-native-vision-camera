@@ -1,6 +1,6 @@
 package com.mrousavy.camera.core
 
-import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.core.types.VideoStabilizationMode
 
 abstract class CameraError(
   /**
@@ -25,10 +25,10 @@ abstract class CameraError(
    * A throwable that caused this error.
    */
   cause: Throwable? = null
-) : Throwable("[$domain/$id] $message", cause)
-
-val CameraError.code: String
-  get() = "$domain/$id"
+) : Throwable("[$domain/$id] $message", cause) {
+  val code: String
+    get() = "$domain/$id"
+}
 
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 class MicrophonePermissionError :

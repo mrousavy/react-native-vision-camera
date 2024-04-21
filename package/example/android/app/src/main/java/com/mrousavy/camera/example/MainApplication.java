@@ -2,8 +2,6 @@ package com.mrousavy.camera.example;
 
 import android.app.Application;
 
-import androidx.annotation.Nullable;
-
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -13,9 +11,8 @@ import java.util.List;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 
-import com.mrousavy.camera.CameraPackage;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
+import com.mrousavy.camera.react.CameraPackage;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry;
 
 public class MainApplication extends Application implements ReactApplication {
   // Register the Frame Processor Plugins for our app
