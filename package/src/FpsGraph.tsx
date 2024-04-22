@@ -29,10 +29,15 @@ export function FpsGraph({ averageFpsSamples, targetMaxFps, style, ...props }: P
 
   return (
     <View {...props} style={[styles.container, style]}>
-      {averageFpsSamples.map((fps, index) => (
-        <View key={index} style={[styles.bar, { height: (fps / maxFps) * HEIGHT }]} />
-      ))}
-      {latestFps != null && (
+      {averageFpsSamples.map((fps, index) => {
+        let height = (fps / maxFps) * HEIGHT
+        if (Number.isNaN(height) || height < 0) {
+          // clamp to 0 if needed
+          height = 0
+        }
+        return <View key={index} style={[styles.bar, { height: height }]} />
+      })}
+      {latestFps != null && !Number.isNaN(latestFps) && (
         <View style={styles.centerContainer}>
           <Text style={styles.text}>{Math.round(latestFps)} FPS</Text>
         </View>
