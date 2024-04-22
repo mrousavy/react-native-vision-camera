@@ -1,0 +1,3 @@
+# This is just so that GitHub shows the language "Swift" as the repo language.
+# I just don't want it to say "TypeScript", most of the codebase is Swift anyways lol
+*.mdx linguist-language=Swift
