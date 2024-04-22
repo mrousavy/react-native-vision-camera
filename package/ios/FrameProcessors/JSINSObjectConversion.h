@@ -18,9 +18,9 @@ using namespace facebook;
 using namespace facebook::react;
 
 // id -> any
-jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value, std::shared_ptr<CallInvoker> jsInvoker);
+jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);
 
 // any -> id
-id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker);
+id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value);
 
 } // namespace JSINSObjectConversion
