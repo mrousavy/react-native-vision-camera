@@ -22,6 +22,7 @@ VisionCamera is a powerful, high-performance Camera library for React Native. It
 * 🎞️ Customizable resolutions and aspect-ratios (4k/8k images)
 * ⏱️ Customizable FPS (30..240 FPS)
 * 🧩 [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors) (JS worklets to run facial recognition, AI object detection, realtime video chats, ...)
+* 🎨 Drawing shapes, text, filters or shaders onto the Camera Frames in realtime using Skia
 * 🔍 Smooth zooming (Reanimated)
 * ⏯️ Fast pause and resume
 * 🌓 HDR & Night modes
