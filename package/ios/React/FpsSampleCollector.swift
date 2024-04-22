@@ -18,7 +18,7 @@ class FpsSampleCollector {
         timer.invalidate()
         return
       }
-      guard let delegate else { return }
+      guard let delegate = self.delegate else { return }
       delegate.onAverageFpsChanged(averageFps: self.averageFps)
     })
   }
