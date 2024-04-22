@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol FpsSampleCollectorDelegate {
+protocol FpsSampleCollectorDelegate: AnyObject {
   /**
    * Called every second with a new average FPS over the last samples.
    */

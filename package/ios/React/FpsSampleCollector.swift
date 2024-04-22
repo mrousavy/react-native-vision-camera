@@ -10,7 +10,7 @@ import Foundation
 class FpsSampleCollector {
   private var timestamps: [UInt64] = []
   private var timer: Timer?
-  var delegate: FpsSampleCollectorDelegate?
+  weak var delegate: FpsSampleCollectorDelegate?
 
   func start() {
     timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timer in
