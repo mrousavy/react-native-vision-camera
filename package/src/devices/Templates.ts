@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native'
-import { FormatFilter } from './getCameraFormat'
+import type { FormatFilter } from './getCameraFormat'
 
 type PredefinedTemplates =
   | 'Video'
@@ -8,8 +8,7 @@ type PredefinedTemplates =
   | 'VideoStabilized'
   | 'Photo'
   | 'PhotoPortrait'
-  | 'FrameProcessingYUV'
-  | 'FrameProcessingRGB'
+  | 'FrameProcessing'
   | 'Snapchat'
   | 'Instagram'
 
@@ -50,13 +49,9 @@ export const Templates: Record<PredefinedTemplates, FormatFilter[]> = {
    */
   PhotoPortrait: [{ photoResolution: 'max' }, { photoAspectRatio: ScreenAspectRatio }],
   /**
-   * HD-quality for faster Frame Processing in YUV pixelFormat (e.g. 720p)
+   * HD-quality for faster Frame Processing (e.g. 720p)
    */
-  FrameProcessingYUV: [{ videoResolution: { width: 1080, height: 720 } }, { pixelFormat: 'yuv' }],
-  /**
-   * HD-quality for faster Frame Processing in RGB pixelFormat (e.g. 720p)
-   */
-  FrameProcessingRGB: [{ videoResolution: { width: 1080, height: 720 } }, { pixelFormat: 'rgb' }],
+  FrameProcessing: [{ videoResolution: { width: 1080, height: 720 } }],
   /**
    * Snapchat-style video recordings and photo capture
    * Targets Full HD-quality for lower file sizes and portrait screen aspect ratio.

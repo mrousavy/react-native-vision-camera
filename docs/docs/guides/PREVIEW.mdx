@@ -1,0 +1,65 @@
+---
+id: preview
+title: Preview
+sidebar_label: Preview
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo_capture.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## The Preview View
+
+The `<Camera>` component renders a Preview view for the Camera.
+It can be styled like any other view, although in most cases you would want to just use `style={{ flex: 1 }}`.
+
+### Resize Mode
+
+The Preview's scaling mode can be configured through the [`resizeMode`](/docs/api/interfaces/CameraProps#resizemode) property, which can be either `"cover"` (center-crop to fill the view) or `"contain"` (scale to fit inside the view, potentially with black spacings).
+
+### Disable Preview
+
+If you don't need to display a Preview, you can set <code>[preview](/docs/api/interfaces/CameraProps#preview)=&#123;false&#125;</code>.
+Since the Preview is a separate output stream, disabling it will save resources.
+
+[Skia Frame Processors](/docs/guides/skia-frame-processors) will disable the native Preview to use a custom Skia Canvas instead.
+
+### FPS
+
+The Preview view is running at the same frame rate as the Video stream, configured by the [`fps`](/docs/api/interfaces/CameraProps#fps) prop, or 30 FPS by default.
+
+```tsx
+<Camera {...props} fps={60} />
+```
+
+### Resolution
+
+On iOS, the Video resolution also determines the Preview resolution, so if you Camera format has a low Video resolution, your Preview will also be in low resolution:
+
+```ts
+const lowResolutionFormat = useCameraFormat(device, [
+  { videoResolution: { width: 640, height: 480 } },
+])
+```
+
+On Android, the Preview will always be in full HD, or the Preview View's size, whichever is smaller.
+
+### Overlays and Masks
+
+On Android, the Preview View supports two implementation modes which are controllable through the [`androidPreviewViewType`](/docs/api/interfaces/CameraProps#androidpreviewviewtype) prop:
+
+- `"surface-view"`: Uses a [`SurfaceView`](https://developer.android.com/reference/android/view/SurfaceView) for rendering. This is more efficient and supports HDR rendering, but doesn't support masks, transparency, rotations or clipping.
+- `"texture-view"`: Uses a [`TextureView`](https://developer.android.com/reference/android/view/TextureView) for rendering. This is less efficient and doesn't support HDR rendering, but supports masks, transparency, rotations and clipping.
+
+```tsx
+<Camera {...props} androidPreviewViewType="texture-view" />
+```
+
+<br />
+
+#### 🚀 Next section: [Taking Photos](./taking-photos)

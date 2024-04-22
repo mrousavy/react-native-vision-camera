@@ -1,0 +1,69 @@
+---
+id: frame-processor-plugins-community
+title: Community Frame Processor Plugins
+sidebar_label: Community Frame Processor Plugins
+---
+
+Frame Processor Plugins are native plugins that can process data in a Frame and return values to a JS Frame Processor.
+
+These plugins are written in native languages such as Java/Kotlin, Objective-C/Swift, or even C++ to make use of GPU-acceleration, low-level APIs, and overall faster performance.
+
+Similar to react-native libraries, Frame Processor Plugins are distributed through npm and come with a native module boilerplate so they can be autolinked.
+
+## Plugin List
+
+* [mrousavy/**react-native-fast-tflite**](https://github.com/mrousavy/react-native-fast-tflite): A plugin to run any Tensorflow Lite model inside React Native, written in C++ with GPU acceleration.
+* [mrousavy/**vision-camera-resize-plugin**](https://github.com/mrousavy/vision-camera-resize-plugin): A plugin for fast frame resizing, cropping and YUV/RGB pixel-format conversion using SIMD and CPU-Vector acceleration.
+* [mrousavy/**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler): A plugin to label images using MLKit Vision Image Labeler.
+* [rodgomesc/**vision-camera-face-detector**](https://github.com/rodgomesc/vision-camera-face-detector): A plugin to detect faces using MLKit Vision Face Detector.
+* [rodgomesc/**vision-camera-qrcode-scanner**](https://github.com/rodgomesc/vision-camera-qrcode-scanner): A plugin to read barcodes using MLKit Vision QrCode Scanning
+* [mgcrea/**vision-camera-barcode-scanner**](https://github.com/mgcrea/vision-camera-barcode-scanner): A high performance barcode scanner for React Native using VisionCamera
+* [mrousavy/**Colorwaver**](https://github.com/mrousavy/Colorwaver): An app (+ plugin) to detect color palettes in the real world.
+* [xulihang/**vision-camera-dynamsoft-barcode-reader**](https://github.com/xulihang/vision-camera-dynamsoft-barcode-reader): A plugin to read barcodes using Dynamsoft Barcode Reader.
+* [xulihang/**vision-camera-dynamsoft-label-recognizer**](https://github.com/xulihang/vision-camera-dynamsoft-label-recognizer): A plugin to recognize text on labels, MRZ passports, etc. using Dynamsoft Label Recognizer.
+* [tony-xlh/**vision-camera-dynamsoft-document-normalizer**](https://github.com/tony-xlh/vision-camera-dynamsoft-document-normalizer): A plugin to scan documents using Dynamsoft Document Normalizer with features like document border detection and perspective transformation.
+* [tony-xlh/**vision-camera-cropper**](https://github.com/tony-xlh/vision-camera-cropper): A plugin to crop frames and save frames to files or as base64.
+* [aarongrider/**vision-camera-ocr**](https://github.com/aarongrider/vision-camera-ocr): A plugin to detect text in real time using MLKit Text Detector (OCR).
+* [yasintorun/**vision-camera-base64**](https://github.com/yasintorun/vision-camera-base64): A plugin to convert a Frame to a base64 string.
+* [nonam4/**react-native-vision-camera-face-detector**](https://github.com/nonam4/react-native-vision-camera-face-detector): A V3 frame processor plugin to detect faces using MLKit Vision Face Detector.
+* [gev2002/**react-native-vision-camera-v3-face-detection**](https://github.com/gev2002/react-native-vision-camera-v3-face-detection): The frame processor plugin to detect faces using Google ML Kit Face detection library for react-native-vision-camera with high performance and many options.
+* [gev2002/**react-native-vision-camera-v3-image-labeling**](https://github.com/gev2002/react-native-vision-camera-v3-image-labeling): The frame processor plugin to image labeling using Google ML Kit Image labeling library for react-native-vision-camera with high performance.
+* [gev2002/**react-native-vision-camera-v3-pose-detection**](https://github.com/gev2002/react-native-vision-camera-v3-pose-detection): The Frame processor plugin for detecting pose using Google ML Kit Pose detection library for react-native-vision-camera with high performance.
+* [gev2002/**react-native-vision-camera-v3-barcode-scanner**](https://github.com/gev2002/react-native-vision-camera-v3-barcode-scanner): The frame processor plugin for scanning barcodes using Google ML Kit Barcode scanning library for react-native-vision-camera with high performance.
+* [gev2002/**react-native-vision-camera-v3-text-recognition**](https://github.com/gev2002/react-native-vision-camera-v3-text-recognition): The frame processor plugin for text recognition using Google ML Kit Text recognition library for react-native-vision-camera with high performance.
+
+
+
+
+<!-- Add your Frame Processor Plugin to the end of the list above! -->
+
+
+
+<br />
+<br />
+<br />
+<p align="center">
+<b>
+<a href="https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/docs/guides/FRAME_PROCESSOR_PLUGINS.mdx">Click here</a> to add your Frame Processor Plugin to this list!
+</b>
+</p>
+<br />
+<br />
+<br />
+
+
+
+## Installing a Plugin
+
+1. Install using npm:
+
+```sh
+npm i vision-camera-xxxxx
+cd ios && pod install
+```
+
+2. Rebuild your app and use the plugin
+
+
+
+#### 🚀 Next section: [Zooming](/docs/guides/zooming)

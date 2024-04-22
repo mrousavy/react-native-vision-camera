@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native'
-import Video, { LoadError, OnLoadData } from 'react-native-video'
+import type { ImageLoadEventData, NativeSyntheticEvent } from 'react-native'
+import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform, Image } from 'react-native'
+import type { LoadError, OnLoadData } from 'react-native-video'
+import Video from 'react-native-video'
 import { SAFE_AREA_PADDING } from './Constants'
 import { useIsForeground } from './hooks/useIsForeground'
 import { PressableOpacity } from 'react-native-pressable-opacity'
@@ -11,7 +13,6 @@ import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { Routes } from './Routes'
 import { useIsFocused } from '@react-navigation/core'
-import FastImage, { OnLoadEvent } from 'react-native-fast-image'
 
 const requestSavePermission = async (): Promise<boolean> => {
   // On Android 13 and above, scoped storage is used instead and no permission is needed
@@ -27,7 +28,8 @@ const requestSavePermission = async (): Promise<boolean> => {
   return hasPermission
 }
 
-const isVideoOnLoadEvent = (event: OnLoadData | OnLoadEvent): event is OnLoadData => 'duration' in event && 'naturalSize' in event
+type OnLoadImage = NativeSyntheticEvent<ImageLoadEventData>
+const isVideoOnLoadEvent = (event: OnLoadData | OnLoadImage): event is OnLoadData => 'duration' in event && 'naturalSize' in event
 
 type Props = NativeStackScreenProps<Routes, 'MediaPage'>
 export function MediaPage({ navigation, route }: Props): React.ReactElement {
@@ -38,13 +40,14 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   const isVideoPaused = !isForeground || !isScreenFocused
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none')
 
-  const onMediaLoad = useCallback((event: OnLoadData | OnLoadEvent) => {
+  const onMediaLoad = useCallback((event: OnLoadData | OnLoadImage) => {
     if (isVideoOnLoadEvent(event)) {
       console.log(
         `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
       )
     } else {
-      console.log(`Image loaded. Size: ${event.nativeEvent.width}x${event.nativeEvent.height}`)
+      const source = event.nativeEvent.source
+      console.log(`Image loaded. Size: ${source.width}x${source.height}`)
     }
   }, [])
   const onMediaLoadEnd = useCallback(() => {
@@ -82,7 +85,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   return (
     <View style={[styles.container, screenStyle]}>
       {type === 'photo' && (
-        <FastImage source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
       )}
       {type === 'video' && (
         <Video

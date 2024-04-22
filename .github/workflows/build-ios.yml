@@ -6,14 +6,12 @@ on:
       - main
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'package/cpp/**'
       - 'package/ios/**'
       - 'package/*.podspec'
       - 'package/example/ios/**'
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'package/cpp/**'
       - 'package/ios/**'
       - 'package/*.podspec'
       - 'package/example/ios/**'
@@ -98,8 +96,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
-      - name: Remove react-native-worklets-core
-        run: yarn remove react-native-worklets-core --cwd ..
+      - name: Remove worklets, skia and reanimated
+        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2

@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  ignorePatterns: ['scripts', 'lib', 'docs', 'example', 'app.plugin.js'],
+  ignorePatterns: ['scripts', 'lib', 'docs', 'example'],
   plugins: ['@typescript-eslint'],
   extends: ['plugin:@typescript-eslint/recommended', '@react-native'],
   rules: {
@@ -73,12 +73,13 @@ module.exports = {
     ],
     '@typescript-eslint/no-non-null-assertion': 'error',
     '@typescript-eslint/no-unnecessary-condition': 'error',
+    '@typescript-eslint/consistent-type-imports': 'warn',
 
     // react hooks
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback|useFrameProcessor)',
+        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback|useFrameProcessor|useSkiaFrameProcessor)',
       },
     ],
   },

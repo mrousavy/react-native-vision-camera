@@ -7,41 +7,83 @@ sidebar_label: Drawing to a Frame (Skia)
 import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl'
+export const size = { width: 283, height: 535 }
 
-<div class="image-container">
-  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
-    <image href={useBaseUrl("img/demo_drawing.mp4")} x="18" y="33" width="247" height="469" />
-    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
-  </svg>
+<div class="image-container" style={size} >
+  <video
+    xmlns="http://www.w3.org/1999/xhtml"
+    style={{ position: 'absolute', ...size, transform: 'scale(0.88)' }}
+    autoPlay
+    muted
+    loop>
+    <source src={useBaseUrl("img/demo_drawing.mp4")} type="video/mp4" />
+  </video>
+  <img src={useBaseUrl("img/frame.png")} style={{ position: 'absolute', ...size }} />
 </div>
 
-## Skia Frame Processors
+## What is Skia?
 
-It is technically pretty difficult to draw onto a Camera Frame and have it rendered into the resulting photo or video in realtime, but I have built a working proof of concept of that using Metal/OpenGL and [Skia](https://skia.org) straight in VisionCamera.
+[Skia](https://skia.org) is a 2D graphics library that can be used to draw shapes, images, text, color-shaders and much more. Skia is GPU-accelerated by Metal on iOS and OpenGL on Android.
 
-This allows you to draw onto a Frame using [react-native-skia](https://shopify.github.io/react-native-skia/)'s easy to use JavaScript APIs:
+To provide a powerful cross-platform API for drawing directly to Camera Frames in realtime, VisionCamera provides a first-party [react-native-skia](https://github.com/Shopify/react-native-skia) integration via **Skia Frame Processors**:
 
 ```ts
 const frameProcessor = useSkiaFrameProcessor((frame) => {
   'worklet'
-
-  // Detect objects using GPU-accelerated ML API
   const bananas = detectBananas()
 
-  // Draw banana outline using GPU-accelerated Skia drawing API
+  frame.render()
   for (const banana of bananas) {
-    const rect = Skia.XYWHRect(banana.x,
-                               banana.y,
-                               banana.width,
-                               banana.height)
     const paint = Skia.Paint()
     paint.setColor(Skia.Color('red'))
-    frame.drawRect(rect, paint)
+    frame.drawRect(banana.rect, paint)
   }
 }, [])
 ```
 
-..or even apply color-filters in realtime:
+## Installation
+
+Skia Frame Processors require [@shopify/react-native-skia](https://github.com/Shopify/react-native-skia) 1.2.1 or higher, and [react-native-reanimated](http://github.com/software-mansion/react-native-reanimated) 3.0.0 or higher. Install the packages through npm and make sure you follow their installation instructions:
+
+```sh
+npm i @shopify/react-native-skia
+npm i react-native-reanimated
+```
+
+## Skia Frame Processors
+
+A Skia Frame Processor, just like any other [Frame Processor](/docs/guides/frame-processors), runs synchronously for every Camera Frame.
+Instead of a [`Frame`](/docs/api/interfaces/Frame), it is called with a [`DrawableFrame`](/docs/api/interfaces/DrawableFrame), which extends the Frame with a drawing canvas.
+
+To create a Skia Frame Processor, use the [`useSkiaFrameProcessor`](/docs/api#useskiaframeprocessor) hook.
+In a Skia Frame Processor the caller is responsible for rendering the Camera Frame, so [`Frame.render()`](/docs/api/interfaces/DrawableFrame#render) must always be called:
+
+```ts
+const frameProcessor = useSkiaFrameProcessor((frame) => {
+  'worklet'
+  frame.render()
+}, [])
+```
+
+### Skia APIs
+
+To draw something to the Frame, use Skia's imperative APIs. For example, to draw a red rectangle in the center of the Frame, use `drawRect(...)`:
+
+```ts
+const frameProcessor = useSkiaFrameProcessor((frame) => {
+  'worklet'
+  frame.render()
+
+  const centerX = frame.width / 2
+  const centerY = frame.height / 2
+  const rect = Skia.XYWHRect(centerX, centerY, 150, 150)
+  const paint = Skia.Paint()
+  paint.setColor(Skia.Color('red'))
+  frame.drawRect(rect, paint)
+}, [])
+```
+
+The Camera Frame is rendered like any other `SkImage`. You can pass a custom `SkPaint` object to the `render(..)` function to use a shader, for example to render the Frame with inverted colors use a `RuntimeEffect`:
 
 ```ts
 const invertColorsFilter = Skia.RuntimeEffect.Make(`
@@ -55,17 +97,30 @@ const paint = Skia.Paint(invertColorsFilter)
 
 const frameProcessor = useSkiaFrameProcessor((frame) => {
   'worklet'
-
-  // Draw frame using Skia Shader to invert colors
   frame.render(paint)
-}, [])
+}, [paint])
 ```
 
-## VisionCamera Skia Integration
+### Coordinate system
 
-While the Skia Integration was originally planned for V3, I decided to remove it again because VisionCamera got insanely complex with that code integrated (custom Metal/OpenGL rendering pipeline with intermediate steps and tons of build setup, and fully custom Skia Preview View) and I wanted to keep VisionCamera lean so other users aren't affected by build issues caused by Skia or those GPU APIs. See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more information.
+Each Frame, a Skia Frame Processor is rendering to an offscreen `SkSurface`.
+The Camera Frame is a GPU-texture-backed `SkImage`, and it's coordinate system is in Frame dimensions and orientation.
+- (`0`, `0`) is top left
+- (`frame.width`, `frame.height`) is bottom right
 
-At my app development agency, [Margelo](https://margelo.io), we have worked a lot with 2D and 3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need this feature [reach out to us](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
+### Performance
+
+Just like normal Frame Processors, Skia Frame Processors are _really fast_. Skia is GPU-accelerated by Metal and OpenGL, and VisionCamera Frames are streamed as efficiently as possible using GPU-buffers and textures.
+
+A Skia Frame Processor can run and render at up to 500 FPS, depending on how complex the rendering code is.
+
+### Preview-only
+
+:::info
+Skia Frame Processors are currently preview-only. Any content drawn to the `Frame` will not be visible in captured photos, snapshots or videos.
+
+We at [**Margelo**](https://margelo.io) have worked a lot with 2D/3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need to capture drawn content to photos or videos, [**reach out to us**](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
+:::
 
 <br />
 

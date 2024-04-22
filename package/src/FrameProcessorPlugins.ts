@@ -1,11 +1,20 @@
-import type { Frame, FrameInternal } from './Frame'
-import type { FrameProcessor } from './CameraProps'
+import type { Frame, FrameInternal } from './types/Frame'
 import { CameraRuntimeError } from './CameraError'
-
-// only import typescript types
-import type TWorklets from 'react-native-worklets-core'
 import { CameraModule } from './NativeCameraModule'
 import { assertJSIAvailable } from './JSIHelper'
+import { WorkletsProxy } from './dependencies/WorkletsProxy'
+import type { IWorkletContext } from 'react-native-worklets-core'
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
+  // eslint-disable-next-line no-var
+  var __ErrorUtils:
+    | {
+        reportFatalError: (error: unknown) => void
+      }
+    | undefined
+}
 
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
@@ -25,7 +34,13 @@ export interface FrameProcessorPlugin {
 }
 
 interface TVisionCameraProxy {
-  setFrameProcessor(viewTag: number, frameProcessor: FrameProcessor): void
+  /**
+   * @internal
+   */
+  setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void): void
+  /**
+   * @internal
+   */
   removeFrameProcessor(viewTag: number): void
   /**
    * Creates a new instance of a native Frame Processor Plugin.
@@ -43,6 +58,14 @@ interface TVisionCameraProxy {
    * Throws the given error.
    */
   throwJSError(error: unknown): void
+  /**
+   * Get the Frame Processor Runtime Worklet Context.
+   *
+   * This is the serial [DispatchQueue](https://developer.apple.com/documentation/dispatch/dispatchqueue)
+   * / [Executor](https://developer.android.com/reference/java/util/concurrent/Executor) the
+   * video/frame processor pipeline is running on.
+   */
+  workletContext: IWorkletContext | undefined
 }
 
 const errorMessage = 'Frame Processors are not available, react-native-worklets-core is not installed!'
@@ -59,19 +82,25 @@ let throwJSError = (error: unknown): void => {
 try {
   assertJSIAvailable()
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { Worklets } = require('react-native-worklets-core') as typeof TWorklets
+  // this will lazyily require the react-native-worklets-core dependency. If this throws, worklets are not available.
+  const Worklets = WorkletsProxy.Worklets
 
-  const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
+  // fill the stubs with the actual native Worklets implementations
+  const throwErrorOnJS = Worklets.createRunOnJS((message: string, stack: string | undefined) => {
     const error = new Error()
     error.message = message
     error.stack = stack
     error.name = 'Frame Processor Error'
     // @ts-expect-error this is react-native specific
     error.jsEngine = 'VisionCamera'
+
     // From react-native:
-    // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
-    global.ErrorUtils.reportFatalError(error)
+    // @ts-expect-error ErrorUtils is in global.
+    if (global.ErrorUtils != null)
+      // @ts-expect-error the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
+      global.ErrorUtils.reportFatalError(error)
+    else if (global.__ErrorUtils != null) global.__ErrorUtils.reportFatalError(error)
+    else console.error('Frame Processor Error:', error)
   })
   throwJSError = (error) => {
     'worklet'
@@ -82,7 +111,7 @@ try {
 
   isAsyncContextBusy = Worklets.createSharedValue(false)
   const asyncContext = Worklets.createContext('VisionCamera.async')
-  runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
+  runOnAsyncContext = asyncContext.createRunAsync((frame: Frame, func: () => void) => {
     'worklet'
     try {
       // Call long-running function
@@ -97,7 +126,7 @@ try {
 
       isAsyncContextBusy.value = false
     }
-  }, asyncContext)
+  })
   hasWorklets = true
 } catch (e) {
   // Worklets are not installed, so Frame Processors are disabled.
@@ -114,6 +143,7 @@ let proxy: TVisionCameraProxy = {
     throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
   throwJSError: throwJSError,
+  workletContext: undefined,
 }
 if (hasWorklets) {
   // Install native Frame Processor Runtime Manager
@@ -137,25 +167,7 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
   throwJSError: throwJSError,
-  // TODO: Remove this in the next version
-  // @ts-expect-error
-  getFrameProcessorPlugin: (name, options) => {
-    console.warn(
-      '"getFrameProcessorPlugin" has been renamed to "initFrameProcessorPlugin". This function will be removed in the next release.',
-    )
-    return proxy.initFrameProcessorPlugin(name, options)
-  },
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
-  // eslint-disable-next-line no-var
-  var __ErrorUtils:
-    | {
-        reportFatalError: (error: unknown) => void
-      }
-    | undefined
+  workletContext: undefined,
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
@@ -178,6 +190,7 @@ function setLastFrameProcessorCall(frameProcessorFuncId: string, value: number):
  * @param fps The target FPS rate at which the given function should be executed
  * @param func The function to execute.
  * @returns The result of the function if it was executed, or `undefined` otherwise.
+ * @worklet
  * @example
  *
  * ```ts
@@ -218,6 +231,7 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
  *
  * @param frame The current Frame of the Frame Processor.
  * @param func The function to execute.
+ * @worklet
  * @example
  *
  * ```ts
@@ -250,4 +264,28 @@ export function runAsync(frame: Frame, func: () => void): void {
 
   // Call in separate background context
   runOnAsyncContext(frame, func)
+}
+
+/**
+ * A private API to wrap a Frame Processor with a ref-counting mechanism
+ * @worklet
+ * @internal
+ */
+export function wrapFrameProcessorWithRefCounting(frameProcessor: (frame: Frame) => void): (frame: Frame) => void {
+  return (frame) => {
+    'worklet'
+    // Increment ref-count by one
+    const internal = frame as FrameInternal
+    internal.incrementRefCount()
+    try {
+      // Call sync frame processor
+      frameProcessor(frame)
+    } catch (e) {
+      // Re-throw error on JS Thread
+      VisionCameraProxy.throwJSError(e)
+    } finally {
+      // Potentially delete Frame if we were the last ref (no runAsync)
+      internal.decrementRefCount()
+    }
+  }
 }

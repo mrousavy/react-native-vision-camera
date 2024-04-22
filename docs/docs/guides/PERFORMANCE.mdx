@@ -70,27 +70,23 @@ Enable Buffer Compression ([`enableBufferCompression`](/docs/api/interfaces/Came
 
 Note: When not using a `frameProcessor`, buffer compression is automatically enabled.
 
-### GPU buffers
-
-Enable GPU Buffer flags ([`enableGpuBuffers`](/docs/api/interfaces/CameraProps#enablegpubuffers)) to optimize the Video Pipeline for zero-copy buffer forwarding.
-If this is enabled, the Video Pipeline can avoid an additional CPU -> GPU copy, resulting in better performance and more efficiency.
-
-Note: This only takes effect when using a `frameProcessor`.
-
 ### Video Stabilization
 
 Video Stabilization requires additional overhead to start the algorithm, so disabling [`videoStabilizationMode`](/docs/api/interfaces/CameraProps#videostabilizationmode) can significantly speed up the Camera initialization time.
 
 ### Pixel Format
 
-By default, the `native` [`PixelFormat`](/docs/api#pixelformat) is used, which is much more efficient than `rgb`.
+The Camera's native [`PixelFormat`](/docs/api#pixelformat) is `yuv`. If you set <code>[pixelFormat](/docs/api/interfaces/CameraProps#pixelformat)="rgb"</code>, the pipeline will need to convert the `yuv` buffers to `rgb`, which introduces additional overhead and consumes more memory.
 
-- On iOS, `native` is `yuv`
-- On Android `native` is some kind of vendor specific format, which might be `yuv`
+If you are using any Frame Processor Plugins that work with `rgb`, try to replace them with `yuv`-based plugins instead and set your `pixelFormat` to `yuv`.
 
 ### Disable unneeded pipelines
 
 Only enable [`photo`](/docs/api/interfaces/CameraProps#photo), [`video`](/docs/api/interfaces/CameraProps#video), [`codeScanner`](/docs/api/interfaces/CameraProps#codescanner) or [`frameProcessor`](/docs/api/interfaces/CameraProps#frameprocessor) if needed.
+
+### No Skia Frame Processor
+
+If you are not using Skia, use `useFrameProcessor` instead of `useSkiaFrameProcessor`, as `useFrameProcessor` is more lightweight.
 
 ### Using `isActive`
 
@@ -98,11 +94,19 @@ The [`isActive`](/docs/api/interfaces/CameraProps#isactive) prop controls whethe
 
 ### Fast Photos
 
-If you need to take photos as fast as possible, use a [`qualityPrioritization`](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) of `'speed'` to speed up the photo pipeline:
+If you need to take photos as fast as possible, use a [`qualityBalance`](/docs/api/interfaces/CameraProps#qualitybalance) of `'speed'` to speed up the photo pipeline:
+
+```jsx
+return <Camera {...props} qualityBalance="speed" />
+```
+
+### Snapshot Capture
+
+If photo capture is still too slow for your use-case, consider [taking snapshots](/docs/guides/taking-photos#taking-snapshots) instead:
 
 ```ts
-camera.current.takePhoto({
-  qualityPrioritization: 'speed'
+const snapshot = await camera.current.takeSnapshot({
+  quality: 85
 })
 ```
 

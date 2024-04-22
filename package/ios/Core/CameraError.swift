@@ -13,6 +13,7 @@ import Foundation
 enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
+  case location = "location-permission-denied"
 
   var code: String {
     return rawValue
@@ -22,6 +23,8 @@ enum PermissionError: String {
     switch self {
     case .microphone:
       return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
+    case .location:
+      return "The Location permission was denied! If you want to capture photos or videos without location tags, pass `enableLocation={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }
@@ -65,19 +68,38 @@ enum ParameterError {
 
 // MARK: - DeviceError
 
-enum DeviceError: String {
-  case configureError = "configuration-error"
-  case noDevice = "no-device"
-  case invalid = "invalid-device"
-  case flashUnavailable = "flash-unavailable"
-  case microphoneUnavailable = "microphone-unavailable"
-  case lowLightBoostNotSupported = "low-light-boost-not-supported"
-  case focusNotSupported = "focus-not-supported"
-  case notAvailableOnSimulator = "camera-not-available-on-simulator"
-  case pixelFormatNotSupported = "pixel-format-not-supported"
+enum DeviceError {
+  case configureError
+  case noDevice
+  case invalid
+  case flashUnavailable
+  case microphoneUnavailable
+  case lowLightBoostNotSupported
+  case focusNotSupported
+  case notAvailableOnSimulator
+  case pixelFormatNotSupported(targetFormats: [FourCharCode], availableFormats: [FourCharCode])
 
   var code: String {
-    return rawValue
+    switch self {
+    case .configureError:
+      return "configuration-error"
+    case .noDevice:
+      return "no-device"
+    case .invalid:
+      return "invalid-device"
+    case .flashUnavailable:
+      return "flash-unavailable"
+    case .microphoneUnavailable:
+      return "microphone-unavailable"
+    case .lowLightBoostNotSupported:
+      return "low-light-boost-not-supported"
+    case .focusNotSupported:
+      return "focus-not-supported"
+    case .notAvailableOnSimulator:
+      return "camera-not-available-on-simulator"
+    case .pixelFormatNotSupported:
+      return "pixel-format-not-supported"
+    }
   }
 
   var message: String {
@@ -98,8 +120,12 @@ enum DeviceError: String {
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:
       return "The Camera is not available on the iOS Simulator!"
-    case .pixelFormatNotSupported:
-      return "The given pixelFormat is not supported on the given Camera Device!"
+    case let .pixelFormatNotSupported(targetFormats: targetFormats, availableFormats: availableFormats):
+      let tried = targetFormats.map { $0.toString() }
+      let found = availableFormats.map { $0.toString() }
+      return "No compatible PixelFormat was found! VisionCamera will fallback to the default PixelFormat. " +
+        "Try selecting a different format or disable videoHdr={..} and enableBufferCompression={..}. " +
+        "Tried using one of these PixelFormats: \(tried), but the current format only supports these PixelFormats: \(found)"
     }
   }
 }
@@ -145,6 +171,7 @@ enum SessionError {
   case cameraNotReady
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
+  case hardwareCostTooHigh(cost: Float)
 
   var code: String {
     switch self {
@@ -154,6 +181,8 @@ enum SessionError {
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
+    case .hardwareCostTooHigh:
+      return "hardware-cost-too-high"
     }
   }
 
@@ -165,6 +194,10 @@ enum SessionError {
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
+    case let .hardwareCostTooHigh(cost: cost):
+      return "The session's hardware-cost is too high! (Expected: <=1.0, Received: \(cost)) " +
+        "See https://developer.apple.com/documentation/avfoundation/avcapturesession/3950869-hardwarecost " +
+        "for more information."
     }
   }
 }
@@ -173,20 +206,27 @@ enum SessionError {
 
 enum CaptureError {
   case recordingInProgress
+  case recordingCanceled
   case noRecordingInProgress
-  case fileError
+  case fileError(cause: Error)
+  case imageDataAccessError
   case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
   case photoNotEnabled
-  case aborted
+  case focusRequiresPreview
+  case snapshotFailed
+  case timedOut
   case insufficientStorage
+  case failedWritingMetadata(cause: Error?)
   case unknown(message: String? = nil)
 
   var code: String {
     switch self {
     case .recordingInProgress:
       return "recording-in-progress"
+    case .recordingCanceled:
+      return "recording-canceled"
     case .noRecordingInProgress:
       return "no-recording-in-progress"
     case .fileError:
@@ -197,12 +237,20 @@ enum CaptureError {
       return "create-recorder-error"
     case .videoNotEnabled:
       return "video-not-enabled"
+    case .imageDataAccessError:
+      return "image-data-access-error"
+    case .snapshotFailed:
+      return "snapshot-failed"
+    case .timedOut:
+      return "timed-out"
+    case .focusRequiresPreview:
+      return "focus-requires-preview"
     case .photoNotEnabled:
       return "photo-not-enabled"
     case .insufficientStorage:
       return "insufficient-storage"
-    case .aborted:
-      return "aborted"
+    case .failedWritingMetadata:
+      return "failed-writing-metadata"
     case .unknown:
       return "unknown"
     }
@@ -212,20 +260,30 @@ enum CaptureError {
     switch self {
     case .recordingInProgress:
       return "There is already an active video recording in progress! Did you call startRecording() twice?"
+    case .recordingCanceled:
+      return "The active recording was canceled."
     case .noRecordingInProgress:
       return "There was no active video recording in progress! Did you call stopRecording() twice?"
-    case .fileError:
-      return "An unexpected File IO error occured!"
+    case let .fileError(cause: cause):
+      return "An unexpected File IO error occurred! Error: \(cause.localizedDescription)"
     case let .createTempFileError(message: message):
       return "Failed to create a temporary file! \(message ?? "(no additional message)")"
     case let .createRecorderError(message: message):
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case .videoNotEnabled:
       return "Video capture is disabled! Pass `video={true}` to enable video recordings."
+    case .snapshotFailed:
+      return "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
-    case .aborted:
-      return "The capture has been stopped before any input data arrived."
+    case .imageDataAccessError:
+      return "An unexpected error occurred while trying to access the image data!"
+    case .timedOut:
+      return "The capture timed out."
+    case .focusRequiresPreview:
+      return "Focus requires preview={...} to be enabled!"
+    case let .failedWritingMetadata(cause: cause):
+      return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):
@@ -259,6 +317,27 @@ enum CodeScannerError {
   }
 }
 
+// MARK: - SystemError
+
+enum SystemError {
+  case locationNotEnabled
+
+  var code: String {
+    switch self {
+    case .locationNotEnabled:
+      return "location-not-enabled"
+    }
+  }
+
+  var message: String {
+    switch self {
+    case .locationNotEnabled:
+      return "Location is not enabled, so VisionCamera did not compile the Location APIs. " +
+        "Set $VCEnableLocation in your Podfile, or enableLocation in the expo config plugin and rebuild."
+    }
+  }
+}
+
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -269,6 +348,7 @@ enum CameraError: Error {
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
   case codeScanner(_ id: CodeScannerError)
+  case system(_ id: SystemError)
   case unknown(message: String? = nil, cause: NSError? = nil)
 
   var code: String {
@@ -287,6 +367,8 @@ enum CameraError: Error {
       return "capture/\(id.code)"
     case let .codeScanner(id: id):
       return "code-scanner/\(id.code)"
+    case let .system(id: id):
+      return "system/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -307,6 +389,8 @@ enum CameraError: Error {
     case let .capture(id: id):
       return id.message
     case let .codeScanner(id: id):
+      return id.message
+    case let .system(id: id):
       return id.message
     case let .unknown(message: message, cause: cause):
       return message ?? cause?.description ?? "An unexpected error occured."

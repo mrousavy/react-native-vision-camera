@@ -49,7 +49,7 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    3. Select **Swift File** and press **Next**
    4. Choose whatever name you want, e.g. `File.swift` and press **Create**
    5. Press **Create Bridging Header** when promted.
-6. Try building without Frame Processors. Set `$VCDisableFrameProcessors = true` in the top of your Podfile, and try rebuilding.
+6. Try building without Frame Processors. Set `$VCEnableFrameProcessors = false` in the top of your Podfile, and try rebuilding.
 
 ### Runtime Issues
 
@@ -61,7 +61,7 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    ```tsx
    <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
    ```
-5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `id` and `hardwareLevel`.
    ```tsx
    const devices = Camera.getAvailableCameraDevices()
    console.log(JSON.stringify(d, null, 2))
@@ -90,14 +90,14 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
    5. Set `minSdkVersion` to `26` or higher
    6. Set `ndkVersion` to `"23.1.7779620"` or higher
    7. Update the Gradle Build-Tools version to `7.3.1` or higher:
-      ```
+      ```groovy
       classpath("com.android.tools.build:gradle:7.3.1")
       ```
 6. Make sure your Gradle Wrapper version is `7.5.1` or higher. In `gradle-wrapper.properties`, set:
-   ```
+   ```sh
    distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-all.zip
    ```
-7. Try building without Frame Processors. Set `VisionCamera_disableFrameProcessors = true` in your `gradle.properties`, and try rebuilding.
+7. Try building without Frame Processors. Set `VisionCamera_enableFrameProcessors = false` in your `gradle.properties`, and try rebuilding.
 
 ### Runtime Issues
 
@@ -112,11 +112,11 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
 2. If a camera device is not being returned by [`Camera.getAvailableCameraDevices()`](/docs/api/classes/Camera#getavailablecameradevices), make sure it is a Camera2 compatible device. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#reprocessing) for more information.
 3. If your Frame Processor is not running, make sure you check the native Android Studio/Logcat logs. There is useful information about the Frame Processor Runtime that will tell you if something goes wrong.
 4. If your Frame Processor is not running, make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
-5. If you are experiencing black-screens, try removing all properties such as `fps`, `videoHdr`, `enableGpuBuffers` or `format` on the `<Camera>` component except for the required ones:
+5. If you are experiencing black-screens, try removing all properties such as `fps`, `videoHdr`, `pixelFormat` or `format` on the `<Camera>` component except for the required ones:
    ```tsx
    <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
    ```
-6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `id` and `hardwareLevel`.
    ```tsx
    const devices = Camera.getAvailableCameraDevices()
    console.log(JSON.stringify(d, null, 2))

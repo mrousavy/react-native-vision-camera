@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react'
-import { Code, CodeScanner, CodeScannerFrame } from '../CodeScanner'
+import type { Code, CodeScanner, CodeScannerFrame } from '../types/CodeScanner'
 
 export function useCodeScanner(codeScanner: CodeScanner): CodeScanner {
   const { onCodeScanned, ...codeScannerOptions } = codeScanner

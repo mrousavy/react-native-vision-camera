@@ -70,12 +70,24 @@ static def findNodeModules(baseDir) {
   throw new GradleException("react-native-vision-camera: Failed to find node_modules/ path!")
 }
 
-def nodeModules = findNodeModules(projectDir)
+logger.warn("[VisionCamera] Thank you for using VisionCamera ❤️")
 
-def hasWorklets = !safeExtGetBool('VisionCamera_disableFrameProcessors', false) && findProject(":react-native-worklets-core") != null
-logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
+def nodeModules = findNodeModules(projectDir)
+logger.warn("[VisionCamera] node_modules found at $nodeModules")
+
+def enableFrameProcessors = safeExtGetBool('VisionCamera_enableFrameProcessors', true)
+logger.warn("[VisionCamera] VisionCamera_enableFrameProcessors is set to $enableFrameProcessors!")
+
+def hasWorklets = findProject(":react-native-worklets-core") != null
+if (hasWorklets) {
+  logger.warn("[VisionCamera] react-native-worklets-core found, Frame Processors are ${enableFrameProcessors ? "enabled" : "disabled"}!")
+} else {
+  logger.warn("[VisionCamera] react-native-worklets-core not found, Frame Processors are disabled!")
+  enableFrameProcessors = false
+}
 
 def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
+logger.warn("[VisionCamera] VisionCamera_enableCodeScanner is set to $enableCodeScanner!")
 
 repositories {
   google()
@@ -108,9 +120,9 @@ android {
   }
 
   defaultConfig {
-    minSdkVersion safeExtGet("minSdkVersion", 26)
-    compileSdkVersion safeExtGet("compileSdkVersion", 33)
-    targetSdkVersion safeExtGet("targetSdkVersion", 33)
+    minSdkVersion safeExtGet("minSdkVersion", 21)
+    compileSdkVersion safeExtGet("compileSdkVersion", 34)
+    targetSdkVersion safeExtGet("targetSdkVersion", 34)
     versionCode 1
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
@@ -120,7 +132,7 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets ? "ON" : "OFF"}"
+                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -167,6 +179,17 @@ android {
 dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-android:+"
+
+  // CameraX dependency
+  def camerax_version = "1.4.0-alpha04"
+  implementation "androidx.camera:camera-core:${camerax_version}"
+  implementation "androidx.camera:camera-camera2:${camerax_version}"
+  implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+  implementation "androidx.camera:camera-video:${camerax_version}"
+  implementation "androidx.camera:camera-view:${camerax_version}"
+  implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+  // Some Coroutines extension functions
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
   if (enableCodeScanner) {
@@ -178,7 +201,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
   }
 
-  if (hasWorklets) {
+  if (enableFrameProcessors) {
     // Frame Processor integration (optional)
     implementation project(":react-native-worklets-core")
   }

@@ -6,13 +6,11 @@ on:
       - main
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
       - 'package/ios/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'package/cpp/**'
       - 'package/android/src/main/cpp/**'
       - 'package/ios/**'
 
@@ -23,7 +21,6 @@ jobs:
     strategy:
       matrix:
         path:
-          - 'package/cpp'
           - 'package/android/src/main/cpp'
           - 'package/ios'
     steps:
@@ -33,5 +30,5 @@ jobs:
         with:
           clang-format-version: '16'
           check-path: ${{ matrix.path }}
-          clang-format-style-path: package/cpp/.clang-format
+          clang-format-style-path: package/.clang-format
 

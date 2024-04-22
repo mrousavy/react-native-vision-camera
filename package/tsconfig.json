@@ -23,8 +23,10 @@
   },
   "include": [
     "src",
+    "app.plugin.js",
     ".eslintrc.js",
     "babel.config.js",
+    "react-native.config.js",
   ],
   "exclude": [
     "node_modules",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { CameraDevice } from '../CameraDevice'
+import type { CameraDevice } from '../types/CameraDevice'
 import { CameraDevices } from '../CameraDevices'
 
 /**

@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 
 // MARK: - BufferType
@@ -72,6 +73,7 @@ class RecordingSession {
 
   init(url: URL,
        fileType: AVFileType,
+       metadataProvider: MetadataProvider,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
 
@@ -81,11 +83,15 @@ class RecordingSession {
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
+
+    // Assign the metadata item to the asset writer
+    let metadataItems = metadataProvider.createVideoMetadata()
+    assetWriter.metadata.append(contentsOf: metadataItems)
   }
 
   deinit {
     if assetWriter.status == .writing {
-      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
+      VisionLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
   }
@@ -95,19 +101,19 @@ class RecordingSession {
    */
   func initializeVideoWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
+      VisionLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
       return
     }
     guard videoWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add Video Writer twice!")
+      VisionLogger.log(level: .error, message: "Tried to add Video Writer twice!")
       return
     }
 
-    ReactLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
+    VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
     videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(videoWriter!)
-    ReactLogger.log(level: .info, message: "Initialized Video AssetWriter.")
+    VisionLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
   /**
@@ -115,19 +121,19 @@ class RecordingSession {
    */
   func initializeAudioWriter(withSettings settings: [String: Any]?, format: CMFormatDescription) {
     guard audioWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
+      VisionLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
 
     if let settings = settings {
-      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings.description)")
+      VisionLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings.description)")
     } else {
-      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
+      VisionLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
     }
     audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
-    ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
+    VisionLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
   }
 
   /**
@@ -140,15 +146,15 @@ class RecordingSession {
       lock.signal()
     }
 
-    ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
+    VisionLogger.log(level: .info, message: "Starting Asset Writer(s)...")
 
     let success = assetWriter.startWriting()
     guard success else {
-      ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
+      VisionLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
       throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
     }
 
-    ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
+    VisionLogger.log(level: .info, message: "Asset Writer(s) started!")
 
     // Get the current time of the AVCaptureSession.
     // Note: The current time might be more advanced than this buffer's timestamp, for example if the video
@@ -158,7 +164,7 @@ class RecordingSession {
     // Start the sesssion at the given time. Frames with earlier timestamps (e.g. late frames) will be dropped.
     assetWriter.startSession(atSourceTime: currentTime)
     startTimestamp = currentTime
-    ReactLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
+    VisionLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
 
     if audioWriter == nil {
       // Audio was disabled, mark the Audio track as finished so we won't wait for it.
@@ -183,13 +189,13 @@ class RecordingSession {
 
     // Request a stop at the given time. Frames with later timestamps (e.g. early frames, while we are waiting for late frames) will be dropped.
     stopTimestamp = currentTime
-    ReactLogger.log(level: .info,
-                    message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
+    VisionLogger.log(level: .info,
+                     message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
     // Start a timeout that will force-stop the session if none of the late frames actually arrive
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
       if !self.isFinishing {
-        ReactLogger.log(level: .error, message: "Waited \(self.automaticallyStopTimeoutSeconds) seconds but no late Frames came in, aborting capture...")
+        VisionLogger.log(level: .error, message: "Waited \(self.automaticallyStopTimeoutSeconds) seconds but no late Frames came in, aborting capture...")
         self.finish()
       }
     }
@@ -207,11 +213,11 @@ class RecordingSession {
       return
     }
     guard assetWriter.status == .writing else {
-      ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
+      VisionLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
       return
     }
     if !CMSampleBufferDataIsReady(buffer) {
-      ReactLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
+      VisionLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
       return
     }
 
@@ -240,7 +246,7 @@ class RecordingSession {
     // 3. Actually write the Buffer to the AssetWriter
     let writer = getAssetWriter(forType: bufferType)
     guard writer.isReadyForMoreMediaData else {
-      ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
+      VisionLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
       return
     }
     writer.append(buffer)
@@ -248,14 +254,15 @@ class RecordingSession {
 
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
-      ReactLogger.log(level: .error,
-                      message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
+      VisionLogger.log(level: .error,
+                       message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
       finish()
     }
 
     // 5. If we finished writing both the last video and audio buffers, finish the recording
     if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
-      ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
+      VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), " +
+        "finishing RecordingSession...")
       finish()
     }
   }
@@ -284,10 +291,10 @@ class RecordingSession {
       lock.signal()
     }
 
-    ReactLogger.log(level: .info, message: "Stopping AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
+    VisionLogger.log(level: .info, message: "Stopping AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
     guard !isFinishing else {
-      ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
+      VisionLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
     guard assetWriter.status == .writing else {

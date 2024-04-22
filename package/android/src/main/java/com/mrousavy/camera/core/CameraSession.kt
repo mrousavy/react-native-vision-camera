@@ -1,110 +1,147 @@
 package com.mrousavy.camera.core
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.ImageFormat
-import android.graphics.Point
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.TotalCaptureResult
-import android.media.Image
-import android.media.ImageReader
+import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.util.Log
+import android.util.Range
 import android.util.Size
-import android.view.Surface
-import android.view.SurfaceHolder
+import androidx.annotation.MainThread
+import androidx.annotation.OptIn
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.MeteringPoint
+import androidx.camera.core.MirrorMode
+import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
+import androidx.camera.core.UseCase
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.ExperimentalPersistentRecording
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Recorder
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import com.facebook.react.bridge.UiThreadUtil
 import com.google.mlkit.vision.barcode.common.Barcode
-import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
-import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
-import com.mrousavy.camera.core.outputs.PhotoOutput
-import com.mrousavy.camera.core.outputs.SurfaceOutput
-import com.mrousavy.camera.core.outputs.VideoPipelineOutput
-import com.mrousavy.camera.extensions.closestToOrMax
-import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.types.Flash
-import com.mrousavy.camera.types.LensFacing
-import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.QualityPrioritization
-import com.mrousavy.camera.types.RecordVideoOptions
-import com.mrousavy.camera.utils.ImageFormatUtils
+import com.mrousavy.camera.core.extensions.await
+import com.mrousavy.camera.core.extensions.byId
+import com.mrousavy.camera.core.extensions.forSize
+import com.mrousavy.camera.core.extensions.getCameraError
+import com.mrousavy.camera.core.extensions.id
+import com.mrousavy.camera.core.extensions.isSDR
+import com.mrousavy.camera.core.extensions.takePicture
+import com.mrousavy.camera.core.extensions.toCameraError
+import com.mrousavy.camera.core.extensions.withExtension
+import com.mrousavy.camera.core.types.CameraDeviceFormat
+import com.mrousavy.camera.core.types.Flash
+import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.RecordVideoOptions
+import com.mrousavy.camera.core.types.ShutterType
+import com.mrousavy.camera.core.types.Torch
+import com.mrousavy.camera.core.types.Video
+import com.mrousavy.camera.core.types.VideoStabilizationMode
+import com.mrousavy.camera.core.utils.FileUtils
+import com.mrousavy.camera.core.utils.runOnUiThread
+import com.mrousavy.camera.frameprocessors.Frame
 import java.io.Closeable
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
+class CameraSession(private val context: Context, private val callback: Callback) :
   Closeable,
-  PersistentCameraCaptureSession.Callback {
+  LifecycleOwner {
   companion object {
     private const val TAG = "CameraSession"
   }
 
   // Camera Configuration
   private var configuration: CameraConfiguration? = null
+  private val cameraProvider = ProcessCameraProvider.getInstance(context)
+  private var camera: Camera? = null
+
+  // Camera Outputs
+  private var previewOutput: Preview? = null
+  private var photoOutput: ImageCapture? = null
+  private var videoOutput: VideoCapture<Recorder>? = null
+  private var frameProcessorOutput: ImageAnalysis? = null
+  private var codeScannerOutput: ImageAnalysis? = null
+  private var currentUseCases: List<UseCase> = emptyList()
+
+  // Camera Outputs State
+  private val metadataProvider = MetadataProvider(context)
+  private var recorderOutput: Recorder? = null
 
   // Camera State
-  private val captureSession = PersistentCameraCaptureSession(cameraManager, this)
-  private var photoOutput: PhotoOutput? = null
-  private var videoOutput: VideoPipelineOutput? = null
-  private var codeScannerOutput: BarcodeScannerOutput? = null
-  private var previewView: PreviewView? = null
-  private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isDestroyed = false
-  private var isRunning = false
-    set(value) {
-      if (field != value) {
-        if (value) {
-          callback.onStarted()
-        } else {
-          callback.onStopped()
-        }
+  private val lifecycleRegistry = LifecycleRegistry(this)
+  private var recording: Recording? = null
+  private var isRecordingCanceled = false
+  private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  // Threading
+  private val mainExecutor = ContextCompat.getMainExecutor(context)
+
+  init {
+    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+    lifecycle.addObserver(object : LifecycleEventObserver {
+      override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
       }
-      field = value
-    }
-
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
-
-  // Video Outputs
-  private var recording: RecordingSession? = null
-    set(value) {
-      field = value
-      updateVideoOutputs()
-    }
-
-  val orientation: Orientation
-    get() {
-      val cameraId = configuration?.cameraId ?: return Orientation.PORTRAIT
-      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-      val sensorRotation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
-      return Orientation.fromRotationDegrees(sensorRotation)
-    }
+    })
+  }
 
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
     isDestroyed = true
-    runBlocking {
-      mutex.withLock {
-        destroy()
-        photoOutputSynchronizer.clear()
-      }
+    runOnUiThread {
+      lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
-    Log.i(TAG, "CameraSession closed!")
   }
 
+  override fun getLifecycle(): Lifecycle = lifecycleRegistry
+
+  /**
+   * Configures the [CameraSession] with new values in one batch.
+   * This must be called from the Main UI Thread.
+   */
+  @MainThread
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
+    if (!UiThreadUtil.isOnUiThread()) {
+      throw Error("configure { ... } must be called from the Main UI Thread!")
+    }
     Log.i(TAG, "configure { ... }: Waiting for lock...")
+
+    val provider = cameraProvider.await(mainExecutor)
 
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
       val config = CameraConfiguration.copyOf(this.configuration)
-      lambda(config)
+      try {
+        lambda(config)
+      } catch (e: CameraConfiguration.AbortThrow) {
+        // config changes have been aborted.
+        return
+      }
       val diff = CameraConfiguration.difference(this.configuration, config)
       this.configuration = config
 
@@ -121,369 +158,487 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "configure { ... }: Updating CameraSession Configuration... $diff")
 
       try {
-        captureSession.withConfiguration {
-          // Build up session or update any props
-          if (diff.deviceChanged) {
-            // 1. cameraId changed, open device
-            configureInput(config)
-          }
-          if (diff.outputsChanged) {
-            // 2. outputs changed, build new session
-            configureOutputs(config)
-          }
-          if (diff.sidePropsChanged) {
-            // 3. zoom etc changed, update repeating request
-            configureCaptureRequest(config)
-          }
-          if (diff.isActiveChanged) {
-            // 4. Either start or stop the session
-            val isActive = config.isActive && config.preview.isEnabled
-            captureSession.setIsActive(isActive)
-          }
+        // Build up session or update any props
+        if (diff.outputsChanged) {
+          // 1. outputs changed, re-create them
+          configureOutputs(config)
+        }
+        if (diff.deviceChanged || diff.outputsChanged) {
+          // 2. input or outputs changed, or the session was destroyed from outside, rebind the session
+          configureCamera(provider, config)
+        }
+        if (diff.sidePropsChanged) {
+          // 3. side props such as zoom, exposure or torch changed.
+          configureSideProps(config)
+        }
+        if (diff.isActiveChanged) {
+          // 4. start or stop the session
+          configureIsActive(config)
+        }
+        if (diff.locationChanged) {
+          // 5. start or stop location update streaming
+          metadataProvider.enableLocationUpdates(config.enableLocation)
         }
 
         Log.i(
           TAG,
-          "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})"
+          "configure { ... }: Completed CameraSession Configuration! (State: ${lifecycle.currentState})"
         )
-        isRunning = captureSession.isRunning
-
-        // Notify about Camera initialization
-        if (diff.deviceChanged) {
-          callback.onInitialized()
-        }
       } catch (error: Throwable) {
-        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, isRunning: $isRunning, Config-Diff: $diff", error)
+        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         callback.onError(error)
       }
     }
   }
 
-  private fun destroy() {
-    Log.i(TAG, "Destroying session..")
-    captureSession.close()
-
-    photoOutput?.close()
-    photoOutput = null
-    videoOutput?.close()
-    videoOutput = null
-    codeScannerOutput?.close()
-    codeScannerOutput = null
-
-    isRunning = false
-  }
-
-  fun createPreviewView(context: Context): PreviewView {
-    val previewView = PreviewView(
-      context,
-      object : SurfaceHolder.Callback {
-        override fun surfaceCreated(holder: SurfaceHolder) {
-          Log.i(TAG, "PreviewView Surface created! ${holder.surface}")
-          createPreviewOutput(holder.surface)
-        }
-
-        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-          Log.i(TAG, "PreviewView Surface updated! ${holder.surface} $width x $height")
-        }
-
-        override fun surfaceDestroyed(holder: SurfaceHolder) {
-          Log.i(TAG, "PreviewView Surface destroyed! ${holder.surface}")
-          destroyPreviewOutputSync()
-        }
-      }
-    )
-    this.previewView = previewView
-    return previewView
-  }
-
-  private fun createPreviewOutput(surface: Surface) {
-    Log.i(TAG, "Setting Preview Output...")
-    coroutineScope.launch {
-      configure { config ->
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface))
-      }
-    }
-  }
-
-  private fun destroyPreviewOutputSync() {
-    Log.i(TAG, "Destroying Preview Output...")
-    // This needs to run synchronously because after this method returns, the Preview Surface is no longer valid,
-    // and trying to use it will crash. This might result in a short UI Thread freeze though.
-    runBlocking {
-      configure { config ->
-        config.preview = CameraConfiguration.Output.Disabled.create()
-      }
-    }
-    Log.i(TAG, "Preview Output destroyed!")
-  }
-
-  private fun configureInput(configuration: CameraConfiguration) {
-    Log.i(TAG, "Configuring inputs for CameraSession...")
-    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+  private fun checkCameraPermission() {
     val status = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
     if (status != PackageManager.PERMISSION_GRANTED) throw CameraPermissionError()
-    isRunning = false
-    captureSession.setInput(cameraId)
+  }
+  private fun checkMicrophonePermission() {
+    val status = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+    if (status != PackageManager.PERMISSION_GRANTED) throw MicrophonePermissionError()
   }
 
-  /**
-   * Set up the `CaptureSession` with all outputs (preview, photo, video, codeScanner) and their HDR/Format settings.
-   */
-  private suspend fun configureOutputs(configuration: CameraConfiguration) {
-    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+  private fun getTargetFpsRange(configuration: CameraConfiguration): Range<Int>? {
+    val fps = configuration.fps ?: return null
+    return if (configuration.enableLowLightBoost) {
+      Range(fps / 2, fps)
+    } else {
+      Range(fps, fps)
+    }
+  }
 
-    // Destroy previous outputs
-    Log.i(TAG, "Destroying previous outputs...")
-    photoOutput?.close()
-    photoOutput = null
-    videoOutput?.close()
-    videoOutput = null
-    codeScannerOutput?.close()
-    codeScannerOutput = null
-    isRunning = false
+  private fun assertFormatRequirement(
+    propName: String,
+    format: CameraDeviceFormat?,
+    throwIfNotMet: CameraError,
+    requirement: (format: CameraDeviceFormat) -> Boolean
+  ) {
+    if (format == null) {
+      // we need a format for this to work.
+      throw PropRequiresFormatToBeNonNullError(propName)
+    }
+    val isSupported = requirement(format)
+    if (!isSupported) {
+      throw throwIfNotMet
+    }
+  }
 
-    val deviceDetails = CameraDeviceDetails(cameraManager, cameraId)
+  @OptIn(ExperimentalGetImage::class)
+  @SuppressLint("RestrictedApi")
+  @Suppress("LiftReturnOrAssignment")
+  private fun configureOutputs(configuration: CameraConfiguration) {
+    Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
+    val fpsRange = getTargetFpsRange(configuration)
     val format = configuration.format
 
-    Log.i(TAG, "Creating outputs for Camera #$cameraId...")
+    Log.i(TAG, "Using FPS Range: $fpsRange")
 
-    val isSelfie = deviceDetails.lensFacing == LensFacing.FRONT
-
-    val outputs = mutableListOf<SurfaceOutput>()
-
-    // Photo Output
-    val photo = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
-    if (photo != null) {
-      val imageFormat = deviceDetails.photoFormat
-      val sizes = deviceDetails.getPhotoSizes()
-      val size = sizes.closestToOrMax(format?.photoSize)
-      val maxImages = 10
-
-      Log.i(TAG, "Adding ${size.width}x${size.height} Photo Output in ${ImageFormatUtils.imageFormatToString(imageFormat)}...")
-      val imageReader = ImageReader.newInstance(size.width, size.height, imageFormat, maxImages)
-      imageReader.setOnImageAvailableListener({ reader ->
-        Log.i(TAG, "Photo Captured!")
-        val image = reader.acquireLatestImage()
-        onPhotoCaptured(image)
-      }, CameraQueues.cameraQueue.handler)
-      val output = PhotoOutput(imageReader, photo.config.enableHdr)
-      outputs.add(output)
-      photoOutput = output
+    // 1. Preview
+    val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    if (previewConfig != null) {
+      Log.i(TAG, "Creating Preview output...")
+      val preview = Preview.Builder().also { preview ->
+        // Configure Preview Output
+        if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
+          assertFormatRequirement("videoStabilizationMode", format, InvalidVideoStabilizationMode(configuration.videoStabilizationMode)) {
+            it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
+          }
+          preview.setPreviewStabilizationEnabled(true)
+        }
+        if (fpsRange != null) {
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
+            fpsRange.lower >= it.minFps && fpsRange.upper <= it.maxFps
+          }
+          preview.setTargetFrameRate(fpsRange)
+        }
+      }.build()
+      preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+      previewOutput = preview
+    } else {
+      previewOutput = null
     }
 
-    // Video Output
-    val video = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
-    if (video != null) {
-      val imageFormat = video.config.pixelFormat.toImageFormat()
-      val sizes = deviceDetails.getVideoSizes(imageFormat)
-      val size = sizes.closestToOrMax(format?.videoSize)
-
-      Log.i(TAG, "Adding ${size.width}x${size.height} Video Output in ${ImageFormatUtils.imageFormatToString(imageFormat)}...")
-      val videoPipeline = VideoPipeline(
-        size.width,
-        size.height,
-        video.config.pixelFormat,
-        isSelfie,
-        video.config.enableFrameProcessor,
-        video.config.enableGpuBuffers,
-        callback
-      )
-      val output = VideoPipelineOutput(videoPipeline, video.config.enableHdr)
-      outputs.add(output)
-      videoOutput = output
+    // 2. Image Capture
+    val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
+    if (photoConfig != null) {
+      Log.i(TAG, "Creating Photo output...")
+      val photo = ImageCapture.Builder().also { photo ->
+        // Configure Photo Output
+        photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
+        if (format != null) {
+          Log.i(TAG, "Photo size: ${format.photoSize}")
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.photoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+            .build()
+          photo.setResolutionSelector(resolutionSelector)
+        }
+      }.build()
+      photoOutput = photo
+    } else {
+      photoOutput = null
     }
 
-    // Preview Output
-    val preview = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
-    if (preview != null) {
-      // Compute Preview Size based on chosen video size
-      val videoSize = videoOutput?.size ?: format?.videoSize
-      val sizes = deviceDetails.getPreviewSizes()
-      val size = sizes.closestToOrMax(videoSize)
-
-      val enableHdr = video?.config?.enableHdr ?: false
-
-      Log.i(TAG, "Adding ${size.width}x${size.height} Preview Output...")
-      val output = SurfaceOutput(
-        preview.config.surface,
-        size,
-        SurfaceOutput.OutputType.PREVIEW,
-        enableHdr
-      )
-      outputs.add(output)
-      // Size is usually landscape, so we flip it here
-      previewView?.setSurfaceSize(size.width, size.height, deviceDetails.sensorOrientation)
-    }
-
-    // CodeScanner Output
-    val codeScanner = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
-    if (codeScanner != null) {
-      if (video != null) {
-        // CodeScanner and VideoPipeline are two repeating streams - they cannot be both added.
-        // In this case, the user should use a Frame Processor Plugin for code scanning instead.
-        throw CodeScannerTooManyOutputsError()
+    // 3. Video Capture
+    val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
+    if (videoConfig != null) {
+      Log.i(TAG, "Creating Video output...")
+      val currentRecorder = recorderOutput
+      val recorder = if (recording != null && currentRecorder != null) {
+        // If we are currently recording, then don't re-create the recorder instance.
+        // Instead, re-use it so we don't cancel the active recording.
+        Log.i(TAG, "Re-using active Recorder because we are currently recording...")
+        currentRecorder
+      } else {
+        // We are currently not recording, so we can re-create a recorder instance if needed.
+        Log.i(TAG, "Creating new Recorder...")
+        Recorder.Builder().also { recorder ->
+          configuration.format?.let { format ->
+            recorder.setQualitySelector(format.videoQualitySelector)
+          }
+          // TODO: Make videoBitRate a Camera Prop
+          // video.setTargetVideoEncodingBitRate()
+        }.build()
       }
 
-      val imageFormat = ImageFormat.YUV_420_888
-      val sizes = deviceDetails.getVideoSizes(imageFormat)
-      val size = sizes.closestToOrMax(Size(1280, 720))
-
-      Log.i(TAG, "Adding ${size.width}x${size.height} CodeScanner Output in ${ImageFormatUtils.imageFormatToString(imageFormat)}...")
-      val pipeline = CodeScannerPipeline(size, imageFormat, codeScanner.config, callback)
-      val output = BarcodeScannerOutput(pipeline)
-      outputs.add(output)
-      codeScannerOutput = output
+      val video = VideoCapture.Builder(recorder).also { video ->
+        // Configure Video Output
+        video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+        if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.STANDARD)) {
+          assertFormatRequirement("videoStabilizationMode", format, InvalidVideoStabilizationMode(configuration.videoStabilizationMode)) {
+            it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
+          }
+          video.setVideoStabilizationEnabled(true)
+        }
+        if (fpsRange != null) {
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
+            fpsRange.lower >= it.minFps &&
+              fpsRange.upper <= it.maxFps
+          }
+          video.setTargetFrameRate(fpsRange)
+        }
+        if (videoConfig.config.enableHdr) {
+          assertFormatRequirement("videoHdr", format, InvalidVideoHdrError()) { it.supportsVideoHdr }
+          video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+        }
+        if (format != null) {
+          Log.i(TAG, "Video size: ${format.videoSize}")
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.videoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+            .build()
+          video.setResolutionSelector(resolutionSelector)
+        }
+      }.build()
+      videoOutput = video
+      recorderOutput = recorder
+    } else {
+      videoOutput = null
+      recorderOutput = null
     }
 
-    // Create session
-    captureSession.setOutputs(outputs)
+    // 4. Frame Processor
+    val frameProcessorConfig = configuration.frameProcessor as? CameraConfiguration.Output.Enabled<CameraConfiguration.FrameProcessor>
+    if (frameProcessorConfig != null) {
+      val pixelFormat = frameProcessorConfig.config.pixelFormat
+      Log.i(TAG, "Creating $pixelFormat Frame Processor output...")
+      val analyzer = ImageAnalysis.Builder().also { analysis ->
+        analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+        analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
+        if (format != null) {
+          Log.i(TAG, "Frame Processor size: ${format.videoSize}")
+          val resolutionSelector = ResolutionSelector.Builder()
+            .forSize(format.videoSize)
+            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+            .build()
+          analysis.setResolutionSelector(resolutionSelector)
+        }
+      }.build()
+      val pipeline = FrameProcessorPipeline(callback)
+      analyzer.setAnalyzer(CameraQueues.videoQueue.executor, pipeline)
+      frameProcessorOutput = analyzer
+    } else {
+      frameProcessorOutput = null
+    }
 
-    Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #$cameraId!")
-
-    // Update Frame Processor and RecordingSession for newly changed output
-    updateVideoOutputs()
+    // 5. Code Scanner
+    val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
+    if (codeScannerConfig != null) {
+      Log.i(TAG, "Creating CodeScanner output...")
+      val analyzer = ImageAnalysis.Builder().also { analysis ->
+        val targetSize = Size(1280, 720)
+        val resolutionSelector = ResolutionSelector.Builder().forSize(targetSize).build()
+        analysis.setResolutionSelector(resolutionSelector)
+      }.build()
+      val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
+      analyzer.setAnalyzer(CameraQueues.analyzerExecutor, pipeline)
+      codeScannerOutput = analyzer
+    } else {
+      codeScannerOutput = null
+    }
+    Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
   }
 
-  private fun configureCaptureRequest(config: CameraConfiguration) {
-    val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
-    val enableVideo = video != null
-    val enableVideoHdr = video?.config?.enableHdr == true
+  @SuppressLint("RestrictedApi")
+  private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
+    Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
+    checkCameraPermission()
 
-    captureSession.setRepeatingRequest(
-      RepeatingCaptureRequest(
-        enableVideo,
-        config.torch,
-        config.fps,
-        config.videoStabilizationMode,
-        enableVideoHdr,
-        config.enableLowLightBoost,
-        config.exposure,
-        config.zoom,
-        config.format
-      )
-    )
+    // Outputs
+    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
+    if (useCases.isEmpty()) {
+      throw NoOutputsError()
+    }
+
+    // Input
+    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    var cameraSelector = CameraSelector.Builder().byId(cameraId).build()
+
+    // Wrap input with a vendor extension if needed (see https://developer.android.com/media/camera/camera-extensions)
+    val isStreamingHDR = useCases.any { !it.currentConfig.dynamicRange.isSDR }
+    val needsImageAnalysis = codeScannerOutput != null || frameProcessorOutput != null
+    val photoOptions = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
+    val enableHdrExtension = photoOptions != null && photoOptions.config.enableHdr
+    if (enableHdrExtension) {
+      if (isStreamingHDR) {
+        // extensions don't work if a camera stream is running at 10-bit HDR.
+        throw PhotoHdrAndVideoHdrNotSupportedSimultaneously()
+      }
+      // Load HDR Vendor extension (HDR only applies to image capture)
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.HDR, "HDR")
+    }
+    if (configuration.enableLowLightBoost) {
+      if (isStreamingHDR) {
+        // extensions don't work if a camera stream is running at 10-bit HDR.
+        throw LowLightBoostNotSupportedWithHdr()
+      }
+      if (enableHdrExtension) {
+        // low-light boost does not work when another HDR extension is already applied
+        throw LowLightBoostNotSupportedWithHdr()
+      }
+      // Load night mode Vendor extension (only applies to image capture)
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
+    }
+
+    // Unbind all currently bound use-cases before rebinding
+    if (currentUseCases.isNotEmpty()) {
+      Log.i(TAG, "Unbinding ${currentUseCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
+      provider.unbind(*currentUseCases.toTypedArray())
+    }
+
+    // Bind it all together (must be on UI Thread)
+    Log.i(TAG, "Binding ${useCases.size} use-cases...")
+    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+
+    // Update currentUseCases for next unbind
+    currentUseCases = useCases
+
+    // Listen to Camera events
+    var lastState = CameraState.Type.OPENING
+    camera!!.cameraInfo.cameraState.observe(this) { state ->
+      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
+
+      if (state.type == CameraState.Type.OPEN && state.type != lastState) {
+        // Camera has now been initialized!
+        callback.onInitialized()
+        lastState = state.type
+      }
+
+      val error = state.error
+      if (error != null) {
+        // A Camera error occurred!
+        callback.onError(error.toCameraError())
+      }
+    }
+    Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
   }
 
-  suspend fun takePhoto(
-    qualityPrioritization: QualityPrioritization,
-    flash: Flash,
-    enableShutterSound: Boolean,
-    enableAutoStabilization: Boolean,
-    enablePrecapture: Boolean,
-    outputOrientation: Orientation
-  ): CapturedPhoto {
+  private fun configureSideProps(config: CameraConfiguration) {
+    val camera = camera ?: throw CameraNotReadyError()
+
+    // Zoom
+    val currentZoom = camera.cameraInfo.zoomState.value?.zoomRatio
+    if (currentZoom != config.zoom) {
+      camera.cameraControl.setZoomRatio(config.zoom)
+    }
+
+    // Torch
+    val currentTorch = camera.cameraInfo.torchState.value == TorchState.ON
+    val newTorch = config.torch == Torch.ON
+    if (currentTorch != newTorch) {
+      if (newTorch && !camera.cameraInfo.hasFlashUnit()) {
+        throw FlashUnavailableError()
+      }
+      camera.cameraControl.enableTorch(newTorch)
+    }
+
+    // Exposure
+    val currentExposureCompensation = camera.cameraInfo.exposureState.exposureCompensationIndex
+    val exposureCompensation = config.exposure?.roundToInt() ?: 0
+    if (currentExposureCompensation != exposureCompensation) {
+      camera.cameraControl.setExposureCompensationIndex(exposureCompensation)
+    }
+  }
+
+  private fun configureIsActive(config: CameraConfiguration) {
+    if (config.isActive) {
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    } else {
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      lifecycleRegistry.currentState = Lifecycle.State.CREATED
+    }
+  }
+
+  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation): Photo {
+    val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
-    Log.i(TAG, "Photo capture 1/3 - capturing ${photoOutput.size.width}x${photoOutput.size.height} image...")
-    val result = captureSession.capture(
-      qualityPrioritization,
-      flash,
-      enableAutoStabilization,
-      photoOutput.enableHdr,
-      outputOrientation,
-      enableShutterSound,
-      enablePrecapture
-    )
-
-    try {
-      val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
-      Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
-      val image = photoOutputSynchronizer.await(timestamp)
-
-      Log.i(TAG, "Photo capture 3/3 - received ${image.width} x ${image.height} image, preparing result...")
-      val deviceDetails = captureSession.getActiveDeviceDetails()
-      val isMirrored = deviceDetails?.lensFacing == LensFacing.FRONT
-      return CapturedPhoto(image, result, orientation, isMirrored, image.format)
-    } catch (e: CancellationException) {
-      throw CaptureAbortedError(false)
+    if (flash != Flash.OFF && !camera.cameraInfo.hasFlashUnit()) {
+      throw FlashUnavailableError()
     }
+
+    photoOutput.flashMode = flash.toFlashMode()
+    photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
+    val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
+
+    val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
+    val isMirrored = photoFile.metadata.isReversedHorizontal
+
+    val bitmapOptions = BitmapFactory.Options().also {
+      it.inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeFile(photoFile.uri.path, bitmapOptions)
+    val width = bitmapOptions.outWidth
+    val height = bitmapOptions.outHeight
+
+    return Photo(photoFile.uri.path, width, height, outputOrientation, isMirrored)
   }
 
-  private fun onPhotoCaptured(image: Image) {
-    Log.i(TAG, "Photo captured! ${image.width} x ${image.height}")
-    photoOutputSynchronizer.set(image.timestamp, image)
+  private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
+    if (enable && audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
+      Log.i(TAG, "Ringer mode is silent (${audioManager.ringerMode}), disabling shutter sound...")
+      return false
+    }
+
+    return enable
   }
 
-  private fun updateVideoOutputs() {
-    val videoOutput = videoOutput ?: return
-    Log.i(TAG, "Updating Video Outputs...")
-    videoOutput.videoPipeline.setRecordingSessionOutput(recording)
-  }
-
-  suspend fun startRecording(
+  @OptIn(ExperimentalPersistentRecording::class)
+  @SuppressLint("MissingPermission", "RestrictedApi")
+  fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
-    callback: (video: RecordingSession.Video) -> Unit,
+    callback: (video: Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
-    mutex.withLock {
-      if (recording != null) throw RecordingInProgressError()
-      val videoOutput = videoOutput ?: throw VideoNotEnabledError()
-      val cameraId = configuration?.cameraId ?: throw NoCameraDeviceError()
+    if (camera == null) throw CameraNotReadyError()
+    if (recording != null) throw RecordingInProgressError()
+    val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
-      val fps = configuration?.fps ?: 30
+    val file = FileUtils.createTempFile(context, options.fileType.toExtension())
+    val outputOptions = FileOutputOptions.Builder(file).also { outputOptions ->
+      metadataProvider.location?.let { location ->
+        Log.i(TAG, "Setting Video Location to ${location.latitude}, ${location.longitude}...")
+        outputOptions.setLocation(location)
+      }
+    }.build()
+    var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
+    if (enableAudio) {
+      checkMicrophonePermission()
+      pendingRecording = pendingRecording.withAudioEnabled()
+    }
+    pendingRecording = pendingRecording.asPersistentRecording()
 
-      val recording = RecordingSession(
-        context,
-        cameraId,
-        videoOutput.size,
-        enableAudio,
-        fps,
-        videoOutput.enableHdr,
-        orientation,
-        options,
-        callback,
-        onError
-      )
-      recording.start()
-      this.recording = recording
+    val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
+    isRecordingCanceled = false
+    recording = pendingRecording.start(CameraQueues.cameraExecutor) { event ->
+      when (event) {
+        is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
+
+        is VideoRecordEvent.Resume -> Log.i(TAG, "Recording resumed!")
+
+        is VideoRecordEvent.Pause -> Log.i(TAG, "Recording paused!")
+
+        is VideoRecordEvent.Status -> Log.i(TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
+
+        is VideoRecordEvent.Finalize -> {
+          if (isRecordingCanceled) {
+            Log.i(TAG, "Recording was canceled, deleting file..")
+            onError(RecordingCanceledError())
+            try {
+              file.delete()
+            } catch (e: Throwable) {
+              this.callback.onError(FileIOError(e))
+            }
+            return@start
+          }
+
+          Log.i(TAG, "Recording stopped!")
+          val error = event.getCameraError()
+          if (error != null) {
+            if (error.wasVideoRecorded) {
+              Log.e(TAG, "Video Recorder encountered an error, but the video was recorded anyways.", error)
+            } else {
+              Log.e(TAG, "Video Recorder encountered a fatal error!", error)
+              onError(error)
+              return@start
+            }
+          }
+          val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
+          Log.i(TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
+          val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
+          val video = Video(path, durationMs, size)
+          callback(video)
+        }
+      }
     }
   }
 
-  suspend fun stopRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
+  fun stopRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
 
-      recording.stop()
-      this.recording = null
+    recording.stop()
+    this.recording = null
+  }
+
+  fun cancelRecording() {
+    isRecordingCanceled = true
+    stopRecording()
+  }
+
+  fun pauseRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
+    recording.pause()
+  }
+
+  fun resumeRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
+    recording.resume()
+  }
+
+  @SuppressLint("RestrictedApi")
+  suspend fun focus(meteringPoint: MeteringPoint) {
+    val camera = camera ?: throw CameraNotReadyError()
+
+    val action = FocusMeteringAction.Builder(meteringPoint).build()
+    if (!camera.cameraInfo.isFocusMeteringSupported(action)) {
+      throw FocusNotSupportedError()
     }
-  }
 
-  suspend fun pauseRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
-      recording.pause()
-    }
-  }
-
-  suspend fun resumeRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
-      recording.resume()
-    }
-  }
-
-  override fun onError(error: Throwable) {
-    callback.onError(error)
-  }
-
-  suspend fun focus(x: Int, y: Int) {
-    val previewView = previewView ?: throw CameraNotReadyError()
-    val deviceDetails = captureSession.getActiveDeviceDetails() ?: throw CameraNotReadyError()
-
-    val cameraPoint = previewView.convertLayerPointToCameraCoordinates(Point(x, y), deviceDetails)
-    captureSession.focus(cameraPoint)
-  }
-
-  data class CapturedPhoto(
-    val image: Image,
-    val metadata: TotalCaptureResult,
-    val orientation: Orientation,
-    val isMirrored: Boolean,
-    val format: Int
-  ) : Closeable {
-    override fun close() {
-      image.close()
+    try {
+      Log.i(TAG, "Focusing to ${action.meteringPointsAf.joinToString { "(${it.x}, ${it.y})" }}...")
+      val future = camera.cameraControl.startFocusAndMetering(action)
+      val result = future.await(CameraQueues.cameraExecutor)
+      if (result.isFocusSuccessful) {
+        Log.i(TAG, "Focused successfully!")
+      } else {
+        Log.i(TAG, "Focus failed.")
+      }
+    } catch (e: CameraControl.OperationCanceledException) {
+      throw FocusCanceledError()
     }
   }
 
@@ -493,6 +648,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     fun onInitialized()
     fun onStarted()
     fun onStopped()
+    fun onShutter(type: ShutterType)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

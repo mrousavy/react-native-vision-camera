@@ -20,7 +20,7 @@ For example:
 
 ```cpp
 // 1. Include headers
-#include "frameprocessor/FrameHostObject.h"
+#include "frameprocessors/FrameHostObject.h"
 
 // 2. Create C++ func
 auto myPlugin = [=](jsi::Runtime& runtime,
@@ -60,7 +60,7 @@ To include VisionCamera's C++ library in your plugin's C++ code, you need to lin
   defaultValue="ios"
   values={[
     {label: 'iOS', value: 'ios'},
-    {label: 'android', value: 'android'}
+    {label: 'Android', value: 'android'}
   ]}>
 <TabItem value="ios">
 
@@ -74,7 +74,7 @@ s.dependency "VisionCamera"
 Then include it in your C++ code:
 
 ```cpp
-#include "Frame Processor/FrameHostObject.h"
+#include "FrameProcessors/FrameHostObject.h"
 ```
 
 </TabItem>
@@ -104,4 +104,4 @@ Then include it in your C++ code:
 
 <br />
 
-#### 🚀 Next section: [Browse Community Plugins](frame-processor-plugins)
+#### 🚀 Next section: [Browse Community Plugins](frame-processor-plugins-community)

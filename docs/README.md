@@ -4,13 +4,13 @@ This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern 
 
 ## Installation
 
-```console
+```sh
 yarn install
 ```
 
 ## Local Development
 
-```console
+```sh
 yarn start
 ```
 
@@ -18,7 +18,7 @@ This command starts a local development server and open up a browser window. Mos
 
 ## Build
 
-```console
+```sh
 yarn build
 ```
 

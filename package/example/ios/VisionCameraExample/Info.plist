@@ -38,7 +38,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>VisionCamera needs access to your current location to add location tags to captured photos and videos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>VisionCamera needs access to your Microphone to record videos with audio.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

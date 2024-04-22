@@ -12,7 +12,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 
 A Camera's video pipeline operates in a specific pixel format which specifies how the pixels are laid out in a memory buffer.
 
-If you are simply recording videos (`video={true}`), the most efficient pixel format (`native`) will be automatically chosen for you, and [buffer compression](/docs/guides/performance#buffer-compression) will be enabled if available.
+If you are simply recording videos (`video={true}`), the most efficient pixel format will be automatically chosen for you, and [buffer compression](/docs/guides/performance#buffer-compression) will be enabled if available.
 
 If you are using Frame Processors, it is important to understand what pixel format you are using.
 
@@ -26,46 +26,35 @@ Cameras however don't operate in RGB, they use YUV instead. Instead of storing a
 YYYYUVYYYYUVYYYYUV
 ```
 
-In VisionCamera, pixel formats are abstracted under a simple [`PixelFormat`](/docs/api/#pixelformat) API with three possible values:
+In VisionCamera, pixel formats are abstracted under a simple [`PixelFormat`](/docs/api/#pixelformat) API with two possible values:
 
 - `yuv`: The YUV (often 4:2:0, 8-bit per channel) pixel format.
-- `native`: Whatever native format is most efficient, likely the same as YUV on iOS, but some PRIVATE format on Android.
 - `rgb`: An RGB (often BGRA, 8-bit per channel) pixel format.
 
-A [`CameraFormat`](/docs/api/interfaces/CameraDeviceFormat) specifies which pixel formats it can use for this specific configuration. For example, let's inspect the 4k Video format on an iPhone:
-
-```json
-// ...
-"pixelFormats": [
-  "yuv",
-  "rgb"
-]
-```
-
-This Format supports both YUV and RGB streaming, so we can configure the Camera to stream in RGB if we want:
+Every Camera device can either stream in `yuv` or `rgb`, but `rgb` comes with an additional overhead and sometimes even needs to be converted from `yuv` first.
 
 ```tsx
 function App() {
-  // ...
-  const format = ...
-  const pixelFormat = format.pixelFormats.includes("rgb") ? "rgb" : "native"
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet'
+    console.log(frame.pixelFormat) // <-- "rgb"
+  }, [])
 
   return (
     <Camera
       style={StyleSheet.absoluteFill}
-      device={device}
-      format={format}
-      pixelFormat={pixelFormat}
+      pixelFormat="rgb"
+      frameProcessor={frameProcessor}
     />
   )
 }
 ```
 
-However this is not recommended, as YUV is much more efficient.
+As a general tip, try to always use YUV if possible. If you have some specific models (e.g. Face Detectors), try converting them to YUV (4:2:0) instead of trying to run your Camera in RGB, as the conversion beforehand will be worth the effort.
 
-On Android, only YUV and NATIVE (PRIVATE) are supported, as RGB requires explicit conversion.
-
-As a general tip, try to always use YUV, and stay away from RGB. If you have some specific models (e.g. Face Detectors), try converting them to YUV (4:2:0) instead of trying to run your Camera in RGB, as the conversion beforehand will be worth the effort.
+:::info
+A 4k Frame in `yuv` is roughly **12 MB**, while a 4k Frame in `rgb` is roughly **31 MB**.
+:::
 
 ### HDR
 

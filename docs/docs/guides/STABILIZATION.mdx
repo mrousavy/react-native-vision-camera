@@ -74,6 +74,14 @@ return (
 
 Now, the video pipeline will stabilize frames over time.
 
+## Latency
+
+Video stabilization will introduce an additional latency in the video capture and frame processor pipeline as frames will need to be processed before being available to VisionCamera. With the most advanced video stabilization setting, you can expect delays of up to 3 seconds.
+
+- For [Video Capture](/docs/guides/recording-videos): `stopRecording(...)` will take longer to actually complete the recording.
+- For [Frame Processors](/docs/guides/frame-processors): Frames will arrive at a later point in time. If a Frame just arrived with `cinematic-extended` video stabilization, it might already be 3 seconds old.
+- For [Skia Frame Processors](/docs/guides/skia-frame-processors): Since Skia Frame Processors have to process the Frames first before drawing them onto the Preview, this now means that the Preview is also delayed by the latency of the video stabilization algorithm. If you use Skia Frame Processors, it is recommended to use fast software-based-, or no video stabilization at all.
+
 <br />
 
-#### 🚀 Next section: [Performance](performance)
+#### 🚀 Next section: [GPS Location Tags](location)

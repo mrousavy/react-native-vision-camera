@@ -1,7 +1,8 @@
-import { DependencyList, useMemo } from 'react'
-import type { Frame, FrameInternal } from '../Frame'
-import { FrameProcessor } from '../CameraProps'
-import { VisionCameraProxy } from '../FrameProcessorPlugins'
+import type { DependencyList } from 'react'
+import { useMemo } from 'react'
+import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
+import type { ReadonlyFrameProcessor } from '../types/CameraProps'
+import type { Frame } from '../types/Frame'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -10,26 +11,12 @@ import { VisionCameraProxy } from '../FrameProcessorPlugins'
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
  * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+ * @worklet
  */
-export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
+export function createFrameProcessor(frameProcessor: (frame: Frame) => void): ReadonlyFrameProcessor {
   return {
-    frameProcessor: (frame: Frame) => {
-      'worklet'
-      // Increment ref-count by one
-      const internal = frame as FrameInternal
-      internal.incrementRefCount()
-      try {
-        // Call sync frame processor
-        frameProcessor(frame)
-      } catch (e) {
-        // Re-throw error on JS Thread
-        VisionCameraProxy.throwJSError(e)
-      } finally {
-        // Potentially delete Frame if we were the last ref (no runAsync)
-        internal.decrementRefCount()
-      }
-    },
-    type: type,
+    frameProcessor: wrapFrameProcessorWithRefCounting(frameProcessor),
+    type: 'readonly',
   }
 }
 
@@ -39,6 +26,7 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  *
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
+ * @worklet
  * @param frameProcessor The Frame Processor
  * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
  * @returns The memoized Frame Processor.
@@ -51,7 +39,7 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  * }, [])
  * ```
  */
-export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
+export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): ReadonlyFrameProcessor {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies)
+  return useMemo(() => createFrameProcessor(frameProcessor), dependencies)
 }

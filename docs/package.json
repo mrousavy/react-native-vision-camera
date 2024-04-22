@@ -12,15 +12,29 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.0.0-alpha.0",
-    "@docusaurus/plugin-google-gtag": "^3.0.0-alpha.0",
-    "@docusaurus/plugin-sitemap": "^3.0.0-alpha.0",
-    "@docusaurus/preset-classic": "^3.0.0-alpha.0",
-    "@mdx-js/react": "^2.3.0",
-    "@vercel/analytics": "^1.0.2",
+    "@docusaurus/core": "^3.2.1",
+    "@docusaurus/plugin-google-gtag": "^3.2.1",
+    "@docusaurus/plugin-sitemap": "^3.2.1",
+    "@docusaurus/preset-classic": "^3.2.1",
+    "@mdx-js/react": "^3.0.1",
+    "@vercel/analytics": "^1.2.2",
     "clsx": "^2.1.0",
+    "prism-react-renderer": "^2.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.2.1",
+    "@docusaurus/types": "^3.2.1",
+    "@docusaurus/tsconfig": "^3.2.1",
+    "@types/react": "^18.2.29",
+    "docusaurus-plugin-typedoc": "^0.22.0",
+    "typedoc": "^0.25.13",
+    "typedoc-plugin-markdown": "^3.17.1",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0"
   },
   "browserslist": {
     "production": [
@@ -34,10 +48,5 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "docusaurus-plugin-typedoc": "^0.20.1",
-    "typedoc": "^0.25.1",
-    "typedoc-plugin-markdown": "^3.17.1",
-    "typescript": "^5.2.2"
-  }
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

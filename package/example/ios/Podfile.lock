@@ -15,21 +15,9 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.7)
   - hermes-engine/Pre-built (0.72.7)
   - libevent (2.1.12)
-  - libwebp (1.3.2):
-    - libwebp/demux (= 1.3.2)
-    - libwebp/mux (= 1.3.2)
-    - libwebp/sharpyuv (= 1.3.2)
-    - libwebp/webp (= 1.3.2)
-  - libwebp/demux (1.3.2):
-    - libwebp/webp
-  - libwebp/mux (1.3.2):
-    - libwebp/demux
-  - libwebp/sharpyuv (1.3.2)
-  - libwebp/webp (1.3.2):
-    - libwebp/sharpyuv
-  - MMKV (1.3.3):
-    - MMKVCore (~> 1.3.3)
-  - MMKVCore (1.3.3)
+  - MMKV (1.3.4):
+    - MMKVCore (~> 1.3.4)
+  - MMKVCore (1.3.4)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -339,12 +327,17 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
+  - react-native-skia (1.2.3):
+    - RCT-Folly (= 2021.07.22.00)
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (0.3.0):
+  - react-native-worklets-core (1.1.1):
     - React
     - React-callinvoker
     - React-Core
@@ -458,14 +451,10 @@ PODS:
     - React-jsi (= 0.72.7)
     - React-logger (= 0.72.7)
     - React-perflogger (= 0.72.7)
-  - RNFastImage (8.6.3):
-    - React-Core
-    - SDWebImage (~> 5.11.1)
-    - SDWebImageWebPCoder (~> 0.8.4)
   - RNGestureHandler (2.14.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNReanimated (3.6.1):
+  - RNReanimated (3.8.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -477,18 +466,19 @@ PODS:
   - RNVectorIcons (10.0.2):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - SDWebImage (5.11.1):
-    - SDWebImage/Core (= 5.11.1)
-  - SDWebImage/Core (5.11.1)
-  - SDWebImageWebPCoder (0.8.5):
-    - libwebp (~> 1.0)
-    - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.1)
-  - VisionCamera (3.9.0-beta.6):
+  - VisionCamera (4.0.0-beta.18):
+    - VisionCamera/Core (= 4.0.0-beta.18)
+    - VisionCamera/FrameProcessors (= 4.0.0-beta.18)
+    - VisionCamera/React (= 4.0.0-beta.18)
+  - VisionCamera/Core (4.0.0-beta.18)
+  - VisionCamera/FrameProcessors (4.0.0-beta.18):
     - React
     - React-callinvoker
-    - React-Core
     - react-native-worklets-core
+  - VisionCamera/React (4.0.0-beta.18):
+    - React-Core
+    - VisionCamera/FrameProcessors
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -519,6 +509,7 @@ DEPENDENCIES:
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-worklets-core (from `../node_modules/react-native-worklets-core`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -538,7 +529,6 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - RNFastImage (from `../node_modules/react-native-fast-image`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -551,11 +541,8 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
-    - libwebp
     - MMKV
     - MMKVCore
-    - SDWebImage
-    - SDWebImageWebPCoder
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -610,6 +597,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-mmkv"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-skia:
+    :path: "../node_modules/@shopify/react-native-skia"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-worklets-core:
@@ -648,8 +637,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  RNFastImage:
-    :path: "../node_modules/react-native-fast-image"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNReanimated:
@@ -674,9 +661,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 9180d43df05c1ed658a87cc733dc3044cf90c00a
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
-  MMKV: f902fb6719da13c2ab0965233d8963a59416f911
-  MMKVCore: d26e4d3edd5cb8588c2569222cbd8be4231374e9
+  MMKV: ed58ad794b3f88c24d604a5b74f3fba17fcbaf74
+  MMKVCore: a67a1cede26175c413176f404a7cedec43f96a0b
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 83bca1c184feb4d2e51c72c8369b83d641443f95
   RCTTypeSafety: 13c4a87a16d7db6cd66006ce9759f073402ef85b
@@ -696,8 +682,9 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
+  react-native-skia: d368ae81d61c0253df36106ea76324b5a5519ddc
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: a894d572639fcf37c6d284cc799882d25d00c93d
+  react-native-worklets-core: ff2156b19b8f4a979fa0db52659e39a755b1454b
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
   React-perflogger: 31ea61077185eb1428baf60c0db6e2886f141a5a
   React-RCTActionSheet: 392090a3abc8992eb269ef0eaa561750588fc39d
@@ -715,18 +702,15 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 7649c3b46c8dee1853691ecf60146a16ae59253c
   React-utils: 56838edeaaf651220d1e53cd0b8934fb8ce68415
   ReactCommon: 5f704096ccf7733b390f59043b6fa9cc180ee4f6
-  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNGestureHandler: 32a01c29ecc9bb0b5bf7bc0a33547f61b4dc2741
-  RNReanimated: fdbaa9c964bbab7fac50c90862b6cc5f041679b9
+  RNReanimated: f4798af7dede23d41039f0bc372710ead86e90c7
   RNScreens: 3c5b9f4a9dcde752466854b6109b79c0e205dad3
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
-  SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
-  SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 33c90675adf75528199f840f81dfbe74a2fe6c3f
+  VisionCamera: 194d28ac5a49c8cfe1b60a17aff8679bc04cee34
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
-PODFILE CHECKSUM: 27f53791141a3303d814e09b55770336416ff4eb
+PODFILE CHECKSUM: 66976ac26c778d788a06e6c1bab624e6a1233cdd
 
 COCOAPODS: 1.14.3

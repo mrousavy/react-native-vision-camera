@@ -1,15 +1,17 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import { GestureResponderEvent, StyleSheet, Text, View } from 'react-native'
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
+import type { GestureResponderEvent } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
+import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
+import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  CameraProps,
-  CameraRuntimeError,
-  PhotoFile,
+  runAtTargetFps,
   useCameraDevice,
   useCameraFormat,
   useFrameProcessor,
-  VideoFile,
+  useLocationPermission,
+  useMicrophonePermission,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -24,9 +26,9 @@ import IonIcon from 'react-native-vector-icons/Ionicons'
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
+import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
-import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -39,7 +41,8 @@ type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
-  const hasMicrophonePermission = useMemo(() => Camera.getMicrophonePermissionStatus() === 'granted', [])
+  const microphone = useMicrophonePermission()
+  const location = useLocationPermission()
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
@@ -171,13 +174,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Camera: ${device?.name} | Format: ${f}`)
   }, [device?.name, format, fps])
 
+  useEffect(() => {
+    location.requestPermission()
+  }, [location])
+
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
 
-    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-    examplePlugin(frame)
-    exampleKotlinSwiftPlugin(frame)
+    runAtTargetFps(10, () => {
+      'worklet'
+      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+      examplePlugin(frame)
+      exampleKotlinSwiftPlugin(frame)
+    })
   }, [])
+
+  const videoHdr = format?.supportsVideoHdr && enableHdr
+  const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
   return (
     <View style={styles.container}>
@@ -196,8 +209,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onStopped={() => 'Camera stopped!'}
                 format={format}
                 fps={fps}
-                photoHdr={format?.supportsPhotoHdr && enableHdr}
-                videoHdr={format?.supportsVideoHdr && enableHdr}
+                photoHdr={photoHdr}
+                videoHdr={videoHdr}
+                photoQualityBalance="quality"
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
@@ -206,7 +220,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 orientation="portrait"
                 photo={true}
                 video={true}
-                audio={hasMicrophonePermission}
+                audio={microphone.hasPermission}
+                enableLocation={location.hasPermission}
                 frameProcessor={frameProcessor}
               />
             </TapGestureHandler>

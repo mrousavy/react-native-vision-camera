@@ -54,7 +54,7 @@ Return values will automatically be converted to JS values, assuming they are re
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   return "cat";
 }
 ```
@@ -74,7 +74,7 @@ You can also manipulate the buffer and return it (or a copy of it) by returning 
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   Frame resizedFrame = new Frame(/* ... */);
   return resizedFrame;
 }
@@ -112,11 +112,11 @@ To let the user know that something went wrong you can use Exceptions:
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   if (arguments != null && arguments.get("codeType") instanceof String) {
     // ...
   } else {
-    throw new Exception("codeType property has to be a string!");
+    throw new RuntimeException("codeType property has to be a string!");
   }
 }
 ```
@@ -149,7 +149,7 @@ For example, a realtime video chat application might use WebRTC to send the fram
 ```java
 @Nullable
 @Override
-public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) throws Throwable {
   if (arguments == null) {
     return null;
   }
@@ -203,10 +203,10 @@ Your Frame Processor Plugins have to be fast. Use the FPS Graph (`enableFpsGraph
 #### 🚀 Create your first Frame Processor Plugin for [iOS](frame-processors-plugins-ios) or [Android](frame-processors-plugins-android)!
 
 [1]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/Frame.ts
-[2]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/Frame%20Processor/Frame.h
-[3]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessor/Frame.java
+[2]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/FrameProcessors/Frame.h
+[3]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessors/Frame.java
 [4]: https://github.com/facebook/react-native/blob/9a43eac7a32a6ba3164a048960101022a92fcd5a/React/Base/RCTBridgeModule.h#L20-L24
 [5]: https://developer.apple.com/documentation/coremedia/cmsamplebuffer
 [6]: https://developer.android.com/reference/androidx/camera/core/ImageProxy
-[7]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/Frame%20Processor/SharedArray.h
-[8]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessor/SharedArray.java
+[7]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/FrameProcessors/SharedArray.h
+[8]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessors/SharedArray.java

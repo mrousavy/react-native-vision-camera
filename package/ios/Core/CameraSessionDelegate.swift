@@ -30,6 +30,10 @@ protocol CameraSessionDelegate: AnyObject {
    */
   func onCameraStopped()
   /**
+   Called just before a photo or snapshot is captured.
+   */
+  func onCaptureShutter(shutterType: ShutterType)
+  /**
    Called for every frame (if video or frameProcessor is enabled)
    */
   func onFrame(sampleBuffer: CMSampleBuffer)

@@ -50,9 +50,24 @@ Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takeph
 const photo = await camera.current.takePhoto()
 ```
 
-You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
+You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
 
 This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
+
+### Resolution
+
+Photos are always captured in the resolution of the currently selected [`format`](/docs/api/interfaces/CameraProps#format) (See ["Formats"](/docs/guides/formats)).
+By default the Camera will select a format with the highest photo resolution available.
+
+If you want to use a custom resolution, configure the Camera to use a format that matches the desired `photoResolution`:
+
+```tsx
+const format = useCameraFormat(device, [
+  { photoResolution: { width: 1280, height: 720 } }
+])
+
+return <Camera {...props} format={format} />
+```
 
 ### Flash
 
@@ -66,17 +81,31 @@ const photo = await camera.current.takePhoto({
 
 Note that flash is only available on camera devices where [`hasFlash`](/docs/api/interfaces/CameraDevice#hasflash) is `true`; for example most front cameras don't have a flash.
 
-### Fast Capture
+### Quality Balance
 
-The [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function can be configured for faster capture at the cost of lower quality:
+The photo capture pipeline can be configured to prioritize speed over quality, quality over speed or balance both quality and speed using the [`qualityBalance`](/docs/api/interfaces/CameraProps#qualitybalance) prop.
+If set to `speed`, the Camera pipeline will capture photos faster at the cost of lower quality:
+
+```jsx
+return <Camera {...props} qualityBalance="speed" />
+```
+
+## Taking Snapshots
+
+In addition to _photo capture_ VisionCamera also supports _snapshot capture_, which can take photos at speeds of up to just 16 milliseconds.
+A snapshot is grabbed from the Preview View of the Camera, and will not perform any AE/AF/AWB precapture sequences.
+
+To take a snapshot simply use the Camera's [`takeSnapshot(..)`](/docs/api/classes/Camera#takesnapshot) function:
 
 ```ts
-const photo = await camera.current.takePhoto({
-  qualityPrioritization: 'speed',
-  flash: 'off',
-  enableShutterSound: false
+const snapshot = await camera.current.takeSnapshot({
+  quality: 90
 })
 ```
+
+:::note
+On iOS, snapshot capture requires [`video`](/docs/api/interfaces/CameraProps#video) to be enabled.
+:::
 
 ## Saving the Photo to the Camera Roll
 

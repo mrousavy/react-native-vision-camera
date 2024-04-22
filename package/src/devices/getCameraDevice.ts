@@ -1,4 +1,4 @@
-import { CameraDevice, CameraPosition, PhysicalCameraDeviceType } from '../CameraDevice'
+import type { CameraDevice, CameraPosition, PhysicalCameraDeviceType } from '../types/CameraDevice'
 
 export interface DeviceFilter {
   /**

@@ -1,6 +1,5 @@
-import type { AutoFocusSystem, CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../CameraDevice'
+import type { AutoFocusSystem, CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../types/CameraDevice'
 import { CameraRuntimeError } from '../CameraError'
-import { PixelFormat } from '../PixelFormat'
 
 interface Size {
   width: number
@@ -56,11 +55,6 @@ export interface FormatFilter {
    */
   videoStabilizationMode?: VideoStabilizationMode
   /**
-   * The target pixel format you want to use.
-   * If no format supports the target pixel format, the best other matching format will be used.
-   */
-  pixelFormat?: PixelFormat
-  /**
    * Whether you want to find a format that supports Photo HDR.
    */
   photoHdr?: boolean
@@ -111,7 +105,7 @@ function filtersToFilterMap(filters: FormatFilter[]): FilterMap {
  * This means the first item you pass will have a higher priority than the second, and so on.
  *
  * @param device The Camera Device you're currently using
- * @param filter The filter you want to use. The format that matches your filter the closest will be returned
+ * @param filters The filters you want to use. The format that matches your filter the closest will be returned
  * @returns The format that matches your filter the closest.
  *
  * @example
@@ -222,12 +216,6 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
         leftPoints += filter.videoStabilizationMode.priority
       if (format.videoStabilizationModes.includes(filter.videoStabilizationMode.target))
         rightPoints += filter.videoStabilizationMode.priority
-    }
-
-    // Find pixel format
-    if (filter.pixelFormat != null) {
-      if (bestFormat.pixelFormats.includes(filter.pixelFormat.target)) leftPoints += filter.pixelFormat.priority
-      if (format.pixelFormats.includes(filter.pixelFormat.target)) rightPoints += filter.pixelFormat.priority
     }
 
     // Find Photo HDR formats

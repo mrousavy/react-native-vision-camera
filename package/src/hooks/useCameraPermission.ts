@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Camera, CameraPermissionRequestResult, CameraPermissionStatus } from '../Camera'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { CameraPermissionRequestResult, CameraPermissionStatus } from '../Camera'
+import { Camera } from '../Camera'
 import { AppState } from 'react-native'
 
 interface PermissionState {
@@ -33,10 +34,13 @@ function usePermission(get: () => CameraPermissionStatus, request: () => Promise
     return () => listener.remove()
   }, [get])
 
-  return {
-    hasPermission,
-    requestPermission,
-  }
+  return useMemo(
+    () => ({
+      hasPermission,
+      requestPermission,
+    }),
+    [hasPermission, requestPermission],
+  )
 }
 
 /**
@@ -75,4 +79,22 @@ export function useCameraPermission(): PermissionState {
  */
 export function useMicrophonePermission(): PermissionState {
   return usePermission(Camera.getMicrophonePermissionStatus, Camera.requestMicrophonePermission)
+}
+
+/**
+ * Returns whether the user has granted permission to use the Location, or not.
+ *
+ * If the user doesn't grant Location Permission, you can use the `<Camera>` but you cannot
+ * capture photos or videos with GPS EXIF tags (the `location={..}` prop).
+ *
+ * @example
+ * ```tsx
+ * const { hasPermission, requestPermission } = useLocationPermission()
+ * const canCaptureLocation = hasPermission
+ *
+ * return <Camera photo={true} location={canCaptureLocation} />
+ * ```
+ */
+export function useLocationPermission(): PermissionState {
+  return usePermission(Camera.getLocationPermissionStatus, Camera.requestLocationPermission)
 }

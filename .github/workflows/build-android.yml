@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
       - 'package/android/**'
       - 'package/example/android/**'
       - 'package/yarn.lock'
@@ -14,7 +13,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'package/cpp/**'
       - 'package/android/**'
       - 'package/example/android/**'
       - 'package/yarn.lock'
@@ -96,8 +94,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd example
-      - name: Remove react-native-worklets-core
-        run: yarn remove react-native-worklets-core --cwd example
+      - name: Remove worklets, skia and reanimated
+        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
 
       - name: Restore Gradle cache
         uses: actions/cache@v4

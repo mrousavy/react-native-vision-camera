@@ -42,7 +42,6 @@ To get all available formats, simply use the `CameraDevice`'s [`formats` propert
 - [`videoHeight`](/docs/api/interfaces/CameraDeviceFormat#videoheight)/[`videoWidth`](/docs/api/interfaces/CameraDeviceFormat#videoWidth): The resolution that will be used for recording videos and streaming into frame processors. This also affects the preview's aspect ratio. Choose a format with your desired resolution.
 - [`minFps`](/docs/api/interfaces/CameraDeviceFormat#minfps)/[`maxFps`](/docs/api/interfaces/CameraDeviceFormat#maxfps): A range of possible values for the `fps` property. For example, if your format has `minFps: 1` and `maxFps: 60`, you can either use `fps={30}`, `fps={60}` or any other value in between for recording videos and streaming into frame processors.
 - [`videoStabilizationModes`](/docs/api/interfaces/CameraDeviceFormat#videostabilizationmodes): All supported Video Stabilization Modes, digital and optical. If this specific format contains your desired [`VideoStabilizationMode`](/docs/api/#videostabilizationmode), you can pass it to your `<Camera>` via the [`videoStabilizationMode` property](/docs/api/interfaces/CameraProps#videoStabilizationMode).
-- [`pixelFormats`](/docs/api/interfaces/CameraDeviceFormat#pixelformats): All supported Pixel Formats. If this specific format contains your desired [`PixelFormat`](/docs/api/#PixelFormat), you can pass it to your `<Camera>` via the [`pixelFormat` property](/docs/api/interfaces/CameraProps#pixelFormat).
 - [`supportsVideoHdr`](/docs/api/interfaces/CameraDeviceFormat#supportsvideohdr): Whether this specific format supports true 10-bit HDR for video capture. If this is `true`, you can enable `videoHdr` on your `<Camera>`.
 - [`supportsPhotoHdr`](/docs/api/interfaces/CameraDeviceFormat#supportsphotohdr): Whether this specific format supports HDR for photo capture. It will use multiple captures to fuse over-exposed and under-exposed Images together to form one HDR photo. If this is `true`, you can enable `photoHdr` on your `<Camera>`.
 - [`supportsDepthCapture`](/docs/api/interfaces/CameraDeviceFormat#supportsdepthcapture): Whether this specific format supports depth data capture. For devices like the TrueDepth/LiDAR cameras, this will always be true.
@@ -213,4 +212,4 @@ Other props that depend on the `format`:
 
 <br />
 
-#### 🚀 Next section: [Taking Photos](./taking-photos)
+#### 🚀 Next section: [Preview](./preview)

@@ -1,12 +1,8 @@
 import React, { useCallback, useRef } from 'react'
-import { StyleSheet, View, ViewProps } from 'react-native'
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-  State,
-  TapGestureHandler,
-  TapGestureHandlerStateChangeEvent,
-} from 'react-native-gesture-handler'
+import type { ViewProps } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import type { PanGestureHandlerGestureEvent, TapGestureHandlerStateChangeEvent } from 'react-native-gesture-handler'
+import { PanGestureHandler, State, TapGestureHandler } from 'react-native-gesture-handler'
 import Reanimated, {
   cancelAnimation,
   Easing,
@@ -67,7 +63,6 @@ const _CaptureButton: React.FC<Props> = ({
 
       console.log('Taking photo...')
       const photo = await camera.current.takePhoto({
-        qualityPrioritization: 'quality',
         flash: flash,
         enableShutterSound: false,
       })

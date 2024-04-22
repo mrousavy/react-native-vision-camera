@@ -28,7 +28,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var audioOutput: AVCaptureAudioDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
   // State
+  var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
+  var didCancelRecording = false
   var isRecording = false
 
   // Callbacks
@@ -37,7 +39,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   // Public accessors
   var maxZoom: Double {
     if let device = videoDeviceInput?.device {
-      return device.maxAvailableVideoZoomFactor
+      return device.activeFormat.videoMaxZoomFactor
     }
     return 1.0
   }
@@ -99,7 +101,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
   func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void) {
-    ReactLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
+    VisionLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
@@ -107,13 +109,17 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
         try lambda(config)
+      } catch CameraConfiguration.AbortThrow.abort {
+        // call has been aborted and changes shall be discarded
+        return
       } catch {
+        // another error occured, possibly while trying to parse enums
         self.onConfigureError(error)
         return
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
 
-      ReactLogger.log(level: .info, message: "configure { ... }: Updating CameraSession Configuration... \(difference)")
+      VisionLogger.log(level: .info, message: "configure { ... }: Updating CameraSession Configuration... \(difference)")
 
       do {
         // If needed, configure the AVCaptureSession (inputs, outputs)
@@ -153,10 +159,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.formatChanged {
             try self.configureFormat(configuration: config, device: device)
           }
-          // 5. After step 2. and 4., we also need to configure the PixelFormat.
-          //    This needs to be done AFTER we updated the `format`, as this controls the supported PixelFormats.
+          // 5. After step 2. and 4., we also need to configure some output properties that depend on format.
+          //    This needs to be done AFTER we updated the `format`, as this controls the supported properties.
           if difference.outputsChanged || difference.formatChanged {
-            try self.configurePixelFormat(configuration: config)
+            self.configureVideoOutputFormat(configuration: config)
+            self.configurePhotoOutputFormat(configuration: config)
           }
           // 6. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
@@ -206,17 +213,38 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         CameraQueues.audioQueue.async {
           do {
             // Lock Capture Session for configuration
-            ReactLogger.log(level: .info, message: "Beginning AudioSession configuration...")
+            VisionLogger.log(level: .info, message: "Beginning AudioSession configuration...")
             self.audioCaptureSession.beginConfiguration()
 
             try self.configureAudioSession(configuration: config)
 
             // Unlock Capture Session again and submit configuration to Hardware
             self.audioCaptureSession.commitConfiguration()
-            ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
+            VisionLogger.log(level: .info, message: "Committed AudioSession configuration!")
           } catch {
             self.onConfigureError(error)
           }
+        }
+      }
+
+      // Set up Location streaming (on location queue)
+      if difference.locationChanged {
+        CameraQueues.locationQueue.async {
+          do {
+            VisionLogger.log(level: .info, message: "Beginning Location Output configuration...")
+            try self.configureLocationOutput(configuration: config)
+            VisionLogger.log(level: .info, message: "Finished Location Output configuration!")
+          } catch {
+            self.onConfigureError(error)
+          }
+        }
+      }
+
+      // Check if Hardware Cost is okay
+      if #available(iOS 16.0, *) {
+        if self.captureSession.hardwareCost > 1 {
+          // Throw this error to the user, but don't abort the configuration. Maybe it still works.
+          self.onConfigureError(CameraError.session(.hardwareCostTooHigh(cost: self.captureSession.hardwareCost)))
         }
       }
     }
@@ -274,7 +302,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
   @objc
   func sessionRuntimeError(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
+    VisionLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }

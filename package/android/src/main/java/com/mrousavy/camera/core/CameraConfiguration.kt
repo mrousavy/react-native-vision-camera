@@ -1,12 +1,13 @@
 package com.mrousavy.camera.core
 
-import android.view.Surface
-import com.mrousavy.camera.types.CameraDeviceFormat
-import com.mrousavy.camera.types.CodeType
-import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.PixelFormat
-import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoStabilizationMode
+import androidx.camera.core.Preview.SurfaceProvider
+import com.mrousavy.camera.core.types.CameraDeviceFormat
+import com.mrousavy.camera.core.types.CodeType
+import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.PixelFormat
+import com.mrousavy.camera.core.types.QualityBalance
+import com.mrousavy.camera.core.types.Torch
+import com.mrousavy.camera.core.types.VideoStabilizationMode
 
 data class CameraConfiguration(
   // Input
@@ -16,7 +17,9 @@ data class CameraConfiguration(
   var preview: Output<Preview> = Output.Disabled.create(),
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
+  var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
+  var enableLocation: Boolean = false,
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
@@ -40,13 +43,13 @@ data class CameraConfiguration(
   // Audio Session
   var audio: Output<Audio> = Output.Disabled.create()
 ) {
-
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
-  data class Photo(val enableHdr: Boolean)
-  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean, val enableGpuBuffers: Boolean)
+  data class Photo(val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
+  data class Video(val enableHdr: Boolean)
+  data class FrameProcessor(val pixelFormat: PixelFormat)
   data class Audio(val nothing: Unit)
-  data class Preview(val surface: Surface)
+  data class Preview(val surfaceProvider: SurfaceProvider)
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {
@@ -74,11 +77,18 @@ data class CameraConfiguration(
     // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
     val sidePropsChanged: Boolean,
     // (isActive) changed
-    val isActiveChanged: Boolean
+    val isActiveChanged: Boolean,
+    // (locationChanged) changed
+    val locationChanged: Boolean
   ) {
     val hasChanges: Boolean
       get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
   }
+
+  /**
+   * Throw this to abort a call to configure { ... } and apply no changes.
+   */
+  class AbortThrow : Throwable()
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
@@ -88,29 +98,32 @@ data class CameraConfiguration(
       val deviceChanged = left?.cameraId != right.cameraId
 
       // outputs
-      val outputsChanged = deviceChanged ||
-        left?.photo != right.photo ||
+      val outputsChanged = left?.photo != right.photo ||
         left.video != right.video ||
+        left.enableLowLightBoost != right.enableLowLightBoost ||
+        left.videoStabilizationMode != right.videoStabilizationMode ||
+        left.frameProcessor != right.frameProcessor ||
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
-        left.format != right.format
+        left.format != right.format ||
+        left.fps != right.fps
 
       // repeating request
       val sidePropsChanged = outputsChanged ||
         left?.torch != right.torch ||
-        left.enableLowLightBoost != right.enableLowLightBoost ||
-        left.fps != right.fps ||
         left.zoom != right.zoom ||
-        left.videoStabilizationMode != right.videoStabilizationMode ||
         left.exposure != right.exposure
 
-      val isActiveChanged = sidePropsChanged || left?.isActive != right.isActive
+      val isActiveChanged = left?.isActive != right.isActive
+
+      val locationChanged = left?.enableLocation != right.enableLocation
 
       return Difference(
         deviceChanged,
         outputsChanged,
         sidePropsChanged,
-        isActiveChanged
+        isActiveChanged,
+        locationChanged
       )
     }
   }

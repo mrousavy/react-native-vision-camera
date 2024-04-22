@@ -76,6 +76,14 @@ await camera.current.pauseRecording()
 await camera.current.resumeRecording()
 ```
 
+### Cancel
+
+To cancel the recording, you can use [`cancelRecording()`](/docs/api/classes/Camera#cancelrecording), which will stop the recording, delete the temporary video file and call the `startRecording`'s [`onRecordingError`](/docs/api/interfaces/RecordVideoOptions#onrecordingerror) callback with a `capture/recording-canceled` error.
+
+```ts
+await camera.current.cancelRecording()
+```
+
 ### Flash
 
 The [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function can be configured to enable the [flash](/docs/api/interfaces/RecordVideoOptions#flash) while recording, which natively just enables the [`torch`](/docs/api/interfaces/CameraProps#torch) under the hood:
@@ -102,6 +110,10 @@ camera.current.startRecording({
   videoCodec: 'h265'
 })
 ```
+
+:::tip
+If the device does not support `h265`, VisionCamera will automatically fall-back to a supported codec like `h264` instead.
+:::
 
 ### Video Bit Rate
 

@@ -22,6 +22,9 @@ class CameraConfiguration {
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
 
+  // Location
+  var enableLocation = false
+
   // Video Stabilization
   var videoStabilizationMode: VideoStabilizationMode = .off
 
@@ -55,6 +58,7 @@ class CameraConfiguration {
       photo = other.photo
       video = other.video
       codeScanner = other.codeScanner
+      enableLocation = other.enableLocation
       videoStabilizationMode = other.videoStabilizationMode
       orientation = other.orientation
       format = other.format
@@ -72,6 +76,13 @@ class CameraConfiguration {
 
   // pragma MARK: Types
 
+  /**
+   Throw this to abort calls to configure { ... } and apply no changes.
+   */
+  enum AbortThrow: Error {
+    case abort
+  }
+
   struct Difference {
     let inputChanged: Bool
     let outputsChanged: Bool
@@ -84,6 +95,7 @@ class CameraConfiguration {
     let exposureChanged: Bool
 
     let audioSessionChanged: Bool
+    let locationChanged: Bool
 
     /**
      Returns `true` when props that affect the AVCaptureSession configuration (i.e. props that require beginConfiguration()) have changed.
@@ -124,6 +136,9 @@ class CameraConfiguration {
 
       // audio session
       audioSessionChanged = left?.audio != right.audio
+
+      // location
+      locationChanged = left?.enableLocation != right.enableLocation
     }
   }
 
@@ -147,7 +162,7 @@ class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
-    var enableHighQualityPhotos = false
+    var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
   }
@@ -156,7 +171,7 @@ class CameraConfiguration {
    A Video Output configuration
    */
   struct Video: Equatable {
-    var pixelFormat: PixelFormat = .native
+    var pixelFormat: PixelFormat = .yuv
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
@@ -184,25 +199,13 @@ extension CameraConfiguration.Video {
    If HDR is disabled, this will return whatever the user specified as a pixelFormat, or the most efficient format as a fallback.
    */
   func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType {
-    // as per documentation, the first value is always the most efficient format
-    var defaultFormat = videoOutput.availableVideoPixelFormatTypes.first!
-    if enableBufferCompression {
-      // use compressed format instead if we enabled buffer compression
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange) {
-        // YUV 4:2:0 8-bit (limited video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange
-      }
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange) {
-        // YUV 4:2:0 8-bit (full video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange
-      }
-    }
+    let available = videoOutput.availableVideoPixelFormatTypes.map { $0.toString() }
+    VisionLogger.log(level: .info, message: "Available Pixel Formats: \(available), finding best match... " +
+      "(pixelFormat=\"\(pixelFormat)\", enableHdr={\(enableHdr)}, enableBufferCompression={\(enableBufferCompression)})")
 
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if enableHdr == true {
-      guard pixelFormat == .native || pixelFormat == .yuv else {
+      guard pixelFormat == .yuv else {
         throw CameraError.format(.incompatiblePixelFormatWithHDR)
       }
 
@@ -222,35 +225,33 @@ extension CameraConfiguration.Video {
     }
 
     // If we don't use HDR, we can use any other custom pixel format.
+    var targetFormats: [OSType] = []
     switch pixelFormat {
     case .yuv:
       // YUV 4:2:0 8-bit (full/limited video colors; uncompressed)
-      var targetFormats = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
-                           kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+      targetFormats = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                       kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
       if enableBufferCompression {
         // YUV 4:2:0 8-bit (full/limited video colors; compressed)
         targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange, at: 0)
         targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange, at: 0)
       }
-      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-        throw CameraError.device(.pixelFormatNotSupported)
-      }
-      return format
     case .rgb:
       // RGBA 8-bit (uncompressed)
-      var targetFormats = [kCVPixelFormatType_32BGRA]
+      targetFormats = [kCVPixelFormatType_32BGRA]
       if enableBufferCompression {
         // RGBA 8-bit (compressed)
         targetFormats.insert(kCVPixelFormatType_Lossy_32BGRA, at: 0)
       }
-      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-        throw CameraError.device(.pixelFormatNotSupported)
-      }
-      return format
-    case .native:
-      return defaultFormat
     case .unknown:
       throw CameraError.parameter(.invalid(unionName: "pixelFormat", receivedValue: "unknown"))
     }
+
+    guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
+      throw CameraError.device(.pixelFormatNotSupported(targetFormats: targetFormats,
+                                                        availableFormats: videoOutput.availableVideoPixelFormatTypes))
+    }
+    VisionLogger.log(level: .info, message: "Using PixelFormat: \(format.toString())...")
+    return format
   }
 }

@@ -17,7 +17,7 @@ extension CameraSession {
    Background audio is allowed to play on speakers or bluetooth speakers.
    */
   final func activateAudioSession() throws {
-    ReactLogger.log(level: .info, message: "Activating Audio Session...")
+    VisionLogger.log(level: .info, message: "Activating Audio Session...")
 
     do {
       let audioSession = AVAudioSession.sharedInstance()
@@ -40,9 +40,9 @@ extension CameraSession {
       }
 
       audioCaptureSession.startRunning()
-      ReactLogger.log(level: .info, message: "Audio Session activated!")
+      VisionLogger.log(level: .info, message: "Audio Session activated!")
     } catch let error as NSError {
-      ReactLogger.log(level: .error, message: "Failed to activate audio session! Error \(error.code): \(error.description)")
+      VisionLogger.log(level: .error, message: "Failed to activate audio session! Error \(error.code): \(error.description)")
       switch error.code {
       case 561_017_449:
         throw CameraError.session(.audioInUseByOtherApp)
@@ -53,15 +53,15 @@ extension CameraSession {
   }
 
   final func deactivateAudioSession() {
-    ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
+    VisionLogger.log(level: .info, message: "Deactivating Audio Session...")
 
     audioCaptureSession.stopRunning()
-    ReactLogger.log(level: .info, message: "Audio Session deactivated!")
+    VisionLogger.log(level: .info, message: "Audio Session deactivated!")
   }
 
   @objc
   func audioSessionInterrupted(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Audio Session Interruption Notification!")
+    VisionLogger.log(level: .error, message: "Audio Session Interruption Notification!")
     guard let userInfo = notification.userInfo,
           let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
           let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
@@ -72,22 +72,22 @@ extension CameraSession {
     switch type {
     case .began:
       // Something interrupted our Audio Session, stop recording audio.
-      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+      VisionLogger.log(level: .error, message: "The Audio Session was interrupted!")
     case .ended:
-      ReactLogger.log(level: .info, message: "The Audio Session interruption has ended.")
+      VisionLogger.log(level: .info, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
         // Try resuming if possible
         if isRecording {
           CameraQueues.audioQueue.async {
-            ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
+            VisionLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
             // restart audio session because interruption is over
             try? self.activateAudioSession()
           }
         }
       } else {
-        ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
+        VisionLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
       }
     @unknown default:
       ()

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { CameraDevice, CameraPosition } from '../CameraDevice'
-import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice'
+import type { CameraDevice, CameraPosition } from '../types/CameraDevice'
+import type { DeviceFilter } from '../devices/getCameraDevice'
+import { getCameraDevice } from '../devices/getCameraDevice'
 import { useCameraDevices } from './useCameraDevices'
 
 /**
