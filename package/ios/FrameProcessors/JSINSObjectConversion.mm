@@ -22,7 +22,6 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
-#import <ReactCommon/RCTBlockGuard.h>
 #import <ReactCommon/TurboModuleUtils.h>
 #import <jsi/jsi.h>
 
@@ -184,12 +183,6 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, s
 RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,
                                                     std::shared_ptr<CallInvoker> jsInvoker) {
   auto weakWrapper = CallbackWrapper::createWeak(value.getFunction(runtime), runtime, jsInvoker);
-  RCTBlockGuard* blockGuard = [[RCTBlockGuard alloc] initWithCleanup:^() {
-    auto strongWrapper = weakWrapper.lock();
-    if (strongWrapper) {
-      strongWrapper->destroy();
-    }
-  }];
 
   BOOL __block wrapperWasCalled = NO;
   RCTResponseSenderBlock callback = ^(NSArray* responses) {
@@ -202,7 +195,7 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const
       return;
     }
 
-    strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses, blockGuard]() {
+    strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses]() {
       auto strongWrapper2 = weakWrapper.lock();
       if (!strongWrapper2) {
         return;
@@ -212,9 +205,6 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const
       strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
       strongWrapper2->destroy();
       delete[] args;
-
-      // Delete the CallbackWrapper when the block gets dealloced without being invoked.
-      (void)blockGuard;
     });
 
     wrapperWasCalled = YES;
