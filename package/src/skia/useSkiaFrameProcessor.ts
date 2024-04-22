@@ -85,6 +85,21 @@ type SurfaceCache = Record<
  * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
  *
  * @worklet
+ * @example
+ * ```ts
+ * const surfaceHolder = Worklets.createSharedValue<SurfaceCache>({})
+ * const offscreenTextures = Worklets.createSharedValue<SkImage[]>([])
+ * const frameProcessor = createSkiaFrameProcessor((frame) => {
+ *   'worklet'
+ *   const faces = scanFaces(frame)
+ *
+ *   frame.render()
+ *   for (const face of faces) {
+ *     const rect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
+ *     frame.drawRect(rect)
+ *   }
+ * }, surfaceHolder, offscreenTextures)
+ * ```
  */
 export function createSkiaFrameProcessor(
   frameProcessor: (frame: DrawableFrame) => void,
