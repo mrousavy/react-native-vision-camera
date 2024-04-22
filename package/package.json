@@ -9,6 +9,7 @@
   "source": "src/index",
   "files": [
     "src",
+    "react-native.config.js",
     "lib/commonjs",
     "lib/module",
     "lib/typescript",
