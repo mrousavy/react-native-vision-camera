@@ -9,7 +9,6 @@
 #pragma once
 
 #import "SharedArray.h"
-#import <React/RCTBridgeModule.h>
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
 
@@ -18,48 +17,13 @@ namespace JSINSObjectConversion {
 using namespace facebook;
 using namespace facebook::react;
 
-// NSNumber -> boolean
-jsi::Value convertNSNumberToJSIBoolean(jsi::Runtime& runtime, NSNumber* value);
-
-// NSNumber -> number
-jsi::Value convertNSNumberToJSINumber(jsi::Runtime& runtime, NSNumber* value);
-
-// NSNumber -> string
-jsi::String convertNSStringToJSIString(jsi::Runtime& runtime, NSString* value);
-
-// NSDictionary -> {}
-jsi::Object convertNSDictionaryToJSIObject(jsi::Runtime& runtime, NSDictionary* value);
-
-// NSArray -> []
-jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value);
-
-// SharedArray -> ArrayBuffer
-jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray);
-
-// id -> ???
+// id -> any
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);
 
-// string -> NSString
-NSString* convertJSIStringToNSString(jsi::Runtime& runtime, const jsi::String& value);
-
-// any... -> NSArray
-NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array, size_t length,
-                                        std::shared_ptr<CallInvoker> jsInvoker);
-
-// NSArray -> any...
-jsi::Value* convertNSArrayToJSICStyleArray(jsi::Runtime& runtime, NSArray* array);
-
-// [] -> NSArray
-NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value, std::shared_ptr<CallInvoker> jsInvoker);
-
-// {} -> NSDictionary
-NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value, std::shared_ptr<CallInvoker> jsInvoker);
-
 // any -> id
-id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker);
+id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value);
 
-// (any...) => any -> (void)(id, id)
-RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,
-                                                    std::shared_ptr<CallInvoker> jsInvoker);
+// object -> NSDictionary*
+NSDictionary* convertJSIObjectToObjCDictionary(jsi::Runtime& runtime, const jsi::Object& object);
 
 } // namespace JSINSObjectConversion

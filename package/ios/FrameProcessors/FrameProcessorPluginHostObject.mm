@@ -44,7 +44,7 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
           NSDictionary* options = nil;
           if (count > 1) {
             auto optionsObject = arguments[1].asObject(runtime);
-            options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
+            options = JSINSObjectConversion::convertJSIObjectToObjCDictionary(runtime, optionsObject);
           }
 
           @try {

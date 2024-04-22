@@ -20,10 +20,7 @@
 #import "FrameHostObject.h"
 #import "SharedArray.h"
 #import <Foundation/Foundation.h>
-#import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
-#import <ReactCommon/RCTBlockGuard.h>
-#import <ReactCommon/TurboModuleUtils.h>
 #import <jsi/jsi.h>
 
 using namespace facebook;
@@ -31,196 +28,123 @@ using namespace facebook::react;
 
 namespace JSINSObjectConversion {
 
-jsi::Value convertNSNumberToJSIBoolean(jsi::Runtime& runtime, NSNumber* value) {
-  return jsi::Value((bool)[value boolValue]);
-}
-
-jsi::Value convertNSNumberToJSINumber(jsi::Runtime& runtime, NSNumber* value) {
-  return jsi::Value([value doubleValue]);
-}
-
-jsi::String convertNSStringToJSIString(jsi::Runtime& runtime, NSString* value) {
-  return jsi::String::createFromUtf8(runtime, [value UTF8String] ?: "");
-}
-
-jsi::Object convertNSDictionaryToJSIObject(jsi::Runtime& runtime, NSDictionary* value) {
-  jsi::Object result = jsi::Object(runtime);
-  for (NSString* k in value) {
-    result.setProperty(runtime, [k UTF8String], convertObjCObjectToJSIValue(runtime, value[k]));
-  }
-  return result;
-}
-
-jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value) {
-  jsi::Array result = jsi::Array(runtime, value.count);
-  for (size_t i = 0; i < value.count; i++) {
-    result.setValueAtIndex(runtime, i, convertObjCObjectToJSIValue(runtime, value[i]));
-  }
-  return result;
-}
-
-jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray) {
-  return sharedArray.arrayBuffer->getArrayBuffer(runtime);
-}
-
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
-  if (value == nil) {
+  if (value == nil || value == (id)kCFNull) {
+    // null
+
     return jsi::Value::undefined();
-  } else if ([value isKindOfClass:[NSString class]]) {
-    return convertNSStringToJSIString(runtime, (NSString*)value);
   } else if ([value isKindOfClass:[NSNumber class]]) {
+    NSNumber* number = (NSNumber*)value;
     if ([value isKindOfClass:[@YES class]]) {
-      return convertNSNumberToJSIBoolean(runtime, (NSNumber*)value);
+      // Boolean
+
+      return jsi::Value(static_cast<bool>(number.boolValue));
     }
-    return convertNSNumberToJSINumber(runtime, (NSNumber*)value);
+
+    // Double
+
+    return jsi::Value(number.doubleValue);
+  } else if ([value isKindOfClass:[NSString class]]) {
+    // String
+
+    NSString* string = (NSString*)value;
+    return jsi::String::createFromUtf8(runtime, string.UTF8String);
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    return convertNSDictionaryToJSIObject(runtime, (NSDictionary*)value);
+    // Object
+
+    NSDictionary* dictionary = (NSDictionary*)value;
+    jsi::Object result(runtime);
+    for (NSString* key in dictionary) {
+      result.setProperty(runtime, key.UTF8String, convertObjCObjectToJSIValue(runtime, dictionary[key]));
+    }
+    return result;
   } else if ([value isKindOfClass:[NSArray class]]) {
-    return convertNSArrayToJSIArray(runtime, (NSArray*)value);
-  } else if (value == (id)kCFNull) {
-    return jsi::Value::null();
+    // Array
+
+    NSArray* array = (NSArray*)value;
+    jsi::Array result(runtime, array.count);
+    for (size_t i = 0; i < array.count; i++) {
+      result.setValueAtIndex(runtime, i, convertObjCObjectToJSIValue(runtime, value[i]));
+    }
+    return result;
   } else if ([value isKindOfClass:[Frame class]]) {
-    auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
+    // Frame
+
+    Frame* frame = (Frame*)value;
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);
   } else if ([value isKindOfClass:[SharedArray class]]) {
-    return convertSharedArrayToJSIArrayBuffer(runtime, (SharedArray*)value);
+    // SharedArray
+
+    SharedArray* sharedArray = (SharedArray*)value;
+    return sharedArray.arrayBuffer->getArrayBuffer(runtime);
   }
-  return jsi::Value::undefined();
+
+  NSString* className = NSStringFromClass([value class]);
+  std::string classNameString = std::string(className.UTF8String);
+  throw std::runtime_error("Cannot convert Objective-C type \"" + classNameString + "\" to jsi::Value!");
 }
 
-NSString* convertJSIStringToNSString(jsi::Runtime& runtime, const jsi::String& value) {
-  return [NSString stringWithUTF8String:value.utf8(runtime).c_str()];
-}
-
-NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array, size_t length,
-                                        std::shared_ptr<CallInvoker> jsInvoker) {
-  if (length < 1)
-    return @[];
-  NSMutableArray* result = [NSMutableArray new];
-  for (size_t i = 0; i < length; i++) {
-    // Insert kCFNull when it's `undefined` value to preserve the indices.
-    [result addObject:convertJSIValueToObjCObject(runtime, array[i], jsInvoker) ?: (id)kCFNull];
-  }
-  return [result copy];
-}
-
-jsi::Value* convertNSArrayToJSICStyleArray(jsi::Runtime& runtime, NSArray* array) {
-  auto result = new jsi::Value[array.count];
-  for (size_t i = 0; i < array.count; i++) {
-    result[i] = convertObjCObjectToJSIValue(runtime, array[i]);
-  }
-  return result;
-}
-
-NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value, std::shared_ptr<CallInvoker> jsInvoker) {
-  size_t size = value.size(runtime);
-  NSMutableArray* result = [NSMutableArray new];
-  for (size_t i = 0; i < size; i++) {
-    // Insert kCFNull when it's `undefined` value to preserve the indices.
-    [result addObject:convertJSIValueToObjCObject(runtime, value.getValueAtIndex(runtime, i), jsInvoker) ?: (id)kCFNull];
-  }
-  return [result copy];
-}
-
-NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value, std::shared_ptr<CallInvoker> jsInvoker) {
-  jsi::Array propertyNames = value.getPropertyNames(runtime);
+NSDictionary* convertJSIObjectToObjCDictionary(jsi::Runtime& runtime, const jsi::Object& object) {
+  jsi::Array propertyNames = object.getPropertyNames(runtime);
   size_t size = propertyNames.size(runtime);
   NSMutableDictionary* result = [NSMutableDictionary new];
   for (size_t i = 0; i < size; i++) {
     jsi::String name = propertyNames.getValueAtIndex(runtime, i).getString(runtime);
-    NSString* k = convertJSIStringToNSString(runtime, name);
-    id v = convertJSIValueToObjCObject(runtime, value.getProperty(runtime, name), jsInvoker);
-    if (v) {
-      result[k] = v;
-    }
+    jsi::Value value = object.getProperty(runtime, name);
+    NSString* key = [NSString stringWithUTF8String:name.utf8(runtime).c_str()];
+    result[key] = convertJSIValueToObjCObject(runtime, value);
   }
   return [result copy];
 }
 
-id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker) {
+id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value) {
   if (value.isUndefined() || value.isNull()) {
     // undefined/null
     return nil;
   } else if (value.isBool()) {
     // bool
-    return @(value.getBool());
+    return [NSNumber numberWithBool:value.getBool()];
   } else if (value.isNumber()) {
     // number
-    return @(value.getNumber());
+    return [NSNumber numberWithDouble:value.getNumber()];
   } else if (value.isString()) {
     // string
-    return convertJSIStringToNSString(runtime, value.getString(runtime));
+    std::string string = value.getString(runtime).utf8(runtime);
+    return [NSString stringWithUTF8String:string.c_str()];
   } else if (value.isObject()) {
     // object
-    jsi::Object o = value.getObject(runtime);
-    if (o.isArray(runtime)) {
+    jsi::Object object = value.getObject(runtime);
+    if (object.isArray(runtime)) {
       // array[]
-      return convertJSIArrayToNSArray(runtime, o.getArray(runtime), jsInvoker);
-    } else if (o.isFunction(runtime)) {
-      // function () => {}
-      return convertJSIFunctionToCallback(runtime, std::move(o.getFunction(runtime)), jsInvoker);
-    } else if (o.isHostObject(runtime)) {
-      if (o.isHostObject<FrameHostObject>(runtime)) {
+      jsi::Array array = object.getArray(runtime);
+      size_t size = array.size(runtime);
+      NSMutableArray* result = [NSMutableArray new];
+      for (size_t i = 0; i < size; i++) {
+        jsi::Value value = array.getValueAtIndex(runtime, i);
+        [result addObject:convertJSIValueToObjCObject(runtime, value)];
+      }
+      return [result copy];
+    } else if (object.isHostObject(runtime)) {
+      if (object.isHostObject<FrameHostObject>(runtime)) {
         // Frame
-        auto hostObject = o.getHostObject<FrameHostObject>(runtime);
+        auto hostObject = object.getHostObject<FrameHostObject>(runtime);
         return hostObject->frame;
       } else {
         throw std::runtime_error("The given HostObject is not supported by a Frame Processor Plugin!");
       }
-    } else if (o.isArrayBuffer(runtime)) {
+    } else if (object.isArrayBuffer(runtime)) {
       // ArrayBuffer
-      auto arrayBuffer = std::make_shared<jsi::ArrayBuffer>(o.getArrayBuffer(runtime));
+      auto arrayBuffer = std::make_shared<jsi::ArrayBuffer>(object.getArrayBuffer(runtime));
       return [[SharedArray alloc] initWithRuntime:runtime wrapArrayBuffer:arrayBuffer];
     } else {
       // object
-      return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
+      return convertJSIObjectToObjCDictionary(runtime, object);
     }
   }
 
   auto stringRepresentation = value.toString(runtime).utf8(runtime);
   throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type! " + stringRepresentation);
-}
-
-RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,
-                                                    std::shared_ptr<CallInvoker> jsInvoker) {
-  auto weakWrapper = CallbackWrapper::createWeak(value.getFunction(runtime), runtime, jsInvoker);
-  RCTBlockGuard* blockGuard = [[RCTBlockGuard alloc] initWithCleanup:^() {
-    auto strongWrapper = weakWrapper.lock();
-    if (strongWrapper) {
-      strongWrapper->destroy();
-    }
-  }];
-
-  BOOL __block wrapperWasCalled = NO;
-  RCTResponseSenderBlock callback = ^(NSArray* responses) {
-    if (wrapperWasCalled) {
-      throw std::runtime_error("callback arg cannot be called more than once");
-    }
-
-    auto strongWrapper = weakWrapper.lock();
-    if (!strongWrapper) {
-      return;
-    }
-
-    strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses, blockGuard]() {
-      auto strongWrapper2 = weakWrapper.lock();
-      if (!strongWrapper2) {
-        return;
-      }
-
-      const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
-      strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
-      strongWrapper2->destroy();
-      delete[] args;
-
-      // Delete the CallbackWrapper when the block gets dealloced without being invoked.
-      (void)blockGuard;
-    });
-
-    wrapperWasCalled = YES;
-  };
-
-  return [callback copy];
 }
 
 } // namespace JSINSObjectConversion

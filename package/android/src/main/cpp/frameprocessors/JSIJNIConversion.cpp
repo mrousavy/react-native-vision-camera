@@ -180,7 +180,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime, c
   }
 
   auto type = object->getClass()->toString();
-  auto message = "Received unknown JNI type \"" + type + "\"! Cannot convert to jsi::Value.";
+  auto message = "Cannot convert Java type \"" + type + "\" to jsi::Value!";
   __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", message.c_str());
   throw std::runtime_error(message);
 }
