@@ -629,7 +629,8 @@ const styles = StyleSheet.create({
   },
   fpsGraph: {
     elevation: 1,
-    marginLeft: 15,
-    marginTop: 30,
+    position: 'absolute',
+    left: 15,
+    top: 30,
   },
 })
