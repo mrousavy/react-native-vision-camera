@@ -1,7 +1,7 @@
 import React from 'react'
-import { requireNativeComponent, findNodeHandle, StyleSheet } from 'react-native'
+import { findNodeHandle, StyleSheet } from 'react-native'
 import type { CameraDevice } from './types/CameraDevice'
-import type { ErrorWithCause, CameraCaptureError } from './CameraError'
+import type { CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
 import type { CameraProps, DrawableFrameProcessor, OnShutterEvent, ReadonlyFrameProcessor } from './types/CameraProps'
 import { CameraModule } from './NativeCameraModule'
@@ -11,44 +11,17 @@ import type { RecordVideoOptions, VideoFile } from './types/VideoFile'
 import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription, NativeSyntheticEvent, NativeMethods } from 'react-native'
-import type { Code, CodeScanner, CodeScannerFrame } from './types/CodeScanner'
 import type { TakeSnapshotOptions } from './types/Snapshot'
 import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
 import type { Frame } from './types/Frame'
 import { FpsGraph, MAX_BARS } from './FpsGraph'
+import type { AverageFpsChangedEvent, NativeCameraViewProps, OnCodeScannedEvent, OnErrorEvent } from './NativeCameraView'
+import { NativeCameraView } from './NativeCameraView'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
 export type CameraPermissionRequestResult = 'granted' | 'denied'
 
-export interface OnCodeScannedEvent {
-  codes: Code[]
-  frame: CodeScannerFrame
-}
-export interface OnErrorEvent {
-  code: string
-  message: string
-  cause?: ErrorWithCause
-}
-interface AverageFpsChangedEvent {
-  averageFps: number
-}
-type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onShutter' | 'frameProcessor' | 'codeScanner'> & {
-  // private intermediate props
-  cameraId: string
-  enableFrameProcessor: boolean
-  codeScannerOptions?: Omit<CodeScanner, 'onCodeScanned'>
-  // private events
-  onViewReady: (event: NativeSyntheticEvent<void>) => void
-  onAverageFpsChanged?: (event: NativeSyntheticEvent<AverageFpsChangedEvent>) => void
-  // public events wrapped with NativeSyntheticEvent<T>
-  onInitialized?: (event: NativeSyntheticEvent<void>) => void
-  onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void
-  onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
-  onStarted?: (event: NativeSyntheticEvent<void>) => void
-  onStopped?: (event: NativeSyntheticEvent<void>) => void
-  onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
-}
 type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
   videoBitRateOverride?: number
   videoBitRateMultiplier?: number
@@ -649,13 +622,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 }
 //#endregion
-
-// requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
-const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
-  'CameraView',
-  // @ts-expect-error because the type declarations are kinda wrong, no?
-  Camera,
-)
 
 const styles = StyleSheet.create({
   customPreviewView: {
