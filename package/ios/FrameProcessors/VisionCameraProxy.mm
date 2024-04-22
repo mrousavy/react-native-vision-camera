@@ -69,7 +69,7 @@ void VisionCameraProxy::removeFrameProcessor(jsi::Runtime& runtime, double jsVie
 jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, const jsi::String& name, const jsi::Object& options) {
   std::string nameString = name.utf8(runtime);
   NSString* key = [NSString stringWithUTF8String:nameString.c_str()];
-  NSDictionary* optionsObjc = (NSDictionary*)JSINSObjectConversion::convertJSIValueToObjCObject(runtime, options);
+  NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToObjCDictionary(runtime, options);
   VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
 
   @try {

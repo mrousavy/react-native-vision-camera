@@ -85,6 +85,19 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
   throw std::runtime_error("Cannot convert Objective-C type \"" + classNameString + "\" to jsi::Value!");
 }
 
+NSDictionary* convertJSIObjectToObjCDictionary(jsi::Runtime& runtime, const jsi::Object& object) {
+  jsi::Array propertyNames = object.getPropertyNames(runtime);
+  size_t size = propertyNames.size(runtime);
+  NSMutableDictionary* result = [NSMutableDictionary new];
+  for (size_t i = 0; i < size; i++) {
+    jsi::String name = propertyNames.getValueAtIndex(runtime, i).getString(runtime);
+    jsi::Value value = object.getProperty(runtime, name);
+    NSString* key = [NSString stringWithUTF8String:name.utf8(runtime).c_str()];
+    result[key] = convertJSIValueToObjCObject(runtime, value);
+  }
+  return [result copy];
+}
+
 id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value) {
   if (value.isUndefined() || value.isNull()) {
     // undefined/null
@@ -126,16 +139,7 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value) {
       return [[SharedArray alloc] initWithRuntime:runtime wrapArrayBuffer:arrayBuffer];
     } else {
       // object
-      jsi::Array propertyNames = object.getPropertyNames(runtime);
-      size_t size = propertyNames.size(runtime);
-      NSMutableDictionary* result = [NSMutableDictionary new];
-      for (size_t i = 0; i < size; i++) {
-        jsi::String name = propertyNames.getValueAtIndex(runtime, i).getString(runtime);
-        jsi::Value value = object.getProperty(runtime, name);
-        NSString* key = [NSString stringWithUTF8String:name.utf8(runtime).c_str()];
-        result[key] = convertJSIValueToObjCObject(runtime, value);
-      }
-      return [result copy];
+      return convertJSIObjectToObjCDictionary(runtime, object);
     }
   }
 

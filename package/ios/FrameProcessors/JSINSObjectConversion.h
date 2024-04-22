@@ -23,4 +23,7 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);
 // any -> id
 id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value);
 
+// object -> NSDictionary*
+NSDictionary* convertJSIObjectToObjCDictionary(jsi::Runtime& runtime, const jsi::Object& object);
+
 } // namespace JSINSObjectConversion
