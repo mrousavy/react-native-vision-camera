@@ -20,7 +20,7 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector.Delegate {
+public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollectorDelegate {
   // pragma MARK: React Properties
 
   // props that require reconfiguring

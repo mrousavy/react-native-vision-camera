@@ -10,7 +10,7 @@ import Foundation
 class FpsSampleCollector {
   private var timestamps: [UInt64] = []
   private var timer: Timer?
-  var delegate: Delegate?
+  var delegate: FpsSampleCollectorDelegate?
 
   func start() {
     timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] timer in
@@ -55,9 +55,5 @@ class FpsSampleCollector {
     let averageFrameDurationMs = Double(totalDurationMs) / Double(timestamps.count - 1)
 
     return 1000.0 / averageFrameDurationMs
-  }
-
-  protocol Delegate {
-    func onAverageFpsChanged(averageFps: Double)
   }
 }
