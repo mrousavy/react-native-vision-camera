@@ -5,22 +5,25 @@ import kotlin.concurrent.schedule
 
 class FpsSampleCollector(val callback: Callback) {
   private var timestamps = mutableListOf<Long>()
-  private val timer = Timer("VisionCamera FPS Sample Collector")
+  private var timer: Timer? = null
 
   fun start() {
-    timer.schedule(1000, 1000) {
+    timer = Timer("VisionCamera FPS Sample Collector")
+    timer?.schedule(1000, 1000) {
       callback.onAverageFpsChanged(averageFps)
     }
   }
 
   fun stop() {
-    timer.cancel()
+    timer?.cancel()
+    timer = null
   }
 
   fun onTick() {
     val now = System.currentTimeMillis()
     timestamps.add(now)
 
+    // filter out any timestamps that are older than 1 second
     timestamps = timestamps.filter { timestamp ->
       val differenceMs = now - timestamp
       return@filter differenceMs < 1000
