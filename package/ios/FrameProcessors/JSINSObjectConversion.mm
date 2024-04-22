@@ -22,7 +22,6 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
-#import <ReactCommon/TurboModuleUtils.h>
 #import <jsi/jsi.h>
 
 using namespace facebook;

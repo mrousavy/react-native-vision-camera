@@ -101,7 +101,6 @@ Pod::Spec.new do |s|
       }
 
       fp.dependency "React"
-      fp.dependency "ReactCommon"
       fp.dependency "React-callinvoker"
       fp.dependency "react-native-worklets-core"
     end
