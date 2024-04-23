@@ -292,6 +292,47 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       }
     }
   }
+
+  internal final func setBackgroundLight(_ backgroundLevel: NSNumber, torchMode: String) {
+    guard let device = videoDeviceInput?.device else {
+      // invokeOnError(.session(.cameraNotReady))
+      return
+    }
+    guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
+//        invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
+      return
+    }
+    if !captureSession.isRunning {
+      torchMode = .off
+    }
+    if device.torchMode == torchMode {
+      // no need to run the whole lock/unlock bs
+      return
+    }
+    if !device.hasTorch || !device.isTorchAvailable {
+      if torchMode == .off {
+        // ignore it, when it's off and not supported, it's off.
+        return
+      } else {
+        // torch mode is .auto or .on, but no torch is available.
+//            invokeOnError(.device(.))
+        return
+      }
+    }
+    do {
+      try device.lockForConfiguration()
+      device.torchMode = torchMode
+      if torchMode == .on {
+        print("torchLevel:" +  backgroundLevel.description)
+        let torchLevel = Float(backgroundLevel)
+        try device.setTorchModeOn(level: torchLevel)
+      }
+      device.unlockForConfiguration()
+    } catch let error as NSError {
+      // invokeOnError(.device(.configureError), cause: error)
+      return
+    }
+  }
     
   internal final func setTorchMode(_ torchMode: String, torchLevelVal: NSNumber) {
     guard let device = videoDeviceInput?.device else {
