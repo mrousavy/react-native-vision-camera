@@ -22,7 +22,7 @@ struct Video {
    * The size of the video, in pixels.
    */
   var size: CGSize
-    
+
   /**
    * Extra info for storing date time for record on / off
    */
