@@ -295,11 +295,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
   internal final func setBackgroundLight(_ backgroundLevel: NSNumber, torchMode: String) {
     guard let device = videoDeviceInput?.device else {
-      // invokeOnError(.session(.cameraNotReady))
       return
     }
     guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-//        invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
       return
     }
     if !captureSession.isRunning {
@@ -315,7 +313,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         return
       } else {
         // torch mode is .auto or .on, but no torch is available.
-//            invokeOnError(.device(.))
         return
       }
     }
@@ -329,18 +326,15 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       }
       device.unlockForConfiguration()
     } catch let error as NSError {
-      // invokeOnError(.device(.configureError), cause: error)
       return
     }
   }
     
   internal final func setTorchMode(_ torchMode: String, torchLevelVal: NSNumber) {
     guard let device = videoDeviceInput?.device else {
-      // invokeOnError(.session(.cameraNotReady))
       return
     }
     guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-//      invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
       return
     }
     if !captureSession.isRunning {
@@ -356,7 +350,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         return
       } else {
         // torch mode is .auto or .on, but no torch is available.
-//        invokeOnError(.device(.torchUnavailable))
         return
       }
     }
@@ -370,7 +363,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       }
       device.unlockForConfiguration()
     } catch let error as NSError {
-      // invokeOnError(.device(.configureError), cause: error)
       return
     }
   }
