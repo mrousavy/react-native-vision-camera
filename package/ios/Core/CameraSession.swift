@@ -336,7 +336,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     
   internal final func setTorchMode(_ torchMode: String, torchLevelVal: NSNumber) {
     guard let device = videoDeviceInput?.device else {
-      invokeOnError(.session(.cameraNotReady))
+      // invokeOnError(.session(.cameraNotReady))
       return
     }
     guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
@@ -370,7 +370,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       }
       device.unlockForConfiguration()
     } catch let error as NSError {
-      invokeOnError(.device(.configureError), cause: error)
+      // invokeOnError(.device(.configureError), cause: error)
       return
     }
   }
