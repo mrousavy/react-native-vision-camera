@@ -345,6 +345,7 @@ class CameraSession(private val context: Context, private val callback: Callback
       val pixelFormat = frameProcessorConfig.config.pixelFormat
       Log.i(TAG, "Creating $pixelFormat Frame Processor output...")
       val analyzer = ImageAnalysis.Builder().also { analysis ->
+        analysis.setOutputImageRotationEnabled(true)
         analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
         analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
         if (format != null) {
