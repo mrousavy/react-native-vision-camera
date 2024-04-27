@@ -492,7 +492,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
-  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation): Photo {
+  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, isAppliedRingerMode: Boolean, outputOrientation: Orientation): Photo {
     val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
@@ -502,7 +502,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     photoOutput.flashMode = flash.toFlashMode()
     photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
-    val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
+    val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound, isAppliedRingerMode)
 
     val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
     val isMirrored = photoFile.metadata.isReversedHorizontal
@@ -517,10 +517,12 @@ class CameraSession(private val context: Context, private val callback: Callback
     return Photo(photoFile.uri.path, width, height, outputOrientation, isMirrored)
   }
 
-  private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
-    if (enable && audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
-      Log.i(TAG, "Ringer mode is silent (${audioManager.ringerMode}), disabling shutter sound...")
-      return false
+  private fun getEnableShutterSoundActual(enable: Boolean, isAppliedRingerMode: Boolean): Boolean {
+    if (isAppliedRingerMode) {
+      if (enable && audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL) {
+        Log.i(TAG, "Ringer mode is silent (${audioManager.ringerMode}), disabling shutter sound...")
+        return false
+      }
     }
 
     return enable

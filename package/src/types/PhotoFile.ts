@@ -29,6 +29,15 @@ export interface TakePhotoOptions {
    * @default true
    */
   enableShutterSound?: boolean
+  /**
+   * (android)
+   * If this option is set to true,
+   * When ringerMode is RINGER_MODE_NORMAL, the shutterSound option is applied.
+   * When the ringer mode is RINGER_MODE_SILENT or RINGER MODE VIBRATE, the shutter Sound option is ignored.
+   *
+   * @default false
+   */
+  isAppliedRingerMode?: boolean
 }
 
 /**
