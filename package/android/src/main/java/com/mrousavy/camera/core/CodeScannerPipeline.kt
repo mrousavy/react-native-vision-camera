@@ -30,9 +30,9 @@ class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, va
   @OptIn(ExperimentalGetImage::class)
   override fun analyze(imageProxy: ImageProxy) {
     val image = imageProxy.image ?: throw InvalidImageTypeError()
-    val inputImage = InputImage.fromMediaImage(image, imageProxy.imageInfo.rotationDegrees)
 
     try {
+      val inputImage = InputImage.fromMediaImage(image, imageProxy.imageInfo.rotationDegrees)
       scanner.process(inputImage)
         .addOnSuccessListener { barcodes ->
           if (barcodes.isNotEmpty()) {
