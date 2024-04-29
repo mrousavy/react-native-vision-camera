@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis.Analyzer
@@ -13,6 +14,9 @@ import java.io.Closeable
 class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, val callback: CameraSession.Callback) :
   Closeable,
   Analyzer {
+  companion object {
+    private const val TAG = "CodeScannerPipeline"
+  }
   private val scanner: BarcodeScanner
 
   init {
@@ -26,20 +30,26 @@ class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, va
   @OptIn(ExperimentalGetImage::class)
   override fun analyze(imageProxy: ImageProxy) {
     val image = imageProxy.image ?: throw InvalidImageTypeError()
-    val inputImage = InputImage.fromMediaImage(image, imageProxy.imageInfo.rotationDegrees)
 
-    scanner.process(inputImage)
-      .addOnSuccessListener { barcodes ->
-        if (barcodes.isNotEmpty()) {
-          callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
+    try {
+      val inputImage = InputImage.fromMediaImage(image, imageProxy.imageInfo.rotationDegrees)
+      scanner.process(inputImage)
+        .addOnSuccessListener { barcodes ->
+          if (barcodes.isNotEmpty()) {
+            callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
+          }
         }
-      }
-      .addOnFailureListener { error ->
-        callback.onError(error)
-      }
-      .addOnCompleteListener {
-        imageProxy.close()
-      }
+        .addOnFailureListener { error ->
+          Log.e(TAG, "Failed to process Image!", error)
+          callback.onError(error)
+        }
+        .addOnCompleteListener {
+          imageProxy.close()
+        }
+    } catch (e: Throwable) {
+      Log.e(TAG, "Failed to process Image!", e)
+      imageProxy.close()
+    }
   }
 
   override fun close() {
