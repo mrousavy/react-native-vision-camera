@@ -40,6 +40,7 @@ class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, va
           }
         }
         .addOnFailureListener { error ->
+          Log.e(TAG, "Failed to process Image!", error)
           callback.onError(error)
         }
         .addOnCompleteListener {
