@@ -58,9 +58,9 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 ```java
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.mrousavy.camera.frameprocessor.Frame;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
-import com.mrousavy.camera.frameprocessor.VisionCameraProxy;
+import com.mrousavy.camera.frameprocessors.Frame;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessors.VisionCameraProxy;
 
 public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
   FaceDetectorFrameProcessorPlugin(@NonNull VisionCameraProxy proxy, @Nullable Map<String, Object> options) {}
@@ -84,8 +84,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry;
 
 public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   // highlight-start
@@ -134,9 +134,9 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 3. Add the following code:
 
 ```kotlin
-import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
-import com.mrousavy.camera.frameprocessor.VisionCameraProxy
+import com.mrousavy.camera.frameprocessors.Frame
+import com.mrousavy.camera.frameprocessors.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessors.VisionCameraProxy
 
 class FaceDetectorFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<String, Any>?): FrameProcessorPlugin() {
 
@@ -156,8 +156,8 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
-import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry
+import com.mrousavy.camera.frameprocessors.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry
 
 class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   // highlight-start
