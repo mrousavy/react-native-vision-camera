@@ -18,7 +18,7 @@ fun CameraView.takeSnapshot(options: SnapshotOptions): WritableMap {
 
   onShutter(ShutterType.SNAPSHOT)
 
-  val file = FileUtils.createTempFile(context, "jpg")
+  val file = FileUtils.createTempFile(context, ".jpg")
   FileUtils.writeBitmapTofile(bitmap, file, options.quality)
 
   Log.i(TAG, "Successfully saved snapshot to file!")
