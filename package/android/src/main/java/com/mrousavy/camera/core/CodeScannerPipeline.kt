@@ -14,9 +14,9 @@ import java.io.Closeable
 class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, val callback: CameraSession.Callback) :
   Closeable,
   Analyzer {
-    companion object {
-      private const val TAG ="CodeScannerPipeline"
-    }
+  companion object {
+    private const val TAG = "CodeScannerPipeline"
+  }
   private val scanner: BarcodeScanner
 
   init {
