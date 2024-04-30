@@ -38,12 +38,7 @@ VisionCameraProxy::~VisionCameraProxy() {
 }
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {
-  std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("setFrameProcessor")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("removeFrameProcessor")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("initFrameProcessorPlugin")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("workletContext")));
-  return result;
+  return jsi::PropNameID::names(runtime, "setFrameProcessor", "removeFrameProcessor", "initFrameProcessorPlugin", "workletContext");
 }
 
 void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const std::shared_ptr<jsi::Function>& function) {
