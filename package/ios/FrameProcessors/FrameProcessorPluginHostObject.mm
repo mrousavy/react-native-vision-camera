@@ -15,7 +15,7 @@
 using namespace facebook;
 
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
-  return jsi::PropNameID::names(runtime "call");
+  return jsi::PropNameID::names(runtime, "call");
 }
 
 jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
