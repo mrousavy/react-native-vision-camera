@@ -23,9 +23,7 @@ FrameProcessorPluginHostObject::~FrameProcessorPluginHostObject() {
 }
 
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
-  std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("call")));
-  return result;
+  return jsi::PropNameID::names(runtime, "call");
 }
 
 jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
