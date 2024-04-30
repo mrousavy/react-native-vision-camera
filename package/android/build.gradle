@@ -71,6 +71,7 @@ static def findNodeModules(baseDir) {
 }
 
 logger.warn("[VisionCamera] Thank you for using VisionCamera ❤️")
+logger.warn("[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: http://github.com/sponsors/mrousavy")
 
 def nodeModules = findNodeModules(projectDir)
 logger.warn("[VisionCamera] node_modules found at $nodeModules")

@@ -5,6 +5,7 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
 
 Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
+Pod::UI.puts "[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: http://github.com/sponsors/mrousavy"
 
 enableLocation = true
 if defined?($VCEnableLocation)
