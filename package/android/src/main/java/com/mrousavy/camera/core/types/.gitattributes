@@ -1,0 +1,2 @@
+# Just mark all of this as Swift code, I just don't want it to show up as Kotlin on GitHub.
+*.kt linguist-language=Swift
