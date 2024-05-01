@@ -1,23 +1,7 @@
 import type { IWorkletContext } from 'react-native-worklets-core'
 import type { Frame } from '../types/Frame'
 import { FrameProcessorsUnavailableError } from './FrameProcessorsUnavailableError'
-
-type BasicParameterType = string | number | boolean | undefined
-type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
-
-/**
- * An initialized native instance of a FrameProcessorPlugin.
- * All memory allocated by this plugin will be deleted once this value goes out of scope.
- */
-export interface FrameProcessorPlugin {
-  /**
-   * Call the native Frame Processor Plugin with the given Frame and options.
-   * @param frame The Frame from the Frame Processor.
-   * @param options (optional) Additional options. Options will be converted to a native dictionary
-   * @returns (optional) A value returned from the native Frame Processor Plugin (or undefined)
-   */
-  call(frame: Frame, options?: Record<string, ParameterType>): ParameterType
-}
+import type { FrameProcessorPlugin, ParameterType } from './initFrameProcessorPlugin'
 
 interface TVisionCameraProxy {
   /**
@@ -81,4 +65,12 @@ try {
   }
 }
 
+/**
+ * The JSI Proxy for the Frame Processors Runtime.
+ *
+ * This is marked as deprecated in preparation of a refactor where {@linkcode VisionCameraProxy}
+ * will be rewritten to a CxxTurboModule, which will be more efficient and typesafe.
+ *
+ * @deprecated
+ */
 export const VisionCameraProxy = proxy
