@@ -10,7 +10,7 @@
 
 #import "Frame.h"
 #import "FrameProcessorPluginRegistry.h"
-#import "VisionCameraProxyHolder.h"
+#import "VisionCameraContext.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
  * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
  * Optionally override this method to implement custom initialization logic.
  * - Parameters:
- *   - proxy: The VisionCameraProxy instance for using the Frame Processor Context, e.g. to initialize SharedArrays.
+ *   - context: The VisionCameraContext instance, e.g. to initialize SharedArrays.
  *   - options: An options dictionary passed from the JS side, or `nil` if none.
  */
-- (instancetype _Nonnull)initWithProxy:(VisionCameraProxyHolder*)proxy
-                           withOptions:(NSDictionary* _Nullable)options NS_SWIFT_NAME(init(proxy:options:));
+- (instancetype _Nonnull)initWithContext:(VisionCameraContext*)context
+                             withOptions:(NSDictionary* _Nullable)options NS_SWIFT_NAME(init(context:options:));
 
 - (instancetype _Nonnull)init NS_UNAVAILABLE;
 
@@ -65,8 +65,8 @@ NS_ASSUME_NONNULL_END
   +(void)load {                                                                                                                            \
     [FrameProcessorPluginRegistry                                                                                                          \
         addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                                             \
-                withInitializer:^FrameProcessorPlugin*(VisionCameraProxyHolder* _Nonnull proxy, NSDictionary* _Nullable options) {         \
-                  return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                                          \
+                withInitializer:^FrameProcessorPlugin*(VisionCameraContext* _Nonnull context, NSDictionary* _Nullable options) {           \
+                  return [[frame_processor_class alloc] initWithContext:context withOptions:options];                                      \
                 }];                                                                                                                        \
   }
 
@@ -79,9 +79,9 @@ NS_ASSUME_NONNULL_END
                                                                                                                                            \
   __attribute__((constructor)) static void VISION_CONCAT(initialize_, frame_processor_plugin_name)(void) {                                 \
     [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                   \
-                                          withInitializer:^FrameProcessorPlugin* _Nonnull(VisionCameraProxyHolder* _Nonnull proxy,         \
+                                          withInitializer:^FrameProcessorPlugin* _Nonnull(VisionCameraContext* _Nonnull context,           \
                                                                                           NSDictionary* _Nullable options) {               \
-                                            return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                \
+                                            return [[frame_processor_class alloc] initWithContext:context withOptions:options];            \
                                           }];                                                                                              \
   }                                                                                                                                        \
                                                                                                                                            \

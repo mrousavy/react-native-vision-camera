@@ -11,8 +11,8 @@ import VisionCamera
 // Example for a Swift Frame Processor plugin
 @objc(ExampleSwiftFrameProcessorPlugin)
 public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
-  public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
-    super.init(proxy: proxy, options: options)
+  public override init(context: VisionCameraContext, options: [AnyHashable: Any]! = [:]) {
+    super.init(context: context, options: options)
 
     print("ExampleSwiftFrameProcessorPlugin initialized with options: \(String(describing: options))")
   }

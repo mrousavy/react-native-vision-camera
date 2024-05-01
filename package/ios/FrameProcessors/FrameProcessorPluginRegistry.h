@@ -10,7 +10,7 @@
 
 #import "Frame.h"
 #import "FrameProcessorPlugin.h"
-#import "VisionCameraProxyHolder.h"
+#import "VisionCameraContext.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,12 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FrameProcessorPluginRegistry : NSObject
 
-typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* proxy, NSDictionary* _Nullable options);
+typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraContext* context, NSDictionary* _Nullable options);
 
 + (void)addFrameProcessorPlugin:(NSString*)name withInitializer:(PluginInitializerFunction)pluginInitializer;
 
 + (FrameProcessorPlugin* _Nullable)getPlugin:(NSString*)name
-                                   withProxy:(VisionCameraProxyHolder*)proxy
+                                 withContext:(VisionCameraContext*)context
                                  withOptions:(NSDictionary* _Nullable)options;
 
 @end

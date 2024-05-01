@@ -159,8 +159,8 @@ A Frame Processor Plugin is a single native class which contains an initializer 
 public class FaceDetectorPlugin: FrameProcessorPlugin {
   private let sensitivity: Double
 
-  public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]) {
-    super.init(proxy: proxy, options: options)
+  public override init(context: VisionCameraContext, options: [AnyHashable: Any]) {
+    super.init(context: context, options: options)
     sensitivity = options["sensitivity"] as Double
   }
 
@@ -180,7 +180,7 @@ public class FaceDetectorPlugin: FrameProcessorPlugin {
 public class FaceDetectorPlugin extends FrameProcessorPlugin {
   private final Double sensitivity;
 
-  public FaceDetectorPlugin(VisionCameraProxyHolder proxy, Map<String, Object> options) {
+  public FaceDetectorPlugin(VisionCameraContext context, Map<String, Object> options) {
     super();
     sensitivity = options.get("sensitivity") as Double;
   }

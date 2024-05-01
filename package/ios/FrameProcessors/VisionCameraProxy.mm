@@ -14,7 +14,7 @@
 #import "FrameProcessorPluginHostObject.h"
 #import "FrameProcessorPluginRegistry.h"
 #import "JSINSObjectConversion.h"
-#import "VisionCameraProxyHolder.h"
+#import "VisionCameraContext.h"
 #import "WKTJsiWorklet.h"
 
 using namespace facebook;
@@ -65,10 +65,10 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, co
   std::string nameString = name.utf8(runtime);
   NSString* key = [NSString stringWithUTF8String:nameString.c_str()];
   NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToObjCDictionary(runtime, options);
-  VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
+  VisionCameraContext* context = [[VisionCameraContext alloc] initWithProxy:this];
 
   @try {
-    FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withProxy:proxy withOptions:optionsObjc];
+    FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withContext:context withOptions:optionsObjc];
     if (plugin == nil) {
       return jsi::Value::undefined();
     }
