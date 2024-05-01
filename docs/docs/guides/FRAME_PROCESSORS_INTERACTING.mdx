@@ -86,7 +86,10 @@ For example, if your Camera is running at **30 FPS**, your Frame Processor has *
 
 ### Running asynchronously
 
-For longer running processing, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread:
+For longer running processing, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread.
+Only one `runAsync(..)` call will execute at the same time, so `runAsync(..)` is **not parallel**, **but asynchronous**.
+
+For example, if your Camera is running at 60 FPS (16ms per frame), and a heavy ML face detection Frame Processor Plugin takes 500ms to execute, you can call the plugin inside `runAsync(..)` to allow the Camera to still run at 60 FPS, but offload the heavy ML face detection plugin to the asynchronous context, where it will run at 2 FPS.
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
@@ -96,6 +99,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   runAsync(frame, () => {
     'worklet'
     console.log("I'm running asynchronously, possibly at a lower FPS rate!")
+    const faces = detectFaces(frame)
   })
 }, [])
 ```
@@ -112,6 +116,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   runAtTargetFps(2, () => {
     'worklet'
     console.log("I'm running synchronously at 2 FPS!")
+    const brightness = detectBrightness(frame)
   })
 }, [])
 ```
