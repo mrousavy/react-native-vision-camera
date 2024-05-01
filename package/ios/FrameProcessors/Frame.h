@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 - (instancetype)init NS_UNAVAILABLE;
 
+- (void)incrementRefCount;
+- (void)decrementRefCount;
+
 @property(nonatomic, readonly) CMSampleBufferRef buffer;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 

@@ -10,7 +10,6 @@
 
 #import <CoreMedia/CMSampleBuffer.h>
 #import <jsi/jsi.h>
-#import <mutex>
 
 #import "Frame.h"
 
@@ -29,8 +28,4 @@ public:
 
 private:
   Frame* getFrame();
-
-private:
-  std::mutex _mutex;
-  size_t _refCount = 0;
 };
