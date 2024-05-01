@@ -167,7 +167,7 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
   throwJSError: throwJSError,
-  workletContext: undefined,
+  workletContext: proxy.workletContext,
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
