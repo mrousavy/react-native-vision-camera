@@ -14,11 +14,13 @@ function setLastFrameProcessorCall(frameProcessorFuncId: string, value: number):
 }
 
 /**
- * Runs the given function at the given target FPS rate.
+ * Runs the given {@linkcode func} at the given target {@linkcode fps} rate.
  *
- * For example, if you want to run a heavy face detection algorithm
- * only once per second, you can use `runAtTargetFps(1, ...)` to
- * throttle it to 1 FPS.
+ * {@linkcode runAtTargetFps} still executes the given {@linkcode func} synchronously,
+ * so this is only useful for throttling calls to a plugin or logger.
+ *
+ * For example, if you want to scan faces only once per second to avoid excessive
+ * CPU usage, use {@linkcode runAtTargetFps runAtTargetFps(1, ...)}.
  *
  * @param fps The target FPS rate at which the given function should be executed
  * @param func The function to execute.
