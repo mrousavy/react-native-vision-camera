@@ -1,7 +1,7 @@
 import type { Frame } from 'react-native-vision-camera'
-import { VisionCameraProxy } from 'react-native-vision-camera'
+import { initFrameProcessorPlugin } from 'react-native-vision-camera'
 
-const plugin = VisionCameraProxy.initFrameProcessorPlugin('example_plugin')
+const plugin = initFrameProcessorPlugin('example_plugin')
 
 interface Result {
   example_array: (string | number | boolean)[]

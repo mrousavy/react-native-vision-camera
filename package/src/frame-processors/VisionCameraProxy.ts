@@ -68,9 +68,6 @@ try {
 /**
  * The JSI Proxy for the Frame Processors Runtime.
  *
- * This is marked as deprecated in preparation of a refactor where {@linkcode VisionCameraProxy}
- * will be rewritten to a CxxTurboModule, which will be more efficient and typesafe.
- *
- * @deprecated
+ * This will be replaced with a CxxTurboModule in the future.
  */
 export const VisionCameraProxy = proxy
