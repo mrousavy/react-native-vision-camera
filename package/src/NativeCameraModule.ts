@@ -40,14 +40,3 @@ if (CameraModule == null) {
   message += '\n* Make sure you rebuilt the app.'
   throw new CameraRuntimeError('system/camera-module-not-found', message)
 }
-
-try {
-  // 1. Load react-native-worklets-core
-  require('react-native-worklets-core')
-  // 2. If react-native-worklets-core could be loaded, try to install Frame Processor bindings
-  const result = CameraModule.installFrameProcessorBindings() as unknown
-  if (result !== true)
-    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!')
-} catch (e) {
-  // Frame Processors will not be enabled if this failed.
-}

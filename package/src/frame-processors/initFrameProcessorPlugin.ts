@@ -29,6 +29,6 @@ export interface FrameProcessorPlugin {
  * if (plugin == null) throw new Error("Failed to load scanFaces plugin!")
  * ```
  */
-export function initFrameProcessorPlugin(name: string, options?: Record<string, ParameterType>): FrameProcessorPlugin | undefined {
+export function initFrameProcessorPlugin(name: string, options: Record<string, ParameterType> = {}): FrameProcessorPlugin | undefined {
   return VisionCameraProxy.initFrameProcessorPlugin(name, options)
 }

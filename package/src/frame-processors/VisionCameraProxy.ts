@@ -1,4 +1,5 @@
 import type { IWorkletContext } from 'react-native-worklets-core'
+import { CameraModule } from '../NativeCameraModule'
 import type { Frame } from '../types/Frame'
 import { FrameProcessorsUnavailableError } from './FrameProcessorsUnavailableError'
 import type { FrameProcessorPlugin, ParameterType } from './initFrameProcessorPlugin'
@@ -16,7 +17,7 @@ interface TVisionCameraProxy {
    * @internal
    * @deprecated
    */
-  initFrameProcessorPlugin(name: string, options?: Record<string, ParameterType>): FrameProcessorPlugin | undefined
+  initFrameProcessorPlugin(name: string, options: Record<string, ParameterType>): FrameProcessorPlugin | undefined
   /**
    * Get the Frame Processor Runtime Worklet Context.
    *
@@ -32,22 +33,18 @@ interface TVisionCameraProxy {
 let proxy: TVisionCameraProxy
 
 try {
+  // 1. Load react-native-worklets-core
+  require('react-native-worklets-core')
+  // 2. If react-native-worklets-core could be loaded, try to install Frame Processor bindings
+  const result = CameraModule.installFrameProcessorBindings() as unknown
+  if (result !== true) throw new Error(`Failed to install Frame Processor JSI bindings! installFrameProcessorBindings() returned ${result}`)
+
+  // 3. Get global.VisionCameraProxy which was just installed by installFrameProcessorBindings()
   // @ts-expect-error it's a global JSI variable injected by native
   const globalProxy = global.VisionCameraProxy as TVisionCameraProxy | undefined
   if (globalProxy == null) throw new Error('global.VisionCameraProxy is not installed! Was installFrameProcessorBindings() called?')
-  proxy = {
-    initFrameProcessorPlugin: (name, options) => {
-      console.warn(
-        '`VisionCameraProxy.initFrameProcessorPlugin(...)` is deprecated. ' +
-          'Please use `initFrameProcessorPlugin(...)` directly. ' +
-          '`VisionCameraProxy` will be removed in a future version of react-native-vision-camera.',
-      )
-      return globalProxy.initFrameProcessorPlugin(name, options)
-    },
-    removeFrameProcessor: globalProxy.removeFrameProcessor,
-    setFrameProcessor: globalProxy.setFrameProcessor,
-    workletContext: globalProxy.workletContext,
-  }
+
+  proxy = globalProxy
 } catch (e) {
   // global.VisionCameraProxy is not injected!
   // Just use dummy implementations that will throw when the user tries to use Frame Processors.
