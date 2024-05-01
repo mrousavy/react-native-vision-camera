@@ -40,8 +40,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 }
 
 Frame* FrameHostObject::getFrame() {
-  Frame* frame = this->frame;
-  if (frame == nil || !frame.isValid) {
+  if (!frame.isValid) [[unlikely]] {
     throw std::runtime_error("Frame is already closed! "
                              "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
                              "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
@@ -99,25 +98,14 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Internal methods
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_FUNC {
-      std::lock_guard lock(this->_mutex);
-
-      // Increment our self-counted ref count by one.
-      _refCount++;
+      [frame incrementRefCount];
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_FUNC {
-      std::lock_guard lock(this->_mutex);
-
-      // Decrement our self-counted ref count by one.
-      _refCount--;
-      if (_refCount < 1) {
-        // ARC will then delete the Frame and the underlying Frame Buffer.
-        this->frame = nil;
-      }
-
+      [frame decrementRefCount];
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);

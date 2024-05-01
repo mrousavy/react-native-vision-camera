@@ -20,12 +20,15 @@
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
-    CFRetain(buffer);
   }
   return self;
 }
 
-- (void)dealloc {
+- (void)incrementRefCount {
+  CFRetain(_buffer);
+}
+
+- (void)decrementRefCount {
   CFRelease(_buffer);
 }
 
