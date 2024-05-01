@@ -2,12 +2,13 @@ import type { Frame, FrameInternal } from '../types/Frame'
 import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
 import type { Orientation } from '../types/Orientation'
-import { VisionCameraProxy, wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
+import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
+import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -197,7 +198,7 @@ export function createSkiaFrameProcessor(
   }
 
   return {
-    frameProcessor: wrapFrameProcessorWithRefCounting((frame) => {
+    frameProcessor: withFrameRefCounting((frame) => {
       'worklet'
 
       // 1. Set up Skia Surface with size of Frame

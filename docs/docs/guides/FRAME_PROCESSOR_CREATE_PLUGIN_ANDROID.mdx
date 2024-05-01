@@ -109,7 +109,7 @@ public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
 ```
 
 :::note
-The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.initFrameProcessorPlugin("detectFaces")`.
+The Frame Processor Plugin can be initialized from JavaScript using `initFrameProcessorPlugin("detectFaces")`.
 :::
 
 6. Register the package in MainApplication.java
@@ -181,7 +181,7 @@ class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
 ```
 
 :::note
-The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.initFrameProcessorPlugin("detectFaces")`.
+The Frame Processor Plugin can be initialized from JavaScript using `initFrameProcessorPlugin("detectFaces")`.
 :::
 
 6. Register the package in MainApplication.java

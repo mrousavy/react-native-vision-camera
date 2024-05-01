@@ -1,6 +1,6 @@
 import type { DependencyList } from 'react'
 import { useMemo } from 'react'
-import { wrapFrameProcessorWithRefCounting } from '../FrameProcessorPlugins'
+import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import type { ReadonlyFrameProcessor } from '../types/CameraProps'
 import type { Frame } from '../types/Frame'
 
@@ -15,7 +15,7 @@ import type { Frame } from '../types/Frame'
  */
 export function createFrameProcessor(frameProcessor: (frame: Frame) => void): ReadonlyFrameProcessor {
   return {
-    frameProcessor: wrapFrameProcessorWithRefCounting(frameProcessor),
+    frameProcessor: withFrameRefCounting(frameProcessor),
     type: 'readonly',
   }
 }
