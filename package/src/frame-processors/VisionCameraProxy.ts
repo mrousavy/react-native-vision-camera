@@ -1,7 +1,7 @@
 import type { IWorkletContext } from 'react-native-worklets-core'
+import { createModuleProxy } from '../dependencies/ModuleProxy'
 import { CameraModule } from '../NativeCameraModule'
 import type { Frame } from '../types/Frame'
-import { FrameProcessorsUnavailableError } from './FrameProcessorsUnavailableError'
 import type { FrameProcessorPlugin, ParameterType } from './initFrameProcessorPlugin'
 
 interface TVisionCameraProxy {
@@ -30,9 +30,12 @@ interface TVisionCameraProxy {
   workletContext: IWorkletContext | undefined
 }
 
-let proxy: TVisionCameraProxy
-
-try {
+/**
+ * The JSI Proxy for the Frame Processors Runtime.
+ *
+ * This will be replaced with a CxxTurboModule in the future.
+ */
+export const VisionCameraProxy = createModuleProxy<TVisionCameraProxy>(() => {
   // 1. Load react-native-worklets-core
   require('react-native-worklets-core')
   // 2. If react-native-worklets-core could be loaded, try to install Frame Processor bindings
@@ -44,27 +47,5 @@ try {
   const globalProxy = global.VisionCameraProxy as TVisionCameraProxy | undefined
   if (globalProxy == null) throw new Error('global.VisionCameraProxy is not installed! Was installFrameProcessorBindings() called?')
 
-  proxy = globalProxy
-} catch (e) {
-  // global.VisionCameraProxy is not injected!
-  // Just use dummy implementations that will throw when the user tries to use Frame Processors.
-  proxy = {
-    initFrameProcessorPlugin: () => {
-      throw new FrameProcessorsUnavailableError(e)
-    },
-    removeFrameProcessor: () => {
-      throw new FrameProcessorsUnavailableError(e)
-    },
-    setFrameProcessor: () => {
-      throw new FrameProcessorsUnavailableError(e)
-    },
-    workletContext: undefined,
-  }
-}
-
-/**
- * The JSI Proxy for the Frame Processors Runtime.
- *
- * This will be replaced with a CxxTurboModule in the future.
- */
-export const VisionCameraProxy = proxy
+  return globalProxy
+})
