@@ -187,7 +187,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       examplePlugin(frame)
       exampleKotlinSwiftPlugin(frame)
     })
-  }, [])
+  })
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
