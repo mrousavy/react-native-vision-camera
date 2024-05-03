@@ -21,7 +21,7 @@ import java.util.Map;
 public abstract class FrameProcessorPlugin {
     /**
      * The initializer of this Frame Processor Plugin.
-     * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
+     * This is called everytime this Frame Processor Plugin is loaded from the JS side (`VisionCameraProxy.initFrameProcessorPlugin(..)`).
      * Optionally override this method to implement custom initialization logic.
      */
     public FrameProcessorPlugin() { }

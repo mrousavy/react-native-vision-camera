@@ -28,7 +28,6 @@ export * from './hooks/useCodeScanner'
 export * from './hooks/useFrameProcessor'
 
 // Frame Processors
-export * from './frame-processors/initFrameProcessorPlugin'
 export * from './frame-processors/runAsync'
 export * from './frame-processors/runAtTargetFps'
 // DEPRECATED: This will be removed in favour of a CxxTurboModule in the future.

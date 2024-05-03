@@ -9,9 +9,9 @@ sidebar_label: Finish creating your Frame Processor Plugin
 To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following wrapper function in JS/TS:
 
 ```ts
-import { initFrameProcessorPlugin, Frame } from 'react-native-vision-camera'
+import { VisionCameraProxy, Frame } from 'react-native-vision-camera'
 
-const plugin = initFrameProcessorPlugin('scanFaces')
+const plugin = VisionCameraProxy.initFrameProcessorPlugin('scanFaces')
 
 /**
  * Scans faces.
