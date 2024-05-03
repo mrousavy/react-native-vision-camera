@@ -196,6 +196,9 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables HDR Photo Capture via a double capture routine that combines low- and high exposure photos.
    *
+   * On Android, {@linkcode photoHdr} uses a vendor-specific "HDR" extension which is not compatible with {@linkcode videoHdr},
+   * so only one of video- or photo-HDR can be enabled at a time.
+   *
    * Make sure the given {@linkcode format} supports HDR (see {@linkcode CameraDeviceFormat.supportsPhotoHdr format.supportsPhotoHdr}).
    */
   photoHdr?: boolean
@@ -234,6 +237,8 @@ export interface CameraProps extends ViewProps {
    *
    * Enabling low light boost allows the FPS rate to be throttled to up to half of what it is set to to allow for more
    * exposure in low light conditions.
+   *
+   * On Android, {@linkcode lowLightBoost} might even use a vendor-specific "night-mode" extension to allow for even more visibility in low-light conditions.
    *
    * Make sure the given {@linkcode device} supports low-light-boost (see {@linkcode CameraDevice.supportsLowLightBoost device.supportsLowLightBoost}).
    */
