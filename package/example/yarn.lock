@@ -5233,10 +5233,10 @@ react-native-video@^5.2.1:
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
 
-react-native-worklets-core@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.1.1.tgz#c0a454c3be6d1ceab09ff925424ab371f5b048d3"
-  integrity sha512-mcZl5dDRJo+VI23HS6fPExr8YOW2fpxk+EtY1FIt81SyKt5FBHl97sSmdEjAOLKOb9myW6IiG5DWL8WQJ0iCWg==
+react-native-worklets-core@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.2.0.tgz#155040a48d1e3f66107544867ec579c2f5044271"
+  integrity sha512-Uuf1Hg4V1w4I8eYNinwnnf+h+2YdQgwkUDQszY2yEEXWPWcZBWec0xjYn079RFRcKmGWuJ/zOtokjwy/IjJ9Fw==
   dependencies:
     string-hash-64 "^1.0.3"
 
