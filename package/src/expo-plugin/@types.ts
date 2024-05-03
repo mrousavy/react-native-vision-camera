@@ -11,9 +11,11 @@ export type ConfigProps = {
   enableMicrophonePermission?: boolean
   /**
    * Whether to add Location Permissions to the native manifest or not.
+   *
+   * On iOS, this also fully removes the location-related APIs (`CLLocationManager`) from the compiled app.
    * @default false
    */
-  enableLocationPermission?: boolean
+  enableLocation?: boolean
   /**
    * The text to show in the native dialog when asking for Microphone Permissions.
    * @default 'Allow $(PRODUCT_NAME) to access your microphone'
