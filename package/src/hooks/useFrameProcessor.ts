@@ -1,5 +1,5 @@
-import type { DependencyList } from 'react'
 import { useMemo } from 'react'
+import { getWorkletDependencies } from '../frame-processors/getWorkletDependencies'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import type { ReadonlyFrameProcessor } from '../types/CameraProps'
 import type { Frame } from '../types/Frame'
@@ -28,7 +28,6 @@ export function createFrameProcessor(frameProcessor: (frame: Frame) => void): Re
  *
  * @worklet
  * @param frameProcessor The Frame Processor
- * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
  * @returns The memoized Frame Processor.
  * @example
  * ```ts
@@ -36,10 +35,13 @@ export function createFrameProcessor(frameProcessor: (frame: Frame) => void): Re
  *   'worklet'
  *   const faces = scanFaces(frame)
  *   console.log(`Faces: ${faces}`)
- * }, [])
+ * })
  * ```
  */
-export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): ReadonlyFrameProcessor {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => createFrameProcessor(frameProcessor), dependencies)
+export function useFrameProcessor(frameProcessor: (frame: Frame) => void): ReadonlyFrameProcessor {
+  return useMemo(
+    () => createFrameProcessor(frameProcessor),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getWorkletDependencies(frameProcessor),
+  )
 }
