@@ -19,13 +19,13 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame) : frame(make_global(frame)) {}
+FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame) : _frame(make_global(frame)), _baseClass(nullptr) {}
 
 FrameHostObject::~FrameHostObject() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
-  jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { _frame = nullptr; });
 }
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
@@ -35,7 +35,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
 
-  if (frame != nullptr && frame->getIsValid()) {
+  if (_frame->getIsValid()) {
     // Frame Properties
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
@@ -49,9 +49,21 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getNativeBuffer")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("withBaseClass")));
   }
 
   return result;
+}
+
+jni::global_ref<JFrame> FrameHostObject::getFrame() {
+  if (!_frame->getIsValid()) [[unlikely]] {
+    throw std::runtime_error("Frame is already closed! "
+                             "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
+                             "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
+                             "- If you want to do async processing, use `runAsync(...)` instead.\n"
+                             "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
+  }
+  return _frame;
 }
 
 #define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
@@ -61,42 +73,50 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "isValid") {
-    return jsi::Value(this->frame && this->frame->getIsValid());
+    return jsi::Value(_frame->getIsValid());
   }
   if (name == "width") {
-    return jsi::Value(this->frame->getWidth());
+    const auto& frame = getFrame();
+    return jsi::Value(frame->getWidth());
   }
   if (name == "height") {
-    return jsi::Value(this->frame->getHeight());
+    const auto& frame = getFrame();
+    return jsi::Value(frame->getHeight());
   }
   if (name == "isMirrored") {
-    return jsi::Value(this->frame->getIsMirrored());
+    const auto& frame = getFrame();
+    return jsi::Value(frame->getIsMirrored());
   }
   if (name == "orientation") {
-    auto orientation = this->frame->getOrientation();
+    const auto& frame = getFrame();
+    auto orientation = frame->getOrientation();
     auto string = orientation->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {
-    auto pixelFormat = this->frame->getPixelFormat();
+    const auto& frame = getFrame();
+    auto pixelFormat = frame->getPixelFormat();
     auto string = pixelFormat->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {
-    return jsi::Value(static_cast<double>(this->frame->getTimestamp()));
+    const auto& frame = getFrame();
+    return jsi::Value(static_cast<double>(frame->getTimestamp()));
   }
   if (name == "bytesPerRow") {
-    return jsi::Value(this->frame->getBytesPerRow());
+    const auto& frame = getFrame();
+    return jsi::Value(frame->getBytesPerRow());
   }
   if (name == "planesCount") {
-    return jsi::Value(this->frame->getPlanesCount());
+    const auto& frame = getFrame();
+    return jsi::Value(frame->getPlanesCount());
   }
 
   // Internal Methods
   if (name == "incrementRefCount") {
     jsi::HostFunctionType incrementRefCount = JSI_FUNC {
       // Increment retain count by one.
-      this->frame->incrementRefCount();
+      _frame->incrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
@@ -104,7 +124,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_FUNC {
       // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
-      this->frame->decrementRefCount();
+      _frame->decrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
@@ -113,11 +133,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Conversion methods
   if (name == "getNativeBuffer") {
     jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
-      if (!this->frame) {
-        throw jsi::JSError(runtime, "Cannot get Platform Buffer - this Frame is already closed!");
-      }
 #if __ANDROID_API__ >= 26
-      AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
+      const auto& frame = getFrame();
+      AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
       uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
@@ -141,7 +159,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
-      AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
+      const auto& frame = getFrame();
+      AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
 
       AHardwareBuffer_Desc bufferDescription;
@@ -193,17 +212,33 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toString") {
     jsi::HostFunctionType toString = JSI_FUNC {
-      if (!this->frame) {
+      if (!_frame->getIsValid()) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
-      auto width = this->frame->getWidth();
-      auto height = this->frame->getHeight();
-      auto format = this->frame->getPixelFormat();
+      auto width = _frame->getWidth();
+      auto height = _frame->getHeight();
+      auto format = _frame->getPixelFormat();
       auto formatString = format->getUnionValue();
       auto str = std::to_string(width) + " x " + std::to_string(height) + " " + formatString->toString() + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+  }
+  if (name == "withBaseClass") {
+    auto withBaseClass = JSI_FUNC {
+      jsi::Object newBaseClass = arguments[0].asObject(runtime);
+      _baseClass = std::make_unique<jsi::Object>(std::move(newBaseClass));
+      return jsi::Object::createFromHostObject(runtime, shared_from_this());
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "withBaseClass"), 1, withBaseClass);
+  }
+
+  if (_baseClass != nullptr) {
+    // look up value in base class if we have a custom base class
+    jsi::Value value = _baseClass->getProperty(runtime, name.c_str());
+    if (!value.isUndefined()) {
+      return value;
+    }
   }
 
   // fallback to base implementation

@@ -36,7 +36,7 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
             jsi::Object actualFrame = frameHolder.getPropertyAsObject(runtime, "__frame");
             frameHostObject = actualFrame.asHostObject<FrameHostObject>(runtime);
           }
-          Frame* frame = frameHostObject->frame;
+          Frame* frame = frameHostObject->getFrame();
 
           // Options are second argument (possibly undefined)
           NSDictionary* options = nil;

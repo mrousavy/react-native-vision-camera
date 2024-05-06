@@ -7,6 +7,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 #include <jsi/jsi.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,7 +17,7 @@ namespace vision {
 
 using namespace facebook;
 
-class JSI_EXPORT FrameHostObject : public jsi::HostObject {
+class JSI_EXPORT FrameHostObject : public jsi::HostObject, public std::enable_shared_from_this<FrameHostObject> {
 public:
   explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
   ~FrameHostObject();
@@ -26,7 +27,11 @@ public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
 
 public:
-  jni::global_ref<JFrame> frame;
+  jni::global_ref<JFrame> getFrame();
+
+private:
+  jni::global_ref<JFrame> _frame;
+  std::unique_ptr<jsi::Object> _baseClass;
 };
 
 } // namespace vision

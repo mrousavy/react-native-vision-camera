@@ -44,7 +44,7 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
             jsi::Object actualFrame = frameHolder.getPropertyAsObject(runtime, "__frame");
             frameHostObject = actualFrame.asHostObject<FrameHostObject>(runtime);
           }
-          auto frame = frameHostObject->frame;
+          auto frame = frameHostObject->getFrame();
 
           // Options are second argument (possibly undefined)
           local_ref<JMap<jstring, jobject>> options = nullptr;
