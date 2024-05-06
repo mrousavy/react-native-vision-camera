@@ -10,6 +10,10 @@ import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
 
+/**
+ * Represents a Texture that can be drawn onto.
+ * Essentially this is just a `SkImage` and `SkCanvas` combined.
+ */
 interface Drawable extends SkCanvas {
   /**
    * Renders the Camera Frame to the Canvas.
@@ -21,7 +25,10 @@ interface Drawable extends SkCanvas {
    * @internal
    */
   readonly __skImage: SkImage
-
+  /**
+   * A private method to dispose the internally created Texture after rendering has completed.
+   * @internal
+   */
   dispose(): void
 }
 

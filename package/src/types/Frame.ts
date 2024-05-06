@@ -86,13 +86,18 @@ export interface Frame {
    */
   toString(): string
   /**
-   * Assign a new base instance to this Frame, and have all methods on {@linkcode baseInstance}
-   * also be a part of this Frame.
+   * Assign a new base instance to this Frame, and have all properties and methods of
+   * {@linkcode baseInstance} also be a part of this Frame.
+   *
+   * This is useful if you need to pass this {@linkcode Frame} to another consumer
+   * (e.g. a native Frame Processor Plugin) and still need it to be a `jsi::HostObject` of
+   * type `FrameHostObject` while containing properties of another instance ({@linkcode baseInstance})
    * @param baseInstance The base instance to use.
    * @example ```ts
    * const canvas = skSurface.getCanvas()
    * const drawableFrame = frame.withBaseClass(canvas)
    * // now `drawableFrame` has all methods from `canvas`, as well as `frame`.
+   * // it's actual type is still `FrameHostObject`, no `Proxy`, no `Object`, no `Canvas`.
    * drawableFrame.drawRect(...)
    * ```
    */
