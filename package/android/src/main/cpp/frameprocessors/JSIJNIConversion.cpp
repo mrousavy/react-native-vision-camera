@@ -68,8 +68,8 @@ jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtim
       if (valueAsObject.isHostObject<FrameHostObject>(runtime)) {
         // Frame
 
-        auto frame = valueAsObject.getHostObject<FrameHostObject>(runtime);
-        return jni::make_local(frame->frame);
+        auto frameHostObject = valueAsObject.getHostObject<FrameHostObject>(runtime);
+        return jni::make_local(frameHostObject->getFrame());
 
       } else {
         throw std::runtime_error("The given HostObject is not supported by a Frame Processor Plugin.");

@@ -186,7 +186,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "withBaseClass"), 1, withBaseClass);
   }
-  
+
   if (_baseClass != nullptr) {
     // look up value in base class if we have a custom base class
     jsi::Value value = _baseClass->getProperty(runtime, name.c_str());

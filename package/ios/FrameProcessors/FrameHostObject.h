@@ -26,7 +26,7 @@ public:
 
 public:
   Frame* getFrame();
-  
+
 private:
   Frame* _frame;
   std::unique_ptr<jsi::Object> _baseClass;
