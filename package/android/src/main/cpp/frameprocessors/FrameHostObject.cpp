@@ -25,7 +25,7 @@ FrameHostObject::~FrameHostObject() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
-  jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { _frame.reset(); });
 }
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
@@ -35,7 +35,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
 
-  if (frame != nullptr && frame->getIsValid()) {
+  if (_frame != nullptr && _frame->getIsValid()) {
     // Frame Properties
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
@@ -55,6 +55,17 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   return result;
 }
 
+jni::global_ref<JFrame> FrameHostObject::getFrame() {
+  if (_frame == nullptr || !_frame->getIsValid()) {
+    throw std::runtime_error("Frame is already closed! "
+                             "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
+                             "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
+                             "- If you want to do async processing, use `runAsync(...)` instead.\n"
+                             "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
+  }
+  return _frame;
+}
+
 #define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
@@ -62,7 +73,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "isValid") {
-    return jsi::Value(this->frame && this->frame->getIsValid());
+    return jsi::Value(this->_frame && this->_frame->getIsValid());
   }
   if (name == "width") {
     const auto& frame = this->getFrame();
@@ -122,9 +133,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // Conversion methods
   if (name == "getNativeBuffer") {
     jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
-      if (!this->frame) {
-        throw jsi::JSError(runtime, "Cannot get Platform Buffer - this Frame is already closed!");
-      }
 #if __ANDROID_API__ >= 26
       const auto& frame = this->getFrame();
       AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
