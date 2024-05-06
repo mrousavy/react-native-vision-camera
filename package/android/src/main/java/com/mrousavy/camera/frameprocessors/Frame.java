@@ -61,8 +61,7 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public boolean getIsValid() throws FrameInvalidError {
-        assertIsValid();
+    public boolean getIsValid() {
         return getIsImageValid(imageProxy);
     }
 

@@ -25,7 +25,7 @@ FrameHostObject::~FrameHostObject() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
-  jni::ThreadScope::WithClassLoader([&] { _frame.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { _frame = nullptr; });
 }
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
@@ -35,7 +35,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
 
-  if (_frame != nullptr && _frame->getIsValid()) {
+  if (_frame->getIsValid()) {
     // Frame Properties
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
@@ -56,7 +56,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 }
 
 jni::global_ref<JFrame> FrameHostObject::getFrame() {
-  if (_frame == nullptr || !_frame->getIsValid()) {
+  if (!_frame->getIsValid()) [[unlikely]] {
     throw std::runtime_error("Frame is already closed! "
                              "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
                              "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
@@ -73,42 +73,42 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "isValid") {
-    return jsi::Value(this->_frame && this->_frame->getIsValid());
+    return jsi::Value(_frame->getIsValid());
   }
   if (name == "width") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(frame->getWidth());
   }
   if (name == "height") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(frame->getHeight());
   }
   if (name == "isMirrored") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(frame->getIsMirrored());
   }
   if (name == "orientation") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     auto orientation = frame->getOrientation();
     auto string = orientation->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     auto pixelFormat = frame->getPixelFormat();
     auto string = pixelFormat->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(static_cast<double>(frame->getTimestamp()));
   }
   if (name == "bytesPerRow") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(frame->getBytesPerRow());
   }
   if (name == "planesCount") {
-    const auto& frame = this->getFrame();
+    const auto& frame = getFrame();
     return jsi::Value(frame->getPlanesCount());
   }
 
@@ -116,7 +116,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "incrementRefCount") {
     jsi::HostFunctionType incrementRefCount = JSI_FUNC {
       // Increment retain count by one.
-      this->_frame->incrementRefCount();
+      _frame->incrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
@@ -124,7 +124,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_FUNC {
       // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
-      this->_frame->decrementRefCount();
+      _frame->decrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
@@ -134,7 +134,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "getNativeBuffer") {
     jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
-      const auto& frame = this->getFrame();
+      const auto& frame = getFrame();
       AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
       uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
@@ -159,7 +159,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
-      const auto& frame = this->getFrame();
+      const auto& frame = getFrame();
       AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
 
@@ -212,12 +212,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toString") {
     jsi::HostFunctionType toString = JSI_FUNC {
-      if (!this->_frame) {
+      if (!_frame->getIsValid()) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
-      auto width = this->_frame->getWidth();
-      auto height = this->_frame->getHeight();
-      auto format = this->_frame->getPixelFormat();
+      auto width = _frame->getWidth();
+      auto height = _frame->getHeight();
+      auto format = _frame->getPixelFormat();
       auto formatString = format->getUnionValue();
       auto str = std::to_string(width) + " x " + std::to_string(height) + " " + formatString->toString() + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
@@ -227,7 +227,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "withBaseClass") {
     auto withBaseClass = JSI_FUNC {
       jsi::Object newBaseClass = arguments[0].asObject(runtime);
-      this->_baseClass = std::make_unique<jsi::Object>(std::move(newBaseClass));
+      _baseClass = std::make_unique<jsi::Object>(std::move(newBaseClass));
       return jsi::Object::createFromHostObject(runtime, shared_from_this());
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "withBaseClass"), 1, withBaseClass);

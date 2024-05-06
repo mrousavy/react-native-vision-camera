@@ -58,41 +58,41 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "width") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value((double)frame.width);
   }
   if (name == "height") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value((double)frame.height);
   }
   if (name == "orientation") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     NSString* orientation = [NSString stringWithParsed:frame.orientation];
     return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
   }
   if (name == "isMirrored") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value(frame.isMirrored);
   }
   if (name == "timestamp") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value(frame.timestamp);
   }
   if (name == "pixelFormat") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::String::createFromUtf8(runtime, frame.pixelFormat.UTF8String);
   }
   if (name == "isValid") {
     // unsafely access the Frame and try to see if it's valid
-    Frame* frame = this->_frame;
+    Frame* frame = _frame;
     return jsi::Value(frame != nil && frame.isValid);
   }
   if (name == "bytesPerRow") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value((double)frame.bytesPerRow);
   }
   if (name == "planesCount") {
-    Frame* frame = this->getFrame();
+    Frame* frame = getFrame();
     return jsi::Value((double)frame.planesCount);
   }
 
@@ -116,7 +116,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "getNativeBuffer") {
     auto getNativeBuffer = JSI_FUNC {
       // Box-cast to uintptr (just 64-bit address)
-      Frame* frame = this->getFrame();
+      Frame* frame = getFrame();
       CMSampleBufferRef sampleBuffer = frame.buffer;
       CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
       uintptr_t pointer = reinterpret_cast<uintptr_t>(pixelBuffer);
@@ -137,7 +137,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_FUNC {
       // Get CPU readable Pixel Buffer from Frame and write it to a jsi::ArrayBuffer
-      Frame* frame = this->getFrame();
+      Frame* frame = getFrame();
       auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       auto height = CVPixelBufferGetHeight(pixelBuffer);
@@ -172,7 +172,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toString") {
     auto toString = JSI_FUNC {
       // Print debug description (width, height)
-      Frame* frame = this->getFrame();
+      Frame* frame = getFrame();
       NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu %@ Frame", frame.width, frame.height, frame.pixelFormat];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
@@ -181,7 +181,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "withBaseClass") {
     auto withBaseClass = JSI_FUNC {
       jsi::Object newBaseClass = arguments[0].asObject(runtime);
-      this->_baseClass = std::make_unique<jsi::Object>(std::move(newBaseClass));
+      _baseClass = std::make_unique<jsi::Object>(std::move(newBaseClass));
       return jsi::Object::createFromHostObject(runtime, shared_from_this());
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "withBaseClass"), 1, withBaseClass);
