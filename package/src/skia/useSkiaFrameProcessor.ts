@@ -11,10 +11,12 @@ import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
 
 /**
- * Represents a Texture that can be drawn onto.
- * Essentially this is just a `SkImage` and `SkCanvas` combined.
+ * Represents a Camera Frame that can be directly drawn to using Skia.
+ *
+ * @see {@linkcode useSkiaFrameProcessor}
+ * @see {@linkcode render}
  */
-interface Drawable extends SkCanvas {
+export interface DrawableFrame extends Frame, SkCanvas {
   /**
    * Renders the Camera Frame to the Canvas.
    * @param paint An optional Paint object, for example for applying filters/shaders to the Camera Frame.
@@ -32,13 +34,8 @@ interface Drawable extends SkCanvas {
   dispose(): void
 }
 
-/**
- * Represents a Camera Frame that can be directly drawn to using Skia.
- *
- * @see {@linkcode useSkiaFrameProcessor}
- * @see {@linkcode render}
- */
-export type DrawableFrame = Frame & Drawable
+type Difference<T, U> = Pick<T, Exclude<keyof T, keyof U>>
+type DrawableCanvas = Difference<DrawableFrame, Frame>
 
 function getRotationDegrees(orientation: Orientation): number {
   'worklet'
@@ -151,45 +148,46 @@ export function createSkiaFrameProcessor(
     return surface
   }
 
-  const createDrawableProxy = (frame: Frame, canvas: SkCanvas): Drawable => {
+  const createDrawableProxy = (frame: Frame, canvas: SkCanvas): DrawableFrame => {
     'worklet'
 
     // Convert Frame to SkImage/Texture
     const nativeBuffer = (frame as FrameInternal).getNativeBuffer()
     const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
 
-    return new Proxy(canvas as Drawable, {
-      get: (_, property: keyof Drawable) => {
-        'worklet'
-        if (property === 'render') {
-          return (paint?: SkPaint) => {
-            'worklet'
-            // rotate canvas to properly account for Frame orientation
-            canvas.save()
-            const rotation = getRotationDegrees(frame.orientation)
-            canvas.rotate(rotation, frame.width / 2, frame.height / 2)
-            // render the Camera Frame to the Canvas
-            if (paint != null) canvas.drawImage(image, 0, 0, paint)
-            else canvas.drawImage(image, 0, 0)
+    // Creates a `Proxy` that holds the SkCanvas, but also adds additional methods such as render() and dispose().
+    const canvasProxy = new Proxy(canvas as DrawableCanvas, {
+      get(_, property: keyof DrawableCanvas) {
+        switch (property) {
+          case '__skImage':
+            return image
+          case 'render':
+            return (paint?: SkPaint) => {
+              'worklet'
+              // rotate canvas to properly account for Frame orientation
+              canvas.save()
+              const rotation = getRotationDegrees(frame.orientation)
+              canvas.rotate(rotation, frame.width / 2, frame.height / 2)
+              // render the Camera Frame to the Canvas
+              if (paint != null) canvas.drawImage(image, 0, 0, paint)
+              else canvas.drawImage(image, 0, 0)
 
-            // restore transforms/rotations again
-            canvas.restore()
-          }
-        } else if (property === '__skImage') {
-          // a hidden property that holds the skImage
-          return image
-        } else if (property === 'dispose') {
-          return () => {
-            'worklet'
-            // dispose the Frame and the SkImage/Texture
-            image.dispose()
-            nativeBuffer.delete()
-          }
+              // restore transforms/rotations again
+              canvas.restore()
+            }
+          case 'dispose':
+            return () => {
+              'worklet'
+              // dispose the Frame and the SkImage/Texture
+              image.dispose()
+              nativeBuffer.delete()
+            }
         }
-
-        return canvas[property as keyof SkCanvas]
+        return canvas[property]
       },
     })
+
+    return frame.withBaseClass(canvasProxy)
   }
 
   return {
@@ -201,8 +199,7 @@ export function createSkiaFrameProcessor(
 
       // 2. Create DrawableFrame proxy which internally creates an SkImage/Texture
       const canvas = surface.getCanvas()
-      const drawable = createDrawableProxy(frame, canvas)
-      const drawableFrame = frame.withBaseClass(drawable)
+      const drawableFrame = createDrawableProxy(frame, canvas)
 
       try {
         // 3. Clear the current Canvas
