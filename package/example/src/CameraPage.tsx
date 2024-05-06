@@ -9,7 +9,7 @@ import {
   runAtTargetFps,
   useCameraDevice,
   useCameraFormat,
-  useFrameProcessor,
+  useSkiaFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
 } from 'react-native-vision-camera'
@@ -178,8 +178,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useFrameProcessor((frame) => {
+  const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet'
+
+    frame.render()
 
     runAtTargetFps(10, () => {
       'worklet'

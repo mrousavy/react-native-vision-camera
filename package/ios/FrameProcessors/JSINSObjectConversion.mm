@@ -129,7 +129,7 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value) {
       if (object.isHostObject<FrameHostObject>(runtime)) {
         // Frame
         auto hostObject = object.getHostObject<FrameHostObject>(runtime);
-        return hostObject->frame;
+        return hostObject->getFrame();
       } else {
         throw std::runtime_error("The given HostObject is not supported by a Frame Processor Plugin!");
       }

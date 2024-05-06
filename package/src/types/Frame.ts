@@ -85,6 +85,18 @@ export interface Frame {
    * ```
    */
   toString(): string
+  /**
+   * Assign a new base instance to this Frame, and have all methods on {@linkcode baseInstance}
+   * also be a part of this Frame.
+   * @param baseInstance The base instance to use.
+   * @example ```ts
+   * const canvas = skSurface.getCanvas()
+   * const drawableFrame = frame.withBaseClass(canvas)
+   * // now `drawableFrame` has all methods from `canvas`, as well as `frame`.
+   * drawableFrame.drawRect(...)
+   * ```
+   */
+  withBaseClass<T>(baseInstance: T): T & Frame
 }
 
 /**

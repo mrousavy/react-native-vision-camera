@@ -10,35 +10,28 @@ import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
 
-/**
- * Represents a Camera Frame that can be directly drawn to using Skia.
- *
- * @see {@linkcode useSkiaFrameProcessor}
- * @see {@linkcode render}
- */
-export interface DrawableFrame extends Frame, SkCanvas {
+interface Drawable extends SkCanvas {
   /**
    * Renders the Camera Frame to the Canvas.
    * @param paint An optional Paint object, for example for applying filters/shaders to the Camera Frame.
    */
   render(paint?: SkPaint): void
   /**
-   * A private method to dispose the internally created Textures after rendering has completed.
-   * @internal
-   */
-  dispose(): void
-  /**
-   * A private property accessed by the native Frame Processor Plugin system
-   * to get the actual Frame Host Object.
-   * @internal
-   */
-  readonly __frame: Frame
-  /**
    * A private property that holds the SkImage.
    * @internal
    */
   readonly __skImage: SkImage
+
+  dispose(): void
 }
+
+/**
+ * Represents a Camera Frame that can be directly drawn to using Skia.
+ *
+ * @see {@linkcode useSkiaFrameProcessor}
+ * @see {@linkcode render}
+ */
+export type DrawableFrame = Frame & Drawable
 
 function getRotationDegrees(orientation: Orientation): number {
   'worklet'
@@ -151,15 +144,15 @@ export function createSkiaFrameProcessor(
     return surface
   }
 
-  const createDrawableFrameProxy = (frame: Frame, canvas: SkCanvas): DrawableFrame => {
+  const createDrawableProxy = (frame: Frame, canvas: SkCanvas): Drawable => {
     'worklet'
 
     // Convert Frame to SkImage/Texture
     const nativeBuffer = (frame as FrameInternal).getNativeBuffer()
     const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
 
-    return new Proxy(frame as DrawableFrame, {
-      get: (_, property: keyof DrawableFrame) => {
+    return new Proxy(canvas as Drawable, {
+      get: (_, property: keyof Drawable) => {
         'worklet'
         if (property === 'render') {
           return (paint?: SkPaint) => {
@@ -175,10 +168,6 @@ export function createSkiaFrameProcessor(
             // restore transforms/rotations again
             canvas.restore()
           }
-        } else if (property === '__frame') {
-          // a hidden property accessed by the native Frame Processor Plugin system
-          // to get the actual Frame Host Object.
-          return frame
         } else if (property === '__skImage') {
           // a hidden property that holds the skImage
           return image
@@ -191,8 +180,7 @@ export function createSkiaFrameProcessor(
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        return frame[property as keyof Frame] ?? canvas[property as keyof SkCanvas]
+        return canvas[property as keyof SkCanvas]
       },
     })
   }
@@ -206,7 +194,8 @@ export function createSkiaFrameProcessor(
 
       // 2. Create DrawableFrame proxy which internally creates an SkImage/Texture
       const canvas = surface.getCanvas()
-      const drawableFrame = createDrawableFrameProxy(frame, canvas)
+      const drawable = createDrawableProxy(frame, canvas)
+      const drawableFrame = frame.withBaseClass(drawable)
 
       try {
         // 3. Clear the current Canvas
