@@ -187,7 +187,7 @@ export function createSkiaFrameProcessor(
       },
     })
 
-    return frame.withBaseClass(canvasProxy)
+    return (frame as FrameInternal).withBaseClass(canvasProxy)
   }
 
   return {
