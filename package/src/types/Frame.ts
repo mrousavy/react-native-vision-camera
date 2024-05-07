@@ -86,29 +86,22 @@ export interface Frame {
    */
   toString(): string
   /**
-   * Assign a new base instance to this Frame, and have all properties and methods of
-   * {@linkcode baseInstance} also be a part of this Frame.
+   * Get the native platform buffer of the Frame.
+   * - On Android, this is a `AHardwareBuffer*`
+   * - On iOS, this is a `CVPixelBufferRef`
    *
-   * This is useful if you need to pass this {@linkcode Frame} to another consumer
-   * (e.g. a native Frame Processor Plugin) and still need it to be a `jsi::HostObject` of
-   * type `FrameHostObject` while containing properties of another instance ({@linkcode baseInstance})
-   * @param baseInstance The base instance to use.
-   * @internal
-   * @example ```ts
-   * const canvas = skSurface.getCanvas()
-   * const drawableFrame = frame.withBaseClass(canvas)
-   * // now `drawableFrame` has all methods from `canvas`, as well as `frame`.
-   * // it's actual type is still `FrameHostObject`, no `Proxy`, no `Object`, no `Canvas`.
-   * drawableFrame.drawRect(...)
-   * ```
+   * The native buffer needs to be manually deleted using
+   * {@linkcode NativeBuffer.delete()}, and this {@linkcode Frame}
+   * needs to be kept alive as long as-, or longer than
+   * the {@linkcode NativeBuffer}.
    */
-  withBaseClass<T>(baseInstance: T): T & Frame
+  getNativeBuffer(): NativeBuffer
 }
 
 /**
  * A managed memory pointer to a native platform buffer
  */
-interface NativeBuffer {
+export interface NativeBuffer {
   /**
    * A uint64_t/uintptr_t to the native platform buffer.
    * - On iOS; this points to a `CVPixelBufferRef`
@@ -141,12 +134,21 @@ export interface FrameInternal extends Frame {
    */
   decrementRefCount(): void
   /**
-   * Get the native platform buffer of the Frame.
-   * - On Android, this is a `AHardwareBuffer*`
-   * - On iOS, this is a `CVPixelBufferRef`
+   * Assign a new base instance to this Frame, and have all properties and methods of
+   * {@linkcode baseInstance} also be a part of this Frame.
    *
-   * This is a private API, do not use this.
+   * This is useful if you need to pass this {@linkcode Frame} to another consumer
+   * (e.g. a native Frame Processor Plugin) and still need it to be a `jsi::HostObject` of
+   * type `FrameHostObject` while containing properties of another instance ({@linkcode baseInstance})
+   * @param baseInstance The base instance to use.
    * @internal
+   * @example ```ts
+   * const canvas = skSurface.getCanvas()
+   * const drawableFrame = frame.withBaseClass(canvas)
+   * // now `drawableFrame` has all methods from `canvas`, as well as `frame`.
+   * // it's actual type is still `FrameHostObject`, no `Proxy`, no `Object`, no `Canvas`.
+   * drawableFrame.drawRect(...)
+   * ```
    */
-  getNativeBuffer(): NativeBuffer
+  withBaseClass<T>(baseInstance: T): T & Frame
 }
