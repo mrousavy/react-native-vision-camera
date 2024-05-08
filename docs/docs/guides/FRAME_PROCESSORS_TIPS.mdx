@@ -38,10 +38,6 @@ If you use native Frame Processor Plugins, make sure they are optimized for real
 - Prefer plugins that support **GPU acceleration**. For Tensorflow, this might be the CoreML or Metal GPU delegates
 - For operations such as resizing, **prefer GPU or CPU vector acceleration** (e.g. Accelerate/vImage) instead of just array loops
 
-## ESLint react-hooks plugin
-
-If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` and `useSkiaFrameProcessor` to `additionalHooks` inside your ESLint config so dependencies are detected properly. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
-
 ## Technical
 
 ### Frame Processors

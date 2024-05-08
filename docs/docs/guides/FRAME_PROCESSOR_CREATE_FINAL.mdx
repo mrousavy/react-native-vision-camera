@@ -34,7 +34,7 @@ function App() {
     // highlight-next-line
     const faces = scanFaces(frame)
     console.log(`Faces in Frame: ${faces}`)
-  }, [])
+  })
 
   return (
     <Camera frameProcessor={frameProcessor} {...cameraProps} />

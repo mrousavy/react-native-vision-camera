@@ -21,7 +21,7 @@ function App() {
     // highlight-next-line
     const faces = detectFaces(frame)
     console.log(`Faces in Frame: ${faces}`)
-  }, [])
+  })
 
   return (
     <Camera frameProcessor={frameProcessor} {...cameraProps} />
@@ -91,7 +91,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   // by downscaling the frame, the `detectObjects` function runs faster.
   const objects = detectObjects(resizedFrame)
   console.log(objects)
-}, [])
+})
 ```
 
 ### Parameters
@@ -102,7 +102,7 @@ Frame Processors can also accept parameters, following the same type convention 
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   const faces = scanFaces(frame, { accuracy: 'fast' })
-}, [])
+})
 ```
 
 ### Exceptions
@@ -131,7 +131,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   } catch (e) {
     console.log(`Error: ${e.message}`)
   }
-}, [])
+})
 ```
 
 ## What's possible?
@@ -177,7 +177,7 @@ function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     SomeAI.process(frame) // does not block frame processor, runs async
-  }, [])
+  })
 
   useEffect(() => {
     SomeAI.addListener((results) => {

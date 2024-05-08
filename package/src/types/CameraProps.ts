@@ -314,7 +314,7 @@ export interface CameraProps extends ViewProps {
    *   'worklet'
    *   const faces = scanFaces(frame)
    *   console.log(`Faces: ${faces}`)
-   * }, [])
+   * })
    *
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```

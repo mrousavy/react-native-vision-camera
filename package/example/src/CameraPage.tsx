@@ -92,7 +92,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     return {
       zoom: z,
     }
-  }, [maxZoom, minZoom, zoom])
+  })
   //#endregion
 
   //#region Callbacks

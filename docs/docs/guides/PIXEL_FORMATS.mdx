@@ -38,7 +38,7 @@ function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     console.log(frame.pixelFormat) // <-- "rgb"
-  }, [])
+  })
 
   return (
     <Camera
