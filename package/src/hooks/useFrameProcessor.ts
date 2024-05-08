@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import { getWorkletDependencies } from '../frame-processors/getWorkletDependencies'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import type { ReadonlyFrameProcessor } from '../types/CameraProps'
 import type { Frame } from '../types/Frame'
+import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -42,6 +42,6 @@ export function useFrameProcessor(frameProcessor: (frame: Frame) => void): Reado
   return useMemo(
     () => createFrameProcessor(frameProcessor),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    getWorkletDependencies(frameProcessor),
+    WorkletsProxy.getWorkletDependencies(frameProcessor),
   )
 }

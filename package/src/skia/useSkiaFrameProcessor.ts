@@ -8,7 +8,6 @@ import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-nativ
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
-import { getWorkletDependencies } from '../frame-processors/getWorkletDependencies'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -288,6 +287,6 @@ export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => 
   return useMemo(
     () => createSkiaFrameProcessor(frameProcessor, surface, offscreenTextures),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    getWorkletDependencies(frameProcessor),
+    WorkletsProxy.getWorkletDependencies(frameProcessor),
   )
 }
