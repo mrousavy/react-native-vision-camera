@@ -5,7 +5,7 @@ export interface TakePhotoOptions {
   /**
    * Whether the Flash should be enabled or disabled
    *
-   * @default "auto"
+   * @default "off"
    */
   flash?: 'on' | 'off' | 'auto'
   /**
