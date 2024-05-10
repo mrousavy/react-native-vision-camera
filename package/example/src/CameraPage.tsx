@@ -9,7 +9,7 @@ import {
   runAtTargetFps,
   useCameraDevice,
   useCameraFormat,
-  useFrameProcessor,
+  useSkiaFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
 } from 'react-native-vision-camera'
@@ -29,6 +29,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
+import { Skia } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -71,9 +72,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const format = useCameraFormat(device, [
     { fps: targetFps },
     { videoAspectRatio: screenAspectRatio },
-    { videoResolution: 'max' },
-    { photoAspectRatio: screenAspectRatio },
-    { photoResolution: 'max' },
+    { videoResolution: { width: 720, height: 1080 } },
   ])
 
   const fps = Math.min(format?.maxFps ?? 1, targetFps)
@@ -178,12 +177,43 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet'
+  interface Landmark {
+    x: number
+    y: number
+    z: number
+    visibility: number
+    presence: number
+  }
+  interface Handedness {
+    score: number
+  }
+  interface Hand {
+    landmarks: Landmark[]
+    handedness: Handedness[]
+  }
 
-    const results = exampleKotlinSwiftPlugin(frame)
-    console.log(JSON.stringify(results))
-  }, [])
+  const paint = Skia.Paint()
+  paint.setColor(Skia.Color('red'))
+  const frameProcessor = useSkiaFrameProcessor(
+    (frame) => {
+      'worklet'
+
+      frame.render()
+      const hands = exampleKotlinSwiftPlugin(frame) as unknown as Hand[]
+
+      const width = frame.width
+      const height = frame.height
+
+      for (const hand of hands) {
+        hand.landmarks.forEach((landmark) => {
+          const rect = Skia.XYWHRect(landmark.x * width, landmark.y * height, 50, 50)
+          console.log(`Drawing rect at (${landmark.x * width}, ${landmark.y * height})`)
+          frame.drawRect(rect, paint)
+        })
+      }
+    },
+    [paint],
+  )
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr

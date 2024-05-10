@@ -49,15 +49,9 @@ public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
               "x": NSNumber(value: landmark.x),
               "y": NSNumber(value: landmark.y),
               "z": NSNumber(value: landmark.z),
-              "visibility": landmark.visibility,
-              "presence": landmark.presence
+              "visibility": landmark.visibility
             ]
           }),
-          "handedness": results.handedness[i].map({ re in
-            return [
-              "score": re.score,
-            ]
-          })
         ])
       }
       return hands
