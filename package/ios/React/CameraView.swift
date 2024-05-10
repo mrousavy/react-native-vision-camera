@@ -56,7 +56,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
-  @objc var exposure: NSNumber = 1.0
+  @objc var exposure: NSNumber = 0.0
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {

@@ -79,7 +79,7 @@ class CameraView(context: Context) :
   var isActive = false
   var torch: Torch = Torch.OFF
   var zoom: Float = 1f // in "factor"
-  var exposure: Double = 1.0
+  var exposure: Double = 0.0
   var orientation: Orientation = Orientation.PORTRAIT
   var androidPreviewViewType: PreviewViewType = PreviewViewType.SURFACE_VIEW
     set(value) {
