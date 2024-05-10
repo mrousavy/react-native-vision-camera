@@ -29,7 +29,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
-import { Skia } from '@shopify/react-native-skia'
+import { PointMode, Skia, StrokeJoin } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -182,18 +182,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     y: number
     z: number
     visibility: number
-    presence: number
-  }
-  interface Handedness {
-    score: number
   }
   interface Hand {
     landmarks: Landmark[]
-    handedness: Handedness[]
   }
 
   const paint = Skia.Paint()
   paint.setColor(Skia.Color('red'))
+  paint.setStrokeWidth(15)
+  paint.setStrokeJoin(StrokeJoin.Round)
+
   const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
       'worklet'
@@ -205,11 +203,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       const height = frame.height
 
       for (const hand of hands) {
-        hand.landmarks.forEach((landmark) => {
-          const rect = Skia.XYWHRect(landmark.x * width, landmark.y * height, 50, 50)
-          console.log(`Drawing rect at (${landmark.x * width}, ${landmark.y * height})`)
-          frame.drawRect(rect, paint)
-        })
+        const points = hand.landmarks.map((l) => Skia.Point(l.x * width, l.y * height))
+        console.log(`Drawing ${points.length} points..`)
+        frame.drawPoints(PointMode.Points, points, paint)
       }
     },
     [paint],
