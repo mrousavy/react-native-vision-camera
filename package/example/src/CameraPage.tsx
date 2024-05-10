@@ -29,7 +29,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
-import { PointMode, Skia, StrokeJoin } from '@shopify/react-native-skia'
+import { Paint, PointMode, Skia, StrokeJoin } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -181,16 +181,46 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     x: number
     y: number
     z: number
-    visibility: number
+    visibility?: number
   }
   interface Hand {
     landmarks: Landmark[]
   }
 
-  const paint = Skia.Paint()
-  paint.setColor(Skia.Color('red'))
-  paint.setStrokeWidth(15)
-  paint.setStrokeJoin(StrokeJoin.Round)
+  const red = Skia.Paint()
+  red.setColor(Skia.Color('red'))
+
+  const green = Skia.Paint()
+  green.setColor(Skia.Color('#2c944b'))
+  green.setStrokeWidth(5)
+
+  const lines = useMemo(
+    () =>
+      [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [0, 5],
+        [5, 6],
+        [6, 7],
+        [7, 8],
+        [5, 9],
+        [9, 10],
+        [10, 11],
+        [11, 12],
+        [9, 13],
+        [13, 14],
+        [14, 15],
+        [15, 16],
+        [13, 17],
+        [17, 18],
+        [18, 19],
+        [19, 20],
+        [0, 17],
+      ] as const,
+    [],
+  )
 
   const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
@@ -203,12 +233,26 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       const height = frame.height
 
       for (const hand of hands) {
-        const points = hand.landmarks.map((l) => Skia.Point(l.x * width, l.y * height))
-        console.log(`Drawing ${points.length} points..`)
-        frame.drawPoints(PointMode.Points, points, paint)
+        const points = hand.landmarks.map((l) => ({
+          point: Skia.Point(l.x * width, l.y * height),
+          opacity: l.visibility,
+        }))
+
+        for (const line of lines) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const from = points[line[0]]!
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const to = points[line[1]]!
+          green.setAlphaf(Math.min(from.opacity ?? 1, to.opacity ?? 1))
+          frame.drawLine(from.point.x, from.point.y, to.point.x, to.point.y, green)
+        }
+        for (const { point, opacity } of points) {
+          red.setAlphaf(opacity ?? 1)
+          frame.drawCircle(point.x, point.y, 10, red)
+        }
       }
     },
-    [paint],
+    [red, green, lines],
   )
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
