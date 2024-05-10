@@ -23,7 +23,7 @@ public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
 
     let landmarkerOptions = HandLandmarkerOptions()
     landmarkerOptions.baseOptions.modelAssetPath = modelPath
-    landmarkerOptions.runningMode = .liveStream
+    landmarkerOptions.runningMode = .video
     landmarkerOptions.minHandDetectionConfidence = 0.6
     landmarkerOptions.minHandPresenceConfidence = 0.6
     landmarkerOptions.minTrackingConfidence = 0.6
@@ -37,33 +37,34 @@ public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
   }
 
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
-    guard let image = try? MPImage(sampleBuffer: frame.buffer) else {
+    do {
+      let image = try MPImage(sampleBuffer: frame.buffer)
+      let results = try handLandmarker.detect(videoFrame: image, timestampInMilliseconds: Int(frame.timestamp))
+      
+      var hands: [[String: Any]] = []
+      for i in 0..<results.handedness.count {
+        hands.append([
+          "landmarks": results.landmarks[i].map({ landmark in
+            return [
+              "x": NSNumber(value: landmark.x),
+              "y": NSNumber(value: landmark.y),
+              "z": NSNumber(value: landmark.z),
+              "visibility": landmark.visibility,
+              "presence": landmark.presence
+            ]
+          }),
+          "handedness": results.handedness[i].map({ re in
+            return [
+              "score": re.score,
+            ]
+          })
+        ])
+      }
+      return hands
+    } catch (let error) {
+      print("Error: \(error.localizedDescription)")
       return []
     }
-    guard let results = try? handLandmarker.detect(image: image) else {
-      return []
-    }
-    
-    var hands: [[String: Any]] = []
-    for i in 0..<results.handedness.count {
-      hands.append([
-        "landmarks": results.landmarks[i].map({ landmark in
-          return [
-            "x": NSNumber(value: landmark.x),
-            "y": NSNumber(value: landmark.y),
-            "z": NSNumber(value: landmark.z),
-            "visibility": landmark.visibility,
-            "presence": landmark.presence
-          ]
-        }),
-        "handedness": results.handedness[i].map({ re in
-          return [
-            "score": re.score,
-          ]
-        })
-      ])
-    }
-    return hands
   }
 }
 #endif

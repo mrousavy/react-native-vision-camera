@@ -181,12 +181,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
 
-    runAtTargetFps(10, () => {
-      'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-      examplePlugin(frame)
-      exampleKotlinSwiftPlugin(frame)
-    })
+    const results = exampleKotlinSwiftPlugin(frame)
+    console.log(JSON.stringify(results))
   }, [])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
@@ -223,6 +219,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
                 frameProcessor={frameProcessor}
+                pixelFormat="rgb"
               />
             </TapGestureHandler>
           </Reanimated.View>

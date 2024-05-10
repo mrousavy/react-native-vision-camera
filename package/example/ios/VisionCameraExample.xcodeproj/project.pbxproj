@@ -15,6 +15,7 @@
 		839E2C652ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839E2C642ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift */; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
+		B8F0E24B2BEE236500E510DF /* hand_landmarker.task in Resources */ = {isa = PBXBuildFile; fileRef = B8F0E24A2BEE18C200E510DF /* hand_landmarker.task */; };
 		C0B129659921D2EA967280B2 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */; };
 /* End PBXBuildFile section */
 
@@ -208,6 +209,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8F0E24B2BEE236500E510DF /* hand_landmarker.task in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
