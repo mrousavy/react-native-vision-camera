@@ -38,6 +38,8 @@ target 'VisionCameraExample' do
   )
 
   pod 'MediaPipeTasksVision'
+  pod 'GoogleMLKit/ObjectDetection'
+  pod 'GoogleMLKit/FaceDetection'
   pod 'VisionCamera', :path => '../..'
   require_relative './VisionCameraExampleCocoaPodUtils.rb'
 

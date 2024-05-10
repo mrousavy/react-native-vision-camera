@@ -3,8 +3,10 @@ import { useRef, useState, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
+import { NativeViewGestureHandler } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
 import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
+import { VisionCameraProxy } from 'react-native-vision-camera'
 import {
   runAtTargetFps,
   useCameraDevice,
@@ -29,7 +31,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
-import { Paint, PointMode, Skia, StrokeJoin } from '@shopify/react-native-skia'
+import { ColorChannel, Paint, PaintStyle, PointMode, Skia, StrokeJoin, TileMode } from '@shopify/react-native-skia'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -177,6 +179,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
+  interface Pos {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
   interface Landmark {
     x: number
     y: number
@@ -187,12 +195,52 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     landmarks: Landmark[]
   }
 
+  const rectPaint = Skia.Paint()
+  rectPaint.setColor(Skia.Color('red'))
+  rectPaint.setStyle(PaintStyle.Stroke)
+  rectPaint.setStrokeWidth(10)
+  rectPaint.setStrokeJoin(StrokeJoin.Round)
+
   const red = Skia.Paint()
   red.setColor(Skia.Color('red'))
 
   const green = Skia.Paint()
   green.setColor(Skia.Color('#2c944b'))
   green.setStrokeWidth(5)
+
+  const effect = Skia.RuntimeEffect.Make(
+    `
+    uniform shader image;
+
+vec4 chromatic(vec2 pos, float offset) {
+  float r = image.eval(pos).r;
+  float g = image.eval(vec2(pos.x + offset, pos.y)).g;
+  float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
+  return vec4(r, g, b, 1.0);
+}
+
+half4 main(vec2 pos) {
+  float offset = 50.0;
+  return chromatic(pos, offset);
+}
+
+    `,
+  )
+  if (effect == null) throw new Error('Failed to compile SKSL!')
+  const shader = Skia.RuntimeShaderBuilder(effect)
+
+  const invert = Skia.RuntimeShaderBuilder(
+    Skia.RuntimeEffect.Make(`
+  uniform shader image;
+
+half4 main(vec2 pos) {
+  vec4 color = image.eval(pos);
+  return vec4(1.0 - color.rgb, 1.0);
+}
+`),
+  )
+
+  const p = Skia.Paint()
 
   const lines = useMemo(
     () =>
@@ -222,38 +270,90 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     [],
   )
 
+  type Samples = 'object-detection' | 'hand-detection' | 'vhs' | 'invert'
+
+  const plugin = useMemo(() => VisionCameraProxy.initFrameProcessorPlugin('object_detector_plugin', {}), [])
+
+  const demo = useMemo(() => Worklets.createSharedValue<Samples>('hand-detection'), [])
+
   const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
       'worklet'
 
-      frame.render()
-      const hands = exampleKotlinSwiftPlugin(frame) as unknown as Hand[]
+      switch (demo.value) {
+        case 'vhs':
+          p.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(shader, null, null))
+          frame.render(p)
+          break
+        case 'invert':
+          p.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(invert, null, null))
+          frame.render(p)
+          break
 
-      const width = frame.width
-      const height = frame.height
+        case 'object-detection': {
+          frame.render()
 
-      for (const hand of hands) {
-        const points = hand.landmarks.map((l) => ({
-          point: Skia.Point(l.x * width, l.y * height),
-          opacity: l.visibility,
-        }))
-
-        for (const line of lines) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const from = points[line[0]]!
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const to = points[line[1]]!
-          green.setAlphaf(Math.min(from.opacity ?? 1, to.opacity ?? 1))
-          frame.drawLine(from.point.x, from.point.y, to.point.x, to.point.y, green)
+          const results = plugin?.call(frame) as undefined | Pos[]
+          if (results == null) return
+          for (const r of results) {
+            const rect = Skia.XYWHRect(r.x, r.y, r.width, r.height)
+            frame.drawRect(rect, rectPaint)
+          }
+          break
         }
-        for (const { point, opacity } of points) {
-          red.setAlphaf(opacity ?? 1)
-          frame.drawCircle(point.x, point.y, 10, red)
+        case 'hand-detection': {
+          frame.render()
+
+          const hands = exampleKotlinSwiftPlugin(frame) as unknown as Hand[]
+
+          const width = frame.width
+          const height = frame.height
+
+          for (const hand of hands) {
+            const points = hand.landmarks.map((l) => ({
+              point: Skia.Point(l.x * width, l.y * height),
+              opacity: l.visibility,
+            }))
+
+            for (const line of lines) {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const from = points[line[0]]!
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const to = points[line[1]]!
+              green.setAlphaf(Math.min(from.opacity ?? 1, to.opacity ?? 1))
+              frame.drawLine(from.point.x, from.point.y, to.point.x, to.point.y, green)
+            }
+            for (const { point, opacity } of points) {
+              red.setAlphaf(opacity ?? 1)
+              frame.drawCircle(point.x, point.y, 10, red)
+            }
+          }
+          break
         }
       }
     },
-    [red, green, lines],
+    [demo, p, shader, invert, plugin, rectPaint, lines, green, red],
   )
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      switch (demo.value) {
+        case 'hand-detection':
+          demo.value = 'invert'
+          break
+        case 'invert':
+          demo.value = 'vhs'
+          break
+        case 'vhs':
+          demo.value = 'object-detection'
+          break
+        case 'object-detection':
+          demo.value = 'hand-detection'
+          break
+      }
+    }, 2000)
+    return () => clearInterval(i)
+  }, [demo])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
