@@ -37,6 +37,7 @@ target 'VisionCameraExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'MediaPipeTasksVision'
   pod 'VisionCamera', :path => '../..'
   require_relative './VisionCameraExampleCocoaPodUtils.rb'
 

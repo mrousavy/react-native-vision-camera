@@ -15,6 +15,9 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.7)
   - hermes-engine/Pre-built (0.72.7)
   - libevent (2.1.12)
+  - MediaPipeTasksCommon (0.10.13)
+  - MediaPipeTasksVision (0.10.13):
+    - MediaPipeTasksCommon (= 0.10.13)
   - MMKV (1.3.4):
     - MMKVCore (~> 1.3.4)
   - MMKVCore (1.3.4)
@@ -489,6 +492,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
+  - MediaPipeTasksVision
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -541,6 +545,8 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
+    - MediaPipeTasksCommon
+    - MediaPipeTasksVision
     - MMKV
     - MMKVCore
     - SocketRocket
@@ -661,6 +667,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 9180d43df05c1ed658a87cc733dc3044cf90c00a
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  MediaPipeTasksCommon: 5c86b477b18fa034db290aead83d1009be3dbcff
+  MediaPipeTasksVision: 4782191be198e124756e76e66bb3a8917850b1cb
   MMKV: ed58ad794b3f88c24d604a5b74f3fba17fcbaf74
   MMKVCore: a67a1cede26175c413176f404a7cedec43f96a0b
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -711,6 +719,6 @@ SPEC CHECKSUMS:
   VisionCamera: b633f90960feab2669b7a1c51f8a201dd0a5bfc3
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
-PODFILE CHECKSUM: 66976ac26c778d788a06e6c1bab624e6a1233cdd
+PODFILE CHECKSUM: 39b1ed41d1db712916c95a20aa9c116fb1992588
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3
