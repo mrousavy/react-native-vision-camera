@@ -562,7 +562,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   componentDidUpdate(): void {
     if (!this.isNativeViewMounted) return
     const frameProcessor = this.props.frameProcessor
-    if (frameProcessor !== this.lastFrameProcessor) {
+    if (frameProcessor?.frameProcessor !== this.lastFrameProcessor) {
       // frameProcessor argument identity changed. Update native to reflect the change.
       if (frameProcessor != null) this.setFrameProcessor(frameProcessor.frameProcessor)
       else this.unsetFrameProcessor()
