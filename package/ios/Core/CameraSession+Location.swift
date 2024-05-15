@@ -26,7 +26,9 @@ extension CameraSession {
         metadataProvider.locationProvider = nil
       }
     #else
-      throw CameraError.system(.locationNotEnabled)
+      if configuration.enableLocation {
+        throw CameraError.system(.locationNotEnabled)
+      }
     #endif
   }
 }
