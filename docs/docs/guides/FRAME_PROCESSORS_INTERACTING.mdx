@@ -106,14 +106,15 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Running at a throttled FPS rate
 
-Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps), which still runs on the main Frame Processor Thread:
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps), which still runs on the main Frame Processor Thread but drops all Frames that come in faster than the specified target FPS rate:
 
 ```ts
+const TARGET_FPS = 2
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   console.log("I'm running synchronously at 60 FPS!")
 
-  runAtTargetFps(2, () => {
+  runAtTargetFps(TARGET_FPS, () => {
     'worklet'
     console.log("I'm running synchronously at 2 FPS!")
     const brightness = detectBrightness(frame)
