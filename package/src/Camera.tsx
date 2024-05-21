@@ -497,7 +497,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
       this.props.onError(cameraError)
     } else {
       // User didn't pass an `onError` handler, so just log it to console
-      console.error(`Camera.onError(${cameraError.code}): ${cameraError.message}`, cameraError)
+      console.error(cameraError)
     }
   }
 
