@@ -79,7 +79,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [onFaceDetected])
 ```
 
-## Threading
+## Scheduling
 
 By default, Frame Processors run synchronously in the Camera pipeline. A Frame Processor has to finish executing before the next Frame arrives, otherwise the new Frame will be dropped.
 For example, if your Camera is running at **30 FPS**, your Frame Processor has **33ms** to finish executing before the next Frame arrives. At **60 FPS**, you only have **16ms**.
@@ -106,7 +106,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Running at a throttled FPS rate
 
-Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps):
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps), which still runs on the main Frame Processor Thread:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
