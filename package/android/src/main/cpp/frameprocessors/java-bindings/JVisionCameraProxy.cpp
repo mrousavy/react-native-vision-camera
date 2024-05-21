@@ -41,7 +41,8 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
     // Run on Frame Processor Worklet Runtime
     scheduler->cthis()->dispatchAsync([f = std::move(f)]() { f(); });
   };
-  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera", runtime, runOnJS, runOnWorklet);
+  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
+  _workletContext->initialize("VisionCamera", runtime, runOnJS, runOnWorklet);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Worklet Context created!");
 #else
   __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
