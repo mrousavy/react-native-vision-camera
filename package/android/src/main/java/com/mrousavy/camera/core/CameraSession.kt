@@ -492,7 +492,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
-  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation): Photo {
+  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation, path: String?): Photo {
     val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
@@ -504,7 +504,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
     val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
 
-    val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
+    val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor, path)
     val isMirrored = photoFile.metadata.isReversedHorizontal
 
     val bitmapOptions = BitmapFactory.Options().also {
@@ -538,7 +538,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     if (recording != null) throw RecordingInProgressError()
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
-    val file = FileUtils.createTempFile(context, options.fileType.toExtension())
+    val file = FileUtils.getDestinationFile(context, options.path, options.fileType.toExtension())
     val outputOptions = FileOutputOptions.Builder(file).also { outputOptions ->
       metadataProvider.location?.let { location ->
         Log.i(TAG, "Setting Video Location to ${location.latitude}, ${location.longitude}...")

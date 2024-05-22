@@ -86,21 +86,23 @@ extension CameraSession {
         }
       }
 
-      // Create temporary file
-      let errorPointer = ErrorPointer(nilLiteral: ())
+      // Destination URL
       let fileExtension = options.fileType.descriptor ?? "mov"
-      guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
-        let message = errorPointer?.pointee?.description
-        onError(.capture(.createTempFileError(message: message)))
+      let destinationURL: URL
+      do {
+        destinationURL = try FileUtils.getDestinationURL(path: options.path, fileExtension: fileExtension)
+        VisionLogger.log(level: .info, message: "Will record to file: \(destinationURL)")
+      } catch let error as CameraError {
+        onError(error)
+        return
+      } catch {
+        onError(.unknown(message: "An unknown error occurred while getting the destination URL."))
         return
       }
 
-      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
-      let tempURL = URL(string: "file://\(tempFilePath)")!
-
       do {
         // Create RecordingSession for the temp file
-        let recordingSession = try RecordingSession(url: tempURL,
+        let recordingSession = try RecordingSession(url: destinationURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
                                                     completion: onFinish)

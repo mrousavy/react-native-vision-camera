@@ -29,6 +29,10 @@ export interface TakePhotoOptions {
    * @default true
    */
   enableShutterSound?: boolean
+  /**
+   * The path where the photo should be saved to.
+   */
+  path?: string
 }
 
 /**

@@ -6,6 +6,10 @@ export interface TakeSnapshotOptions {
    * @default 100
    */
   quality?: number
+  /**
+   * The path where the snapshot should be saved to.
+   */
+  path?: string
 }
 
 export type SnapshotFile = Pick<PhotoFile, 'path' | 'width' | 'height' | 'orientation' | 'isMirrored'>

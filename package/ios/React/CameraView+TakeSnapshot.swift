@@ -10,7 +10,7 @@ import AVFoundation
 import UIKit
 
 extension CameraView {
-  func takeSnapshot(options _: NSDictionary, promise: Promise) {
+  func takeSnapshot(options: NSDictionary, promise: Promise) {
     // If video is not enabled, we won't get any buffers in onFrameListeners. abort it.
     guard video else {
       promise.reject(error: .capture(.videoNotEnabled))
@@ -40,7 +40,8 @@ extension CameraView {
       let ciImage = CIImage(cvPixelBuffer: imageBuffer)
       let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: .up)
       do {
-        let path = try FileUtils.writeUIImageToTempFile(image: image)
+        let path = try FileUtils.getDestinationURL(path: options["path"] as? String, fileExtension: "jpeg")
+        try FileUtils.writeUIImageToFile(image: image, path: path)
         promise.resolve([
           "path": path.absoluteString,
           "width": image.size.width,

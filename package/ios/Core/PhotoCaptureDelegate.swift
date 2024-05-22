@@ -12,15 +12,18 @@ import AVFoundation
 
 class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
+  private let path: URL
   private let enableShutterSound: Bool
   private let cameraSessionDelegate: CameraSessionDelegate?
   private let metadataProvider: MetadataProvider
 
   required init(promise: Promise,
+                path: URL,
                 enableShutterSound: Bool,
                 metadataProvider: MetadataProvider,
                 cameraSessionDelegate: CameraSessionDelegate?) {
     self.promise = promise
+    self.path = path
     self.enableShutterSound = enableShutterSound
     self.metadataProvider = metadataProvider
     self.cameraSessionDelegate = cameraSessionDelegate
@@ -48,7 +51,7 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
     }
 
     do {
-      let path = try FileUtils.writePhotoToTempFile(photo: photo, metadataProvider: metadataProvider)
+      try FileUtils.writePhotoToFile(photo: photo, path: path, metadataProvider: metadataProvider)
 
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]

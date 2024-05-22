@@ -20,7 +20,8 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val photo = cameraSession.takePhoto(
     Flash.fromUnionValue(flash),
     enableShutterSound,
-    orientation
+    orientation,
+    options["path"] as? String
   )
 
   Log.i(TAG, "Successfully captured ${photo.width} x ${photo.height} photo!")
