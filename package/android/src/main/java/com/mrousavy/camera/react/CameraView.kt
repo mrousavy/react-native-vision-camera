@@ -72,6 +72,7 @@ class CameraView(context: Context) :
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
+
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
   var lowLightBoost = false
