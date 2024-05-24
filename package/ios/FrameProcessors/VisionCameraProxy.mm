@@ -23,6 +23,7 @@ VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<reac
                                      id<VisionCameraProxyDelegate> delegate) {
   _callInvoker = callInvoker;
   _delegate = delegate;
+  _initRuntime = runtime;
 
   NSLog(@"VisionCameraProxy: Creating Worklet Context...");
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
@@ -65,7 +66,7 @@ void VisionCameraProxy::removeFrameProcessor(jsi::Runtime& runtime, double jsVie
 jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, const jsi::String& name, const jsi::Object& options) {
   std::string nameString = name.utf8(runtime);
   NSString* key = [NSString stringWithUTF8String:nameString.c_str()];
-  NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToObjCDictionary(runtime, options);
+  NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToObjCDictionary(_initRuntime, options);
   VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
 
   @try {
@@ -75,7 +76,7 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, co
     }
 
     auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
-    return jsi::Object::createFromHostObject(runtime, pluginHostObject);
+    return jsi::Object::createFromHostObject(_initRuntime, pluginHostObject);
   } @catch (NSException* exception) {
     // Objective-C plugin threw an error when initializing.
     NSString* message = [NSString stringWithFormat:@"%@: %@", exception.name, exception.reason];
