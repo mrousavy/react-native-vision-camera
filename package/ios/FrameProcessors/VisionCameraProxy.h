@@ -43,6 +43,6 @@ private:
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
   std::shared_ptr<react::CallInvoker> _callInvoker;
-  jsi::Runtime& _runtime;
+  jsi::Runtime* _runtimePtr;
   id<VisionCameraProxyDelegate> _delegate;
 };

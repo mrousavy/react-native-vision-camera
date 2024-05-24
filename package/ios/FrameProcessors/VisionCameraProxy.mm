@@ -20,9 +20,10 @@
 using namespace facebook;
 
 VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker,
-                                     id<VisionCameraProxyDelegate> delegate) : _runtime(runtime) {
+                                     id<VisionCameraProxyDelegate> delegate) {
   _callInvoker = callInvoker;
   _delegate = delegate;
+  _runtimePtr = &runtime; // Store a pointer to the runtime
 
   NSLog(@"VisionCameraProxy: Creating Worklet Context...");
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
@@ -75,7 +76,7 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, co
     }
 
     auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
-    return jsi::Object::createFromHostObject(_runtime, pluginHostObject);
+    return jsi::Object::createFromHostObject(*_runtimePtr, pluginHostObject);
   } @catch (NSException* exception) {
     // Objective-C plugin threw an error when initializing.
     NSString* message = [NSString stringWithFormat:@"%@: %@", exception.name, exception.reason];
