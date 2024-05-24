@@ -531,6 +531,7 @@ class CameraSession(private val context: Context, private val callback: Callback
   fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
+    outputOrientation: Orientation,
     callback: (video: Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
@@ -545,6 +546,7 @@ class CameraSession(private val context: Context, private val callback: Callback
         outputOptions.setLocation(location)
       }
     }.build()
+    videoOutput.setTargetRotation(outputOrientation.toSurfaceRotation())
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {
       checkMicrophonePermission()
