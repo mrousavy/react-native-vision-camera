@@ -81,13 +81,13 @@ const photo = await camera.current.takePhoto({
 
 Note that flash is only available on camera devices where [`hasFlash`](/docs/api/interfaces/CameraDevice#hasflash) is `true`; for example most front cameras don't have a flash.
 
-### Quality Balance
+### Photo Quality Balance
 
-The photo capture pipeline can be configured to prioritize speed over quality, quality over speed or balance both quality and speed using the [`qualityBalance`](/docs/api/interfaces/CameraProps#qualitybalance) prop.
+The photo capture pipeline can be configured to prioritize speed over quality, quality over speed or balance both quality and speed using the [`photoQualityBalance`](/docs/api/interfaces/CameraProps#photoQualityBalance) prop.
 If set to `speed`, the Camera pipeline will capture photos faster at the cost of lower quality:
 
 ```jsx
-return <Camera {...props} qualityBalance="speed" />
+return <Camera {...props} photoQualityBalance="speed" />
 ```
 
 ## Taking Snapshots
