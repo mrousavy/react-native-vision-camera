@@ -347,6 +347,13 @@ class CameraSession(private val context: Context, private val callback: Callback
       val analyzer = ImageAnalysis.Builder().also { analysis ->
         analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
         analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
+        if (fpsRange != null) {
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
+            fpsRange.lower >= it.minFps &&
+                fpsRange.upper <= it.maxFps
+          }
+          analysis.setTargetFrameRate(fpsRange)
+        }
         if (format != null) {
           Log.i(TAG, "Frame Processor size: ${format.videoSize}")
           val resolutionSelector = ResolutionSelector.Builder()
