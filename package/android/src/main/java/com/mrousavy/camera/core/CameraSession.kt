@@ -47,6 +47,7 @@ import com.mrousavy.camera.core.extensions.forSize
 import com.mrousavy.camera.core.extensions.getCameraError
 import com.mrousavy.camera.core.extensions.id
 import com.mrousavy.camera.core.extensions.isSDR
+import com.mrousavy.camera.core.extensions.setTargetFrameRate
 import com.mrousavy.camera.core.extensions.takePicture
 import com.mrousavy.camera.core.extensions.toCameraError
 import com.mrousavy.camera.core.extensions.withExtension
