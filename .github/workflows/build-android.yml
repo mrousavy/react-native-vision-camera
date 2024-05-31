@@ -22,11 +22,23 @@ jobs:
   build:
     name: Build Android Example App
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./package
     steps:
       - uses: actions/checkout@v4
+
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -71,6 +83,17 @@ jobs:
         working-directory: ./package
     steps:
       - uses: actions/checkout@v4
+
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
