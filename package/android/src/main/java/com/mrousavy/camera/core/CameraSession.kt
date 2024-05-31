@@ -350,7 +350,7 @@ class CameraSession(private val context: Context, private val callback: Callback
         if (fpsRange != null) {
           assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
             fpsRange.lower >= it.minFps &&
-                fpsRange.upper <= it.maxFps
+              fpsRange.upper <= it.maxFps
           }
           analysis.setTargetFrameRate(fpsRange)
         }
