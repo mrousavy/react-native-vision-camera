@@ -1,11 +1,13 @@
 package com.mrousavy.camera.core.types
 
 import android.util.Size
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
+import com.mrousavy.camera.core.extensions.forSize
 import kotlin.math.abs
 
 data class CameraDeviceFormat(
@@ -28,6 +30,17 @@ data class CameraDeviceFormat(
     get() = Size(photoWidth, photoHeight)
   val videoSize: Size
     get() = Size(videoWidth, videoHeight)
+
+  val photoResolutionSelector: ResolutionSelector
+    get() = ResolutionSelector.Builder()
+      .forSize(photoSize)
+      .setAllowedResolutionMode(ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+      .build()
+  val videoResolutionSelector: ResolutionSelector
+    get() = ResolutionSelector.Builder()
+      .forSize(videoSize)
+      .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+      .build()
 
   private val qualitySizes = mapOf<Quality, Int>(
     Quality.SD to 720 * 480,

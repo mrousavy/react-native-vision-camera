@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.util.Range
 import androidx.camera.core.Preview.SurfaceProvider
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeType
@@ -43,6 +44,16 @@ data class CameraConfiguration(
   // Audio Session
   var audio: Output<Audio> = Output.Disabled.create()
 ) {
+  val targetFpsRange: Range<Int>?
+    get() {
+      val fps = fps ?: return null
+      return if (enableLowLightBoost) {
+        Range(fps / 2, fps)
+      } else {
+        Range(fps, fps)
+      }
+    }
+
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
   data class Photo(val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
