@@ -47,6 +47,7 @@ import com.mrousavy.camera.core.extensions.forSize
 import com.mrousavy.camera.core.extensions.getCameraError
 import com.mrousavy.camera.core.extensions.id
 import com.mrousavy.camera.core.extensions.isSDR
+import com.mrousavy.camera.core.extensions.setTargetFrameRate
 import com.mrousavy.camera.core.extensions.takePicture
 import com.mrousavy.camera.core.extensions.toCameraError
 import com.mrousavy.camera.core.extensions.withExtension
@@ -347,6 +348,13 @@ class CameraSession(private val context: Context, private val callback: Callback
       val analyzer = ImageAnalysis.Builder().also { analysis ->
         analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
         analysis.setOutputImageFormat(pixelFormat.toImageAnalysisFormat())
+        if (fpsRange != null) {
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
+            fpsRange.lower >= it.minFps &&
+              fpsRange.upper <= it.maxFps
+          }
+          analysis.setTargetFrameRate(fpsRange)
+        }
         if (format != null) {
           Log.i(TAG, "Frame Processor size: ${format.videoSize}")
           val resolutionSelector = ResolutionSelector.Builder()
