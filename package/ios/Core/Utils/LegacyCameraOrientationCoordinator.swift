@@ -29,7 +29,8 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
     NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
   }
 
-  @objc func handleDeviceOrientationChange(notification _: NSNotification) {
+  @objc
+  func handleDeviceOrientationChange(notification _: NSNotification) {
     let deviceOrientation = UIDevice.current.orientation
 
     var orientation = Orientation(deviceOrientation: deviceOrientation)

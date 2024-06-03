@@ -18,7 +18,7 @@ protocol CameraOrientationCoordinator {
 
 // MARK: - CameraOrientationCoordinatorDelegate
 
-protocol CameraOrientationCoordinatorDelegate: NSObject {
+protocol CameraOrientationCoordinatorDelegate: AnyObject {
   func onPreviewRotationChanged(rotationAngle: Double)
   func onOutputRotationChanged(rotationAngle: Double)
 }
