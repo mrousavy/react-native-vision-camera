@@ -106,6 +106,7 @@ data class CameraConfiguration(
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
         left.format != right.format ||
+        left.orientation != right.orientation ||
         left.fps != right.fps
 
       // repeating request

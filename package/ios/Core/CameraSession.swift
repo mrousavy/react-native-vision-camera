@@ -32,6 +32,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var recordingSession: RecordingSession?
   var didCancelRecording = false
   var isRecording = false
+  var orientationManager = OrientationManager()
 
   // Callbacks
   weak var delegate: CameraSessionDelegate?
@@ -45,7 +46,8 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   }
 
   var outputOrientation: Orientation {
-    return configuration?.orientation ?? .portrait
+    let rotation = orientationManager.outputRotation
+    return Orientation(degrees: rotation)
   }
 
   /**
@@ -55,6 +57,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   override init() {
     super.init()
 
+    orientationManager.delegate = self
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
                                            name: .AVCaptureSessionRuntimeError,
@@ -85,7 +88,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
    Creates a PreviewView for the current Capture Session
    */
   func createPreviewView(frame: CGRect) -> PreviewView {
-    return PreviewView(frame: frame, session: captureSession)
+    let previewView = PreviewView(frame: frame, session: captureSession)
+    orientationManager.setPreviewView(previewView)
+    return previewView
   }
 
   func onConfigureError(_ error: Error) {
@@ -141,10 +146,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           // 3. Update Video Stabilization
           if difference.videoStabilizationChanged {
             self.configureVideoStabilization(configuration: config)
-          }
-          // 4. Update output orientation
-          if difference.orientationChanged {
-            self.configureOrientation(configuration: config)
           }
         }
 

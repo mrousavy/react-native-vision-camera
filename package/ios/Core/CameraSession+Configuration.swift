@@ -45,6 +45,8 @@ extension CameraSession {
     captureSession.addInput(input)
     videoDeviceInput = input
 
+    orientationManager.setInputDevice(videoDevice)
+
     VisionLogger.log(level: .info, message: "Successfully configured Input Device!")
   }
 
@@ -160,15 +162,6 @@ extension CameraSession {
         }
       }
     }
-  }
-
-  // pragma MARK: Orientation
-
-  func configureOrientation(configuration: CameraConfiguration) {
-    // Set up orientation for all non-physically rotating outputs.
-    // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
-
-    photoOutput?.setOrientation(configuration.orientation)
   }
 
   // pragma MARK: Format
