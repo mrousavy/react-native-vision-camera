@@ -67,7 +67,7 @@ enum Orientation: String, JSUnionValue {
       return CGAffineTransform(rotationAngle: -(.pi / 2))
     }
   }
-  
+
   var videoOrientation: AVCaptureVideoOrientation {
     switch self {
     case .portrait:
@@ -80,7 +80,7 @@ enum Orientation: String, JSUnionValue {
       return .landscapeRight
     }
   }
-  
+
   var imageOrientation: UIImage.Orientation {
     switch self {
     case .portrait:
