@@ -8,7 +8,7 @@
 import Foundation
 import AVFoundation
 
-extension CameraSession: OrientationManager.Delegate {
+extension CameraSession: CameraOrientationCoordinatorDelegate {
   /**
    Updates the connected PreviewView's output orientation angle
    */

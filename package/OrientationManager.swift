@@ -9,72 +9,23 @@ import Foundation
 import AVFoundation
 
 class OrientationManager {
-  private var rotationCoordinator: NSObject?
-  private var previewObserver: NSKeyValueObservation?
-  private var outputObserver: NSKeyValueObservation?
-  
-  private weak var device: AVCaptureDevice?
+  private var orientationCoordinator: CameraOrientationCoordinator?
   private weak var previewLayer: CALayer?
-  
-  open weak var delegate: Delegate?
+  private weak var device: AVCaptureDevice?
+  private weak var delegate: CameraOrientationCoordinatorDelegate?
   
   var outputRotation: Double {
-    if #available(iOS 17.0, *) {
-      if let coordinator = rotationCoordinator as? AVCaptureDevice.RotationCoordinator {
-        return coordinator.videoRotationAngleForHorizonLevelCapture
-      }
+    guard let orientationCoordinator else {
+      return 0
     }
-    return 0
+    return orientationCoordinator.outputRotation
   }
   var previewRotation: Double {
-    if #available(iOS 17.0, *) {
-      if let coordinator = rotationCoordinator as? AVCaptureDevice.RotationCoordinator {
-        return coordinator.videoRotationAngleForHorizonLevelPreview
-      }
+    guard let orientationCoordinator else {
+      return 0
     }
-    return 0
+    return orientationCoordinator.previewRotation
   }
-  
-  
-  // pragma MARK: UIDevice Orientation Listener (iOS <17)
-  
-  init() {
-    if #unavailable(iOS 17.0) {
-      // Before iOS 17, we use UIDevice orientation listeners.
-      UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-      NotificationCenter.default.addObserver(
-        self,
-        selector: #selector(handleDeviceOrientationChange),
-        name: UIDevice.orientationDidChangeNotification,
-        object: nil
-      )
-    }
-  }
-  
-  deinit {
-    if #unavailable(iOS 17.0) {
-      // Before iOS 17, we use UIDevice orientation listeners.
-      UIDevice.current.endGeneratingDeviceOrientationNotifications()
-      NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-    }
-  }
-  
-  @objc func handleDeviceOrientationChange(notification: NSNotification) {
-    // Before iOS 17, we use UIDevice orientation listeners.
-    let deviceOrientation = UIDevice.current.orientation
-    
-    var orientation = Orientation(deviceOrientation: deviceOrientation)
-    // By default, all Cameras are in 90deg rotation.
-    // To properly rotate buffers up-right, we now need to counter-rotate by -90deg.
-    orientation = orientation.rotateBy(orientation: .landscapeLeft)
-  
-    // Notify delegate listener
-    delegate?.onPreviewRotationChanged(rotationAngle: orientation.degrees)
-    delegate?.onOutputRotationChanged(rotationAngle: orientation.degrees)
-  }
-  
-  
-  // pragma MARK: RotationCoordinator (iOS >17)
   
   func setInputDevice(_ device: AVCaptureDevice) {
     self.device = device
@@ -88,31 +39,24 @@ class OrientationManager {
   
   private func createObserver() {
     if #available(iOS 17.0, *) {
+      // On iOS 17+, we can use the new RotationCoordinator API which requires the device and preview view.
       guard let device = self.device else {
         // we need a capture device to create a RotationCoordinator. previewLayer is optional though
         return
       }
-      
-      // Create RotationCoordinator
-      let coordinator = AVCaptureDevice.RotationCoordinator(device: device, previewLayer: previewLayer)
-      // Observe Preview Rotation
-      previewObserver = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview) { coordinator, _ in
-        self.delegate?.onPreviewRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelPreview)
-      }
-      // Observe Output Rotation
-      outputObserver = coordinator.observe(\.videoRotationAngleForHorizonLevelCapture) { coordinator, _ in
-        self.delegate?.onOutputRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelCapture)
-      }
-      // Trigger delegate once already
-      self.delegate?.onPreviewRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelPreview)
-      self.delegate?.onOutputRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelCapture)
-      rotationCoordinator = coordinator
+      orientationCoordinator = ModernCameraOrientationCoordinator(device: device, previewLayer: previewLayer)
+    } else {
+      // On iOS <17 we need to use the old UIDevice APIs and do a bit of rotations manually.
+      orientationCoordinator = LegacyCameraOrientationCoordinator()
+    }
+    
+    if let delegate {
+      orientationCoordinator?.setDelegate(delegate)
     }
   }
   
-  
-  protocol Delegate: NSObject {
-    func onPreviewRotationChanged(rotationAngle: Double)
-    func onOutputRotationChanged(rotationAngle: Double)
+  func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate) {
+    self.delegate = delegate
+    orientationCoordinator?.setDelegate(delegate)
   }
 }

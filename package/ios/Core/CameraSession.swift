@@ -57,7 +57,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   override init() {
     super.init()
 
-    orientationManager.delegate = self
+    orientationManager.setDelegate(self)
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
                                            name: .AVCaptureSessionRuntimeError,
