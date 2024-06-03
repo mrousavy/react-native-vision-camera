@@ -70,7 +70,7 @@ class RecordingSession {
     }
     return (lastWrittenTimestamp - startTimestamp).seconds
   }
-  
+
   /**
    Get the presentation orientation of the video.
    */

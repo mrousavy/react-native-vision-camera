@@ -43,7 +43,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     }
     return 1.0
   }
-  
+
   var outputOrientation: Orientation {
     return configuration?.orientation ?? .portrait
   }

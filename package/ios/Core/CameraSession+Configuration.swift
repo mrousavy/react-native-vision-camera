@@ -63,7 +63,7 @@ extension CameraSession {
     photoOutput = nil
     videoOutput = nil
     codeScannerOutput = nil
-    
+
     let isMirrored = videoDeviceInput?.device.position == .front
 
     // Photo Output
@@ -114,7 +114,7 @@ extension CameraSession {
       if isMirrored {
         videoOutput.mirror()
       }
-      
+
       self.videoOutput = videoOutput
     }
 
@@ -167,7 +167,7 @@ extension CameraSession {
   func configureOrientation(configuration: CameraConfiguration) {
     // Set up orientation for all non-physically rotating outputs.
     // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
-    
+
     photoOutput?.setOrientation(configuration.orientation)
   }
 

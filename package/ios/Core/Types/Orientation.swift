@@ -54,7 +54,7 @@ enum Orientation: String, JSUnionValue {
   var jsValue: String {
     return rawValue
   }
-  
+
   var affineTransform: CGAffineTransform {
     switch self {
     case .portrait:
