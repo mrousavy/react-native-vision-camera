@@ -176,11 +176,16 @@ export function createSkiaFrameProcessor(
               const rotationDegrees = getRotationDegrees(frame.orientation)
               canvas.rotate(rotationDegrees, frame.width / 2, frame.height / 2)
 
-              // 3. render the Camera Frame to the Canvas as-is, matrix is already rotated
+              // 3. translate the rotated frame so (0, 0) is still in the top left corner
+              const scale = frame.height / frame.width
+              const diff = Math.abs(frame.width - frame.height)
+              canvas.translate(diff * scale, diff * scale)
+
+              // 4. render the Camera Frame to the Canvas as-is, matrix is already rotated
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
               else canvas.drawImage(image, 0, 0)
 
-              // 4. restore transformation matrix again
+              // 5. restore transformation matrix again
               canvas.restore()
             }
           case 'dispose':
