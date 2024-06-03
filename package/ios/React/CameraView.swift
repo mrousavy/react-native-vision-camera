@@ -352,7 +352,8 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        let orientation = cameraSession.outputOrientation
+        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
         frameProcessor.call(frame)
       }
     #endif
@@ -380,25 +381,5 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     onAverageFpsChanged([
       "averageFps": averageFps,
     ])
-  }
-
-  /**
-   Gets the orientation of the CameraView's frames (CMSampleBuffers),
-   relative to the phone in portrait mode.
-
-   For example, an orientation of `.right` means that the buffer is in landscape.
-   */
-  private var bufferOrientation: UIImage.Orientation {
-    guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
-      return .up
-    }
-    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
-    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
-    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
-    if cameraPosition == .front {
-      return .upMirrored
-    } else {
-      return .up
-    }
   }
 }
