@@ -146,8 +146,6 @@ export function createSkiaFrameProcessor(
     const nativeBuffer = (frame as FrameInternal).getNativeBuffer()
     const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
 
-    console.log(`${image.width()} x ${image.height()}`)
-
     // Creates a `Proxy` that holds the SkCanvas, but also adds additional methods such as render() and dispose().
     const canvasProxy = new Proxy(canvas as DrawableCanvas, {
       get(_, property: keyof DrawableCanvas) {
