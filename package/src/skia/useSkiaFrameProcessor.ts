@@ -4,11 +4,11 @@ import { useEffect, useMemo } from 'react'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
-import type { Orientation } from '../types/Orientation'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
+import type { Orientation } from '../types/Orientation'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -60,6 +60,23 @@ function getRotationDegrees(orientation: Orientation): number {
       return 270
     default:
       throw new Error(`Frame has invalid Orientation: ${orientation}!`)
+  }
+}
+
+interface Size {
+  width: number
+  height: number
+}
+
+function getSurfaceSize(frame: Frame): Size {
+  'worklet'
+  switch (frame.orientation) {
+    case 'portrait':
+    case 'portrait-upside-down':
+      return { width: frame.width, height: frame.height }
+    case 'landscape-left':
+    case 'landscape-right':
+      return { width: frame.height, height: frame.width }
   }
 }
 
@@ -118,21 +135,19 @@ export function createSkiaFrameProcessor(
     // A true workaround would be to expose Skia Contexts to JS in RN Skia,
     // but for now this is fine.
     const threadId = Worklets.getCurrentThreadId()
-    const width = frame.width
-    const height = frame.height
-
+    const size = getSurfaceSize(frame)
     if (
       surfaceHolder.value[threadId] == null ||
-      surfaceHolder.value[threadId]?.width !== width ||
-      surfaceHolder.value[threadId]?.height !== height
+      surfaceHolder.value[threadId]?.width !== size.width ||
+      surfaceHolder.value[threadId]?.height !== size.height
     ) {
-      const surface = Skia.Surface.MakeOffscreen(width, height)
+      const surface = Skia.Surface.MakeOffscreen(size.width, size.height)
       if (surface == null) {
         // skia surface couldn't be allocated
-        throw new Error(`Failed to create ${width}x${height} Skia Surface!`)
+        throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
       surfaceHolder.value[threadId]?.surface.dispose()
-      surfaceHolder.value[threadId] = { surface: surface, width: width, height: height }
+      surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
     const surface = surfaceHolder.value[threadId]?.surface
     if (surface == null) throw new Error(`Couldn't find Surface in Thread-cache! ID: ${threadId}`)
@@ -155,17 +170,17 @@ export function createSkiaFrameProcessor(
           case 'render':
             return (paint?: SkPaint) => {
               'worklet'
-              // 1. save canvas matrix
+              // 1. save current matrix
               canvas.save()
-              // 2. rotate canvas by sensor orientation so frame is up-right
-              const rotation = getRotationDegrees(frame.orientation)
-              canvas.rotate(rotation, frame.width / 2, frame.height / 2)
+              // 2. rotate by sensor orientation degrees
+              const rotationDegrees = getRotationDegrees(frame.orientation)
+              canvas.rotate(rotationDegrees, frame.width / 2, frame.height / 2)
 
-              // 3. render the Camera Frame to the Canvas as-is, matrix will handle orientation
+              // 3. render the Camera Frame to the Canvas as-is, matrix is already rotated
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
               else canvas.drawImage(image, 0, 0)
 
-              // 4. restore canvas matrix back to original
+              // 4. restore transformation matrix again
               canvas.restore()
             }
           case 'dispose':
