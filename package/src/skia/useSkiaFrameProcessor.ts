@@ -3,12 +3,12 @@ import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
+import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
+import type { Orientation } from '../types/Orientation'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
-import { type SkCanvas, type SkPaint, type SkImage, type SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
-import type { Orientation } from '../types/Orientation'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
