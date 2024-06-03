@@ -103,6 +103,7 @@ extension CameraSession {
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
+                                                    orientation: self.outputOrientation,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)

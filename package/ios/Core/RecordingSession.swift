@@ -70,12 +70,19 @@ class RecordingSession {
     }
     return (lastWrittenTimestamp - startTimestamp).seconds
   }
+  
+  /**
+   Get the presentation orientation of the video.
+   */
+  let videoOrientation: Orientation
 
   init(url: URL,
        fileType: AVFileType,
        metadataProvider: MetadataProvider,
+       orientation: Orientation,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
+    videoOrientation = orientation
 
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
@@ -112,6 +119,7 @@ class RecordingSession {
     VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
     videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter!.expectsMediaDataInRealTime = true
+    videoWriter!.transform = videoOrientation.affineTransform
     assetWriter.add(videoWriter!)
     VisionLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }

@@ -63,6 +63,8 @@ extension CameraSession {
     photoOutput = nil
     videoOutput = nil
     codeScannerOutput = nil
+    
+    let isMirrored = videoDeviceInput?.device.position == .front
 
     // Photo Output
     if case let .enabled(photo) = configuration.photo {
@@ -88,6 +90,9 @@ extension CameraSession {
       if #available(iOS 12.0, *), photo.enablePortraitEffectsMatte {
         photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
       }
+      if isMirrored {
+        photoOutput.mirror()
+      }
 
       self.photoOutput = photoOutput
     }
@@ -106,6 +111,10 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
+      if isMirrored {
+        videoOutput.mirror()
+      }
+      
       self.videoOutput = videoOutput
     }
 
@@ -156,15 +165,10 @@ extension CameraSession {
   // pragma MARK: Orientation
 
   func configureOrientation(configuration: CameraConfiguration) {
-    // Set up orientation and mirroring for all outputs.
+    // Set up orientation for all non-physically rotating outputs.
     // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
-    let isMirrored = videoDeviceInput?.device.position == .front
-    for output in captureSession.outputs {
-      if isMirrored {
-        output.mirror()
-      }
-      output.setOrientation(configuration.orientation)
-    }
+    
+    photoOutput?.setOrientation(configuration.orientation)
   }
 
   // pragma MARK: Format

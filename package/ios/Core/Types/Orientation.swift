@@ -54,8 +54,21 @@ enum Orientation: String, JSUnionValue {
   var jsValue: String {
     return rawValue
   }
+  
+  var affineTransform: CGAffineTransform {
+    switch self {
+    case .portrait:
+      return .identity
+    case .landscapeLeft:
+      return CGAffineTransform(rotationAngle: .pi / 2)
+    case .portraitUpsideDown:
+      return CGAffineTransform(rotationAngle: .pi)
+    case .landscapeRight:
+      return CGAffineTransform(rotationAngle: -(.pi / 2))
+    }
+  }
 
-  func toAVCaptureVideoOrientation() -> AVCaptureVideoOrientation {
+  var videoOrientation: AVCaptureVideoOrientation {
     switch self {
     case .portrait:
       return .portrait
@@ -68,7 +81,7 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  func toDegrees() -> Double {
+  var degrees: Double {
     switch self {
     case .portrait:
       return 0
@@ -82,7 +95,7 @@ enum Orientation: String, JSUnionValue {
   }
 
   func rotateBy(orientation: Orientation) -> Orientation {
-    let added = toDegrees() + orientation.toDegrees()
+    let added = degrees + orientation.degrees
     let degress = added.truncatingRemainder(dividingBy: 360)
     return Orientation(degrees: degress)
   }
