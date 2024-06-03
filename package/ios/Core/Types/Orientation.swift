@@ -50,6 +50,21 @@ enum Orientation: String, JSUnionValue {
       self = .portrait
     }
   }
+  
+  init(deviceOrientation: UIDeviceOrientation) {
+    switch (deviceOrientation) {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      self = .landscapeLeft
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    case .landscapeLeft:
+      self = .landscapeRight
+    default:
+      self = .portrait
+    }
+  }
 
   var jsValue: String {
     return rawValue
