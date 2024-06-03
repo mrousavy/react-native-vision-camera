@@ -1,14 +1,14 @@
 import type { Frame, FrameInternal } from '../types/Frame'
 import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
-import type { Orientation } from '../types/Orientation'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
 import { WorkletsProxy } from '../dependencies/WorkletsProxy'
-import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
+import { type SkCanvas, type SkPaint, type SkImage, type SkSurface } from '@shopify/react-native-skia'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
+import type { Orientation } from '../types/Orientation'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -37,6 +37,16 @@ export interface DrawableFrame extends Frame, SkCanvas {
 type Difference<T, U> = Pick<T, Exclude<keyof T, keyof U>>
 type DrawableCanvas = Difference<DrawableFrame, Frame>
 
+type ThreadID = ReturnType<IWorkletNativeApi['getCurrentThreadId']>
+type SurfaceCache = Record<
+  ThreadID,
+  {
+    surface: SkSurface
+    width: number
+    height: number
+  }
+>
+
 function getRotationDegrees(orientation: Orientation): number {
   'worklet'
   switch (orientation) {
@@ -52,27 +62,6 @@ function getRotationDegrees(orientation: Orientation): number {
       throw new Error(`Frame has invalid Orientation: ${orientation}!`)
   }
 }
-
-function getPortraitSize(frame: Frame): { width: number; height: number } {
-  'worklet'
-  if (frame.orientation === 'landscape-left' || frame.orientation === 'landscape-right') {
-    // it is rotated to some side, so we need to apply rotations first.
-    return { width: frame.height, height: frame.width }
-  } else {
-    // it is already rotated upright.
-    return { width: frame.width, height: frame.height }
-  }
-}
-
-type ThreadID = ReturnType<IWorkletNativeApi['getCurrentThreadId']>
-type SurfaceCache = Record<
-  ThreadID,
-  {
-    surface: SkSurface
-    width: number
-    height: number
-  }
->
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -129,19 +118,21 @@ export function createSkiaFrameProcessor(
     // A true workaround would be to expose Skia Contexts to JS in RN Skia,
     // but for now this is fine.
     const threadId = Worklets.getCurrentThreadId()
-    const size = getPortraitSize(frame)
+    const width = frame.width
+    const height = frame.height
+
     if (
       surfaceHolder.value[threadId] == null ||
-      surfaceHolder.value[threadId]?.width !== size.width ||
-      surfaceHolder.value[threadId]?.height !== size.height
+      surfaceHolder.value[threadId]?.width !== width ||
+      surfaceHolder.value[threadId]?.height !== height
     ) {
-      const surface = Skia.Surface.MakeOffscreen(size.width, size.height)
+      const surface = Skia.Surface.MakeOffscreen(width, height)
       if (surface == null) {
         // skia surface couldn't be allocated
-        throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
+        throw new Error(`Failed to create ${width}x${height} Skia Surface!`)
       }
       surfaceHolder.value[threadId]?.surface.dispose()
-      surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
+      surfaceHolder.value[threadId] = { surface: surface, width: width, height: height }
     }
     const surface = surfaceHolder.value[threadId]?.surface
     if (surface == null) throw new Error(`Couldn't find Surface in Thread-cache! ID: ${threadId}`)
@@ -155,6 +146,8 @@ export function createSkiaFrameProcessor(
     const nativeBuffer = (frame as FrameInternal).getNativeBuffer()
     const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
 
+    console.log(`${image.width()} x ${image.height()}`)
+
     // Creates a `Proxy` that holds the SkCanvas, but also adds additional methods such as render() and dispose().
     const canvasProxy = new Proxy(canvas as DrawableCanvas, {
       get(_, property: keyof DrawableCanvas) {
@@ -164,15 +157,17 @@ export function createSkiaFrameProcessor(
           case 'render':
             return (paint?: SkPaint) => {
               'worklet'
-              // rotate canvas to properly account for Frame orientation
+              // 1. save canvas matrix
               canvas.save()
+              // 2. rotate canvas by sensor orientation so frame is up-right
               const rotation = getRotationDegrees(frame.orientation)
               canvas.rotate(rotation, frame.width / 2, frame.height / 2)
-              // render the Camera Frame to the Canvas
+
+              // 3. render the Camera Frame to the Canvas as-is, matrix will handle orientation
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
               else canvas.drawImage(image, 0, 0)
 
-              // restore transforms/rotations again
+              // 4. restore canvas matrix back to original
               canvas.restore()
             }
           case 'dispose':
