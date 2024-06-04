@@ -22,7 +22,7 @@ extension CameraSession: CameraOrientationCoordinatorDelegate {
       return
     }
 
-    VisionLogger.log(level: .info, message: "Updating Preview rotation: \(previewOrientation)°...")
+    VisionLogger.log(level: .info, message: "Updating Preview rotation: \(previewOrientation)...")
 
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
@@ -32,7 +32,7 @@ extension CameraSession: CameraOrientationCoordinatorDelegate {
   }
 
   func onOutputOrientationChanged(outputOrientation: Orientation) {
-    VisionLogger.log(level: .info, message: "Updating Outputs rotation: \(outputOrientation)°...")
+    VisionLogger.log(level: .info, message: "Updating Outputs rotation: \(outputOrientation)...")
 
     // update the orientation for each output that supports virtual (no-performance-overhead) rotation
     let rotateableOutputs = captureSession.outputs.filter(\.supportsVirtualRotation)

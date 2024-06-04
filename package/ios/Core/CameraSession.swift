@@ -142,6 +142,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.videoStabilizationChanged {
             self.configureVideoStabilization(configuration: config)
           }
+          // 4. Update target output orientation
+          if difference.orientationChanged {
+            self.orientationManager.setTargetOutputOrientation(config.outputOrientation)
+          }
         }
 
         guard let device = self.videoDeviceInput?.device else {
@@ -155,25 +159,25 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             device.unlockForConfiguration()
           }
 
-          // 4. Configure format
+          // 5. Configure format
           if difference.formatChanged {
             try self.configureFormat(configuration: config, device: device)
           }
-          // 5. After step 2. and 4., we also need to configure some output properties that depend on format.
+          // 6. After step 2. and 4., we also need to configure some output properties that depend on format.
           //    This needs to be done AFTER we updated the `format`, as this controls the supported properties.
           if difference.outputsChanged || difference.formatChanged {
             self.configureVideoOutputFormat(configuration: config)
             self.configurePhotoOutputFormat(configuration: config)
           }
-          // 6. Configure side-props (fps, lowLightBoost)
+          // 7. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
             try self.configureSideProps(configuration: config, device: device)
           }
-          // 7. Configure zoom
+          // 8. Configure zoom
           if difference.zoomChanged {
             self.configureZoom(configuration: config, device: device)
           }
-          // 8. Configure exposure bias
+          // 9. Configure exposure bias
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
@@ -185,10 +189,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           self.captureSession.commitConfiguration()
         }
 
-        // 9. Start or stop the session if needed
+        // 10. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
-        // 10. Enable or disable the Torch if needed (requires session to be running)
+        // 11. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try device.lockForConfiguration()
           defer {
@@ -237,14 +241,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           } catch {
             self.onConfigureError(error)
           }
-        }
-      }
-
-      // Check if Hardware Cost is okay
-      if #available(iOS 16.0, *) {
-        if self.captureSession.hardwareCost > 1 {
-          // Throw this error to the user, but don't abort the configuration. Maybe it still works.
-          self.onConfigureError(CameraError.session(.hardwareCostTooHigh(cost: self.captureSession.hardwareCost)))
         }
       }
     }

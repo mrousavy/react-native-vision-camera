@@ -84,13 +84,14 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
       return
     }
 
+    VisionLogger.log(level: .info, message: "Setting target output orientation from \(targetOutputOrientation) to \(targetOrientation)...")
     targetOutputOrientation = targetOrientation
     // update delegate listener
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
 
-  func onPreviewOrientationChanged(previewOrientation: Orientation) {
+  func onPreviewOrientationChanged(previewOrientation _: Orientation) {
     guard let delegate else {
       return
     }
@@ -98,7 +99,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
 
-  func onOutputOrientationChanged(outputOrientation: Orientation) {
+  func onOutputOrientationChanged(outputOrientation _: Orientation) {
     guard let delegate else {
       return
     }
