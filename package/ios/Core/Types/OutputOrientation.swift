@@ -11,15 +11,15 @@ enum OutputOrientation: String, JSUnionValue {
   /**
    Automatically rotate outputs based on device physical rotation (even if screen-lock is on)
    */
-  case device = "device"
+  case device
   /**
    Automatically rotate outputs based on preview view's rotation (obides to screen-lock)
    */
-  case preview = "preview"
+  case preview
   /**
    Fixed to portrait (0°, home-button on the bottom)
    */
-  case portrait = "portrait"
+  case portrait
   /**
    Fixed to landscape-left (90°, home-button on the left)
    */
@@ -32,7 +32,7 @@ enum OutputOrientation: String, JSUnionValue {
    Fixed to landscape-right (270°, home-button on the right)
    */
   case landscapeRight = "landscape-right"
-  
+
   init(jsValue: String) throws {
     if let parsed = OutputOrientation(rawValue: jsValue) {
       self = parsed
@@ -40,11 +40,11 @@ enum OutputOrientation: String, JSUnionValue {
       throw CameraError.parameter(.invalid(unionName: "orientation", receivedValue: jsValue))
     }
   }
-  
+
   var jsValue: String {
     return rawValue
   }
-  
+
   /**
    If the orientation is locked to a specific orientation, this will return the according Orientation.
    If the orientation is dynamic/automatic (device/preview), this will return nil.

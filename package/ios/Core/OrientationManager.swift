@@ -24,7 +24,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     }
     return orientationCoordinator.previewOrientation
   }
-  
+
   /**
    The orientation of all outputs (photo, video, ..)
    */
@@ -77,19 +77,19 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
   }
-  
+
   func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {
-    if self.targetOutputOrientation == targetOrientation {
+    if targetOutputOrientation == targetOrientation {
       // already the same
       return
     }
-    
-    self.targetOutputOrientation = targetOrientation
+
+    targetOutputOrientation = targetOrientation
     // update delegate listener
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
-  
+
   func onPreviewOrientationChanged(previewOrientation: Orientation) {
     guard let delegate else {
       return
@@ -97,7 +97,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     // update delegate listener
     delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
-  
+
   func onOutputOrientationChanged(outputOrientation: Orientation) {
     guard let delegate else {
       return

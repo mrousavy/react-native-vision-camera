@@ -50,7 +50,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var photoHdr = false
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
-  @objc var orientation: NSString?
+  @objc var outputOrientation: NSString?
 
   // other props
   @objc var isActive = false
@@ -231,11 +231,11 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       }
 
       // Orientation
-      if let jsOrientation = orientation as? String {
+      if let jsOrientation = outputOrientation as? String {
         let outputOrientation = try OutputOrientation(jsValue: jsOrientation)
-        config.orientation = outputOrientation
+        config.outputOrientation = outputOrientation
       } else {
-        config.orientation = .device
+        config.outputOrientation = .device
       }
 
       // Format

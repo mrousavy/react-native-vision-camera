@@ -290,7 +290,7 @@ export interface CameraProps extends ViewProps {
    * @see See [the Orientation documentation](https://react-native-vision-camera.com/docs/guides/orientation) for more information
    * @default 'device'
    */
-  orientation?: OutputOrientation
+  outputOrientation?: OutputOrientation
 
   //#region Events
   /**
