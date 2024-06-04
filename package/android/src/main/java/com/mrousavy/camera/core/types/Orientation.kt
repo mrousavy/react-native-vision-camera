@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core.types
 
+import android.view.Display
 import android.view.Surface
 
 // This orientation represents the orientation of the device home button.
@@ -37,5 +38,14 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
         in 225..315 -> LANDSCAPE_RIGHT
         else -> PORTRAIT
       }
+
+    fun fromSurfaceRotation(rotation: Int): Orientation =
+        when (rotation) {
+          Surface.ROTATION_0 -> PORTRAIT
+          Surface.ROTATION_90 -> LANDSCAPE_LEFT
+          Surface.ROTATION_180 -> PORTRAIT_UPSIDE_DOWN
+          Surface.ROTATION_270 -> LANDSCAPE_RIGHT
+          else -> PORTRAIT
+        }
   }
 }
