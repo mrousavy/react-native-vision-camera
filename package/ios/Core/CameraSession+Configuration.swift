@@ -92,9 +92,7 @@ extension CameraSession {
       if #available(iOS 12.0, *), photo.enablePortraitEffectsMatte {
         photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
       }
-      if isMirrored {
-        photoOutput.mirror()
-      }
+      photoOutput.isMirrored = isMirrored
 
       self.photoOutput = photoOutput
     }
@@ -113,9 +111,7 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
-      if isMirrored {
-        videoOutput.mirror()
-      }
+      videoOutput.isMirrored = isMirrored
 
       self.videoOutput = videoOutput
     }
