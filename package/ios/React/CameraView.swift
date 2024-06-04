@@ -96,7 +96,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
-  var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
+  var snapshotOnFrameListeners: [(_: Frame) -> Void] = []
   private var currentConfigureCall: DispatchTime?
   private let fpsSampleCollector = FpsSampleCollector()
 
@@ -346,20 +346,18 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer) {
+  func onFrame(frame: Frame) {
     fpsSampleCollector.onTick()
 
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let orientation = cameraSession.outputOrientation
-        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
         frameProcessor.call(frame)
       }
     #endif
 
     for callback in snapshotOnFrameListeners {
-      callback(sampleBuffer)
+      callback(frame)
     }
     snapshotOnFrameListeners.removeAll()
   }

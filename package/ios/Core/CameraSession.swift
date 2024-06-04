@@ -45,11 +45,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     return 1.0
   }
 
-  var outputOrientation: Orientation {
-    let rotation = orientationManager.outputRotation
-    return Orientation(degrees: rotation)
-  }
-
   /**
    Create a new instance of the `CameraSession`.
    The `onError` callback is used for any runtime errors.
@@ -276,10 +271,12 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   /**
    Called for every new Frame in the Video output
    */
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     // Call Frame Processor (delegate) for every Video Frame
     if captureOutput is AVCaptureVideoDataOutput {
-      delegate?.onFrame(sampleBuffer: sampleBuffer)
+      let orientation = connection.orientation
+      let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
+      delegate?.onFrame(frame: frame)
     }
 
     // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)

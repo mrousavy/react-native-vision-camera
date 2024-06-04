@@ -56,11 +56,28 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
+      // view is counter-rotated
       self = .landscapeLeft
     case .portraitUpsideDown:
       self = .portraitUpsideDown
+      // view is counter-rotated
     case .landscapeLeft:
       self = .landscapeRight
+    default:
+      self = .portrait
+    }
+  }
+  
+  init(videoOrientation: AVCaptureVideoOrientation) {
+    switch (videoOrientation) {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      self = .landscapeRight
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    case .landscapeLeft:
+      self = .landscapeLeft
     default:
       self = .portrait
     }

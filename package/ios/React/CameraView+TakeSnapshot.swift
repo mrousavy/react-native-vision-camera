@@ -25,7 +25,7 @@ extension CameraView {
     }
 
     // Add a listener to the onFrame callbacks which will get called later if video is enabled.
-    snapshotOnFrameListeners.append { buffer in
+    snapshotOnFrameListeners.append { frame in
       if promise.didResolve {
         // capture was already aborted (timed out)
         return
@@ -33,6 +33,7 @@ extension CameraView {
 
       self.onCaptureShutter(shutterType: .snapshot)
 
+      let buffer = frame.buffer
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
         promise.reject(error: .capture(.imageDataAccessError))
         return

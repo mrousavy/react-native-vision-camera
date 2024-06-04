@@ -9,6 +9,15 @@ import Foundation
 import AVFoundation
 
 extension CameraSession: CameraOrientationCoordinatorDelegate {
+  var previewOrientation: Orientation {
+    let rotation = orientationManager.previewRotation
+    return Orientation(degrees: rotation)
+  }
+  var outputOrientation: Orientation {
+    let rotation = orientationManager.outputRotation
+    return Orientation(degrees: rotation)
+  }
+  
   /**
    Updates the connected PreviewView's output orientation angle
    */
@@ -23,7 +32,7 @@ extension CameraSession: CameraOrientationCoordinatorDelegate {
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
     for connection in previewConnections {
-      connection.setOrientation(degrees: rotationAngle)
+      connection.orientation = Orientation(degrees: rotationAngle)
     }
   }
   
@@ -35,7 +44,7 @@ extension CameraSession: CameraOrientationCoordinatorDelegate {
     for output in rotateableOutputs {
       // set orientation for all connections
       for connection in output.connections {
-        connection.setOrientation(degrees: rotationAngle)
+        connection.orientation = Orientation(degrees: rotationAngle)
       }
     }
   }
