@@ -104,6 +104,10 @@ class CameraSession(private val context: Context, private val callback: Callback
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
 
+  // Orientation
+  val outputOrientation: Orientation
+    get() = orientationManager.outputOrientation
+
   init {
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
     lifecycle.addObserver(object : LifecycleEventObserver {
@@ -511,6 +515,7 @@ class CameraSession(private val context: Context, private val callback: Callback
   }
 
   override fun onOutputOrientationChanged(outputOrientation: Orientation) {
+    Log.i(TAG, "Output orientation changed! $outputOrientation")
     photoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
     videoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
     frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()

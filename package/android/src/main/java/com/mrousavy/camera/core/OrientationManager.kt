@@ -4,6 +4,8 @@ import android.content.Context
 import android.hardware.display.DisplayManager
 import android.util.Log
 import android.view.OrientationEventListener
+import android.view.Surface
+import androidx.camera.core.UseCase
 import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.OutputOrientation
 
@@ -15,6 +17,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
   private var targetOutputOrientation = OutputOrientation.DEVICE
 
   // Screen Orientation Listener
+  private var screenRotation = Surface.ROTATION_0
   private val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
   private val displayListener = object : DisplayManager.DisplayListener {
     override fun onDisplayAdded(displayId: Int) = Unit
@@ -22,22 +25,33 @@ class OrientationManager(private val context: Context, private val callback: Cal
     override fun onDisplayChanged(displayId: Int) {
       // Display rotated!
       val display = displayManager.getDisplay(displayId) ?: return
-      val surfaceRotation = display.rotation
-      val orientation = Orientation.fromRotationDegrees(surfaceRotation)
-      Log.i(TAG, "Output orientation changed! $orientation (screen)")
-      callback.onOutputOrientationChanged(orientation)
+      screenRotation = display.rotation
+      callback.onOutputOrientationChanged(outputOrientation)
     }
   }
 
   // Physical Device Orientation listener
+  private var deviceRotation = Surface.ROTATION_0
   private val orientationListener = object: OrientationEventListener(context) {
     override fun onOrientationChanged(rotationDegrees: Int) {
       // Phone rotated!
-      val orientation = Orientation.fromRotationDegrees(rotationDegrees)
-      Log.i(TAG, "Output orientation changed! $orientation (device)")
-      callback.onOutputOrientationChanged(orientation)
+      deviceRotation = degreesToSurfaceRotation(rotationDegrees)
+      callback.onOutputOrientationChanged(outputOrientation)
     }
   }
+
+  // Get the current output orientation (a computed value)
+  val outputOrientation: Orientation
+    get() {
+      return when (targetOutputOrientation) {
+        OutputOrientation.DEVICE -> Orientation.fromSurfaceRotation(deviceRotation)
+        OutputOrientation.PREVIEW -> Orientation.fromSurfaceRotation(screenRotation)
+        OutputOrientation.PORTRAIT -> Orientation.PORTRAIT
+        OutputOrientation.LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
+        OutputOrientation.PORTRAIT_UPSIDE_DOWN -> Orientation.PORTRAIT_UPSIDE_DOWN
+        OutputOrientation.LANDSCAPE_RIGHT -> Orientation.LANDSCAPE_RIGHT
+      }
+    }
 
   fun setTargetOutputOrientation(targetOrientation: OutputOrientation) {
     if (targetOutputOrientation == targetOrientation) {
@@ -63,6 +77,15 @@ class OrientationManager(private val context: Context, private val callback: Cal
       OutputOrientation.PORTRAIT, OutputOrientation.LANDSCAPE_RIGHT, OutputOrientation.PORTRAIT_UPSIDE_DOWN, OutputOrientation.LANDSCAPE_LEFT -> {
         Log.i(TAG, "Setting output orientation to $targetOrientation. (locked)")
       }
+    }
+  }
+
+  private fun degreesToSurfaceRotation(degrees: Int): Int {
+    return when (degrees) {
+      in 45..135 -> Surface.ROTATION_90
+      in 135..225 -> Surface.ROTATION_180
+      in 225..315 -> Surface.ROTATION_270
+      else -> Surface.ROTATION_0
     }
   }
 

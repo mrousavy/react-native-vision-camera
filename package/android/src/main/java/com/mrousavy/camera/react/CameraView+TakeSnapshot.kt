@@ -23,6 +23,8 @@ fun CameraView.takeSnapshot(options: SnapshotOptions): WritableMap {
 
   Log.i(TAG, "Successfully saved snapshot to file!")
 
+  val orientation = cameraSession.outputOrientation
+
   val map = Arguments.createMap()
   map.putString("path", file.absolutePath)
   map.putInt("width", bitmap.width)
