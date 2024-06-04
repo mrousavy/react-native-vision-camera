@@ -17,7 +17,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   private var targetOutputOrientation = OutputOrientation.device
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
-  
+
   weak var delegate: Delegate?
 
   /**
@@ -66,10 +66,10 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   }
 
   private func createObserver() {
-    guard let device = self.device else {
+    guard let device = device else {
       return
     }
-    
+
     if #available(iOS 17.0, *) {
       // On iOS 17+, we can use the new RotationCoordinator API which requires the device and optionally a preview view.
       orientationCoordinator = ModernCameraOrientationCoordinator(device: device, previewLayer: previewLayer)
@@ -93,13 +93,13 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
-  
+
   func onOrientationChanged() {
     // Notify both delegate listeners about the new orientation change
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
   }
-  
+
   protocol Delegate: AnyObject {
     func onPreviewOrientationChanged(previewOrientation: Orientation)
     func onOutputOrientationChanged(outputOrientation: Orientation)

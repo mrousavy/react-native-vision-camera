@@ -9,7 +9,7 @@ import Foundation
 
 enum HardwareLevel: String, JSUnionValue {
   case full
-  
+
   init(jsValue: String) throws {
     if let parsed = HardwareLevel(rawValue: jsValue) {
       self = parsed
@@ -17,7 +17,7 @@ enum HardwareLevel: String, JSUnionValue {
       throw CameraError.parameter(.invalid(unionName: "hardwareLevel", receivedValue: jsValue))
     }
   }
-  
+
   var jsValue: String {
     return rawValue
   }
