@@ -12,6 +12,13 @@ extension CameraSession: OrientationManagerDelegate {
   var outputOrientation: Orientation {
     return orientationManager.outputOrientation
   }
+  
+  var isMirrored: Bool {
+    guard let videoDeviceInput else {
+      return false
+    }
+    return videoDeviceInput.device.position == .front
+  }
 
   /**
    Updates the connected PreviewView's output orientation angle
