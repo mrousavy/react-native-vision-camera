@@ -38,6 +38,7 @@ extension CameraSession {
         return
       }
 
+      let isMirrored = videoOutput.isMirrored
       let enableAudio = self.configuration?.audio != .disabled
 
       // Callback for when the recording ends
@@ -105,8 +106,13 @@ extension CameraSession {
       // Video stream is already rotated against sensor orientation so we can properly mirror.
       // counter that rotation again for the AVAssetWriter transforms
       let sensorOrientation = videoDeviceInput.device.sensorOrientation
-      let counterOrientation = sensorOrientation.reversed()
-      let orientation = self.outputOrientation.rotateBy(orientation: counterOrientation)
+      var outputOrientation = self.outputOrientation
+      if isMirrored {
+        // mirrored streams are reversed.
+        outputOrientation = outputOrientation.reversed()
+      }
+      let orientation = outputOrientation.rotateBy(orientation: sensorOrientation.reversed())
+      VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation). Video will be \(orientation)...")
 
       do {
         // Create RecordingSession for the temp file
