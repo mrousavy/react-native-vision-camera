@@ -1,0 +1,110 @@
+---
+id: orientation
+title: Orientation
+sidebar_label: Orientation
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <img width="283" src={useBaseUrl("img/example.png")} />
+</div>
+
+## Camera Sensor Orientation
+
+A Camera sensor is configured to deliver buffers in a specific size, for example 4096x2160.
+To avoid re-allocating such large buffers every time the phone rotates, the Camera pipeline will always deliver buffers in it's native sensor orientation (see [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensororientation)) and frames need to be rotated to appear up-right.
+
+Since actually rotating pixels in such large buffers is really expensive and causes an unnecessary performance overhead, VisionCamera applies rotations through flags or transforms:
+
+#### Photo & Video Output
+
+Photos and videos will be captured in a potentially "wrong" orientation, and VisionCamera will write an EXIF flag to the photo/video file with the correct presentation rotation.
+
+:::info
+This is handled automatically, and it's behaviour can be controlled via the [`outputOrientation`](/docs/api/interfaces/CameraProps#outputorientation) property.
+:::
+
+#### Frame Processor Output
+
+Frame Processors will stream frames in a potentially "wrong" orientation, and the client is responsible for properly interpreting the Frame data.
+
+:::info
+This needs to be handled manually, see [`Frame.orientation`](/docs/api/interfaces/Frame#orientation).
+For example, in MLKit just pass the `Frame`'s `orientation` to the `detect(...)` method.
+:::
+
+#### Preview View
+
+The Preview output will stream in a potentially "wrong" orientation, but uses view transforms (rotate + translate matrix) to properly display the Camera stream "up-right".
+
+:::info
+This will always happen automatically according to the screen's rotation.
+:::
+
+### The `outputOrientation` prop
+
+The orientation in which photos and videos are captured can be adjusted via the [`outputOrientation`](/docs/api/interfaces/CameraProps#outputorientation) property:
+
+```tsx
+<Camera {...props} outputOrientation="device" />
+```
+
+#### `"device"`
+
+With the output orientation set to `device` (the default), photos and videos will be captured in the phone's physical orientation, even if the screen-rotation is locked.
+
+This means, even though the preview view and other views don't rotate to landscape, holding the phone in landscape mode will still capture landscape photos. This is the same behaviour as in the iOS stock Camera.
+
+#### `"preview"`
+
+Similar to `device`, the `preview` orientation mode will follow the phone's physical orientation, allowing the user to capture landscape photos and videos - but will always respect screen-rotation locks.
+
+This means that the user is not able to capture landscape photos or videos if the preview view and other views stay in portrait mode (e.g. if the screen-lock is on).
+
+#### `"portrait"`
+
+All captured photos and videos will be locked to portrait (0°, home-button on the bottom).
+
+#### `"portrait-upside-down"`
+
+All captured photos and videos will be locked to portrait-upside-down (180°, home-button on the top).
+
+#### `"landscape-left"`
+
+All captured photos and videos will be locked to landscape-left (90°, home-button on the left).
+
+#### `"landscape-right"`
+
+All captured photos and videos will be locked to landscape-right (270°, home-button on the right).
+
+### The `Frame`'s `orientation`
+
+In a Frame Processor, frames are streamed in their native sensor orientation.
+This means even if the phone is rotated from portrait to landscape, the Frame's [`width`](/docs/api/interfaces/Frame#width) and [`height`](/docs/api/interfaces/Frame#height) stay the same.
+
+The Frame's [`orientation`](/docs/api/interfaces/Frame#orientation) represents it's orientation relative to the current target orientation.
+
+For example, if the phone is held in `portrait` mode and the Frame's `orientation` is `landscape-right`, it is 90° rotated and needs to be counter-rotated by -90° to appear "up-right".
+Instead of actually rotating pixels in the buffers, frame processor plugins just need to interpret the frame as being rotated.
+
+MLKit handles this via a `orientation` property on the `MLImage`/`VisionImage` object:
+
+```swift
+public override func callback(_ frame: Frame, withArguments _: [AnyHashable: Any]?) -> Any? {
+  let mlImage = MLImage(sampleBuffer: frame.buffer)
+  // highlight-next-line
+  mlImage.orientation = frame.orientation
+  // ...
+```
+
+### Orientation in Skia Frame Processors
+
+A Skia Frame Processor applies orientation via rotation and translation. This means the coordinate system stays the same, but output will be rotated accordingly.
+For a `landscape-left` frame, `(0,0)` will not be top left, but rather top right.
+
+<br />
+
+#### 🚀 Next section: [Exposure](exposure)
