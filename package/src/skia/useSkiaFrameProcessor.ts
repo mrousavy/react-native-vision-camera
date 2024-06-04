@@ -177,11 +177,9 @@ export function createSkiaFrameProcessor(
               canvas.rotate(rotationDegrees, frame.width / 2, frame.height / 2)
 
               // 3. translate the rotated frame so (0, 0) is still in the top left corner
-              if (frame.orientation === 'landscape-left' || frame.orientation === 'landscape-right') {
-                const scale = frame.height / frame.width
-                const diff = Math.abs(frame.width - frame.height)
-                canvas.translate(diff * scale, diff * scale)
-              }
+              const dx = (frame.width - frame.height) / 2
+              const dy = (frame.height - frame.width) / 2
+              canvas.translate(dx, dy)
 
               // 4. render the Camera Frame to the Canvas as-is, matrix is already rotated
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
