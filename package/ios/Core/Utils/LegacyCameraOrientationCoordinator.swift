@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 03.06.24.
 //
 
+import AVFoundation
 import Foundation
 import UIKit
 
