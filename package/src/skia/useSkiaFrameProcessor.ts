@@ -1,11 +1,10 @@
 import type { Frame, FrameInternal } from '../types/Frame'
 import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
-import type { Orientation } from '../types/Orientation'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
-import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import type { SkCanvas, SkPaint, SkImage, SkSurface } from '@shopify/react-native-skia'
+import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
@@ -37,33 +36,6 @@ export interface DrawableFrame extends Frame, SkCanvas {
 type Difference<T, U> = Pick<T, Exclude<keyof T, keyof U>>
 type DrawableCanvas = Difference<DrawableFrame, Frame>
 
-function getRotationDegrees(orientation: Orientation): number {
-  'worklet'
-  switch (orientation) {
-    case 'portrait':
-      return 0
-    case 'landscape-left':
-      return 90
-    case 'portrait-upside-down':
-      return 180
-    case 'landscape-right':
-      return 270
-    default:
-      throw new Error(`Frame has invalid Orientation: ${orientation}!`)
-  }
-}
-
-function getPortraitSize(frame: Frame): { width: number; height: number } {
-  'worklet'
-  if (frame.orientation === 'landscape-left' || frame.orientation === 'landscape-right') {
-    // it is rotated to some side, so we need to apply rotations first.
-    return { width: frame.height, height: frame.width }
-  } else {
-    // it is already rotated upright.
-    return { width: frame.width, height: frame.height }
-  }
-}
-
 type ThreadID = ReturnType<IWorkletNativeApi['getCurrentThreadId']>
 type SurfaceCache = Record<
   ThreadID,
@@ -73,6 +45,70 @@ type SurfaceCache = Record<
     height: number
   }
 >
+
+/**
+ * Counter-rotates the {@linkcode canvas} by the {@linkcode frame}'s {@linkcode Frame.orientation orientation}
+ * to ensure the Frame will be drawn upright.
+ */
+function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): void {
+  'worklet'
+
+  // 1. save current translation matrix
+  canvas.save()
+
+  try {
+    // 2. properly rotate canvas so Frame is rendered up-right.
+    switch (frame.orientation) {
+      case 'portrait':
+        // do nothing
+        break
+      case 'landscape-left':
+        // rotate one flip on (0,0) origin and move X into view again
+        canvas.translate(frame.height, 0)
+        canvas.rotate(90, 0, 0)
+        break
+      case 'portrait-upside-down':
+        // rotate three flips on (0,0) origin and move Y into view again
+        canvas.translate(0, frame.height)
+        canvas.rotate(180, 0, 0)
+        break
+      case 'landscape-right':
+        // rotate two flips on (0,0) origin and move X + Y into view again
+        canvas.translate(frame.height, frame.width)
+        canvas.translate(270, 0)
+        break
+      default:
+        throw new Error(`Invalid frame.orientation: ${frame.orientation}!`)
+    }
+
+    // 3. call actual processing code
+    func()
+  } finally {
+    // 4. restore matrix again to original base
+    canvas.restore()
+  }
+}
+
+interface Size {
+  width: number
+  height: number
+}
+
+/**
+ * Get the size of the surface that will be used for rendering, which already accounts
+ * for the Frame's {@linkcode Frame.orientation orientation}.
+ */
+function getSurfaceSize(frame: Frame): Size {
+  'worklet'
+  switch (frame.orientation) {
+    case 'portrait':
+    case 'portrait-upside-down':
+      return { width: frame.width, height: frame.height }
+    case 'landscape-left':
+    case 'landscape-right':
+      return { width: frame.height, height: frame.width }
+  }
+}
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -129,7 +165,7 @@ export function createSkiaFrameProcessor(
     // A true workaround would be to expose Skia Contexts to JS in RN Skia,
     // but for now this is fine.
     const threadId = Worklets.getCurrentThreadId()
-    const size = getPortraitSize(frame)
+    const size = getSurfaceSize(frame)
     if (
       surfaceHolder.value[threadId] == null ||
       surfaceHolder.value[threadId]?.width !== size.width ||
@@ -164,16 +200,8 @@ export function createSkiaFrameProcessor(
           case 'render':
             return (paint?: SkPaint) => {
               'worklet'
-              // rotate canvas to properly account for Frame orientation
-              canvas.save()
-              const rotation = getRotationDegrees(frame.orientation)
-              canvas.rotate(rotation, frame.width / 2, frame.height / 2)
-              // render the Camera Frame to the Canvas
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
               else canvas.drawImage(image, 0, 0)
-
-              // restore transforms/rotations again
-              canvas.restore()
             }
           case 'dispose':
             return () => {
@@ -206,23 +234,26 @@ export function createSkiaFrameProcessor(
         const black = Skia.Color('black')
         canvas.clear(black)
 
-        // 4. Run any user drawing operations
-        frameProcessor(drawableFrame)
+        // 4. rotate the frame properly to make sure it's upright
+        withRotatedFrame(frame, canvas, () => {
+          // 5. Run any user drawing operations
+          frameProcessor(drawableFrame)
+        })
 
-        // 5. Flush draw operations and submit to GPU
+        // 6. Flush draw operations and submit to GPU
         surface.flush()
       } finally {
-        // 6. Delete the SkImage/Texture that holds the Frame
+        // 7. Delete the SkImage/Texture that holds the Frame
         drawableFrame.dispose()
       }
 
-      // 7. Capture rendered results as a Texture/SkImage to later render to screen
+      // 8. Capture rendered results as a Texture/SkImage to later render to screen
       const snapshot = surface.makeImageSnapshot()
       const snapshotCopy = snapshot.makeNonTextureImage()
       snapshot.dispose()
       offscreenTextures.value.push(snapshotCopy)
 
-      // 8. Close old textures that are still in the queue.
+      // 9. Close old textures that are still in the queue.
       while (offscreenTextures.value.length > 1) {
         // shift() atomically removes the first element, and is therefore thread-safe.
         const texture = offscreenTextures.value.shift()
