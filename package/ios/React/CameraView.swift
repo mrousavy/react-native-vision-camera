@@ -232,10 +232,10 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
 
       // Orientation
       if let jsOrientation = orientation as? String {
-        let orientation = try Orientation(jsValue: jsOrientation)
-        config.orientation = orientation
+        let outputOrientation = try OutputOrientation(jsValue: jsOrientation)
+        config.orientation = outputOrientation
       } else {
-        config.orientation = .portrait
+        config.orientation = .device
       }
 
       // Format

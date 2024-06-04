@@ -29,7 +29,7 @@ class CameraConfiguration {
   var videoStabilizationMode: VideoStabilizationMode = .off
 
   // Orientation
-  var orientation: Orientation = .portrait
+  var orientation: OutputOrientation = .device
 
   // Format
   var format: CameraDeviceFormat?

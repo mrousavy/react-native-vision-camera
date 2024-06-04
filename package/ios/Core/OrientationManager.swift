@@ -8,24 +8,44 @@
 import AVFoundation
 import Foundation
 
-class OrientationManager {
+class OrientationManager: CameraOrientationCoordinatorDelegate {
   private var orientationCoordinator: CameraOrientationCoordinator?
+  private var targetOutputOrientation = OutputOrientation.device
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
   private weak var delegate: CameraOrientationCoordinatorDelegate?
 
-  var outputOrientation: Orientation {
-    guard let orientationCoordinator else {
-      return .portrait
-    }
-    return orientationCoordinator.outputOrientation
-  }
-
+  /**
+   The orientation of the preview view.
+   */
   var previewOrientation: Orientation {
     guard let orientationCoordinator else {
       return .portrait
     }
     return orientationCoordinator.previewOrientation
+  }
+  
+  /**
+   The orientation of all outputs (photo, video, ..)
+   */
+  var outputOrientation: Orientation {
+    switch targetOutputOrientation {
+    case .device:
+      guard let orientationCoordinator else {
+        return .portrait
+      }
+      return orientationCoordinator.outputOrientation
+    case .preview:
+      return previewOrientation
+    case .portrait:
+      return .portrait
+    case .landscapeLeft:
+      return .landscapeLeft
+    case .portraitUpsideDown:
+      return .portraitUpsideDown
+    case .landscapeRight:
+      return .landscapeRight
+    }
   }
 
   func setInputDevice(_ device: AVCaptureDevice) {
@@ -51,13 +71,38 @@ class OrientationManager {
       orientationCoordinator = LegacyCameraOrientationCoordinator()
     }
 
-    if let delegate {
-      orientationCoordinator?.setDelegate(delegate)
-    }
+    orientationCoordinator?.setDelegate(self)
   }
 
   func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
-    orientationCoordinator?.setDelegate(delegate)
+  }
+  
+  func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {
+    if self.targetOutputOrientation == targetOrientation {
+      // already the same
+      return
+    }
+    
+    self.targetOutputOrientation = targetOrientation
+    // update delegate listener
+    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+  }
+  
+  func onPreviewOrientationChanged(previewOrientation: Orientation) {
+    guard let delegate else {
+      return
+    }
+    // update delegate listener
+    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+  }
+  
+  func onOutputOrientationChanged(outputOrientation: Orientation) {
+    guard let delegate else {
+      return
+    }
+    // update delegate listener
+    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
   }
 }
