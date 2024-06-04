@@ -3,7 +3,6 @@ package com.mrousavy.camera.core
 import androidx.camera.core.Preview.SurfaceProvider
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeType
-import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.QualityBalance
@@ -12,37 +11,37 @@ import com.mrousavy.camera.core.types.VideoStabilizationMode
 
 data class CameraConfiguration(
   // Input
-    var cameraId: String? = null,
+  var cameraId: String? = null,
 
   // Outputs
-    var preview: Output<Preview> = Output.Disabled.create(),
-    var photo: Output<Photo> = Output.Disabled.create(),
-    var video: Output<Video> = Output.Disabled.create(),
-    var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
-    var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
-    var enableLocation: Boolean = false,
+  var preview: Output<Preview> = Output.Disabled.create(),
+  var photo: Output<Photo> = Output.Disabled.create(),
+  var video: Output<Video> = Output.Disabled.create(),
+  var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
+  var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
+  var enableLocation: Boolean = false,
 
   // Orientation
-    var outputOrientation: OutputOrientation = OutputOrientation.DEVICE,
+  var outputOrientation: OutputOrientation = OutputOrientation.DEVICE,
 
   // Format
-    var format: CameraDeviceFormat? = null,
+  var format: CameraDeviceFormat? = null,
 
   // Side-Props
-    var fps: Int? = null,
-    var enableLowLightBoost: Boolean = false,
-    var torch: Torch = Torch.OFF,
-    var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
-    var exposure: Double? = null,
+  var fps: Int? = null,
+  var enableLowLightBoost: Boolean = false,
+  var torch: Torch = Torch.OFF,
+  var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
+  var exposure: Double? = null,
 
   // Zoom
-    var zoom: Float = 1f,
+  var zoom: Float = 1f,
 
   // isActive (Start/Stop)
-    var isActive: Boolean = false,
+  var isActive: Boolean = false,
 
   // Audio Session
-    var audio: Output<Audio> = Output.Disabled.create()
+  var audio: Output<Audio> = Output.Disabled.create()
 ) {
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)

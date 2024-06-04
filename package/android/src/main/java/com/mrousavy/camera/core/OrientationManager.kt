@@ -31,7 +31,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
 
   // Physical Device Orientation listener
   private var deviceRotation = Surface.ROTATION_0
-  private val orientationListener = object: OrientationEventListener(context) {
+  private val orientationListener = object : OrientationEventListener(context) {
     override fun onOrientationChanged(rotationDegrees: Int) {
       // Phone rotated!
       deviceRotation = degreesToSurfaceRotation(rotationDegrees)
@@ -65,24 +65,28 @@ class OrientationManager(private val context: Context, private val callback: Cal
         Log.i(TAG, "Starting streaming device orientation updates...")
         orientationListener.enable()
       }
+
       OutputOrientation.PREVIEW -> {
         Log.i(TAG, "Starting streaming screen rotation updates...")
         displayManager.registerDisplayListener(displayListener, null)
       }
-      OutputOrientation.PORTRAIT, OutputOrientation.LANDSCAPE_RIGHT, OutputOrientation.PORTRAIT_UPSIDE_DOWN, OutputOrientation.LANDSCAPE_LEFT -> {
+
+      OutputOrientation.PORTRAIT,
+      OutputOrientation.LANDSCAPE_RIGHT,
+      OutputOrientation.PORTRAIT_UPSIDE_DOWN,
+      OutputOrientation.LANDSCAPE_LEFT -> {
         Log.i(TAG, "Setting output orientation to $targetOrientation. (locked)")
       }
     }
   }
 
-  private fun degreesToSurfaceRotation(degrees: Int): Int {
-    return when (degrees) {
+  private fun degreesToSurfaceRotation(degrees: Int): Int =
+    when (degrees) {
       in 45..135 -> Surface.ROTATION_270
       in 135..225 -> Surface.ROTATION_180
       in 225..315 -> Surface.ROTATION_90
       else -> Surface.ROTATION_0
     }
-  }
 
   interface Callback {
     fun onOutputOrientationChanged(outputOrientation: Orientation)

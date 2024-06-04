@@ -10,7 +10,7 @@ enum class OutputOrientation(override val unionValue: String) : JSUnionValue {
 
   val lockedOrientation: Orientation?
     get() {
-      return when(this) {
+      return when (this) {
         PORTRAIT -> Orientation.PORTRAIT
         LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
         PORTRAIT_UPSIDE_DOWN -> Orientation.PORTRAIT_UPSIDE_DOWN
@@ -21,14 +21,14 @@ enum class OutputOrientation(override val unionValue: String) : JSUnionValue {
 
   companion object : JSUnionValue.Companion<OutputOrientation> {
     override fun fromUnionValue(unionValue: String?): OutputOrientation =
-        when (unionValue) {
-          "device" -> DEVICE
-          "preview" -> PREVIEW
-          "portrait" -> PORTRAIT
-          "landscape-right" -> LANDSCAPE_RIGHT
-          "portrait-upside-down" -> PORTRAIT_UPSIDE_DOWN
-          "landscape-left" -> LANDSCAPE_LEFT
-          else -> PORTRAIT
-        }
+      when (unionValue) {
+        "device" -> DEVICE
+        "preview" -> PREVIEW
+        "portrait" -> PORTRAIT
+        "landscape-right" -> LANDSCAPE_RIGHT
+        "portrait-upside-down" -> PORTRAIT_UPSIDE_DOWN
+        "landscape-left" -> LANDSCAPE_LEFT
+        else -> PORTRAIT
+      }
   }
 }

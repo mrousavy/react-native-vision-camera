@@ -7,7 +7,6 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeScannerOptions
-import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.PreviewViewType

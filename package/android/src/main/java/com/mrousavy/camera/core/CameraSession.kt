@@ -70,7 +70,7 @@ import kotlinx.coroutines.sync.withLock
 class CameraSession(private val context: Context, private val callback: Callback) :
   Closeable,
   LifecycleOwner,
- OrientationManager.Callback {
+  OrientationManager.Callback {
   companion object {
     private const val TAG = "CameraSession"
   }
