@@ -82,11 +82,6 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   }
 
   func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {
-    if targetOutputOrientation == targetOrientation {
-      // already the same
-      return
-    }
-
     VisionLogger.log(level: .info, message: "Setting target output orientation from \(targetOutputOrientation) to \(targetOrientation)...")
     targetOutputOrientation = targetOrientation
     // update delegate listener

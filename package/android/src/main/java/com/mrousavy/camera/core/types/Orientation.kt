@@ -42,9 +42,9 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
     fun fromSurfaceRotation(rotation: Int): Orientation =
         when (rotation) {
           Surface.ROTATION_0 -> PORTRAIT
-          Surface.ROTATION_90 -> LANDSCAPE_LEFT
+          Surface.ROTATION_90 -> LANDSCAPE_RIGHT
           Surface.ROTATION_180 -> PORTRAIT_UPSIDE_DOWN
-          Surface.ROTATION_270 -> LANDSCAPE_RIGHT
+          Surface.ROTATION_270 -> LANDSCAPE_LEFT
           else -> PORTRAIT
         }
   }

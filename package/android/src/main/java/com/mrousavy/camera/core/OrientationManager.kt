@@ -5,7 +5,6 @@ import android.hardware.display.DisplayManager
 import android.util.Log
 import android.view.OrientationEventListener
 import android.view.Surface
-import androidx.camera.core.UseCase
 import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.OutputOrientation
 
@@ -54,11 +53,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
     }
 
   fun setTargetOutputOrientation(targetOrientation: OutputOrientation) {
-    if (targetOutputOrientation == targetOrientation) {
-      // already the same
-      return
-    }
-
+    Log.i(TAG, "Target Orientation changed $targetOutputOrientation -> $targetOrientation!")
     targetOutputOrientation = targetOrientation
 
     // remove previous listeners if attached
@@ -82,9 +77,9 @@ class OrientationManager(private val context: Context, private val callback: Cal
 
   private fun degreesToSurfaceRotation(degrees: Int): Int {
     return when (degrees) {
-      in 45..135 -> Surface.ROTATION_90
+      in 45..135 -> Surface.ROTATION_270
       in 135..225 -> Surface.ROTATION_180
-      in 225..315 -> Surface.ROTATION_270
+      in 225..315 -> Surface.ROTATION_90
       else -> Surface.ROTATION_0
     }
   }
