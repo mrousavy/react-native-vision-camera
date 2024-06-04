@@ -33,12 +33,7 @@ extension CameraSession {
         }
         return
       }
-      guard let videoDeviceInput = self.videoDeviceInput else {
-        onError(.session(.cameraNotReady))
-        return
-      }
 
-      let isMirrored = videoOutput.isMirrored
       let enableAudio = self.configuration?.audio != .disabled
 
       // Callback for when the recording ends
@@ -92,30 +87,13 @@ extension CameraSession {
       }
 
       // Create temporary file
-      let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = options.fileType.descriptor ?? "mov"
-      guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
-        let message = errorPointer?.pointee?.description
-        onError(.capture(.createTempFileError(message: message)))
-        return
-      }
-
-      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
-      let tempURL = URL(string: "file://\(tempFilePath)")!
-
-      // Video stream is already rotated against sensor orientation so we can properly mirror.
-      // counter that rotation again for the AVAssetWriter transforms
-      let sensorOrientation = videoDeviceInput.device.sensorOrientation
-      var outputOrientation = self.outputOrientation
-      if isMirrored {
-        // mirrored streams are reversed.
-        outputOrientation = outputOrientation.reversed()
-      }
-      let orientation = outputOrientation.rotateBy(orientation: sensorOrientation.reversed())
-      VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation). Video will be \(orientation)...")
+      let tempURL = FileUtils.createTempFile(fileExtension: fileExtension)
+      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempURL)")
 
       do {
         // Create RecordingSession for the temp file
+        let orientation = try self.getVideoRecordingOrientation()
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
@@ -155,15 +133,30 @@ extension CameraSession {
 
         let end = DispatchTime.now()
         VisionLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
+      } catch let error as CameraError {
+        onError(error)
       } catch let error as NSError {
-        if let error = error as? CameraError {
-          onError(error)
-        } else {
-          onError(.capture(.createRecorderError(message: "RecordingSession failed with unknown error: \(error.description)")))
-        }
-        return
+        onError(.capture(.createRecorderError(message: "RecordingSession failed with unknown error: \(error.description)")))
       }
     }
+  }
+
+  private func getVideoRecordingOrientation() throws -> Orientation {
+    guard let videoDeviceInput = videoDeviceInput else {
+      throw CameraError.session(.cameraNotReady)
+    }
+
+    // Video stream is already rotated against sensor orientation so we can properly mirror.
+    // counter that rotation again for the AVAssetWriter transforms
+    let sensorOrientation = videoDeviceInput.device.sensorOrientation
+    var outputOrientation = self.outputOrientation
+    if isMirrored {
+      // mirrored streams are reversed.
+      outputOrientation = outputOrientation.reversed()
+    }
+    let orientation = outputOrientation.rotateBy(orientation: sensorOrientation.reversed())
+    VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation). Video will be \(orientation)...")
+    return orientation
   }
 
   /**
