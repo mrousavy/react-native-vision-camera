@@ -155,7 +155,8 @@ extension CameraSession {
       outputOrientation = outputOrientation.reversed()
     }
     let orientation = outputOrientation.rotateBy(orientation: sensorOrientation.reversed())
-    VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation). Video will be \(orientation)...")
+    VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation)." +
+      "Video will be \(orientation)...")
     return orientation
   }
 
