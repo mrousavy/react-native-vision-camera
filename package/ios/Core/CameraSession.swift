@@ -271,8 +271,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     // Call Frame Processor (delegate) for every Video Frame
     if captureOutput is AVCaptureVideoDataOutput {
       let orientation = connection.orientation
-      let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
-      delegate?.onFrame(frame: frame)
+      delegate?.onFrame(sampleBuffer: sampleBuffer, orientation: orientation)
     }
 
     // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
