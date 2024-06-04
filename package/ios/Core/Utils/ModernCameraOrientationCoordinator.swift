@@ -15,30 +15,36 @@ class ModernCameraOrientationCoordinator: CameraOrientationCoordinator {
   private var previewObserver: NSKeyValueObservation?
   private var outputObserver: NSKeyValueObservation?
 
-  var previewRotation: Double {
-    return rotationCoordinator.videoRotationAngleForHorizonLevelPreview
+  var previewOrientation: Orientation {
+    let degrees = rotationCoordinator.videoRotationAngleForHorizonLevelPreview
+    return Orientation(degrees: degrees)
   }
 
-  var outputRotation: Double {
-    return rotationCoordinator.videoRotationAngleForHorizonLevelCapture
+  var outputOrientation: Orientation {
+    let degrees = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
+    return Orientation(degrees: degrees)
   }
 
   init(device: AVCaptureDevice, previewLayer: CALayer?) {
     rotationCoordinator = AVCaptureDevice.RotationCoordinator(device: device, previewLayer: previewLayer)
 
     // Observe Preview Rotation
-    previewObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelPreview) { coordinator, _ in
-      self.delegate?.onPreviewRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelPreview)
+    previewObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelPreview) { [weak self] _, _ in
+      if let self {
+        self.delegate?.onPreviewOrientationChanged(previewOrientation: self.previewOrientation)
+      }
     }
     // Observe Output Rotation
-    outputObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelCapture) { coordinator, _ in
-      self.delegate?.onOutputRotationChanged(rotationAngle: coordinator.videoRotationAngleForHorizonLevelCapture)
+    outputObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelCapture) { [weak self] _, _ in
+      if let self {
+        self.delegate?.onOutputOrientationChanged(outputOrientation: self.outputOrientation)
+      }
     }
   }
 
   func setDelegate(_ delegate: any CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
-    delegate.onOutputRotationChanged(rotationAngle: outputRotation)
-    delegate.onPreviewRotationChanged(rotationAngle: previewRotation)
+    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
+    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
 }

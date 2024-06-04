@@ -9,7 +9,6 @@ import AVFoundation
 import Foundation
 
 extension AVCaptureConnection {
-  
   /**
    Gets or sets the target orientation of the video output.
    */

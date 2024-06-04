@@ -10,8 +10,8 @@ import Foundation
 // MARK: - CameraOrientationCoordinator
 
 protocol CameraOrientationCoordinator {
-  var previewRotation: Double { get }
-  var outputRotation: Double { get }
+  var previewOrientation: Orientation { get }
+  var outputOrientation: Orientation { get }
 
   func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate)
 }
@@ -19,6 +19,6 @@ protocol CameraOrientationCoordinator {
 // MARK: - CameraOrientationCoordinatorDelegate
 
 protocol CameraOrientationCoordinatorDelegate: AnyObject {
-  func onPreviewRotationChanged(rotationAngle: Double)
-  func onOutputRotationChanged(rotationAngle: Double)
+  func onPreviewOrientationChanged(previewOrientation: Orientation)
+  func onOutputOrientationChanged(outputOrientation: Orientation)
 }

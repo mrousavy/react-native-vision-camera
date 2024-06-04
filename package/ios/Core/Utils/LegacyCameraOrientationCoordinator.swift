@@ -11,8 +11,8 @@ import UIKit
 class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
   private weak var delegate: CameraOrientationCoordinatorDelegate?
 
-  var previewRotation: Double = 0
-  var outputRotation: Double = 0
+  var previewOrientation: Orientation = .portrait
+  var outputOrientation: Orientation = .portrait
 
   init() {
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
@@ -38,17 +38,17 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
     // To properly rotate buffers up-right, we now need to counter-rotate by -90deg.
     orientation = orientation.rotateBy(orientation: .landscapeLeft)
 
-    previewRotation = orientation.degrees
-    outputRotation = orientation.degrees
+    previewOrientation = orientation
+    outputOrientation = orientation
 
     // Notify delegate listener
-    delegate?.onPreviewRotationChanged(rotationAngle: previewRotation)
-    delegate?.onOutputRotationChanged(rotationAngle: outputRotation)
+    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
   }
 
   func setDelegate(_ delegate: any CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
-    delegate.onOutputRotationChanged(rotationAngle: outputRotation)
-    delegate.onPreviewRotationChanged(rotationAngle: previewRotation)
+    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
   }
 }

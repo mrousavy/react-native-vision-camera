@@ -5,38 +5,39 @@
 //  Created by Marc Rousavy on 03.06.24.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 class OrientationManager {
   private var orientationCoordinator: CameraOrientationCoordinator?
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
   private weak var delegate: CameraOrientationCoordinatorDelegate?
-  
-  var outputRotation: Double {
+
+  var outputOrientation: Orientation {
     guard let orientationCoordinator else {
-      return 0
+      return .portrait
     }
-    return orientationCoordinator.outputRotation
+    return orientationCoordinator.outputOrientation
   }
-  var previewRotation: Double {
+
+  var previewOrientation: Orientation {
     guard let orientationCoordinator else {
-      return 0
+      return .portrait
     }
-    return orientationCoordinator.previewRotation
+    return orientationCoordinator.previewOrientation
   }
-  
+
   func setInputDevice(_ device: AVCaptureDevice) {
     self.device = device
     createObserver()
   }
-  
+
   func setPreviewView(_ previewView: PreviewView) {
-    self.previewLayer = previewView.videoPreviewLayer
+    previewLayer = previewView.videoPreviewLayer
     createObserver()
   }
-  
+
   private func createObserver() {
     if #available(iOS 17.0, *) {
       // On iOS 17+, we can use the new RotationCoordinator API which requires the device and preview view.
@@ -49,12 +50,12 @@ class OrientationManager {
       // On iOS <17 we need to use the old UIDevice APIs and do a bit of rotations manually.
       orientationCoordinator = LegacyCameraOrientationCoordinator()
     }
-    
+
     if let delegate {
       orientationCoordinator?.setDelegate(delegate)
     }
   }
-  
+
   func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
     orientationCoordinator?.setDelegate(delegate)
