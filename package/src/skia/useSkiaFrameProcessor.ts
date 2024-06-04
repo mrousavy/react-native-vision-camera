@@ -75,7 +75,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
       case 'landscape-right':
         // rotate two flips on (0,0) origin and move X + Y into view again
         canvas.translate(frame.height, frame.width)
-        canvas.translate(270, 0)
+        canvas.rotate(270, 0, 0)
         break
       default:
         throw new Error(`Invalid frame.orientation: ${frame.orientation}!`)
