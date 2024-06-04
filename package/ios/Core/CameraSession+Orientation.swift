@@ -9,15 +9,37 @@ import AVFoundation
 import Foundation
 
 extension CameraSession: OrientationManagerDelegate {
+  /**
+   Get the orientation all outputs should be configured to so they appear up-right.
+   This is usually just a counter-rotation to whatever the input camera stream is.
+   */
   var outputOrientation: Orientation {
     return orientationManager.outputOrientation
   }
 
+  /**
+   Gets whether the current camera should be mirrored or not.
+   This is true when using the selfie, false otherwise.
+   */
   var isMirrored: Bool {
     guard let videoDeviceInput else {
       return false
     }
     return videoDeviceInput.device.position == .front
+  }
+
+  /**
+   Gets the output orientation of the video file that will be recorded into.
+   The resulting output orientation is flipped by 180° if the input stream is mirrored and 90° or 270° rotated to mimic a mirroring effect.
+   This assumes that mirroring and 180° counter-rotation is also configured on the input stream, see CameraSession+Configuration.
+   */
+  var videoFileOrientation: Orientation {
+    var orientation = outputOrientation
+    if isMirrored && !orientation.isLandscape {
+      // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
+      orientation = orientation.reversed()
+    }
+    return orientation
   }
 
   /**

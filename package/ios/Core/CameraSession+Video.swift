@@ -93,11 +93,10 @@ extension CameraSession {
 
       do {
         // Create RecordingSession for the temp file
-        let orientation = try self.getVideoRecordingOrientation()
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
-                                                    orientation: orientation,
+                                                    orientation: self.videoFileOrientation,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
@@ -139,15 +138,6 @@ extension CameraSession {
         onError(.capture(.createRecorderError(message: "RecordingSession failed with unknown error: \(error.description)")))
       }
     }
-  }
-
-  private func getVideoRecordingOrientation() throws -> Orientation {
-    var orientation = outputOrientation
-    if isMirrored && !orientation.isLandscape {
-      // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
-      orientation = orientation.reversed()
-    }
-    return orientation
   }
 
   /**

@@ -83,6 +83,7 @@ class RecordingSession {
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
     videoOrientation = orientation
+    VisionLogger.log(level: .info, message: "Creating RecordingSession... (orientation: \(orientation))")
 
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
