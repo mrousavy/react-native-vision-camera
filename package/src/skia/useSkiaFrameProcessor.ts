@@ -172,14 +172,14 @@ export function createSkiaFrameProcessor(
               'worklet'
               // 1. save current matrix
               canvas.save()
-              // 2. rotate by sensor orientation degrees
-              const rotationDegrees = getRotationDegrees(frame.orientation)
-              canvas.rotate(rotationDegrees, frame.width / 2, frame.height / 2)
 
-              // 3. translate the rotated frame so (0, 0) is still in the top left corner
-              const dx = (frame.width - frame.height) / 2
-              const dy = (frame.height - frame.width) / 2
-              canvas.translate(dx, dy)
+              const rotationDegrees = getRotationDegrees(frame.orientation)
+              if (rotationDegrees === 90 || rotationDegrees === 270) {
+                // 2. translate frame to move it into the view, as rotate later will rotate along (0,0) origin
+                canvas.translate(frame.height, 0)
+              }
+              // 3. rotate by sensor orientation degrees - this will rotate alongside the (0,0) origin point
+              canvas.rotate(rotationDegrees, 0, 0)
 
               // 4. render the Camera Frame to the Canvas as-is, matrix is already rotated
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
