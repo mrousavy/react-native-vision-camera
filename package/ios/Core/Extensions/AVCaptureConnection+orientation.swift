@@ -10,7 +10,7 @@ import Foundation
 
 extension AVCaptureConnection {
   /**
-   Gets or sets the target orientation of the video output.
+   Gets or sets the target orientation of the video connection.
    */
   var orientation: Orientation {
     get {

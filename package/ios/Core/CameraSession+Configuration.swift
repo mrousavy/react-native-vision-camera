@@ -56,6 +56,10 @@ extension CameraSession {
    Configures all outputs (`photo` + `video` + `codeScanner`)
    */
   func configureOutputs(configuration: CameraConfiguration) throws {
+    guard let videoDeviceInput else {
+      throw CameraError.device(.noDevice)
+    }
+
     VisionLogger.log(level: .info, message: "Configuring Outputs...")
 
     // Remove all outputs
@@ -66,7 +70,8 @@ extension CameraSession {
     videoOutput = nil
     codeScannerOutput = nil
 
-    let isMirrored = videoDeviceInput?.device.position == .front
+    let isMirrored = videoDeviceInput.device.position == .front
+    let videoOrientation = videoDeviceInput.device.sensorOrientation
 
     // Photo Output
     if case let .enabled(photo) = configuration.photo {
@@ -111,6 +116,7 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
+      videoOutput.orientation = videoOrientation
       videoOutput.isMirrored = isMirrored
 
       self.videoOutput = videoOutput

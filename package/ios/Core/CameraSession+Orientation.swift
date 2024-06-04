@@ -12,7 +12,7 @@ extension CameraSession: OrientationManagerDelegate {
   var outputOrientation: Orientation {
     return orientationManager.outputOrientation
   }
-  
+
   var isMirrored: Bool {
     guard let videoDeviceInput else {
       return false
@@ -41,7 +41,8 @@ extension CameraSession: OrientationManagerDelegate {
   func onOutputOrientationChanged(outputOrientation: Orientation) {
     VisionLogger.log(level: .info, message: "Updating Outputs rotation: \(outputOrientation)...")
 
-    // update the orientation for each output that supports virtual (no-performance-overhead) rotation
+    // update the orientation for each output that supports virtual (no-performance-overhead) rotation.
+    // the video output (physical pixel rotation) is always rotated to the sensor orientation.
     let rotateableOutputs = captureSession.outputs.filter(\.supportsVirtualRotation)
     for output in rotateableOutputs {
       // set orientation for all connections
