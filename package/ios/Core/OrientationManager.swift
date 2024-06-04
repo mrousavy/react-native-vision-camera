@@ -8,12 +8,17 @@
 import AVFoundation
 import Foundation
 
+/**
+ Provides Orientation updates to the consumer.
+ The orientation updates are only pushed as long as a [delegate] is set.
+ */
 class OrientationManager: CameraOrientationCoordinatorDelegate {
   private var orientationCoordinator: CameraOrientationCoordinator?
   private var targetOutputOrientation = OutputOrientation.device
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
-  private weak var delegate: CameraOrientationCoordinatorDelegate?
+  
+  weak var delegate: Delegate?
 
   /**
    The orientation of the preview view.
@@ -76,10 +81,6 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     orientationCoordinator?.setDelegate(self)
   }
 
-  func setDelegate(_ delegate: CameraOrientationCoordinatorDelegate) {
-    self.delegate = delegate
-  }
-
   func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {
     if targetOutputOrientation == targetOrientation {
       // already the same
@@ -92,20 +93,15 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
   }
-
-  func onPreviewOrientationChanged(previewOrientation _: Orientation) {
-    guard let delegate else {
-      return
-    }
-    // update delegate listener
-    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+  
+  func onOrientationChanged() {
+    // Notify both delegate listeners about the new orientation change
+    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
   }
-
-  func onOutputOrientationChanged(outputOrientation _: Orientation) {
-    guard let delegate else {
-      return
-    }
-    // update delegate listener
-    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
+  
+  protocol Delegate: AnyObject {
+    func onPreviewOrientationChanged(previewOrientation: Orientation)
+    func onOutputOrientationChanged(outputOrientation: Orientation)
   }
 }

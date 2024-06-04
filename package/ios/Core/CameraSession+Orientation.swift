@@ -8,7 +8,7 @@
 import AVFoundation
 import Foundation
 
-extension CameraSession: CameraOrientationCoordinatorDelegate {
+extension CameraSession: OrientationManager.Delegate {
   var outputOrientation: Orientation {
     return orientationManager.outputOrientation
   }

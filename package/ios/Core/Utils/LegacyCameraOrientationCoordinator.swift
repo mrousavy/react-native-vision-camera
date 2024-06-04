@@ -44,13 +44,12 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
     outputOrientation = orientation
 
     // Notify delegate listener
-    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
-    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+    delegate?.onOrientationChanged()
   }
 
   func setDelegate(_ delegate: any CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
-    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
-    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
+    // Notify delegate listener
+    delegate.onOrientationChanged()
   }
 }

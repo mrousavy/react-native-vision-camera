@@ -31,20 +31,19 @@ class ModernCameraOrientationCoordinator: CameraOrientationCoordinator {
     // Observe Preview Rotation
     previewObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelPreview) { [weak self] _, _ in
       if let self {
-        self.delegate?.onPreviewOrientationChanged(previewOrientation: self.previewOrientation)
+        self.delegate?.onOrientationChanged()
       }
     }
     // Observe Output Rotation
     outputObserver = rotationCoordinator.observe(\.videoRotationAngleForHorizonLevelCapture) { [weak self] _, _ in
       if let self {
-        self.delegate?.onOutputOrientationChanged(outputOrientation: self.outputOrientation)
+        self.delegate?.onOrientationChanged()
       }
     }
   }
 
   func setDelegate(_ delegate: any CameraOrientationCoordinatorDelegate) {
     self.delegate = delegate
-    delegate.onOutputOrientationChanged(outputOrientation: outputOrientation)
-    delegate.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+    delegate.onOrientationChanged()
   }
 }

@@ -19,6 +19,5 @@ protocol CameraOrientationCoordinator {
 // MARK: - CameraOrientationCoordinatorDelegate
 
 protocol CameraOrientationCoordinatorDelegate: AnyObject {
-  func onPreviewOrientationChanged(previewOrientation: Orientation)
-  func onOutputOrientationChanged(outputOrientation: Orientation)
+  func onOrientationChanged()
 }
