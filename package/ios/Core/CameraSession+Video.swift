@@ -142,21 +142,11 @@ extension CameraSession {
   }
 
   private func getVideoRecordingOrientation() throws -> Orientation {
-    guard let videoDeviceInput = videoDeviceInput else {
-      throw CameraError.session(.cameraNotReady)
+    var orientation = outputOrientation
+    if isMirrored && !orientation.isLandscape {
+      // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
+      orientation = orientation.reversed()
     }
-
-    // Video stream is already rotated against sensor orientation so we can properly mirror.
-    // counter that rotation again for the AVAssetWriter transforms
-    let sensorOrientation = videoDeviceInput.device.sensorOrientation
-    var outputOrientation = self.outputOrientation
-    if isMirrored {
-      // mirrored streams are reversed.
-      outputOrientation = outputOrientation.reversed()
-    }
-    let orientation = outputOrientation.rotateBy(orientation: sensorOrientation.reversed())
-    VisionLogger.log(level: .info, message: "Sensor Orientation is \(sensorOrientation), output orientation is \(outputOrientation)." +
-      "Video will be \(orientation)...")
     return orientation
   }
 
