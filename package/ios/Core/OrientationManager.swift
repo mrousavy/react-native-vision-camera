@@ -31,20 +31,22 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   var outputOrientation: Orientation {
     switch targetOutputOrientation {
     case .device:
+      // Outputs should use whatever orientation the device is held in, even if screen-lock is on.
       guard let orientationCoordinator else {
         return .portrait
       }
       return orientationCoordinator.outputOrientation
     case .preview:
+      // Outputs should use the same orientation as the preview view, which respects screen-lock.
       return previewOrientation
-    case .portrait:
-      return .portrait
-    case .landscapeLeft:
-      return .landscapeLeft
-    case .portraitUpsideDown:
-      return .portraitUpsideDown
-    case .landscapeRight:
-      return .landscapeRight
+    case .portrait, .landscapeLeft, .portraitUpsideDown, .landscapeRight:
+      // Outputs should be locked to the specific orientation given by the user.
+      guard let lockedOrientation = targetOutputOrientation.lockedOrientation,
+            let device else {
+        return previewOrientation
+      }
+      let sensorOrientation = device.sensorOrientation
+      return lockedOrientation.rotateBy(orientation: sensorOrientation)
     }
   }
 
@@ -59,16 +61,16 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   }
 
   private func createObserver() {
+    guard let device = self.device else {
+      return
+    }
+    
     if #available(iOS 17.0, *) {
-      // On iOS 17+, we can use the new RotationCoordinator API which requires the device and preview view.
-      guard let device = self.device else {
-        // we need a capture device to create a RotationCoordinator. previewLayer is optional though
-        return
-      }
+      // On iOS 17+, we can use the new RotationCoordinator API which requires the device and optionally a preview view.
       orientationCoordinator = ModernCameraOrientationCoordinator(device: device, previewLayer: previewLayer)
     } else {
       // On iOS <17 we need to use the old UIDevice APIs and do a bit of rotations manually.
-      orientationCoordinator = LegacyCameraOrientationCoordinator()
+      orientationCoordinator = LegacyCameraOrientationCoordinator(device: device)
     }
 
     orientationCoordinator?.setDelegate(self)

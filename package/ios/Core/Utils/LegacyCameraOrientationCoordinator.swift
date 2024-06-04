@@ -10,11 +10,13 @@ import UIKit
 
 class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
   private weak var delegate: CameraOrientationCoordinatorDelegate?
+  private let sensorOrientation: Orientation
 
   var previewOrientation: Orientation = .portrait
   var outputOrientation: Orientation = .portrait
 
-  init() {
+  init(device: AVCaptureDevice) {
+    sensorOrientation = device.sensorOrientation
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     NotificationCenter.default.addObserver(
       self,
@@ -34,9 +36,9 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
     let deviceOrientation = UIDevice.current.orientation
 
     var orientation = Orientation(deviceOrientation: deviceOrientation)
-    // By default, all Cameras are in 90deg rotation.
-    // To properly rotate buffers up-right, we now need to counter-rotate by -90deg.
-    orientation = orientation.rotateBy(orientation: .landscapeLeft)
+    // Once we have the device's orientation, we now need to rotate by whatever
+    // value the camera sensor is rotated with (mostly landscape)
+    orientation = orientation.rotateBy(orientation: sensorOrientation)
 
     previewOrientation = orientation
     outputOrientation = orientation
