@@ -144,4 +144,10 @@ enum Orientation: String, JSUnionValue {
     let degress = added.truncatingRemainder(dividingBy: 360)
     return Orientation(degrees: degress)
   }
+
+  func reversed() -> Orientation {
+    let flipped = degrees + 180
+    let truncated = flipped.truncatingRemainder(dividingBy: 360)
+    return Orientation(degrees: truncated)
+  }
 }

@@ -33,6 +33,10 @@ extension CameraSession {
         }
         return
       }
+      guard let videoDeviceInput = self.videoDeviceInput else {
+        onError(.session(.cameraNotReady))
+        return
+      }
 
       let enableAudio = self.configuration?.audio != .disabled
 
@@ -98,12 +102,18 @@ extension CameraSession {
       VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
       let tempURL = URL(string: "file://\(tempFilePath)")!
 
+      // Video stream is already rotated against sensor orientation so we can properly mirror.
+      // counter that rotation again for the AVAssetWriter transforms
+      let sensorOrientation = videoDeviceInput.device.sensorOrientation
+      let counterOrientation = sensorOrientation.reversed()
+      let orientation = self.outputOrientation.rotateBy(orientation: counterOrientation)
+
       do {
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
-                                                    orientation: self.outputOrientation,
+                                                    orientation: orientation,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
