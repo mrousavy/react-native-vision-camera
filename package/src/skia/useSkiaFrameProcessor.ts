@@ -8,7 +8,6 @@ import { WorkletsProxy } from '../dependencies/WorkletsProxy'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 import { withFrameRefCounting } from '../frame-processors/withFrameRefCounting'
 import { VisionCameraProxy } from '../frame-processors/VisionCameraProxy'
-import type { Orientation } from '../types/Orientation'
 
 /**
  * Represents a Camera Frame that can be directly drawn to using Skia.
@@ -46,22 +45,6 @@ type SurfaceCache = Record<
     height: number
   }
 >
-
-function getRotationDegrees(orientation: Orientation): number {
-  'worklet'
-  switch (orientation) {
-    case 'portrait':
-      return 0
-    case 'landscape-left':
-      return 90
-    case 'portrait-upside-down':
-      return 180
-    case 'landscape-right':
-      return 270
-    default:
-      throw new Error(`Frame has invalid Orientation: ${orientation}!`)
-  }
-}
 
 interface Size {
   width: number
@@ -173,19 +156,33 @@ export function createSkiaFrameProcessor(
               // 1. save current matrix
               canvas.save()
 
-              const rotationDegrees = getRotationDegrees(frame.orientation)
-              if (rotationDegrees === 90 || rotationDegrees === 270) {
-                // 2. translate frame to move it into the view, as rotate later will rotate along (0,0) origin
-                canvas.translate(frame.height, 0)
+              // 2. properly rotate canvas so Frame is rendered up-right.
+              switch (frame.orientation) {
+                case 'portrait':
+                  // do nothing
+                  break
+                case 'landscape-left':
+                  // rotate one flip on (0,0) origin and move X into view again
+                  canvas.translate(frame.height, 0)
+                  canvas.rotate(90, 0, 0)
+                  break
+                case 'portrait-upside-down':
+                  // rotate three flips on (0,0) origin and move Y into view again
+                  canvas.translate(0, frame.height)
+                  canvas.rotate(180, 0, 0)
+                  break
+                case 'landscape-right':
+                  // rotate two flips on (0,0) origin and move X + Y into view again
+                  canvas.translate(frame.height, frame.width)
+                  canvas.translate(270, 0)
+                  break
               }
-              // 3. rotate by sensor orientation degrees - this will rotate alongside the (0,0) origin point
-              canvas.rotate(rotationDegrees, 0, 0)
 
-              // 4. render the Camera Frame to the Canvas as-is, matrix is already rotated
+              // 3. render the Camera Frame to the Canvas as-is, matrix is already rotated
               if (paint != null) canvas.drawImage(image, 0, 0, paint)
               else canvas.drawImage(image, 0, 0)
 
-              // 5. restore transformation matrix again
+              // 4. restore transformation matrix again
               canvas.restore()
             }
           case 'dispose':
