@@ -39,7 +39,7 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
     var orientation = Orientation(deviceOrientation: deviceOrientation)
     // Once we have the device's orientation, we now need to rotate by whatever
     // value the camera sensor is rotated with (mostly landscape)
-    orientation = orientation.rotateBy(orientation: sensorOrientation)
+    orientation = orientation.rotatedBy(orientation: sensorOrientation)
 
     previewOrientation = orientation
     outputOrientation = orientation

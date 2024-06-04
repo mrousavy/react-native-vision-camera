@@ -37,7 +37,7 @@ extension CameraSession: OrientationManagerDelegate {
     var orientation = outputOrientation
     if isMirrored && !orientation.isLandscape {
       // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
-      orientation = orientation.reversed()
+      orientation = orientation.flipped()
     }
     return orientation
   }

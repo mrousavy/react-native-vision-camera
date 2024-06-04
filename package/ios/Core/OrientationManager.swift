@@ -60,7 +60,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
         return previewOrientation
       }
       let sensorOrientation = device.sensorOrientation
-      return lockedOrientation.rotateBy(orientation: sensorOrientation)
+      return lockedOrientation.rotatedBy(orientation: sensorOrientation)
     }
   }
 
