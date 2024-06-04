@@ -8,6 +8,15 @@
 import AVFoundation
 import Foundation
 
+// MARK: - OrientationManagerDelegate
+
+protocol OrientationManagerDelegate: AnyObject {
+  func onPreviewOrientationChanged(previewOrientation: Orientation)
+  func onOutputOrientationChanged(outputOrientation: Orientation)
+}
+
+// MARK: - OrientationManager
+
 /**
  Provides Orientation updates to the consumer.
  The orientation updates are only pushed as long as a [delegate] is set.
@@ -18,7 +27,7 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
 
-  weak var delegate: Delegate?
+  weak var delegate: OrientationManagerDelegate?
 
   /**
    The orientation of the preview view.
@@ -93,10 +102,5 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     // Notify both delegate listeners about the new orientation change
     delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
     delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
-  }
-
-  protocol Delegate: AnyObject {
-    func onPreviewOrientationChanged(previewOrientation: Orientation)
-    func onOutputOrientationChanged(outputOrientation: Orientation)
   }
 }

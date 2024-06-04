@@ -229,7 +229,7 @@ export interface CameraDevice {
    * frames will need to be counter-rotated by this orientation here.
    * - For photo and video capture this is handled using EXIF flags.
    * - For preview this is handled using view transforms (rotate + translate matrix).
-   * - For frame processors this needs to be handled manually by the user (see `Frame.bufferOrientation`)
+   * - For frame processors this needs to be handled manually by the user (see `Frame.orientation`)
    *
    * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
