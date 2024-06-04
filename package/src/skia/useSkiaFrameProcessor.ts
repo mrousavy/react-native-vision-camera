@@ -46,6 +46,10 @@ type SurfaceCache = Record<
   }
 >
 
+/**
+ * Counter-rotates the {@linkcode canvas} by the {@linkcode frame}'s {@linkcode Frame.orientation orientation}
+ * to ensure the Frame will be drawn upright.
+ */
 function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): void {
   'worklet'
 
@@ -90,6 +94,10 @@ interface Size {
   height: number
 }
 
+/**
+ * Get the size of the surface that will be used for rendering, which already accounts
+ * for the Frame's {@linkcode Frame.orientation orientation}.
+ */
 function getSurfaceSize(frame: Frame): Size {
   'worklet'
   switch (frame.orientation) {
