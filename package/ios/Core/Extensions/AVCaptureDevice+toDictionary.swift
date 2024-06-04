@@ -29,10 +29,8 @@ extension AVCaptureDevice {
       "supportsRawCapture": false, // TODO: supportsRawCapture
       "supportsLowLightBoost": isLowLightBoostSupported,
       "supportsFocus": isFocusPointOfInterestSupported,
-      "hardwareLevel": "full",
-      // TODO: Get orientation from `AVCaptureDevice.RotationCoordinator`, then just transform `AVAssetWriter`
-      // See https://github.com/mrousavy/react-native-vision-camera/issues/2046
-      "sensorOrientation": Orientation.landscapeRight.jsValue,
+      "hardwareLevel": HardwareLevel.full.jsValue,
+      "sensorOrientation": sensorOrientation.jsValue,
       "formats": formats.map { $0.toJSValue() },
     ]
   }
