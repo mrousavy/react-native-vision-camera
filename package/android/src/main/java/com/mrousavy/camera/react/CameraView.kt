@@ -121,6 +121,7 @@ class CameraView(context: Context) :
   }
 
   override fun onAttachedToWindow() {
+    Log.i(TAG, "CameraView attached to window!")
     super.onAttachedToWindow()
     if (!isMounted) {
       // Notifies JS view that the native view is now available
@@ -132,6 +133,7 @@ class CameraView(context: Context) :
   }
 
   override fun onDetachedFromWindow() {
+    Log.i(TAG, "CameraView detached from window!")
     super.onDetachedFromWindow()
     // stop collecting FPS samples
     fpsSampleCollector.stop()
