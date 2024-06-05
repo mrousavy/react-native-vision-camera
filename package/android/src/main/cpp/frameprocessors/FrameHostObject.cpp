@@ -41,7 +41,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bufferOrientation")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
@@ -87,10 +87,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     const auto& frame = getFrame();
     return jsi::Value(frame->getIsMirrored());
   }
-  if (name == "orientation") {
+  if (name == "bufferOrientation") {
     const auto& frame = getFrame();
-    auto orientation = frame->getOrientation();
-    auto string = orientation->getUnionValue();
+    auto bufferOrientation = frame->getOrientation();
+    auto string = bufferOrientation->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {

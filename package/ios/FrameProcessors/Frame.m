@@ -12,14 +12,14 @@
 
 @implementation Frame {
   CMSampleBufferRef _Nonnull _buffer;
-  UIImageOrientation _orientation;
+  UIImageOrientation _bufferOrientation;
 }
 
 - (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     _buffer = buffer;
-    _orientation = orientation;
+    _bufferOrientation = orientation;
   }
   return self;
 }
@@ -36,8 +36,8 @@
   return _buffer;
 }
 
-- (UIImageOrientation)orientation {
-  return _orientation;
+- (UIImageOrientation)bufferOrientation {
+  return _bufferOrientation;
 }
 
 - (NSString*)pixelFormat {

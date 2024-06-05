@@ -286,7 +286,7 @@ export interface CameraProps extends ViewProps {
    * - `'landscape-right'`: Force-rotate to **270°** (home-button on the right)
    *
    * @note Preview orientation will not be affected by this property, as it is always dependant on screen orientation
-   * @note Frame Processors will not be affected by this property, as their buffer size (respective to {@linkcode Frame.orientation}) is always the same
+   * @note Frame Processors will not be affected by this property, as their buffer size (respective to {@linkcode Frame.bufferOrientation}) is always the same
    * @see See [the Orientation documentation](https://react-native-vision-camera.com/docs/guides/orientation) for more information
    * @default 'device'
    */

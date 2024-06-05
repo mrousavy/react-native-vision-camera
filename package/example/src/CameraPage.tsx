@@ -183,7 +183,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     runAtTargetFps(10, () => {
       'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.bufferOrientation})`)
       examplePlugin(frame)
       exampleKotlinSwiftPlugin(frame)
     })

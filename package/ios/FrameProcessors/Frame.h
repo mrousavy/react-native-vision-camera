@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)decrementRefCount;
 
 @property(nonatomic, readonly) CMSampleBufferRef buffer;
-@property(nonatomic, readonly) UIImageOrientation orientation;
+@property(nonatomic, readonly) UIImageOrientation bufferOrientation;
 
 @property(nonatomic, readonly) NSString* pixelFormat;
 @property(nonatomic, readonly) BOOL isMirrored;

@@ -47,7 +47,7 @@ type SurfaceCache = Record<
 >
 
 /**
- * Counter-rotates the {@linkcode canvas} by the {@linkcode frame}'s {@linkcode Frame.orientation orientation}
+ * Counter-rotates the {@linkcode canvas} by the {@linkcode frame}'s {@linkcode Frame.bufferOrientation orientation}
  * to ensure the Frame will be drawn upright.
  */
 function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): void {
@@ -58,7 +58,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
 
   try {
     // 2. properly rotate canvas so Frame is rendered up-right.
-    switch (frame.orientation) {
+    switch (frame.bufferOrientation) {
       case 'portrait':
         // do nothing
         break
@@ -78,7 +78,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
         canvas.translate(270, 0)
         break
       default:
-        throw new Error(`Invalid frame.orientation: ${frame.orientation}!`)
+        throw new Error(`Invalid frame.bufferOrientation: ${frame.bufferOrientation}!`)
     }
 
     // 3. call actual processing code
@@ -96,11 +96,11 @@ interface Size {
 
 /**
  * Get the size of the surface that will be used for rendering, which already accounts
- * for the Frame's {@linkcode Frame.orientation orientation}.
+ * for the Frame's {@linkcode Frame.bufferOrientation orientation}.
  */
 function getSurfaceSize(frame: Frame): Size {
   'worklet'
-  switch (frame.orientation) {
+  switch (frame.bufferOrientation) {
     case 'portrait':
     case 'portrait-upside-down':
       return { width: frame.width, height: frame.height }

@@ -32,8 +32,8 @@ This is handled automatically, and it's behaviour can be controlled via the [`ou
 Frame Processors will stream frames in a potentially "wrong" orientation, and the client is responsible for properly interpreting the Frame data.
 
 :::info
-This needs to be handled manually, see [`Frame.orientation`](/docs/api/interfaces/Frame#orientation).
-For example, in MLKit just pass the `Frame`'s `orientation` to the `detect(...)` method.
+This needs to be handled manually, see [`Frame.bufferOrientation`](/docs/api/interfaces/Frame#bufferorientation).
+For example, in MLKit just pass the `Frame`'s `bufferOrientation` to the `detect(...)` method.
 :::
 
 #### Preview View
@@ -80,14 +80,14 @@ All captured photos and videos will be locked to landscape-left (90°, home-butt
 
 All captured photos and videos will be locked to landscape-right (270°, home-button on the right).
 
-### The `Frame`'s `orientation`
+### The `Frame`'s `bufferOrientation`
 
 In a Frame Processor, frames are streamed in their native sensor orientation.
 This means even if the phone is rotated from portrait to landscape, the Frame's [`width`](/docs/api/interfaces/Frame#width) and [`height`](/docs/api/interfaces/Frame#height) stay the same.
 
-The Frame's [`orientation`](/docs/api/interfaces/Frame#orientation) represents it's orientation relative to the current target orientation.
+The Frame's [`bufferOrientation`](/docs/api/interfaces/Frame#bufferorientation) represents it's orientation relative to the current target orientation.
 
-For example, if the phone is held in `portrait` mode and the Frame's `orientation` is `landscape-right`, it is 90° rotated and needs to be counter-rotated by -90° to appear "up-right".
+For example, if the phone is held in `portrait` mode and the Frame's `bufferOrientation` is `landscape-right`, it is 90° rotated and needs to be counter-rotated by -90° to appear "up-right".
 Instead of actually rotating pixels in the buffers, frame processor plugins just need to interpret the frame as being rotated.
 
 MLKit handles this via a `orientation` property on the `MLImage`/`VisionImage` object:
@@ -96,7 +96,7 @@ MLKit handles this via a `orientation` property on the `MLImage`/`VisionImage` o
 public override func callback(_ frame: Frame, withArguments _: [AnyHashable: Any]?) -> Any? {
   let mlImage = MLImage(sampleBuffer: frame.buffer)
   // highlight-next-line
-  mlImage.orientation = frame.orientation
+  mlImage.orientation = frame.bufferOrientation
   // ...
 ```
 

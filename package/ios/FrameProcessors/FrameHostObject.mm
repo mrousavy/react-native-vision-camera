@@ -26,7 +26,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     result.push_back(jsi::PropNameID::forUtf8(rt, "height"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "bytesPerRow"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "planesCount"));
-    result.push_back(jsi::PropNameID::forUtf8(rt, "orientation"));
+    result.push_back(jsi::PropNameID::forUtf8(rt, "bufferOrientation"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "isMirrored"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "timestamp"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "pixelFormat"));
@@ -65,10 +65,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     Frame* frame = getFrame();
     return jsi::Value((double)frame.height);
   }
-  if (name == "orientation") {
+  if (name == "bufferOrientation") {
     Frame* frame = getFrame();
-    NSString* orientation = [NSString stringWithParsed:frame.orientation];
-    return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
+    NSString* bufferOrientation = [NSString stringWithParsed:frame.bufferOrientation];
+    return jsi::String::createFromUtf8(runtime, bufferOrientation.UTF8String);
   }
   if (name == "isMirrored") {
     Frame* frame = getFrame();
