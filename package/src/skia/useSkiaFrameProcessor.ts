@@ -1,5 +1,4 @@
 import type { Frame, FrameInternal } from '../types/Frame'
-import type { DependencyList } from 'react'
 import { useEffect, useMemo } from 'react'
 import type { DrawableFrameProcessor } from '../types/CameraProps'
 import type { ISharedValue, IWorkletNativeApi } from 'react-native-worklets-core'
@@ -278,7 +277,6 @@ export function createSkiaFrameProcessor(
  *
  * @worklet
  * @param frameProcessor The Frame Processor
- * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
  * @returns The memoized Skia Frame Processor.
  * @example
  * ```ts
@@ -291,13 +289,10 @@ export function createSkiaFrameProcessor(
  *     const rect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
  *     frame.drawRect(rect)
  *   }
- * }, [])
+ * })
  * ```
  */
-export function useSkiaFrameProcessor(
-  frameProcessor: (frame: DrawableFrame) => void,
-  dependencies: DependencyList,
-): DrawableFrameProcessor {
+export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => void): DrawableFrameProcessor {
   const surface = WorkletsProxy.useSharedValue<SurfaceCache>({})
   const offscreenTextures = WorkletsProxy.useSharedValue<SkImage[]>([])
 
@@ -323,6 +318,6 @@ export function useSkiaFrameProcessor(
   return useMemo(
     () => createSkiaFrameProcessor(frameProcessor, surface, offscreenTextures),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies,
+    WorkletsProxy.getWorkletDependencies(frameProcessor),
   )
 }

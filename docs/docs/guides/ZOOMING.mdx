@@ -92,10 +92,7 @@ export function App() {
     })
 
   // highlight-start
-  const animatedProps = useAnimatedProps<CameraProps>(
-    () => ({ zoom: zoom.value }),
-    [zoom]
-  )
+  const animatedProps = useAnimatedProps<CameraProps>(() => ({ zoom: zoom.value }))
   // highlight-end
 
   if (device == null) return <NoCameraDeviceError />

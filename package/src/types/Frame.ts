@@ -10,7 +10,7 @@ import type { PixelFormat } from './PixelFormat'
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
  *   console.log(`Frame: ${frame.width}x${frame.height} (${frame.pixelFormat})`)
- * }, [])
+ * })
  * ```
  */
 export interface Frame {
@@ -73,7 +73,7 @@ export interface Frame {
    *     const data = new Uint8Array(buffer)
    *     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
    *   }
-   * }, [])
+   * })
    * ```
    */
   toArrayBuffer(): ArrayBuffer

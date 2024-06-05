@@ -49,7 +49,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   const result = global.myCppPlugin(frame)
   console.log(`C++ result: ${result}`) // <-- 42
-}, [])
+})
 ```
 
 To include VisionCamera's C++ library in your plugin's C++ code, you need to link it and include the headers.

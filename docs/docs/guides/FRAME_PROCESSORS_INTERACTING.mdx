@@ -30,7 +30,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   const objects = detectObjects(frame)
   const bananas = objects.filter((o) => o.type === targetObject)
   console.log(`Detected ${bananas} bananas!`)
-}, [targetObject])
+})
 ```
 
 ### Shared Values
@@ -45,7 +45,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   const objects = detectObjects(frame)
   bananas.value = objects.filter((o) => o.type === 'banana')
-}, [bananas])
+})
 
 // Draw bananas in a Skia Canvas
 const onDraw = useDrawCallback((canvas) => {
@@ -76,7 +76,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   if (faces.length > 0) {
     onFaceDetected(faces[0])
   }
-}, [onFaceDetected])
+})
 ```
 
 ## Scheduling
@@ -101,7 +101,7 @@ const frameProcessor = useFrameProcessor((frame) => {
     console.log("I'm running asynchronously, possibly at a lower FPS rate!")
     const faces = detectFaces(frame)
   })
-}, [])
+})
 ```
 
 ### Running at a throttled FPS rate
@@ -119,7 +119,7 @@ const frameProcessor = useFrameProcessor((frame) => {
     console.log("I'm running synchronously at 2 FPS!")
     const brightness = detectBrightness(frame)
   })
-}, [])
+})
 ```
 
 #### 🚀 Next section: [Zooming](/docs/guides/zooming) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))

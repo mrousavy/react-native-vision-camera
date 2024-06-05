@@ -49,12 +49,12 @@ Just like [`zoom`](zooming), this property can be animated using Reanimated.
       return interpolate(exposureSlider.value,
                          [-1, 0, 1],
                          [device.minExposure, 0, device.maxExposure])
-    }, [exposureSlider, device])
+    })
 
     // 3. pass it as an animated prop
     const animatedProps = useAnimatedProps(() => ({
       exposure: exposureValue.value
-    }), [exposureValue])
+    }))
 
     // 4. render Camera
     return (

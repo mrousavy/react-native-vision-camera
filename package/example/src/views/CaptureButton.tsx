@@ -196,20 +196,17 @@ const _CaptureButton: React.FC<Props> = ({
   })
   //#endregion
 
-  const shadowStyle = useAnimatedStyle(
-    () => ({
-      transform: [
-        {
-          scale: withSpring(isPressingButton.value ? 1 : 0, {
-            mass: 1,
-            damping: 35,
-            stiffness: 300,
-          }),
-        },
-      ],
-    }),
-    [isPressingButton],
-  )
+  const shadowStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: withSpring(isPressingButton.value ? 1 : 0, {
+          mass: 1,
+          damping: 35,
+          stiffness: 300,
+        }),
+      },
+    ],
+  }))
   const buttonStyle = useAnimatedStyle(() => {
     let scale: number
     if (enabled) {
@@ -246,7 +243,7 @@ const _CaptureButton: React.FC<Props> = ({
         },
       ],
     }
-  }, [enabled, isPressingButton])
+  })
 
   return (
     <TapGestureHandler
