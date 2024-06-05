@@ -14,6 +14,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
   }
 
   private var targetOutputOrientation = OutputOrientation.DEVICE
+  private var lastOrientation: Orientation? = null
 
   // Screen Orientation Listener
   private var screenRotation = Surface.ROTATION_0
@@ -25,7 +26,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
       // Display rotated!
       val display = displayManager.getDisplay(displayId) ?: return
       screenRotation = display.rotation
-      callback.onOutputOrientationChanged(outputOrientation)
+      maybeNotifyOrientation()
     }
   }
 
@@ -35,7 +36,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
     override fun onOrientationChanged(rotationDegrees: Int) {
       // Phone rotated!
       deviceRotation = degreesToSurfaceRotation(rotationDegrees)
-      callback.onOutputOrientationChanged(outputOrientation)
+      maybeNotifyOrientation()
     }
   }
 
@@ -52,9 +53,18 @@ class OrientationManager(private val context: Context, private val callback: Cal
       }
     }
 
+  private fun maybeNotifyOrientation() {
+    val newOrientation = outputOrientation
+    if (lastOrientation != newOrientation) {
+      callback.onOutputOrientationChanged(newOrientation)
+      lastOrientation = newOrientation
+    }
+  }
+
   fun setTargetOutputOrientation(targetOrientation: OutputOrientation) {
     Log.i(TAG, "Target Orientation changed $targetOutputOrientation -> $targetOrientation!")
     targetOutputOrientation = targetOrientation
+    lastOrientation = null
 
     // remove previous listeners if attached
     displayManager.unregisterDisplayListener(displayListener)
