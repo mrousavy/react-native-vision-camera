@@ -111,6 +111,23 @@ The Camera Frame is a GPU-texture-backed `SkImage`, and it's coordinate system i
 - (`0`, `0`) is top left
 - (`frame.width`, `frame.height`) is bottom right
 
+### Ensuring Consistent Drawing Across Different Devices
+
+To achieve consistent drawing across different devices, it is essential to manually set the video resolution instead of using the maximum resolution available. This ensures that the aspect ratio and resolution remain consistent, providing a uniform drawing experience regardless of the device's capabilities.
+
+Here's an example of how to manually set the video resolution:
+
+```ts
+const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
+const format = useCameraFormat(device, [
+  { fps: targetFps },
+  { videoAspectRatio: screenAspectRatio },
+  { videoResolution: { width: 1080, height: 1920 } },
+  { photoAspectRatio: screenAspectRatio },
+  { photoResolution: 'max' },
+])
+```
+
 ### Performance
 
 Just like normal Frame Processors, Skia Frame Processors are _really fast_. Skia is GPU-accelerated by Metal and OpenGL, and VisionCamera Frames are streamed as efficiently as possible using GPU-buffers and textures.

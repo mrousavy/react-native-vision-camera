@@ -200,8 +200,11 @@ export function createSkiaFrameProcessor(
           case 'render':
             return (paint?: SkPaint) => {
               'worklet'
-              if (paint != null) canvas.drawImage(image, 0, 0, paint)
-              else canvas.drawImage(image, 0, 0)
+              // rotate the frame properly to make sure it's upright
+              withRotatedFrame(frame, canvas, () => {
+                if (paint != null) canvas.drawImage(image, 0, 0, paint)
+                else canvas.drawImage(image, 0, 0)
+              })
             }
           case 'dispose':
             return () => {
@@ -234,16 +237,13 @@ export function createSkiaFrameProcessor(
         const black = Skia.Color('black')
         canvas.clear(black)
 
-        // 4. rotate the frame properly to make sure it's upright
-        withRotatedFrame(frame, canvas, () => {
-          // 5. Run any user drawing operations
-          frameProcessor(drawableFrame)
-        })
+        // 4. Run any user drawing operations
+        frameProcessor(drawableFrame)
 
-        // 6. Flush draw operations and submit to GPU
+        // 5. Flush draw operations and submit to GPU
         surface.flush()
       } finally {
-        // 7. Delete the SkImage/Texture that holds the Frame
+        // 6. Delete the SkImage/Texture that holds the Frame
         drawableFrame.dispose()
       }
 
