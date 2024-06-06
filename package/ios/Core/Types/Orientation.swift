@@ -8,6 +8,7 @@
 
 import AVFoundation
 import Foundation
+import UIKit
 
 /**
  The Orientation used for the Preview, Photo, Video and Frame Processor outputs.
