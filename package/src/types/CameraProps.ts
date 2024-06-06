@@ -3,9 +3,9 @@ import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '.
 import type { CameraRuntimeError } from '../CameraError'
 import type { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
-import type { Orientation } from './Orientation'
 import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
+import type { OutputOrientation } from './OutputOrientation'
 
 export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
@@ -54,7 +54,7 @@ export interface CameraProps extends ViewProps {
    *
    * This can be compared to a Video component, where `isActive` specifies whether the video is paused or not.
    *
-   * > Note: If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
+   * @note If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
    */
   isActive: boolean
 
@@ -276,9 +276,21 @@ export interface CameraProps extends ViewProps {
    */
   enableFpsGraph?: boolean
   /**
-   * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
+   * Sets the orientation of all Camera Outputs (Photo, Snapshot and Video).
+   *
+   * - `'preview'`: Use the same orientation as the preview view. If the device rotation is locked, the user cannot take photos or videos in different orientations.
+   * - `'device'`: Use whatever orientation the device is held in, even if the preview view is not rotated to that orientation. If the device rotation is locked, the user can still rotate his phone to take photos or videos in different orientations than the preview view.
+   * - `'portrait'`: Force-rotate to **0°** (home-button at the bottom)
+   * - `'landscape-left'`: Force-rotate to **90°** (home-button on the left)
+   * - `'portrait-upside-down'`: Force-rotate to **180°** (home-button at the top)
+   * - `'landscape-right'`: Force-rotate to **270°** (home-button on the right)
+   *
+   * @note Preview orientation will not be affected by this property, as it is always dependant on screen orientation
+   * @note Frame Processors will not be affected by this property, as their buffer size (respective to {@linkcode Frame.orientation}) is always the same
+   * @see See [the Orientation documentation](https://react-native-vision-camera.com/docs/guides/orientation) for more information
+   * @default 'device'
    */
-  orientation?: Orientation
+  outputOrientation?: OutputOrientation
 
   //#region Events
   /**
@@ -306,8 +318,7 @@ export interface CameraProps extends ViewProps {
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
-   * > See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information
-   *
+   * @see See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information
    * @example
    * ```tsx
    * const frameProcessor = useFrameProcessor((frame) => {
@@ -323,8 +334,7 @@ export interface CameraProps extends ViewProps {
   /**
    * A CodeScanner that can detect QR-Codes or Barcodes using platform-native APIs.
    *
-   * > See [the Code Scanner documentation](https://react-native-vision-camera.com/docs/guides/code-scanning) for more information
-   *
+   * @see See [the Code Scanner documentation](https://react-native-vision-camera.com/docs/guides/code-scanning) for more information
    * @example
    * ```tsx
    * const codeScanner = useCodeScanner({

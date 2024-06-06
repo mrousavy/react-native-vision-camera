@@ -88,7 +88,10 @@ public class Frame {
     public Orientation getOrientation() throws FrameInvalidError {
         assertIsValid();
         int degrees = imageProxy.getImageInfo().getRotationDegrees();
-        return Orientation.Companion.fromRotationDegrees(degrees);
+        Orientation orientation = Orientation.Companion.fromRotationDegrees(degrees);
+        // .rotationDegrees is the rotation that needs to be applied to make the image appear
+        // upright. Our orientation is the actual orientation of the Frame, so the opposite. Reverse it.
+        return orientation.reversed();
     }
 
     @SuppressWarnings("unused")

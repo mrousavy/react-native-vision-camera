@@ -337,7 +337,7 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (1.2.0):
+  - react-native-worklets-core (1.3.3):
     - React
     - React-callinvoker
     - React-Core
@@ -467,16 +467,16 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - SocketRocket (0.6.1)
-  - VisionCamera (4.0.3):
-    - VisionCamera/Core (= 4.0.3)
-    - VisionCamera/FrameProcessors (= 4.0.3)
-    - VisionCamera/React (= 4.0.3)
-  - VisionCamera/Core (4.0.3)
-  - VisionCamera/FrameProcessors (4.0.3):
+  - VisionCamera (4.0.5):
+    - VisionCamera/Core (= 4.0.5)
+    - VisionCamera/FrameProcessors (= 4.0.5)
+    - VisionCamera/React (= 4.0.5)
+  - VisionCamera/Core (4.0.5)
+  - VisionCamera/FrameProcessors (4.0.5):
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.0.3):
+  - VisionCamera/React (4.0.5):
     - React-Core
     - VisionCamera/FrameProcessors
   - Yoga (1.14.0)
@@ -684,7 +684,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-skia: d368ae81d61c0253df36106ea76324b5a5519ddc
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: a316975bba20b73d47aa4d41bffb0ca984ba592e
+  react-native-worklets-core: f51430dd07bf5343d4918d28a4bb00fe8f98b982
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
   React-perflogger: 31ea61077185eb1428baf60c0db6e2886f141a5a
   React-RCTActionSheet: 392090a3abc8992eb269ef0eaa561750588fc39d
@@ -708,9 +708,9 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: b633f90960feab2669b7a1c51f8a201dd0a5bfc3
+  VisionCamera: 4c1d19f1ac09f2f42f758e306fcf642536627357
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
 PODFILE CHECKSUM: 66976ac26c778d788a06e6c1bab624e6a1233cdd
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3

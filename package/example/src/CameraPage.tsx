@@ -217,7 +217,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
                 enableFpsGraph={true}
-                orientation="portrait"
+                outputOrientation="device"
                 photo={true}
                 video={true}
                 audio={microphone.hasPermission}

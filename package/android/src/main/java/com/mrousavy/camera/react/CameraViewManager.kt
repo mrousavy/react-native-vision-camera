@@ -7,7 +7,7 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeScannerOptions
-import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.PreviewViewType
 import com.mrousavy.camera.core.types.QualityBalance
@@ -204,13 +204,13 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.exposure = exposure
   }
 
-  @ReactProp(name = "orientation")
-  fun setOrientation(view: CameraView, orientation: String?) {
-    if (orientation != null) {
-      val newMode = Orientation.fromUnionValue(orientation)
-      view.orientation = newMode
+  @ReactProp(name = "outputOrientation")
+  fun setOrientation(view: CameraView, outputOrientation: String?) {
+    if (outputOrientation != null) {
+      val newMode = OutputOrientation.fromUnionValue(outputOrientation)
+      view.outputOrientation = newMode
     } else {
-      view.orientation = Orientation.PORTRAIT
+      view.outputOrientation = OutputOrientation.DEVICE
     }
   }
 

@@ -45,6 +45,8 @@ extension CameraSession {
     captureSession.addInput(input)
     videoDeviceInput = input
 
+    orientationManager.setInputDevice(videoDevice)
+
     VisionLogger.log(level: .info, message: "Successfully configured Input Device!")
   }
 
@@ -88,6 +90,7 @@ extension CameraSession {
       if #available(iOS 12.0, *), photo.enablePortraitEffectsMatte {
         photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
       }
+      photoOutput.isMirrored = isMirrored
 
       self.photoOutput = photoOutput
     }
@@ -106,6 +109,13 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
+      if isMirrored {
+        // rotate by 180 deg and mirror the selfie camera so it behaves like the back camera.
+        // we later need to flip it alongside the horizontal axis when recording videos with it.
+        videoOutput.orientation = videoOutput.orientation.flipped()
+        videoOutput.isMirrored = isMirrored
+      }
+
       self.videoOutput = videoOutput
     }
 
@@ -150,20 +160,6 @@ extension CameraSession {
           connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
         }
       }
-    }
-  }
-
-  // pragma MARK: Orientation
-
-  func configureOrientation(configuration: CameraConfiguration) {
-    // Set up orientation and mirroring for all outputs.
-    // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
-    let isMirrored = videoDeviceInput?.device.position == .front
-    for output in captureSession.outputs {
-      if isMirrored {
-        output.mirror()
-      }
-      output.setOrientation(configuration.orientation)
     }
   }
 

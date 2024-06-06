@@ -50,7 +50,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var photoHdr = false
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
-  @objc var orientation: NSString?
+  @objc var outputOrientation: NSString?
 
   // other props
   @objc var isActive = false
@@ -231,11 +231,11 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       }
 
       // Orientation
-      if let jsOrientation = orientation as? String {
-        let orientation = try Orientation(jsValue: jsOrientation)
-        config.orientation = orientation
+      if let jsOrientation = outputOrientation as? String {
+        let outputOrientation = try OutputOrientation(jsValue: jsOrientation)
+        config.outputOrientation = outputOrientation
       } else {
-        config.orientation = .portrait
+        config.outputOrientation = .device
       }
 
       // Format
@@ -346,13 +346,13 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer) {
+  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
     fpsSampleCollector.onTick()
 
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
         frameProcessor.call(frame)
       }
     #endif
@@ -380,25 +380,5 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     onAverageFpsChanged([
       "averageFps": averageFps,
     ])
-  }
-
-  /**
-   Gets the orientation of the CameraView's frames (CMSampleBuffers),
-   relative to the phone in portrait mode.
-
-   For example, an orientation of `.right` means that the buffer is in landscape.
-   */
-  private var bufferOrientation: UIImage.Orientation {
-    guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
-      return .up
-    }
-    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
-    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
-    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
-    if cameraPosition == .front {
-      return .upMirrored
-    } else {
-      return .up
-    }
   }
 }

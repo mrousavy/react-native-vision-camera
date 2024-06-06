@@ -32,6 +32,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var recordingSession: RecordingSession?
   var didCancelRecording = false
   var isRecording = false
+  var orientationManager = OrientationManager()
 
   // Callbacks
   weak var delegate: CameraSessionDelegate?
@@ -51,6 +52,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   override init() {
     super.init()
 
+    orientationManager.delegate = self
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
                                            name: .AVCaptureSessionRuntimeError,
@@ -81,7 +83,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
    Creates a PreviewView for the current Capture Session
    */
   func createPreviewView(frame: CGRect) -> PreviewView {
-    return PreviewView(frame: frame, session: captureSession)
+    let previewView = PreviewView(frame: frame, session: captureSession)
+    orientationManager.setPreviewView(previewView)
+    return previewView
   }
 
   func onConfigureError(_ error: Error) {
@@ -138,9 +142,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.videoStabilizationChanged {
             self.configureVideoStabilization(configuration: config)
           }
-          // 4. Update output orientation
+          // 4. Update target output orientation
           if difference.orientationChanged {
-            self.configureOrientation(configuration: config)
+            self.orientationManager.setTargetOutputOrientation(config.outputOrientation)
           }
         }
 
@@ -155,25 +159,25 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             device.unlockForConfiguration()
           }
 
-          // 4. Configure format
+          // 5. Configure format
           if difference.formatChanged {
             try self.configureFormat(configuration: config, device: device)
           }
-          // 5. After step 2. and 4., we also need to configure some output properties that depend on format.
+          // 6. After step 2. and 4., we also need to configure some output properties that depend on format.
           //    This needs to be done AFTER we updated the `format`, as this controls the supported properties.
           if difference.outputsChanged || difference.formatChanged {
             self.configureVideoOutputFormat(configuration: config)
             self.configurePhotoOutputFormat(configuration: config)
           }
-          // 6. Configure side-props (fps, lowLightBoost)
+          // 7. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
             try self.configureSideProps(configuration: config, device: device)
           }
-          // 7. Configure zoom
+          // 8. Configure zoom
           if difference.zoomChanged {
             self.configureZoom(configuration: config, device: device)
           }
-          // 8. Configure exposure bias
+          // 9. Configure exposure bias
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
@@ -185,10 +189,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           self.captureSession.commitConfiguration()
         }
 
-        // 9. Start or stop the session if needed
+        // 10. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
-        // 10. Enable or disable the Torch if needed (requires session to be running)
+        // 11. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try device.lockForConfiguration()
           defer {
@@ -239,14 +243,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           }
         }
       }
-
-      // Check if Hardware Cost is okay
-      if #available(iOS 16.0, *) {
-        if self.captureSession.hardwareCost > 1 {
-          // Throw this error to the user, but don't abort the configuration. Maybe it still works.
-          self.onConfigureError(CameraError.session(.hardwareCostTooHigh(cost: self.captureSession.hardwareCost)))
-        }
-      }
     }
   }
 
@@ -268,33 +264,35 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     }
   }
 
-  /**
-   Called for every new Frame in the Video output
-   */
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // Call Frame Processor (delegate) for every Video Frame
-    if captureOutput is AVCaptureVideoDataOutput {
-      delegate?.onFrame(sampleBuffer: sampleBuffer)
+  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    switch captureOutput {
+    case is AVCaptureVideoDataOutput:
+      onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.orientation)
+    case is AVCaptureAudioDataOutput:
+      onAudioFrame(sampleBuffer: sampleBuffer)
+    default:
+      break
+    }
+  }
+
+  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
+    if let recordingSession, isRecording {
+      // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
+      recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
     }
 
-    // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
-    if isRecording {
-      guard let recordingSession = recordingSession else {
-        delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
-        return
-      }
+    if let delegate {
+      // Call Frame Processor (delegate) for every Video Frame
+      let relativeBufferOrientation = orientation.relativeTo(orientation: outputOrientation)
+      delegate.onFrame(sampleBuffer: sampleBuffer, orientation: relativeBufferOrientation)
+    }
+  }
 
-      switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
-        recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
-      case is AVCaptureAudioDataOutput:
-        // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
-        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
-        recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
-      default:
-        break
-      }
+  private final func onAudioFrame(sampleBuffer: CMSampleBuffer) {
+    if let recordingSession, isRecording {
+      // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
+      audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
+      recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
     }
   }
 

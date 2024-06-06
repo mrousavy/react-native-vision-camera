@@ -51,11 +51,71 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
+  init(deviceOrientation: UIDeviceOrientation) {
+    switch deviceOrientation {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      // view is counter-rotated
+      self = .landscapeLeft
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    // view is counter-rotated
+    case .landscapeLeft:
+      self = .landscapeRight
+    default:
+      self = .portrait
+    }
+  }
+
+  init(videoOrientation: AVCaptureVideoOrientation) {
+    switch videoOrientation {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      self = .landscapeRight
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    case .landscapeLeft:
+      self = .landscapeLeft
+    default:
+      self = .portrait
+    }
+  }
+
+  init(interfaceOrientation: UIInterfaceOrientation) {
+    switch interfaceOrientation {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      self = .landscapeRight
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    case .landscapeLeft:
+      self = .landscapeLeft
+    default:
+      self = .portrait
+    }
+  }
+
   var jsValue: String {
     return rawValue
   }
 
-  func toAVCaptureVideoOrientation() -> AVCaptureVideoOrientation {
+  var affineTransform: CGAffineTransform {
+    switch self {
+    case .portrait:
+      return .identity
+    case .landscapeLeft:
+      return CGAffineTransform(rotationAngle: .pi / 2)
+    case .portraitUpsideDown:
+      return CGAffineTransform(rotationAngle: .pi)
+    case .landscapeRight:
+      return CGAffineTransform(rotationAngle: -(.pi / 2))
+    }
+  }
+
+  var videoOrientation: AVCaptureVideoOrientation {
     switch self {
     case .portrait:
       return .portrait
@@ -68,7 +128,20 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  func toDegrees() -> Double {
+  var imageOrientation: UIImage.Orientation {
+    switch self {
+    case .portrait:
+      return .up
+    case .landscapeLeft:
+      return .right
+    case .portraitUpsideDown:
+      return .down
+    case .landscapeRight:
+      return .left
+    }
+  }
+
+  var degrees: Double {
     switch self {
     case .portrait:
       return 0
@@ -81,9 +154,25 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  func rotateBy(orientation: Orientation) -> Orientation {
-    let added = toDegrees() + orientation.toDegrees()
+  var isLandscape: Bool {
+    return self == .landscapeLeft || self == .landscapeRight
+  }
+
+  func rotatedBy(degrees: Double) -> Orientation {
+    let added = self.degrees + degrees
     let degress = added.truncatingRemainder(dividingBy: 360)
     return Orientation(degrees: degress)
+  }
+
+  func rotatedBy(orientation: Orientation) -> Orientation {
+    return rotatedBy(degrees: orientation.degrees)
+  }
+
+  func flipped() -> Orientation {
+    return rotatedBy(degrees: 180)
+  }
+
+  func relativeTo(orientation: Orientation) -> Orientation {
+    return rotatedBy(degrees: -orientation.degrees)
   }
 }

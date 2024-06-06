@@ -69,7 +69,8 @@ import kotlinx.coroutines.sync.withLock
 
 class CameraSession(private val context: Context, private val callback: Callback) :
   Closeable,
-  LifecycleOwner {
+  LifecycleOwner,
+  OrientationManager.Callback {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -89,6 +90,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   // Camera Outputs State
   private val metadataProvider = MetadataProvider(context)
+  private val orientationManager = OrientationManager(context, this)
   private var recorderOutput: Recorder? = null
 
   // Camera State
@@ -101,6 +103,10 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
+
+  // Orientation
+  val outputOrientation: Orientation
+    get() = orientationManager.outputOrientation
 
   init {
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
@@ -176,8 +182,12 @@ class CameraSession(private val context: Context, private val callback: Callback
           // 4. start or stop the session
           configureIsActive(config)
         }
+        if (diff.orientationChanged) {
+          // 5. update the target orientation mode
+          configureOrientation(config)
+        }
         if (diff.locationChanged) {
-          // 5. start or stop location update streaming
+          // 6. start or stop location update streaming
           metadataProvider.enableLocationUpdates(config.enableLocation)
         }
 
@@ -500,7 +510,19 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
-  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation): Photo {
+  private fun configureOrientation(config: CameraConfiguration) {
+    orientationManager.setTargetOutputOrientation(config.outputOrientation)
+  }
+
+  override fun onOutputOrientationChanged(outputOrientation: Orientation) {
+    Log.i(TAG, "Output orientation changed! $outputOrientation")
+    photoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
+    videoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
+    frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()
+    codeScannerOutput?.targetRotation = outputOrientation.toSurfaceRotation()
+  }
+
+  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
     val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
@@ -509,7 +531,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
 
     photoOutput.flashMode = flash.toFlashMode()
-    photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
     val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
 
     val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
@@ -521,8 +542,10 @@ class CameraSession(private val context: Context, private val callback: Callback
     BitmapFactory.decodeFile(photoFile.uri.path, bitmapOptions)
     val width = bitmapOptions.outWidth
     val height = bitmapOptions.outHeight
+    val rotation = photoOutput.targetRotation
+    val orientation = Orientation.fromSurfaceRotation(rotation)
 
-    return Photo(photoFile.uri.path, width, height, outputOrientation, isMirrored)
+    return Photo(photoFile.uri.path, width, height, orientation, isMirrored)
   }
 
   private fun getEnableShutterSoundActual(enable: Boolean): Boolean {
@@ -539,7 +562,6 @@ class CameraSession(private val context: Context, private val callback: Callback
   fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
-    outputOrientation: Orientation,
     callback: (video: Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
@@ -554,7 +576,6 @@ class CameraSession(private val context: Context, private val callback: Callback
         outputOptions.setLocation(location)
       }
     }.build()
-    videoOutput.setTargetRotation(outputOrientation.toSurfaceRotation())
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {
       checkMicrophonePermission()
