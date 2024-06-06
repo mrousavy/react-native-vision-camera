@@ -177,6 +177,7 @@ export function createSkiaFrameProcessor(
         throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
       surfaceHolder.value[threadId]?.surface.dispose()
+      delete surfaceHolder.value[threadId]
       surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
     const surface = surfaceHolder.value[threadId]?.surface
