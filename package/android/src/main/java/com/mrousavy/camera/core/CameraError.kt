@@ -208,6 +208,8 @@ class FrameInvalidError :
       "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`"
   )
 class InvalidImageTypeError : CameraError("capture", "invalid-image-type", "Captured an Image with an invalid Image type!")
+class InvalidPathError(message: String) :
+  CameraError("capture", "invalid-path", "The given path is invalid! $message")
 
 class CodeTypeNotSupportedError(codeType: String) :
   CameraError(

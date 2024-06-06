@@ -11,6 +11,7 @@ import Foundation
 
 struct RecordVideoOptions {
   var fileType: AVFileType = .mov
+  var path: String?
   var flash: Torch = .off
   var codec: AVVideoCodecType?
   /**
@@ -27,6 +28,10 @@ struct RecordVideoOptions {
     // File Type (.mov or .mp4)
     if let fileTypeOption = dictionary["fileType"] as? String {
       fileType = try AVFileType(withString: fileTypeOption)
+    }
+    // Path
+    if let pathOption = dictionary["path"] as? String {
+      path = pathOption
     }
     // Flash
     if let flashOption = dictionary["flash"] as? String {

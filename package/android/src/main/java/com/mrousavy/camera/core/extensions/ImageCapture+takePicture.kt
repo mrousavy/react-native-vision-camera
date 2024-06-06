@@ -25,14 +25,15 @@ suspend inline fun ImageCapture.takePicture(
   enableShutterSound: Boolean,
   metadataProvider: MetadataProvider,
   callback: CameraSession.Callback,
-  executor: Executor
+  executor: Executor,
+  path: String?
 ): PhotoFileInfo =
   suspendCancellableCoroutine { continuation ->
     // Shutter sound
     val shutterSound = if (enableShutterSound) MediaActionSound() else null
     shutterSound?.load(MediaActionSound.SHUTTER_CLICK)
 
-    val file = FileUtils.createTempFile(context, ".jpg")
+    val file = FileUtils.getDestinationFile(context, path, ".jpg")
     val outputFileOptionsBuilder = OutputFileOptions.Builder(file).also { options ->
       val metadata = ImageCapture.Metadata()
       metadataProvider.location?.let { location ->

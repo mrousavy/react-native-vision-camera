@@ -41,6 +41,10 @@ export interface RecordVideoOptions {
    * @default 'normal'
    */
   videoBitRate?: 'extra-low' | 'low' | 'normal' | 'high' | 'extra-high' | number
+  /**
+   * The path where the video should be saved to.
+   */
+  path?: string
 }
 
 /**

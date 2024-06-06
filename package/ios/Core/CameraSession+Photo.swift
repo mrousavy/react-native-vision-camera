@@ -81,8 +81,22 @@ extension CameraSession {
       // shutter sound
       let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
+      // Destination URL
+      let destinationURL: URL
+      do {
+        destinationURL = try FileUtils.getDestinationURL(path: options["path"] as? String, fileExtension: "jpeg")
+        VisionLogger.log(level: .info, message: "Will record to file: \(destinationURL)")
+      } catch let error as CameraError {
+        promise.reject(error: error)
+        return
+      } catch {
+        promise.reject(error: .unknown(message: "An unknown error occurred while getting the destination URL."))
+        return
+      }
+
       // Actually do the capture!
       let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
+                                                      path: destinationURL,
                                                       enableShutterSound: enableShutterSound,
                                                       metadataProvider: self.metadataProvider,
                                                       cameraSessionDelegate: self.delegate)

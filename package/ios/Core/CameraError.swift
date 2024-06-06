@@ -219,6 +219,7 @@ enum CaptureError {
   case timedOut
   case insufficientStorage
   case failedWritingMetadata(cause: Error?)
+  case invalidPath(message: String? = nil)
   case unknown(message: String? = nil)
 
   var code: String {
@@ -251,6 +252,8 @@ enum CaptureError {
       return "insufficient-storage"
     case .failedWritingMetadata:
       return "failed-writing-metadata"
+    case .invalidPath:
+        return "invalid-path"
     case .unknown:
       return "unknown"
     }
@@ -286,6 +289,8 @@ enum CaptureError {
       return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
       return "There is not enough storage space available."
+    case let .invalidPath(message: message):
+        return "The given path is invalid! \(message ?? "(no additional message)")"
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

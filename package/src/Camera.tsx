@@ -109,7 +109,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
   //#region View-specific functions (UIViewManager)
   /**
-   * Take a single photo and write it's content to a temporary file.
+   * Take a single photo.
    *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo.
    * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
@@ -130,7 +130,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 
   /**
-   * Captures a snapshot of the Camera view and write it's content to a temporary file.
+   * Captures a snapshot of the Camera view.
    *
    * - On iOS, `takeSnapshot` waits for a Frame from the video pipeline and therefore requires `video` to be enabled.
    * - On Android, `takeSnapshot` performs a GPU view screenshot from the preview view.
@@ -315,7 +315,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 
   /**
-   * Cancel the current video recording. The temporary video file will be deleted,
+   * Cancel the current video recording. The video file will be deleted,
    * and the `startRecording`'s `onRecordingError` callback will be invoked with a `capture/recording-canceled` error.
    *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while canceling the video recording.
