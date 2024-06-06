@@ -520,6 +520,9 @@ class CameraSession(private val context: Context, private val callback: Callback
     videoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
     frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()
     codeScannerOutput?.targetRotation = outputOrientation.toSurfaceRotation()
+
+    // onOutputOrientationChanged(..) event
+    callback.onOutputOrientationChanged(outputOrientation)
   }
 
   suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
@@ -680,6 +683,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     fun onStarted()
     fun onStopped()
     fun onShutter(type: ShutterType)
+    fun onOutputOrientationChanged(outputOrientation: Orientation)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

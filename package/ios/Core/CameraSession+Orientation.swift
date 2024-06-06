@@ -72,5 +72,8 @@ extension CameraSession: OrientationManagerDelegate {
         connection.orientation = outputOrientation
       }
     }
+
+    // onOrientationChanged(..) event
+    delegate?.onOrientationChanged(outputOrientation: outputOrientation)
   }
 }

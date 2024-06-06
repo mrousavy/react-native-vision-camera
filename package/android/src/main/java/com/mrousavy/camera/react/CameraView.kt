@@ -13,6 +13,7 @@ import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeScannerOptions
+import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.PreviewViewType
@@ -316,6 +317,10 @@ class CameraView(context: Context) :
 
   override fun onShutter(type: ShutterType) {
     invokeOnShutter(type)
+  }
+
+  override fun onOutputOrientationChanged(outputOrientation: Orientation) {
+    invokeOnOutputOrientationChanged(outputOrientation)
   }
 
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {

@@ -6,6 +6,7 @@ import type { Frame } from './Frame'
 import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
 import type { OutputOrientation } from './OutputOrientation'
+import type { Orientation } from './Orientation'
 
 export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
@@ -315,6 +316,12 @@ export interface CameraProps extends ViewProps {
    * Inside this callback you can play a custom shutter sound or show visual feedback to the user.
    */
   onShutter?: (event: OnShutterEvent) => void
+  /**
+   * Called whenever the output orientation changed.
+   *
+   * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
+   */
+  onOutputOrientationChanged?: (outputOrientation: Orientation) => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
