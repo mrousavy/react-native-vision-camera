@@ -11,6 +11,7 @@ import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.UnknownCameraError
 import com.mrousavy.camera.core.types.CodeType
+import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.ShutterType
 
 fun CameraView.invokeOnInitialized() {

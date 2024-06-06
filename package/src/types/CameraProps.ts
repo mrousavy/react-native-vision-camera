@@ -318,6 +318,8 @@ export interface CameraProps extends ViewProps {
   onShutter?: (event: OnShutterEvent) => void
   /**
    * Called whenever the output orientation changed.
+   *
+   * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
   onOutputOrientationChanged?: (outputOrientation: Orientation) => void
   /**
