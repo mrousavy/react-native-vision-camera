@@ -270,7 +270,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     // Call Frame Processor (delegate) for every Video Frame
     if captureOutput is AVCaptureVideoDataOutput {
-      let relativeBufferOrientation = outputOrientation.relativeTo(orientation: connection.orientation)
+      let relativeBufferOrientation = connection.orientation.relativeTo(orientation: outputOrientation)
       delegate?.onFrame(sampleBuffer: sampleBuffer, orientation: relativeBufferOrientation)
     }
 
