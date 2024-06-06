@@ -318,6 +318,10 @@ class CameraView(context: Context) :
     invokeOnShutter(type)
   }
 
+  override fun onOutputOrientationChanged(outputOrientation: Orientation) {
+    invokeOnOutputOrientationChanged(outputOrientation)
+  }
+
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {
     invokeOnCodeScanned(codes, scannerFrame)
   }

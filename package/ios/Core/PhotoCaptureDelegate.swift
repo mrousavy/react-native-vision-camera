@@ -34,7 +34,7 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
       AudioServicesDisposeSystemSoundID(1108)
     }
 
-    // onShutter() event
+    // onShutter(..) event
     cameraSessionDelegate?.onCaptureShutter(shutterType: .photo)
   }
 

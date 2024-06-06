@@ -15,7 +15,13 @@ import type { TakeSnapshotOptions } from './types/Snapshot'
 import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
 import type { Frame } from './types/Frame'
 import { FpsGraph, MAX_BARS } from './FpsGraph'
-import type { AverageFpsChangedEvent, NativeCameraViewProps, OnCodeScannedEvent, OnErrorEvent } from './NativeCameraView'
+import type {
+  AverageFpsChangedEvent,
+  NativeCameraViewProps,
+  OnCodeScannedEvent,
+  OnErrorEvent,
+  OutputOrientationChangedEvent,
+} from './NativeCameraView'
 import { NativeCameraView } from './NativeCameraView'
 
 //#region Types
@@ -85,6 +91,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
     this.onShutter = this.onShutter.bind(this)
+    this.onOutputOrientationChanged = this.onOutputOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
@@ -516,6 +523,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private onShutter(event: NativeSyntheticEvent<OnShutterEvent>): void {
     this.props.onShutter?.(event.nativeEvent)
   }
+
+  private onOutputOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
+    this.props.onOutputOrientationChanged?.(event.nativeEvent.outputOrientation)
+  }
   //#endregion
 
   private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
@@ -602,6 +613,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onStarted={this.onStarted}
         onStopped={this.onStopped}
         onShutter={this.onShutter}
+        onOutputOrientationChanged={this.onOutputOrientationChanged}
         onError={this.onError}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}

@@ -3,6 +3,7 @@ import { requireNativeComponent } from 'react-native'
 import type { ErrorWithCause } from './CameraError'
 import type { CameraProps, OnShutterEvent } from './types/CameraProps'
 import type { Code, CodeScanner, CodeScannerFrame } from './types/CodeScanner'
+import type { Orientation } from './types/Orientation'
 
 export interface OnCodeScannedEvent {
   codes: Code[]
@@ -16,9 +17,12 @@ export interface OnErrorEvent {
 export interface AverageFpsChangedEvent {
   averageFps: number
 }
+export interface OutputOrientationChangedEvent {
+  outputOrientation: Orientation
+}
 export type NativeCameraViewProps = Omit<
   CameraProps,
-  'device' | 'onInitialized' | 'onError' | 'onShutter' | 'frameProcessor' | 'codeScanner'
+  'device' | 'onInitialized' | 'onError' | 'onShutter' | 'onOutputOrientationChanged' | 'frameProcessor' | 'codeScanner'
 > & {
   // private intermediate props
   cameraId: string
@@ -34,6 +38,7 @@ export type NativeCameraViewProps = Omit<
   onStarted?: (event: NativeSyntheticEvent<void>) => void
   onStopped?: (event: NativeSyntheticEvent<void>) => void
   onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
+  onOutputOrientationChanged?: (event: NativeSyntheticEvent<OutputOrientationChangedEvent>) => void
 }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'

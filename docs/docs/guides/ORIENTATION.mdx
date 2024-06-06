@@ -52,6 +52,8 @@ The orientation in which photos and videos are captured can be adjusted via the 
 <Camera {...props} outputOrientation="device" />
 ```
 
+Whenever the output orientation changes, the [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged) event will be called with the new output orientation.
+
 #### `"device"`
 
 With the output orientation set to `device` (the default), photos and videos will be captured in the phone's physical orientation, even if the screen-rotation is locked.
