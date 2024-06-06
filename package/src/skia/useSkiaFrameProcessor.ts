@@ -176,7 +176,7 @@ export function createSkiaFrameProcessor(
         // skia surface couldn't be allocated
         throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
-      surfaceHolder.value[threadId]?.surface.dispose()
+      // surfaceHolder.value[threadId]?.surface.dispose()
       surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
     const surface = surfaceHolder.value[threadId]?.surface

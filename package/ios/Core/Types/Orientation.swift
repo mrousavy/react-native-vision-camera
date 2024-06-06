@@ -142,7 +142,7 @@ enum Orientation: String, JSUnionValue {
   var isLandscape: Bool {
     return self == .landscapeLeft || self == .landscapeRight
   }
-  
+
   func rotatedBy(degrees: Double) -> Orientation {
     let added = self.degrees + degrees
     let degress = added.truncatingRemainder(dividingBy: 360)
@@ -156,8 +156,8 @@ enum Orientation: String, JSUnionValue {
   func flipped() -> Orientation {
     return rotatedBy(degrees: 180)
   }
-  
+
   func relativeTo(orientation: Orientation) -> Orientation {
-    return orientation.rotatedBy(degrees: -self.degrees)
+    return orientation.rotatedBy(degrees: -degrees)
   }
 }
