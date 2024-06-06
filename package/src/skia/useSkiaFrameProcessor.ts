@@ -63,9 +63,9 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
         // do nothing
         break
       case 'landscape-left':
-        // rotate one flip on (0,0) origin and move X into view again
-        canvas.translate(frame.height, 0)
-        canvas.rotate(90, 0, 0)
+        // rotate two flips on (0,0) origin and move X + Y into view again
+        canvas.translate(frame.height, frame.width)
+        canvas.translate(270, 0)
         break
       case 'portrait-upside-down':
         // rotate three flips on (0,0) origin and move Y into view again
@@ -73,9 +73,9 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
         canvas.rotate(180, 0, 0)
         break
       case 'landscape-right':
-        // rotate two flips on (0,0) origin and move X + Y into view again
-        canvas.translate(frame.height, frame.width)
-        canvas.translate(270, 0)
+        // rotate one flip on (0,0) origin and move X into view again
+        canvas.translate(frame.height, 0)
+        canvas.rotate(90, 0, 0)
         break
       default:
         throw new Error(`Invalid frame.orientation: ${frame.orientation}!`)
