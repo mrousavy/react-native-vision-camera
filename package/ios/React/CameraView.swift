@@ -352,7 +352,9 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
+        let outputOrientation = cameraSession.outputOrientation
+        let relativeBufferOrientation = outputOrientation.relativeTo(orientation: orientation.flipped())
+        let frame = Frame(buffer: sampleBuffer, orientation: relativeBufferOrientation.imageOrientation)
         frameProcessor.call(frame)
       }
     #endif
