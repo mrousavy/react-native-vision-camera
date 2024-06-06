@@ -147,7 +147,7 @@ extension CameraSession {
 
       self.codeScannerOutput = codeScannerOutput
     }
-    
+
     // Re-initialize Orientations
     onPreviewOrientationChanged(previewOrientation: orientationManager.previewOrientation)
     onOutputOrientationChanged(outputOrientation: orientationManager.outputOrientation)
