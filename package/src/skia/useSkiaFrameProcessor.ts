@@ -69,7 +69,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, func: () => void): voi
         break
       case 'portrait-upside-down':
         // rotate three flips on (0,0) origin and move Y into view again
-        canvas.translate(0, frame.height)
+        canvas.translate(frame.width, frame.height)
         canvas.rotate(180, 0, 0)
         break
       case 'landscape-right':
@@ -176,7 +176,7 @@ export function createSkiaFrameProcessor(
         // skia surface couldn't be allocated
         throw new Error(`Failed to create ${size.width}x${size.height} Skia Surface!`)
       }
-      // surfaceHolder.value[threadId]?.surface.dispose()
+      surfaceHolder.value[threadId]?.surface.dispose()
       surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
     const surface = surfaceHolder.value[threadId]?.surface
