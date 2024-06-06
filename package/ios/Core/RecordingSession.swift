@@ -245,56 +245,33 @@ class RecordingSession {
       return
     }
     
-    // 2. Check the timing of the buffer and make sure it's not after we requested a session stop
+    // 2. Check the timing of the buffer and make sure it's not after we requested a session stop or pause
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    guard clockSession.isTimestampWithinTimeline(timestamp: timestamp) else {
-      VisionLogger.log(level: .debug, message: "Frame arrived, but it's timestamp is outside of what we want to record.")
-      return
-    }
-
-    // 2. Check the timing of the buffer and make sure it's not after we requested a session stop
-    if let stopTimestamp = stopTimestamp,
-       timestamp >= stopTimestamp {
-      // This Frame is exactly at, or after the point in time when RecordingSession.stop() has been called.
-      // Consider this the last Frame we write
-      switch bufferType {
-      case .video:
-        if hasWrittenLastVideoFrame {
-          // already wrote last Video Frame before, so skip this one.
-          return
-        }
-        hasWrittenLastVideoFrame = true // flip to true, then fallthrough & write it
-      case .audio:
-        if hasWrittenLastAudioFrame {
-          // already wrote last Audio Frame before, so skip this one.
-          return
-        }
-        hasWrittenLastAudioFrame = true // flip to true, then fallthrough & write it
+    let shouldWrite = clockSession.isTimestampWithinTimeline(timestamp: timestamp)
+    
+    // 3. If yes, write the Buffer to the AssetWriter
+    if shouldWrite {
+      let writer = getAssetWriter(forType: bufferType)
+      guard writer.isReadyForMoreMediaData else {
+        VisionLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
+        return
       }
+      writer.append(buffer)
     }
-
-    // 3. Actually write the Buffer to the AssetWriter
-    let writer = getAssetWriter(forType: bufferType)
-    guard writer.isReadyForMoreMediaData else {
-      VisionLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
-      return
-    }
-    writer.append(buffer)
-
+    
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
-      VisionLogger.log(level: .error,
-                       message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
+      let error = assetWriter.error?.localizedDescription ?? "(unknown error)"
+      VisionLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(error)")
       finish()
       return
     }
-
+    
     // 5. If we finished writing both the last video and audio buffers, finish the recording
-    if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
+    if clockSession.isFinished {
       VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), " +
         "finishing RecordingSession...")
       finish()
-      return
     }
   }
 

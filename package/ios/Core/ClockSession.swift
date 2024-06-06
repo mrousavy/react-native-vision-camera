@@ -35,20 +35,14 @@ class ClockSession {
     return (lastWrittenTimestamp - startTimestamp).seconds
   }
   
-  var didWriteLastFrame: Bool {
-    guard let lastWrittenTimestamp,
-          let stopTimestamp else {
-      return false
-    }
-    
-    // TODO: This can never happen.
-    return lastWrittenTimestamp >= stopTimestamp
-  }
+  /**
+   Gets whether the last frame has been written and the session is marked as finished
+   */
+  public private(set) var isFinished: Bool = false
   
   init(clock: CMClock) {
     self.clock = clock
   }
-  
   
   func start() {
     assert(startTimestamp == nil, "Cannot start ClockSession twice!")
@@ -81,28 +75,35 @@ class ClockSession {
   }
   
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
-    guard let startTimestamp, timestamp >= startTimestamp else {
-      // start timestamp is mandatory, guard
+    guard let startTimestamp else {
+      // there was no start timestamp yet. frame is not within range!
+      return false
+    }
+    
+    if let stopTimestamp, timestamp >= stopTimestamp {
+      // the timestamp is after we requested stop - we can mark this as finished now!
+      isFinished = true
+    }
+    
+    if timestamp <= startTimestamp {
+      // the timestamp is before our initial start point.
       return false
     }
     if let stopTimestamp, timestamp >= stopTimestamp {
-      // if there is a stop timestamp, make sure we're not past that
+      // the timestamp is after we requested a stop.
       return false
     }
     if let pauseTimestamp, timestamp >= pauseTimestamp {
-      // if there is a pause timestamp, make sure we're not past that
+      // the timestamp is after we requested a pause.
       return false
     }
     if let resumeTimestamp, timestamp <= resumeTimestamp {
-      // if there is a resume timestamp, make sure we're not before that
+      // the timestamp is before we requested a resume. (so still in a pause)
       return false
     }
     
     // we're within all 4 of our boundaries, return yes
-    return true
-  }
-  
-  func didWriteFrame(withTimestamp timestamp: CMTime) {
     lastWrittenTimestamp = timestamp
+    return true
   }
 }
