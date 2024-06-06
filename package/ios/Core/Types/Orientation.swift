@@ -158,6 +158,6 @@ enum Orientation: String, JSUnionValue {
   }
 
   func relativeTo(orientation: Orientation) -> Orientation {
-    return orientation.rotatedBy(degrees: -degrees)
+    return rotatedBy(degrees: -orientation.degrees)
   }
 }
