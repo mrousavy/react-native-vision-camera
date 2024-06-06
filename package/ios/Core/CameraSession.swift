@@ -264,34 +264,35 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     }
   }
 
-  /**
-   Called for every new Frame in the Video output
-   */
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-    // Call Frame Processor (delegate) for every Video Frame
-    if captureOutput is AVCaptureVideoDataOutput {
-      let relativeBufferOrientation = connection.orientation.relativeTo(orientation: outputOrientation)
-      delegate?.onFrame(sampleBuffer: sampleBuffer, orientation: relativeBufferOrientation)
+    switch captureOutput {
+    case is AVCaptureVideoDataOutput:
+      onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.orientation)
+    case is AVCaptureAudioDataOutput:
+      onAudioFrame(sampleBuffer: sampleBuffer)
+    default:
+      break
+    }
+  }
+
+  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
+    if let recordingSession, isRecording {
+      // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
+      recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
     }
 
-    // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
-    if isRecording {
-      guard let recordingSession = recordingSession else {
-        delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
-        return
-      }
+    if let delegate {
+      // Call Frame Processor (delegate) for every Video Frame
+      let relativeBufferOrientation = orientation.relativeTo(orientation: outputOrientation)
+      delegate.onFrame(sampleBuffer: sampleBuffer, orientation: relativeBufferOrientation)
+    }
+  }
 
-      switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
-        recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
-      case is AVCaptureAudioDataOutput:
-        // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
-        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
-        recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
-      default:
-        break
-      }
+  private final func onAudioFrame(sampleBuffer: CMSampleBuffer) {
+    if let recordingSession, isRecording {
+      // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
+      audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
+      recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
     }
   }
 
