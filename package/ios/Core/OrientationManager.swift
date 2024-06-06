@@ -24,6 +24,8 @@ protocol OrientationManagerDelegate: AnyObject {
 class OrientationManager: CameraOrientationCoordinatorDelegate {
   private var orientationCoordinator: CameraOrientationCoordinator?
   private var targetOutputOrientation = OutputOrientation.device
+  private var lastPreviewOrientation: Orientation?
+  private var lastOutputOrientation: Orientation?
   private weak var previewLayer: CALayer?
   private weak var device: AVCaptureDevice?
 
@@ -94,13 +96,19 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
     VisionLogger.log(level: .info, message: "Setting target output orientation from \(targetOutputOrientation) to \(targetOrientation)...")
     targetOutputOrientation = targetOrientation
     // update delegate listener
-    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
-    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+    onOrientationChanged()
   }
 
   func onOrientationChanged() {
-    // Notify both delegate listeners about the new orientation change
-    delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
-    delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+    if lastPreviewOrientation != previewOrientation {
+      // Preview orientation changed
+      delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+      lastPreviewOrientation = previewOrientation
+    }
+    if lastOutputOrientation != outputOrientation {
+      // Output orientation changed
+      delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+      lastOutputOrientation = outputOrientation
+    }
   }
 }
