@@ -31,12 +31,8 @@ class RecordingSession {
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
-
-  private var startTimestamp: CMTime?
-  private var stopTimestamp: CMTime?
-
-  private var lastWrittenTimestamp: CMTime?
-
+  private let clockSession: ClockSession
+  
   private var isFinishing = false
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
@@ -45,6 +41,7 @@ class RecordingSession {
 
   // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
   private let automaticallyStopTimeoutSeconds = 4.0
+  
 
   /**
    Gets the file URL of the recorded video.
@@ -64,11 +61,7 @@ class RecordingSession {
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    guard let lastWrittenTimestamp = lastWrittenTimestamp,
-          let startTimestamp = startTimestamp else {
-      return 0.0
-    }
-    return (lastWrittenTimestamp - startTimestamp).seconds
+    return clockSession.duration
   }
 
   /**
@@ -79,10 +72,12 @@ class RecordingSession {
   init(url: URL,
        fileType: AVFileType,
        metadataProvider: MetadataProvider,
+       clock: CMClock,
        orientation: Orientation,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
     videoOrientation = orientation
+    clockSession = ClockSession(clock: clock)
     VisionLogger.log(level: .info, message: "Creating RecordingSession... (orientation: \(orientation))")
 
     do {
@@ -165,15 +160,8 @@ class RecordingSession {
 
     VisionLogger.log(level: .info, message: "Asset Writer(s) started!")
 
-    // Get the current time of the AVCaptureSession.
-    // Note: The current time might be more advanced than this buffer's timestamp, for example if the video
-    // pipeline had some additional delay in processing the buffer (aka it is late) - eg because of Video Stabilization (~1s delay).
-    let currentTime = CMClockGetTime(clock)
-
-    // Start the sesssion at the given time. Frames with earlier timestamps (e.g. late frames) will be dropped.
-    assetWriter.startSession(atSourceTime: currentTime)
-    startTimestamp = currentTime
-    VisionLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
+    // Start the clock
+    clockSession.start()
 
     if audioWriter == nil {
       // Audio was disabled, mark the Audio track as finished so we won't wait for it.
@@ -183,8 +171,9 @@ class RecordingSession {
 
   /**
    Requests the RecordingSession to stop writing frames at the current time of the provided synchronization clock.
-   The RecordingSession will continue to write video frames and audio frames for a little longer if there was a delay
-   in the video pipeline (e.g. caused by video stabilization) to avoid the video cutting off late frames.
+   The RecordingSession will continue to write video frames and audio frames that have been produced (but not yet consumed)
+   before the requested timestamp.
+   This may happen if the Camera pipeline has an additional processing overhead, e.g. when video stabilization is enabled.
    Once all late frames have been captured (or an artificial abort timeout has been triggered), the [completionHandler] will be called.
    */
   func stop(clock: CMClock) {
@@ -192,14 +181,11 @@ class RecordingSession {
     defer {
       lock.signal()
     }
-
-    // Current time of the synchronization clock (e.g. from [AVCaptureSession]) - this marks the end of the video.
-    let currentTime = CMClockGetTime(clock)
-
-    // Request a stop at the given time. Frames with later timestamps (e.g. early frames, while we are waiting for late frames) will be dropped.
-    stopTimestamp = currentTime
-    VisionLogger.log(level: .info,
-                     message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
+    
+    VisionLogger.log(level: .info, message: "Stopping Asset Writer(s) with status \"\(assetWriter.status.descriptor)\"...")
+    
+    // Stop the clock
+    clockSession.stop()
 
     // Start a timeout that will force-stop the session if none of the late frames actually arrive
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
@@ -208,6 +194,35 @@ class RecordingSession {
         self.finish()
       }
     }
+  }
+  
+  /**
+   Requests the RecordingSession to temporarily pause writing frames at the current time of the provided synchronization clock.
+   The RecordingSession will continue to write video frames and audio frames that have been produced (but not yet consumed)
+   before the requested timestamp.
+   This may happen if the Camera pipeline has an additional processing overhead, e.g. when video stabilization is enabled.
+   */
+  func pause(clock: CMClock) {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+
+    // Pause the clock
+    clockSession.pause()
+  }
+  
+  /**
+   Resumes the RecordingSession and starts writing frames starting with the time of the provided synchronization clock.
+   */
+  func resume(clock: CMClock) {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+
+    // Resume the clock
+    clockSession.resume()
   }
 
   /**
@@ -225,13 +240,19 @@ class RecordingSession {
       VisionLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
       return
     }
-    if !CMSampleBufferDataIsReady(buffer) {
+    guard CMSampleBufferDataIsReady(buffer) else {
       VisionLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
+      return
+    }
+    
+    // 2. Check the timing of the buffer and make sure it's not after we requested a session stop
+    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+    guard clockSession.isTimestampWithinTimeline(timestamp: timestamp) else {
+      VisionLogger.log(level: .debug, message: "Frame arrived, but it's timestamp is outside of what we want to record.")
       return
     }
 
     // 2. Check the timing of the buffer and make sure it's not after we requested a session stop
-    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
     if let stopTimestamp = stopTimestamp,
        timestamp >= stopTimestamp {
       // This Frame is exactly at, or after the point in time when RecordingSession.stop() has been called.
@@ -259,13 +280,13 @@ class RecordingSession {
       return
     }
     writer.append(buffer)
-    lastWrittenTimestamp = timestamp
 
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
       VisionLogger.log(level: .error,
                        message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
       finish()
+      return
     }
 
     // 5. If we finished writing both the last video and audio buffers, finish the recording
@@ -273,6 +294,7 @@ class RecordingSession {
       VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), " +
         "finishing RecordingSession...")
       finish()
+      return
     }
   }
 

@@ -96,6 +96,7 @@ extension CameraSession {
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
+                                                    clock: self.captureSession.clock,
                                                     orientation: self.videoFileOrientation,
                                                     completion: onFinish)
 
