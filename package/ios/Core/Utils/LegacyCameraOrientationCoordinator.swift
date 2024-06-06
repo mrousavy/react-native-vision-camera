@@ -19,30 +19,26 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
   init(device: AVCaptureDevice) {
     sensorOrientation = device.sensorOrientation
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handleDeviceOrientationChange),
-      name: UIDevice.orientationDidChangeNotification,
-      object: nil
-    )
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(onDeviceOrientationChanged),
+                                           name: UIDevice.orientationDidChangeNotification,
+                                           object: nil)
   }
 
   deinit {
     UIDevice.current.endGeneratingDeviceOrientationNotifications()
-    NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+    NotificationCenter.default.removeObserver(self,
+                                              name: UIDevice.orientationDidChangeNotification,
+                                              object: nil)
   }
 
   @objc
-  func handleDeviceOrientationChange(notification _: NSNotification) {
+  func onDeviceOrientationChanged(notification _: NSNotification) {
     let deviceOrientation = UIDevice.current.orientation
+    let interfaceOrientation = UIApplication.shared.statusBarOrientation
 
-    var orientation = Orientation(deviceOrientation: deviceOrientation)
-    // Once we have the device's orientation, we now need to rotate by whatever
-    // value the camera sensor is rotated with (mostly landscape)
-    orientation = orientation.rotatedBy(orientation: sensorOrientation)
-
-    previewOrientation = orientation
-    outputOrientation = orientation
+    previewOrientation = Orientation(interfaceOrientation: interfaceOrientation)
+    outputOrientation = Orientation(deviceOrientation: deviceOrientation)
 
     // Notify delegate listener
     delegate?.onOrientationChanged()

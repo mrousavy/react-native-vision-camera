@@ -83,6 +83,21 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
+  init(interfaceOrientation: UIInterfaceOrientation) {
+    switch interfaceOrientation {
+    case .portrait:
+      self = .portrait
+    case .landscapeRight:
+      self = .landscapeRight
+    case .portraitUpsideDown:
+      self = .portraitUpsideDown
+    case .landscapeLeft:
+      self = .landscapeLeft
+    default:
+      self = .portrait
+    }
+  }
+
   var jsValue: String {
     return rawValue
   }
