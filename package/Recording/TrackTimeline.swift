@@ -16,6 +16,12 @@ class TrackTimeline {
   private let clock: CMClock
   private var events: [Event] = []
   
+  /**
+   Represents whether the timeline has been marked as finished or not.
+   A timeline will automatically be marked as finished when a timestamp arrives that appears after a stop().
+   */
+  public private(set) var isFinished: Bool = false
+  
   init(withClock clock: CMClock) {
     self.clock = clock
   }
@@ -46,6 +52,11 @@ class TrackTimeline {
   }
   
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
+    if isFinished {
+      // The track is already finished. It cannot be in the timeline anymore.
+      return false
+    }
+    
     // Iterate through timeline to make sure the timestamp is within our
     // total range (start - stop), and outside of any pauses.
     var isPaused = false
@@ -66,7 +77,8 @@ class TrackTimeline {
         isPaused = false
       case .stop:
         if timestamp > event.timestamp {
-          // It's after the track was stopped.
+          // It's after the track was stopped. Mark this track as finished now.
+          isFinished = true
           return false
         }
       }
