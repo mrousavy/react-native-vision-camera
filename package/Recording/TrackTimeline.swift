@@ -11,6 +11,10 @@ import CoreMedia
 /**
  Represents the timeline of a specific track in an asset (video, audio).
  The timeline can be started and stopped, and can contain pauses inbetween.
+ 
+ The [TrackTimeline] assumes that all timestamps passed to [isTimestampWithinTimeline]
+ are ordered incrementally, and once a timestamp arrives after a timeline has been stopped,
+ it will mark the track as finished (see [isFinished])
  */
 class TrackTimeline {
   private let clock: CMClock
