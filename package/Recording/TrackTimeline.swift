@@ -38,21 +38,25 @@ class TrackTimeline {
   func start() {
     let now = CMClockGetTime(clock)
     events.append(Event(type: .start, timestamp: now))
+    VisionLogger.log(level: .info, message: "Timeline started at \(now.seconds).")
   }
   
   func pause() {
     let now = CMClockGetTime(clock)
     events.append(Event(type: .pause, timestamp: now))
+    VisionLogger.log(level: .info, message: "Timeline paused at \(now.seconds).")
   }
   
   func resume() {
     let now = CMClockGetTime(clock)
     events.append(Event(type: .resume, timestamp: now))
+    VisionLogger.log(level: .info, message: "Timeline resumed at \(now.seconds).")
   }
   
   func stop() {
     let now = CMClockGetTime(clock)
     events.append(Event(type: .stop, timestamp: now))
+    VisionLogger.log(level: .info, message: "Timeline stopped at \(now.seconds).")
   }
   
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
@@ -83,6 +87,7 @@ class TrackTimeline {
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
           isFinished = true
+          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - Timeline is now finished!")
           return false
         }
       }
