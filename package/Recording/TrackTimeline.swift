@@ -8,31 +8,10 @@
 import Foundation
 import CoreMedia
 
-struct Event {
-  let type: EventType
-  let timestamp: CMTime
-  
-  var description: String {
-    switch type {
-    case .start:
-      return "\(timestamp.seconds): ⏺️ Started"
-    case .pause:
-      return "\(timestamp.seconds): ⏸️ Paused"
-    case .resume:
-      return "\(timestamp.seconds): ▶️ Resumed"
-    case .stop:
-      return "\(timestamp.seconds): ⏹️ Stopped"
-    }
-  }
-  
-  enum EventType {
-    case start
-    case pause
-    case resume
-    case stop
-  }
-}
-
+/**
+ Represents the timeline of a specific track in an asset (video, audio).
+ The timeline can be started and stopped, and can contain pauses inbetween.
+ */
 class TrackTimeline {
   private let clock: CMClock
   private var events: [Event] = []
@@ -95,5 +74,34 @@ class TrackTimeline {
     
     // It passed all of our checks - it's within the timeline!
     return true
+  }
+  
+  /**
+   Represents an Event inside a track timeline.
+   Each event has a timestamp.
+   */
+  struct Event {
+    let type: EventType
+    let timestamp: CMTime
+    
+    var description: String {
+      switch type {
+      case .start:
+        return "\(timestamp.seconds): ⏺️ Started"
+      case .pause:
+        return "\(timestamp.seconds): ⏸️ Paused"
+      case .resume:
+        return "\(timestamp.seconds): ▶️ Resumed"
+      case .stop:
+        return "\(timestamp.seconds): ⏹️ Stopped"
+      }
+    }
+    
+    enum EventType {
+      case start
+      case pause
+      case resume
+      case stop
+    }
   }
 }
