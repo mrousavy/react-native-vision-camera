@@ -170,10 +170,7 @@ class TrackTimeline {
       case .stop:
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
-          isFinished = true
-          let diff = timestamp - event.timestamp
-          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) " +
-            "(\(diff.seconds) seconds after stop()) - \(trackType) Timeline is now finished!")
+          markAsFinished(lastTimestamp: timestamp, stopTimestamp: event.timestamp)
           return false
         }
       }
@@ -186,5 +183,13 @@ class TrackTimeline {
 
     // It passed all of our checks - it's within the timeline!
     return true
+  }
+
+  private func markAsFinished(lastTimestamp: CMTime, stopTimestamp: CMTime) {
+    isFinished = true
+    let diff = lastTimestamp - stopTimestamp
+    VisionLogger.log(level: .info, message: "Last timestamp arrived at \(lastTimestamp.seconds) " +
+      "(\(diff.seconds) seconds after stop()) - \(trackType) Timeline is now finished!")
+    VisionLogger.log(level: .debug, message: description)
   }
 }
