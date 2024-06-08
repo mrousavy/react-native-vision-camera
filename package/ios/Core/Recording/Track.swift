@@ -46,7 +46,7 @@ class Track {
   var duration: Double {
     return timeline.actualDuration
   }
-  
+
   /**
    Returns the last timestamp that was actually written to the track.
    */

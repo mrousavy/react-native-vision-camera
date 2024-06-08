@@ -160,7 +160,7 @@ class RecordingSession {
     let now = CMClockGetTime(clock)
     assetWriter.startSession(atSourceTime: now)
     VisionLogger.log(level: .info, message: "Asset Writer session started at \(now.seconds).")
-    
+
     // Start both tracks
     videoTrack?.start()
     audioTrack?.start()
@@ -179,7 +179,7 @@ class RecordingSession {
       lock.signal()
     }
 
-    VisionLogger.log(level: .info, message: "Stopping Asset Writer(s) with status \"\(assetWriter.status.descriptor)\"...")
+    VisionLogger.log(level: .info, message: "Stopping Asset Writer with status \"\(assetWriter.status.descriptor)\"...")
 
     // Stop both tracks
     videoTrack?.stop()
@@ -298,11 +298,13 @@ class RecordingSession {
     }
 
     isFinishing = true
-    
+
     // End the session at the last video frame's timestamp.
     // If there are audio frames after this timestamp, they will be cut off.
     assetWriter.endSession(atSourceTime: lastVideoTimestamp)
+    VisionLogger.log(level: .info, message: "Asset Writer session stopped at \(lastVideoTimestamp.seconds).")
     assetWriter.finishWriting {
+      VisionLogger.log(level: .info, message: "Asset Writer finished writing!")
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }
   }
