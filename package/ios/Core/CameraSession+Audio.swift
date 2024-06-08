@@ -79,6 +79,7 @@ extension CameraSession {
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
         // Try resuming if possible
+        let isRecording = recordingSession != nil
         if isRecording {
           CameraQueues.audioQueue.async {
             VisionLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
