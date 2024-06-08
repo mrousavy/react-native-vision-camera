@@ -109,7 +109,7 @@ class TrackTimeline {
     }
 
     let now = CMClockGetTime(clock)
-    latency = CMTimeSubtract(timestamp, now)
+    latency = CMTimeSubtract(now, timestamp)
 
     // Iterate through timeline to make sure the timestamp is within our
     // total range (start - stop), and outside of any pauses.
