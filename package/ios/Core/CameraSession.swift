@@ -31,7 +31,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
   var didCancelRecording = false
-  var isRecording = false
   var orientationManager = OrientationManager()
 
   // Callbacks
@@ -276,7 +275,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   }
 
   private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
-    if let recordingSession, isRecording {
+    if let recordingSession {
       // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
       recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
     }
@@ -289,7 +288,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   }
 
   private final func onAudioFrame(sampleBuffer: CMSampleBuffer) {
-    if let recordingSession, isRecording {
+    if let recordingSession {
       // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
       audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
       recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)

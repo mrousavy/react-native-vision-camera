@@ -27,15 +27,11 @@ enum BufferType {
  towards the end (useful e.g. for videoStabilization).
  */
 class RecordingSession {
+  private let clock: CMClock
   private let assetWriter: AVAssetWriter
-  private var audioWriter: AVAssetWriterInput?
-  private var videoWriter: AVAssetWriterInput?
+  private var videoTrack: Track?
+  private var audioTrack: Track?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
-  private let clockSession: ClockSession
-  
-  private var isFinishing = false
-  private var hasWrittenLastVideoFrame = false
-  private var hasWrittenLastAudioFrame = false
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -53,15 +49,15 @@ class RecordingSession {
   /**
    Gets the size of the recorded video, in pixels.
    */
-  var size: CGSize? {
-    return videoWriter?.naturalSize
+  var size: CGSize {
+    return videoTrack?.size ?? CGSize.zero
   }
 
   /**
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    return clockSession.duration
+    return videoTrack?.duration ?? 0.0
   }
 
   /**
@@ -75,9 +71,9 @@ class RecordingSession {
        clock: CMClock,
        orientation: Orientation,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
-    completionHandler = completion
-    videoOrientation = orientation
-    clockSession = ClockSession(clock: clock)
+    self.completionHandler = completion
+    self.clock = clock
+    self.videoOrientation = orientation
     VisionLogger.log(level: .info, message: "Creating RecordingSession... (orientation: \(orientation))")
 
     do {
@@ -100,31 +96,32 @@ class RecordingSession {
   }
 
   /**
-   Initializes an AssetWriter for video frames (CMSampleBuffers).
+   Initializes the video track.
    */
-  func initializeVideoWriter(withSettings settings: [String: Any]) {
+  func initializeVideoTrack(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
       VisionLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
       return
     }
-    guard videoWriter == nil else {
+    guard videoTrack == nil else {
       VisionLogger.log(level: .error, message: "Tried to add Video Writer twice!")
       return
     }
 
     VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
-    videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
-    videoWriter!.expectsMediaDataInRealTime = true
-    videoWriter!.transform = videoOrientation.affineTransform
-    assetWriter.add(videoWriter!)
+    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    videoWriter.expectsMediaDataInRealTime = true
+    videoWriter.transform = videoOrientation.affineTransform
+    assetWriter.add(videoWriter)
+    videoTrack = Track(withAssetWriterInput: videoWriter, andClock: clock)
     VisionLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
   /**
-   Initializes an AssetWriter for audio frames (CMSampleBuffers).
+   Initializes the audio track.
    */
-  func initializeAudioWriter(withSettings settings: [String: Any]?, format: CMFormatDescription) {
-    guard audioWriter == nil else {
+  func initializeAudioTrack(withSettings settings: [String: Any]?, format: CMFormatDescription) {
+    guard audioTrack == nil else {
       VisionLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
@@ -134,9 +131,10 @@ class RecordingSession {
     } else {
       VisionLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
     }
-    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
-    audioWriter!.expectsMediaDataInRealTime = true
-    assetWriter.add(audioWriter!)
+    let audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
+    audioWriter.expectsMediaDataInRealTime = true
+    assetWriter.add(audioWriter)
+    audioTrack = Track(withAssetWriterInput: audioWriter, andClock: clock)
     VisionLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
   }
 
@@ -144,7 +142,7 @@ class RecordingSession {
    Start the RecordingSession using the current time of the provided synchronization clock.
    All buffers passed to [append] must be synchronized to this Clock.
    */
-  func start(clock: CMClock) throws {
+  func start() throws {
     lock.wait()
     defer {
       lock.signal()
@@ -160,13 +158,9 @@ class RecordingSession {
 
     VisionLogger.log(level: .info, message: "Asset Writer(s) started!")
 
-    // Start the clock
-    clockSession.start()
-
-    if audioWriter == nil {
-      // Audio was disabled, mark the Audio track as finished so we won't wait for it.
-      hasWrittenLastAudioFrame = true
-    }
+    // Start both tracks
+    videoTrack?.start()
+    audioTrack?.start()
   }
 
   /**
@@ -176,7 +170,7 @@ class RecordingSession {
    This may happen if the Camera pipeline has an additional processing overhead, e.g. when video stabilization is enabled.
    Once all late frames have been captured (or an artificial abort timeout has been triggered), the [completionHandler] will be called.
    */
-  func stop(clock: CMClock) {
+  func stop() {
     lock.wait()
     defer {
       lock.signal()
@@ -184,8 +178,9 @@ class RecordingSession {
     
     VisionLogger.log(level: .info, message: "Stopping Asset Writer(s) with status \"\(assetWriter.status.descriptor)\"...")
     
-    // Stop the clock
-    clockSession.stop()
+    // Stop both tracks
+    videoTrack?.stop()
+    audioTrack?.stop()
 
     // Start a timeout that will force-stop the session if none of the late frames actually arrive
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
@@ -202,27 +197,29 @@ class RecordingSession {
    before the requested timestamp.
    This may happen if the Camera pipeline has an additional processing overhead, e.g. when video stabilization is enabled.
    */
-  func pause(clock: CMClock) {
+  func pause() {
     lock.wait()
     defer {
       lock.signal()
     }
-
-    // Pause the clock
-    clockSession.pause()
+    
+    // Stop both tracks
+    videoTrack?.pause()
+    audioTrack?.pause()
   }
   
   /**
    Resumes the RecordingSession and starts writing frames starting with the time of the provided synchronization clock.
    */
-  func resume(clock: CMClock) {
+  func resume() {
     lock.wait()
     defer {
       lock.signal()
     }
-
-    // Resume the clock
-    clockSession.resume()
+    
+    // Resume both tracks
+    videoTrack?.resume()
+    audioTrack?.resume()
   }
 
   /**

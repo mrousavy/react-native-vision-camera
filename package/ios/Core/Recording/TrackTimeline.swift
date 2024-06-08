@@ -30,6 +30,14 @@ class TrackTimeline {
     self.clock = clock
   }
   
+  var duration: Double {
+    guard let first = events.first,
+          let last = events.last else {
+      return 0.0
+    }
+    return last.timestamp.seconds - first.timestamp.seconds
+  }
+  
   var description: String {
     let mapped = events.map { $0.description }
     return mapped.joined(separator: "\n")
