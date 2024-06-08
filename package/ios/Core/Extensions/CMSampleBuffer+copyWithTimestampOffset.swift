@@ -49,8 +49,7 @@ extension CMSampleBuffer {
 
   /**
    Returns a copy of the current CMSampleBuffer with the timing info adjusted by the given offset.
-   The decode and presentation timestamps will be shifted by the given offset.
-   The actual pixel buffer will not be copied, only metadata information will.
+   The decode and presentation timestamps will be adjusted by the given offset (+).
    */
   func copyWithTimestampOffset(_ offset: CMTime) throws -> CMSampleBuffer {
     let timingInfos = try getTimingInfos()
