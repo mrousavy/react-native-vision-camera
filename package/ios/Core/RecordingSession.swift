@@ -162,6 +162,13 @@ class RecordingSession {
     assetWriter.startSession(atSourceTime: now)
     videoTrack?.start()
     audioTrack?.start()
+    
+    if let videoTrack, let audioTrack {
+      // The video track is the master track, and audio track will follow.
+      // This ensures that the video track is always longer than the audio track.
+      // If the audio track was longer, there would be blank frames in the video.
+      videoTrack.addFollowingTrack(audioTrack)
+    }
   }
 
   /**

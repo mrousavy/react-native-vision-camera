@@ -55,10 +55,25 @@ class Track {
     return assetWriterInput.naturalSize
   }
 
-  init(ofType trackType: TrackType, withAssetWriterInput input: AVAssetWriterInput, andClock clock: CMClock) {
+  init(ofType trackType: TrackType,
+       withAssetWriterInput input: AVAssetWriterInput,
+       andClock clock: CMClock) {
     type = trackType
     assetWriterInput = input
     timeline = TrackTimeline(ofTrackType: trackType, withClock: clock)
+  }
+  
+  /**
+   If this is a master-track (e.g. a video track), clients can add
+   following-tracks (e.g. an audio track) here.
+   
+   If a video track has one or more following audio tracks, it might eagerly
+   write more frames before and after the audio tracks start and stop timestamps
+   to take presedence over the audio track. This will ensure that the video track
+   is longer than the audio track, and no blank screens appear in the resulting .mp4.
+   */
+  func addFollowingTrack(_ track: Track) {
+    timeline.addFollowingTimeline(track.timeline)
   }
 
   func start() {
@@ -86,7 +101,7 @@ class Track {
 
     // 2. Track is not yet finished - add the timestamp to the timeline
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
+    var shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
 
     // 3. Write the buffer
     if shouldWrite && assetWriterInput.isReadyForMoreMediaData {
