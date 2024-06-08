@@ -52,14 +52,39 @@ class TrackTimeline {
           let last = events.last else {
       return 0.0
     }
-    return last.timestamp.seconds - first.timestamp.seconds
+    return last.timestamp.seconds - first.timestamp.seconds - totalPauseDuration
   }
 
   var actualDuration: Double {
     guard let firstTimestamp, let lastTimestamp else {
       return 0.0
     }
-    return lastTimestamp.seconds - firstTimestamp.seconds
+    return lastTimestamp.seconds - firstTimestamp.seconds - totalPauseDuration
+  }
+
+  var pauses: [CMTime] {
+    var result: [CMTime] = []
+    var currentPauseStart: CMTime?
+    for event in events {
+      switch event.type {
+      case .pause:
+        currentPauseStart = event.timestamp
+      case .resume:
+        if let currentPauseStart {
+          let currentPauseDuration = CMTimeSubtract(event.timestamp, currentPauseStart)
+          result.append(currentPauseDuration)
+        }
+      default:
+        break
+      }
+    }
+    return result
+  }
+
+  var totalPauseDuration: Double {
+    return pauses.reduce(0.0) { current, next in
+      return current + next.seconds
+    }
   }
 
   var description: String {
@@ -143,7 +168,7 @@ class TrackTimeline {
         }
       }
     }
-    
+
     if isPaused {
       // No resume was called, it's still paused!
       return false
