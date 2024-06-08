@@ -70,25 +70,25 @@ class TrackTimeline {
   func start() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .start, timestamp: now))
-    VisionLogger.log(level: .info, message: "\(trackType) Timeline started at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "Requesting \(trackType) timeline start at \(now.seconds)...")
   }
 
   func pause() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .pause, timestamp: now))
-    VisionLogger.log(level: .info, message: "\(trackType) Timeline paused at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "Pausing \(trackType) timeline at \(now.seconds)...")
   }
 
   func resume() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .resume, timestamp: now))
-    VisionLogger.log(level: .info, message: "\(trackType) Timeline resumed at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "Resuming \(trackType) timeline at \(now.seconds)...")
   }
 
   func stop() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .stop, timestamp: now))
-    VisionLogger.log(level: .info, message: "\(trackType) Timeline stopped at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "Requesting \(trackType) timeline stop at \(now.seconds)...")
   }
 
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
@@ -136,7 +136,9 @@ class TrackTimeline {
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
           isFinished = true
-          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - \(trackType) Timeline is now finished!")
+          let diff = CMTimeSubtract(timestamp, event.timestamp)
+          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) " +
+            "(\(diff.seconds) seconds after stop()) - \(trackType) Timeline is now finished!")
           return false
         }
       }

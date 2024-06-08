@@ -95,22 +95,30 @@ class Track {
     let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
 
     // 3. Write the buffer
-    if shouldWrite && assetWriterInput.isReadyForMoreMediaData {
-      let successful = assetWriterInput.append(buffer)
-      if successful {
-        lastTimestamp = timestamp
+    if shouldWrite {
+      if assetWriterInput.isReadyForMoreMediaData {
+        // Asset Writer is ready - write the buffer!
+        let successful = assetWriterInput.append(buffer)
+        if successful {
+          lastTimestamp = timestamp
+        } else {
+          // Something went wrong when writing the buffer
+          VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track!")
+        }
       } else {
-        VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track!")
+        // Asset Writer is not ready! We have to drop this frame.
+        VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track - " +
+          "the Asset Writer was not yet ready for more data!")
       }
-    } else {
-      VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track - " +
-        "the Asset Writer was not yet ready for more data!")
     }
 
     // 4. Check again; if the track is NOW finished, we want to finalize it.
     if timeline.isFinished {
-      VisionLogger.log(level: .info, message: "Marking track as finished - target duration: \(timeline.targetDuration), " +
-        "actual duration: \(timeline.actualDuration)")
+      let diff = timeline.actualDuration - timeline.targetDuration
+      let diffMsg = diff > 0 ? "\(diff) seconds longer than expected" : "\(diff) seconds shorter than expected"
+      VisionLogger.log(level: .info, message: "Marking \(type) track as finished - " +
+        "target duration: \(timeline.targetDuration), " +
+        "actual duration: \(timeline.actualDuration) (\(diffMsg))")
       assetWriterInput.markAsFinished()
     }
   }
