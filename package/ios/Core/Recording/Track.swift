@@ -100,7 +100,7 @@ class Track {
       var buffer = originalBuffer
       let pauseOffset = timeline.totalPauseDuration
       if pauseOffset.seconds > 0 {
-        buffer = try originalBuffer.copyWithTimestampOffset(pauseOffset.invert())
+        buffer = try originalBuffer.copyWithTimestampOffset(pauseOffset.inverted())
       }
       let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
 
