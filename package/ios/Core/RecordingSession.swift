@@ -47,7 +47,7 @@ class RecordingSession {
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    return videoTrack?.duration ?? 0.0
+    return videoTrack?.duration.seconds ?? 0.0
   }
 
   /**

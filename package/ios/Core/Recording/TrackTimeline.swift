@@ -47,19 +47,19 @@ class TrackTimeline {
     self.clock = clock
   }
 
-  var targetDuration: Double {
+  var targetDuration: CMTime {
     guard let first = events.first,
           let last = events.last else {
-      return 0.0
+      return .zero
     }
-    return last.timestamp.seconds - first.timestamp.seconds - totalPauseDuration
+    return last.timestamp - first.timestamp - totalPauseDuration
   }
 
-  var actualDuration: Double {
+  var actualDuration: CMTime {
     guard let firstTimestamp, let lastTimestamp else {
-      return 0.0
+      return .zero
     }
-    return lastTimestamp.seconds - firstTimestamp.seconds - totalPauseDuration
+    return lastTimestamp - firstTimestamp - totalPauseDuration
   }
 
   var pauses: [CMTime] {
@@ -73,7 +73,7 @@ class TrackTimeline {
         }
       case .resume:
         if let currentPauseStart {
-          let currentPauseDuration = CMTimeSubtract(event.timestamp, currentPauseStart)
+          let currentPauseDuration = event.timestamp - currentPauseStart
           result.append(currentPauseDuration)
         }
       default:
@@ -83,10 +83,8 @@ class TrackTimeline {
     return result
   }
 
-  var totalPauseDuration: Double {
-    return pauses.reduce(0.0) { current, next in
-      return current + next.seconds
-    }
+  var totalPauseDuration: CMTime {
+    return pauses.reduce(.zero) { $0 + $1 }
   }
 
   var description: String {
@@ -120,7 +118,7 @@ class TrackTimeline {
 
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
     let now = CMClockGetTime(clock)
-    latency = CMTimeSubtract(now, timestamp)
+    latency = now - timestamp
 
     let result = isTimestampWithinTimelineImpl(timestamp)
     if result {
@@ -152,18 +150,21 @@ class TrackTimeline {
           return true
         }
       case .pause:
+        VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds): pause started at \(event.timestamp.seconds)")
         isPaused = true
       case .resume:
         if isPaused && timestamp < event.timestamp {
           // It's within a pause.
+          VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds) is within a pause!")
           return false
         }
+        VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds): pause ended at \(event.timestamp.seconds)")
         isPaused = false
       case .stop:
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
           isFinished = true
-          let diff = CMTimeSubtract(timestamp, event.timestamp)
+          let diff = timestamp - event.timestamp
           VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) " +
             "(\(diff.seconds) seconds after stop()) - \(trackType) Timeline is now finished!")
           return false

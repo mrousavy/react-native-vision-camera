@@ -43,7 +43,7 @@ class Track {
   /**
    Gets the current total duration of the timeline.
    */
-  var duration: Double {
+  var duration: CMTime {
     return timeline.actualDuration
   }
 
@@ -114,7 +114,7 @@ class Track {
 
     // 4. Check again; if the track is NOW finished, we want to finalize it.
     if timeline.isFinished {
-      let diff = timeline.actualDuration - timeline.targetDuration
+      let diff = (timeline.actualDuration - timeline.targetDuration).seconds
       let diffMsg = diff > 0 ? "\(diff) seconds longer than expected" : "\(diff) seconds shorter than expected"
       VisionLogger.log(level: .info, message: "Marking \(type) track as finished - " +
         "target duration: \(timeline.targetDuration), " +
