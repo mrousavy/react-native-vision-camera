@@ -143,6 +143,11 @@ class TrackTimeline {
         }
       }
     }
+    
+    if isPaused {
+      // No resume was called, it's still paused!
+      return false
+    }
 
     // It passed all of our checks - it's within the timeline!
     return true
