@@ -68,7 +68,9 @@ class TrackTimeline {
     for event in events {
       switch event.type {
       case .pause:
-        currentPauseStart = event.timestamp
+        if currentPauseStart == nil {
+          currentPauseStart = event.timestamp
+        }
       case .resume:
         if let currentPauseStart {
           let currentPauseDuration = CMTimeSubtract(event.timestamp, currentPauseStart)
