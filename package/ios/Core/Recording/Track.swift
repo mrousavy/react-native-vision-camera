@@ -78,7 +78,7 @@ class Track {
     let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
 
     // 3. Write the buffer
-    if assetWriterInput.isReadyForMoreMediaData {
+    if shouldWrite && assetWriterInput.isReadyForMoreMediaData {
       let successful = assetWriterInput.append(buffer)
       if successful {
         lastWrittenTimestamp = timestamp

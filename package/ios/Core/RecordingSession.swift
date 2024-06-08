@@ -165,6 +165,8 @@ class RecordingSession {
     VisionLogger.log(level: .info, message: "Asset Writer(s) started!")
 
     // Start both tracks
+    let now = CMClockGetTime(clock)
+    assetWriter.startSession(atSourceTime: now)
     videoTrack?.start()
     audioTrack?.start()
   }
