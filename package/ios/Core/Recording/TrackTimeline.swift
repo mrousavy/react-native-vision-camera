@@ -22,17 +22,6 @@ class TrackTimeline {
   private var events: [TimelineEvent] = []
 
   /**
-   If this track is a master track (e.g. a video track), this list might contain
-   the timelines of following tracks (e.g. an audio track).
-
-   A master track will write timestamps earlier and later than all follower tracks to ensure
-   it will be the longest track in the video.
-   If an audio tracak is longer than a video track, there will be white frames for the duration
-   difference in the resulting .mp4/.mov. By making the master track longer, this issue is prevented.
-   */
-  private var followerTimelines: [TrackTimeline] = []
-
-  /**
    Represents whether the timeline has been marked as finished or not.
    A timeline will automatically be marked as finished when a timestamp arrives that appears after a stop().
    */
@@ -102,14 +91,6 @@ class TrackTimeline {
     VisionLogger.log(level: .info, message: "\(trackType) Timeline stopped at \(now.seconds).")
   }
 
-  /**
-   Starts tracking the given timeline to make sure this timeline will always
-   be longer than the given timeline.
-   */
-  func addFollowingTimeline(_ timeline: TrackTimeline) {
-    followerTimelines.append(timeline)
-  }
-
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
     let now = CMClockGetTime(clock)
     latency = CMTimeSubtract(now, timestamp)
@@ -154,34 +135,14 @@ class TrackTimeline {
       case .stop:
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
-          if followersHaveLaterTimestamps(thanTimestamp: timestamp) {
-            // Following timelines have even later timestamps - so we try to overrule them
-            // and will write this one to make sure our track is longer.
-            VisionLogger.log(level: .info, message: "\(trackType) Timeline: Follower timelines have later timestamps than \(timestamp.seconds), " +
-              "so we'll be overriding it and write this one as well!")
-            return true
-          } else {
-            isFinished = true
-            VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - \(trackType) Timeline is now finished!")
-            return false
-          }
+          isFinished = true
+          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - \(trackType) Timeline is now finished!")
+          return false
         }
       }
     }
 
     // It passed all of our checks - it's within the timeline!
     return true
-  }
-
-  /**
-   Returns true if any of the following-tracks have a timestamp later than the given timestamp.
-   */
-  private func followersHaveLaterTimestamps(thanTimestamp timestamp: CMTime) -> Bool {
-    return followerTimelines.contains { timeline in
-      guard let last = timeline.lastTimestamp else {
-        return false
-      }
-      return last.seconds > timestamp.seconds
-    }
   }
 }

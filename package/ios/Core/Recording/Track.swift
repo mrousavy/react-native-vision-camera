@@ -46,6 +46,11 @@ class Track {
   var duration: Double {
     return timeline.actualDuration
   }
+  
+  /**
+   Returns the last timestamp that was actually written to the track.
+   */
+  public private(set) var lastTimestamp: CMTime?
 
   /**
    Gets the natural size of the asset writer, or zero if it is not a visual track.
@@ -60,19 +65,6 @@ class Track {
     type = trackType
     assetWriterInput = input
     timeline = TrackTimeline(ofTrackType: trackType, withClock: clock)
-  }
-
-  /**
-   If this is a master-track (e.g. a video track), clients can add
-   following-tracks (e.g. an audio track) here.
-
-   If a video track has one or more following audio tracks, it might eagerly
-   write more frames before and after the audio tracks start and stop timestamps
-   to take presedence over the audio track. This will ensure that the video track
-   is longer than the audio track, and no blank screens appear in the resulting .mp4.
-   */
-  func addFollowingTrack(_ track: Track) {
-    timeline.addFollowingTimeline(track.timeline)
   }
 
   func start() {
@@ -105,7 +97,9 @@ class Track {
     // 3. Write the buffer
     if shouldWrite && assetWriterInput.isReadyForMoreMediaData {
       let successful = assetWriterInput.append(buffer)
-      if !successful {
+      if successful {
+        lastTimestamp = timestamp
+      } else {
         VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track!")
       }
     } else {

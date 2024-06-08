@@ -147,28 +147,23 @@ class RecordingSession {
       lock.signal()
     }
 
-    VisionLogger.log(level: .info, message: "Starting Asset Writer(s)...")
+    VisionLogger.log(level: .info, message: "Starting Asset Writer...")
 
+    // Prepare the AssetWriter for writing to the video file
     let success = assetWriter.startWriting()
     guard success else {
-      VisionLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
-      throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
+      throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer!"))
     }
+    VisionLogger.log(level: .info, message: "Asset Writer started!")
 
-    VisionLogger.log(level: .info, message: "Asset Writer(s) started!")
-
-    // Start both tracks
+    // Start the session - any timestamp before this point will be cut off.
     let now = CMClockGetTime(clock)
     assetWriter.startSession(atSourceTime: now)
+    VisionLogger.log(level: .info, message: "Asset Writer session started at \(now.seconds).")
+    
+    // Start both tracks
     videoTrack?.start()
     audioTrack?.start()
-
-    if let videoTrack, let audioTrack {
-      // The video track is the master track, and audio track will follow.
-      // This ensures that the video track is always longer than the audio track.
-      // If the audio track was longer, there would be blank frames in the video.
-      videoTrack.addFollowingTrack(audioTrack)
-    }
   }
 
   /**
@@ -196,7 +191,7 @@ class RecordingSession {
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + timeout) {
       if !self.isFinishing {
         VisionLogger.log(level: .error, message: "Waited \(timeout) seconds but session is still not finished - force-stopping session...")
-        self.finish()
+        try? self.finish()
       }
     }
   }
@@ -249,13 +244,13 @@ class RecordingSession {
     if assetWriter.status == .failed {
       let error = assetWriter.error?.localizedDescription ?? "(unknown error)"
       VisionLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(error)")
-      finish()
+      try finish()
       return
     }
 
     // When all tracks (video + audio) are finished, finish the Recording.
     if isFinished {
-      finish()
+      try finish()
     }
   }
 
@@ -277,7 +272,7 @@ class RecordingSession {
   /**
    Stops the AssetWriters and calls the completion callback.
    */
-  private func finish() {
+  private func finish() throws {
     lock.wait()
     defer {
       lock.signal()
@@ -285,6 +280,10 @@ class RecordingSession {
 
     VisionLogger.log(level: .info, message: "Stopping AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
+    guard let videoTrack,
+          let lastVideoTimestamp = videoTrack.lastTimestamp else {
+      throw CameraError.capture(.unknown(message: "Cannot finish recording without a video track!"))
+    }
     guard !isFinishing else {
       // We're already finishing - there was a second call to this method.
       VisionLogger.log(level: .warning, message: "Tried calling finish() twice!")
@@ -299,6 +298,10 @@ class RecordingSession {
     }
 
     isFinishing = true
+    
+    // End the session at the last video frame's timestamp.
+    // If there are audio frames after this timestamp, they will be cut off.
+    assetWriter.endSession(atSourceTime: lastVideoTimestamp)
     assetWriter.finishWriting {
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }
