@@ -150,15 +150,12 @@ class TrackTimeline {
           return true
         }
       case .pause:
-        VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds): pause started at \(event.timestamp.seconds)")
         isPaused = true
       case .resume:
         if isPaused && timestamp < event.timestamp {
           // It's within a pause.
-          VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds) is within a pause!")
           return false
         }
-        VisionLogger.log(level: .info, message: "Timestamp \(timestamp.seconds): pause ended at \(event.timestamp.seconds)")
         isPaused = false
       case .stop:
         if timestamp > event.timestamp {
