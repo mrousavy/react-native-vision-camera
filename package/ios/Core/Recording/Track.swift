@@ -90,18 +90,21 @@ class Track {
       return
     }
 
-    var buffer = originalBuffer
-    let pauseOffset = timeline.totalPauseDuration
-    if pauseOffset.seconds > 0 {
-      buffer = try originalBuffer.copyWithTimestampOffset(pauseOffset.invert())
-    }
-
     // 2. Track is not yet finished - add the timestamp to the timeline
-    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
+    let originalTimestamp = CMSampleBufferGetPresentationTimeStamp(originalBuffer)
+    let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: originalTimestamp)
 
-    // 3. Write the buffer
     if shouldWrite {
+      // 3. If there is a pause, we need to offset the buffers by the pause duration,
+      // otherwise the video is actually frozen for the pause duration. Encoders ain't smart.
+      var buffer = originalBuffer
+      let pauseOffset = timeline.totalPauseDuration
+      if pauseOffset.seconds > 0 {
+        buffer = try originalBuffer.copyWithTimestampOffset(pauseOffset.invert())
+      }
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+
+      // 4. Write the buffer
       if assetWriterInput.isReadyForMoreMediaData {
         // Asset Writer is ready - write the buffer!
         let successful = assetWriterInput.append(buffer)
@@ -118,7 +121,7 @@ class Track {
       }
     }
 
-    // 4. Check again; if the track is NOW finished, we want to finalize it.
+    // 5. Check again; if the track is NOW finished, we want to finalize it.
     if timeline.isFinished {
       let diff = (timeline.actualDuration - timeline.targetDuration).seconds
       let diffMsg = diff > 0 ? "\(diff) seconds longer than expected" : "\(diff) seconds shorter than expected"
