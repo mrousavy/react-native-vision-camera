@@ -122,6 +122,8 @@ class TrackTimeline {
           if followersHaveEarlierTimestamps(thanTimestamp: timestamp) {
             // Following timelines have even earlier timestamps - so we try to overrule them
             // and will write this one to make sure our track is longer.
+            VisionLogger.log(level: .info, message: "\(trackType) Timeline: Follower timelines have earlier timestamps than \(timestamp.seconds), " +
+                             "so we'll be overriding it and write this one as well!")
             return true
           } else {
             return false
@@ -141,6 +143,8 @@ class TrackTimeline {
           if followersHaveLaterTimestamps(thanTimestamp: timestamp) {
             // Following timelines have even later timestamps - so we try to overrule them
             // and will write this one to make sure our track is longer.
+            VisionLogger.log(level: .info, message: "\(trackType) Timeline: Follower timelines have later timestamps than \(timestamp.seconds), " +
+                             "so we'll be overriding it and write this one as well!")
             return true
           } else {
             isFinished = true
