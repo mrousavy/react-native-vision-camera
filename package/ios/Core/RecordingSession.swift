@@ -38,7 +38,6 @@ class RecordingSession {
 
   // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
   private let automaticallyStopTimeoutSeconds = 4.0
-  
 
   /**
    Gets the file URL of the recorded video.
@@ -60,7 +59,7 @@ class RecordingSession {
   var duration: Double {
     return videoTrack?.duration ?? 0.0
   }
-  
+
   /**
    Returns whether all tracks are marked as finished, or not.
    */
@@ -81,9 +80,9 @@ class RecordingSession {
        clock: CMClock,
        orientation: Orientation,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
-    self.completionHandler = completion
+    completionHandler = completion
     self.clock = clock
-    self.videoOrientation = orientation
+    videoOrientation = orientation
     VisionLogger.log(level: .info, message: "Creating RecordingSession... (orientation: \(orientation))")
 
     do {
@@ -182,9 +181,9 @@ class RecordingSession {
     defer {
       lock.signal()
     }
-    
+
     VisionLogger.log(level: .info, message: "Stopping Asset Writer(s) with status \"\(assetWriter.status.descriptor)\"...")
-    
+
     // Stop both tracks
     videoTrack?.stop()
     audioTrack?.stop()
@@ -197,7 +196,7 @@ class RecordingSession {
       }
     }
   }
-  
+
   /**
    Requests the RecordingSession to temporarily pause writing frames at the current time of the provided synchronization clock.
    The RecordingSession will continue to write video frames and audio frames that have been produced (but not yet consumed)
@@ -209,12 +208,12 @@ class RecordingSession {
     defer {
       lock.signal()
     }
-    
+
     // Stop both tracks
     videoTrack?.pause()
     audioTrack?.pause()
   }
-  
+
   /**
    Resumes the RecordingSession and starts writing frames starting with the time of the provided synchronization clock.
    */
@@ -223,20 +222,12 @@ class RecordingSession {
     defer {
       lock.signal()
     }
-    
+
     // Resume both tracks
     videoTrack?.resume()
     audioTrack?.resume()
   }
-  
-  func appendVideoBuffer(_ buffer: CMSampleBuffer) throws {
-    guard let videoTrack else {
-      throw CameraError.unknown(message: "Tried appending a video buffer, but the video track is not initialized!", cause: nil)
-    }
-    
-    videoTrack.append(buffer: buffer)
-  }
-  
+
   func append(buffer: CMSampleBuffer, ofType bufferType: BufferType) throws {
     guard !isFinishing else {
       // Session is already finishing, can't write anything more
@@ -245,11 +236,11 @@ class RecordingSession {
     guard assetWriter.status == .writing else {
       throw CameraError.capture(.unknown(message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!"))
     }
-    
+
     // Write buffer to video/audio track
     let track = try getTrack(ofType: bufferType)
     track.append(buffer: buffer)
-    
+
     // If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
       let error = assetWriter.error?.localizedDescription ?? "(unknown error)"
@@ -257,13 +248,13 @@ class RecordingSession {
       finish()
       return
     }
-    
+
     // When all tracks (video + audio) are finished, finish the Recording.
     if isFinished {
       finish()
     }
   }
-  
+
   private func getTrack(ofType type: BufferType) throws -> Track {
     switch type {
     case .audio:

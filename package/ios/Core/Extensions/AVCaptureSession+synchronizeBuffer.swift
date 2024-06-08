@@ -26,7 +26,7 @@ extension AVCaptureSession {
    */
   func synchronizeBuffer(_ buffer: CMSampleBuffer, toSession to: AVCaptureSession) {
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    let synchronizedTimestamp = CMSyncConvertTime(timestamp, from: self.clock, to: to.clock)
+    let synchronizedTimestamp = CMSyncConvertTime(timestamp, from: clock, to: to.clock)
     CMSampleBufferSetOutputPresentationTimeStamp(buffer, newValue: synchronizedTimestamp)
   }
 }
