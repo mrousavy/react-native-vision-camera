@@ -32,6 +32,7 @@ class RecordingSession {
   private var videoTrack: Track?
   private var audioTrack: Track?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
+  private var isFinishing = false
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -58,6 +59,15 @@ class RecordingSession {
    */
   var duration: Double {
     return videoTrack?.duration ?? 0.0
+  }
+  
+  /**
+   Returns whether all tracks are marked as finished, or not.
+   */
+  var isFinished: Bool {
+    let isVideoTrackFinished = videoTrack?.isFinished ?? true
+    let isAudioTrackFinished = audioTrack?.isFinished ?? true
+    return isVideoTrackFinished && isAudioTrackFinished
   }
 
   /**
@@ -98,14 +108,12 @@ class RecordingSession {
   /**
    Initializes the video track.
    */
-  func initializeVideoTrack(withSettings settings: [String: Any]) {
+  func initializeVideoTrack(withSettings settings: [String: Any]) throws {
     guard !settings.isEmpty else {
-      VisionLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
-      return
+      throw CameraError.capture(.createRecorderError(message: "Tried to initialize Video Track with empty options!"))
     }
     guard videoTrack == nil else {
-      VisionLogger.log(level: .error, message: "Tried to add Video Writer twice!")
-      return
+      throw CameraError.capture(.createRecorderError(message: "Tried to initialize Video Track twice!"))
     }
 
     VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
@@ -120,10 +128,9 @@ class RecordingSession {
   /**
    Initializes the audio track.
    */
-  func initializeAudioTrack(withSettings settings: [String: Any]?, format: CMFormatDescription) {
+  func initializeAudioTrack(withSettings settings: [String: Any]?, format: CMFormatDescription) throws {
     guard audioTrack == nil else {
-      VisionLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
-      return
+      throw CameraError.capture(.createRecorderError(message: "Tried to initialize Audio Track twice!"))
     }
 
     if let settings = settings {
@@ -221,42 +228,29 @@ class RecordingSession {
     videoTrack?.resume()
     audioTrack?.resume()
   }
-
-  /**
-   Appends a new CMSampleBuffer to the Asset Writer.
-   - Use clock to specify the CMClock instance this CMSampleBuffer uses for relative time
-   - Use bufferType to specify if this is a video or audio frame.
-   */
-  func appendBuffer(_ buffer: CMSampleBuffer, clock _: CMClock, type bufferType: BufferType) {
-    // 1. Prepare the data
+  
+  func appendVideoBuffer(_ buffer: CMSampleBuffer) throws {
+    guard let videoTrack else {
+      throw CameraError.unknown(message: "Tried appending a video buffer, but the video track is not initialized!", cause: nil)
+    }
+    
+    videoTrack.append(buffer: buffer)
+  }
+  
+  func append(buffer: CMSampleBuffer, ofType bufferType: BufferType) throws {
     guard !isFinishing else {
       // Session is already finishing, can't write anything more
       return
     }
     guard assetWriter.status == .writing else {
-      VisionLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
-      return
-    }
-    guard CMSampleBufferDataIsReady(buffer) else {
-      VisionLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
-      return
+      throw CameraError.capture(.unknown(message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!"))
     }
     
-    // 2. Check the timing of the buffer and make sure it's not after we requested a session stop or pause
-    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    let shouldWrite = clockSession.isTimestampWithinTimeline(timestamp: timestamp)
+    // Write buffer to video/audio track
+    let track = try getTrack(ofType: bufferType)
+    track.append(buffer: buffer)
     
-    // 3. If yes, write the Buffer to the AssetWriter
-    if shouldWrite {
-      let writer = getAssetWriter(forType: bufferType)
-      guard writer.isReadyForMoreMediaData else {
-        VisionLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
-        return
-      }
-      writer.append(buffer)
-    }
-    
-    // 4. If we failed to write the frames, stop the Recording
+    // If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
       let error = assetWriter.error?.localizedDescription ?? "(unknown error)"
       VisionLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(error)")
@@ -264,26 +258,24 @@ class RecordingSession {
       return
     }
     
-    // 5. If we finished writing both the last video and audio buffers, finish the recording
-    if clockSession.isFinished {
-      VisionLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), " +
-        "finishing RecordingSession...")
+    // When all tracks (video + audio) are finished, finish the Recording.
+    if isFinished {
       finish()
     }
   }
-
-  private func getAssetWriter(forType type: BufferType) -> AVAssetWriterInput {
+  
+  private func getTrack(ofType type: BufferType) throws -> Track {
     switch type {
-    case .video:
-      guard let videoWriter = videoWriter else {
-        fatalError("Tried to append to a Video Buffer, which was nil!")
-      }
-      return videoWriter
     case .audio:
-      guard let audioWriter = audioWriter else {
-        fatalError("Tried to append to a Audio Buffer, which was nil!")
+      guard let audioTrack else {
+        throw CameraError.capture(.unknown(message: "Tried to write an audio buffer, but no audio track was initialized!"))
       }
-      return audioWriter
+      return audioTrack
+    case .video:
+      guard let videoTrack else {
+        throw CameraError.capture(.unknown(message: "Tried to write a video buffer, but no video track was initialized!"))
+      }
+      return videoTrack
     }
   }
 
@@ -299,17 +291,19 @@ class RecordingSession {
     VisionLogger.log(level: .info, message: "Stopping AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
     guard !isFinishing else {
-      VisionLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
+      // We're already finishing - there was a second call to this method.
+      VisionLogger.log(level: .warning, message: "Tried calling finish() twice!")
       return
     }
     guard assetWriter.status == .writing else {
+      // The asset writer has an error - cancel everything.
+      VisionLogger.log(level: .error, message: "Failed to finish() - AssetWriter status was \(assetWriter.status.descriptor)!")
       completionHandler(self, assetWriter.status, assetWriter.error)
+      assetWriter.cancelWriting()
       return
     }
 
     isFinishing = true
-    videoWriter?.markAsFinished()
-    audioWriter?.markAsFinished()
     assetWriter.finishWriting {
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }

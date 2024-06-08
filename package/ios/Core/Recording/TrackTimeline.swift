@@ -26,6 +26,12 @@ class TrackTimeline {
    */
   public private(set) var isFinished: Bool = false
   
+  /**
+   Gets the latency of the buffers in this timeline.
+   This is computed by (currentTime - mostRecentBuffer.timestamp)
+   */
+  public private(set) var latency: CMTime = .zero
+  
   init(withClock clock: CMClock) {
     self.clock = clock
   }
@@ -72,6 +78,9 @@ class TrackTimeline {
       // The track is already finished. It cannot be in the timeline anymore.
       return false
     }
+    
+    let now = CMClockGetTime(clock)
+    latency = CMTimeSubtract(timestamp, now)
     
     // Iterate through timeline to make sure the timestamp is within our
     // total range (start - stop), and outside of any pauses.

@@ -115,16 +115,15 @@ extension CameraSession {
 
           // Initialize audio asset writer
           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-          recordingSession.initializeAudioTrack(withSettings: audioSettings,
-                                                format: audioInput.device.activeFormat.formatDescription)
+          try recordingSession.initializeAudioTrack(withSettings: audioSettings,
+                                                    format: audioInput.device.activeFormat.formatDescription)
         }
 
         // Init Video
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
-        recordingSession.initializeVideoTrack(withSettings: videoSettings)
+        try recordingSession.initializeVideoTrack(withSettings: videoSettings)
 
         // start recording session with or without audio.
-        // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         try recordingSession.start()
         self.didCancelRecording = false
         self.recordingSession = recordingSession
