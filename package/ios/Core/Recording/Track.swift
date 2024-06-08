@@ -44,7 +44,7 @@ class Track {
    Gets the current total duration of the timeline.
    */
   var duration: Double {
-    return timeline.duration
+    return timeline.actualDuration
   }
 
   /**
@@ -61,11 +61,11 @@ class Track {
     assetWriterInput = input
     timeline = TrackTimeline(ofTrackType: trackType, withClock: clock)
   }
-  
+
   /**
    If this is a master-track (e.g. a video track), clients can add
    following-tracks (e.g. an audio track) here.
-   
+
    If a video track has one or more following audio tracks, it might eagerly
    write more frames before and after the audio tracks start and stop timestamps
    to take presedence over the audio track. This will ensure that the video track
@@ -115,6 +115,8 @@ class Track {
 
     // 4. Check again; if the track is NOW finished, we want to finalize it.
     if timeline.isFinished {
+      VisionLogger.log(level: .info, message: "Marking track as finished - target duration: \(timeline.targetDuration), " +
+        "actual duration: \(timeline.actualDuration)")
       assetWriterInput.markAsFinished()
     }
   }

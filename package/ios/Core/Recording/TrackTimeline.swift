@@ -20,11 +20,11 @@ class TrackTimeline {
   private let trackType: TrackType
   private let clock: CMClock
   private var events: [TimelineEvent] = []
-  
+
   /**
    If this track is a master track (e.g. a video track), this list might contain
    the timelines of following tracks (e.g. an audio track).
-   
+
    A master track will write timestamps earlier and later than all follower tracks to ensure
    it will be the longest track in the video.
    If an audio tracak is longer than a video track, there will be white frames for the duration
@@ -43,7 +43,7 @@ class TrackTimeline {
    This is computed by (currentTime - mostRecentBuffer.timestamp)
    */
   public private(set) var latency: CMTime = .zero
-  
+
   /**
    Get the first actually written timestamp of this timeline
    */
@@ -58,12 +58,19 @@ class TrackTimeline {
     self.clock = clock
   }
 
-  var duration: Double {
+  var targetDuration: Double {
     guard let first = events.first,
           let last = events.last else {
       return 0.0
     }
     return last.timestamp.seconds - first.timestamp.seconds
+  }
+
+  var actualDuration: Double {
+    guard let firstTimestamp, let lastTimestamp else {
+      return 0.0
+    }
+    return lastTimestamp.seconds - firstTimestamp.seconds
   }
 
   var description: String {
@@ -94,7 +101,7 @@ class TrackTimeline {
     events.append(TimelineEvent(type: .stop, timestamp: now))
     VisionLogger.log(level: .info, message: "\(trackType) Timeline stopped at \(now.seconds).")
   }
-  
+
   /**
    Starts tracking the given timeline to make sure this timeline will always
    be longer than the given timeline.
@@ -106,7 +113,7 @@ class TrackTimeline {
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
     let now = CMClockGetTime(clock)
     latency = CMTimeSubtract(now, timestamp)
-    
+
     let result = isTimestampWithinTimelineImpl(timestamp)
     if result {
       if firstTimestamp == nil {
@@ -117,13 +124,13 @@ class TrackTimeline {
     }
     return result
   }
-  
+
   private func isTimestampWithinTimelineImpl(_ timestamp: CMTime) -> Bool {
     if isFinished {
       // The track is already finished. It cannot be in the timeline anymore.
       return false
     }
-    
+
     // Iterate through timeline to make sure the timestamp is within our
     // total range (start - stop), and outside of any pauses.
     var isPaused = false
@@ -151,7 +158,7 @@ class TrackTimeline {
             // Following timelines have even later timestamps - so we try to overrule them
             // and will write this one to make sure our track is longer.
             VisionLogger.log(level: .info, message: "\(trackType) Timeline: Follower timelines have later timestamps than \(timestamp.seconds), " +
-                             "so we'll be overriding it and write this one as well!")
+              "so we'll be overriding it and write this one as well!")
             return true
           } else {
             isFinished = true
@@ -165,7 +172,7 @@ class TrackTimeline {
     // It passed all of our checks - it's within the timeline!
     return true
   }
-  
+
   /**
    Returns true if any of the following-tracks have a timestamp later than the given timestamp.
    */
