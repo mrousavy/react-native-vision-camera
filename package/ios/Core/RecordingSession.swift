@@ -10,13 +10,6 @@ import AVFoundation
 import CoreLocation
 import Foundation
 
-// MARK: - BufferType
-
-enum BufferType {
-  case audio
-  case video
-}
-
 // MARK: - RecordingSession
 
 /**
@@ -114,13 +107,16 @@ class RecordingSession {
     guard videoTrack == nil else {
       throw CameraError.capture(.createRecorderError(message: "Tried to initialize Video Track twice!"))
     }
+    guard assetWriter.canApply(outputSettings: settings, forMediaType: .video) else {
+      throw CameraError.capture(.createRecorderError(message: "The given output settings are not supported!"))
+    }
 
     VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = videoOrientation.affineTransform
     assetWriter.add(videoWriter)
-    videoTrack = Track(withAssetWriterInput: videoWriter, andClock: clock)
+    videoTrack = Track(ofType: .video, withAssetWriterInput: videoWriter, andClock: clock)
     VisionLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
@@ -140,7 +136,7 @@ class RecordingSession {
     let audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
     audioWriter.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter)
-    audioTrack = Track(withAssetWriterInput: audioWriter, andClock: clock)
+    audioTrack = Track(ofType: .audio, withAssetWriterInput: audioWriter, andClock: clock)
     VisionLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
   }
 
@@ -230,7 +226,7 @@ class RecordingSession {
     audioTrack?.resume()
   }
 
-  func append(buffer: CMSampleBuffer, ofType bufferType: BufferType) throws {
+  func append(buffer: CMSampleBuffer, ofType type: TrackType) throws {
     guard !isFinishing else {
       // Session is already finishing, can't write anything more
       return
@@ -240,7 +236,7 @@ class RecordingSession {
     }
 
     // Write buffer to video/audio track
-    let track = try getTrack(ofType: bufferType)
+    let track = try getTrack(ofType: type)
     track.append(buffer: buffer)
 
     // If we failed to write the frames, stop the Recording
@@ -257,7 +253,7 @@ class RecordingSession {
     }
   }
 
-  private func getTrack(ofType type: BufferType) throws -> Track {
+  private func getTrack(ofType type: TrackType) throws -> Track {
     switch type {
     case .audio:
       guard let audioTrack else {

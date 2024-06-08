@@ -17,6 +17,7 @@ import Foundation
  it will mark the track as finished (see [isFinished])
  */
 class TrackTimeline {
+  private let trackType: TrackType
   private let clock: CMClock
   private var events: [TimelineEvent] = []
 
@@ -32,7 +33,8 @@ class TrackTimeline {
    */
   public private(set) var latency: CMTime = .zero
 
-  init(withClock clock: CMClock) {
+  init(ofTrackType type: TrackType, withClock clock: CMClock) {
+    trackType = type
     self.clock = clock
   }
 
@@ -52,25 +54,25 @@ class TrackTimeline {
   func start() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .start, timestamp: now))
-    VisionLogger.log(level: .info, message: "Timeline started at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "\(trackType) Timeline started at \(now.seconds).")
   }
 
   func pause() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .pause, timestamp: now))
-    VisionLogger.log(level: .info, message: "Timeline paused at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "\(trackType) Timeline paused at \(now.seconds).")
   }
 
   func resume() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .resume, timestamp: now))
-    VisionLogger.log(level: .info, message: "Timeline resumed at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "\(trackType) Timeline resumed at \(now.seconds).")
   }
 
   func stop() {
     let now = CMClockGetTime(clock)
     events.append(TimelineEvent(type: .stop, timestamp: now))
-    VisionLogger.log(level: .info, message: "Timeline stopped at \(now.seconds).")
+    VisionLogger.log(level: .info, message: "\(trackType) Timeline stopped at \(now.seconds).")
   }
 
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
@@ -104,7 +106,7 @@ class TrackTimeline {
         if timestamp > event.timestamp {
           // It's after the track was stopped. Mark this track as finished now.
           isFinished = true
-          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - Timeline is now finished!")
+          VisionLogger.log(level: .info, message: "Last timestamp arrived at \(timestamp.seconds) - \(trackType) Timeline is now finished!")
           return false
         }
       }

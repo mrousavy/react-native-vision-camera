@@ -9,7 +9,17 @@ import AVFoundation
 import CoreMedia
 import Foundation
 
+// MARK: - TrackType
+
+enum TrackType {
+  case audio
+  case video
+}
+
+// MARK: - Track
+
 class Track {
+  private let type: TrackType
   private let assetWriterInput: AVAssetWriterInput
   private let timeline: TrackTimeline
   private var lastWrittenTimestamp: CMTime?
@@ -45,9 +55,10 @@ class Track {
     return assetWriterInput.naturalSize
   }
 
-  init(withAssetWriterInput input: AVAssetWriterInput, andClock clock: CMClock) {
+  init(ofType trackType: TrackType, withAssetWriterInput input: AVAssetWriterInput, andClock clock: CMClock) {
+    type = trackType
     assetWriterInput = input
-    timeline = TrackTimeline(withClock: clock)
+    timeline = TrackTimeline(ofTrackType: trackType, withClock: clock)
   }
 
   func start() {
@@ -83,10 +94,10 @@ class Track {
       if successful {
         lastWrittenTimestamp = timestamp
       } else {
-        VisionLogger.log(level: .error, message: "Failed to write buffer \(timestamp.seconds) to track!")
+        VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track!")
       }
     } else {
-      VisionLogger.log(level: .error, message: "Failed to write buffer \(timestamp.seconds) to track - " +
+      VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track - " +
         "the Asset Writer was not yet ready for more data!")
     }
 
