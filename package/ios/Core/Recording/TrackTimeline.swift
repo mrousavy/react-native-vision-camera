@@ -78,6 +78,7 @@ class TrackTimeline {
           let currentPauseDuration = event.timestamp - currentPauseStart
           result.append(currentPauseDuration)
         }
+        currentPauseStart = nil
       default:
         // start/stop doesn't matter
         break
