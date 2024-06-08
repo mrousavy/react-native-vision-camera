@@ -29,9 +29,6 @@ class RecordingSession {
 
   private let lock = DispatchSemaphore(value: 1)
 
-  // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
-  private let automaticallyStopTimeoutSeconds = 4.0
-
   /**
    Gets the file URL of the recorded video.
    */
@@ -186,10 +183,12 @@ class RecordingSession {
     videoTrack?.stop()
     audioTrack?.stop()
 
-    // Start a timeout that will force-stop the session if none of the late frames actually arrive
-    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
+    // Start a timeout that will force-stop the session if it still hasn't been stopped (maybe no more frames came in?)
+    let latency = max(videoTrack?.latency.seconds ?? 0.0, audioTrack?.latency.seconds ?? 0.0)
+    let timeout = latency * 2
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + timeout) {
       if !self.isFinishing {
-        VisionLogger.log(level: .error, message: "Waited \(self.automaticallyStopTimeoutSeconds) seconds but no late Frames came in, aborting capture...")
+        VisionLogger.log(level: .error, message: "Waited \(timeout) seconds but session is still not finished - force-stopping session...")
         self.finish()
       }
     }
