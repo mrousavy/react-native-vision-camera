@@ -238,7 +238,7 @@ class RecordingSession {
 
     // Write buffer to video/audio track
     let track = try getTrack(ofType: type)
-    track.append(buffer: buffer)
+    try track.append(buffer: buffer)
 
     // If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {

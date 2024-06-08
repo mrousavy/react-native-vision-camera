@@ -83,11 +83,17 @@ class Track {
     timeline.resume()
   }
 
-  func append(buffer: CMSampleBuffer) {
+  func append(buffer originalBuffer: CMSampleBuffer) throws {
     // 1. If the track is already finished (from a previous call), don't write anything.
     if timeline.isFinished {
       // Track is already finished! Don't write anything.
       return
+    }
+    
+    var buffer = originalBuffer
+    let pauseOffset = timeline.totalPauseDuration
+    if pauseOffset.seconds > 0 {
+      buffer = try originalBuffer.copyWithTimestampOffset(pauseOffset.invert())
     }
 
     // 2. Track is not yet finished - add the timestamp to the timeline
