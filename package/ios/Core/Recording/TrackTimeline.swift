@@ -69,16 +69,25 @@ class TrackTimeline {
       switch event.type {
       case .pause:
         if currentPauseStart == nil {
+          // if this is nil, we "start" counting a pause
           currentPauseStart = event.timestamp
         }
       case .resume:
         if let currentPauseStart {
+          // if a pause has been started counting, we finish counting the pause here
           let currentPauseDuration = event.timestamp - currentPauseStart
           result.append(currentPauseDuration)
         }
       default:
+        // start/stop doesn't matter
         break
       }
+    }
+    if let currentPauseStart {
+      // if a pause is still "open", it has not yet been resumed.
+      let now = CMClockGetTime(clock)
+      let openPauseDuration = now - currentPauseStart
+      result.append(openPauseDuration)
     }
     return result
   }
