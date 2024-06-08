@@ -131,16 +131,10 @@ class TrackTimeline {
       switch event.type {
       case .start:
         if timestamp < event.timestamp {
-          // It's before the track was started.
-          if followersHaveEarlierTimestamps(thanTimestamp: timestamp) {
-            // Following timelines have even earlier timestamps - so we try to overrule them
-            // and will write this one to make sure our track is longer.
-            VisionLogger.log(level: .info, message: "\(trackType) Timeline: Follower timelines have earlier timestamps than \(timestamp.seconds), " +
-                             "so we'll be overriding it and write this one as well!")
-            return true
-          } else {
-            return false
-          }
+          // If it's before a session has been started we want to encode it in the video.
+          // It will not appear if it is actually before the session start time, but we still encode it
+          // to prevent blank frame flashes.
+          return true
         }
       case .pause:
         isPaused = true
@@ -173,21 +167,9 @@ class TrackTimeline {
   }
   
   /**
-   Returns true if any of the following-tracks have a timestamp earlier than the given timestamp.
-   */
-  func followersHaveEarlierTimestamps(thanTimestamp timestamp: CMTime) -> Bool {
-    return followerTimelines.contains { timeline in
-      guard let first = timeline.firstTimestamp else {
-        return false
-      }
-      return first.seconds < timestamp.seconds
-    }
-  }
-  
-  /**
    Returns true if any of the following-tracks have a timestamp later than the given timestamp.
    */
-  func followersHaveLaterTimestamps(thanTimestamp timestamp: CMTime) -> Bool {
+  private func followersHaveLaterTimestamps(thanTimestamp timestamp: CMTime) -> Bool {
     return followerTimelines.contains { timeline in
       guard let last = timeline.lastTimestamp else {
         return false
