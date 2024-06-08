@@ -22,7 +22,6 @@ class Track {
   private let type: TrackType
   private let assetWriterInput: AVAssetWriterInput
   private let timeline: TrackTimeline
-  private var lastWrittenTimestamp: CMTime?
 
   /**
    Gets whether the track has been marked as finished or not.
@@ -101,14 +100,12 @@ class Track {
 
     // 2. Track is not yet finished - add the timestamp to the timeline
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    var shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
+    let shouldWrite = timeline.isTimestampWithinTimeline(timestamp: timestamp)
 
     // 3. Write the buffer
     if shouldWrite && assetWriterInput.isReadyForMoreMediaData {
       let successful = assetWriterInput.append(buffer)
-      if successful {
-        lastWrittenTimestamp = timestamp
-      } else {
+      if !successful {
         VisionLogger.log(level: .error, message: "Failed to write \(type) buffer at \(timestamp.seconds) to track!")
       }
     } else {

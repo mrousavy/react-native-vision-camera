@@ -44,13 +44,14 @@ class TrackTimeline {
    */
   public private(set) var latency: CMTime = .zero
   
-  var firstTimestamp: CMTime? {
-    return events.first?.timestamp
-  }
-  
-  var lastTimestamp: CMTime? {
-    return events.last?.timestamp
-  }
+  /**
+   Get the first actually written timestamp of this timeline
+   */
+  public private(set) var firstTimestamp: CMTime?
+  /**
+   Get the last actually written timestamp of this timeline.
+   */
+  public private(set) var lastTimestamp: CMTime?
 
   init(ofTrackType type: TrackType, withClock clock: CMClock) {
     trackType = type
@@ -103,14 +104,26 @@ class TrackTimeline {
   }
 
   func isTimestampWithinTimeline(timestamp: CMTime) -> Bool {
+    let now = CMClockGetTime(clock)
+    latency = CMTimeSubtract(now, timestamp)
+    
+    let result = isTimestampWithinTimelineImpl(timestamp)
+    if result {
+      if firstTimestamp == nil {
+        VisionLogger.log(level: .info, message: "\(trackType) Timeline: First timestamp: \(timestamp.seconds)")
+        firstTimestamp = timestamp
+      }
+      lastTimestamp = timestamp
+    }
+    return result
+  }
+  
+  private func isTimestampWithinTimelineImpl(_ timestamp: CMTime) -> Bool {
     if isFinished {
       // The track is already finished. It cannot be in the timeline anymore.
       return false
     }
-
-    let now = CMClockGetTime(clock)
-    latency = CMTimeSubtract(now, timestamp)
-
+    
     // Iterate through timeline to make sure the timestamp is within our
     // total range (start - stop), and outside of any pauses.
     var isPaused = false
