@@ -5,8 +5,10 @@
 //  Created by Marc Rousavy on 08.06.24.
 //
 
-import Foundation
 import CoreMedia
+import Foundation
+
+// MARK: - TimestampAdjustmentError
 
 enum TimestampAdjustmentError: Error {
   case failedToCopySampleBuffer(status: OSStatus)
@@ -18,7 +20,6 @@ enum TimestampAdjustmentError: Error {
 private let kSampleBufferError_NoError: OSStatus = 0
 
 extension CMSampleBuffer {
-  
   /**
    Returns a copy of the current CMSampleBuffer with the timing info adjusted by the given offset.
    The decode and presentation timestamps will be shifted by the given offset.
@@ -40,12 +41,14 @@ extension CMSampleBuffer {
       // there are no entries in the timing info - we cannot adjust anything
       throw TimestampAdjustmentError.noTimingEntriesNeeded
     }
-    
-    for i in 0...samplesCount {
+
+    for i in 0 ... samplesCount {
+      // swiftlint:disable shorthand_operator
       timingInfo[i].decodeTimeStamp = timingInfo[i].decodeTimeStamp + offset
       timingInfo[i].presentationTimeStamp = timingInfo[i].presentationTimeStamp + offset
+      // swiftlint:enable shorthand_operator
     }
-    
+
     var newBuffer: CMSampleBuffer?
     let copyResult = CMSampleBufferCreateCopyWithNewTiming(allocator: nil,
                                                            sampleBuffer: self,
@@ -60,5 +63,4 @@ extension CMSampleBuffer {
     }
     return newBuffer
   }
-  
 }

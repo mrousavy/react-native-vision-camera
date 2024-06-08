@@ -89,7 +89,7 @@ class Track {
       // Track is already finished! Don't write anything.
       return
     }
-    
+
     var buffer = originalBuffer
     let pauseOffset = timeline.totalPauseDuration
     if pauseOffset.seconds > 0 {

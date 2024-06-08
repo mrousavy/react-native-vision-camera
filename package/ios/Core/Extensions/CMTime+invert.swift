@@ -5,8 +5,8 @@
 //  Created by Marc Rousavy on 08.06.24.
 //
 
-import Foundation
 import CoreMedia
+import Foundation
 
 extension CMTime {
   /**
