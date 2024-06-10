@@ -19,7 +19,7 @@ To avoid re-allocating such large buffers every time the phone rotates, the Came
 
 Since actually rotating pixels in such large buffers is really expensive and causes an unnecessary performance overhead, VisionCamera applies rotations through flags or transforms:
 
-#### Photo & Video Output
+### Photo & Video Output
 
 Photos and videos will be captured in a potentially "wrong" orientation, and VisionCamera will write an EXIF flag to the photo/video file with the correct presentation rotation.
 
@@ -27,7 +27,7 @@ Photos and videos will be captured in a potentially "wrong" orientation, and Vis
 This is handled automatically, and it's behaviour can be controlled via the [`outputOrientation`](/docs/api/interfaces/CameraProps#outputorientation) property.
 :::
 
-#### Preview View
+### Preview View
 
 The Preview output will stream in a potentially "wrong" orientation, but uses view transforms (rotate + translate matrix) to properly display the Camera stream "up-right".
 
@@ -35,7 +35,7 @@ The Preview output will stream in a potentially "wrong" orientation, but uses vi
 This will always happen automatically according to the screen's rotation.
 :::
 
-#### Frame Processor Output
+### Frame Processor Output
 
 Frame Processors will stream frames in a potentially "wrong" orientation, and the client is responsible for properly interpreting the Frame data.
 
@@ -43,6 +43,14 @@ Frame Processors will stream frames in a potentially "wrong" orientation, and th
 This needs to be handled manually, see [`Frame.orientation`](/docs/api/interfaces/Frame#orientation).
 For example, in MLKit just pass the `Frame`'s `orientation` to the `detect(...)` method.
 :::
+
+## Implementation
+
+VisionCamera supports three ways to implement orientation:
+
+- Camera UI (preview view) is locked, but the buttons can rotate to the desired photo/video output orientation (**recommended**)
+- Camera UI (preview view) also rotates alongside with the photo/video output orientation
+- Both Camera UI (preview view) and photo/video output orientation are locked to a specific orientation
 
 ### The `outputOrientation` prop
 
@@ -52,36 +60,39 @@ The orientation in which photos and videos are captured can be adjusted via the 
 <Camera {...props} outputOrientation="device" />
 ```
 
-Whenever the output orientation changes, the [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged) event will be called with the new output orientation.
-The [`onPreviewOrientationChanged`](/docs/api/interfaces/CameraProps#onprevieworientationchanged) event will be called whenever the preview orientation changes, which might be unrelated to the output orientation.
-
-#### `"device"`
-
-With the output orientation set to `device` (the default), photos and videos will be captured in the phone's physical orientation, even if the screen-rotation is locked.
-
+- `"device"`: With the output orientation set to `device` (the default), photos and videos will be captured in the phone's physical orientation, even if the screen-rotation is locked.
 This means, even though the preview view and other views don't rotate to landscape, holding the phone in landscape mode will still capture landscape photos. This is the same behaviour as in the iOS stock Camera.
 
-#### `"preview"`
-
-Similar to `device`, the `preview` orientation mode will follow the phone's physical orientation, allowing the user to capture landscape photos and videos - but will always respect screen-rotation locks.
-
+- `"preview"`: Similar to `device`, the `preview` orientation mode will follow the phone's physical orientation, allowing the user to capture landscape photos and videos - but will always respect screen-rotation locks.
 This means that the user is not able to capture landscape photos or videos if the preview view and other views stay in portrait mode (e.g. if the screen-lock is on).
 
-#### `"portrait"`
+- `"portrait"`, `"portrait-upside-down"`, `"landscape-left"`, `"landscape-right"`: All captured photos and videos will be locked to the given orientation mode.
 
-All captured photos and videos will be locked to portrait (0°, home-button on the bottom).
+### Listen to orientation changes
 
-#### `"portrait-upside-down"`
+Whenever the output orientation changes, the [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged) event will be called with the new output orientation. This is a good point to rotate the buttons to the desired output orientation now.
 
-All captured photos and videos will be locked to portrait-upside-down (180°, home-button on the top).
+The [`onPreviewOrientationChanged`](/docs/api/interfaces/CameraProps#onprevieworientationchanged) event will be called whenever the preview orientation changes, which might be unrelated to the output orientation. Depending on the device's natural orientation (e.g. iPads being landscape by default), you should rotate all buttons on the UI relative to the preview orientation.
 
-#### `"landscape-left"`
+As a helper method, VisionCamera fires the [`onUIRotationChanged`](/docs/api/interfaces/CameraProps#onuirotationchanged) event whenever the target UI rotation changes. You can directly apply this rotation to any UI elements such as buttons to rotate them to the correct orientation:
 
-All captured photos and videos will be locked to landscape-left (90°, home-button on the left).
+```tsx
+const [uiRotation, setUiRotation] = useState(0)
+const uiStyle: ViewStyle = {
+  transform: [{ rotate: `${uiRotation}deg` }]
+}
 
-#### `"landscape-right"`
+return (
+  <View>
+    <Camera {...props} onUIRotationChanged={setUiRotation} />
+    <FlipCameraButton style={uiStyle} />
+  </View>
+)
+```
 
-All captured photos and videos will be locked to landscape-right (270°, home-button on the right).
+:::tip
+For a smoother user experience, you should animate changes to the UI rotation. Use a library like react-native-reanimated to smoothly animate the `rotate` style.
+:::
 
 ### The `Frame`'s `orientation`
 

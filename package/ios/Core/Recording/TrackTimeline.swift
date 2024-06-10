@@ -25,7 +25,7 @@ class TrackTimeline {
    Represents whether the timeline has been marked as finished or not.
    A timeline will automatically be marked as finished when a timestamp arrives that appears after a stop().
    */
-  public private(set) var isFinished: Bool = false
+  public private(set) var isFinished = false
 
   /**
    Gets the latency of the buffers in this timeline.
