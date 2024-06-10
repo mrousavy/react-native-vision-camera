@@ -24,9 +24,15 @@ class CameraShutterEvent(surfaceId: Int, viewId: Int, private val data: Writable
   override fun getEventData() = data
 }
 
-class CameraOrientationChangedEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) :
-  Event<CameraOrientationChangedEvent>(surfaceId, viewId) {
-  override fun getEventName() = "cameraOrientationChanged"
+class CameraOutputOrientationChangedEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) :
+  Event<CameraOutputOrientationChangedEvent>(surfaceId, viewId) {
+  override fun getEventName() = "cameraOutputOrientationChanged"
+  override fun getEventData() = data
+}
+
+class CameraPreviewOrientationChangedEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) :
+  Event<CameraPreviewOrientationChangedEvent>(surfaceId, viewId) {
+  override fun getEventName() = "cameraPreviewOrientationChanged"
   override fun getEventData() = data
 }
 

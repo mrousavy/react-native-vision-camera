@@ -36,7 +36,11 @@ protocol CameraSessionDelegate: AnyObject {
   /**
    Called whenever the output orientation of the [CameraSession] changes.
    */
-  func onOrientationChanged(outputOrientation: Orientation)
+  func onOutputOrientationChanged(_ outputOrientation: Orientation)
+  /**
+   Called whenever the preview orientation of the [CameraSession]/[PreviewView] changes.
+   */
+  func onPreviewOrientationChanged(_ previewOrientation: Orientation)
   /**
    Called for every frame (if video or frameProcessor is enabled)
    */

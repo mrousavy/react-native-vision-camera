@@ -525,6 +525,14 @@ class CameraSession(private val context: Context, private val callback: Callback
     callback.onOutputOrientationChanged(outputOrientation)
   }
 
+  override fun onPreviewOrientationChanged(previewOrientation: Orientation) {
+    Log.i(TAG, "Preview orientation changed! $previewOrientation")
+    previewOutput?.targetOrientation = previewOrientation.toSurfaceRotation()
+
+    // onPreviewOrientationChanged(..) event
+    callback.onPreviewOrientationChanged(previewOrientation)
+  }
+
   suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
     val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
@@ -684,6 +692,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     fun onStopped()
     fun onShutter(type: ShutterType)
     fun onOutputOrientationChanged(outputOrientation: Orientation)
+    fun onPreviewOrientationChanged(previewOrientation: Orientation)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }
