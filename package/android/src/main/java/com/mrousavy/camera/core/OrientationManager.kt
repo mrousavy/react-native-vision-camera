@@ -42,7 +42,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
   }
 
   // Get the current preview orientation (computed by the screen's orientation)
-  private val previewOrientation: Orientation
+  val previewOrientation: Orientation
     get() = Orientation.fromSurfaceRotation(screenRotation)
 
   // Get the current output orientation (a computed value)
