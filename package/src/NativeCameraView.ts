@@ -19,10 +19,11 @@ export interface AverageFpsChangedEvent {
 }
 export interface OutputOrientationChangedEvent {
   outputOrientation: Orientation
+  previewOrientation: Orientation
 }
 export type NativeCameraViewProps = Omit<
   CameraProps,
-  'device' | 'onInitialized' | 'onError' | 'onShutter' | 'onOutputOrientationChanged' | 'frameProcessor' | 'codeScanner'
+  'device' | 'onInitialized' | 'onError' | 'onShutter' | 'onOrientationChanged' | 'frameProcessor' | 'codeScanner'
 > & {
   // private intermediate props
   cameraId: string
@@ -38,7 +39,7 @@ export type NativeCameraViewProps = Omit<
   onStarted?: (event: NativeSyntheticEvent<void>) => void
   onStopped?: (event: NativeSyntheticEvent<void>) => void
   onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
-  onOutputOrientationChanged?: (event: NativeSyntheticEvent<OutputOrientationChangedEvent>) => void
+  onOrientationChanged?: (event: NativeSyntheticEvent<OutputOrientationChangedEvent>) => void
 }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'

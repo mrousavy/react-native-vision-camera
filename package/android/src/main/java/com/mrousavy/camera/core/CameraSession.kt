@@ -521,8 +521,17 @@ class CameraSession(private val context: Context, private val callback: Callback
     frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()
     codeScannerOutput?.targetRotation = outputOrientation.toSurfaceRotation()
 
-    // onOutputOrientationChanged(..) event
-    callback.onOutputOrientationChanged(outputOrientation)
+    notifyOrientationChanged()
+  }
+
+  override fun onPreviewOrientationChanged(previewOrientation: Orientation) {
+    Log.i(TAG, "Preview orientation changed! $previewOrientation")
+    notifyOrientationChanged()
+  }
+
+  private fun notifyOrientationChanged() {
+    // onOrientationChanged(..) event
+    callback.onOrientationChanged(orientationManager.previewOrientation, orientationManager.outputOrientation)
   }
 
   suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
@@ -683,7 +692,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     fun onStarted()
     fun onStopped()
     fun onShutter(type: ShutterType)
-    fun onOutputOrientationChanged(outputOrientation: Orientation)
+    fun onOrientationChanged(previewOrientation: Orientation, outputOrientation: Orientation)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

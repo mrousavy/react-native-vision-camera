@@ -34,9 +34,9 @@ protocol CameraSessionDelegate: AnyObject {
    */
   func onCaptureShutter(shutterType: ShutterType)
   /**
-   Called whenever the output orientation of the [CameraSession] changes.
+   Called whenever the preview- or output-orientation of the [CameraSession] changes.
    */
-  func onOrientationChanged(outputOrientation: Orientation)
+  func onOrientationChanged(previewOrientation: Orientation, outputOrientation: Orientation)
   /**
    Called for every frame (if video or frameProcessor is enabled)
    */

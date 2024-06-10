@@ -49,11 +49,12 @@ fun CameraView.invokeOnShutter(type: ShutterType) {
   this.sendEvent(event)
 }
 
-fun CameraView.invokeOnOutputOrientationChanged(outputOrientation: Orientation) {
-  Log.i(CameraView.TAG, "invokeOnOutputOrientationChanged($outputOrientation)")
+fun CameraView.invokeOnOrientationChanged(previewOrientation: Orientation, outputOrientation: Orientation) {
+  Log.i(CameraView.TAG, "invokeOnOrientationChanged($previewOrientation, $outputOrientation)")
 
   val surfaceId = UIManagerHelper.getSurfaceId(this)
   val data = Arguments.createMap()
+  data.putString("previewOrientation", previewOrientation.unionValue)
   data.putString("outputOrientation", outputOrientation.unionValue)
 
   val event = CameraOrientationChangedEvent(surfaceId, id, data)

@@ -58,6 +58,8 @@ extension CameraSession: OrientationManagerDelegate {
     for connection in previewConnections {
       connection.orientation = previewOrientation
     }
+
+    notifyOrientationChanged()
   }
 
   func onOutputOrientationChanged(outputOrientation: Orientation) {
@@ -73,7 +75,12 @@ extension CameraSession: OrientationManagerDelegate {
       }
     }
 
+    notifyOrientationChanged()
+  }
+
+  private func notifyOrientationChanged() {
     // onOrientationChanged(..) event
-    delegate?.onOrientationChanged(outputOrientation: outputOrientation)
+    delegate?.onOrientationChanged(previewOrientation: orientationManager.previewOrientation,
+                                   outputOrientation: orientationManager.outputOrientation)
   }
 }

@@ -91,7 +91,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
     this.onShutter = this.onShutter.bind(this)
-    this.onOutputOrientationChanged = this.onOutputOrientationChanged.bind(this)
+    this.onOrientationChanged = this.onOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
@@ -524,8 +524,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.props.onShutter?.(event.nativeEvent)
   }
 
-  private onOutputOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
-    this.props.onOutputOrientationChanged?.(event.nativeEvent.outputOrientation)
+  private onOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
+    this.props.onOrientationChanged?.(event.nativeEvent)
   }
   //#endregion
 
@@ -613,7 +613,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onStarted={this.onStarted}
         onStopped={this.onStopped}
         onShutter={this.onShutter}
-        onOutputOrientationChanged={this.onOutputOrientationChanged}
+        onOrientationChanged={this.onOrientationChanged}
         onError={this.onError}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
