@@ -224,6 +224,14 @@ export interface CameraDevice {
   /**
    * Represents the sensor's orientation relative to the phone.
    * For most phones this will be landscape, as Camera sensors are usually always rotated by 90 degrees (i.e. width and height are flipped).
+   *
+   * All Camera streams will stream in this orientation. To properly rotate the buffers "up-right",
+   * frames will need to be counter-rotated by this orientation here.
+   * - For photo and video capture this is handled using EXIF flags.
+   * - For preview this is handled using view transforms (rotate + translate matrix).
+   * - For frame processors this needs to be handled manually by the user (see `Frame.orientation`)
+   *
+   * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
   sensorOrientation: Orientation
 }

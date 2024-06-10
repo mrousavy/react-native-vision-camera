@@ -38,14 +38,15 @@ extension CameraView {
         return
       }
       let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-      let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: .up)
+      let orientation = self.cameraSession.outputOrientation
+      let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: orientation.imageOrientation)
       do {
         let path = try FileUtils.writeUIImageToTempFile(image: image)
         promise.resolve([
           "path": path.absoluteString,
           "width": image.size.width,
           "height": image.size.height,
-          "orientation": Orientation.portrait.jsValue,
+          "orientation": orientation.jsValue,
           "isMirrored": false,
         ])
       } catch let error as CameraError {

@@ -58,7 +58,9 @@ const slowerDevice = getCameraDevice(devices, 'back', {
 
 See ["Camera Devices"](devices) for more information.
 
-Note: By default (when not passing the options object), a simpler device is already chosen.
+:::note
+By default (when not passing the options object), a simpler device is already chosen.
+:::
 
 ### No Video HDR
 
@@ -68,7 +70,9 @@ Video HDR uses 10-bit formats and/or additional processing steps that come with 
 
 Enable Buffer Compression ([`enableBufferCompression`](/docs/api/interfaces/CameraProps#enablebuffercompression)) to use lossy-compressed buffers for the Camera's video pipeline. These buffers can use less memory and are more efficient.
 
-Note: When not using a `frameProcessor`, buffer compression is automatically enabled.
+:::note
+When not using a `frameProcessor`, buffer compression is automatically enabled.
+:::
 
 ### Video Stabilization
 
@@ -94,10 +98,10 @@ The [`isActive`](/docs/api/interfaces/CameraProps#isactive) prop controls whethe
 
 ### Fast Photos
 
-If you need to take photos as fast as possible, use a [`qualityBalance`](/docs/api/interfaces/CameraProps#qualitybalance) of `'speed'` to speed up the photo pipeline:
+If you need to take photos as fast as possible, use a [`photoQualityBalance`](/docs/api/interfaces/CameraProps#photoQualityBalance) of `'speed'` to speed up the photo pipeline:
 
 ```jsx
-return <Camera {...props} qualityBalance="speed" />
+return <Camera {...props} photoQualityBalance="speed" />
 ```
 
 ### Snapshot Capture

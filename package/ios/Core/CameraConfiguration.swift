@@ -29,7 +29,7 @@ class CameraConfiguration {
   var videoStabilizationMode: VideoStabilizationMode = .off
 
   // Orientation
-  var orientation: Orientation = .portrait
+  var outputOrientation: OutputOrientation = .device
 
   // Format
   var format: CameraDeviceFormat?
@@ -60,7 +60,7 @@ class CameraConfiguration {
       codeScanner = other.codeScanner
       enableLocation = other.enableLocation
       videoStabilizationMode = other.videoStabilizationMode
-      orientation = other.orientation
+      outputOrientation = other.outputOrientation
       format = other.format
       fps = other.fps
       enableLowLightBoost = other.enableLowLightBoost
@@ -121,7 +121,7 @@ class CameraConfiguration {
       // videoStabilizationMode
       videoStabilizationChanged = outputsChanged || left?.videoStabilizationMode != right.videoStabilizationMode
       // orientation
-      orientationChanged = outputsChanged || left?.orientation != right.orientation
+      orientationChanged = outputsChanged || left?.outputOrientation != right.outputOrientation
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)

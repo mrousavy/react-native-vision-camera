@@ -975,7 +975,7 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (1.2.0):
+  - react-native-worklets-core (1.3.3):
     - React
     - React-callinvoker
     - React-Core
@@ -1304,7 +1304,7 @@ PODS:
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.0.3):
+  - VisionCamera/React (4.1.0):
     - React-Core
     - VisionCamera/FrameProcessors
   - Yoga (0.0.0)

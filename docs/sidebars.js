@@ -34,6 +34,7 @@ module.exports = {
       },
       'guides/zooming',
       'guides/focusing',
+      'guides/orientation',
       'guides/exposure',
       'guides/hdr',
       'guides/stabilization',

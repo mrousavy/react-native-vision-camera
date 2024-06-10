@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react'
 import type { LayoutChangeEvent, ViewProps } from 'react-native'
 import type { CameraProps } from '../types/CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
-import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
 import type { SkImage } from '@shopify/react-native-skia'
+import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
 
 interface SkiaCameraCanvasProps extends ViewProps {

@@ -14,6 +14,7 @@ import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeScannerOptions
 import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.PreviewViewType
 import com.mrousavy.camera.core.types.QualityBalance
@@ -72,15 +73,17 @@ class CameraView(context: Context) :
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
-  var photoQualityBalance = QualityBalance.BALANCED
+
+  // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
+  var photoQualityBalance = QualityBalance.SPEED
   var lowLightBoost = false
 
   // other props
   var isActive = false
   var torch: Torch = Torch.OFF
   var zoom: Float = 1f // in "factor"
-  var exposure: Double = 1.0
-  var orientation: Orientation = Orientation.PORTRAIT
+  var exposure: Double = 0.0
+  var outputOrientation: OutputOrientation = OutputOrientation.DEVICE
   var androidPreviewViewType: PreviewViewType = PreviewViewType.SURFACE_VIEW
     set(value) {
       field = value
@@ -119,6 +122,7 @@ class CameraView(context: Context) :
   }
 
   override fun onAttachedToWindow() {
+    Log.i(TAG, "CameraView attached to window!")
     super.onAttachedToWindow()
     if (!isMounted) {
       // Notifies JS view that the native view is now available
@@ -130,6 +134,7 @@ class CameraView(context: Context) :
   }
 
   override fun onDetachedFromWindow() {
+    Log.i(TAG, "CameraView detached from window!")
     super.onDetachedFromWindow()
     // stop collecting FPS samples
     fpsSampleCollector.stop()
@@ -206,7 +211,7 @@ class CameraView(context: Context) :
         }
 
         // Orientation
-        config.orientation = orientation
+        config.outputOrientation = outputOrientation
 
         // Format
         config.format = format
@@ -312,6 +317,10 @@ class CameraView(context: Context) :
 
   override fun onShutter(type: ShutterType) {
     invokeOnShutter(type)
+  }
+
+  override fun onOutputOrientationChanged(outputOrientation: Orientation) {
+    invokeOnOutputOrientationChanged(outputOrientation)
   }
 
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {

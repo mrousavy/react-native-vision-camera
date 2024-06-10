@@ -160,7 +160,9 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
   }
 
   public toString(): string {
-    return `[${this.code}]: ${this.message}`
+    let string = `[${this.code}]: ${this.message}`
+    if (this._cause != null) string += ` (caused by ${JSON.stringify(this._cause)})`
+    return string
   }
 }
 

@@ -70,7 +70,7 @@ jobs:
           -scheme VisionCameraExample \
           -sdk iphonesimulator \
           -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"
 
@@ -129,6 +129,6 @@ jobs:
           -scheme VisionCameraExample \
           -sdk iphonesimulator \
           -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"

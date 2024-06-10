@@ -34,7 +34,8 @@ VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<reac
     dispatch_async(delegate.getDispatchQueue, [f = std::move(f)]() { f(); });
   };
 
-  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera", &runtime, runOnJS, runOnWorklet);
+  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
+  _workletContext->initialize("VisionCamera", &runtime, runOnJS, runOnWorklet);
   NSLog(@"VisionCameraProxy: Worklet Context Created!");
 }
 

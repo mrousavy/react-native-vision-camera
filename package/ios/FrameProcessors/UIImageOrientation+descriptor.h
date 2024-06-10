@@ -29,10 +29,12 @@
       return @"portrait-upside-down";
     case UIImageOrientationLeft:
     case UIImageOrientationLeftMirrored:
-      return @"landscape-left";
+      // UIImageOrientation represents offset, we represent actual translation
+      return @"landscape-right";
     case UIImageOrientationRight:
     case UIImageOrientationRightMirrored:
-      return @"landscape-right";
+      // UIImageOrientation represents offset, we represent actual translation
+      return @"landscape-left";
   }
 }
 

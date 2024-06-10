@@ -3,7 +3,7 @@ package com.mrousavy.camera.core
 import androidx.camera.core.Preview.SurfaceProvider
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeType
-import com.mrousavy.camera.core.types.Orientation
+import com.mrousavy.camera.core.types.OutputOrientation
 import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.QualityBalance
 import com.mrousavy.camera.core.types.Torch
@@ -22,7 +22,7 @@ data class CameraConfiguration(
   var enableLocation: Boolean = false,
 
   // Orientation
-  var orientation: Orientation = Orientation.PORTRAIT,
+  var outputOrientation: OutputOrientation = OutputOrientation.DEVICE,
 
   // Format
   var format: CameraDeviceFormat? = null,
@@ -78,11 +78,13 @@ data class CameraConfiguration(
     val sidePropsChanged: Boolean,
     // (isActive) changed
     val isActiveChanged: Boolean,
+    // (outputOrientation) changed
+    val orientationChanged: Boolean,
     // (locationChanged) changed
     val locationChanged: Boolean
   ) {
     val hasChanges: Boolean
-      get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
+      get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged || orientationChanged || locationChanged
   }
 
   /**
@@ -116,6 +118,8 @@ data class CameraConfiguration(
 
       val isActiveChanged = left?.isActive != right.isActive
 
+      val orientationChanged = left?.outputOrientation != right.outputOrientation
+
       val locationChanged = left?.enableLocation != right.enableLocation
 
       return Difference(
@@ -123,6 +127,7 @@ data class CameraConfiguration(
         outputsChanged,
         sidePropsChanged,
         isActiveChanged,
+        orientationChanged,
         locationChanged
       )
     }

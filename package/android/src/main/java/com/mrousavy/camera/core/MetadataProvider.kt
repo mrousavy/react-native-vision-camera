@@ -49,12 +49,10 @@ class MetadataProvider(val context: Context) : LocationListener {
   }
 
   override fun onProviderDisabled(provider: String) {
-    super.onProviderDisabled(provider)
     Log.i(TAG, "Location Provider $provider has been disabled.")
   }
 
   override fun onProviderEnabled(provider: String) {
-    super.onProviderEnabled(provider)
     Log.i(TAG, "Location Provider $provider has been enabled.")
   }
 }

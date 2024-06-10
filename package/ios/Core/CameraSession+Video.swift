@@ -47,7 +47,6 @@ extension CameraSession {
           }
         }
 
-        self.isRecording = false
         self.recordingSession = nil
 
         if self.didCancelRecording {
@@ -87,22 +86,17 @@ extension CameraSession {
       }
 
       // Create temporary file
-      let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = options.fileType.descriptor ?? "mov"
-      guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
-        let message = errorPointer?.pointee?.description
-        onError(.capture(.createTempFileError(message: message)))
-        return
-      }
-
-      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempFilePath)")
-      let tempURL = URL(string: "file://\(tempFilePath)")!
+      let tempURL = FileUtils.createTempFile(fileExtension: fileExtension)
+      VisionLogger.log(level: .info, message: "Will record to temporary file: \(tempURL)")
 
       do {
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
+                                                    clock: self.captureSession.clock,
+                                                    orientation: self.videoFileOrientation,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
@@ -121,30 +115,25 @@ extension CameraSession {
 
           // Initialize audio asset writer
           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-          recordingSession.initializeAudioWriter(withSettings: audioSettings,
-                                                 format: audioInput.device.activeFormat.formatDescription)
+          try recordingSession.initializeAudioTrack(withSettings: audioSettings,
+                                                    format: audioInput.device.activeFormat.formatDescription)
         }
 
         // Init Video
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
-        recordingSession.initializeVideoWriter(withSettings: videoSettings)
+        try recordingSession.initializeVideoTrack(withSettings: videoSettings)
 
         // start recording session with or without audio.
-        // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
-        try recordingSession.start(clock: self.captureSession.clock)
+        try recordingSession.start()
         self.didCancelRecording = false
         self.recordingSession = recordingSession
-        self.isRecording = true
 
         let end = DispatchTime.now()
         VisionLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
+      } catch let error as CameraError {
+        onError(error)
       } catch let error as NSError {
-        if let error = error as? CameraError {
-          onError(error)
-        } else {
-          onError(.capture(.createRecorderError(message: "RecordingSession failed with unknown error: \(error.description)")))
-        }
-        return
+        onError(.capture(.createRecorderError(message: "RecordingSession failed with unknown error: \(error.description)")))
       }
     }
   }
@@ -158,9 +147,7 @@ extension CameraSession {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
         }
-        // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
-        recordingSession.stop(clock: self.captureSession.clock)
-        // There might be late frames, so maybe we need to still provide more Frames to the RecordingSession. Let's keep isRecording true for now.
+        recordingSession.stop()
         return nil
       }
     }
@@ -180,11 +167,10 @@ extension CameraSession {
   func pauseRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
-        guard self.recordingSession != nil else {
-          // there's no active recording!
+        guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
         }
-        self.isRecording = false
+        recordingSession.pause()
         return nil
       }
     }
@@ -196,11 +182,10 @@ extension CameraSession {
   func resumeRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
-        guard self.recordingSession != nil else {
-          // there's no active recording!
+        guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
         }
-        self.isRecording = true
+        recordingSession.resume()
         return nil
       }
     }

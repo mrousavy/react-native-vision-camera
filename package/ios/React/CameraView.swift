@@ -50,13 +50,13 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var photoHdr = false
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
-  @objc var orientation: NSString?
+  @objc var outputOrientation: NSString?
 
   // other props
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
-  @objc var exposure: NSNumber = 1.0
+  @objc var exposure: NSNumber = 0.0
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
@@ -70,6 +70,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var onStarted: RCTDirectEventBlock?
   @objc var onStopped: RCTDirectEventBlock?
   @objc var onShutter: RCTDirectEventBlock?
+  @objc var onOutputOrientationChanged: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onAverageFpsChanged: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
@@ -231,11 +232,11 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       }
 
       // Orientation
-      if let jsOrientation = orientation as? String {
-        let orientation = try Orientation(jsValue: jsOrientation)
-        config.orientation = orientation
+      if let jsOrientation = outputOrientation as? String {
+        let outputOrientation = try OutputOrientation(jsValue: jsOrientation)
+        config.outputOrientation = outputOrientation
       } else {
-        config.orientation = .portrait
+        config.outputOrientation = .device
       }
 
       // Format
@@ -346,13 +347,22 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer) {
+  func onOrientationChanged(outputOrientation: Orientation) {
+    guard let onOutputOrientationChanged else {
+      return
+    }
+    onOutputOrientationChanged([
+      "outputOrientation": outputOrientation.jsValue,
+    ])
+  }
+
+  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
     fpsSampleCollector.onTick()
 
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
         frameProcessor.call(frame)
       }
     #endif
@@ -380,25 +390,5 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     onAverageFpsChanged([
       "averageFps": averageFps,
     ])
-  }
-
-  /**
-   Gets the orientation of the CameraView's frames (CMSampleBuffers),
-   relative to the phone in portrait mode.
-
-   For example, an orientation of `.right` means that the buffer is in landscape.
-   */
-  private var bufferOrientation: UIImage.Orientation {
-    guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
-      return .up
-    }
-    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
-    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
-    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
-    if cameraPosition == .front {
-      return .upMirrored
-    } else {
-      return .up
-    }
   }
 }

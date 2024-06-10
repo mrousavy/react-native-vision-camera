@@ -44,10 +44,19 @@ export interface Frame {
    */
   readonly timestamp: number
   /**
-   * Represents the orientation of the Frame.
+   * Represents the orientation of the Frame, relative of what the desired output orientation is.
    *
-   * Some ML Models are trained for specific orientations, so they need to be taken into
-   * consideration when running a frame processor. See also: {@linkcode isMirrored}
+   * For example, if the phone is held in `'portrait'` mode and the Frame's {@linkcode orientation}
+   * is `'landscape-left'`, it is 90° rotated relative to the phone's rotation.
+   *
+   * To make the frame appear up-right, one would need to counter-rotate it by 90°.
+   * Such counter-rotations should not actually rotate pixels in the buffers,
+   * but instead be handled via flags or transforms to avoid any performance overheads.
+   *
+   * For example in MLKit, the caller just needs to pass the Frame's {@linkcode orientation}
+   * to it's `detect(...)` function and it will interpret buffers in that target orientation.
+   *
+   * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
   readonly orientation: Orientation
   /**
@@ -59,7 +68,6 @@ export interface Frame {
    * Get the underlying data of the Frame as a uint8 array buffer.
    *
    * The format of the buffer depends on the Frame's {@linkcode pixelFormat}.
-   * This function might fail if the {@linkcode pixelFormat} is `private`.
    *
    * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
    *
