@@ -7,6 +7,11 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Callback
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.MicrophonePermissionError
+import com.mrousavy.camera.core.cancelRecording
+import com.mrousavy.camera.core.pauseRecording
+import com.mrousavy.camera.core.resumeRecording
+import com.mrousavy.camera.core.startRecording
+import com.mrousavy.camera.core.stopRecording
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.Video
 import com.mrousavy.camera.react.utils.makeErrorMap

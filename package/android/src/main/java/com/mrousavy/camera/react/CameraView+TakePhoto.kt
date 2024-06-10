@@ -5,6 +5,7 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.mrousavy.camera.core.takePhoto
 import com.mrousavy.camera.core.types.Flash
 
 private const val TAG = "CameraView.takePhoto"
