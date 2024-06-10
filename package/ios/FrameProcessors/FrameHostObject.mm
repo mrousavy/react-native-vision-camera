@@ -73,7 +73,21 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "matrix") {
     Frame* frame = getFrame();
-    return jsi::Value::undefined();
+    Matrix* matrix = frame.matrix;
+    
+    jsi::Array array(runtime, matrix.totalSize);
+    
+    int i = 0;
+    for (int rowIndex = 0; rowIndex < matrix.rows.count; rowIndex++) {
+      MatrixRow* row = [matrix.rows objectAtIndex:rowIndex];
+      for (int columnIndex = 0; columnIndex < row.size; columnIndex++) {
+        float value = [row valueAtIndex:columnIndex];
+        array.setValueAtIndex(runtime, i, jsi::Value(static_cast<double>(value)));
+        i++;
+      }
+    }
+    
+    return array;
   }
   if (name == "isMirrored") {
     Frame* frame = getFrame();

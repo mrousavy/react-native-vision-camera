@@ -9,7 +9,7 @@
 #import "Frame.h"
 #import <CoreMedia/CMSampleBuffer.h>
 #import <Foundation/Foundation.h>
-#import <Accelerate/Accelerate.h>
+#import <simd/matrix.h>
 
 @implementation Frame {
   CMSampleBufferRef _Nonnull _buffer;
@@ -105,19 +105,29 @@
   return CVPixelBufferGetPlaneCount(imageBuffer);
 }
 
-- (float*)matrix {
-  CFTypeRef matrix = CMGetAttachment(_buffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil);
-  if (matrix == nil) {
-    // TODO: Return identity?
-    return NULL;
+- (Matrix*)matrix {
+  CFTypeRef matrixAttachment = CMGetAttachment(_buffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil);
+  if (matrixAttachment == nil) {
+    @throw [NSError errorWithDomain:@"Frame doesn't hold a kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix attachment!"
+                               code:3
+                           userInfo:nil];
   }
   
-  CFArrayRef matrixArray = (CFArrayRef)matrix;
-  NSArray* matrixObjCArray = (__bridge NSArray*)matrixArray;
-  for (id obj in matrixObjCArray) {
-    NSLog(@"Item: %@", obj);
+  CFDataRef matrixData = (CFDataRef)matrixAttachment;
+  if (matrixData == nil) {
+    @throw [NSError errorWithDomain:@"The kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix attachment is not a CFDataRef!"
+                               code:4
+                           userInfo:nil];
   }
-  return NULL;
+  
+  matrix_float3x3* matrixPointer = (matrix_float3x3*)CFDataGetBytePtr(matrixData);
+  if (matrixPointer == nil) {
+    @throw [NSError errorWithDomain:@"The kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix CFDataRef is not a matrix_float3x3!"
+                               code:5
+                           userInfo:nil];
+  }
+  
+  return [[Matrix alloc] initWithSIMDMatrix:*matrixPointer];
 }
 
 @end
