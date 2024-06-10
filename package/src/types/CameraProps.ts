@@ -331,6 +331,11 @@ export interface CameraProps extends ViewProps {
    */
   onPreviewOrientationChanged?: (previewOrientation: Orientation) => void
   /**
+   * Called whenever the target UI rotation/orientation changes.
+   * @param uiRotation The degrees that UI elements need to be rotated by to appear up-right.
+   */
+  onUIRotationChanged?: (uiRotation: number) => void
+  /**
    * A worklet which will be called for every frame the Camera "sees".
    *
    * @see See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information
