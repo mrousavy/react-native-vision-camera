@@ -5,6 +5,7 @@ export * from './CameraError'
 // Types
 export * from './types/CameraDevice'
 export * from './types/CameraProps'
+export * from './types/Matrix'
 export * from './types/Frame'
 export * from './types/Orientation'
 export * from './types/OutputOrientation'

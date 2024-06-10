@@ -109,6 +109,7 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
+      videoOutput.isMatrixDeliveryEnabled = true
       if isMirrored {
         // rotate by 180 deg and mirror the selfie camera so it behaves like the back camera.
         // we later need to flip it alongside the horizontal axis when recording videos with it.
@@ -159,11 +160,7 @@ extension CameraSession {
   // pragma MARK: Video Stabilization
   func configureVideoStabilization(configuration: CameraConfiguration) {
     for output in captureSession.outputs {
-      for connection in output.connections {
-        if connection.isVideoStabilizationSupported {
-          connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
-        }
-      }
+      output.videoStabilizationMode = configuration.videoStabilizationMode
     }
   }
 

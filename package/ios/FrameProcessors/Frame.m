@@ -9,6 +9,7 @@
 #import "Frame.h"
 #import <CoreMedia/CMSampleBuffer.h>
 #import <Foundation/Foundation.h>
+#import <Accelerate/Accelerate.h>
 
 @implementation Frame {
   CMSampleBufferRef _Nonnull _buffer;
@@ -102,6 +103,21 @@
 - (size_t)planesCount {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
   return CVPixelBufferGetPlaneCount(imageBuffer);
+}
+
+- (float*)matrix {
+  CFTypeRef matrix = CMGetAttachment(_buffer, kCMSampleBufferAttachmentKey_CameraIntrinsicMatrix, nil);
+  if (matrix == nil) {
+    // TODO: Return identity?
+    return NULL;
+  }
+  
+  CFArrayRef matrixArray = (CFArrayRef)matrix;
+  NSArray* matrixObjCArray = (__bridge NSArray*)matrixArray;
+  for (id obj in matrixObjCArray) {
+    NSLog(@"Item: %@", obj);
+  }
+  return NULL;
 }
 
 @end

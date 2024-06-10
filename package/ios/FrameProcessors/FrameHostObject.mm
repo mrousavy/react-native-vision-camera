@@ -27,6 +27,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
     result.push_back(jsi::PropNameID::forUtf8(rt, "bytesPerRow"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "planesCount"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "orientation"));
+    result.push_back(jsi::PropNameID::forUtf8(rt, "matrix"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "isMirrored"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "timestamp"));
     result.push_back(jsi::PropNameID::forUtf8(rt, "pixelFormat"));
@@ -69,6 +70,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     Frame* frame = getFrame();
     NSString* orientation = [NSString stringWithParsed:frame.orientation];
     return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
+  }
+  if (name == "matrix") {
+    Frame* frame = getFrame();
+    return jsi::Value::undefined();
   }
   if (name == "isMirrored") {
     Frame* frame = getFrame();

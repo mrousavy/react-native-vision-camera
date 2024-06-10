@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) double timestamp;
 @property(nonatomic, readonly) size_t bytesPerRow;
 @property(nonatomic, readonly) size_t planesCount;
+@property(nonatomic, readonly) float* matrix;
 
 @end
 

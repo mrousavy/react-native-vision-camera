@@ -1,3 +1,4 @@
+import type { Matrix } from './Matrix'
 import type { Orientation } from './Orientation'
 import type { PixelFormat } from './PixelFormat'
 
@@ -63,6 +64,10 @@ export interface Frame {
    * Represents the pixel-format of the Frame.
    */
   readonly pixelFormat: PixelFormat
+  /**
+   * Represents it's transformation (rotation, scaling, and transform) as a 3x3 Matrix.
+   */
+  readonly matrix: Matrix<3, 3>
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.
