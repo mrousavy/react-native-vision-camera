@@ -527,7 +527,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   override fun onPreviewOrientationChanged(previewOrientation: Orientation) {
     Log.i(TAG, "Preview orientation changed! $previewOrientation")
-    previewOutput?.targetOrientation = previewOrientation.toSurfaceRotation()
+    previewOutput?.targetRotation = previewOrientation.toSurfaceRotation()
 
     // onPreviewOrientationChanged(..) event
     callback.onPreviewOrientationChanged(previewOrientation)
