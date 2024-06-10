@@ -70,6 +70,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   @objc var onStarted: RCTDirectEventBlock?
   @objc var onStopped: RCTDirectEventBlock?
   @objc var onShutter: RCTDirectEventBlock?
+  @objc var onPreviewOrientationChanged: RCTDirectEventBlock?
   @objc var onOutputOrientationChanged: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onAverageFpsChanged: RCTDirectEventBlock?
@@ -347,12 +348,21 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     ])
   }
 
-  func onOrientationChanged(outputOrientation: Orientation) {
+  func onOutputOrientationChanged(_ outputOrientation: Orientation) {
     guard let onOutputOrientationChanged else {
       return
     }
     onOutputOrientationChanged([
       "outputOrientation": outputOrientation.jsValue,
+    ])
+  }
+
+  func onPreviewOrientationChanged(_ previewOrientation: Orientation) {
+    guard let onPreviewOrientationChanged else {
+      return
+    }
+    onPreviewOrientationChanged([
+      "previewOrientation": previewOrientation.jsValue,
     ])
   }
 

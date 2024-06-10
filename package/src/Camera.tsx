@@ -21,6 +21,7 @@ import type {
   OnCodeScannedEvent,
   OnErrorEvent,
   OutputOrientationChangedEvent,
+  PreviewOrientationChangedEvent,
 } from './NativeCameraView'
 import { NativeCameraView } from './NativeCameraView'
 
@@ -92,6 +93,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onStopped = this.onStopped.bind(this)
     this.onShutter = this.onShutter.bind(this)
     this.onOutputOrientationChanged = this.onOutputOrientationChanged.bind(this)
+    this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
@@ -527,6 +529,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private onOutputOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
     this.props.onOutputOrientationChanged?.(event.nativeEvent.outputOrientation)
   }
+
+  private onPreviewOrientationChanged(event: NativeSyntheticEvent<PreviewOrientationChangedEvent>): void {
+    this.props.onPreviewOrientationChanged?.(event.nativeEvent.previewOrientation)
+  }
   //#endregion
 
   private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
@@ -614,6 +620,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onStopped={this.onStopped}
         onShutter={this.onShutter}
         onOutputOrientationChanged={this.onOutputOrientationChanged}
+        onPreviewOrientationChanged={this.onPreviewOrientationChanged}
         onError={this.onError}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}

@@ -27,6 +27,14 @@ Photos and videos will be captured in a potentially "wrong" orientation, and Vis
 This is handled automatically, and it's behaviour can be controlled via the [`outputOrientation`](/docs/api/interfaces/CameraProps#outputorientation) property.
 :::
 
+#### Preview View
+
+The Preview output will stream in a potentially "wrong" orientation, but uses view transforms (rotate + translate matrix) to properly display the Camera stream "up-right".
+
+:::info
+This will always happen automatically according to the screen's rotation.
+:::
+
 #### Frame Processor Output
 
 Frame Processors will stream frames in a potentially "wrong" orientation, and the client is responsible for properly interpreting the Frame data.
@@ -34,14 +42,6 @@ Frame Processors will stream frames in a potentially "wrong" orientation, and th
 :::info
 This needs to be handled manually, see [`Frame.orientation`](/docs/api/interfaces/Frame#orientation).
 For example, in MLKit just pass the `Frame`'s `orientation` to the `detect(...)` method.
-:::
-
-#### Preview View
-
-The Preview output will stream in a potentially "wrong" orientation, but uses view transforms (rotate + translate matrix) to properly display the Camera stream "up-right".
-
-:::info
-This will always happen automatically according to the screen's rotation.
 :::
 
 ### The `outputOrientation` prop
@@ -53,6 +53,7 @@ The orientation in which photos and videos are captured can be adjusted via the 
 ```
 
 Whenever the output orientation changes, the [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged) event will be called with the new output orientation.
+The [`onPreviewOrientationChanged`](/docs/api/interfaces/CameraProps#onprevieworientationchanged) event will be called whenever the preview orientation changes, which might be unrelated to the output orientation.
 
 #### `"device"`
 

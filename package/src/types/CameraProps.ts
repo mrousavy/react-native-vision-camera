@@ -318,10 +318,18 @@ export interface CameraProps extends ViewProps {
   onShutter?: (event: OnShutterEvent) => void
   /**
    * Called whenever the output orientation changed.
+   * This might happen even if the screen/interface rotation is locked.
    *
    * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
   onOutputOrientationChanged?: (outputOrientation: Orientation) => void
+  /**
+   * Called whenever the preview orientation changed.
+   * This will happen whenever the screen/interface rotates.
+   *
+   * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
+   */
+  onPreviewOrientationChanged?: (previewOrientation: Orientation) => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *

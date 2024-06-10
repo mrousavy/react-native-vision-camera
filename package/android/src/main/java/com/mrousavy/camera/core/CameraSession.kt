@@ -397,6 +397,9 @@ class CameraSession(private val context: Context, private val callback: Callback
       codeScannerOutput = null
     }
     Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
+
+    // Update Orientation for all outputs
+    configureOrientation()
   }
 
   @SuppressLint("RestrictedApi")
@@ -516,13 +519,26 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   override fun onOutputOrientationChanged(outputOrientation: Orientation) {
     Log.i(TAG, "Output orientation changed! $outputOrientation")
-    photoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    videoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    codeScannerOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-
-    // onOutputOrientationChanged(..) event
+    configureOrientation()
     callback.onOutputOrientationChanged(outputOrientation)
+  }
+
+  override fun onPreviewOrientationChanged(previewOrientation: Orientation) {
+    Log.i(TAG, "Preview orientation changed! $previewOrientation")
+    configureOrientation()
+    callback.onPreviewOrientationChanged(previewOrientation)
+  }
+
+  private fun configureOrientation() {
+    orientationManager.previewOrientation.toSurfaceRotation().let { previewRotation ->
+      previewOutput?.targetRotation = previewRotation
+    }
+    orientationManager.outputOrientation.toSurfaceRotation().let { outputRotation ->
+      photoOutput?.targetRotation = outputRotation
+      videoOutput?.targetRotation = outputRotation
+      frameProcessorOutput?.targetRotation = outputRotation
+      codeScannerOutput?.targetRotation = outputRotation
+    }
   }
 
   suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
@@ -684,6 +700,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     fun onStopped()
     fun onShutter(type: ShutterType)
     fun onOutputOrientationChanged(outputOrientation: Orientation)
+    fun onPreviewOrientationChanged(previewOrientation: Orientation)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }
