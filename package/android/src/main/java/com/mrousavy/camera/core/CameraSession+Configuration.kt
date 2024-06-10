@@ -32,7 +32,7 @@ import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
 import kotlin.math.roundToInt
 
-internal fun CameraSession.getTargetFpsRange(configuration: CameraConfiguration): Range<Int>? {
+internal fun getTargetFpsRange(configuration: CameraConfiguration): Range<Int>? {
   val fps = configuration.fps ?: return null
   return if (configuration.enableLowLightBoost) {
     Range(fps / 2, fps)
@@ -41,7 +41,7 @@ internal fun CameraSession.getTargetFpsRange(configuration: CameraConfiguration)
   }
 }
 
-internal fun CameraSession.assertFormatRequirement(
+internal fun assertFormatRequirement(
   propName: String,
   format: CameraDeviceFormat?,
   throwIfNotMet: CameraError,
