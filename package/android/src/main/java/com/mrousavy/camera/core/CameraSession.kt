@@ -133,6 +133,8 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         if (diff.outputsChanged) {
           // 1. outputs changed, re-create them
           configureOutputs(config)
+          // 1.1. whenever the outputs changed, we need to update their orientation as well
+          configureOrientation()
         }
         if (diff.deviceChanged || diff.outputsChanged) {
           // 2. input or outputs changed, or the session was destroyed from outside, rebind the session
@@ -148,7 +150,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         }
         if (diff.orientationChanged) {
           // 5. update the target orientation mode
-          configureOrientation(config)
+          orientationManager.setTargetOutputOrientation(config.outputOrientation)
         }
         if (diff.locationChanged) {
           // 6. start or stop location update streaming
@@ -175,25 +177,30 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     if (status != PackageManager.PERMISSION_GRANTED) throw MicrophonePermissionError()
   }
 
-  private fun configureOrientation(config: CameraConfiguration) {
-    orientationManager.setTargetOutputOrientation(config.outputOrientation)
-  }
-
   override fun onOutputOrientationChanged(outputOrientation: Orientation) {
     Log.i(TAG, "Output orientation changed! $outputOrientation")
-    photoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    videoOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    frameProcessorOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-    codeScannerOutput?.targetRotation = outputOrientation.toSurfaceRotation()
-
+    configureOrientation()
     callback.onOutputOrientationChanged(outputOrientation)
   }
 
   override fun onPreviewOrientationChanged(previewOrientation: Orientation) {
     Log.i(TAG, "Preview orientation changed! $previewOrientation")
-    previewOutput?.targetRotation = previewOrientation.toSurfaceRotation()
-
+    configureOrientation()
     callback.onPreviewOrientationChanged(previewOrientation)
+  }
+
+  private fun configureOrientation() {
+    // Preview Orientation
+    orientationManager.previewOrientation.toSurfaceRotation().let { previewRotation ->
+      previewOutput?.targetRotation = previewRotation
+    }
+    // Outputs Orientation
+    orientationManager.outputOrientation.toSurfaceRotation().let { outputRotation ->
+      photoOutput?.targetRotation = outputRotation
+      videoOutput?.targetRotation = outputRotation
+      frameProcessorOutput?.targetRotation = outputRotation
+      codeScannerOutput?.targetRotation = outputRotation
+    }
   }
 
   interface Callback {
