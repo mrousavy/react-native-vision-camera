@@ -149,8 +149,8 @@ extension CameraSession {
     }
 
     // Re-initialize Orientations
-    onPreviewOrientationChanged(previewOrientation: orientationManager.previewOrientation)
-    onOutputOrientationChanged(outputOrientation: orientationManager.outputOrientation)
+    configurePreviewOrientation(orientationManager.previewOrientation)
+    configureOutputOrientation(orientationManager.outputOrientation)
 
     // Done!
     VisionLogger.log(level: .info, message: "Successfully configured all outputs!")

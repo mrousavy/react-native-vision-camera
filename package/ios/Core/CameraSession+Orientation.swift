@@ -42,10 +42,20 @@ extension CameraSession: OrientationManagerDelegate {
     return orientation
   }
 
+  func onPreviewOrientationChanged(previewOrientation: Orientation) {
+    configurePreviewOrientation(previewOrientation)
+    notifyOrientationChanged()
+  }
+
+  func onOutputOrientationChanged(outputOrientation: Orientation) {
+    configureOutputOrientation(outputOrientation)
+    notifyOrientationChanged()
+  }
+
   /**
    Updates the connected PreviewView's output orientation angle
    */
-  func onPreviewOrientationChanged(previewOrientation: Orientation) {
+  func configurePreviewOrientation(_ previewOrientation: Orientation) {
     guard #available(iOS 13.0, *) else {
       // .videoPreviewLayer is only available on iOS 13+.
       return
@@ -58,11 +68,12 @@ extension CameraSession: OrientationManagerDelegate {
     for connection in previewConnections {
       connection.orientation = previewOrientation
     }
-
-    notifyOrientationChanged()
   }
 
-  func onOutputOrientationChanged(outputOrientation: Orientation) {
+  /**
+   Updates the orientation angle of all connected virtually-rotateable outputs.
+   */
+  func configureOutputOrientation(_ outputOrientation: Orientation) {
     VisionLogger.log(level: .info, message: "Updating Outputs rotation: \(outputOrientation)...")
 
     // update the orientation for each output that supports virtual (no-performance-overhead) rotation.
@@ -74,8 +85,6 @@ extension CameraSession: OrientationManagerDelegate {
         connection.orientation = outputOrientation
       }
     }
-
-    notifyOrientationChanged()
   }
 
   private func notifyOrientationChanged() {
