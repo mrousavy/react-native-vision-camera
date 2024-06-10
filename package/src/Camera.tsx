@@ -521,11 +521,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 
   private onShutter(event: NativeSyntheticEvent<OnShutterEvent>): void {
-    this.props.onShutter?.(event.nativeEvent)
+    this.props.onShutter?.({
+      type: event.nativeEvent.type,
+    })
   }
 
   private onOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
-    this.props.onOrientationChanged?.(event.nativeEvent)
+    this.props.onOrientationChanged?.({
+      outputOrientation: event.nativeEvent.outputOrientation,
+      previewOrientation: event.nativeEvent.previewOrientation,
+    })
   }
   //#endregion
 
