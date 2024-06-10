@@ -31,7 +31,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
   var didCancelRecording = false
-  var isRecording = false
   var orientationManager = OrientationManager()
 
   // Callbacks
@@ -276,9 +275,15 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   }
 
   private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
-    if let recordingSession, isRecording {
-      // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
-      recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
+    if let recordingSession {
+      do {
+        // Write the Video Buffer to the .mov/.mp4 file
+        try recordingSession.append(buffer: sampleBuffer, ofType: .video)
+      } catch let error as CameraError {
+        delegate?.onError(error)
+      } catch {
+        delegate?.onError(.capture(.unknown(message: error.localizedDescription)))
+      }
     }
 
     if let delegate {
@@ -289,10 +294,17 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   }
 
   private final func onAudioFrame(sampleBuffer: CMSampleBuffer) {
-    if let recordingSession, isRecording {
-      // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
-      audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
-      recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
+    if let recordingSession {
+      do {
+        // Synchronize the Audio Buffer with the Video Session's time because it's two separate
+        // AVCaptureSessions, then write it to the .mov/.mp4 file
+        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
+        try recordingSession.append(buffer: sampleBuffer, ofType: .audio)
+      } catch let error as CameraError {
+        delegate?.onError(error)
+      } catch {
+        delegate?.onError(.capture(.unknown(message: error.localizedDescription)))
+      }
     }
   }
 
