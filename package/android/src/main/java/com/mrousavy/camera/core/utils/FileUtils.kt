@@ -14,7 +14,7 @@ class FileUtils {
         it.deleteOnExit()
       }
 
-    fun writeBitmapTofile(bitmap: Bitmap, file: File, quality: Int = 100) {
+    fun writeBitmapTofile(bitmap: Bitmap, file: File, quality: Int) {
       FileOutputStream(file).use { stream ->
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
       }
