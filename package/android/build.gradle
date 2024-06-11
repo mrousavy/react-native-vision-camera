@@ -109,6 +109,12 @@ android {
     ndkVersion rootProject.ext.ndkVersion
   }
 
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+      freeCompilerArgs += "-opt-in=com.facebook.react.common.annotations.FrameworkAPI"
+    }
+  }
+
   buildFeatures {
     prefab true
     prefabPublishing true
