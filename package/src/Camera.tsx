@@ -21,8 +21,10 @@ import type {
   OnCodeScannedEvent,
   OnErrorEvent,
   OutputOrientationChangedEvent,
+  PreviewOrientationChangedEvent,
 } from './NativeCameraView'
 import { NativeCameraView } from './NativeCameraView'
+import { RotationHelper } from './RotationHelper'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -79,6 +81,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   displayName = Camera.displayName
   private lastFrameProcessor: ((frame: Frame) => void) | undefined
   private isNativeViewMounted = false
+  private lastUIRotation: number | undefined = undefined
+  private rotationHelper = new RotationHelper()
 
   private readonly ref: React.RefObject<RefType>
 
@@ -92,6 +96,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onStopped = this.onStopped.bind(this)
     this.onShutter = this.onShutter.bind(this)
     this.onOutputOrientationChanged = this.onOutputOrientationChanged.bind(this)
+    this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
@@ -524,8 +529,24 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.props.onShutter?.(event.nativeEvent)
   }
 
-  private onOutputOrientationChanged(event: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
-    this.props.onOutputOrientationChanged?.(event.nativeEvent.outputOrientation)
+  private onOutputOrientationChanged({ nativeEvent: { outputOrientation } }: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
+    this.rotationHelper.outputOrientation = outputOrientation
+    this.props.onOutputOrientationChanged?.(outputOrientation)
+    this.maybeUpdateUIRotation()
+  }
+
+  private onPreviewOrientationChanged({ nativeEvent: { previewOrientation } }: NativeSyntheticEvent<PreviewOrientationChangedEvent>): void {
+    this.rotationHelper.previewOrientation = previewOrientation
+    this.props.onPreviewOrientationChanged?.(previewOrientation)
+    this.maybeUpdateUIRotation()
+  }
+
+  private maybeUpdateUIRotation(): void {
+    const uiRotation = this.rotationHelper.uiRotation
+    if (uiRotation !== this.lastUIRotation) {
+      this.props.onUIRotationChanged?.(uiRotation)
+      this.lastUIRotation = uiRotation
+    }
   }
   //#endregion
 
@@ -614,6 +635,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onStopped={this.onStopped}
         onShutter={this.onShutter}
         onOutputOrientationChanged={this.onOutputOrientationChanged}
+        onPreviewOrientationChanged={this.onPreviewOrientationChanged}
         onError={this.onError}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}

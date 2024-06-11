@@ -14,7 +14,8 @@ class OrientationManager(private val context: Context, private val callback: Cal
   }
 
   private var targetOutputOrientation = OutputOrientation.DEVICE
-  private var lastOrientation: Orientation? = null
+  private var lastOutputOrientation: Orientation? = null
+  private var lastPreviewOrientation: Orientation? = null
 
   // Screen Orientation Listener
   private var screenRotation = Surface.ROTATION_0
@@ -26,7 +27,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
       // Display rotated!
       val display = displayManager.getDisplay(displayId) ?: return
       screenRotation = display.rotation
-      maybeNotifyOrientation()
+      maybeNotifyOrientationChanged()
     }
   }
 
@@ -36,9 +37,13 @@ class OrientationManager(private val context: Context, private val callback: Cal
     override fun onOrientationChanged(rotationDegrees: Int) {
       // Phone rotated!
       deviceRotation = degreesToSurfaceRotation(rotationDegrees)
-      maybeNotifyOrientation()
+      maybeNotifyOrientationChanged()
     }
   }
+
+  // Get the current preview orientation (computed by the screen's orientation)
+  val previewOrientation: Orientation
+    get() = Orientation.fromSurfaceRotation(screenRotation)
 
   // Get the current output orientation (a computed value)
   val outputOrientation: Orientation
@@ -53,11 +58,16 @@ class OrientationManager(private val context: Context, private val callback: Cal
       }
     }
 
-  private fun maybeNotifyOrientation() {
-    val newOrientation = outputOrientation
-    if (lastOrientation != newOrientation) {
-      callback.onOutputOrientationChanged(newOrientation)
-      lastOrientation = newOrientation
+  private fun maybeNotifyOrientationChanged() {
+    val newPreviewOrientation = previewOrientation
+    if (lastPreviewOrientation != newPreviewOrientation) {
+      callback.onPreviewOrientationChanged(newPreviewOrientation)
+      lastPreviewOrientation = newPreviewOrientation
+    }
+    val newOutputOrientation = outputOrientation
+    if (lastOutputOrientation != newOutputOrientation) {
+      callback.onOutputOrientationChanged(newOutputOrientation)
+      lastOutputOrientation = newOutputOrientation
     }
   }
 
@@ -70,13 +80,9 @@ class OrientationManager(private val context: Context, private val callback: Cal
     orientationListener.disable()
 
     when (targetOrientation) {
-      OutputOrientation.DEVICE -> {
-        Log.i(TAG, "Starting streaming device orientation updates...")
+      OutputOrientation.DEVICE, OutputOrientation.PREVIEW -> {
+        Log.i(TAG, "Starting streaming device and screen orientation updates...")
         orientationListener.enable()
-      }
-
-      OutputOrientation.PREVIEW -> {
-        Log.i(TAG, "Starting streaming screen rotation updates...")
         displayManager.registerDisplayListener(displayListener, null)
       }
 
@@ -99,5 +105,6 @@ class OrientationManager(private val context: Context, private val callback: Cal
 
   interface Callback {
     fun onOutputOrientationChanged(outputOrientation: Orientation)
+    fun onPreviewOrientationChanged(previewOrientation: Orientation)
   }
 }

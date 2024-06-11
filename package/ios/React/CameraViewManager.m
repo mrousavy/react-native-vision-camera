@@ -59,6 +59,7 @@ RCT_EXPORT_VIEW_PROPERTY(onStarted, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onStopped, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onShutter, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onOutputOrientationChanged, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onPreviewOrientationChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onAverageFpsChanged, RCTDirectEventBlock);
 // Code Scanner

@@ -3,6 +3,7 @@ package com.mrousavy.camera.react
 import android.content.res.Resources
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.FocusRequiresPreviewError
+import com.mrousavy.camera.core.focus
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 
 suspend fun CameraView.focus(pointMap: ReadableMap) {

@@ -1295,16 +1295,16 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.0)
-  - VisionCamera (4.0.3):
-    - VisionCamera/Core (= 4.0.3)
-    - VisionCamera/FrameProcessors (= 4.0.3)
-    - VisionCamera/React (= 4.0.3)
-  - VisionCamera/Core (4.0.3)
-  - VisionCamera/FrameProcessors (4.0.3):
+  - VisionCamera (4.2.1):
+    - VisionCamera/Core (= 4.2.1)
+    - VisionCamera/FrameProcessors (= 4.2.1)
+    - VisionCamera/React (= 4.2.1)
+  - VisionCamera/Core (4.2.1)
+  - VisionCamera/FrameProcessors (4.2.1):
     - React
     - React-callinvoker
     - react-native-worklets-core
-  - VisionCamera/React (4.1.0):
+  - VisionCamera/React (4.2.1):
     - React-Core
     - VisionCamera/FrameProcessors
   - Yoga (0.0.0)
@@ -1562,7 +1562,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-skia: 80282ed176572d97f6abe128ddcb567e0c33fe93
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: a316975bba20b73d47aa4d41bffb0ca984ba592e
+  react-native-worklets-core: f51430dd07bf5343d4918d28a4bb00fe8f98b982
   React-nativeconfig: b0073a590774e8b35192fead188a36d1dca23dec
   React-NativeModulesApple: df46ff3e3de5b842b30b4ca8a6caae6d7c8ab09f
   React-perflogger: 3d31e0d1e8ad891e43a09ac70b7b17a79773003a
@@ -1592,7 +1592,7 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: bb5ef9c4af43754ce1e0c0e6e186ed1428a79521
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
-  VisionCamera: b633f90960feab2669b7a1c51f8a201dd0a5bfc3
+  VisionCamera: 20e83a85742e84998edfd7a28f13ec13bbd38fb8
   Yoga: b9a182ab00cf25926e7f79657d08c5d23c2d03b0
 
 PODFILE CHECKSUM: 5022d9fde12d180b8665baca67c06a86eb6554a6
