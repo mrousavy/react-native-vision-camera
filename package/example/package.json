@@ -19,7 +19,7 @@
     "@react-navigation/native-stack": "^6.9.13",
     "@shopify/react-native-skia": "^1.2.3",
     "react": "^18.2.0",
-    "react-native": "^0.74.1",
+    "react-native": "^0.74.2",
     "react-native-gesture-handler": "^2.12.1",
     "react-native-mmkv": "^2.10.2",
     "react-native-pressable-opacity": "^1.0.10",

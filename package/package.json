@@ -94,7 +94,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.1",
     "react": "^18.2.0",
-    "react-native": "^0.74.1",
+    "react-native": "^0.74.2",
     "react-native-builder-bob": "^0.21.3",
     "react-native-reanimated": "^3.10.0",
     "react-native-worklets-core": "^1.2.0",
