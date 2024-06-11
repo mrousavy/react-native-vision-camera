@@ -56,8 +56,6 @@ jobs:
         with:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('package/example/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
@@ -115,8 +113,6 @@ jobs:
         with:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('package/example/ios/Pods/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
