@@ -9,6 +9,7 @@ export const createModuleProxy = <TModule>(getModule: () => ImportType): TModule
 
   const proxy = new Proxy(holder, {
     get: (target, property) => {
+      if (property === '$$typeof') return undefined
       if (target.module == null) {
         // lazy initialize module via require()
         // caller needs to make sure the require() call is wrapped in a try/catch
