@@ -29,6 +29,19 @@ Since the Preview is a separate output stream, disabling it will save resources.
 
 [Skia Frame Processors](/docs/guides/skia-frame-processors) will disable the native Preview to use a custom Skia Canvas instead.
 
+### Start/Stop Events
+
+When starting/stopping the Camera session or when switching Camera devices (e.g. from front -> back), the Preview View will momentarily stop receiving frames and appears "frozen".
+To get notified about pauses in the preview view, use the [`onPreviewStarted`](/docs/api/interfaces/CameraProps#onpreviewstarted) and [`onPreviewStopped`](/docs/api/interfaces/CameraProps#onpreviewstopped) events:
+
+```tsx
+<Camera
+  {...props}
+  onPreviewStarted={() => console.log('Preview started!')}
+  onPreviewStopped={() => console.log('Preview stopped!')}
+/>
+```
+
 ### FPS
 
 The Preview view is running at the same frame rate as the Video stream, configured by the [`fps`](/docs/api/interfaces/CameraProps#fps) prop, or 30 FPS by default.

@@ -10,7 +10,44 @@ module.exports = {
   favicon: '/favicon.ico',
   organizationName: 'mrousavy',
   projectName: 'react-native-vision-camera',
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   themeConfig: {
+    /**
+     * @type {import('@docusaurus/theme-mermaid').ThemeConfig['mermaid']}
+     */
+    mermaid: {
+      options: {
+        themeVariables: {
+          git0: '#ffffff00',
+          gitBranchLabel0: '#ffffff00',
+          git1: '#ADD8E6',
+          gitBranchLabel1: '#ffffff',
+          git2: '#ACC8E6',
+          gitBranchLabel2: '#ffffff',
+          commitLabelColor: '#000000',
+          commitLabelBackground: '#ffffff',
+          commitLabelFontSize: 24
+        },
+        fontSize: 40,
+        gantt: {
+          sectionFontSize: 40,
+          fontSize: 40,
+          barGap: 15,
+          topPadding: 15,
+          leftPadding: 400,
+          barHeight: 90
+        },
+        gitGraph: {
+          showBranches: true,
+          rotateCommitLabel: false,
+          parallelCommits: false,
+          mainBranchName: 'Time'
+        }
+      },
+    },
     algolia: {
       appId: 'NRK7PZXU6O',
       apiKey: '33d54e627c4587a6d8dbff79d5209e46',
