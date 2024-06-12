@@ -28,6 +28,79 @@ function App() {
 }
 ```
 
+## Events
+
+VisionCamera emits multiple lifecycle events inside a Camera session. In general, initialization happens first, and start/stop events are emitted later on in the timeline:
+
+```mermaid
+gitGraph LR:
+  branch Camera
+  checkout Camera
+  commit id:" "
+
+  checkout Time
+  commit id:"  "
+  commit id:"   "
+
+  checkout Camera
+  commit id:"onInitialized()"
+
+  branch Preview
+  checkout Preview
+  commit id:"    "
+
+  checkout Time
+  commit id:"     "
+  commit id:"      "
+
+  checkout Camera
+  commit id:"onStarted()"
+
+  checkout Preview
+  commit id:"onPreviewStarted()"
+
+  checkout Time
+  commit id:"      "
+  commit id:"       "
+  commit id:"        "
+  commit id:"        "
+  commit id:"         "
+  commit id:"          "
+
+  checkout Preview
+  commit id:"onPreviewStopped()"
+
+  checkout Camera
+  commit id:"onStopped()"
+```
+
+### The `onInitialized` event
+
+Once a Camera session has been initialized, the [`onInitialized`](/docs/api/interfaces/CameraProps#oninitialized) event will be fired.
+All Camera functions (e.g. [`takePhoto()`](taking-photos)) will be available immediately after the `onInitialized` event has been fired.
+
+The event will be fired everytime Camera outputs are re-created, which happens either if the [`device`](/docs/api/interfaces/CameraProps#device) changes or any output (e.g. [`photo`](/docs/api/interfaces/CameraProps#photo)) is toggled on/off.
+
+### The `onStarted`/`onStopped` events
+
+After the Camera session is initialized it might or might not start streaming - depending on whether [`isActive`](/docs/api/interfaces/CameraProps#isactive) is `true` or `false`.
+
+- `isActive={true}`: The session will start streaming. Once it has started streaming the [`onStarted`](/docs/api/interfaces/CameraProps#onstarted) will be called.
+- `isActive={false}`: The session will stop streaming and eventually call the [`onStopped`](/docs/api/interfaces/CameraProps#onstopped) event.
+
+### The `onPreviewStarted`/`onPreviewStopped` events
+
+Similar to the `onStarted`/`onStopped` events, [`onPreviewStarted`](/docs/api/interfaces/CameraProps#onpreviewstarted)/[`onPreviewStopped`](/docs/api/interfaces/CameraProps#onpreviewstopped) will be called when the Camera started or stopped streaming into the Preview View.
+
+This might also happen when flipping Camera devices (e.g. from back -> front), as the Preview View momentarily stops streaming frames when switching devices.
+
+### The `onError` event
+
+If the Camera encounters a runtime error, the [`onError`](/docs/api/interfaces/CameraProps#onerror) event will be fired.
+It contains a [`CameraRuntimeError`](/docs/api/classes/CameraRuntimeError) with a `code` and `message` that describe the error.
+
+See ["Camera Errors"](errors) for more information.
+
 ## Interruptions
 
 VisionCamera gracefully handles Camera interruptions such as incoming calls, phone overheating, a different app opening the Camera, etc., and will automatically resume the Camera once it becomes available again.

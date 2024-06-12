@@ -55,9 +55,9 @@ See [the `CameraError.ts` file](https://github.com/mrousavy/react-native-vision-
 
 ### Runtime Errors
 
-The [`CameraRuntimeError`](/docs/api/classes/CameraRuntimeError) represents any kind of error that occured while mounting the Camera view, or an error that occured during the runtime.
+The [`CameraRuntimeError`](/docs/api/classes/CameraRuntimeError) represents any kind of error that occured in the Camera session, either in one of the outputs or the preview itself.
 
-The `<Camera />` UI Component provides an `onError` function that will be invoked every time an unexpected runtime error occured.
+If the Camera session encounters an error, it will call the [`onError`](/docs/api/interfaces/CameraProps#onerror) event:
 
 ```tsx
 function App() {
@@ -72,6 +72,8 @@ function App() {
 ### Capture Errors
 
 The [`CameraCaptureError`](/docs/api/classes/CameraCaptureError) represents any kind of error that occured only while taking a photo or recording a video.
+
+If there was an error during capture, it will be thrown as a JS Error (Promise rejection):
 
 ```tsx
 function App() {
