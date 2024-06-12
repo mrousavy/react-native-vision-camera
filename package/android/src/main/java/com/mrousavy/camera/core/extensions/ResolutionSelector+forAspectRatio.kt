@@ -8,9 +8,11 @@ import kotlin.math.abs
  */
 fun ResolutionSelector.Builder.forAspectRatio(aspectRatio: Float): ResolutionSelector.Builder {
   return this.setResolutionFilter { supportedSizes, _ ->
-    return@setResolutionFilter supportedSizes.sortedWith(compareBy(
-      { abs(it.width.toFloat() / it.height - aspectRatio) },
-      { -(it.width * it.height) }
-    ))
+    return@setResolutionFilter supportedSizes.sortedWith(
+      compareBy(
+        { abs(it.width.toFloat() / it.height - aspectRatio) },
+        { -(it.width * it.height) }
+      )
+    )
   }
 }
