@@ -20,13 +20,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.lifecycle.Lifecycle
-import com.mrousavy.camera.core.extensions.byId
-import com.mrousavy.camera.core.extensions.forSize
-import com.mrousavy.camera.core.extensions.id
-import com.mrousavy.camera.core.extensions.isSDR
-import com.mrousavy.camera.core.extensions.setTargetFrameRate
-import com.mrousavy.camera.core.extensions.toCameraError
-import com.mrousavy.camera.core.extensions.withExtension
+import com.mrousavy.camera.core.extensions.*
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
@@ -67,6 +61,9 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
 
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
 
+  val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
+  val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
+
   // 1. Preview
   val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
   if (previewConfig != null) {
@@ -85,6 +82,16 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         }
         preview.setTargetFrameRate(fpsRange)
       }
+
+      val targetPreviewAspectRatio = configuration.targetPreviewAspectRatio
+      if (targetPreviewAspectRatio != null) {
+        Log.i(CameraSession.TAG, "Preview aspect ratio: $targetPreviewAspectRatio")
+        val previewResolutionSelector = ResolutionSelector.Builder()
+          .forAspectRatio(targetPreviewAspectRatio)
+          .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+          .build()
+        preview.setResolutionSelector(previewResolutionSelector)
+      }
     }.build()
     preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
     previewOutput = preview
@@ -93,7 +100,6 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
   }
 
   // 2. Image Capture
-  val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
   if (photoConfig != null) {
     Log.i(CameraSession.TAG, "Creating Photo output...")
     val photo = ImageCapture.Builder().also { photo ->
@@ -114,7 +120,6 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
   }
 
   // 3. Video Capture
-  val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
   if (videoConfig != null) {
     Log.i(CameraSession.TAG, "Creating Video output...")
     val currentRecorder = recorderOutput
