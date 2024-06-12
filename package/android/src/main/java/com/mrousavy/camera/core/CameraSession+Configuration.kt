@@ -277,18 +277,19 @@ internal suspend fun CameraSession.configureCamera(provider: ProcessCameraProvid
   currentUseCases = useCases
 
   // Listen to Camera events
-  var lastState = CameraState.Type.OPENING
+  var lastIsStreaming = false
   camera!!.cameraInfo.cameraState.observe(this) { state ->
     Log.i(CameraSession.TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
 
-    if (state.type != lastState) {
+    val isStreaming = state.type == CameraState.Type.OPEN
+    if (isStreaming != lastIsStreaming) {
       // Notify callback
-      when (state.type) {
-        CameraState.Type.OPEN -> callback.onStarted()
-        CameraState.Type.CLOSED -> callback.onStopped()
-        else -> {}
+      if (isStreaming) {
+        callback.onStarted()
+      } else {
+        callback.onStopped()
       }
-      lastState = state.type
+      lastIsStreaming = isStreaming
     }
 
     val error = state.error
