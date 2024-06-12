@@ -283,10 +283,11 @@ class CameraView(context: Context) :
         Gravity.CENTER
       )
       it.previewStreamState.observe(cameraSession) { state ->
+        Log.i(TAG, "PreviewView Stream State changed to $state")
         when (state) {
-          PreviewView.StreamState.STREAMING -> onStarted()
-          PreviewView.StreamState.IDLE -> onStopped()
-          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
+          PreviewView.StreamState.STREAMING -> invokeOnPreviewStarted()
+          PreviewView.StreamState.IDLE -> invokeOnPreviewStopped()
+          else -> { }
         }
       }
     }

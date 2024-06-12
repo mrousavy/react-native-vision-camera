@@ -10,7 +10,17 @@ import AVFoundation
 import Foundation
 import UIKit
 
+protocol PreviewViewDelegate: AnyObject {
+  func onPreviewStarted()
+  func onPreviewStopped()
+}
+
 class PreviewView: UIView {
+  /**
+   A delegate for listening to events of the Preview View.
+   */
+  weak var delegate: PreviewViewDelegate?
+  
   /**
    Convenience wrapper to get layer as its statically known type.
    */
@@ -45,11 +55,22 @@ class PreviewView: UIView {
   func captureDevicePointConverted(fromLayerPoint point: CGPoint) -> CGPoint {
     return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
   }
+  
+  private var isPreviewingObserver: ObserverHolder?
 
   init(frame: CGRect, session: AVCaptureSession) {
     super.init(frame: frame)
     videoPreviewLayer.session = session
     videoPreviewLayer.videoGravity = .resizeAspectFill
+    
+    isPreviewingObserver = self.videoPreviewLayer.addPreviewStateListener { [weak self] isPreviewing in
+      guard let self else { return }
+      if isPreviewing {
+        self.delegate?.onPreviewStarted()
+      } else {
+        self.delegate?.onPreviewStopped()
+      }
+    }
   }
 
   @available(*, unavailable)
