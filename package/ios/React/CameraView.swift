@@ -325,11 +325,11 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   func onCameraStopped() {
     onStoppedEvent?([:])
   }
-  
+
   func onPreviewStarted() {
     onPreviewStartedEvent?([:])
   }
-  
+
   func onPreviewStopped() {
     onPreviewStoppedEvent?([:])
   }
