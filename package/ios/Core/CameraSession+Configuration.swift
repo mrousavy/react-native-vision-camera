@@ -154,7 +154,7 @@ extension CameraSession {
 
     // Done!
     VisionLogger.log(level: .info, message: "Successfully configured all outputs!")
-    
+
     // Notify delegate
     delegate?.onSessionInitialized()
   }
