@@ -278,6 +278,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     if preview && previewView == nil {
       // Create PreviewView and add it
       previewView = cameraSession.createPreviewView(frame: frame)
+      previewView!.delegate = self
       addSubview(previewView!)
     } else if !preview && previewView != nil {
       // Remove PreviewView and destroy it
