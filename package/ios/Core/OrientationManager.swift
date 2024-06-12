@@ -57,12 +57,10 @@ class OrientationManager: CameraOrientationCoordinatorDelegate {
       return previewOrientation
     case .portrait, .landscapeLeft, .portraitUpsideDown, .landscapeRight:
       // Outputs should be locked to the specific orientation given by the user.
-      guard let lockedOrientation = targetOutputOrientation.lockedOrientation,
-            let device else {
-        return previewOrientation
+      if let lockedOrientation = targetOutputOrientation.lockedOrientation {
+        return lockedOrientation
       }
-      let sensorOrientation = device.sensorOrientation
-      return lockedOrientation.rotatedBy(orientation: sensorOrientation)
+      return previewOrientation
     }
   }
 

@@ -110,10 +110,12 @@ extension CameraSession {
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
       if isMirrored {
-        // rotate by 180 deg and mirror the selfie camera so it behaves like the back camera.
-        // we later need to flip it alongside the horizontal axis when recording videos with it.
-        videoOutput.orientation = videoOutput.orientation.flipped()
-        videoOutput.isMirrored = isMirrored
+        if let device = videoDeviceInput?.device {
+          // rotate by 180 deg and mirror the selfie camera so it behaves like the back camera.
+          // we later need to flip it alongside the horizontal axis when recording videos with it.
+          videoOutput.setOrientation(newOrientation: videoOutput.getOrientation(device: device).flipped(), device: device)
+          videoOutput.isMirrored = isMirrored
+        }
       }
 
       self.videoOutput = videoOutput
