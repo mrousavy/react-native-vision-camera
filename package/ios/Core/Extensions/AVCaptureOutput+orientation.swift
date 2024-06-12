@@ -2,7 +2,7 @@
 //  AVCaptureOutput+orientation.swift
 //  VisionCamera
 //
-//  Created by Marc Rousavy on 03.06.24.
+//  Created by Marc Rousavy on 04.06.24.
 //
 
 import AVFoundation
