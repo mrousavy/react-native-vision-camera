@@ -89,20 +89,23 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
-  // pragma MARK: Internal Properties
-  var cameraSession = CameraSession()
-  var previewView: PreviewView?
-  var isMounted = false
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
 
+  // pragma MARK: Internal Properties
+  var cameraSession = CameraSession()
+  var previewView: PreviewView?
+  var isMounted = false
+  private var currentConfigureCall: DispatchTime?
+  private let fpsSampleCollector = FpsSampleCollector()
+
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
-  var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
-  private var currentConfigureCall: DispatchTime?
-  private let fpsSampleCollector = FpsSampleCollector()
+
+  // CameraView+TakeSnapshot
+  var latestVideoFrame: CMSampleBuffer?
 
   // pragma MARK: Setup
 
@@ -354,6 +357,10 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
+    // Update latest frame that can be used for snapshot capture
+    latestVideoFrame = sampleBuffer
+
+    // Notify FPS Collector that we just had a Frame
     fpsSampleCollector.onTick()
 
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
@@ -363,11 +370,6 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         frameProcessor.call(frame)
       }
     #endif
-
-    for callback in snapshotOnFrameListeners {
-      callback(sampleBuffer)
-    }
-    snapshotOnFrameListeners.removeAll()
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
