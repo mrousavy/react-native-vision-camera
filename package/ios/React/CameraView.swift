@@ -89,20 +89,23 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
-  // pragma MARK: Internal Properties
-  var cameraSession = CameraSession()
-  var previewView: PreviewView?
-  var isMounted = false
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
 
+  // pragma MARK: Internal Properties
+  var cameraSession = CameraSession()
+  var previewView: PreviewView?
+  var isMounted = false
+  private var currentConfigureCall: DispatchTime?
+  private let fpsSampleCollector = FpsSampleCollector()
+
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
-  var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
-  private var currentConfigureCall: DispatchTime?
-  private let fpsSampleCollector = FpsSampleCollector()
+
+  // CameraView+TakeSnapshot
+  var lastVideoFrame: CMSampleBuffer?
 
   // pragma MARK: Setup
 
@@ -364,10 +367,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       }
     #endif
 
-    for callback in snapshotOnFrameListeners {
-      callback(sampleBuffer)
-    }
-    snapshotOnFrameListeners.removeAll()
+    lastVideoFrame = sampleBuffer
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
