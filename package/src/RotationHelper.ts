@@ -30,6 +30,17 @@ export class RotationHelper {
   get uiRotation(): number {
     const previewDegrees = orientationToDegrees(this.previewOrientation)
     const outputDegrees = orientationToDegrees(this.outputOrientation)
-    return (outputDegrees - previewDegrees) % 360
+    const diffDegrees = (outputDegrees - previewDegrees) % 360
+
+    if (diffDegrees < -180) {
+      // Changes e.g. -270 to +90, so it is a shorter rotation on UI
+      return diffDegrees + 360
+    } else if (diffDegrees > 180) {
+      // Changes e.g. +270 to -90, so it is a shorter rotation on UI
+      return diffDegrees - 360
+    } else {
+      // It is a short rotation already, return it
+      return diffDegrees
+    }
   }
 }
