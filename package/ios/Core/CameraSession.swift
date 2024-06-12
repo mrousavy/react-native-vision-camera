@@ -200,11 +200,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           try self.configureTorch(configuration: config, device: device)
         }
 
-        // Notify about Camera initialization
-        if difference.inputChanged {
-          self.delegate?.onSessionInitialized()
-        }
-
         // After configuring, set this to the new configuration.
         self.configuration = config
       } catch {
