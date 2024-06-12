@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.location.LocationProvider
+import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
 
@@ -54,5 +56,15 @@ class MetadataProvider(val context: Context) : LocationListener {
 
   override fun onProviderEnabled(provider: String) {
     Log.i(TAG, "Location Provider $provider has been enabled.")
+  }
+
+  override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+    var statusStr = "available."
+    if (status == LocationProvider.OUT_OF_SERVICE) {
+      statusStr = "out of service."
+    } else if (status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
+      statusStr = "temporarily unavailable."
+    }
+    Log.i(TAG, "Provider $provider is $statusStr")
   }
 }
