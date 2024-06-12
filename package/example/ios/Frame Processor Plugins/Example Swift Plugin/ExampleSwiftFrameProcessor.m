@@ -13,5 +13,6 @@
 
 // // Example for a Swift Frame Processor plugin automatic registration
 VISION_EXPORT_SWIFT_FRAME_PROCESSOR(ExampleSwiftFrameProcessorPlugin, example_kotlin_swift_plugin)
+VISION_EXPORT_SWIFT_FRAME_PROCESSOR(ObjectDetectorPlugin, object_detector_plugin)
 
 #endif
