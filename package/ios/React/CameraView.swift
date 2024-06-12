@@ -20,7 +20,7 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollectorDelegate {
+public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegate, FpsSampleCollectorDelegate {
   // pragma MARK: React Properties
 
   // props that require reconfiguring
@@ -65,16 +65,18 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   }
 
   // events
-  @objc var onInitialized: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-  @objc var onStarted: RCTDirectEventBlock?
-  @objc var onStopped: RCTDirectEventBlock?
-  @objc var onShutter: RCTDirectEventBlock?
-  @objc var onPreviewOrientationChanged: RCTDirectEventBlock?
-  @objc var onOutputOrientationChanged: RCTDirectEventBlock?
-  @objc var onViewReady: RCTDirectEventBlock?
-  @objc var onAverageFpsChanged: RCTDirectEventBlock?
-  @objc var onCodeScanned: RCTDirectEventBlock?
+  @objc var onInitializedEvent: RCTDirectEventBlock?
+  @objc var onErrorEvent: RCTDirectEventBlock?
+  @objc var onStartedEvent: RCTDirectEventBlock?
+  @objc var onStoppedEvent: RCTDirectEventBlock?
+  @objc var onPreviewStartedEvent: RCTDirectEventBlock?
+  @objc var onPreviewStoppedEvent: RCTDirectEventBlock?
+  @objc var onShutterEvent: RCTDirectEventBlock?
+  @objc var onPreviewOrientationChangedEvent: RCTDirectEventBlock?
+  @objc var onOutputOrientationChangedEvent: RCTDirectEventBlock?
+  @objc var onViewReadyEvent: RCTDirectEventBlock?
+  @objc var onAverageFpsChangedEvent: RCTDirectEventBlock?
+  @objc var onCodeScannedEvent: RCTDirectEventBlock?
 
   // zoom
   @objc var enableZoomGesture = false {
@@ -123,7 +125,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
       fpsSampleCollector.start()
       if !isMounted {
         isMounted = true
-        onViewReady?(nil)
+        onViewReadyEvent?(nil)
       }
     } else {
       fpsSampleCollector.stop()
@@ -276,6 +278,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
     if preview && previewView == nil {
       // Create PreviewView and add it
       previewView = cameraSession.createPreviewView(frame: frame)
+      previewView!.delegate = self
       addSubview(previewView!)
     } else if !preview && previewView != nil {
       // Remove PreviewView and destroy it
@@ -294,9 +297,6 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
 
   func onError(_ error: CameraError) {
     VisionLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
-    guard let onError = onError else {
-      return
-    }
 
     var causeDictionary: [String: Any]?
     if case let .unknown(_, cause) = error,
@@ -308,7 +308,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
         "details": cause.userInfo,
       ]
     }
-    onError([
+    onErrorEvent?([
       "code": error.code,
       "message": error.message,
       "cause": causeDictionary ?? NSNull(),
@@ -316,52 +316,39 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   }
 
   func onSessionInitialized() {
-    VisionLogger.log(level: .info, message: "Camera initialized!")
-    guard let onInitialized = onInitialized else {
-      return
-    }
-    onInitialized([:])
+    onInitializedEvent?([:])
   }
 
   func onCameraStarted() {
-    VisionLogger.log(level: .info, message: "Camera started!")
-    guard let onStarted = onStarted else {
-      return
-    }
-    onStarted([:])
+    onStartedEvent?([:])
   }
 
   func onCameraStopped() {
-    VisionLogger.log(level: .info, message: "Camera stopped!")
-    guard let onStopped = onStopped else {
-      return
-    }
-    onStopped([:])
+    onStoppedEvent?([:])
+  }
+
+  func onPreviewStarted() {
+    onPreviewStartedEvent?([:])
+  }
+
+  func onPreviewStopped() {
+    onPreviewStoppedEvent?([:])
   }
 
   func onCaptureShutter(shutterType: ShutterType) {
-    guard let onShutter = onShutter else {
-      return
-    }
-    onShutter([
+    onShutterEvent?([
       "type": shutterType.jsValue,
     ])
   }
 
   func onOutputOrientationChanged(_ outputOrientation: Orientation) {
-    guard let onOutputOrientationChanged else {
-      return
-    }
-    onOutputOrientationChanged([
+    onOutputOrientationChangedEvent?([
       "outputOrientation": outputOrientation.jsValue,
     ])
   }
 
   func onPreviewOrientationChanged(_ previewOrientation: Orientation) {
-    guard let onPreviewOrientationChanged else {
-      return
-    }
-    onPreviewOrientationChanged([
+    onPreviewOrientationChangedEvent?([
       "previewOrientation": previewOrientation.jsValue,
     ])
   }
@@ -384,20 +371,14 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
-    guard let onCodeScanned = onCodeScanned else {
-      return
-    }
-    onCodeScanned([
+    onCodeScannedEvent?([
       "codes": codes.map { $0.toJSValue() },
       "frame": scannerFrame.toJSValue(),
     ])
   }
 
   func onAverageFpsChanged(averageFps: Double) {
-    guard let onAverageFpsChanged else {
-      return
-    }
-    onAverageFpsChanged([
+    onAverageFpsChangedEvent?([
       "averageFps": averageFps,
     ])
   }

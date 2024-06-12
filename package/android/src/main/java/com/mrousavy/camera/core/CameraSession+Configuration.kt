@@ -270,19 +270,26 @@ internal suspend fun CameraSession.configureCamera(provider: ProcessCameraProvid
   // Bind it all together (must be on UI Thread)
   Log.i(CameraSession.TAG, "Binding ${useCases.size} use-cases...")
   camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+  // Notify callback
+  callback.onInitialized()
 
   // Update currentUseCases for next unbind
   currentUseCases = useCases
 
   // Listen to Camera events
-  var lastState = CameraState.Type.OPENING
+  var lastIsStreaming = false
   camera!!.cameraInfo.cameraState.observe(this) { state ->
     Log.i(CameraSession.TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
 
-    if (state.type == CameraState.Type.OPEN && state.type != lastState) {
-      // Camera has now been initialized!
-      callback.onInitialized()
-      lastState = state.type
+    val isStreaming = state.type == CameraState.Type.OPEN
+    if (isStreaming != lastIsStreaming) {
+      // Notify callback
+      if (isStreaming) {
+        callback.onStarted()
+      } else {
+        callback.onStopped()
+      }
+      lastIsStreaming = isStreaming
     }
 
     val error = state.error

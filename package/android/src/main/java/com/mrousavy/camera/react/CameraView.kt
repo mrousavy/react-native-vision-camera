@@ -282,11 +282,19 @@ class CameraView(context: Context) :
         LayoutParams.MATCH_PARENT,
         Gravity.CENTER
       )
+      var lastIsPreviewing = false
       it.previewStreamState.observe(cameraSession) { state ->
-        when (state) {
-          PreviewView.StreamState.STREAMING -> onStarted()
-          PreviewView.StreamState.IDLE -> onStopped()
-          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
+        Log.i(TAG, "PreviewView Stream State changed to $state")
+
+        val isPreviewing = state == PreviewView.StreamState.STREAMING
+        if (isPreviewing != lastIsPreviewing) {
+          // Notify callback
+          if (isPreviewing) {
+            invokeOnPreviewStarted()
+          } else {
+            invokeOnPreviewStopped()
+          }
+          lastIsPreviewing = isPreviewing
         }
       }
     }

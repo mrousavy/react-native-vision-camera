@@ -38,6 +38,22 @@ fun CameraView.invokeOnStopped() {
   this.sendEvent(event)
 }
 
+fun CameraView.invokeOnPreviewStarted() {
+  Log.i(CameraView.TAG, "invokeOnPreviewStarted()")
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraPreviewStartedEvent(surfaceId, id)
+  this.sendEvent(event)
+}
+
+fun CameraView.invokeOnPreviewStopped() {
+  Log.i(CameraView.TAG, "invokeOnPreviewStopped()")
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraPreviewStoppedEvent(surfaceId, id)
+  this.sendEvent(event)
+}
+
 fun CameraView.invokeOnShutter(type: ShutterType) {
   Log.i(CameraView.TAG, "invokeOnShutter($type)")
 

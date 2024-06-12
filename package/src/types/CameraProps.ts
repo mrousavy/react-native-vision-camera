@@ -299,17 +299,37 @@ export interface CameraProps extends ViewProps {
    */
   onError?: (error: CameraRuntimeError) => void
   /**
-   * Called when the camera session was successfully initialized. This will get called everytime a new device is set.
+   * Called when the camera session was successfully initialized and is ready for capture.
+   *
+   * At this point, the Camera `ref` can be used and methods like `takePhoto(..)` can be called.
+   *
+   * This is called everytime the {@linkcode device} or one of the outputs changes.
    */
   onInitialized?: () => void
   /**
-   * Called when the camera started the session (`isActive={true}`)
+   * Called when the camera started the session. (`isActive={true}`)
+   *
+   * At this point, outputs can start receiving frames from the Camera, but might not have received any yet.
    */
   onStarted?: () => void
   /**
-   * Called when the camera stopped the session (`isActive={false}`)
+   * Called when the camera stopped the session. (`isActive={false}`)
+   *
+   * At this point, outputs will stop receiving frames from the Camera.
    */
   onStopped?: () => void
+  /**
+   * Called when the Preview View has received it's first frame and is now started.
+   *
+   * @note This will only be called if {@linkcode preview} is true, and no Skia Frame Processor is used
+   */
+  onPreviewStarted?: () => void
+  /**
+   * Called when the Preview View has stoppped streaming frames and is now stopped.
+   *
+   * @note This will only be called if {@linkcode preview} is true, and no Skia Frame Processor is used
+   */
+  onPreviewStopped?: () => void
   /**
    * Called just before a photo or snapshot is captured.
    *
