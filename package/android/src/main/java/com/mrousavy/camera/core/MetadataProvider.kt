@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import android.util.Log
 import androidx.core.content.ContextCompat
 
@@ -54,5 +55,10 @@ class MetadataProvider(val context: Context) : LocationListener {
 
   override fun onProviderEnabled(provider: String) {
     Log.i(TAG, "Location Provider $provider has been enabled.")
+  }
+
+  @Deprecated("Deprecated in Java", ReplaceWith("", ""))
+  override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+    Log.i(TAG, "Location Provider $provider status changed: $status")
   }
 }
