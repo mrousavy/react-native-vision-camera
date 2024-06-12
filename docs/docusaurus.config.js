@@ -28,7 +28,7 @@ module.exports = {
           git2: '#ACC8E6',
           gitBranchLabel2: '#ffffff',
           commitLabelColor: '#000000',
-          commitLabelBackground: '#ffffff',
+          commitLabelBackground: '#ffffff00',
           commitLabelFontSize: 24
         },
         fontSize: 40,
