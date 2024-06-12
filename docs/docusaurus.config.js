@@ -10,6 +10,10 @@ module.exports = {
   favicon: '/favicon.ico',
   organizationName: 'mrousavy',
   projectName: 'react-native-vision-camera',
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   themeConfig: {
     algolia: {
       appId: 'NRK7PZXU6O',
