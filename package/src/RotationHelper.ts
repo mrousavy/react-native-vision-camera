@@ -30,6 +30,6 @@ export class RotationHelper {
   get uiRotation(): number {
     const previewDegrees = orientationToDegrees(this.previewOrientation)
     const outputDegrees = orientationToDegrees(this.outputOrientation)
-    return ((previewDegrees + outputDegrees) % 360) - 180
+    return (outputDegrees - previewDegrees) % 360
   }
 }
