@@ -12,7 +12,7 @@ import UIKit
 extension CameraView {
   func takeSnapshot(options _: NSDictionary, promise: Promise) {
     withPromise(promise) {
-      guard let snapshot = lastVideoFrame else {
+      guard let snapshot = latestVideoFrame else {
         throw CameraError.capture(.snapshotFailed)
       }
       guard let imageBuffer = CMSampleBufferGetImageBuffer(snapshot) else {
