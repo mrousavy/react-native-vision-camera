@@ -56,20 +56,24 @@ class PreviewView: UIView {
     return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
   }
   
-  private var isPreviewingObserver: ObserverHolder?
+  private var isPreviewingObserver: NSKeyValueObservation?
 
   init(frame: CGRect, session: AVCaptureSession) {
     super.init(frame: frame)
     videoPreviewLayer.session = session
     videoPreviewLayer.videoGravity = .resizeAspectFill
     
-    isPreviewingObserver = self.videoPreviewLayer.addPreviewStateListener { [weak self] isPreviewing in
-      guard let self else { return }
-      if isPreviewing {
-        self.delegate?.onPreviewStarted()
-      } else {
-        self.delegate?.onPreviewStopped()
-      }
+    if #available(iOS 13.0, *) {
+      isPreviewingObserver = videoPreviewLayer.observe(\.isPreviewing, changeHandler: { [weak self] layer, change in
+        guard let self else { return }
+        if layer.isPreviewing {
+          VisionLogger.log(level: .info, message: "Preview Layer started previewing.")
+          self.delegate?.onPreviewStarted()
+        } else {
+          VisionLogger.log(level: .info, message: "Preview Layer stopped previewing.")
+          self.delegate?.onPreviewStopped()
+        }
+      })
     }
   }
 
