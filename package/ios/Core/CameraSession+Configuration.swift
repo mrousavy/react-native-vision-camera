@@ -195,6 +195,14 @@ extension CameraSession {
     // Set new device Format
     device.activeFormat = format
 
+    // Set auto focus/exposure
+    if device.isFocusModeSupported(.continuousAutoFocus) {
+      device.focusMode = .continuousAutoFocus
+    }
+    if device.isExposureModeSupported(.continuousAutoExposure) {
+      device.exposureMode = .continuousAutoExposure
+    }
+
     VisionLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
