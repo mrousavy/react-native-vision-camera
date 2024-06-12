@@ -82,20 +82,15 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         }
         preview.setTargetFrameRate(fpsRange)
       }
-      if (format != null) {
-        if (videoConfig != null) {
-          val previewResolutionSelector = ResolutionSelector.Builder()
-            .forAspectRatio(format.videoSize.width.toFloat() / format.videoSize.height.toFloat())
-            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
-            .build()
-          preview.setResolutionSelector(previewResolutionSelector)
-        } else if (photoConfig != null) {
-          val previewResolutionSelector = ResolutionSelector.Builder()
-            .forAspectRatio(format.photoSize.width.toFloat() / format.photoSize.height.toFloat())
-            .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
-            .build()
-          preview.setResolutionSelector(previewResolutionSelector)
-        }
+
+      val targetPreviewAspectRatio = configuration.targetPreviewAspectRatio
+      if (targetPreviewAspectRatio != null) {
+        Log.i(CameraSession.TAG, "Preview aspect ratio: $targetPreviewAspectRatio")
+        val previewResolutionSelector = ResolutionSelector.Builder()
+          .forAspectRatio(targetPreviewAspectRatio)
+          .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+          .build()
+        preview.setResolutionSelector(previewResolutionSelector)
       }
     }.build()
     preview.setSurfaceProvider(previewConfig.config.surfaceProvider)

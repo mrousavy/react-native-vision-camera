@@ -10,7 +10,9 @@ fun ResolutionSelector.Builder.forAspectRatio(aspectRatio: Float): ResolutionSel
   return this.setResolutionFilter { supportedSizes, _ ->
     return@setResolutionFilter supportedSizes.sortedWith(
       compareBy(
+        // Compare difference in aspect ratios first,
         { abs(it.width.toFloat() / it.height - aspectRatio) },
+        // ..and total resolution afterwards.
         { -(it.width * it.height) }
       )
     )
