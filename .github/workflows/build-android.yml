@@ -52,7 +52,7 @@ jobs:
         run: yarn install --frozen-lockfile --cwd example
 
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+        run: cd example/android && ./gradlew assembleDebug && cd ../..
 
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
@@ -89,4 +89,4 @@ jobs:
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
 
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+        run: cd example/android && ./gradlew assembleDebug && cd ../..
