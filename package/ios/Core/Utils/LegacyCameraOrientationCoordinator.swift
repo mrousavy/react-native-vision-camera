@@ -27,8 +27,8 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
                                            object: nil)
     let deviceOrientation = UIDevice.current.orientation
     let interfaceOrientation = UIApplication.shared.statusBarOrientation
-    previewOrientation = Orientation(interfaceOrientation: interfaceOrientation)
-    outputOrientation = Orientation(deviceOrientation: deviceOrientation)
+    previewOrientation = Orientation(interfaceOrientation: interfaceOrientation).rotatedBy(orientation: sensorOrientation)
+    outputOrientation = Orientation(deviceOrientation: deviceOrientation).rotatedBy(orientation: sensorOrientation)
   }
 
   deinit {
@@ -62,7 +62,7 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
         } else {
           orientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
         }
-        self.outputOrientation = Orientation(deviceOrientation: orientation)
+        self.outputOrientation = Orientation(deviceOrientation: orientation).rotatedBy(orientation: self.sensorOrientation)
         self.delegate?.onOrientationChanged()
       }
     }
@@ -77,7 +77,7 @@ class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
   @objc
   func onDeviceOrientationChanged(notification _: NSNotification) {
     let interfaceOrientation = UIApplication.shared.statusBarOrientation
-    previewOrientation = Orientation(interfaceOrientation: interfaceOrientation)
+    previewOrientation = Orientation(interfaceOrientation: interfaceOrientation).rotatedBy(orientation: sensorOrientation)
     delegate?.onOrientationChanged()
   }
 

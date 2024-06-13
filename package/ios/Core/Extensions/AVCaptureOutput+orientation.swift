@@ -9,16 +9,20 @@ import AVFoundation
 import Foundation
 
 extension AVCaptureOutput {
-  func getOrientation(device: AVCaptureDevice) -> Orientation {
-    guard let connection = connections.first else {
-      return .portrait
+  /**
+   Gets or sets the target orientation of the video output.
+   */
+  var orientation: Orientation {
+    get {
+      guard let connection = connections.first else {
+        return .portrait
+      }
+      return connection.orientation
     }
-    return connection.getOrientation(device: device)
-  }
-
-  func setOrientation(newOrientation: Orientation, device: AVCaptureDevice) {
-    for connection in connections {
-      connection.setOrientation(newOrientation: newOrientation, device: device)
+    set {
+      for connection in connections {
+        connection.orientation = newValue
+      }
     }
   }
 }

@@ -160,7 +160,7 @@ enum Orientation: String, JSUnionValue {
   }
 
   func rotatedBy(degrees: Double) -> Orientation {
-    let added = self.degrees + degrees
+    let added = self.degrees + degrees + 360
     let degress = added.truncatingRemainder(dividingBy: 360)
     return Orientation(degrees: degress)
   }

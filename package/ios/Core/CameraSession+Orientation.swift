@@ -34,25 +34,27 @@ extension CameraSession: OrientationManagerDelegate {
    This assumes that mirroring and 180° counter-rotation is also configured on the input stream, see CameraSession+Configuration.
    */
   var videoFileOrientation: Orientation {
-    var orientation = outputOrientation
-    if isMirrored && !orientation.isLandscape {
-      // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
-      orientation = orientation.flipped()
-    }
-    if let device = videoDeviceInput?.device {
-      orientation = orientation.rotatedBy(orientation: device.sensorOrientation)
-    }
-    return orientation
+    return fixMirroredOrientation(outputOrientation)
   }
 
   func onPreviewOrientationChanged(previewOrientation: Orientation) {
     configurePreviewOrientation(previewOrientation)
-    delegate?.onPreviewOrientationChanged(previewOrientation)
+    delegate?.onPreviewOrientationChanged(fixMirroredOrientation(previewOrientation))
   }
 
   func onOutputOrientationChanged(outputOrientation: Orientation) {
     configureOutputOrientation(outputOrientation)
-    delegate?.onOutputOrientationChanged(outputOrientation)
+    delegate?.onOutputOrientationChanged(fixMirroredOrientation(outputOrientation))
+  }
+
+  func fixMirroredOrientation(_ orientation: Orientation) -> Orientation {
+    if isMirrored && !orientation.isLandscape {
+      if #available(iOS 17.0, *) {
+        // If the video is mirrored and rotated, we need to counter-rotate by 180° because we applied that translation when creating the output.
+        return orientation.flipped()
+      }
+    }
+    return orientation
   }
 
   /**
@@ -66,14 +68,10 @@ extension CameraSession: OrientationManagerDelegate {
 
     VisionLogger.log(level: .info, message: "Updating Preview rotation: \(previewOrientation)...")
 
-    guard let device = videoDeviceInput?.device else {
-      return
-    }
-
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
     for connection in previewConnections {
-      connection.setOrientation(newOrientation: previewOrientation, device: device)
+      connection.orientation = previewOrientation
     }
   }
 
@@ -83,17 +81,13 @@ extension CameraSession: OrientationManagerDelegate {
   func configureOutputOrientation(_ outputOrientation: Orientation) {
     VisionLogger.log(level: .info, message: "Updating Outputs rotation: \(outputOrientation)...")
 
-    guard let device = videoDeviceInput?.device else {
-      return
-    }
-
     // update the orientation for each output that supports virtual (no-performance-overhead) rotation.
     // the video output (physical pixel rotation) is always rotated to the sensor orientation.
     let rotateableOutputs = captureSession.outputs.filter(\.supportsVirtualRotation)
     for output in rotateableOutputs {
       // set orientation for all connections
       for connection in output.connections {
-        connection.setOrientation(newOrientation: outputOrientation, device: device)
+        connection.orientation = outputOrientation
       }
     }
   }

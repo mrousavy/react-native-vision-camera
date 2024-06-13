@@ -9,24 +9,27 @@ import AVFoundation
 import Foundation
 
 extension AVCaptureConnection {
-  func getOrientation(device: AVCaptureDevice) -> Orientation {
-    if #available(iOS 17.0, *) {
-      let degrees = (videoRotationAngle - device.sensorOrientation.degrees + 360).truncatingRemainder(dividingBy: 360)
-      return Orientation(degrees: degrees)
-    } else {
-      return Orientation(videoOrientation: videoOrientation)
-    }
-  }
-
-  func setOrientation(newOrientation: Orientation, device: AVCaptureDevice) {
-    if #available(iOS 17.0, *) {
-      let degrees = (newOrientation.degrees + device.sensorOrientation.degrees + 360).truncatingRemainder(dividingBy: 360)
-      if isVideoRotationAngleSupported(degrees) {
-        videoRotationAngle = degrees
+  /**
+   Gets or sets the target orientation of the video connection.
+   */
+  var orientation: Orientation {
+    get {
+      if #available(iOS 17.0, *) {
+        return Orientation(degrees: videoRotationAngle)
+      } else {
+        return Orientation(videoOrientation: videoOrientation).rotatedBy(orientation: DEFAULT_SENSOR_ORIENTATION)
       }
-    } else {
-      if isVideoOrientationSupported {
-        videoOrientation = newOrientation.videoOrientation
+    }
+    set {
+      if #available(iOS 17.0, *) {
+        let degrees = newValue.degrees
+        if isVideoRotationAngleSupported(degrees) {
+          videoRotationAngle = degrees
+        }
+      } else {
+        if isVideoOrientationSupported {
+          videoOrientation = newValue.rotatedBy(degrees: -DEFAULT_SENSOR_ORIENTATION.degrees).videoOrientation
+        }
       }
     }
   }

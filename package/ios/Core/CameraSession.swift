@@ -261,10 +261,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     switch captureOutput {
     case is AVCaptureVideoDataOutput:
-      guard let device = videoDeviceInput?.device else {
-        return
-      }
-      onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.getOrientation(device: device))
+      onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.orientation)
     case is AVCaptureAudioDataOutput:
       onAudioFrame(sampleBuffer: sampleBuffer)
     default:

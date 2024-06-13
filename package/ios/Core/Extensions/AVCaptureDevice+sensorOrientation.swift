@@ -8,13 +8,14 @@
 import AVFoundation
 import Foundation
 
+// Note: On iOS, all sensors are landscape-left.
+let DEFAULT_SENSOR_ORIENTATION: Orientation = .landscapeLeft
+
 extension AVCaptureDevice {
   /**
    Get the natural orientation of the camera sensor of this specific device.
-
-   Note: On iOS, all sensors are landscape-left.
    */
   var sensorOrientation: Orientation {
-    return .landscapeLeft
+    return DEFAULT_SENSOR_ORIENTATION
   }
 }
