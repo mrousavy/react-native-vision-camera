@@ -45,6 +45,7 @@ extension CameraSession {
     captureSession.addInput(input)
     videoDeviceInput = input
 
+    // Update Orientation manager (uses device relative sensor orientation)
     orientationManager.setInputDevice(videoDevice)
 
     VisionLogger.log(level: .info, message: "Successfully configured Input Device!")
@@ -156,6 +157,9 @@ extension CameraSession {
 
     // Done!
     VisionLogger.log(level: .info, message: "Successfully configured all outputs!")
+
+    // Notify delegate
+    delegate?.onSessionInitialized()
   }
 
   // pragma MARK: Video Stabilization
@@ -266,6 +270,14 @@ extension CameraSession {
         throw CameraError.device(.lowLightBoostNotSupported)
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
+    }
+
+    // Configure auto-focus
+    if device.isFocusModeSupported(.continuousAutoFocus) {
+      device.focusMode = .continuousAutoFocus
+    }
+    if device.isExposureModeSupported(.continuousAutoExposure) {
+      device.exposureMode = .continuousAutoExposure
     }
   }
 

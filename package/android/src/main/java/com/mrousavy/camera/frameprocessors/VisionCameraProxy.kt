@@ -7,12 +7,14 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.common.annotations.FrameworkAPI
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.core.ViewNotFoundError
 import com.mrousavy.camera.react.CameraView
 import java.lang.ref.WeakReference
 
+@OptIn(FrameworkAPI::class)
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
 class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
   companion object {

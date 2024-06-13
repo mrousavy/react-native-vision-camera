@@ -20,16 +20,17 @@ extension AVCaptureVideoDataOutput {
    */
   func recommendedVideoSettings(forOptions options: RecordVideoOptions) throws -> [String: Any] {
     let settings: [String: Any]?
+    VisionLogger.log(level: .info, message: "Getting recommended video settings for \(options.fileType) file...")
     if let videoCodec = options.codec {
       // User passed a custom codec
       if supportsCodec(videoCodec, writingTo: options.fileType) {
         // The codec is supported, use it
-        settings = recommendedVideoSettings(forVideoCodecType: videoCodec, assetWriterOutputFileType: options.fileType)
         VisionLogger.log(level: .info, message: "Using codec \(videoCodec)...")
+        settings = recommendedVideoSettings(forVideoCodecType: videoCodec, assetWriterOutputFileType: options.fileType)
       } else {
         // The codec is not supported, fall-back to default
-        settings = recommendedVideoSettingsForAssetWriter(writingTo: options.fileType)
         VisionLogger.log(level: .info, message: "Codec \(videoCodec) is not supported, falling back to default...")
+        settings = recommendedVideoSettingsForAssetWriter(writingTo: options.fileType)
       }
     } else {
       // User didn't pass a custom codec, just use default

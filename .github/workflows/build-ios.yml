@@ -47,17 +47,10 @@ jobs:
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.10
+          ruby-version: 2.7.2
           bundler-cache: true
           working-directory: package/example/ios
 
-      - name: Restore Pods cache
-        uses: actions/cache@v4
-        with:
-          path: package/example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
@@ -106,17 +99,10 @@ jobs:
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.10
+          ruby-version: 2.7.2
           bundler-cache: true
           working-directory: package/example/ios
 
-      - name: Restore Pods cache
-        uses: actions/cache@v4
-        with:
-          path: package/example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
