@@ -7,6 +7,8 @@
 
 import AVFoundation
 import CoreMotion
+import Foundation
+import UIKit
 
 class LegacyCameraOrientationCoordinator: CameraOrientationCoordinator {
   private weak var delegate: CameraOrientationCoordinatorDelegate?
