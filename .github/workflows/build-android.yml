@@ -51,6 +51,15 @@ jobs:
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd example
 
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
         run: cd example/android && ./gradlew assembleDebug && cd ../..
 
@@ -88,5 +97,14 @@ jobs:
       - name: Remove worklets, skia and reanimated
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
 
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
         run: cd example/android && ./gradlew assembleDebug && cd ../..
