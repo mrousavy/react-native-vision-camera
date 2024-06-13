@@ -34,9 +34,9 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-with-fps-yarn-
+            ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
 
@@ -84,9 +84,9 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-without-fps-yarn-
+            ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
       - name: Remove worklets, skia and reanimated
