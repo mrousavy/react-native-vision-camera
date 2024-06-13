@@ -76,3 +76,6 @@ yarn-error.log
 # TypeScript output
 /lib
 /example/lib
+
+# Gems
+**/vendor/
