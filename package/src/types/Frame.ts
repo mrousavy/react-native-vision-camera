@@ -150,7 +150,8 @@ export interface FrameInternal extends Frame {
    * type `FrameHostObject` while containing properties of another instance ({@linkcode baseInstance})
    * @param baseInstance The base instance to use.
    * @internal
-   * @example ```ts
+   * @example
+   * ```ts
    * const canvas = skSurface.getCanvas()
    * const drawableFrame = frame.withBaseClass(canvas)
    * // now `drawableFrame` has all methods from `canvas`, as well as `frame`.
