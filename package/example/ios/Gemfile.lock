@@ -99,7 +99,6 @@ PLATFORMS
   x86_64-darwin-19
 
 DEPENDENCIES
-  activesupport (>= 6.1.7.5, < 7.1.0)
   cocoapods (>= 1.13, < 1.15)
   cocoapods-check (>= 1.1.0)
 
