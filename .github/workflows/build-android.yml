@@ -43,9 +43,9 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-with-fps-yarn-
       - name: Install node_modules
         run: yarn install --frozen-lockfile
       - name: Install node_modules for example/
@@ -56,12 +56,15 @@ jobs:
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-with-fps-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-with-fps-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache && cd ../..
+
+      # Gradle cache doesn't like daemons
+      - name: Stop Gradle Daemon
+        run: cd android && ./gradlew --stop
 
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
@@ -87,24 +90,27 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-without-fps-yarn-
       - name: Install node_modules
         run: yarn install --frozen-lockfile
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd example
       - name: Remove worklets, skia and reanimated
-        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
+        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-without-fps-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-without-fps-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache && cd ../..
+
+      # Gradle cache doesn't like daemons
+      - name: Stop Gradle Daemon
+        run: cd android && ./gradlew --stop
