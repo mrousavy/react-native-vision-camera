@@ -1,2 +1,0 @@
-
-//# sourceMappingURL=Point.js.map
