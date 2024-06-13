@@ -33,7 +33,7 @@ target 'VisionCameraExample' do
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :ccache_enabled => true
     )
 
     # Sets or removes the VISION_CAMERA_ENABLE_FRAME_PROCESSORS flag to enable or disable
