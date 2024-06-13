@@ -1,0 +1,1 @@
+{"version":3,"names":["_reactNative","require","NativeCameraView","exports","requireNativeComponent"],"sourceRoot":"../../src","sources":["NativeCameraView.ts"],"mappings":";;;;;;AACA,IAAAA,YAAA,GAAAC,OAAA;AAuDA;AACO,MAAMC,gBAAgB,GAAAC,OAAA,CAAAD,gBAAA,GAAG,IAAAE,mCAAsB,EAAwB,YAAY,CAAC"}

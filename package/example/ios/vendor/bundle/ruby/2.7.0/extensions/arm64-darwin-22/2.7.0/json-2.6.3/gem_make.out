@@ -1,0 +1,13 @@
+current directory: /Users/mrousavy/Projects/react-native-vision-camera/package/example/ios/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+/Users/mrousavy/.rbenv/versions/2.7.6/bin/ruby -I /Users/mrousavy/.rbenv/versions/2.7.6/lib/ruby/2.7.0 -r ./siteconf20240607-3638-1dzdh1u.rb extconf.rb
+creating Makefile
+
+current directory: /Users/mrousavy/Projects/react-native-vision-camera/package/example/ios/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make "DESTDIR=" clean
+
+current directory: /Users/mrousavy/Projects/react-native-vision-camera/package/example/ios/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make "DESTDIR="
+make: Nothing to be done for `all'.
+
+current directory: /Users/mrousavy/Projects/react-native-vision-camera/package/example/ios/vendor/bundle/ruby/2.7.0/gems/json-2.6.3/ext/json
+make "DESTDIR=" install

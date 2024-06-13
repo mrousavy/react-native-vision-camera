@@ -1,0 +1,1 @@
+{"version":3,"file":"withFrameRefCounting.d.ts","sourceRoot":"","sources":["../../../src/frame-processors/withFrameRefCounting.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,KAAK,EAAiB,MAAM,gBAAgB,CAAA;AAG1D;;;;GAIG;AACH,wBAAgB,oBAAoB,CAAC,cAAc,EAAE,CAAC,KAAK,EAAE,KAAK,KAAK,IAAI,GAAG,CAAC,KAAK,EAAE,KAAK,KAAK,IAAI,CAiBnG"}
