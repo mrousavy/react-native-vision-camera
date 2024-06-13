@@ -99,7 +99,7 @@ jobs:
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd example
       - name: Remove worklets, skia and reanimated
-        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
+        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
