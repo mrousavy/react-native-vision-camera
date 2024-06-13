@@ -61,7 +61,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug && cd ../..
+        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache && cd ../..
+
+      # Gradle cache doesn't like daemons
+      - name: Stop Gradle Daemon
+        run: cd android && ./gradlew --stop
 
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
@@ -107,4 +111,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug && cd ../..
+        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache && cd ../..
+
+      # Gradle cache doesn't like daemons
+      - name: Stop Gradle Daemon
+        run: cd android && ./gradlew --stop
