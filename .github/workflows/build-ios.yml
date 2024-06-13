@@ -34,9 +34,9 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-with-fps-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
 
@@ -55,11 +55,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: package/example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
+          key: ${{ runner.os }}-with-fps-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-            ${{ runner.os }}-pods-${{ hashFiles('**/Gemfile.lock') }}
-            ${{ runner.os }}-pods-
+            ${{ runner.os }}-with-fps-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
@@ -93,9 +91,9 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-without-fps-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
       - name: Remove worklets, skia and reanimated
@@ -116,11 +114,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: package/example/ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
+          key: ${{ runner.os }}-without-fps-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-            ${{ runner.os }}-pods-${{ hashFiles('**/Gemfile.lock') }}
-            ${{ runner.os }}-pods-
+            ${{ runner.os }}-without-fps-pods-
       - name: Install Pods
         run: bundle exec pod install
       - name: Install xcpretty
