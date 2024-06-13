@@ -57,6 +57,8 @@ jobs:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
+            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+            ${{ runner.os }}-pods-${{ hashFiles('**/Gemfile.lock') }}
             ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
@@ -116,6 +118,8 @@ jobs:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
+            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+            ${{ runner.os }}-pods-${{ hashFiles('**/Gemfile.lock') }}
             ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod install
