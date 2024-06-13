@@ -18,9 +18,6 @@ import Reanimated, {
 import type { Camera, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants'
 
-const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH]
-const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2]
-
 const START_RECORDING_DELAY = 200
 const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1
 
@@ -260,8 +257,8 @@ const _CaptureButton: React.FC<Props> = ({
         <PanGestureHandler
           enabled={enabled}
           ref={panHandler}
-          failOffsetX={PAN_GESTURE_HANDLER_FAIL_X}
-          activeOffsetY={PAN_GESTURE_HANDLER_ACTIVE_Y}
+          failOffsetX={[-SCREEN_WIDTH, SCREEN_WIDTH]}
+          activeOffsetY={[-2, 2]}
           onGestureEvent={onPanGestureEvent}
           simultaneousHandlers={tapHandler}>
           <Reanimated.View style={styles.flex}>

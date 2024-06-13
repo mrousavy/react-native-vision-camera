@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import type { ImageLoadEventData, NativeSyntheticEvent } from 'react-native'
 import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform, Image } from 'react-native'
-import type { LoadError, OnLoadData } from 'react-native-video'
+import type { OnVideoErrorData, OnLoadData } from 'react-native-video'
 import Video from 'react-native-video'
 import { SAFE_AREA_PADDING } from './Constants'
 import { useIsForeground } from './hooks/useIsForeground'
@@ -54,7 +54,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
     console.log('media has loaded.')
     setHasMediaLoaded(true)
   }, [])
-  const onMediaLoadError = useCallback((error: LoadError) => {
+  const onMediaLoadError = useCallback((error: OnVideoErrorData) => {
     console.log(`failed to load media: ${JSON.stringify(error)}`)
   }, [])
 
