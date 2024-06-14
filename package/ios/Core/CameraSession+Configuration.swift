@@ -296,6 +296,14 @@ extension CameraSession {
         try device.setTorchModeOn(level: 1.0)
       }
     }
+
+    // Configure Auto-Focus
+    if device.isFocusModeSupported(.continuousAutoFocus) {
+      device.focusMode = .continuousAutoFocus
+    }
+    if device.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {
+      device.whiteBalanceMode = .continuousAutoWhiteBalance
+    }
   }
 
   // pragma MARK: Zoom
