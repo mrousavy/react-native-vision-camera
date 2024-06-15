@@ -3,7 +3,6 @@ package com.mrousavy.camera.core
 import android.annotation.SuppressLint
 import android.util.Log
 import android.util.Range
-import android.util.Size
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
