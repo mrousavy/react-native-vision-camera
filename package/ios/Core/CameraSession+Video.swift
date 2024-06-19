@@ -121,7 +121,7 @@ extension CameraSession {
 
         // Init Video
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
-        try recordingSession.initializeVideoTrack(withSettings: videoSettings)
+        try recordingSession.initializeVideoTrack(withSettings: videoSettings, fps: self.configuration?.fps)
 
         // start recording session with or without audio.
         try recordingSession.start()

@@ -97,7 +97,7 @@ class RecordingSession {
   /**
    Initializes the video track.
    */
-  func initializeVideoTrack(withSettings settings: [String: Any]) throws {
+  func initializeVideoTrack(withSettings settings: [String: Any], fps: Int32?) throws {
     guard !settings.isEmpty else {
       throw CameraError.capture(.createRecorderError(message: "Tried to initialize Video Track with empty options!"))
     }
@@ -112,6 +112,10 @@ class RecordingSession {
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = videoOrientation.affineTransform
+    if let fps = fps {
+      videoWriter.mediaTimeScale = fps
+      assetWriter.movieTimeScale = fps
+    }
     assetWriter.add(videoWriter)
     videoTrack = Track(ofType: .video, withAssetWriterInput: videoWriter, andClock: clock)
     VisionLogger.log(level: .info, message: "Initialized Video AssetWriter.")
