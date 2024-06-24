@@ -2,18 +2,19 @@ package com.mrousavy.camera.core.types
 
 enum class OutputOrientation(override val unionValue: String) : JSUnionValue {
   DEVICE("device"),
-  PREVIEW("preview"),
-  PORTRAIT("portrait"),
-  LANDSCAPE_RIGHT("landscape-right"),
-  PORTRAIT_UPSIDE_DOWN("portrait-upside-down"),
   LANDSCAPE_LEFT("landscape-left");
+  LANDSCAPE_RIGHT("landscape-right"),
+  PORTRAIT("portrait"),
+  PORTRAIT_UPSIDE_DOWN("portrait-upside-down"),
+  PREVIEW("preview"),
 
   val lockedOrientation: Orientation?
     get() {
       return when (this) {
+        LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
+        LANDSCAPE_RIGHT -> Orientation.LANDSCAPE_RIGHT
         PORTRAIT -> Orientation.PORTRAIT
         PORTRAIT_UPSIDE_DOWN -> Orientation.PORTRAIT_UPSIDE_DOWN
-        LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
         else -> null
       }
     }
@@ -22,11 +23,11 @@ enum class OutputOrientation(override val unionValue: String) : JSUnionValue {
     override fun fromUnionValue(unionValue: String?): OutputOrientation =
       when (unionValue) {
         "device" -> DEVICE
-        "preview" -> PREVIEW
-        "portrait" -> PORTRAIT
-        "landscape-right" -> LANDSCAPE_RIGHT
-        "portrait-upside-down" -> PORTRAIT_UPSIDE_DOWN
         "landscape-left" -> LANDSCAPE_LEFT
+        "landscape-right" -> LANDSCAPE_RIGHT
+        "portrait" -> PORTRAIT
+        "portrait-upside-down" -> PORTRAIT_UPSIDE_DOWN
+        "preview" -> PREVIEW
         else -> PORTRAIT
       }
   }
