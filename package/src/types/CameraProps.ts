@@ -385,6 +385,7 @@ export interface CameraProps extends ViewProps {
    * })
    *
    * return <Camera {...props} codeScanner={codeScanner} />
+   * ```
    */
   codeScanner?: CodeScanner
   //#endregion
