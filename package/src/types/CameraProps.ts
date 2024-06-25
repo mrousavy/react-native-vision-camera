@@ -281,10 +281,6 @@ export interface CameraProps extends ViewProps {
    *
    * - `'preview'`: Use the same orientation as the preview view. If the device rotation is locked, the user cannot take photos or videos in different orientations.
    * - `'device'`: Use whatever orientation the device is held in, even if the preview view is not rotated to that orientation. If the device rotation is locked, the user can still rotate his phone to take photos or videos in different orientations than the preview view.
-   * - `'portrait'`: Force-rotate to **0°** (home-button at the bottom)
-   * - `'landscape-left'`: Force-rotate to **90°** (home-button on the left)
-   * - `'portrait-upside-down'`: Force-rotate to **180°** (home-button at the top)
-   * - `'landscape-right'`: Force-rotate to **270°** (home-button on the right)
    *
    * @note Preview orientation will not be affected by this property, as it is always dependant on screen orientation
    * @note Frame Processors will not be affected by this property, as their buffer size (respective to {@linkcode Frame.orientation}) is always the same
