@@ -27,7 +27,5 @@ echo "pod setup"
 pod setup
 echo "yarn"
 yarn
-echo "bundle install"
-bundle install
 echo "pod install"
-bundle exec pod install
+pod install

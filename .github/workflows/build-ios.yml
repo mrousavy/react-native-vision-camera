@@ -59,7 +59,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-with-fps-pods-
       - name: Install Pods
-        run: bundle exec pod install
+        run: pod install
       - name: Install xcpretty
         run: gem install xcpretty
       - name: Build App
@@ -118,7 +118,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-without-fps-pods-
       - name: Install Pods
-        run: bundle exec pod install
+        run: pod install
       - name: Install xcpretty
         run: gem install xcpretty
       - name: Build App
