@@ -17,12 +17,8 @@ echo "rm -rf ios/Podfile.lock"
 rm -rf Podfile.lock
 echo "pod deintegrate"
 pod deintegrate
-echo "bundle clean"
-bundle clean --force
 
-echo "bundle install"
-bundle install
 echo "pod setup"
-bundle exec pod setup
+pod setup
 echo "pod install"
-bundle exec pod install
+pod install
