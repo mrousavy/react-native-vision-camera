@@ -272,9 +272,15 @@ extension CameraSession {
 
     // Configure auto-focus
     if device.isFocusModeSupported(.continuousAutoFocus) {
+      if device.isFocusPointOfInterestSupported {
+        device.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5)
+      }
       device.focusMode = .continuousAutoFocus
     }
     if device.isExposureModeSupported(.continuousAutoExposure) {
+      if device.isExposurePointOfInterestSupported {
+        device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+      }
       device.exposureMode = .continuousAutoExposure
     }
   }
