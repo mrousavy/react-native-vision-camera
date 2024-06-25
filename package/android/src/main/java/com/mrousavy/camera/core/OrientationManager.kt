@@ -75,13 +75,13 @@ class OrientationManager(private val context: Context, private val callback: Cal
     displayManager.unregisterDisplayListener(displayListener)
     orientationListener.disable()
 
-
     when (targetOrientation) {
       OutputOrientation.DEVICE -> {
         Log.i(TAG, "Starting streaming device and screen orientation updates...")
         orientationListener.enable()
         displayManager.registerDisplayListener(displayListener, null)
       }
+
       OutputOrientation.PREVIEW -> {
         Log.i(TAG, "Starting streaming device and screen orientation updates...")
         displayManager.registerDisplayListener(displayListener, null)
