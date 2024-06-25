@@ -4,8 +4,7 @@ import android.util.Size
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import kotlin.math.abs
 
-private fun difference(left: Size, right: Size): Int =
-  abs(left.width * left.height - right.width * right.height) + abs(left.width - right.width) + abs(left.height - right.height)
+private fun difference(left: Size, right: Size): Int = abs(left.width - right.width) + abs(left.height - right.height)
 
 /**
  * Gets a [ResolutionSelector] that finds a resolution closest to the given target size.
