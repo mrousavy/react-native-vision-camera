@@ -14,7 +14,7 @@ enum class OutputOrientation(override val unionValue: String) : JSUnionValue {
         PORTRAIT -> Orientation.PORTRAIT
         LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
         PORTRAIT_UPSIDE_DOWN -> Orientation.PORTRAIT_UPSIDE_DOWN
-        LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
+        LANDSCAPE_RIGHT -> Orientation.LANDSCAPE_RIGHT
         else -> null
       }
     }
