@@ -82,11 +82,10 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         preview.setTargetFrameRate(fpsRange)
       }
 
-      val targetPreviewAspectRatio = configuration.targetPreviewAspectRatio
-      if (targetPreviewAspectRatio != null) {
-        Log.i(CameraSession.TAG, "Preview aspect ratio: $targetPreviewAspectRatio")
+      if (format != null) {
+        // Similar to iOS, Preview will follow video size as it's size (and aspect ratio)
         val previewResolutionSelector = ResolutionSelector.Builder()
-          .forAspectRatio(targetPreviewAspectRatio)
+          .forSize(format.videoSize)
           .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
           .build()
         preview.setResolutionSelector(previewResolutionSelector)
