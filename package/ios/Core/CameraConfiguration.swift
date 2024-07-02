@@ -162,21 +162,21 @@ class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
+    var isMirrored = false
     var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
-    var isMirrored = false
   }
 
   /**
    A Video Output configuration
    */
   struct Video: Equatable {
+    var isMirrored = false
     var pixelFormat: PixelFormat = .yuv
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
-    var isMirrored = false
   }
 
   /**

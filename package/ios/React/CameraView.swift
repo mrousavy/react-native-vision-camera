@@ -195,21 +195,21 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
       // Photo
       if photo {
-        config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
+        config.photo = .enabled(config: CameraConfiguration.Photo(isMirrored: isMirrored,
+                                                                  qualityBalance: getPhotoQualityBalance(),
                                                                   enableDepthData: enableDepthData,
-                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery,
-                                                                  isMirrored: isMirrored))
+                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
       } else {
         config.photo = .disabled
       }
 
       // Video/Frame Processor
       if video || enableFrameProcessor {
-        config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
+        config.video = .enabled(config: CameraConfiguration.Video(isMirrored: isMirrored,
+                                                                  pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: videoHdr,
-                                                                  enableFrameProcessor: enableFrameProcessor,
-                                                                  isMirrored: isMirrored))
+                                                                  enableFrameProcessor: enableFrameProcessor))
       } else {
         config.video = .disabled
       }
