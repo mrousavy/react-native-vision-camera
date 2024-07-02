@@ -34,26 +34,41 @@ final class OrientationManager {
   private var lastOutputOrientation: Orientation?
 
   // Orientation listener
-  weak var delegate: OrientationManagerDelegate?
+  weak var delegate: OrientationManagerDelegate? {
+    didSet {
+      lastPreviewOrientation = nil
+      lastOutputOrientation = nil
+      maybeUpdateOrientations()
+    }
+  }
 
   // The orientation of the physical camera sensor
-  private var sensorOrientation: Orientation = DEFAULT_SENSOR_ORIENTATION {
+  private var sensorOrientation: Orientation {
     didSet {
-      maybeUpdateOrientations()
+      if oldValue != sensorOrientation {
+        VisionLogger.log(level: .debug, message: "Sensor Orientation changed from \(oldValue) -> \(sensorOrientation)")
+        maybeUpdateOrientations()
+      }
     }
   }
 
   // The orientation of the device
   private var deviceOrientation: Orientation {
     didSet {
-      maybeUpdateOrientations()
+      if oldValue != deviceOrientation {
+        VisionLogger.log(level: .debug, message: "Device Orientation changed from \(oldValue) -> \(deviceOrientation)")
+        maybeUpdateOrientations()
+      }
     }
   }
 
   // The orientation of the gyro sensor/accelerometer
   private var gyroOrientation: Orientation {
     didSet {
-      maybeUpdateOrientations()
+      if oldValue != gyroOrientation {
+        VisionLogger.log(level: .debug, message: "Gyro Orientation changed from \(oldValue) -> \(gyroOrientation)")
+        maybeUpdateOrientations()
+      }
     }
   }
 
@@ -74,6 +89,7 @@ final class OrientationManager {
   init() {
     // Start listening to UI-orientation changes
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+    sensorOrientation = DEFAULT_SENSOR_ORIENTATION
     deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
     gyroOrientation = deviceOrientation
     NotificationCenter.default.addObserver(self,
