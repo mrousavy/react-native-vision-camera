@@ -82,9 +82,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
    Creates a PreviewView for the current Capture Session
    */
   func createPreviewView(frame: CGRect) -> PreviewView {
-    let previewView = PreviewView(frame: frame, session: captureSession)
-    orientationManager.setPreviewView(previewView)
-    return previewView
+    return PreviewView(frame: frame, session: captureSession)
   }
 
   func onConfigureError(_ error: Error) {

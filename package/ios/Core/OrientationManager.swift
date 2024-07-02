@@ -26,40 +26,56 @@ protocol OrientationManagerDelegate: AnyObject {
 final class OrientationManager {
   // Whether to use device gyro data, or just UI orientation
   private var targetOutputOrientation = OutputOrientation.device
-  // All orientations need to be relative to the sensor orientation
-  private var sensorOrientation: Orientation = DEFAULT_SENSOR_ORIENTATION
   // Gyro updates
   private let motionManager = CMMotionManager()
   private let operationQueue = OperationQueue()
+  // Last cached orientations
+  private var lastPreviewOrientation: Orientation?
+  private var lastOutputOrientation: Orientation?
 
   // Orientation listener
   weak var delegate: OrientationManagerDelegate?
 
+  // The orientation of the physical camera sensor
+  private var sensorOrientation: Orientation = DEFAULT_SENSOR_ORIENTATION {
+    didSet {
+      maybeUpdateOrientations()
+    }
+  }
+
+  // The orientation of the device
+  private var deviceOrientation: Orientation {
+    didSet {
+      maybeUpdateOrientations()
+    }
+  }
+
+  // The orientation of the gyro sensor/accelerometer
+  private var gyroOrientation: Orientation {
+    didSet {
+      maybeUpdateOrientations()
+    }
+  }
+
   /**
    The orientation of the preview view.
    */
-  var previewOrientation: Orientation = .portrait {
-    didSet {
-      if previewOrientation != oldValue {
-        delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
-      }
-    }
+  var previewOrientation: Orientation {
+    return sensorOrientation.relativeTo(orientation: deviceOrientation)
   }
 
   /**
    The orientation of all outputs (photo, video, ..)
    */
-  var outputOrientation: Orientation = .portrait {
-    didSet {
-      if outputOrientation != oldValue {
-        delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
-      }
-    }
+  var outputOrientation: Orientation {
+    return sensorOrientation.relativeTo(orientation: gyroOrientation)
   }
 
   init() {
     // Start listening to UI-orientation changes
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+    deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
+    gyroOrientation = deviceOrientation
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(onDeviceOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
@@ -78,8 +94,18 @@ final class OrientationManager {
 
   @objc
   func onDeviceOrientationChanged(notification _: NSNotification) {
-    let deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
-    previewOrientation = deviceOrientation.relativeTo(orientation: sensorOrientation)
+    deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
+  }
+
+  private func maybeUpdateOrientations() {
+    if previewOrientation != lastPreviewOrientation {
+      delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+      lastPreviewOrientation = previewOrientation
+    }
+    if outputOrientation != lastOutputOrientation {
+      delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+      lastOutputOrientation = outputOrientation
+    }
   }
 
   func setInputDevice(_ device: AVCaptureDevice) {
@@ -116,13 +142,11 @@ final class OrientationManager {
           return
         }
 
-        let orientation: Orientation
         if xNorm > yNorm {
-          orientation = acceleration.x > 0 ? .landscapeRight : .landscapeLeft
+          self.gyroOrientation = acceleration.x > 0 ? .landscapeRight : .landscapeLeft
         } else {
-          orientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
+          self.gyroOrientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
         }
-        self.outputOrientation = orientation.relativeTo(orientation: self.sensorOrientation)
       }
     }
   }
