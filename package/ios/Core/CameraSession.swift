@@ -34,7 +34,12 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var orientationManager = OrientationManager()
 
   // Callbacks
-  weak var delegate: CameraSessionDelegate?
+  weak var delegate: CameraSessionDelegate? {
+    didSet {
+      // OrientationManager events will be propagated up to CameraSession, so reset it's delegate
+      orientationManager.delegate = self
+    }
+  }
 
   // Public accessors
   var maxZoom: Double {
