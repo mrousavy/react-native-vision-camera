@@ -66,8 +66,6 @@ This means, even though the preview view and other views don't rotate to landsca
 - `"preview"`: Similar to `device`, the `preview` orientation mode will follow the phone's physical orientation, allowing the user to capture landscape photos and videos - but will always respect screen-rotation locks.
 This means that the user is not able to capture landscape photos or videos if the preview view and other views stay in portrait mode (e.g. if the screen-lock is on).
 
-- `"portrait"`, `"portrait-upside-down"`, `"landscape-left"`, `"landscape-right"`: All captured photos and videos will be locked to the given orientation mode.
-
 ### Listen to orientation changes
 
 Whenever the output orientation changes, the [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged) event will be called with the new output orientation. This is a good point to rotate the buttons to the desired output orientation now.

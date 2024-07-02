@@ -1,9 +1,7 @@
-import type { Orientation } from './Orientation'
-
 /**
  * Represents the orientation of the camera outputs.
  *
- * Output orientation can either be automatically calculated (`'device'` or `'preview'`),
- * or fixed to a specific orientation ({@linkcode Orientation}).
+ * Output orientation can either be fixed to whatever the Preview View's orientation is (`'preview'`),
+ * or rotate alongside the device even if the Preview View is locked (`'device'`).
  */
-export type OutputOrientation = 'device' | 'preview' | Orientation
+export type OutputOrientation = 'device' | 'preview'

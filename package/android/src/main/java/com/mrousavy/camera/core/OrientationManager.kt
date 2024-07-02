@@ -50,11 +50,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
     get() {
       return when (targetOutputOrientation) {
         OutputOrientation.DEVICE -> Orientation.fromSurfaceRotation(deviceRotation)
-        OutputOrientation.PREVIEW -> Orientation.fromSurfaceRotation(screenRotation)
-        OutputOrientation.PORTRAIT -> Orientation.PORTRAIT
-        OutputOrientation.LANDSCAPE_LEFT -> Orientation.LANDSCAPE_LEFT
-        OutputOrientation.PORTRAIT_UPSIDE_DOWN -> Orientation.PORTRAIT_UPSIDE_DOWN
-        OutputOrientation.LANDSCAPE_RIGHT -> Orientation.LANDSCAPE_RIGHT
+        OutputOrientation.PREVIEW -> previewOrientation
       }
     }
 
@@ -80,17 +76,15 @@ class OrientationManager(private val context: Context, private val callback: Cal
     orientationListener.disable()
 
     when (targetOrientation) {
-      OutputOrientation.DEVICE, OutputOrientation.PREVIEW -> {
+      OutputOrientation.DEVICE -> {
         Log.i(TAG, "Starting streaming device and screen orientation updates...")
         orientationListener.enable()
         displayManager.registerDisplayListener(displayListener, null)
       }
 
-      OutputOrientation.PORTRAIT,
-      OutputOrientation.LANDSCAPE_RIGHT,
-      OutputOrientation.PORTRAIT_UPSIDE_DOWN,
-      OutputOrientation.LANDSCAPE_LEFT -> {
-        Log.i(TAG, "Setting output orientation to $targetOrientation. (locked)")
+      OutputOrientation.PREVIEW -> {
+        Log.i(TAG, "Starting streaming device and screen orientation updates...")
+        displayManager.registerDisplayListener(displayListener, null)
       }
     }
   }
