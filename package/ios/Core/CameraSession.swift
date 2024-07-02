@@ -15,6 +15,7 @@ import Foundation
  */
 final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   // Configuration
+  private var isInitialized = false
   var configuration: CameraConfiguration?
   var currentConfigureCall: DispatchTime = .now()
   // Capture Session
@@ -34,12 +35,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var orientationManager = OrientationManager()
 
   // Callbacks
-  weak var delegate: CameraSessionDelegate? {
-    didSet {
-      // OrientationManager events will be propagated up to CameraSession, so reset it's delegate
-      orientationManager.delegate = self
-    }
-  }
+  weak var delegate: CameraSessionDelegate?
 
   // Public accessors
   var maxZoom: Double {
@@ -55,8 +51,6 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
    */
   override init() {
     super.init()
-
-    orientationManager.delegate = self
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
                                            name: .AVCaptureSessionRuntimeError,
@@ -69,6 +63,14 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
+  }
+
+  private func initialize() {
+    if isInitialized {
+      return
+    }
+    orientationManager.delegate = self
+    isInitialized = true
   }
 
   deinit {
@@ -107,6 +109,8 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
   func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void) {
+    initialize()
+
     VisionLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
