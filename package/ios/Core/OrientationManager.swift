@@ -117,26 +117,6 @@ final class OrientationManager {
                                               object: nil)
   }
 
-  @objc
-  func onDeviceOrientationChanged(notification _: NSNotification) {
-    // Whenever the UIDevice orientation changes, we get the current interface orientation (UI).
-    // Interface orientation determines previewOrientation. This will not be called if rotation is locked in control center.
-    interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
-  }
-
-  private func maybeUpdateOrientations() {
-    if previewOrientation != lastPreviewOrientation {
-      // Preview Orientation changed!
-      delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
-      lastPreviewOrientation = previewOrientation
-    }
-    if outputOrientation != lastOutputOrientation {
-      // Output Orientation changed!
-      delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
-      lastOutputOrientation = outputOrientation
-    }
-  }
-
   func setInputDevice(_ device: AVCaptureDevice) {
     // All orientations here are relative to the device's native sensor orientation.
     sensorOrientation = device.sensorOrientation
@@ -154,6 +134,26 @@ final class OrientationManager {
     case .preview:
       // If we just want preview orientations, we don't need CMMotionManager and can stop it.
       stopDeviceOrientationListener()
+    }
+  }
+
+  @objc
+  private func onDeviceOrientationChanged(notification _: NSNotification) {
+    // Whenever the UIDevice orientation changes, we get the current interface orientation (UI).
+    // Interface orientation determines previewOrientation. This will not be called if rotation is locked in control center.
+    interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
+  }
+
+  private func maybeUpdateOrientations() {
+    if previewOrientation != lastPreviewOrientation {
+      // Preview Orientation changed!
+      delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
+      lastPreviewOrientation = previewOrientation
+    }
+    if outputOrientation != lastOutputOrientation {
+      // Output Orientation changed!
+      delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
+      lastOutputOrientation = outputOrientation
     }
   }
 
