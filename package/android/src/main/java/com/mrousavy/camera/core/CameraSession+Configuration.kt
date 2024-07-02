@@ -91,7 +91,7 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         preview.setResolutionSelector(previewResolutionSelector)
       }
     }.build()
-    preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+    preview.surfaceProvider = previewConfig.config.surfaceProvider
     previewOutput = preview
   } else {
     previewOutput = null
@@ -140,7 +140,11 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
 
     val video = VideoCapture.Builder(recorder).also { video ->
       // Configure Video Output
-      video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+      if (videoConfig.config.isMirrored) {
+        video.setMirrorMode(MirrorMode.MIRROR_MODE_ON)
+      } else {
+        video.setMirrorMode(MirrorMode.MIRROR_MODE_OFF)
+      }
       if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.STANDARD)) {
         assertFormatRequirement("videoStabilizationMode", format, InvalidVideoStabilizationMode(configuration.videoStabilizationMode)) {
           it.videoStabilizationModes.contains(configuration.videoStabilizationMode)

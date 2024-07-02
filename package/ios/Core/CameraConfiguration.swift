@@ -165,6 +165,7 @@ class CameraConfiguration {
     var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
+    var isMirrored = false
   }
 
   /**
@@ -175,6 +176,7 @@ class CameraConfiguration {
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
+    var isMirrored = false
   }
 
   /**

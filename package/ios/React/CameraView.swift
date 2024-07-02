@@ -28,6 +28,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var enableDepthData = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
+  @objc var isMirrored = false
 
   // use cases
   @objc var photo = false
@@ -196,7 +197,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       if photo {
         config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
                                                                   enableDepthData: enableDepthData,
-                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
+                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery,
+                                                                  isMirrored: isMirrored))
       } else {
         config.photo = .disabled
       }
@@ -206,7 +208,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: videoHdr,
-                                                                  enableFrameProcessor: enableFrameProcessor))
+                                                                  enableFrameProcessor: enableFrameProcessor,
+                                                                  isMirrored: isMirrored))
       } else {
         config.video = .disabled
       }

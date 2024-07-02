@@ -55,6 +55,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.cameraId = cameraId
   }
 
+  @ReactProp(name = "isMirrored")
+  fun setIsMirrored(view: CameraView, isMirrored: Boolean) {
+    view.isMirrored = isMirrored
+  }
+
   @ReactProp(name = "preview", defaultBoolean = true)
   fun setPreview(view: CameraView, preview: Boolean) {
     view.preview = preview

@@ -45,11 +45,27 @@ data class CameraConfiguration(
 ) {
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
-  data class Photo(val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
-  data class Video(val enableHdr: Boolean)
-  data class FrameProcessor(val pixelFormat: PixelFormat)
+  data class Photo(val isMirrored: Boolean, val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
+  data class Video(val isMirrored: Boolean, val enableHdr: Boolean)
+  data class FrameProcessor(val isMirrored: Boolean, val pixelFormat: PixelFormat)
   data class Audio(val nothing: Unit)
   data class Preview(val surfaceProvider: SurfaceProvider)
+
+  val targetPreviewAspectRatio: Float?
+    get() {
+      val format = format ?: return null
+      val video = video as? Output.Enabled<Video>
+      val photo = photo as? Output.Enabled<Photo>
+      return if (video != null) {
+        // Video capture is enabled, use video aspect ratio
+        format.videoWidth.toFloat() / format.videoHeight.toFloat()
+      } else if (photo != null) {
+        // Photo capture is enabled, use photo aspect ratio
+        format.photoWidth.toFloat() / format.photoHeight.toFloat()
+      } else {
+        null
+      }
+    }
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {

@@ -630,6 +630,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
     const isRenderingWithSkia = isSkiaFrameProcessor(frameProcessor)
+    const shouldBeMirrored = device.position === 'front'
 
     return (
       <NativeCameraView
@@ -637,6 +638,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         cameraId={device.id}
         ref={this.ref}
         torch={torch}
+        isMirrored={props.isMirrored ?? shouldBeMirrored}
         onViewReady={this.onViewReady}
         onAverageFpsChanged={enableFpsGraph ? this.onAverageFpsChanged : undefined}
         onInitialized={this.onInitialized}
