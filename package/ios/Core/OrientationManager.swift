@@ -52,7 +52,17 @@ final class OrientationManager {
     }
   }
 
-  // The orientation of the device
+  // The orientation of the UI
+  private var interfaceOrientation: Orientation {
+    didSet {
+      if oldValue != interfaceOrientation {
+        VisionLogger.log(level: .debug, message: "Interface Orientation changed from \(oldValue) -> \(interfaceOrientation)")
+        maybeUpdateOrientations()
+      }
+    }
+  }
+
+  // The orientation of the physical device's gyro sensor/accelerometer
   private var deviceOrientation: Orientation {
     didSet {
       if oldValue != deviceOrientation {
@@ -62,36 +72,26 @@ final class OrientationManager {
     }
   }
 
-  // The orientation of the gyro sensor/accelerometer
-  private var gyroOrientation: Orientation {
-    didSet {
-      if oldValue != gyroOrientation {
-        VisionLogger.log(level: .debug, message: "Gyro Orientation changed from \(oldValue) -> \(gyroOrientation)")
-        maybeUpdateOrientations()
-      }
-    }
-  }
-
   /**
    The orientation of the preview view.
    */
   var previewOrientation: Orientation {
-    return sensorOrientation.relativeTo(orientation: deviceOrientation)
+    return sensorOrientation.relativeTo(orientation: interfaceOrientation)
   }
 
   /**
    The orientation of all outputs (photo, video, ..)
    */
   var outputOrientation: Orientation {
-    return sensorOrientation.relativeTo(orientation: gyroOrientation)
+    return sensorOrientation.relativeTo(orientation: deviceOrientation)
   }
 
   init() {
     // Start listening to UI-orientation changes
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-    sensorOrientation = DEFAULT_SENSOR_ORIENTATION
-    deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
-    gyroOrientation = deviceOrientation
+    sensorOrientation = .portrait
+    interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
+    deviceOrientation = interfaceOrientation
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(onDeviceOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
@@ -110,7 +110,7 @@ final class OrientationManager {
 
   @objc
   func onDeviceOrientationChanged(notification _: NSNotification) {
-    deviceOrientation = Orientation(deviceOrientation: UIDevice.current.orientation)
+    interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
   }
 
   private func maybeUpdateOrientations() {
@@ -159,9 +159,9 @@ final class OrientationManager {
         }
 
         if xNorm > yNorm {
-          self.gyroOrientation = acceleration.x > 0 ? .landscapeRight : .landscapeLeft
+          self.deviceOrientation = acceleration.x > 0 ? .landscapeRight : .landscapeLeft
         } else {
-          self.gyroOrientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
+          self.deviceOrientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
         }
       }
     }
