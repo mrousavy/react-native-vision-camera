@@ -96,15 +96,7 @@ final class OrientationManager {
    The orientation of the preview view.
    */
   var previewOrientation: Orientation {
-    var orientation = sensorOrientation.relativeTo(orientation: interfaceOrientation)
-    if isPreviewMirrored && orientation.isPortrait {
-      // If the preview view is mirrored and we have a portrait based orientation,
-      // mirroring will actually happen on the wrong axis.
-      // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
-      // so the image is displayed upright.
-      orientation = orientation.flipped()
-    }
-    return orientation
+    return sensorOrientation.relativeTo(orientation: interfaceOrientation)
   }
 
   /**
@@ -115,15 +107,7 @@ final class OrientationManager {
       return previewOrientation
     }
 
-    var orientation = sensorOrientation.relativeTo(orientation: deviceOrientation)
-    if isOutputMirrored && orientation.isPortrait {
-      // If the output is mirrored and we have a portrait based orientation,
-      // mirroring will actually happen on the wrong axis.
-      // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
-      // so the image is displayed upright.
-      orientation = orientation.flipped()
-    }
-    return orientation
+    return sensorOrientation.relativeTo(orientation: deviceOrientation)
   }
 
   init() {

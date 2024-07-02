@@ -111,8 +111,12 @@ extension CameraSession {
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
       if configuration.isMirrored {
+        // 2.1. If mirroring is enabled, mirror all connections along the vertical axis
         videoOutput.isMirrored = true
-        videoOutput.orientation = videoOutput.orientation.flipped()
+        if videoOutput.orientation.isPortrait {
+          // 2.2. If we have a portrait orientation, we need to flip it upside down so it is mirrored on horizontal axis as well
+          videoOutput.orientation = videoOutput.orientation.flipped()
+        }
       }
 
       self.videoOutput = videoOutput

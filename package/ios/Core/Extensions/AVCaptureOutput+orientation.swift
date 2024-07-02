@@ -15,7 +15,7 @@ extension AVCaptureOutput {
   var orientation: Orientation {
     get {
       guard let connection = connections.first else {
-        return .portrait
+        fatalError("AVCaptureOutput needs to be connected before accessing .connection!")
       }
       return connection.orientation
     }

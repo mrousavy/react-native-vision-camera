@@ -24,15 +24,6 @@ extension CameraSession: OrientationManagerDelegate {
    */
   var videoFileOrientation: Orientation {
     var orientation = outputOrientation
-    if let videoOutput {
-      if videoOutput.isMirrored && orientation.isPortrait {
-        // If the output is mirrored and we have a portrait based orientation,
-        // mirroring will actually happen on the wrong axis.
-        // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
-        // so the image is displayed upright.
-        orientation = orientation.flipped()
-      }
-    }
     return orientation
   }
 
@@ -60,7 +51,14 @@ extension CameraSession: OrientationManagerDelegate {
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
     for connection in previewConnections {
-      connection.orientation = previewOrientation
+      if connection.isVideoMirrored && previewOrientation.isPortrait {
+        // If this connection uses video mirroring, it flips frames alongside the vertical axis.
+        // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
+        VisionLogger.log(level: .info, message: "Flipping Preview orientation \(previewOrientation) to mirror it...")
+        connection.orientation = previewOrientation.flipped()
+      } else {
+        connection.orientation = previewOrientation
+      }
     }
   }
 
@@ -76,7 +74,14 @@ extension CameraSession: OrientationManagerDelegate {
     for output in rotateableOutputs {
       // set orientation for all connections
       for connection in output.connections {
-        connection.orientation = outputOrientation
+        if connection.isVideoMirrored && outputOrientation.isPortrait {
+          // If this connection uses video mirroring, it flips frames alongside the vertical axis.
+          // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
+          VisionLogger.log(level: .info, message: "Flipping Output orientation \(outputOrientation) to mirror it...")
+          connection.orientation = outputOrientation.flipped()
+        } else {
+          connection.orientation = outputOrientation
+        }
       }
     }
   }
