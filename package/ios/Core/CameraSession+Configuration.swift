@@ -153,7 +153,6 @@ extension CameraSession {
     }
 
     // Re-initialize Orientations
-    orientationManager.isOutputMirrored = configuration.isMirrored
     configurePreviewOrientation(orientationManager.previewOrientation)
     configureOutputOrientation(orientationManager.outputOrientation)
 

@@ -22,6 +22,9 @@ protocol OrientationManagerDelegate: AnyObject {
 /**
  Provides Orientation updates to the consumer.
  The orientation updates are only pushed as long as a [delegate] is set.
+
+ All orientation values are relative to the given input device's native sensor orientation.
+ Whenever the input device changes, make sure to update it using [setInputDevice].
  */
 final class OrientationManager {
   // Whether to use device gyro data, or just UI orientation
@@ -47,26 +50,6 @@ final class OrientationManager {
     didSet {
       if oldValue != sensorOrientation {
         VisionLogger.log(level: .debug, message: "Sensor Orientation changed from \(oldValue) -> \(sensorOrientation)")
-        maybeUpdateOrientations()
-      }
-    }
-  }
-
-  // Whether the output streams are mirrored
-  var isOutputMirrored = false {
-    didSet {
-      if oldValue != isOutputMirrored {
-        VisionLogger.log(level: .debug, message: "Output mirroring changed from \(oldValue) -> \(isOutputMirrored)")
-        maybeUpdateOrientations()
-      }
-    }
-  }
-
-  // Whether the preview stream is mirrored
-  private var isPreviewMirrored = false {
-    didSet {
-      if oldValue != isPreviewMirrored {
-        VisionLogger.log(level: .debug, message: "Preview mirroring changed from \(oldValue) -> \(isPreviewMirrored)")
         maybeUpdateOrientations()
       }
     }
@@ -111,11 +94,13 @@ final class OrientationManager {
   }
 
   init() {
-    // Start listening to UI-orientation changes
-    UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+    // Default values for Orientation
     sensorOrientation = DEFAULT_SENSOR_ORIENTATION
     interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
     deviceOrientation = interfaceOrientation
+
+    // Start listening to UI-orientation changes
+    UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(onDeviceOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
@@ -134,33 +119,40 @@ final class OrientationManager {
 
   @objc
   func onDeviceOrientationChanged(notification _: NSNotification) {
+    // Whenever the UIDevice orientation changes, we get the current interface orientation (UI).
+    // Interface orientation determines previewOrientation. This will not be called if rotation is locked in control center.
     interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
   }
 
   private func maybeUpdateOrientations() {
     if previewOrientation != lastPreviewOrientation {
+      // Preview Orientation changed!
       delegate?.onPreviewOrientationChanged(previewOrientation: previewOrientation)
       lastPreviewOrientation = previewOrientation
     }
     if outputOrientation != lastOutputOrientation {
+      // Output Orientation changed!
       delegate?.onOutputOrientationChanged(outputOrientation: outputOrientation)
       lastOutputOrientation = outputOrientation
     }
   }
 
   func setInputDevice(_ device: AVCaptureDevice) {
+    // All orientations here are relative to the device's native sensor orientation.
     sensorOrientation = device.sensorOrientation
-    isPreviewMirrored = device.position == .front
   }
 
   func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {
     VisionLogger.log(level: .info, message: "Setting target output orientation from \(targetOutputOrientation) to \(targetOrientation)...")
     targetOutputOrientation = targetOrientation
-    // update delegate listener
+    maybeUpdateOrientations()
+
     switch targetOrientation {
     case .device:
+      // If we want device orientations, we start streaming using CMMotionManager.
       startDeviceOrientationListener()
     case .preview:
+      // If we just want preview orientations, we don't need CMMotionManager and can stop it.
       stopDeviceOrientationListener()
     }
   }
