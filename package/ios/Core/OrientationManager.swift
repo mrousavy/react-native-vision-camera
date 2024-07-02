@@ -51,6 +51,26 @@ final class OrientationManager {
       }
     }
   }
+  
+  // Whether the output streams are mirrored
+  var isOutputMirrored: Bool = false {
+    didSet {
+      if oldValue != isOutputMirrored {
+        VisionLogger.log(level: .debug, message: "Output mirroring changed from \(oldValue) -> \(isOutputMirrored)")
+        maybeUpdateOrientations()
+      }
+    }
+  }
+  
+  // Whether the preview stream is mirrored
+  private var isPreviewMirrored: Bool = false {
+    didSet {
+      if oldValue != isPreviewMirrored {
+        VisionLogger.log(level: .debug, message: "Preview mirroring changed from \(oldValue) -> \(isPreviewMirrored)")
+        maybeUpdateOrientations()
+      }
+    }
+  }
 
   // The orientation of the UI
   private var interfaceOrientation: Orientation {
@@ -76,20 +96,36 @@ final class OrientationManager {
    The orientation of the preview view.
    */
   var previewOrientation: Orientation {
-    return sensorOrientation.relativeTo(orientation: interfaceOrientation)
+    var orientation = sensorOrientation.relativeTo(orientation: interfaceOrientation)
+    if isPreviewMirrored && orientation.isLandscape {
+      // If the preview view is mirrored and we have a landscape based orientation,
+      // mirroring will actually happen on the wrong axis.
+      // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
+      // so the image is displayed upright.
+      orientation = orientation.flipped()
+    }
+    return orientation
   }
 
   /**
    The orientation of all outputs (photo, video, ..)
    */
   var outputOrientation: Orientation {
-    return sensorOrientation.relativeTo(orientation: deviceOrientation)
+    var orientation = sensorOrientation.relativeTo(orientation: deviceOrientation)
+    if isOutputMirrored && orientation.isLandscape {
+      // If the preview view is mirrored and we have a landscape based orientation,
+      // mirroring will actually happen on the wrong axis.
+      // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
+      // so the image is displayed upright.
+      orientation = orientation.flipped()
+    }
+    return orientation
   }
 
   init() {
     // Start listening to UI-orientation changes
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-    sensorOrientation = .portrait
+    sensorOrientation = DEFAULT_SENSOR_ORIENTATION
     interfaceOrientation = Orientation(interfaceOrientation: UIApplication.shared.interfaceOrientation)
     deviceOrientation = interfaceOrientation
     NotificationCenter.default.addObserver(self,
@@ -126,6 +162,7 @@ final class OrientationManager {
 
   func setInputDevice(_ device: AVCaptureDevice) {
     sensorOrientation = device.sensorOrientation
+    isPreviewMirrored = device.position == .front
   }
 
   func setTargetOutputOrientation(_ targetOrientation: OutputOrientation) {

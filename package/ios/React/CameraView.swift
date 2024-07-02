@@ -192,11 +192,11 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
       // Input Camera Device
       config.cameraId = cameraId as? String
+      config.isMirrored = isMirrored
 
       // Photo
       if photo {
-        config.photo = .enabled(config: CameraConfiguration.Photo(isMirrored: isMirrored,
-                                                                  qualityBalance: getPhotoQualityBalance(),
+        config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
                                                                   enableDepthData: enableDepthData,
                                                                   enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
       } else {
@@ -205,8 +205,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
       // Video/Frame Processor
       if video || enableFrameProcessor {
-        config.video = .enabled(config: CameraConfiguration.Video(isMirrored: isMirrored,
-                                                                  pixelFormat: getPixelFormat(),
+        config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: videoHdr,
                                                                   enableFrameProcessor: enableFrameProcessor))

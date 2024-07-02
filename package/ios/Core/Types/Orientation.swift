@@ -87,11 +87,11 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
-      self = .landscapeRight
+      self = .landscapeLeft
     case .portraitUpsideDown:
       self = .portraitUpsideDown
     case .landscapeLeft:
-      self = .landscapeLeft
+      self = .landscapeRight
     default:
       self = .portrait
     }

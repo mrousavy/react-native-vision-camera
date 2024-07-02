@@ -47,7 +47,7 @@ extension CameraSession: OrientationManagerDelegate {
    */
   func configurePreviewOrientation(_ previewOrientation: Orientation) {
     guard #available(iOS 13.0, *) else {
-      // .videoPreviewLayer is only available on iOS 13+.
+      // .connections is only available on iOS 13+.
       return
     }
 

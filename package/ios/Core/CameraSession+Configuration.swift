@@ -89,7 +89,7 @@ extension CameraSession {
       if photoOutput.isPortraitEffectsMatteDeliverySupported {
         photoOutput.isPortraitEffectsMatteDeliveryEnabled = photo.enablePortraitEffectsMatte
       }
-      photoOutput.isMirrored = photo.isMirrored
+      photoOutput.isMirrored = configuration.isMirrored
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
 
@@ -97,7 +97,7 @@ extension CameraSession {
     }
 
     // Video Output + Frame Processor
-    if case let .enabled(video) = configuration.video {
+    if case .enabled = configuration.video {
       VisionLogger.log(level: .info, message: "Adding Video Data output...")
 
       // 1. Add
@@ -110,7 +110,7 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
-      if video.isMirrored {
+      if configuration.isMirrored {
         videoOutput.isMirrored = true
         videoOutput.orientation = videoOutput.orientation.flipped()
       }
@@ -148,6 +148,7 @@ extension CameraSession {
     }
 
     // Re-initialize Orientations
+    orientationManager.isOutputMirrored = configuration.isMirrored
     configurePreviewOrientation(orientationManager.previewOrientation)
     configureOutputOrientation(orientationManager.outputOrientation)
 
