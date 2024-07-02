@@ -119,7 +119,8 @@ final class CameraConfiguration {
       // cameraId
       inputChanged = left?.cameraId != right.cameraId
       // photo, video, codeScanner
-      outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner || left?.isMirrored != right.isMirrored
+      outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video
+        || left?.codeScanner != right.codeScanner || left?.isMirrored != right.isMirrored
       // videoStabilizationMode
       videoStabilizationChanged = outputsChanged || left?.videoStabilizationMode != right.videoStabilizationMode
       // orientation

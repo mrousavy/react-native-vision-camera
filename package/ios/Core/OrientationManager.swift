@@ -51,9 +51,9 @@ final class OrientationManager {
       }
     }
   }
-  
+
   // Whether the output streams are mirrored
-  var isOutputMirrored: Bool = false {
+  var isOutputMirrored = false {
     didSet {
       if oldValue != isOutputMirrored {
         VisionLogger.log(level: .debug, message: "Output mirroring changed from \(oldValue) -> \(isOutputMirrored)")
@@ -61,9 +61,9 @@ final class OrientationManager {
       }
     }
   }
-  
+
   // Whether the preview stream is mirrored
-  private var isPreviewMirrored: Bool = false {
+  private var isPreviewMirrored = false {
     didSet {
       if oldValue != isPreviewMirrored {
         VisionLogger.log(level: .debug, message: "Preview mirroring changed from \(oldValue) -> \(isPreviewMirrored)")

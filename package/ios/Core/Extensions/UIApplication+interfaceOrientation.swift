@@ -11,13 +11,13 @@ import UIKit
 extension UIApplication {
   private var windowScene: UIWindowScene? {
     // Get all active scenes
-    let activeScenes = self.connectedScenes.filter { $0.activationState == .foregroundActive }
+    let activeScenes = connectedScenes.filter { $0.activationState == .foregroundActive }
     // Get the UIWindowScene
     let windowScene = activeScenes.first(where: { $0 is UIWindowScene })
     guard let windowScene = windowScene as? UIWindowScene else { return nil }
     return windowScene
   }
-  
+
   /**
    Get the interface orientation of the main window scene in the application.
    */

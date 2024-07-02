@@ -16,16 +16,8 @@ extension AVCaptureDevice {
    Get the natural orientation of the camera sensor of this specific device.
    */
   var sensorOrientation: Orientation {
-    if #available(iOS 17.0, *), deviceType == .external {
-      // For external Cameras, we try to get the sensorOrientation using RotationCoordinator
-      let rotationCoordinator = RotationCoordinator(device: self, previewLayer: nil)
-      let degrees = rotationCoordinator.videoRotationAngleForHorizonLevelCapture
-      return Orientation(degrees: degrees)
-    }
-    
-    // TODO: Wait for iOS to add an actual API to get native sensor orientation
-    
-    // For built-in Cameras, we just return the default hardcoded orientation
-    return .landscapeLeft
+    // TODO: There is no iOS API to get native sensor orientation. The new `RotationCoordinator` API is a blackbox.
+    //       Hopefully iOS adds an API to get sensor orientation soon so we can use that!
+    return DEFAULT_SENSOR_ORIENTATION
   }
 }
