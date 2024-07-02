@@ -116,6 +116,7 @@ extension CameraSession {
         if videoOutput.orientation.isPortrait {
           // 2.2. If we have a portrait orientation, we need to flip it upside down so it is mirrored on horizontal axis as well
           videoOutput.orientation = videoOutput.orientation.flipped()
+          VisionLogger.log(level: .info, message: "AVCaptureVideoDataOutput will rotate Frames to \(videoOutput.orientation)...")
         }
       }
 

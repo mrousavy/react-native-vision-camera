@@ -17,16 +17,6 @@ extension CameraSession: OrientationManagerDelegate {
     return orientationManager.outputOrientation
   }
 
-  /**
-   Gets the output orientation of the video file that will be recorded into.
-   The resulting output orientation is flipped by 180° if the input stream is mirrored and 90° or 270° rotated to mimic a mirroring effect.
-   This assumes that mirroring and 180° counter-rotation is also configured on the input stream, see CameraSession+Configuration.
-   */
-  var videoFileOrientation: Orientation {
-    var orientation = outputOrientation
-    return orientation
-  }
-
   func onPreviewOrientationChanged(previewOrientation: Orientation) {
     configurePreviewOrientation(previewOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation)
