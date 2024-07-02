@@ -13,7 +13,7 @@ import Foundation
  A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
  All changes to the session have to be controlled via the `configure` function.
  */
-class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   // Configuration
   var configuration: CameraConfiguration?
   var currentConfigureCall: DispatchTime = .now()

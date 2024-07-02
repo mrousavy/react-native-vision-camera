@@ -288,6 +288,15 @@ export interface CameraProps extends ViewProps {
    * @default 'device'
    */
   outputOrientation?: OutputOrientation
+  /**
+   * Enables or disables mirroring of outputs alongside the vertical axis.
+   *
+   * Mirroring only affects the photo-, video-, or snapshot-output, but not preview.
+   * The Preview is always mirrored for front cameras, and not mirrored for back cameras.
+   *
+   * @default false (back camera), true (front camera)
+   */
+  isMirrored?: boolean
 
   //#region Events
   /**

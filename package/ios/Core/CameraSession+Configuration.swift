@@ -83,21 +83,21 @@ extension CameraSession {
         let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
+      if photoOutput.isDepthDataDeliverySupported {
+        photoOutput.isDepthDataDeliveryEnabled = photo.enableDepthData
+      }
+      if photoOutput.isPortraitEffectsMatteDeliverySupported {
+        photoOutput.isPortraitEffectsMatteDeliveryEnabled = photo.enablePortraitEffectsMatte
+      }
+      photoOutput.isMirrored = photo.isMirrored
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
-      if photo.enableDepthData {
-        photoOutput.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliverySupported
-      }
-      if #available(iOS 12.0, *), photo.enablePortraitEffectsMatte {
-        photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
-      }
-      photoOutput.isMirrored = isMirrored
 
       self.photoOutput = photoOutput
     }
 
     // Video Output + Frame Processor
-    if case .enabled = configuration.video {
+    if case let .enabled(video) = configuration.video {
       VisionLogger.log(level: .info, message: "Adding Video Data output...")
 
       // 1. Add
@@ -110,11 +110,9 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
-      if isMirrored {
-        // rotate by 180 deg and mirror the selfie camera so it behaves like the back camera.
-        // we later need to flip it alongside the horizontal axis when recording videos with it.
+      if video.isMirrored {
+        videoOutput.isMirrored = true
         videoOutput.orientation = videoOutput.orientation.flipped()
-        videoOutput.isMirrored = isMirrored
       }
 
       self.videoOutput = videoOutput

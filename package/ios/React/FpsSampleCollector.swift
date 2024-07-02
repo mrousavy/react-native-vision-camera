@@ -7,7 +7,7 @@
 
 import Foundation
 
-class FpsSampleCollector {
+final class FpsSampleCollector {
   private var timestamps: [UInt64] = []
   private var timer: Timer?
   weak var delegate: FpsSampleCollectorDelegate?

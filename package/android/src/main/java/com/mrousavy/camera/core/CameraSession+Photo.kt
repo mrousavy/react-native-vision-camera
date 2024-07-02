@@ -9,6 +9,8 @@ import com.mrousavy.camera.core.utils.FileUtils
 
 suspend fun CameraSession.takePhoto(flash: Flash, enableShutterSound: Boolean): Photo {
   val camera = camera ?: throw CameraNotReadyError()
+  val configuration = configuration ?: throw CameraNotReadyError()
+  val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo> ?: throw PhotoNotEnabledError()
   val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
   if (flash != Flash.OFF && !camera.cameraInfo.hasFlashUnit()) {
@@ -18,8 +20,15 @@ suspend fun CameraSession.takePhoto(flash: Flash, enableShutterSound: Boolean): 
   photoOutput.flashMode = flash.toFlashMode()
   val enableShutterSoundActual = getEnableShutterSoundActual(enableShutterSound)
 
-  val photoFile = photoOutput.takePicture(context, enableShutterSoundActual, metadataProvider, callback, CameraQueues.cameraExecutor)
-  val isMirrored = photoFile.metadata.isReversedHorizontal
+  val isMirrored = photoConfig.config.isMirrored
+  val photoFile = photoOutput.takePicture(
+    context,
+    isMirrored,
+    enableShutterSoundActual,
+    metadataProvider,
+    callback,
+    CameraQueues.cameraExecutor
+  )
 
   val size = FileUtils.getImageSize(photoFile.uri.path)
   val rotation = photoOutput.targetRotation

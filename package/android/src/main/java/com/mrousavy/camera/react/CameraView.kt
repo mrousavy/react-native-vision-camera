@@ -53,6 +53,7 @@ class CameraView(context: Context) :
   var cameraId: String? = null
   var enableDepthData = false
   var enablePortraitEffectsMatteDelivery = false
+  var isMirrored = false
 
   // use-cases
   var photo = false
@@ -171,21 +172,21 @@ class CameraView(context: Context) :
 
         // Photo
         if (photo) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr, photoQualityBalance))
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(isMirrored, photoHdr, photoQualityBalance))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
 
         // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(videoHdr))
+          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(isMirrored, videoHdr))
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
         }
 
         // Frame Processor
         if (enableFrameProcessor) {
-          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(pixelFormat))
+          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(isMirrored, pixelFormat))
         } else {
           config.frameProcessor = CameraConfiguration.Output.Disabled.create()
         }

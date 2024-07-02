@@ -22,6 +22,7 @@ data class PhotoFileInfo(val uri: URI, val metadata: ImageCapture.Metadata)
 @SuppressLint("RestrictedApi")
 suspend inline fun ImageCapture.takePicture(
   context: Context,
+  isMirrored: Boolean,
   enableShutterSound: Boolean,
   metadataProvider: MetadataProvider,
   callback: CameraSession.Callback,
@@ -39,7 +40,7 @@ suspend inline fun ImageCapture.takePicture(
         Log.i("ImageCapture", "Setting Photo Location to ${location.latitude}, ${location.longitude}...")
         metadata.location = metadataProvider.location
       }
-      metadata.isReversedHorizontal = camera?.isFrontFacing == true
+      metadata.isReversedHorizontal = isMirrored
       options.setMetadata(metadata)
     }
     val outputFileOptions = outputFileOptionsBuilder.build()

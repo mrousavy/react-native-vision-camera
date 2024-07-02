@@ -110,12 +110,25 @@ public override func callback(_ frame: Frame, withArguments _: [AnyHashable: Any
   // highlight-next-line
   mlImage.orientation = frame.orientation
   // ...
+}
 ```
 
 ### Orientation in Skia Frame Processors
 
 A Skia Frame Processor applies orientation via rotation and translation. This means the coordinate system stays the same, but output will be rotated accordingly.
 For a `landscape-left` frame, `(0,0)` will not be top left, but rather top right.
+
+
+## Mirroring (`isMirrored`)
+
+The photo-, video- and snapshot- outputs can be mirrored alongside the vertical axis (left/right flipped) by setting [`isMirrored`](/docs/api/interfaces/CameraProps#ismirrored) to `true`.
+By default, outputs are mirrored in the selfie camera, and not mirrored in any other cameras. To disable mirroring even for the selfie camera, just set `isMirrored` to `false`.
+
+The preview view is always mirrored in the selfie camera, and never mirrored in any other cameras.
+
+```tsx
+<Camera {...props} isMirrored={true} />
+```
 
 <br />
 

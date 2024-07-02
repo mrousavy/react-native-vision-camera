@@ -76,7 +76,7 @@ extension CameraSession {
             // Recording was successfully saved
             let video = Video(path: recordingSession.url.absoluteString,
                               duration: recordingSession.duration,
-                              size: recordingSession.size ?? CGSize.zero)
+                              size: recordingSession.size)
             onVideoRecorded(video)
           } else {
             // Recording wasn't saved and we don't have an error either.

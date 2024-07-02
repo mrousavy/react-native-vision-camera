@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - CameraConfiguration
 
-class CameraConfiguration {
+final class CameraConfiguration {
   // pragma MARK: Configuration Props
 
   // Input
@@ -162,6 +162,7 @@ class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
+    var isMirrored = false
     var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
@@ -171,6 +172,7 @@ class CameraConfiguration {
    A Video Output configuration
    */
   struct Video: Equatable {
+    var isMirrored = false
     var pixelFormat: PixelFormat = .yuv
     var enableBufferCompression = false
     var enableHdr = false
