@@ -111,6 +111,10 @@ final class OrientationManager {
    The orientation of all outputs (photo, video, ..)
    */
   var outputOrientation: Orientation {
+    if targetOutputOrientation == .preview {
+      return previewOrientation
+    }
+
     var orientation = sensorOrientation.relativeTo(orientation: deviceOrientation)
     if isOutputMirrored && orientation.isLandscape {
       // If the preview view is mirrored and we have a landscape based orientation,
