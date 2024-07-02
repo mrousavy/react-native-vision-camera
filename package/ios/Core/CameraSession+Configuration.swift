@@ -79,8 +79,10 @@ extension CameraSession {
       captureSession.addOutput(photoOutput)
 
       // 2. Configure
-      let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
-      photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
+      if #available(iOS 13.0, *) {
+        let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
+        photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
+      }
       if photoOutput.isDepthDataDeliverySupported {
         photoOutput.isDepthDataDeliveryEnabled = photo.enableDepthData
       }
