@@ -57,13 +57,11 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
-      // view is counter-rotated
-      self = .landscapeLeft
+      self = .landscapeRight
     case .portraitUpsideDown:
       self = .portraitUpsideDown
-    // view is counter-rotated
     case .landscapeLeft:
-      self = .landscapeRight
+      self = .landscapeLeft
     default:
       self = .portrait
     }
@@ -89,11 +87,11 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
-      self = .landscapeRight
+      self = .landscapeLeft
     case .portraitUpsideDown:
       self = .portraitUpsideDown
     case .landscapeLeft:
-      self = .landscapeLeft
+      self = .landscapeRight
     default:
       self = .portrait
     }
@@ -155,13 +153,13 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  var isLandscape: Bool {
-    return self == .landscapeLeft || self == .landscapeRight
+  var isPortrait: Bool {
+    return self == .portrait || self == .portraitUpsideDown
   }
 
   @inlinable
   func rotatedBy(degrees: Double) -> Orientation {
-    let added = self.degrees + degrees
+    let added = self.degrees + degrees + 360
     let degress = added.truncatingRemainder(dividingBy: 360)
     return Orientation(degrees: degress)
   }

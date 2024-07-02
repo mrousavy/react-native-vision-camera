@@ -21,6 +21,7 @@ final class CameraConfiguration {
   var photo: OutputConfiguration<Photo> = .disabled
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
+  var isMirrored = false
 
   // Location
   var enableLocation = false
@@ -58,6 +59,7 @@ final class CameraConfiguration {
       photo = other.photo
       video = other.video
       codeScanner = other.codeScanner
+      isMirrored = other.isMirrored
       enableLocation = other.enableLocation
       videoStabilizationMode = other.videoStabilizationMode
       outputOrientation = other.outputOrientation
@@ -117,7 +119,8 @@ final class CameraConfiguration {
       // cameraId
       inputChanged = left?.cameraId != right.cameraId
       // photo, video, codeScanner
-      outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
+      outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video
+        || left?.codeScanner != right.codeScanner || left?.isMirrored != right.isMirrored
       // videoStabilizationMode
       videoStabilizationChanged = outputsChanged || left?.videoStabilizationMode != right.videoStabilizationMode
       // orientation
@@ -162,7 +165,6 @@ final class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
-    var isMirrored = false
     var qualityBalance: QualityBalance = .balanced
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
@@ -172,7 +174,6 @@ final class CameraConfiguration {
    A Video Output configuration
    */
   struct Video: Equatable {
-    var isMirrored = false
     var pixelFormat: PixelFormat = .yuv
     var enableBufferCompression = false
     var enableHdr = false

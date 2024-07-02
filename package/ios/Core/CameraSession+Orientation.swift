@@ -17,21 +17,6 @@ extension CameraSession: OrientationManagerDelegate {
     return orientationManager.outputOrientation
   }
 
-  /**
-   Gets the output orientation of the video file that will be recorded into.
-   The resulting output orientation is flipped by 180° if the input stream is mirrored and 90° or 270° rotated to mimic a mirroring effect.
-   This assumes that mirroring and 180° counter-rotation is also configured on the input stream, see CameraSession+Configuration.
-   */
-  var videoFileOrientation: Orientation {
-    var orientation = outputOrientation
-    if let videoOutput {
-      if videoOutput.isMirrored && !orientation.isLandscape {
-        orientation = orientation.flipped()
-      }
-    }
-    return orientation
-  }
-
   func onPreviewOrientationChanged(previewOrientation: Orientation) {
     configurePreviewOrientation(previewOrientation)
     delegate?.onPreviewOrientationChanged(previewOrientation)
@@ -47,7 +32,7 @@ extension CameraSession: OrientationManagerDelegate {
    */
   func configurePreviewOrientation(_ previewOrientation: Orientation) {
     guard #available(iOS 13.0, *) else {
-      // .videoPreviewLayer is only available on iOS 13+.
+      // .connections is only available on iOS 13+.
       return
     }
 
@@ -56,7 +41,14 @@ extension CameraSession: OrientationManagerDelegate {
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
     for connection in previewConnections {
-      connection.orientation = previewOrientation
+      if connection.isVideoMirrored && previewOrientation.isPortrait {
+        // If this connection uses video mirroring, it flips frames alongside the vertical axis.
+        // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
+        VisionLogger.log(level: .info, message: "Flipping Preview orientation \(previewOrientation) to mirror it...")
+        connection.orientation = previewOrientation.flipped()
+      } else {
+        connection.orientation = previewOrientation
+      }
     }
   }
 
@@ -72,7 +64,14 @@ extension CameraSession: OrientationManagerDelegate {
     for output in rotateableOutputs {
       // set orientation for all connections
       for connection in output.connections {
-        connection.orientation = outputOrientation
+        if connection.isVideoMirrored && outputOrientation.isPortrait {
+          // If this connection uses video mirroring, it flips frames alongside the vertical axis.
+          // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
+          VisionLogger.log(level: .info, message: "Flipping Output orientation \(outputOrientation) to mirror it...")
+          connection.orientation = outputOrientation.flipped()
+        } else {
+          connection.orientation = outputOrientation
+        }
       }
     }
   }

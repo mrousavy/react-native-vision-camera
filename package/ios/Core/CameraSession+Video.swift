@@ -96,7 +96,7 @@ extension CameraSession {
                                                     fileType: options.fileType,
                                                     metadataProvider: self.metadataProvider,
                                                     clock: self.captureSession.clock,
-                                                    orientation: self.videoFileOrientation,
+                                                    orientation: self.outputOrientation,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
