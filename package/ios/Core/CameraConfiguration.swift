@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - CameraConfiguration
 
-class CameraConfiguration {
+final class CameraConfiguration {
   // pragma MARK: Configuration Props
 
   // Input

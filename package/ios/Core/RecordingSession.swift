@@ -19,7 +19,7 @@ import Foundation
  It also synchronizes buffers to the CMTime by the CaptureSession so that late frames are removed from the beginning and added
  towards the end (useful e.g. for videoStabilization).
  */
-class RecordingSession {
+final class RecordingSession {
   private let clock: CMClock
   private let assetWriter: AVAssetWriter
   private var videoTrack: Track?

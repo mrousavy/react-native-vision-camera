@@ -21,7 +21,7 @@ protocol OrientationManagerDelegate: AnyObject {
  Provides Orientation updates to the consumer.
  The orientation updates are only pushed as long as a [delegate] is set.
  */
-class OrientationManager: CameraOrientationCoordinatorDelegate {
+final class OrientationManager: CameraOrientationCoordinatorDelegate {
   private var orientationCoordinator: CameraOrientationCoordinator?
   private var targetOutputOrientation = OutputOrientation.device
   private var lastPreviewOrientation: Orientation?
