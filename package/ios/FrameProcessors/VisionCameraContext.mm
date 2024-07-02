@@ -1,15 +1,15 @@
 //
-//  VisionCameraProxyHolder.mm
+//  VisionCameraContext.mm
 //  DoubleConversion
 //
 //  Created by Marc Rousavy on 20.04.24.
 //
 
-#import "VisionCameraProxyHolder.h"
+#import "VisionCameraContext.h"
 #import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
 
-@implementation VisionCameraProxyHolder {
+@implementation VisionCameraContext {
   VisionCameraProxy* _proxy;
 }
 

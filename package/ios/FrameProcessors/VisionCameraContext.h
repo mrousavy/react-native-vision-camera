@@ -1,5 +1,5 @@
 //
-//  VisionCameraProxyHolder.h
+//  VisionCameraContext.h
 //  Pods
 //
 //  Created by Marc Rousavy on 20.04.24.
@@ -17,9 +17,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- An Objective-C/Swift class that holds the C++ VisionCameraProxy.
+ * An Objective-C/Swift class that holds VisionCamera-related context.
  */
-@interface VisionCameraProxyHolder : NSObject
+@interface VisionCameraContext : NSObject
 
 - (_Nonnull instancetype)initWithProxy:(void*)proxy;
 

@@ -19,17 +19,17 @@ using namespace facebook;
   std::shared_ptr<jsi::ArrayBuffer> _arrayBuffer;
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy allocateWithSize:(NSInteger)size {
+- (instancetype)initWithContext:(VisionCameraContext*)context allocateWithSize:(NSInteger)size {
   uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
-  return [self initWithProxy:proxy wrapData:data withSize:size freeOnDealloc:YES];
+  return [self initWithContext:context wrapData:data withSize:size freeOnDealloc:YES];
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-                     wrapData:(uint8_t*)data
-                     withSize:(NSInteger)size
-                freeOnDealloc:(BOOL)freeOnDealloc {
+- (instancetype)initWithContext:(VisionCameraContext*)context
+                       wrapData:(uint8_t*)data
+                       withSize:(NSInteger)size
+                  freeOnDealloc:(BOOL)freeOnDealloc {
   if (self = [super init]) {
-    jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
+    jsi::Runtime& runtime = context.context->getWorkletRuntime();
 
     auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, freeOnDealloc);
     _arrayBuffer = std::make_shared<jsi::ArrayBuffer>(runtime, mutableBuffer);

@@ -20,11 +20,11 @@
   SharedArray* _sharedArray;
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-                  withOptions:(NSDictionary* _Nullable)options {
-  if (self = [super initWithProxy:proxy withOptions:options]) {
-    _sharedArray = [[SharedArray alloc] initWithProxy:proxy
-                                     allocateWithSize:5];
+- (instancetype)initWithContext:(VisionCameraContext*)context
+                    withOptions:(NSDictionary* _Nullable)options {
+  if (self = [super initWithContext:context withOptions:options]) {
+    _sharedArray = [[SharedArray alloc] initWithContext:context
+                                       allocateWithSize:5];
     NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
   }
   return self;

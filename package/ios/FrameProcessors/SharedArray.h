@@ -8,7 +8,7 @@
 
 #pragma once
 
-#import "VisionCameraProxyHolder.h"
+#import "VisionCameraContext.h"
 #import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
@@ -29,16 +29,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Allocates a new SharedArray with the given size.
  * Use `data` to write to the SharedArray.
  */
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy allocateWithSize:(NSInteger)size;
+- (instancetype)initWithContext:(VisionCameraContext*)context allocateWithSize:(NSInteger)size;
 
 /**
  * Wraps the given data in a SharedArray without copying.
  * Use `data` to write to the SharedArray.
  */
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-                     wrapData:(uint8_t*)data
-                     withSize:(NSInteger)size
-                freeOnDealloc:(BOOL)freeOnDealloc;
+- (instancetype)initWithContext:(VisionCameraContext*)context
+                       wrapData:(uint8_t*)data
+                       withSize:(NSInteger)size
+                  freeOnDealloc:(BOOL)freeOnDealloc;
 
 #ifdef __cplusplus
 /**
