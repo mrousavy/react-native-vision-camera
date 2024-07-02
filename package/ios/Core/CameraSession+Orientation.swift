@@ -23,8 +23,13 @@ extension CameraSession: OrientationManagerDelegate {
    This assumes that mirroring and 180° counter-rotation is also configured on the input stream, see CameraSession+Configuration.
    */
   var videoFileOrientation: Orientation {
-    // TODO: FIX 180° mirror/flip!!!!!!!!!!
-    return outputOrientation
+    var orientation = outputOrientation
+    if let videoOutput {
+      if videoOutput.isMirrored && !orientation.isLandscape {
+        orientation = orientation.flipped()
+      }
+    }
+    return orientation
   }
 
   func onPreviewOrientationChanged(previewOrientation: Orientation) {

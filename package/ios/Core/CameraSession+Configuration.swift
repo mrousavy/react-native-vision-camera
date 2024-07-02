@@ -110,7 +110,10 @@ extension CameraSession {
       // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
-      videoOutput.isMirrored = video.isMirrored
+      if video.isMirrored {
+        videoOutput.isMirrored = true
+        videoOutput.orientation = videoOutput.orientation.flipped()
+      }
 
       self.videoOutput = videoOutput
     }
