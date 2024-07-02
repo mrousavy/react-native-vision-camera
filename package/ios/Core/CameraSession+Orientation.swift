@@ -25,7 +25,11 @@ extension CameraSession: OrientationManagerDelegate {
   var videoFileOrientation: Orientation {
     var orientation = outputOrientation
     if let videoOutput {
-      if videoOutput.isMirrored && !orientation.isLandscape {
+      if videoOutput.isMirrored && orientation.isPortrait {
+        // If the output is mirrored and we have a portrait based orientation,
+        // mirroring will actually happen on the wrong axis.
+        // To counter this, we need to flip the orientation (effectively mirroring again on the other axis),
+        // so the image is displayed upright.
         orientation = orientation.flipped()
       }
     }

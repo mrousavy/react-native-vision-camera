@@ -211,6 +211,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onPreviewStopped={() => console.log('Preview stopped!')}
                 onOutputOrientationChanged={(o) => console.log(`Output orientation changed to ${o}!`)}
                 onPreviewOrientationChanged={(o) => console.log(`Preview orientation changed to ${o}!`)}
+                onUIRotationChanged={(degrees) => console.log(`UI Rotation changed: ${degrees}°`)}
                 format={format}
                 fps={fps}
                 photoHdr={photoHdr}

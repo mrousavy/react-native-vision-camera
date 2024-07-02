@@ -153,8 +153,8 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  var isLandscape: Bool {
-    return self == .landscapeLeft || self == .landscapeRight
+  var isPortrait: Bool {
+    return self == .portrait || self == .portraitUpsideDown
   }
 
   @inlinable
