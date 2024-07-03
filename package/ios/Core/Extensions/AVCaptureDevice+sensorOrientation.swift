@@ -21,8 +21,6 @@ extension AVCaptureDevice {
     //       - The current approach (dynamically creating an AVCaptureSession) is very hacky and has a runtime overhead.
     //       Hopefully iOS adds an API to get sensor orientation soon so we can use that!
 
-    let start = DispatchTime.now()
-
     // 1. Create a capture session
     let session = AVCaptureSession()
 
@@ -42,10 +40,6 @@ extension AVCaptureDevice {
 
     // 4. Inspect the default orientation of the output
     let defaultOrientation = output.orientation
-
-    let end = DispatchTime.now()
-    let ms = (end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000
-    print("Getting orientation took \(ms)ms.")
 
     // 5. Rotate the default orientation by the default sensor orientation we know of
     let sensorOrientation = defaultOrientation.rotatedBy(orientation: DEFAULT_SENSOR_ORIENTATION)
