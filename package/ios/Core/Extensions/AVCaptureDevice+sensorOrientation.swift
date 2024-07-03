@@ -44,12 +44,12 @@ extension AVCaptureDevice {
 
     // 5. Rotate the default orientation by the default sensor orientation we know of
     var sensorOrientation = defaultOrientation.rotatedBy(orientation: DEFAULT_SENSOR_ORIENTATION)
-    
+
     // 6. If we are on the front Camera, AVCaptureVideoDataOutput.orientation is mirrored.
     if position == .front {
       sensorOrientation = sensorOrientation.flipped()
     }
-    
+
     return sensorOrientation
   }
 }
