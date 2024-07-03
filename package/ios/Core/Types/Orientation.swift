@@ -41,15 +41,19 @@ enum Orientation: String, JSUnionValue {
   }
 
   init(degrees: Double) {
-    switch degrees {
+    let normalized = Orientation.normalizeDegrees(degrees)
+    switch normalized {
     case 45 ..< 135:
       self = .landscapeLeft
     case 135 ..< 225:
       self = .portraitUpsideDown
     case 225 ..< 315:
       self = .landscapeRight
-    default:
+    case 315 ..< 360: fallthrough
+    case 0 ..< 45:
       self = .portrait
+    default:
+      fatalError("Orientation: Invalid degrees (\(degrees)°) specified!")
     }
   }
 
@@ -168,9 +172,7 @@ enum Orientation: String, JSUnionValue {
 
   @inlinable
   func rotatedBy(degrees: Double) -> Orientation {
-    let added = self.degrees + degrees + 360
-    let degress = added.truncatingRemainder(dividingBy: 360)
-    return Orientation(degrees: degress)
+    return Orientation(degrees: self.degrees + degrees)
   }
 
   @inline(__always)
@@ -186,5 +188,14 @@ enum Orientation: String, JSUnionValue {
   @inline(__always)
   func relativeTo(orientation: Orientation) -> Orientation {
     return rotatedBy(degrees: -orientation.degrees)
+  }
+  
+  @inlinable
+  static func normalizeDegrees(_ degrees: Double) -> Double {
+    let normalized = degrees.truncatingRemainder(dividingBy: 360)
+    if normalized < 0 {
+      return normalized + 360
+    }
+    return normalized
   }
 }
