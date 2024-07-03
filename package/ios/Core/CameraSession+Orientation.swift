@@ -51,7 +51,7 @@ extension CameraSession: OrientationManagerDelegate {
     // update the orientation for each preview layer that is connected to this capture session
     let previewConnections = captureSession.connections.filter { $0.videoPreviewLayer != nil }
     for connection in previewConnections {
-      if connection.isVideoMirrored && sensorOrientation.isPortrait {
+      if connection.isVideoMirrored && sensorOrientation.isLandscape {
         // If this connection uses video mirroring, it flips frames alongside the vertical axis.
         // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
         VisionLogger.log(level: .info, message: "Flipping Preview orientation \(previewOrientation) to mirror it...")
@@ -74,7 +74,7 @@ extension CameraSession: OrientationManagerDelegate {
     for output in rotateableOutputs {
       // set orientation for all connections
       for connection in output.connections {
-        if connection.isVideoMirrored && sensorOrientation.isPortrait {
+        if connection.isVideoMirrored && sensorOrientation.isLandscape {
           // If this connection uses video mirroring, it flips frames alongside the vertical axis.
           // If the orientation is portrait, we flip it upside down to mirror alongside horizontal axis.
           VisionLogger.log(level: .info, message: "Flipping Output orientation \(outputOrientation) to mirror it...")
