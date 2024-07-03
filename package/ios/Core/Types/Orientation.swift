@@ -87,10 +87,12 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
+      // Interface orientation landscapeRight is the opposite of device orientation
       self = .landscapeLeft
     case .portraitUpsideDown:
       self = .portraitUpsideDown
     case .landscapeLeft:
+      // Interface orientation landscapeLeft is the opposite of device orientation
       self = .landscapeRight
     default:
       self = .portrait
@@ -155,6 +157,10 @@ enum Orientation: String, JSUnionValue {
 
   var isPortrait: Bool {
     return self == .portrait || self == .portraitUpsideDown
+  }
+
+  var isLandscape: Bool {
+    return self == .landscapeLeft || self == .landscapeRight
   }
 
   @inlinable
