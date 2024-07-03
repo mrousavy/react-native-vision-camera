@@ -113,8 +113,8 @@ extension CameraSession {
       if configuration.isMirrored {
         // 2.1. If mirroring is enabled, mirror all connections along the vertical axis
         videoOutput.isMirrored = true
-        if videoOutput.orientation.isPortrait {
-          // 2.2. If we have a portrait orientation, we need to flip it upside down so it is mirrored on horizontal axis as well
+        if videoOutput.orientation.isLandscape {
+          // 2.2. If we have a landscape orientation, we need to flip it to counter the mirroring on the wrong axis.
           videoOutput.orientation = videoOutput.orientation.flipped()
           VisionLogger.log(level: .info, message: "AVCaptureVideoDataOutput will rotate Frames to \(videoOutput.orientation)...")
         }
