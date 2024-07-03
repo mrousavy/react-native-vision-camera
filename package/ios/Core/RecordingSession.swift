@@ -254,6 +254,7 @@ final class RecordingSession {
     }
   }
 
+  @inline(__always)
   private func getTrack(ofType type: TrackType) throws -> Track {
     switch type {
     case .audio:

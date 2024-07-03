@@ -16,7 +16,7 @@ import Foundation
  are ordered incrementally, and once a timestamp arrives after a timeline has been stopped,
  it will mark the track as finished (see [isFinished])
  */
-class TrackTimeline {
+final class TrackTimeline {
   private let trackType: TrackType
   private let clock: CMClock
   private var events: [TimelineEvent] = []

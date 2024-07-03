@@ -13,6 +13,7 @@ import UIKit
 /**
  The Orientation used for the Preview, Photo, Video and Frame Processor outputs.
  */
+@frozen
 enum Orientation: String, JSUnionValue {
   /**
    Phone is in upright portrait mode, home button/indicator is at the bottom
@@ -166,28 +167,28 @@ enum Orientation: String, JSUnionValue {
     return self == .landscapeLeft || self == .landscapeRight
   }
 
-  @inlinable
+  @inline(__always)
   func rotatedBy(degrees: Double) -> Orientation {
     return Orientation(degrees: self.degrees + degrees)
   }
 
-  @inlinable
+  @inline(__always)
   func rotatedBy(orientation: Orientation) -> Orientation {
     return rotatedBy(degrees: orientation.degrees)
   }
 
-  @inlinable
+  @inline(__always)
   func flipped() -> Orientation {
     return rotatedBy(degrees: 180)
   }
 
-  @inlinable
+  @inline(__always)
   func relativeTo(orientation: Orientation) -> Orientation {
     return rotatedBy(degrees: -orientation.degrees)
   }
 
-  @inlinable
-  static func normalizeDegrees(_ degrees: Double) -> Double {
+  @inline(__always)
+  private static func normalizeDegrees(_ degrees: Double) -> Double {
     let normalized = degrees.truncatingRemainder(dividingBy: 360)
     if normalized < 0 {
       return normalized + 360

@@ -9,7 +9,7 @@
 import Foundation
 
 @objc
-public class CameraQueues: NSObject {
+public final class CameraQueues: NSObject {
   /// The serial execution queue for camera configuration and setup.
   @objc public static let cameraQueue = DispatchQueue(label: "mrousavy/VisionCamera.main",
                                                       qos: .userInteractive,
