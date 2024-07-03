@@ -40,11 +40,16 @@ extension AVCaptureDevice {
     session.addOutput(output)
 
     // 4. Inspect the default orientation of the output
-    output.isMirrored = false
     let defaultOrientation = output.orientation
 
     // 5. Rotate the default orientation by the default sensor orientation we know of
-    let sensorOrientation = defaultOrientation.rotatedBy(orientation: DEFAULT_SENSOR_ORIENTATION)
+    var sensorOrientation = defaultOrientation.rotatedBy(orientation: DEFAULT_SENSOR_ORIENTATION)
+    
+    // 6. If we are on the front Camera, AVCaptureVideoDataOutput.orientation is mirrored.
+    if position == .front {
+      sensorOrientation = sensorOrientation.flipped()
+    }
+    
     return sensorOrientation
   }
 }
