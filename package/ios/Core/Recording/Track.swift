@@ -11,6 +11,7 @@ import Foundation
 
 // MARK: - TrackType
 
+@frozen
 enum TrackType {
   case audio
   case video
@@ -18,7 +19,7 @@ enum TrackType {
 
 // MARK: - Track
 
-class Track {
+final class Track {
   private let type: TrackType
   private let assetWriterInput: AVAssetWriterInput
   private let timeline: TrackTimeline

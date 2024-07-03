@@ -81,6 +81,7 @@ final class CameraConfiguration {
   /**
    Throw this to abort calls to configure { ... } and apply no changes.
    */
+  @frozen
   enum AbortThrow: Error {
     case abort
   }
@@ -145,6 +146,7 @@ final class CameraConfiguration {
     }
   }
 
+  @frozen
   enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled
     case enabled(config: T)
