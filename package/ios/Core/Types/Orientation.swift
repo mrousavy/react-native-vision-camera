@@ -154,12 +154,12 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  @inlinable
+  @inline(__always)
   var isPortrait: Bool {
     return self == .portrait || self == .portraitUpsideDown
   }
 
-  @inlinable
+  @inline(__always)
   var isLandscape: Bool {
     return self == .landscapeLeft || self == .landscapeRight
   }
