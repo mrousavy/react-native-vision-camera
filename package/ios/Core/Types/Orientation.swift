@@ -169,7 +169,7 @@ enum Orientation: String, JSUnionValue {
     return self == .landscapeLeft || self == .landscapeRight
   }
 
-  @inlinable
+  @inline(__always)
   func rotatedBy(degrees: Double) -> Orientation {
     return Orientation(degrees: self.degrees + degrees)
   }
@@ -189,7 +189,7 @@ enum Orientation: String, JSUnionValue {
     return rotatedBy(degrees: -orientation.degrees)
   }
 
-  @inlinable
+  @inline(__always)
   static func normalizeDegrees(_ degrees: Double) -> Double {
     let normalized = degrees.truncatingRemainder(dividingBy: 360)
     if normalized < 0 {
