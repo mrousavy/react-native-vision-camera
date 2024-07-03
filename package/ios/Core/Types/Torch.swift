@@ -12,6 +12,7 @@ import Foundation
 /**
  A Torch used for permanent flash.
  */
+@frozen
 enum Torch: String, JSUnionValue {
   /**
    Torch (flash unit) is always off.

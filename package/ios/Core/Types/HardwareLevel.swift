@@ -7,6 +7,7 @@
 
 import Foundation
 
+@frozen
 enum HardwareLevel: String, JSUnionValue {
   case full
 

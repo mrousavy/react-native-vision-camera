@@ -19,7 +19,7 @@ protocol PreviewViewDelegate: AnyObject {
 
 // MARK: - PreviewView
 
-class PreviewView: UIView {
+final class PreviewView: UIView {
   /**
    A delegate for listening to events of the Preview View.
    */
@@ -48,7 +48,7 @@ class PreviewView: UIView {
     }
   }
 
-  override public class var layerClass: AnyClass {
+  override public static var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
   }
 
