@@ -93,7 +93,7 @@ extension CameraSession {
       do {
         // Orientation is relative to our current output orientation
         let orientation = self.outputOrientation.relativeTo(orientation: videoOutput.orientation)
-        
+
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
