@@ -18,7 +18,7 @@ extension AVCaptureDevice {
   var sensorOrientation: Orientation {
     // TODO: There is no iOS API to get native sensor orientation.
     //       - The new `RotationCoordinator` API is a blackbox, and cannot be used statically.
-    //       - The current approach (dynamically creating an AVCaptureSession) is very hacky and has a runtime overhead.
+    //       - Dynamically creating an AVCaptureSession is very hacky and has a runtime overhead.
     //       Hopefully iOS adds an API to get sensor orientation soon so we can use that!
 
     // 1. Create a capture session

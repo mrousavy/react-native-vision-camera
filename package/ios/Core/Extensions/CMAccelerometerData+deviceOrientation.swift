@@ -5,8 +5,8 @@
 //  Created by Marc Rousavy on 03.07.24.
 //
 
-import Foundation
 import CoreMotion
+import Foundation
 
 extension CMAccelerometerData {
   /**
