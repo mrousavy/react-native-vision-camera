@@ -14,12 +14,13 @@ extension AVCaptureOutput {
    */
   var orientation: Orientation {
     get {
-      guard let connection = connections.first else {
+      guard let connection = connection(with: .video) else {
         fatalError("AVCaptureOutput needs to be connected before accessing .connection!")
       }
       return connection.orientation
     }
     set {
+      assert(!connections.isEmpty, "isMirrored can only be set when connected to a session!")
       for connection in connections {
         connection.orientation = newValue
       }

@@ -36,10 +36,10 @@ extension AVCaptureDevice {
     let output = AVCaptureVideoDataOutput()
     output.automaticallyConfiguresOutputBufferDimensions = false
     output.deliversPreviewSizedOutputBuffers = true
-    output.isMirrored = false
     session.addOutput(output)
 
     // 4. Inspect the default orientation of the output
+    output.isMirrored = false
     let defaultOrientation = output.orientation
 
     // 5. Rotate the default orientation by the default sensor orientation we know of
