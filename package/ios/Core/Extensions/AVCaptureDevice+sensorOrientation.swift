@@ -23,6 +23,7 @@ extension AVCaptureDevice {
 
     // 1. Create a capture session
     let session = AVCaptureSession()
+    session.sessionPreset = .low
 
     // 2. Add this device as an input
     guard let input = try? AVCaptureDeviceInput(device: self) else {
