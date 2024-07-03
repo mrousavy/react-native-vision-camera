@@ -36,6 +36,7 @@ extension AVCaptureDevice {
     let output = AVCaptureVideoDataOutput()
     output.automaticallyConfiguresOutputBufferDimensions = false
     output.deliversPreviewSizedOutputBuffers = true
+    output.isMirrored = false
     session.addOutput(output)
 
     // 4. Inspect the default orientation of the output
