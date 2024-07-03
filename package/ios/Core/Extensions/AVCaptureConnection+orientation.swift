@@ -14,22 +14,13 @@ extension AVCaptureConnection {
    */
   var orientation: Orientation {
     get {
-      if #available(iOS 17.0, *) {
-        return Orientation(degrees: videoRotationAngle)
-      } else {
-        return Orientation(videoOrientation: videoOrientation)
-      }
+      // TODO: Use new videoRotationAngle APIs?
+      return Orientation(videoOrientation: videoOrientation)
     }
     set {
-      if #available(iOS 17.0, *) {
-        let degrees = newValue.degrees
-        if isVideoRotationAngleSupported(degrees) {
-          videoRotationAngle = degrees
-        }
-      } else {
-        if isVideoOrientationSupported {
-          videoOrientation = newValue.videoOrientation
-        }
+      // TODO: Use new videoRotationAngle APIs?
+      if isVideoOrientationSupported {
+        videoOrientation = newValue.videoOrientation
       }
     }
   }

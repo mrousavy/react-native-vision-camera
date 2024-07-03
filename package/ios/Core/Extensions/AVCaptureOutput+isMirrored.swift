@@ -14,9 +14,13 @@ extension AVCaptureOutput {
    */
   var isMirrored: Bool {
     get {
-      return connections.contains { $0.isVideoMirrored == true }
+      guard let connection = connection(with: .video) else {
+        fatalError("AVCaptureOutput needs to be connected before accessing .isMirrored!")
+      }
+      return connection.isVideoMirrored
     }
     set {
+      assert(!connections.isEmpty, "isMirrored can only be set when connected to a session!")
       for connection in connections {
         if connection.isVideoMirroringSupported {
           connection.automaticallyAdjustsVideoMirroring = false

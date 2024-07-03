@@ -161,24 +161,12 @@ final class OrientationManager {
     stopDeviceOrientationListener()
     if motionManager.isAccelerometerAvailable {
       motionManager.accelerometerUpdateInterval = 0.2
-      motionManager.startAccelerometerUpdates(to: operationQueue) { accelerometerData, _ in
-        guard let accelerometerData = accelerometerData else {
-          return
+      motionManager.startAccelerometerUpdates(to: operationQueue) { accelerometerData, error in
+        if let error {
+          VisionLogger.log(level: .error, message: "Failed to get Accelerometer data! \(error)")
         }
-        let acceleration = accelerometerData.acceleration
-        let xNorm = abs(acceleration.x)
-        let yNorm = abs(acceleration.y)
-        let zNorm = abs(acceleration.z)
-
-        // If the z-axis is greater than the other axes, the orientation does not change
-        if zNorm > xNorm && zNorm > yNorm {
-          return
-        }
-
-        if xNorm > yNorm {
-          self.deviceOrientation = acceleration.x > 0 ? .landscapeRight : .landscapeLeft
-        } else {
-          self.deviceOrientation = acceleration.y > 0 ? .portraitUpsideDown : .portrait
+        if let accelerometerData {
+          self.deviceOrientation = accelerometerData.deviceOrientation
         }
       }
     }

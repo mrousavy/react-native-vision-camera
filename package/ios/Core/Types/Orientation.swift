@@ -41,15 +41,18 @@ enum Orientation: String, JSUnionValue {
   }
 
   init(degrees: Double) {
-    switch degrees {
+    let normalized = Orientation.normalizeDegrees(degrees)
+    switch normalized {
     case 45 ..< 135:
       self = .landscapeLeft
     case 135 ..< 225:
       self = .portraitUpsideDown
     case 225 ..< 315:
       self = .landscapeRight
-    default:
+    case 315 ..< 360, 0 ..< 45:
       self = .portrait
+    default:
+      fatalError("Orientation: Invalid degrees (\(degrees)°) specified!")
     }
   }
 
@@ -88,10 +91,12 @@ enum Orientation: String, JSUnionValue {
     case .portrait:
       self = .portrait
     case .landscapeRight:
+      // Interface orientation landscapeRight is the opposite of device orientation
       self = .landscapeLeft
     case .portraitUpsideDown:
       self = .portraitUpsideDown
     case .landscapeLeft:
+      // Interface orientation landscapeLeft is the opposite of device orientation
       self = .landscapeRight
     default:
       self = .portrait
@@ -160,10 +165,13 @@ enum Orientation: String, JSUnionValue {
   }
 
   @inline(__always)
+  var isLandscape: Bool {
+    return self == .landscapeLeft || self == .landscapeRight
+  }
+
+  @inline(__always)
   func rotatedBy(degrees: Double) -> Orientation {
-    let added = self.degrees + degrees + 360
-    let degress = added.truncatingRemainder(dividingBy: 360)
-    return Orientation(degrees: degress)
+    return Orientation(degrees: self.degrees + degrees)
   }
 
   @inline(__always)
@@ -179,5 +187,14 @@ enum Orientation: String, JSUnionValue {
   @inline(__always)
   func relativeTo(orientation: Orientation) -> Orientation {
     return rotatedBy(degrees: -orientation.degrees)
+  }
+
+  @inline(__always)
+  static func normalizeDegrees(_ degrees: Double) -> Double {
+    let normalized = degrees.truncatingRemainder(dividingBy: 360)
+    if normalized < 0 {
+      return normalized + 360
+    }
+    return normalized
   }
 }
