@@ -93,7 +93,7 @@ Pod::Spec.new do |s|
         "ios/FrameProcessors/FrameProcessorPluginRegistry.h",
         "ios/FrameProcessors/SharedArray.h",
         "ios/FrameProcessors/VisionCameraProxyDelegate.h",
-        "ios/FrameProcessors/VisionCameraProxyHolder.h",
+        "ios/FrameProcessors/VisionCameraContext.h",
         "ios/FrameProcessors/VisionCameraInstaller.h",
       ]
 
