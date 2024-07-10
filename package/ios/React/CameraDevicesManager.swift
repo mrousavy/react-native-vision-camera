@@ -20,7 +20,9 @@ final class CameraDevicesManager: RCTEventEmitter {
   override init() {
     super.init()
     observer = discoverySession.observe(\.devices) { _, _ in
-      self.sendEvent(withName: self.devicesChangedEventName, body: self.getDevicesJson())
+      let devices = self.getDevicesJson()
+      self.sendEvent(withName: self.devicesChangedEventName,
+                     body: devices)
     }
   }
 
