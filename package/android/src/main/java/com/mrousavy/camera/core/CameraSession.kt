@@ -136,7 +136,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
           // 1.1. whenever the outputs changed, we need to update their orientation as well
           configureOrientation()
         }
-        if (diff.deviceChanged || diff.outputsChanged) {
+        if (diff.deviceChanged) {
           // 2. input or outputs changed, or the session was destroyed from outside, rebind the session
           configureCamera(provider, config)
         }
