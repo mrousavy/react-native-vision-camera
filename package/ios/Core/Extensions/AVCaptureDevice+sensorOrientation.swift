@@ -30,10 +30,12 @@ extension AVCaptureDevice {
     // 2. Add this device as an input
     guard let input = try? AVCaptureDeviceInput(device: self) else {
       VisionLogger.log(level: .error, message: "Cannot dynamically determine \(uniqueID)'s sensorOrientation, " +
-        "falling back to \(DEFAULT_SENSOR_ORIENTATION)...")
+        "because the AVCaptureDeviceInput cannot be created. Falling back to \(DEFAULT_SENSOR_ORIENTATION)...")
       return DEFAULT_SENSOR_ORIENTATION
     }
     guard session.canAddInput(input) else {
+      VisionLogger.log(level: .error, message: "Cannot dynamically determine \(uniqueID)'s sensorOrientation, because " +
+        "it cannot be added to the temporary AVCaptureSession. Falling back to \(DEFAULT_SENSOR_ORIENTATION)...")
       return DEFAULT_SENSOR_ORIENTATION
     }
     session.addInput(input)
@@ -43,6 +45,8 @@ extension AVCaptureDevice {
     output.automaticallyConfiguresOutputBufferDimensions = false
     output.deliversPreviewSizedOutputBuffers = true
     guard session.canAddOutput(output) else {
+      VisionLogger.log(level: .error, message: "Cannot dynamically determine \(uniqueID)'s sensorOrientation, because " +
+        "the AVCaptureVideoDataOutput cannot be added to the AVCaptureSession. Falling back to \(DEFAULT_SENSOR_ORIENTATION)...")
       return DEFAULT_SENSOR_ORIENTATION
     }
     session.addOutput(output)
