@@ -23,12 +23,17 @@ extension AVCaptureDevice {
 
     // 1. Create a capture session
     let session = AVCaptureSession()
-    session.sessionPreset = .low
+    if session.canSetSessionPreset(.low) {
+      session.sessionPreset = .low
+    }
 
     // 2. Add this device as an input
     guard let input = try? AVCaptureDeviceInput(device: self) else {
       VisionLogger.log(level: .error, message: "Cannot dynamically determine \(uniqueID)'s sensorOrientation, " +
         "falling back to \(DEFAULT_SENSOR_ORIENTATION)...")
+      return DEFAULT_SENSOR_ORIENTATION
+    }
+    guard session.canAddInput(input) else {
       return DEFAULT_SENSOR_ORIENTATION
     }
     session.addInput(input)
@@ -37,6 +42,9 @@ extension AVCaptureDevice {
     let output = AVCaptureVideoDataOutput()
     output.automaticallyConfiguresOutputBufferDimensions = false
     output.deliversPreviewSizedOutputBuffers = true
+    guard session.canAddOutput(output) else {
+      return DEFAULT_SENSOR_ORIENTATION
+    }
     session.addOutput(output)
 
     // 4. Inspect the default orientation of the output
