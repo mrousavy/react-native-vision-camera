@@ -21,6 +21,8 @@ final class CameraDevicesManager: RCTEventEmitter {
     super.init()
     observer = discoverySession.observe(\.devices) { _, _ in
       let devices = self.getDevicesJson()
+      VisionLogger.log(level: .info, message: "Camera Devices changed - found \(devices.count) Camera Devices.")
+
       self.sendEvent(withName: self.devicesChangedEventName,
                      body: devices)
     }
@@ -41,6 +43,7 @@ final class CameraDevicesManager: RCTEventEmitter {
   override func constantsToExport() -> [AnyHashable: Any]! {
     let devices = getDevicesJson()
     let preferredDevice = getPreferredDeviceJson()
+    VisionLogger.log(level: .info, message: "Found \(devices.count) initial Camera Devices.")
 
     return [
       "availableCameraDevices": devices,
