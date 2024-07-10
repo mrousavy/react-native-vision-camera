@@ -32,7 +32,7 @@ final class CameraDevicesManager: RCTEventEmitter {
     return [devicesChangedEventName]
   }
 
-  override class func requiresMainQueueSetup() -> Bool {
+  override static func requiresMainQueueSetup() -> Bool {
     return false
   }
 
