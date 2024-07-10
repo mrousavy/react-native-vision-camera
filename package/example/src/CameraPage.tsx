@@ -194,7 +194,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   return (
     <View style={styles.container}>
-      {device != null && (
+      {device != null ? (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
@@ -232,6 +232,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.text}>Your phone does not have a Camera.</Text>
+        </View>
       )}
 
       <CaptureButton
@@ -312,5 +316,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
