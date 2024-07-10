@@ -75,8 +75,16 @@ final class CameraDevicesManager: RCTEventEmitter {
         return userPreferred
       }
     }
-    // Just return the first device
-    return discoverySession.devices.first
+    // Usually prefer the wide angle back camera
+    if let defaultBackWideAngle = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+      return defaultBackWideAngle
+    }
+    // Fall back to the default video
+    if let defaultVideo = AVCaptureDevice.default(for: .video) {
+      return defaultVideo
+    }
+    // Return nil because apparently we couldn't find a default
+    return nil
   }
 
   private static func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
