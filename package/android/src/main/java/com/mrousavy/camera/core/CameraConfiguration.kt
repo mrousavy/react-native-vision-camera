@@ -122,9 +122,6 @@ data class CameraConfiguration(
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
-      // input device
-      val deviceChanged = left?.cameraId != right.cameraId
-
       // outputs
       val outputsChanged = left?.photo != right.photo ||
         left.video != right.video ||
@@ -136,8 +133,11 @@ data class CameraConfiguration(
         left.format != right.format ||
         left.fps != right.fps
 
+      // input device
+      val deviceChanged = outputsChanged || left?.cameraId != right.cameraId
+
       // repeating request
-      val sidePropsChanged = outputsChanged ||
+      val sidePropsChanged = deviceChanged ||
         left?.torch != right.torch ||
         left.zoom != right.zoom ||
         left.exposure != right.exposure
