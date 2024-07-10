@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.util.Range
 import androidx.camera.core.Preview.SurfaceProvider
 import com.mrousavy.camera.core.types.CameraDeviceFormat
 import com.mrousavy.camera.core.types.CodeType
@@ -8,6 +9,7 @@ import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.QualityBalance
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
+import kotlin.math.min
 
 data class CameraConfiguration(
   // Input
@@ -50,6 +52,14 @@ data class CameraConfiguration(
   data class FrameProcessor(val isMirrored: Boolean, val pixelFormat: PixelFormat)
   data class Audio(val nothing: Unit)
   data class Preview(val surfaceProvider: SurfaceProvider)
+
+  val targetFpsRange: Range<Int>?
+    get() {
+      // due to a bug (or feature?) in CameraX, photo resolution will suffer if min FPS is higher than 20.
+      val maxFps = fps ?: return null
+      val minFps = min(20, maxFps)
+      return Range(minFps, maxFps)
+    }
 
   val targetPreviewAspectRatio: Float?
     get() {

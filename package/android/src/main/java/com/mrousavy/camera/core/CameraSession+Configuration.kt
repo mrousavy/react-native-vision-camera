@@ -2,7 +2,6 @@ package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.util.Range
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -25,16 +24,7 @@ import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
 import kotlin.math.roundToInt
 
-internal fun getTargetFpsRange(configuration: CameraConfiguration): Range<Int>? {
-  val fps = configuration.fps ?: return null
-  return if (configuration.enableLowLightBoost) {
-    Range(fps / 2, fps)
-  } else {
-    Range(fps, fps)
-  }
-}
-
-internal fun assertFormatRequirement(
+private fun assertFormatRequirement(
   propName: String,
   format: CameraDeviceFormat?,
   throwIfNotMet: CameraError,
@@ -55,7 +45,7 @@ internal fun assertFormatRequirement(
 @Suppress("LiftReturnOrAssignment")
 internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) {
   Log.i(CameraSession.TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
-  val fpsRange = getTargetFpsRange(configuration)
+  val fpsRange = configuration.targetFpsRange
   val format = configuration.format
 
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
