@@ -53,8 +53,12 @@ function isSkiaFrameProcessor(frameProcessor?: ReadonlyFrameProcessor | Drawable
  *
  * The `<Camera>` component's most important properties are:
  *
- * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevice | useCameraDevice(..)} hook, or manually by using the {@linkcode CameraDevices.getAvailableCameraDevices CameraDevices.getAvailableCameraDevices()} function.
- * * {@linkcode CameraProps.isActive | isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
+ * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using
+ * the {@linkcode useCameraDevice | useCameraDevice(..)} hook, or manually by using
+ * the {@linkcode CameraDevices.getAvailableCameraDevices | CameraDevices.getAvailableCameraDevices()} function.
+ * * {@linkcode CameraProps.isActive | isActive}: A boolean value that specifies whether the Camera should
+ * actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video
+ * is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
  * ```tsx

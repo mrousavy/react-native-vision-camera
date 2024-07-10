@@ -99,7 +99,7 @@ export interface Frame {
    * - On iOS, this is a `CVPixelBufferRef`
    *
    * The native buffer needs to be manually deleted using
-   * {@linkcode NativeBuffer.delete()}, and this {@linkcode Frame}
+   * {@linkcode NativeBuffer.delete | NativeBuffer.delete()}, and this {@linkcode Frame}
    * needs to be kept alive as long as-, or longer than
    * the {@linkcode NativeBuffer}.
    */
