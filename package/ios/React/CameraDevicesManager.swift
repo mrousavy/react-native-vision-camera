@@ -63,14 +63,18 @@ final class CameraDevicesManager: RCTEventEmitter {
   }
 
   private func getPreferredDevice() -> AVCaptureDevice? {
-    #if swift(>=5.9)
-      if #available(iOS 17.0, *) {
-        if let userPreferred = AVCaptureDevice.userPreferredCamera {
-          // Return the device that was explicitly marked as a preferred camera by the user
-          return userPreferred
+    if #available(iOS 17.0, *) {
+      if let userPreferred = AVCaptureDevice.userPreferredCamera {
+        guard !userPreferred.uniqueID.isEmpty else {
+          // Due to an iOS 17 bug, Simulators return a non-nil AVCaptureDevice here,
+          // but all properties on this AVCaptureDevice are 0x0/empty/invalid.
+          // So we catch this bug and return a nil preferred device here.
+          return nil
         }
+        // Return the device that was explicitly marked as a preferred camera by the user
+        return userPreferred
       }
-    #endif
+    }
     // Just return the first device
     return discoverySession.devices.first
   }
