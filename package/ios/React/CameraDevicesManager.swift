@@ -38,11 +38,11 @@ class CameraDevicesManager: RCTEventEmitter {
 
   override func constantsToExport() -> [AnyHashable: Any]! {
     let devices = getDevicesJson()
-    let preferredDevice = getPreferredDevice()
+    let preferredDevice = getPreferredDeviceJson()
 
     return [
       "availableCameraDevices": devices,
-      "userPreferredCameraDevice": preferredDevice?.toDictionary() as Any,
+      "userPreferredCameraDevice": preferredDevice as Any,
     ]
   }
 
@@ -50,6 +50,11 @@ class CameraDevicesManager: RCTEventEmitter {
     return discoverySession.devices.map {
       return $0.toDictionary()
     }
+  }
+
+  private func getPreferredDeviceJson() -> [String: Any]? {
+    let preferredDevice = getPreferredDevice()
+    return preferredDevice?.toDictionary()
   }
 
   private func getPreferredDevice() -> AVCaptureDevice? {
@@ -80,13 +85,14 @@ class CameraDevicesManager: RCTEventEmitter {
       deviceTypes.append(.builtInLiDARDepthCamera)
     }
 
-    // iOS 17 specifics:
-    //  This is only reported if `NSCameraUseExternalDeviceType` is set to true in Info.plist,
-    //  otherwise external devices are just reported as wide-angle-cameras
-    // deviceTypes.append(.external)
-    //  This is only reported if `NSCameraUseContinuityCameraDeviceType` is set to true in Info.plist,
-    //  otherwise continuity camera devices are just reported as wide-angle-cameras
-    // deviceTypes.append(.continuityCamera)
+    if #available(iOS 17.0, *) {
+      // This is only reported if `NSCameraUseExternalDeviceType` is set to true in Info.plist,
+      // otherwise external devices are just reported as wide-angle-cameras
+      deviceTypes.append(.external)
+      // This is only reported if `NSCameraUseContinuityCameraDeviceType` is set to true in Info.plist,
+      // otherwise continuity camera devices are just reported as wide-angle-cameras
+      deviceTypes.append(.continuityCamera)
+    }
 
     return deviceTypes
   }
