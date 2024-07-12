@@ -360,7 +360,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
+  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool) {
     // Update latest frame that can be used for snapshot capture
     latestVideoFrame = Snapshot(imageBuffer: sampleBuffer, orientation: orientation)
 
@@ -370,7 +370,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
+        let frame = Frame(buffer: sampleBuffer,
+                          orientation: orientation.imageOrientation,
+                          isMirrored: isMirrored)
         frameProcessor.call(frame)
       }
     #endif

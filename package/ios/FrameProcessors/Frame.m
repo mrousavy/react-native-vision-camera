@@ -13,13 +13,15 @@
 @implementation Frame {
   CMSampleBufferRef _Nonnull _buffer;
   UIImageOrientation _orientation;
+  BOOL _isMirrored;
 }
 
-- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation isMirrored:(BOOL)isMirrored {
   self = [super init];
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
+    _isMirrored = isMirrored;
   }
   return self;
 }
@@ -61,18 +63,7 @@
 }
 
 - (BOOL)isMirrored {
-  switch (_orientation) {
-    case UIImageOrientationUp:
-    case UIImageOrientationDown:
-    case UIImageOrientationLeft:
-    case UIImageOrientationRight:
-      return false;
-    case UIImageOrientationDownMirrored:
-    case UIImageOrientationUpMirrored:
-    case UIImageOrientationLeftMirrored:
-    case UIImageOrientationRightMirrored:
-      return true;
-  }
+  return _isMirrored;
 }
 
 - (BOOL)isValid {
