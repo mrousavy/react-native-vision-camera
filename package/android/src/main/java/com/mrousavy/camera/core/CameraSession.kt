@@ -193,7 +193,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     // Preview Orientation
     orientationManager.previewOrientation.toSurfaceRotation().let { previewRotation ->
       previewOutput?.targetRotation = previewRotation
-      codeScannerOutput?.targetRotation = outputRotation
+      codeScannerOutput?.targetRotation = previewRotation
     }
     // Outputs Orientation
     orientationManager.outputOrientation.toSurfaceRotation().let { outputRotation ->
