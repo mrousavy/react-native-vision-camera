@@ -42,6 +42,8 @@ Frame Processors will stream frames in a potentially "wrong" orientation, and th
 :::info
 This needs to be handled manually, see [`Frame.orientation`](/docs/api/interfaces/Frame#orientation).
 For example, in MLKit just pass the `Frame`'s `orientation` to the `detect(...)` method.
+
+Instead of always rotating up-right to portrait, you might also want to rotate the Frame to either preview-, or output-orientation, depending on your use-case.
 :::
 
 ## Implementation
@@ -97,9 +99,12 @@ For a smoother user experience, you should animate changes to the UI rotation. U
 In a Frame Processor, frames are streamed in their native sensor orientation.
 This means even if the phone is rotated from portrait to landscape, the Frame's [`width`](/docs/api/interfaces/Frame#width) and [`height`](/docs/api/interfaces/Frame#height) stay the same.
 
-The Frame's [`orientation`](/docs/api/interfaces/Frame#orientation) represents it's orientation relative to the current target orientation.
+The Frame's [`orientation`](/docs/api/interfaces/Frame#orientation) represents the **image buffer's orientation, relative to the device's native portrait mode**.
 
-For example, if the phone is held in `portrait` mode and the Frame's `orientation` is `landscape-right`, it is 90° rotated and needs to be counter-rotated by -90° to appear "up-right".
+For example, if the Frame's `orientation` is `landscape-right`, it is 90° rotated and needs to be counter-rotated by -90° to appear "up-right".
+
+On an iPhone, "up-right" means portrait mode (the home-button is at the bottom). On an iPad, "up-right" might mean a landscape orientation.
+
 Instead of actually rotating pixels in the buffers, frame processor plugins just need to interpret the frame as being rotated.
 
 MLKit handles this via a `orientation` property on the `MLImage`/`VisionImage` object:
@@ -113,11 +118,24 @@ public override func callback(_ frame: Frame, withArguments _: [AnyHashable: Any
 }
 ```
 
+You can then either rotate to preview-, or output-orientation, depending on your use-case.
+
+#### Rotate `Frame.orientation` to output Orientation
+
+If you have a Frame Processor that detects objects or faces and the user holds the phone in a landscape orientation, your algorithm might not be able to detect the object or face because it is rotated.
+
+In this case you can just rotate the `Frame.orientation` by the `outputOrientation` (see [`onOutputOrientationChanged`](/docs/api/interfaces/CameraProps#onoutputorientationchanged)), and it will then be a landscape Frame if the user rotates the phone to landscape, or a portrait Frame if the user holds the phone in portrait.
+
+#### Rotate `Frame.orientation` to preview Orientation
+
+If you have a Frame Processor tht applies some drawing operations or provides visual feedback to the Preview, you don't want to use the `outputOrientation` as that can be different than the `previewOrientation`.
+
+In this case you can follow the same idea as above, just rotate the `Frame.orientation` by the `previewOrientation` (see [`onPreviewOrientationChanged`](/docs/api/interfaces/CameraProps#onprevieworientationchanged)) to receive a Frame in the same orientation the Preview view is currently in.
+
 ### Orientation in Skia Frame Processors
 
 A Skia Frame Processor applies orientation via rotation and translation. This means the coordinate system stays the same, but output will be rotated accordingly.
 For a `landscape-left` frame, `(0,0)` will not be top left, but rather top right.
-
 
 ## Mirroring (`isMirrored`)
 

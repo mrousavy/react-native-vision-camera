@@ -290,8 +290,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     if let delegate {
       // Call Frame Processor (delegate) for every Video Frame
-      let relativeBufferOrientation = orientation.relativeTo(orientation: outputOrientation)
-      delegate.onFrame(sampleBuffer: sampleBuffer, orientation: relativeBufferOrientation)
+      delegate.onFrame(sampleBuffer: sampleBuffer, orientation: orientation)
     }
   }
 

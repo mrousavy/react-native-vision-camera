@@ -193,14 +193,14 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     // Preview Orientation
     orientationManager.previewOrientation.toSurfaceRotation().let { previewRotation ->
       previewOutput?.targetRotation = previewRotation
+      codeScannerOutput?.targetRotation = previewRotation
     }
     // Outputs Orientation
     orientationManager.outputOrientation.toSurfaceRotation().let { outputRotation ->
       photoOutput?.targetRotation = outputRotation
       videoOutput?.targetRotation = outputRotation
-      frameProcessorOutput?.targetRotation = outputRotation
-      codeScannerOutput?.targetRotation = outputRotation
     }
+    // Frame Processor output will not receive a target rotation, user is responsible for rotating himself
   }
 
   interface Callback {

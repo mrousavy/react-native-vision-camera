@@ -553,6 +553,11 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.rotationHelper.previewOrientation = previewOrientation
     this.props.onPreviewOrientationChanged?.(previewOrientation)
     this.maybeUpdateUIRotation()
+
+    if (isSkiaFrameProcessor(this.props.frameProcessor)) {
+      // If we have a Skia Frame Processor, we need to update it's orientation so it knows how to render.
+      this.props.frameProcessor.previewOrientation.value = previewOrientation
+    }
   }
 
   private maybeUpdateUIRotation(): void {
