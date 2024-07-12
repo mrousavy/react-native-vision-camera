@@ -107,7 +107,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   var pinchScaleOffset: CGFloat = 1.0
 
   // CameraView+TakeSnapshot
-  var latestVideoFrame: Snapshot?
+  var latestVideoFrame: Frame?
 
   // pragma MARK: Setup
 
@@ -360,9 +360,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool) {
+  func onFrame(frame: Frame) {
     // Update latest frame that can be used for snapshot capture
-    latestVideoFrame = Snapshot(imageBuffer: sampleBuffer, orientation: orientation)
+    latestVideoFrame = frame
 
     // Notify FPS Collector that we just had a Frame
     fpsSampleCollector.onTick()
@@ -370,9 +370,6 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer,
-                          orientation: orientation.imageOrientation,
-                          isMirrored: isMirrored)
         frameProcessor.call(frame)
       }
     #endif
