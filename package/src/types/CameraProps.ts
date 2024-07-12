@@ -16,6 +16,7 @@ export interface DrawableFrameProcessor {
   frameProcessor: (frame: Frame) => void
   type: 'drawable-skia'
   offscreenTextures: ISharedValue<SkImage[]>
+  previewOrientation: ISharedValue<Orientation>
 }
 
 export interface OnShutterEvent {

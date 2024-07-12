@@ -60,6 +60,11 @@ extension CameraSession: OrientationManagerDelegate {
         connection.orientation = previewOrientation
       }
     }
+
+    // Code Scanner coordinates are relative to Preview Orientation
+    if let codeScannerOutput {
+      codeScannerOutput.orientation = previewOrientation
+    }
   }
 
   /**
