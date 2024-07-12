@@ -360,7 +360,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation) {
+  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool) {
     // Update latest frame that can be used for snapshot capture
     latestVideoFrame = sampleBuffer
 
@@ -372,7 +372,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         // Call Frame Processor
         let frame = Frame(buffer: sampleBuffer,
                           orientation: orientation.imageOrientation,
-                          isMirrored: cameraSession.isMirrored)
+                          isMirrored: isMirrored)
         frameProcessor.call(frame)
       }
     #endif
