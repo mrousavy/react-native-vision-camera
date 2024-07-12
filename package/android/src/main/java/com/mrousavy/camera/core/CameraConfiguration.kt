@@ -55,9 +55,9 @@ data class CameraConfiguration(
 
   val targetFpsRange: Range<Int>?
     get() {
-      // due to a bug (or feature?) in CameraX, photo resolution will suffer if min FPS is higher than 20.
       val maxFps = fps ?: return null
-      val minFps = min(20, maxFps)
+      val format = format ?: throw PropRequiresFormatToBeNonNullError("fps")
+      val minFps = format.minFps.toInt()
       return Range(minFps, maxFps)
     }
 
