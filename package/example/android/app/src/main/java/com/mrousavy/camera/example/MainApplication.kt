@@ -17,7 +17,7 @@ import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry
 class MainApplication : Application(), ReactApplication {
   companion object {
     init {
-        FrameProcessorPluginRegistry.addFrameProcessorPlugin("example") { proxy, args -> ExampleFrameProcessorPlugin(proxy, args) }
+        FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin") { proxy, args -> ExampleFrameProcessorPlugin(proxy, args) }
         FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin") { proxy, args -> ExampleKotlinFrameProcessorPlugin(proxy, args) }
     }
   }

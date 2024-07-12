@@ -53,6 +53,9 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, co
   auto options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, jsOptions);
 
   auto plugin = _javaProxy->cthis()->initFrameProcessorPlugin(name, options);
+  if (plugin == nullptr) {
+    return jsi::Value::undefined();
+  }
 
   auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin);
   return jsi::Object::createFromHostObject(runtime, pluginHostObject);
