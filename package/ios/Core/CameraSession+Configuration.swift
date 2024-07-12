@@ -252,18 +252,18 @@ extension CameraSession {
     if let minFps = configuration.minFps,
        let maxFps = configuration.maxFps {
       let fpsRanges = device.activeFormat.videoSupportedFrameRateRanges
-      if !fpsRanges.contains(where: { $0.maxFrameRate >= Double(maxFps) }) {
-        throw CameraError.format(.invalidFps(fps: Int(maxFps)))
-      }
       if !fpsRanges.contains(where: { $0.minFrameRate <= Double(minFps) }) {
         throw CameraError.format(.invalidFps(fps: Int(minFps)))
       }
-
-      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: maxFps)
+      if !fpsRanges.contains(where: { $0.maxFrameRate >= Double(maxFps) }) {
+        throw CameraError.format(.invalidFps(fps: Int(maxFps)))
+      }
+      
       device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: minFps)
+      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: maxFps)
     } else {
-      device.activeVideoMinFrameDuration = CMTime.invalid
       device.activeVideoMaxFrameDuration = CMTime.invalid
+      device.activeVideoMinFrameDuration = CMTime.invalid
     }
 
     // Configure Low-Light-Boost
