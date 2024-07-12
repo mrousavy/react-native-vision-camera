@@ -171,6 +171,16 @@ camera.current.startRecording({
 })
 ```
 
+### Video Frame Rate (FPS)
+
+The resulting video will be recorded at the frame rate provided to the [`fps`](/docs/api/interfaces/CameraProps#fps) prop.
+
+```tsx
+<Camera {...props} fps={60} />
+```
+
+See [FPS](formats#fps) for more information.
+
 ## Saving the Video to the Camera Roll
 
 Since the Video is stored as a temporary file, you need save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
