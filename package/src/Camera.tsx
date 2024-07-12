@@ -636,14 +636,18 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const isRenderingWithSkia = isSkiaFrameProcessor(frameProcessor)
     const shouldBeMirrored = device.position === 'front'
 
+    // minFps/maxFps is either the fixed `fps` value, or a value from the [min, max] tuple
+    const minFps = fps == null ? undefined : typeof fps === 'number' ? fps : fps[0]
+    const maxFps = fps == null ? undefined : typeof fps === 'number' ? fps : fps[1]
+
     return (
       <NativeCameraView
         {...props}
         cameraId={device.id}
         ref={this.ref}
         torch={torch}
-        minFps={props.minFps ?? fps ?? props.maxFps}
-        maxFps={props.maxFps ?? fps ?? props.minFps}
+        minFps={minFps}
+        maxFps={maxFps}
         isMirrored={props.isMirrored ?? shouldBeMirrored}
         onViewReady={this.onViewReady}
         onAverageFpsChanged={enableFpsGraph ? this.onAverageFpsChanged : undefined}
