@@ -21,6 +21,13 @@ extension AVCaptureDevice {
     //       - Dynamically creating an AVCaptureSession is very hacky and has a runtime overhead.
     //       Hopefully iOS adds an API to get sensor orientation soon so we can use that!
 
+    // 0. If we don't have Camera permission yet, we cannot create a temporary AVCaptureSession.
+    //    So we just return the default orientation as a workaround...
+    let cameraPermissionStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    if cameraPermissionStatus != .authorized {
+      return DEFAULT_SENSOR_ORIENTATION
+    }
+
     // 1. Create a capture session
     let session = AVCaptureSession()
     if session.canSetSessionPreset(.low) {
