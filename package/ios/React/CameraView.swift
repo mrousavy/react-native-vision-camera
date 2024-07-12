@@ -46,7 +46,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
   // props that require format reconfiguring
   @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
+  @objc var minFps: NSNumber?
+  @objc var maxFps: NSNumber?
   @objc var videoHdr = false
   @objc var photoHdr = false
   @objc var photoQualityBalance: NSString?
@@ -256,7 +257,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       }
 
       // Side-Props
-      config.fps = fps?.int32Value
+      config.minFps = minFps?.int32Value
+      config.maxFps = maxFps?.int32Value
       config.enableLowLightBoost = lowLightBoost
       config.torch = try Torch(jsValue: torch)
 

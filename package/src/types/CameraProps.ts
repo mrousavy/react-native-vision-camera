@@ -183,11 +183,16 @@ export interface CameraProps extends ViewProps {
    */
   androidPreviewViewType?: 'surface-view' | 'texture-view'
   /**
-   * Specify the frames per second this camera should stream frames at.
+   * Specify a the number of frames per second this camera should stream frames at.
+   *
+   * - If `fps` is a single number, the Camera will be streaming at a fixed FPS value.
+   * - If `fps` is a tuple/array, the Camera will be free to choose a FPS value between `minFps` and `maxFps`,
+   * depending on current lighting conditions. Allowing a lower `minFps` value can result in better photos
+   * and videos, as the Camera can take more time to properly receive light for frames.
    *
    * Make sure the given {@linkcode format} can stream at the target {@linkcode fps} value (see {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}).
    */
-  fps?: number
+  fps?: number | [minFps: number, maxFps: number]
   /**
    * Enables or disables HDR Video Streaming for Preview, Video and Frame Processor via a 10-bit wide-color pixel format.
    *

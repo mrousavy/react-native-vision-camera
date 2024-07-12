@@ -181,13 +181,21 @@ const format = getCameraFormat(device, Templates.Snapchat)
 
 ## Camera Props
 
-The `Camera` View provides a few props that depend on the specified `format`. For example, you can only set the `fps` prop to a value that is supported by the current `format`. So if you have a format that supports 240 FPS, you can set the `fps` to `240`:
+The `Camera` View provides a few props that depend on the specified `format`.
+
+### FPS
+
+For example, a camera device might have a 1080p and a 4k format, but the 4k one can only stream at 60 FPS, while the 1080p format can do 240 FPS.
+
+To find a 240 FPS format we can use the [`useCameraFormat(..)`](/docs/api#usecameraformat) hook to find a suitable format, then pass it's maximum supported FPS as the Camera's target FPS:
 
 ```tsx
 function App() {
-  // ...
-  const format = ...
-  const fps = format.maxFps >= 240 ? 240 : format.maxFps
+  const device = ...
+  const format = useCameraFormat(device, [
+    { fps: 240 }
+  ])
+  const fps = format.maxFps // <-- 240 FPS, or lower if 240 FPS is not available
 
   return (
     <Camera
@@ -200,14 +208,37 @@ function App() {
 }
 ```
 
+Setting [`fps`](/docs/api/interfaces/CameraProps#fps) to a single number will configure the Camera to use a fixed FPS rate.
+
+Under low/dark lighting conditions, a Camera could throttle it's FPS rate to receive more light, which would result in **higher quality and better exposed photos and videos**.
+VisionCamera provides an API to set a variable FPS rate, which internally automatically adjusts FPS rate depending on lighting conditions.
+To use this, simply set [`fps`](/docs/api/interfaces/CameraProps#fps) to a tuple (`[min, max]`).
+
+For example, we could target 30 FPS, but allow the Camera to throttle down to 20 FPS under low lighting conditions:
+
+```tsx
+function App() {
+  // ...
+  const format = ...
+  const minFps = Math.max(format.minFps, 20)
+  const maxFps = Math.min(format.maxFps, 30)
+
+  return (
+    <Camera
+      {...props}
+      fps={[minFps, maxFps]}
+    />
+  )
+}
+```
+
+### Other Props
+
 Other props that depend on the `format`:
 
-* `fps`: Specifies the frame rate to use
 * `videoHdr`: Enables HDR video capture and preview
 * `photoHdr`: Enables HDR photo capture
-* `lowLightBoost`: Enables a night-mode/low-light-boost for photo or video capture and preview
 * `videoStabilizationMode`: Specifies the video stabilization mode to use for the video pipeline
-* `pixelFormat`: Specifies the pixel format to use for the video pipeline
 
 
 <br />

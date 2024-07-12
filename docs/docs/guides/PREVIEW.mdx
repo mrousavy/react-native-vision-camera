@@ -42,13 +42,15 @@ To get notified about pauses in the preview view, use the [`onPreviewStarted`](/
 />
 ```
 
-### FPS
+### Preview Frame Rate (FPS)
 
-The Preview view is running at the same frame rate as the Video stream, configured by the [`fps`](/docs/api/interfaces/CameraProps#fps) prop, or 30 FPS by default.
+The Preview view is running at the same frame rate as the Video stream, configured by the [`fps`](/docs/api/interfaces/CameraProps#fps) prop, or a value close to 30 FPS by default.
 
 ```tsx
 <Camera {...props} fps={60} />
 ```
+
+See [FPS](formats#fps) for more information.
 
 ### Resolution
 
