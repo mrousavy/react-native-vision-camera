@@ -19,6 +19,10 @@ extension CameraSession: OrientationManagerDelegate {
     return input.device.sensorOrientation
   }
 
+  var isMirrored: Bool {
+    return configuration?.isMirrored == true
+  }
+
   /**
    Get the orientation all outputs should be configured to so they appear up-right.
    This is usually just a counter-rotation to whatever the input camera stream is.

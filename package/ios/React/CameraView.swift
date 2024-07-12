@@ -370,7 +370,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       if let frameProcessor = frameProcessor {
         // Call Frame Processor
-        let frame = Frame(buffer: sampleBuffer, orientation: orientation.imageOrientation)
+        let frame = Frame(buffer: sampleBuffer,
+                          orientation: orientation.imageOrientation,
+                          isMirrored: cameraSession.isMirrored)
         frameProcessor.call(frame)
       }
     #endif

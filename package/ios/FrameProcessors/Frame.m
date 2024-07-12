@@ -13,13 +13,15 @@
 @implementation Frame {
   CMSampleBufferRef _Nonnull _buffer;
   UIImageOrientation _orientation;
+  BOOL _isMirrored;
 }
 
-- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation isMirrored:(BOOL)isMirrored {
   self = [super init];
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
+    _isMirrored = isMirrored;
   }
   return self;
 }
