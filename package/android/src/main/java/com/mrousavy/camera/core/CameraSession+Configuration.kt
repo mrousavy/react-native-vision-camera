@@ -81,7 +81,7 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         preview.setResolutionSelector(previewResolutionSelector)
       }
     }.build()
-    preview.surfaceProvider = previewConfig.config.surfaceProvider
+    preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
     previewOutput = preview
   } else {
     previewOutput = null

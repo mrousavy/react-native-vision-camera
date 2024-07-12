@@ -9,7 +9,6 @@ import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.QualityBalance
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
-import kotlin.math.min
 
 data class CameraConfiguration(
   // Input
@@ -55,9 +54,9 @@ data class CameraConfiguration(
 
   val targetFpsRange: Range<Int>?
     get() {
-      // due to a bug (or feature?) in CameraX, photo resolution will suffer if min FPS is higher than 20.
       val maxFps = fps ?: return null
-      val minFps = min(20, maxFps)
+      val format = format ?: throw PropRequiresFormatToBeNonNullError("fps")
+      val minFps = format.minFps.toInt()
       return Range(minFps, maxFps)
     }
 
