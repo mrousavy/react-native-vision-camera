@@ -63,18 +63,7 @@
 }
 
 - (BOOL)isMirrored {
-  switch (_orientation) {
-    case UIImageOrientationUp:
-    case UIImageOrientationDown:
-    case UIImageOrientationLeft:
-    case UIImageOrientationRight:
-      return false;
-    case UIImageOrientationDownMirrored:
-    case UIImageOrientationUpMirrored:
-    case UIImageOrientationLeftMirrored:
-    case UIImageOrientationRightMirrored:
-      return true;
-  }
+  return _isMirrored;
 }
 
 - (BOOL)isValid {
