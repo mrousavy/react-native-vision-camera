@@ -15,14 +15,14 @@ extension CameraView {
       guard let snapshot = latestVideoFrame else {
         throw CameraError.capture(.snapshotFailed)
       }
-      guard let imageBuffer = CMSampleBufferGetImageBuffer(snapshot) else {
+      guard let imageBuffer = CMSampleBufferGetImageBuffer(snapshot.imageBuffer) else {
         throw CameraError.capture(.imageDataAccessError)
       }
 
       self.onCaptureShutter(shutterType: .snapshot)
 
       let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-      let orientation = self.cameraSession.outputOrientation
+      let orientation = Orientation.portrait.relativeTo(orientation: snapshot.orientation)
       let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: orientation.imageOrientation)
       let path = try FileUtils.writeUIImageToTempFile(image: image)
       return [
