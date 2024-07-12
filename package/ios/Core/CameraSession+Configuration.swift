@@ -258,7 +258,7 @@ extension CameraSession {
       if !fpsRanges.contains(where: { $0.maxFrameRate >= Double(maxFps) }) {
         throw CameraError.format(.invalidFps(fps: Int(maxFps)))
       }
-      
+
       device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: minFps)
       device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: maxFps)
     } else {
