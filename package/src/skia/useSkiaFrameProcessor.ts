@@ -53,27 +53,27 @@ function getDegrees(orientation: Orientation): number {
     case 'portrait':
       return 0
     case 'landscape-left':
-      return 270
+      return 90
     case 'portrait-upside-down':
       return 180
     case 'landscape-right':
-      return 90
+      return 270
   }
 }
 
 function getOrientation(degrees: number): Orientation {
   'worklet'
-  const clamped = degrees % 360
+  const clamped = (degrees + 360) % 360
   if (clamped >= 315 || clamped <= 45) return 'portrait'
-  else if (clamped >= 45 || clamped <= 135) return 'landscape-left'
-  else if (clamped >= 135 || clamped <= 225) return 'portrait-upside-down'
-  else if (clamped >= 225 || clamped <= 315) return 'landscape-right'
+  else if (clamped >= 45 && clamped <= 135) return 'landscape-left'
+  else if (clamped >= 135 && clamped <= 225) return 'portrait-upside-down'
+  else if (clamped >= 225 && clamped <= 315) return 'landscape-right'
   else throw new Error(`Invalid degrees! ${degrees}`)
 }
 
-function rotateBy(a: Orientation, b: Orientation): Orientation {
+function relativeTo(a: Orientation, b: Orientation): Orientation {
   'worklet'
-  return getOrientation(getDegrees(a) + getDegrees(b))
+  return getOrientation(getDegrees(a) - getDegrees(b))
 }
 
 /**
@@ -88,8 +88,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, previewOrientation: Or
 
   try {
     // 2. properly rotate canvas so Frame is rendered up-right.
-    const orientation = rotateBy(frame.orientation, previewOrientation)
-    console.log(frame.orientation, previewOrientation, orientation)
+    const orientation = relativeTo(frame.orientation, previewOrientation)
     switch (orientation) {
       case 'portrait':
         // do nothing
