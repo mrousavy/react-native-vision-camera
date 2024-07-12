@@ -29,7 +29,8 @@ data class CameraConfiguration(
   var format: CameraDeviceFormat? = null,
 
   // Side-Props
-  var fps: Int? = null,
+  var minFps: Int? = null,
+  var maxFps: Int? = null,
   var enableLowLightBoost: Boolean = false,
   var torch: Torch = Torch.OFF,
   var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
@@ -54,9 +55,8 @@ data class CameraConfiguration(
 
   val targetFpsRange: Range<Int>?
     get() {
-      val maxFps = fps ?: return null
-      val format = format ?: throw PropRequiresFormatToBeNonNullError("fps")
-      val minFps = format.minFps.toInt()
+      val minFps = minFps ?: return null
+      val maxFps = maxFps ?: return null
       return Range(minFps, maxFps)
     }
 

@@ -158,9 +158,17 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   // TODO: Change when TurboModules release.
   // We're treating -1 as "null" here, because when I make the fps parameter
   // of type "Int?" the react bridge throws an error.
-  @ReactProp(name = "fps", defaultInt = -1)
-  fun setFps(view: CameraView, fps: Int) {
-    view.fps = if (fps > 0) fps else null
+  @ReactProp(name = "minFps", defaultInt = -1)
+  fun setMinFps(view: CameraView, minFps: Int) {
+    view.minFps = if (minFps > 0) minFps else null
+  }
+
+  // TODO: Change when TurboModules release.
+  // We're treating -1 as "null" here, because when I make the fps parameter
+  // of type "Int?" the react bridge throws an error.
+  @ReactProp(name = "maxFps", defaultInt = -1)
+  fun setMaxFps(view: CameraView, maxFps: Int) {
+    view.maxFps = if (maxFps > 0) maxFps else null
   }
 
   @ReactProp(name = "photoHdr")

@@ -70,7 +70,8 @@ class CameraView(context: Context) :
 
   // props that require format reconfiguring
   var format: CameraDeviceFormat? = null
-  var fps: Int? = null
+  var minFps: Int? = null
+  var maxFps: Int? = null
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
@@ -218,7 +219,8 @@ class CameraView(context: Context) :
         config.format = format
 
         // Side-Props
-        config.fps = fps
+        config.minFps = minFps
+        config.maxFps = maxFps
         config.enableLowLightBoost = lowLightBoost
         config.torch = torch
         config.exposure = exposure
