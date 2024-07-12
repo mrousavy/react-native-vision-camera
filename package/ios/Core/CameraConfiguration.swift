@@ -36,7 +36,8 @@ final class CameraConfiguration {
   var format: CameraDeviceFormat?
 
   // Side-Props
-  var fps: Int32?
+  var minFps: Int32?
+  var maxFps: Int32?
   var enableLowLightBoost = false
   var torch: Torch = .off
 
@@ -64,7 +65,8 @@ final class CameraConfiguration {
       videoStabilizationMode = other.videoStabilizationMode
       outputOrientation = other.outputOrientation
       format = other.format
-      fps = other.fps
+      minFps = other.minFps
+      maxFps = other.maxFps
       enableLowLightBoost = other.enableLowLightBoost
       torch = other.torch
       zoom = other.zoom
@@ -129,7 +131,7 @@ final class CameraConfiguration {
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)
-      sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost
+      sidePropsChanged = formatChanged || left?.minFps != right.minFps || left?.maxFps != right.maxFps || left?.enableLowLightBoost != right.enableLowLightBoost
       // torch (depends on isActive)
       let wasInactiveAndNeedsToEnableTorchAgain = left?.isActive == false && right.isActive == true && right.torch == .on
       torchChanged = inputChanged || wasInactiveAndNeedsToEnableTorchAgain || left?.torch != right.torch

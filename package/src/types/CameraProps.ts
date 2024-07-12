@@ -183,11 +183,39 @@ export interface CameraProps extends ViewProps {
    */
   androidPreviewViewType?: 'surface-view' | 'texture-view'
   /**
-   * Specify the frames per second this camera should stream frames at.
+   * Specify a fixed number of frames per second this camera should stream frames at.
+   *
+   * `fps` is just a shorthand for setting {@linkcode minFps} and {@linkcode maxFps} to the same value.
+   * For setting a variable FPS range, use {@linkcode minFps} and {@linkcode maxFps} instead of `fps`.
+   * Setting a variable FPS range can be beneficial for better exposure and quality in low-light conditions.
    *
    * Make sure the given {@linkcode format} can stream at the target {@linkcode fps} value (see {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}).
    */
   fps?: number
+  /**
+   * Specifies the minimum amount of frames per second this camera should stream frames at.
+   *
+   * Under low/dark lighting conditions, the Camera will throttle it's frame rate to receive more
+   * light, and `minFps` sets the minimum value for this.
+   *
+   * Make sure this value is not lower than the given {@linkcode format}'s {@linkcode CameraDeviceFormat.minFps format.minFps} value.
+   */
+  minFps?: number
+  /**
+   * Specifies the maximum amount of frames per second this camera should stream frames at.
+   *
+   * Under good/bright lighting conditions, the Camera can increase it's frame rate as it does not need
+   * a lot of light to expose frames.
+   *
+   * However under low/dark lighting conditions, the Camera might throttle it's frame rate to receive more light.
+   * This can be controlled via {@linkcode minFps}:
+   * - if {@linkcode minFps} is the same value as `maxFps`, the Camera will not throttle FPS.
+   * - if {@linkcode minFps} is a lower value than `maxFps` (e.g. `minFps={20} maxFps={30}`), the Camera
+   * can choose between 20 FPS and 30 FPS depending on lighting conditions.
+   *
+   * Make sure this value is not higher than the given {@linkcode format}'s {@linkcode CameraDeviceFormat.maxFps format.maxFps} value.
+   */
+  maxFps?: number
   /**
    * Enables or disables HDR Video Streaming for Preview, Video and Frame Processor via a 10-bit wide-color pixel format.
    *

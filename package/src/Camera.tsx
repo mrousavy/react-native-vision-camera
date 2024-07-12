@@ -621,7 +621,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor, codeScanner, enableFpsGraph, ...props } = this.props
+    const { device, frameProcessor, codeScanner, enableFpsGraph, fps, ...props } = this.props
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (device == null) {
@@ -642,6 +642,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         cameraId={device.id}
         ref={this.ref}
         torch={torch}
+        minFps={props.minFps ?? fps ?? props.maxFps}
+        maxFps={props.maxFps ?? fps ?? props.minFps}
         isMirrored={props.isMirrored ?? shouldBeMirrored}
         onViewReady={this.onViewReady}
         onAverageFpsChanged={enableFpsGraph ? this.onAverageFpsChanged : undefined}

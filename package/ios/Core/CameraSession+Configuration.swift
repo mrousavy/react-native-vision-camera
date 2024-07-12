@@ -249,16 +249,17 @@ extension CameraSession {
    */
   func configureSideProps(configuration: CameraConfiguration, device: AVCaptureDevice) throws {
     // Configure FPS
-    if let fps = configuration.fps {
-      let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
-        return range.includes(fps: Double(fps))
+    if let minFps = configuration.minFps,
+       let maxFps = configuration.maxFps {
+      let fpsRanges = device.activeFormat.videoSupportedFrameRateRanges
+      if !fpsRanges.contains(where: { $0.maxFrameRate >= Double(maxFps) }) {
+        throw CameraError.format(.invalidFps(fps: Int(maxFps)))
       }
-      if !supportsGivenFps {
-        throw CameraError.format(.invalidFps(fps: Int(fps)))
+      if !fpsRanges.contains(where: { $0.minFrameRate <= Double(minFps) }) {
+        throw CameraError.format(.invalidFps(fps: Int(minFps)))
       }
 
-      let minFps = configuration.enableLowLightBoost ? fps / 2 : fps
-      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: fps)
+      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: maxFps)
       device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: minFps)
     } else {
       device.activeVideoMinFrameDuration = CMTime.invalid
