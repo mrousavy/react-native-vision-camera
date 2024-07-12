@@ -20,6 +20,8 @@ data class CameraConfiguration(
   var video: Output<Video> = Output.Disabled.create(),
   var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
+  var minFps: Int? = null,
+  var maxFps: Int? = null,
   var enableLocation: Boolean = false,
 
   // Orientation
@@ -29,8 +31,6 @@ data class CameraConfiguration(
   var format: CameraDeviceFormat? = null,
 
   // Side-Props
-  var minFps: Int? = null,
-  var maxFps: Int? = null,
   var enableLowLightBoost: Boolean = false,
   var torch: Torch = Torch.OFF,
   var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
@@ -130,7 +130,8 @@ data class CameraConfiguration(
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
         left.format != right.format ||
-        left.fps != right.fps
+        left.minFps != right.minFps ||
+        left.maxFps != right.maxFps
 
       // input device
       val deviceChanged = outputsChanged || left?.cameraId != right.cameraId
