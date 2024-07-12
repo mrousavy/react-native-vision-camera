@@ -9,7 +9,6 @@ import com.mrousavy.camera.core.types.PixelFormat
 import com.mrousavy.camera.core.types.QualityBalance
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
-import kotlin.math.min
 
 data class CameraConfiguration(
   // Input
