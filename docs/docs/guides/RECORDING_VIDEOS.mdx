@@ -64,7 +64,7 @@ To stop the video recording, you can call [`stopRecording(...)`](/docs/api/class
 await camera.current.stopRecording()
 ```
 
-Once a recording has been stopped, the `onRecordingFinished` callback passed to the [`stopRecording(...)`](/docs/api/classes/Camera#stoprecording) function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
+Once a recording has been stopped, the `onRecordingFinished` callback passed to the [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
 
 ### Pause/Resume
 
