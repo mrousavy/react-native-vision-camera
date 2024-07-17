@@ -125,6 +125,11 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     return nodeHandle
   }
 
+  private get enablePreviewView(): boolean {
+    const isRenderingWithSkia = isSkiaFrameProcessor(this.props.frameProcessor)
+    return isRenderingWithSkia ? false : this.props.preview ?? true
+  }
+
   //#region View-specific functions (UIViewManager)
   /**
    * Take a single photo and write it's content to a temporary file.
@@ -385,7 +390,27 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraModule.focus(this.handle, point)
+      if (this.enablePreviewView) {
+        // Use Preview coordinate system
+        return await CameraModule.focus(this.handle, {
+          coordinateSystem: 'preview-view',
+          point: point,
+        })
+      } else {
+        // Use Camera-native coordinate system
+        const format = this.props.format
+        if (format == null) {
+          // TODO: Move this to native so it isn't required.
+          throw new Error('Format is required to focus without a Preview View!')
+        }
+        return await CameraModule.focus(this.handle, {
+          coordinateSystem: 'camera',
+          point: {
+            x: point.x / format.videoWidth,
+            y: point.y / format.videoHeight,
+          },
+        })
+      }
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
@@ -669,7 +694,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
-        preview={isRenderingWithSkia ? false : props.preview ?? true}>
+        preview={this.enablePreviewView}>
         {isRenderingWithSkia && (
           <SkiaCameraCanvas
             style={styles.customPreviewView}
