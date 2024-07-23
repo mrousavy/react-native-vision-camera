@@ -96,7 +96,7 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, previewOrientation: Or
       case 'landscape-left':
         // rotate two flips on (0,0) origin and move X + Y into view again
         canvas.translate(frame.height, frame.width)
-        canvas.translate(270, 0)
+        canvas.rotate(270, 0, 0)
         break
       case 'portrait-upside-down':
         // rotate three flips on (0,0) origin and move Y into view again
