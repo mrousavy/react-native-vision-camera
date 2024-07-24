@@ -1,8 +1,11 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
+$config = find_config()
 
 nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
+reactNativePackage = JSON.parse(File.read(File.join(nodeModules, "react-native", "package.json")))
+reactNativeVersion = reactNativePackage["version"]
 
 Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
 Pod::UI.puts "[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: https://github.com/sponsors/mrousavy"
@@ -24,6 +27,7 @@ else
 end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
+Pod::UI.puts "[VisionCamera] React Native Version: 0.#{reactNativeVersion}"
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath)
 if hasWorklets
@@ -46,7 +50,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{enableFrameProcessors}",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{enableFrameProcessors} REACT_NATIVE_VERSION=#{reactNativeVersion}",
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableFrameProcessors ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
   }
 

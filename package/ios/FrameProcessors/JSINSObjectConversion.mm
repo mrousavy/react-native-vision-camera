@@ -29,7 +29,18 @@ using namespace facebook::react;
 namespace JSINSObjectConversion {
 
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
-  if (value == nil || value == (id)kCFNull) {
+  if ([value isKindOfClass:[Frame class]]) {
+    // Frame
+
+    Frame* frame = (Frame*)value;
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+    jsi::Object object = jsi::Object::createFromHostObject(runtime, frameHostObject);
+#if REACT_NATIVE_VERSION >= 74
+    size_t frameSize = frame.bytesPerRow * frame.height;
+    object.setExternalMemoryPressure(runtime, frameSize);
+#endif
+    return object;
+  } else if (value == nil || value == (id)kCFNull) {
     // null
 
     return jsi::Value::undefined();
@@ -67,12 +78,6 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
       result.setValueAtIndex(runtime, i, convertObjCObjectToJSIValue(runtime, value[i]));
     }
     return result;
-  } else if ([value isKindOfClass:[Frame class]]) {
-    // Frame
-
-    Frame* frame = (Frame*)value;
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
-    return jsi::Object::createFromHostObject(runtime, frameHostObject);
   } else if ([value isKindOfClass:[SharedArray class]]) {
     // SharedArray
 
