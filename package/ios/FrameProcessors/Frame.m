@@ -35,7 +35,20 @@
 }
 
 - (CMSampleBufferRef)buffer {
+  if (!self.isValid) {
+    @throw [[NSException alloc] initWithName:@"capture/frame-invalid"
+                                      reason:@"Trying to access an already closed Frame! "
+                                              "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
+                                              "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
+                                              "- If you want to do async processing, use `runAsync(...)` instead.\n"
+                                              "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`"
+                                    userInfo:nil];
+  }
   return _buffer;
+}
+
+- (BOOL)isValid {
+  return _buffer != nil && CFGetRetainCount(_buffer) > 0 && CMSampleBufferIsValid(_buffer);
 }
 
 - (UIImageOrientation)orientation {
@@ -43,7 +56,7 @@
 }
 
 - (NSString*)pixelFormat {
-  CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(_buffer);
+  CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(self.buffer);
   FourCharCode mediaType = CMFormatDescriptionGetMediaSubType(format);
   switch (mediaType) {
     case kCVPixelFormatType_32BGRA:
@@ -66,32 +79,28 @@
   return _isMirrored;
 }
 
-- (BOOL)isValid {
-  return _buffer != nil && CMSampleBufferIsValid(_buffer);
-}
-
 - (size_t)width {
-  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
+  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(self.buffer);
   return CVPixelBufferGetWidth(imageBuffer);
 }
 
 - (size_t)height {
-  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
+  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(self.buffer);
   return CVPixelBufferGetHeight(imageBuffer);
 }
 
 - (double)timestamp {
-  CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(_buffer);
+  CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(self.buffer);
   return CMTimeGetSeconds(timestamp) * 1000.0;
 }
 
 - (size_t)bytesPerRow {
-  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
+  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(self.buffer);
   return CVPixelBufferGetBytesPerRow(imageBuffer);
 }
 
 - (size_t)planesCount {
-  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
+  CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(self.buffer);
   return CVPixelBufferGetPlaneCount(imageBuffer);
 }
 

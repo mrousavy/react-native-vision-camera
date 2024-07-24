@@ -27,7 +27,9 @@ public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
 
 public:
-  jni::global_ref<JFrame> getFrame();
+  inline jni::global_ref<JFrame> getFrame() const noexcept {
+    return _frame;
+  }
 
 private:
   jni::global_ref<JFrame> _frame;

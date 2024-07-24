@@ -40,17 +40,6 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   return result;
 }
 
-Frame* FrameHostObject::getFrame() {
-  if (!_frame.isValid) [[unlikely]] {
-    throw std::runtime_error("Frame is already closed! "
-                             "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
-                             "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
-                             "- If you want to do async processing, use `runAsync(...)` instead.\n"
-                             "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
-  }
-  return _frame;
-}
-
 #define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
@@ -58,42 +47,32 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   // Properties
   if (name == "width") {
-    Frame* frame = getFrame();
-    return jsi::Value((double)frame.width);
+    return jsi::Value((double)_frame.width);
   }
   if (name == "height") {
-    Frame* frame = getFrame();
-    return jsi::Value((double)frame.height);
+    return jsi::Value((double)_frame.height);
   }
   if (name == "orientation") {
-    Frame* frame = getFrame();
-    NSString* orientation = [NSString stringWithParsed:frame.orientation];
+    NSString* orientation = [NSString stringWithParsed:_frame.orientation];
     return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
   }
   if (name == "isMirrored") {
-    Frame* frame = getFrame();
-    return jsi::Value(frame.isMirrored);
+    return jsi::Value(_frame.isMirrored);
   }
   if (name == "timestamp") {
-    Frame* frame = getFrame();
-    return jsi::Value(frame.timestamp);
+    return jsi::Value(_frame.timestamp);
   }
   if (name == "pixelFormat") {
-    Frame* frame = getFrame();
-    return jsi::String::createFromUtf8(runtime, frame.pixelFormat.UTF8String);
+    return jsi::String::createFromUtf8(runtime, _frame.pixelFormat.UTF8String);
   }
   if (name == "isValid") {
-    // unsafely access the Frame and try to see if it's valid
-    Frame* frame = _frame;
-    return jsi::Value(frame != nil && frame.isValid);
+    return jsi::Value(_frame != nil && _frame.isValid);
   }
   if (name == "bytesPerRow") {
-    Frame* frame = getFrame();
-    return jsi::Value((double)frame.bytesPerRow);
+    return jsi::Value((double)_frame.bytesPerRow);
   }
   if (name == "planesCount") {
-    Frame* frame = getFrame();
-    return jsi::Value((double)frame.planesCount);
+    return jsi::Value((double)_frame.planesCount);
   }
 
   // Internal methods
@@ -116,8 +95,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "getNativeBuffer") {
     auto getNativeBuffer = JSI_FUNC {
       // Box-cast to uintptr (just 64-bit address)
-      Frame* frame = getFrame();
-      CMSampleBufferRef sampleBuffer = frame.buffer;
+      CMSampleBufferRef sampleBuffer = _frame.buffer;
       CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
       uintptr_t pointer = reinterpret_cast<uintptr_t>(pixelBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
@@ -137,8 +115,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_FUNC {
       // Get CPU readable Pixel Buffer from Frame and write it to a jsi::ArrayBuffer
-      Frame* frame = getFrame();
-      auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+      auto pixelBuffer = CMSampleBufferGetImageBuffer(_frame.buffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       auto height = CVPixelBufferGetHeight(pixelBuffer);
 
@@ -172,8 +149,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toString") {
     auto toString = JSI_FUNC {
       // Print debug description (width, height)
-      Frame* frame = getFrame();
-      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu %@ Frame", frame.width, frame.height, frame.pixelFormat];
+      if (!_frame.isValid) {
+        return jsi::String::createFromUtf8(runtime, "[closed frame]");
+      }
+      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu %@ Frame", _frame.width, _frame.height, _frame.pixelFormat];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
