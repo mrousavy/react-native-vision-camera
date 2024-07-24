@@ -187,7 +187,7 @@ final class RecordingSession {
 
     // Start a timeout that will force-stop the session if it still hasn't been stopped (maybe no more frames came in?)
     let latency = max(videoTrack?.latency.seconds ?? 0.0, audioTrack?.latency.seconds ?? 0.0)
-    let timeout = latency * 2
+    let timeout = max(latency * 2, 0.1)
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + timeout) {
       if !self.isFinishing {
         VisionLogger.log(level: .error, message: "Waited \(timeout) seconds but session is still not finished - force-stopping session...")
