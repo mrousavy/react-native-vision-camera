@@ -72,7 +72,12 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
 
     Frame* frame = (Frame*)value;
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
-    return jsi::Object::createFromHostObject(runtime, frameHostObject);
+    jsi::Object object = jsi::Object::createFromHostObject(runtime, frameHostObject);
+#if REACT_NATIVE_VERSION >= 74
+    size_t frameSize = frame.bytesPerRow * frame.height;
+    object.setExternalMemoryPressure(runtime, frameSize);
+#endif
+    return object;
   } else if ([value isKindOfClass:[SharedArray class]]) {
     // SharedArray
 
