@@ -4,7 +4,8 @@ package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 $config = find_config()
 
 nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
-reactNativeVersion = $config[:react_native_minor_version]
+reactNativePackage = JSON.parse(File.read(File.join(nodeModules, "react-native", "package.json")))
+reactNativeVersion = reactNativePackage["version"]
 
 Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
 Pod::UI.puts "[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: https://github.com/sponsors/mrousavy"
