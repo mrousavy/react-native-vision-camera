@@ -55,17 +55,6 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   return result;
 }
 
-jni::global_ref<JFrame> FrameHostObject::getFrame() {
-  if (!_frame->getIsValid()) [[unlikely]] {
-    throw std::runtime_error("Frame is already closed! "
-                             "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
-                             "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
-                             "- If you want to do async processing, use `runAsync(...)` instead.\n"
-                             "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
-  }
-  return _frame;
-}
-
 #define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
@@ -76,40 +65,32 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value(_frame->getIsValid());
   }
   if (name == "width") {
-    const auto& frame = getFrame();
-    return jsi::Value(frame->getWidth());
+    return jsi::Value(_frame->getWidth());
   }
   if (name == "height") {
-    const auto& frame = getFrame();
-    return jsi::Value(frame->getHeight());
+    return jsi::Value(_frame->getHeight());
   }
   if (name == "isMirrored") {
-    const auto& frame = getFrame();
-    return jsi::Value(frame->getIsMirrored());
+    return jsi::Value(_frame->getIsMirrored());
   }
   if (name == "orientation") {
-    const auto& frame = getFrame();
-    auto orientation = frame->getOrientation();
+    auto orientation = _frame->getOrientation();
     auto string = orientation->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {
-    const auto& frame = getFrame();
-    auto pixelFormat = frame->getPixelFormat();
+    auto pixelFormat = _frame->getPixelFormat();
     auto string = pixelFormat->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {
-    const auto& frame = getFrame();
-    return jsi::Value(static_cast<double>(frame->getTimestamp()));
+    return jsi::Value(static_cast<double>(_frame->getTimestamp()));
   }
   if (name == "bytesPerRow") {
-    const auto& frame = getFrame();
-    return jsi::Value(frame->getBytesPerRow());
+    return jsi::Value(_frame->getBytesPerRow());
   }
   if (name == "planesCount") {
-    const auto& frame = getFrame();
-    return jsi::Value(frame->getPlanesCount());
+    return jsi::Value(_frame->getPlanesCount());
   }
 
   // Internal Methods
@@ -134,8 +115,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "getNativeBuffer") {
     jsi::HostFunctionType getNativeBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
-      const auto& frame = getFrame();
-      AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
+      AHardwareBuffer* hardwareBuffer = _frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
       uintptr_t pointer = reinterpret_cast<uintptr_t>(hardwareBuffer);
       jsi::HostFunctionType deleteFunc = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
@@ -159,8 +139,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
-      const auto& frame = getFrame();
-      AHardwareBuffer* hardwareBuffer = frame->getHardwareBuffer();
+      AHardwareBuffer* hardwareBuffer = _frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
 
       AHardwareBuffer_Desc bufferDescription;
