@@ -187,11 +187,11 @@ final class RecordingSession {
 
     // Start a timeout that will force-stop the session if it still hasn't been stopped (maybe no more frames came in?)
     let latency = max(videoTrack?.latency.seconds ?? 0.0, audioTrack?.latency.seconds ?? 0.0)
-    let timeout = latency * 2
+    let timeout = max(latency * 2, 0.1)
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + timeout) {
       if !self.isFinishing {
         VisionLogger.log(level: .error, message: "Waited \(timeout) seconds but session is still not finished - force-stopping session...")
-        try? self.finish()
+        self.finish()
       }
     }
   }
@@ -244,13 +244,13 @@ final class RecordingSession {
     if assetWriter.status == .failed {
       let error = assetWriter.error?.localizedDescription ?? "(unknown error)"
       VisionLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(error)")
-      try finish()
+      finish()
       return
     }
 
     // When all tracks (video + audio) are finished, finish the Recording.
     if isFinished {
-      try finish()
+      finish()
     }
   }
 
@@ -273,7 +273,7 @@ final class RecordingSession {
   /**
    Stops the AssetWriters and calls the completion callback.
    */
-  private func finish() throws {
+  private func finish() {
     lock.wait()
     defer {
       lock.signal()
@@ -283,11 +283,9 @@ final class RecordingSession {
 
     guard let videoTrack,
           let lastVideoTimestamp = videoTrack.lastTimestamp else {
-      throw CameraError.capture(.unknown(message: "Cannot finish recording without a video track!"))
-    }
-    guard !isFinishing else {
-      // We're already finishing - there was a second call to this method.
-      VisionLogger.log(level: .warning, message: "Tried calling finish() twice!")
+      VisionLogger.log(level: .error, message: "Failed to finish() - No video track was ever initialized/started!")
+      completionHandler(self, assetWriter.status, assetWriter.error)
+      assetWriter.cancelWriting()
       return
     }
     guard assetWriter.status == .writing else {
@@ -295,6 +293,12 @@ final class RecordingSession {
       VisionLogger.log(level: .error, message: "Failed to finish() - AssetWriter status was \(assetWriter.status.descriptor)!")
       completionHandler(self, assetWriter.status, assetWriter.error)
       assetWriter.cancelWriting()
+      return
+    }
+
+    guard !isFinishing else {
+      // We're already finishing - there was a second call to this method.
+      VisionLogger.log(level: .warning, message: "Tried calling finish() twice!")
       return
     }
 
