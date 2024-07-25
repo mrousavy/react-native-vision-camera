@@ -81,7 +81,7 @@ function relativeTo(a: Orientation, b: Orientation): Orientation {
  * Counter-rotates the {@linkcode canvas} by the {@linkcode frame}'s {@linkcode Frame.orientation orientation}
  * to ensure the Frame will be drawn upright.
  */
-function withRotatedFrame(frame: Frame, canvas: SkCanvas, previewOrientation: Orientation, func: () => void): void {
+function withRotatedFrame(frame: Frame, canvas: SkCanvas, previewOrientation: Orientation, func: () => void): CameraMatrix {
   'worklet'
 
   // 1. save current translation matrix
@@ -115,6 +115,14 @@ function withRotatedFrame(frame: Frame, canvas: SkCanvas, previewOrientation: Or
 
     // 3. call actual processing code
     func()
+
+    // 5. Return a Matrix used to translate from view to camera points
+    return {
+      width: frame.width,
+      height: frame.height,
+      isMirrored: frame.isMirrored,
+      orientation: orientation,
+    }
   } finally {
     // 4. restore matrix again to original base
     canvas.restore()
@@ -272,26 +280,6 @@ export function createSkiaFrameProcessor(
     return (frame as FrameInternal).withBaseClass(canvasProxy)
   }
 
-  const updateCameraMatrix = (frame: Frame): void => {
-    'worklet'
-
-    const currentMatrix = cameraMatrix.value
-    if (
-      currentMatrix.width !== frame.width ||
-      currentMatrix.height !== frame.height ||
-      currentMatrix.isMirrored !== frame.isMirrored ||
-      currentMatrix.orientation !== frame.orientation
-    ) {
-      // Update Matrix
-      cameraMatrix.value = {
-        width: frame.width,
-        height: frame.height,
-        isMirrored: frame.isMirrored,
-        orientation: frame.orientation,
-      }
-    }
-  }
-
   return {
     frameProcessor: withFrameRefCounting((frame) => {
       'worklet'
@@ -309,13 +297,16 @@ export function createSkiaFrameProcessor(
         canvas.clear(black)
 
         // 4. rotate the frame properly to make sure it's upright
-        withRotatedFrame(frame, canvas, previewOrientation.value, () => {
+        const matrix = withRotatedFrame(frame, canvas, previewOrientation.value, () => {
           // 5. Run any user drawing operations
           frameProcessor(drawableFrame)
         })
 
-        // 6. Flush draw operations and submit to GPU
+        // 5. Flush draw operations and submit to GPU
         surface.flush()
+
+        // 6. Update the Camera Matrix
+        cameraMatrix.value = matrix
       } finally {
         // 7. Delete the SkImage/Texture that holds the Frame
         drawableFrame.dispose()
@@ -334,9 +325,6 @@ export function createSkiaFrameProcessor(
         if (texture == null) break
         texture.dispose()
       }
-
-      // 10. After rendering, update the Camera Matrix used for view -> camera conversions
-      updateCameraMatrix(frame)
     }),
     type: 'drawable-skia',
     offscreenTextures: offscreenTextures,

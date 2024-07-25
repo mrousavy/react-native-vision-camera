@@ -699,6 +699,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
           <SkiaCameraCanvas
             style={styles.customPreviewView}
             offscreenTextures={frameProcessor.offscreenTextures}
+            cameraMatrix={frameProcessor.cameraMatrix}
             resizeMode={props.resizeMode}
           />
         )}
