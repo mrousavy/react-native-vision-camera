@@ -391,26 +391,23 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      if ((this.props.preview ?? true) === true) {
+      if (isSkiaFrameProcessor(this.props.frameProcessor)) {
+        // We have a Skia Frame Processor as a Preview - use that Matrix for transformations
+        const matrix = this.props.frameProcessor.cameraMatrix.value
+        // TODO: Where do I get width/height from? Needs to happen in SkiaCameraCanvas
+        const converted = convertPoint(point, { width: 375, height: 667 }, matrix)
+        return await CameraModule.focus(this.handle, {
+          coordinateSystem: 'camera',
+          point: converted,
+        })
+      } else if ((this.props.preview ?? true) === true) {
         // Use Preview coordinate system
         return await CameraModule.focus(this.handle, {
           coordinateSystem: 'preview-view',
           point: point,
         })
       } else {
-        // We don't have a preview - check if we have a Skia FP
-        if (isSkiaFrameProcessor(this.props.frameProcessor)) {
-          // We have a Skia Frame Processor - use that Matrix for transformations
-          const matrix = this.props.frameProcessor.cameraMatrix.value
-          // TODO: Where do I get width/height from? Needs to happen in SkiaCameraCanvas
-          const converted = convertPoint(point, { width: 375, height: 667 }, matrix)
-          return await CameraModule.focus(this.handle, {
-            coordinateSystem: 'camera',
-            point: converted,
-          })
-        } else {
-          throw new Error('Cannot focus without a PreviewView!')
-        }
+        throw new Error('Cannot focus without a PreviewView!')
       }
     } catch (e) {
       throw tryParseNativeCameraError(e)

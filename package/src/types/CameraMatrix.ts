@@ -14,46 +14,46 @@ interface SourceCoordinateSystem {
 }
 
 export function convertPoint(sourcePoint: Point, coordinateSystem: SourceCoordinateSystem, matrix: CameraMatrix): Point {
-  let point = scalePoint(sourcePoint, coordinateSystem, matrix)
-  point = rotatePoint(point, matrix)
-  point = mirrorPoint(point, matrix)
+  let point = normalizePoint(sourcePoint, coordinateSystem)
+  point = rotatePoint(point, matrix.orientation)
+  point = mirrorPoint(point, matrix.isMirrored)
   return point
 }
 
-function scalePoint(point: Point, from: SourceCoordinateSystem, to: SourceCoordinateSystem): Point {
+function normalizePoint(point: Point, coordinateSystem: SourceCoordinateSystem): Point {
   return {
-    x: (point.x / from.width) * to.width,
-    y: (point.y / from.height) * to.height,
+    x: point.x / coordinateSystem.width,
+    y: point.y / coordinateSystem.height,
   }
 }
 
-function rotatePoint(point: Point, matrix: CameraMatrix): Point {
-  switch (matrix.orientation) {
+function rotatePoint(point: Point, orientation: Orientation): Point {
+  switch (orientation) {
     case 'portrait':
       return point
     case 'portrait-upside-down':
       return {
-        x: matrix.width - point.x,
-        y: matrix.height - point.y,
+        x: 1 - point.x,
+        y: 1 - point.y,
       }
     case 'landscape-left':
       return {
         x: point.y,
-        y: matrix.height - point.x,
+        y: 1 - point.x,
       }
     case 'landscape-right':
       return {
         x: point.y,
-        y: point.x,
+        y: 1 - point.x,
       }
   }
 }
 
-function mirrorPoint(point: Point, matrix: CameraMatrix): Point {
-  if (matrix.isMirrored) {
+function mirrorPoint(point: Point, isMirrored: boolean): Point {
+  if (isMirrored) {
     // Mirror point on X axis
     return {
-      x: matrix.width - point.x,
+      x: 1 - point.x,
       y: point.y,
     }
   } else {
