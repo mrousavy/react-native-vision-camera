@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 
 extension CameraView {
-  func focus(pointInPreviewView point: CGPoint, promise: Promise) {
+  func focus(pointInPreviewViewCoordinates point: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let previewView = self.previewView else {
         throw CameraError.capture(.focusRequiresPreview)

@@ -107,7 +107,7 @@ final class CameraViewManager: RCTViewManager {
     
     switch coordinateSystem {
     case .previewView:
-      component.focus(pointInPreviewView: point, promise: promise)
+      component.focus(pointInPreviewViewCoordinates: point, promise: promise)
     case .camera:
       component.focus(pointInCameraCoordinates: point, promise: promise)
     }

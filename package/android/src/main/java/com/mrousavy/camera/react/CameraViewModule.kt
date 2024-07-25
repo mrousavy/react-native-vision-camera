@@ -19,6 +19,7 @@ import com.mrousavy.camera.BuildConfig
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.ViewNotFoundError
+import com.mrousavy.camera.core.types.CoordinateSystem
 import com.mrousavy.camera.core.types.PermissionStatus
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.SnapshotOptions
@@ -178,11 +179,17 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
+  fun focus(viewTag: Int, focusOptions: ReadableMap, promise: Promise) {
     backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
-        view.focus(point)
+        val coordinateSystem = CoordinateSystem.fromUnionValue(focusOptions.getString("coordinateSystem"))
+        val x = focusOptions.getDouble("x").toFloat()
+        val y = focusOptions.getDouble("y").toFloat()
+        when (coordinateSystem) {
+          CoordinateSystem.PREVIEW_VIEW -> view.focusInPreviewViewCoordinates(x, y)
+          CoordinateSystem.CAMERA -> view.focusInCameraCoordinates(x, y)
+        }
         return@withPromise null
       }
     }
