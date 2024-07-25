@@ -15,36 +15,33 @@ enum FileUtils {
   /**
    Writes Data to a temporary file and returns the file path.
    */
-  private static func writeDataToTempFile(data: Data, fileExtension: String = "jpeg") throws -> URL {
+  private static func writeDataToFile(data: Data, file: URL) throws {
     do {
-      let tempFilePath = createTempFile(fileExtension: fileExtension)
-      try data.write(to: tempFilePath)
-      return tempFilePath
+      try data.write(to: file)
     } catch {
       throw CameraError.capture(.fileError(cause: error))
     }
   }
 
-  static func writePhotoToTempFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider) throws -> URL {
+  static func writePhotoToFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider, file: URL) throws {
     guard let data = photo.fileDataRepresentation(with: metadataProvider) else {
       throw CameraError.capture(.imageDataAccessError)
     }
-    let path = try writeDataToTempFile(data: data)
-    return path
+    try writeDataToFile(data: data, file: file)
   }
 
-  static func writeUIImageToTempFile(image: UIImage, compressionQuality: CGFloat = 1.0) throws -> URL {
+  static func writeUIImageToFile(image: UIImage, file: URL, compressionQuality: CGFloat = 1.0) throws {
     guard let data = image.jpegData(compressionQuality: compressionQuality) else {
       throw CameraError.capture(.imageDataAccessError)
     }
-    let path = try writeDataToTempFile(data: data)
-    return path
+    try writeDataToFile(data: data, file: file)
   }
 
-  static func createTempFile(fileExtension: String) -> URL {
-    let filename = UUID().uuidString + "." + fileExtension
-    let tempFilePath = FileManager.default.temporaryDirectory
-      .appendingPathComponent(filename)
-    return tempFilePath
+  static var tempDirectory: URL {
+    return FileManager.default.temporaryDirectory
+  }
+
+  static func createRandomFileName(withExtension fileExtension: String) -> String {
+    return UUID().uuidString + "." + fileExtension
   }
 }

@@ -13,6 +13,7 @@ struct RecordVideoOptions {
   var fileType: AVFileType = .mov
   var flash: Torch = .off
   var codec: AVVideoCodecType?
+  var path: URL
   /**
    * Full Bit-Rate override for the Video Encoder, in Megabits per second (Mbps)
    */
@@ -43,6 +44,19 @@ struct RecordVideoOptions {
     // BitRate Multiplier
     if let parsed = dictionary["videoBitRateMultiplier"] as? Double {
       bitRateMultiplier = parsed
+    }
+    // Custom Path
+    let filename = FileUtils.createRandomFileName(withExtension: fileType.descriptor ?? "mov")
+    if let customPath = dictionary["path"] as? NSString {
+      guard let url = URL(string: customPath as String) else {
+        throw CameraError.capture(.invalidPath(path: customPath as String))
+      }
+      guard url.hasDirectoryPath else {
+        throw CameraError.capture(.createTempFileError(message: "Path (\(customPath)) is not a directory!"))
+      }
+      path = url.appendingPathComponent(filename)
+    } else {
+      path = FileUtils.tempDirectory.appendingPathComponent(filename)
     }
   }
 }

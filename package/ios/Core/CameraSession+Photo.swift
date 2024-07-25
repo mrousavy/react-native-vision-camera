@@ -81,10 +81,26 @@ extension CameraSession {
       // shutter sound
       let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
+      // output path
+      var path = FileUtils.tempDirectory
+      if let customPath = options["path"] as? NSString {
+        guard let url = URL(string: customPath as String) else {
+          promise.reject(error: CameraError.capture(.invalidPath(path: customPath as String)))
+          return
+        }
+        guard url.hasDirectoryPath else {
+          promise.reject(error: CameraError.capture(.createTempFileError(message: "Path (\(customPath)) is not a directory!")))
+          return
+        }
+        path = url
+      }
+      path = path.appendingPathComponent(FileUtils.createRandomFileName(withExtension: "jpg"))
+
       // Actually do the capture!
       let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
                                                       enableShutterSound: enableShutterSound,
                                                       metadataProvider: self.metadataProvider,
+                                                      path: path,
                                                       cameraSessionDelegate: self.delegate)
       photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 

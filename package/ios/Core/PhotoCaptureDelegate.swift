@@ -15,14 +15,17 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
   private let enableShutterSound: Bool
   private let cameraSessionDelegate: CameraSessionDelegate?
   private let metadataProvider: MetadataProvider
+  private let path: URL
 
   required init(promise: Promise,
                 enableShutterSound: Bool,
                 metadataProvider: MetadataProvider,
+                path: URL,
                 cameraSessionDelegate: CameraSessionDelegate?) {
     self.promise = promise
     self.enableShutterSound = enableShutterSound
     self.metadataProvider = metadataProvider
+    self.path = path
     self.cameraSessionDelegate = cameraSessionDelegate
     super.init()
     makeGlobal()
@@ -48,7 +51,9 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
     }
 
     do {
-      let path = try FileUtils.writePhotoToTempFile(photo: photo, metadataProvider: metadataProvider)
+      try FileUtils.writePhotoToFile(photo: photo,
+                                     metadataProvider: metadataProvider,
+                                     file: path)
 
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
