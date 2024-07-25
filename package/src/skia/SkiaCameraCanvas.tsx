@@ -57,7 +57,7 @@ function SkiaCameraCanvasImpl({ offscreenTextures, resizeMode = 'cover', childre
   return (
     <SkiaProxy.Canvas {...props} onLayout={onLayout} pointerEvents="none">
       {children}
-      <SkiaProxy.Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
+      <SkiaProxy.Image width={width} height={height} fit={resizeMode} image={texture} />
     </SkiaProxy.Canvas>
   )
 }
