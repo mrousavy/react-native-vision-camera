@@ -25,6 +25,7 @@ import type {
 } from './NativeCameraView'
 import { NativeCameraView } from './NativeCameraView'
 import { RotationHelper } from './RotationHelper'
+import { convertPoint } from './types/CameraMatrix'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -390,26 +391,26 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      if (this.enablePreviewView) {
+      if ((this.props.preview ?? true) === true) {
         // Use Preview coordinate system
         return await CameraModule.focus(this.handle, {
           coordinateSystem: 'preview-view',
           point: point,
         })
       } else {
-        // Use Camera-native coordinate system
-        const format = this.props.format
-        if (format == null) {
-          // TODO: Move this to native so it isn't required.
-          throw new Error('Format is required to focus without a Preview View!')
+        // We don't have a preview - check if we have a Skia FP
+        if (isSkiaFrameProcessor(this.props.frameProcessor)) {
+          // We have a Skia Frame Processor - use that Matrix for transformations
+          const matrix = this.props.frameProcessor.cameraMatrix.value
+          // TODO: Where do I get width/height from? Needs to happen in SkiaCameraCanvas
+          const converted = convertPoint(point, { width: 375, height: 667 }, matrix)
+          return await CameraModule.focus(this.handle, {
+            coordinateSystem: 'camera',
+            point: converted,
+          })
+        } else {
+          throw new Error('Cannot focus without a PreviewView!')
         }
-        return await CameraModule.focus(this.handle, {
-          coordinateSystem: 'camera',
-          point: {
-            x: point.x / format.videoWidth,
-            y: point.y / format.videoHeight,
-          },
-        })
       }
     } catch (e) {
       throw tryParseNativeCameraError(e)
