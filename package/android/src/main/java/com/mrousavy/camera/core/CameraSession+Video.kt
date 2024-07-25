@@ -24,7 +24,7 @@ fun CameraSession.startRecording(
   val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
   // Create output video file
-  val outputOptions = FileOutputOptions.Builder(options.file).also { outputOptions ->
+  val outputOptions = FileOutputOptions.Builder(options.file.file).also { outputOptions ->
     metadataProvider.location?.let { location ->
       Log.i(CameraSession.TAG, "Setting Video Location to ${location.latitude}, ${location.longitude}...")
       outputOptions.setLocation(location)
@@ -56,7 +56,7 @@ fun CameraSession.startRecording(
           Log.i(CameraSession.TAG, "Recording was canceled, deleting file..")
           onError(RecordingCanceledError())
           try {
-            options.file.delete()
+            options.file.file.delete()
           } catch (e: Throwable) {
             this.callback.onError(FileIOError(e))
           }

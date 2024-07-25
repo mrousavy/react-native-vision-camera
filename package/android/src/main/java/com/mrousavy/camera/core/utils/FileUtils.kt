@@ -1,6 +1,5 @@
 package com.mrousavy.camera.core.utils
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Size
@@ -20,11 +19,6 @@ class FileUtils {
       }
       return file
     }
-
-    fun createTempFile(context: Context, extension: String): File =
-      File.createTempFile("mrousavy-", extension, context.cacheDir).also {
-        it.deleteOnExit()
-      }
 
     fun writeBitmapTofile(bitmap: Bitmap, file: File, quality: Int) {
       FileOutputStream(file).use { stream ->

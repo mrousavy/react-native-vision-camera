@@ -25,7 +25,7 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
 
   // Shoot photo!
   val photoFile = photoOutput.takePicture(
-    options.file,
+    options.file.file,
     isMirrored,
     enableShutterSound,
     metadataProvider,

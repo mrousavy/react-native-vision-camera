@@ -20,7 +20,7 @@ fun CameraView.takeSnapshot(options: TakeSnapshotOptions): WritableMap {
   onShutter(ShutterType.SNAPSHOT)
 
   // Write snapshot to .jpg file
-  FileUtils.writeBitmapTofile(bitmap, options.file, options.quality)
+  FileUtils.writeBitmapTofile(bitmap, options.file.file, options.quality)
 
   Log.i(TAG, "Successfully saved snapshot to file!")
 
@@ -28,7 +28,7 @@ fun CameraView.takeSnapshot(options: TakeSnapshotOptions): WritableMap {
 
   // Parse output data
   val map = Arguments.createMap()
-  map.putString("path", options.file.absolutePath)
+  map.putString("path", options.file.file.absolutePath)
   map.putInt("width", bitmap.width)
   map.putInt("height", bitmap.height)
   map.putString("orientation", orientation.unionValue)
