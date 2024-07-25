@@ -6,22 +6,17 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.takePhoto
-import com.mrousavy.camera.core.types.Flash
+import com.mrousavy.camera.core.types.TakePhotoOptions
 
 private const val TAG = "CameraView.takePhoto"
 
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
-  val options = optionsMap.toHashMap()
-  Log.i(TAG, "Taking photo... Options: $options")
+  Log.i(TAG, "Taking photo... Options: ${optionsMap.toHashMap()}")
 
-  val flash = options["flash"] as? String ?: "off"
-  val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
-
-  val photo = cameraSession.takePhoto(
-    Flash.fromUnionValue(flash),
-    enableShutterSound
-  )
+  // Parse options and shoot photo
+  val options = TakePhotoOptions.fromJS(context, optionsMap)
+  val photo = cameraSession.takePhoto(options)
 
   Log.i(TAG, "Successfully captured ${photo.width} x ${photo.height} photo!")
 

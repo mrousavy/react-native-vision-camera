@@ -58,7 +58,7 @@ class PixelFormatNotSupportedError(format: String) :
 class FlashUnavailableError :
   CameraError(
     "device",
-    "flash-unavailable",
+    "flash-not-available",
     "The Camera Device does not have a flash unit! Make sure you select a device where `device.hasFlash`/`device.hasTorch` is true."
   )
 class FocusNotSupportedError :
@@ -191,6 +191,7 @@ class NoRecordingInProgressError :
 class RecordingCanceledError : CameraError("capture", "recording-canceled", "The active recording was canceled.")
 class FileIOError(throwable: Throwable) :
   CameraError("capture", "file-io-error", "An unexpected File IO error occurred! Error: ${throwable.message}.", throwable)
+class InvalidPathError(path: String) : CameraError("capture", "invalid-path", "The given path ($path) is invalid, or not writable!")
 class RecordingInProgressError :
   CameraError(
     "capture",
