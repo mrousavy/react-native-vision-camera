@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 25.07.24.
 //
 
+import AVFoundation
 import Foundation
 
 /**
