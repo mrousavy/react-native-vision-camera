@@ -88,11 +88,11 @@ final class CameraViewManager: RCTViewManager {
   @objc
   final func focus(_ node: NSNumber, focusOptions: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let promise = Promise(resolver: resolve, rejecter: reject)
-    
+
     guard let coordinateSystemString = focusOptions["coordinateSystem"] as? String,
           let pointDictionary = focusOptions["point"] as? NSDictionary else {
-            promise.reject(error: .parameter(.invalid(unionName: "focusOptions", receivedValue: focusOptions.description)))
-            return
+      promise.reject(error: .parameter(.invalid(unionName: "focusOptions", receivedValue: focusOptions.description)))
+      return
     }
     guard let coordinateSystem = try? CoordinateSystem(jsValue: coordinateSystemString) else {
       promise.reject(error: .parameter(.invalid(unionName: "focusOptions.coordinateSystem", receivedValue: coordinateSystemString)))
@@ -104,7 +104,7 @@ final class CameraViewManager: RCTViewManager {
     }
     let component = getCameraView(withTag: node)
     let point = CGPoint(x: x.doubleValue, y: y.doubleValue)
-    
+
     switch coordinateSystem {
     case .previewView:
       component.focus(pointInPreviewViewCoordinates: point, promise: promise)

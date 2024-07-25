@@ -10,7 +10,7 @@ import Foundation
 @frozen
 enum CoordinateSystem: String, JSUnionValue {
   case previewView = "preview-view"
-  case camera = "camera"
+  case camera
 
   init(jsValue: String) throws {
     if let parsed = CoordinateSystem(rawValue: jsValue) {

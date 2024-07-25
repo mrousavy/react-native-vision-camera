@@ -2,7 +2,6 @@ package com.mrousavy.camera.react
 
 import android.content.res.Resources
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
-import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.FocusRequiresPreviewError
 import com.mrousavy.camera.core.focus
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait

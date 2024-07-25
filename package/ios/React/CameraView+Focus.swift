@@ -20,7 +20,7 @@ extension CameraView {
       return nil
     }
   }
-  
+
   func focus(pointInCameraCoordinates point: CGPoint, promise: Promise) {
     withPromise(promise) {
       try cameraSession.focus(point: point)
