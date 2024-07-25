@@ -22,7 +22,7 @@ else
 end
 
 def Pod::getWorkletsLibraryPath
-  output = `cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "try { require.resolve('react-native-worklets-core/package.json') } catch(e) { return '' }"`
+  output = `cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "try { require.resolve('react-native-worklets-core/package.json') } catch(e) { '' }"`
 
   if output.empty?
     return nil
