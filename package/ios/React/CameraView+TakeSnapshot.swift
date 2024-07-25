@@ -10,7 +10,7 @@ import AVFoundation
 import UIKit
 
 extension CameraView {
-  func takeSnapshot(options: NSDictionary, promise: Promise) {
+  func takeSnapshot(options optionsDictionary: NSDictionary, promise: Promise) {
     withPromise(promise) {
       guard let snapshot = latestVideoFrame else {
         throw CameraError.capture(.snapshotFailed)
@@ -18,32 +18,22 @@ extension CameraView {
       guard let imageBuffer = CMSampleBufferGetImageBuffer(snapshot.imageBuffer) else {
         throw CameraError.capture(.imageDataAccessError)
       }
-      var quality = 1.0
-      if let customQuality = options["quality"] as? NSNumber {
-        quality = (customQuality.doubleValue / 100.0)
-      }
-      var path = FileUtils.tempDirectory
-      if let customPath = options["path"] as? NSString {
-        guard let url = URL(string: customPath as String) else {
-          throw CameraError.capture(.invalidPath(path: customPath as String))
-        }
-        guard url.hasDirectoryPath else {
-          throw CameraError.capture(.createTempFileError(message: "Path (\(customPath)) is not a directory!"))
-        }
-        path = url
-      }
-      path = path.appendingPathComponent(FileUtils.createRandomFileName(withExtension: "jpg"))
 
+      // Parse options
+      let options = try TakeSnapshotOptions(fromJSValue: optionsDictionary)
+
+      // Play shutter effect (JS event)
       self.onCaptureShutter(shutterType: .snapshot)
 
+      // Grab latest frame, convert to UIImage, and save it
       let orientation = Orientation.portrait.relativeTo(orientation: snapshot.orientation)
       let ciImage = CIImage(cvPixelBuffer: imageBuffer)
       let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: orientation.imageOrientation)
       try FileUtils.writeUIImageToFile(image: image,
-                                       file: path,
-                                       compressionQuality: quality)
+                                       file: options.path,
+                                       compressionQuality: options.quality)
       return [
-        "path": path.absoluteString,
+        "path": options.path.absoluteString,
         "width": image.size.width,
         "height": image.size.height,
         "orientation": orientation.jsValue,

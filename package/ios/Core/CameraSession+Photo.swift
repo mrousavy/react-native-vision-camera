@@ -14,7 +14,7 @@ extension CameraSession {
    Takes a photo.
    `takePhoto` is only available if `photo={true}`.
    */
-  func takePhoto(options: NSDictionary, promise: Promise) {
+  func takePhoto(options: TakePhotoOptions, promise: Promise) {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
       // Get Photo Output configuration
@@ -60,47 +60,23 @@ extension CameraSession {
       }
 
       // red-eye reduction
-      if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
-        photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
-      }
+      photoSettings.isAutoRedEyeReductionEnabled = options.enableAutoRedEyeReduction
 
       // distortion correction
-      if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
-        photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
+      if #available(iOS 14.1, *) {
+        photoSettings.isAutoContentAwareDistortionCorrectionEnabled = options.enableAutoDistortionCorrection
       }
 
       // flash
-      if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
-        guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
-          promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
-          return
-        }
-        photoSettings.flashMode = flashMode
+      if videoDeviceInput.device.isFlashAvailable {
+        photoSettings.flashMode = options.flash.toFlashMode()
       }
-
-      // shutter sound
-      let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
-
-      // output path
-      var path = FileUtils.tempDirectory
-      if let customPath = options["path"] as? NSString {
-        guard let url = URL(string: customPath as String) else {
-          promise.reject(error: CameraError.capture(.invalidPath(path: customPath as String)))
-          return
-        }
-        guard url.hasDirectoryPath else {
-          promise.reject(error: CameraError.capture(.createTempFileError(message: "Path (\(customPath)) is not a directory!")))
-          return
-        }
-        path = url
-      }
-      path = path.appendingPathComponent(FileUtils.createRandomFileName(withExtension: "jpg"))
 
       // Actually do the capture!
       let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
-                                                      enableShutterSound: enableShutterSound,
+                                                      enableShutterSound: options.enableShutterSound,
                                                       metadataProvider: self.metadataProvider,
-                                                      path: path,
+                                                      path: options.path,
                                                       cameraSessionDelegate: self.delegate)
       photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 
