@@ -68,6 +68,13 @@ extension CameraSession {
       }
 
       // flash
+      if options.flash != .off {
+        guard videoDeviceInput.device.hasFlash else {
+          // If user enabled flash, but the device doesn't have a flash, throw an error.
+          promise.reject(error: .capture(.flashNotAvailable))
+          return
+        }
+      }
       if videoDeviceInput.device.isFlashAvailable {
         photoSettings.flashMode = options.flash.toFlashMode()
       }

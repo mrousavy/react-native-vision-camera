@@ -210,6 +210,7 @@ enum CaptureError {
   case noRecordingInProgress
   case invalidPath(path: String)
   case fileError(cause: Error)
+  case flashNotAvailable
   case imageDataAccessError
   case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
@@ -236,6 +237,8 @@ enum CaptureError {
       return "create-temp-file-error"
     case .invalidPath:
       return "invalid-path"
+    case .flashNotAvailable:
+      return "flash-not-available"
     case .createRecorderError:
       return "create-recorder-error"
     case .videoNotEnabled:
@@ -283,6 +286,8 @@ enum CaptureError {
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case .imageDataAccessError:
       return "An unexpected error occurred while trying to access the image data!"
+    case .flashNotAvailable:
+      return "The Camera Device does not have a flash unit! Make sure you select a device where `device.hasFlash`/`device.hasTorch` is true."
     case .timedOut:
       return "The capture timed out."
     case .focusRequiresPreview:
