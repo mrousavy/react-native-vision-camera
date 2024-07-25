@@ -94,12 +94,12 @@ final class CameraViewManager: RCTViewManager {
             promise.reject(error: .parameter(.invalid(unionName: "focusOptions", receivedValue: focusOptions.description)))
             return
     }
-    guard let x = pointDictionary["x"] as? NSNumber, let y = pointDictionary["y"] as? NSNumber else {
-      promise.reject(error: .parameter(.invalid(unionName: "focusOptions.point", receivedValue: pointDictionary.description)))
-      return
-    }
     guard let coordinateSystem = try? CoordinateSystem(jsValue: coordinateSystemString) else {
       promise.reject(error: .parameter(.invalid(unionName: "focusOptions.coordinateSystem", receivedValue: coordinateSystemString)))
+      return
+    }
+    guard let x = pointDictionary["x"] as? NSNumber, let y = pointDictionary["y"] as? NSNumber else {
+      promise.reject(error: .parameter(.invalid(unionName: "focusOptions.point", receivedValue: pointDictionary.description)))
       return
     }
     let component = getCameraView(withTag: node)
