@@ -65,10 +65,6 @@ enum FileUtils {
     guard let url = URL(string: prefixedDirectory) else {
       throw CameraError.capture(.invalidPath(path: customDirectory))
     }
-    // Make sure it's a directory
-    guard url.hasDirectoryPath else {
-      throw CameraError.capture(.createTempFileError(message: "Path (\(customDirectory)) is not a directory!"))
-    }
     return try getFilePath(directory: url, fileExtension: fileExtension)
   }
 
