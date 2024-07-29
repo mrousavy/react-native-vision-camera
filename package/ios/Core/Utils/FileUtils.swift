@@ -13,38 +13,62 @@ import UIKit
 
 enum FileUtils {
   /**
-   Writes Data to a temporary file and returns the file path.
+   Writes Data to a temporary file.
    */
-  private static func writeDataToTempFile(data: Data, fileExtension: String = "jpeg") throws -> URL {
+  private static func writeDataToFile(data: Data, file: URL) throws {
     do {
-      let tempFilePath = createTempFile(fileExtension: fileExtension)
-      try data.write(to: tempFilePath)
-      return tempFilePath
+      if file.isFileURL {
+        try data.write(to: file)
+      } else {
+        guard let url = URL(string: "file://\(file.absoluteString)") else {
+          throw CameraError.capture(.createTempFileError(message: "Cannot create URL with file:// prefix!"))
+        }
+        try data.write(to: url)
+      }
     } catch {
       throw CameraError.capture(.fileError(cause: error))
     }
   }
 
-  static func writePhotoToTempFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider) throws -> URL {
+  static func writePhotoToFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider, file: URL) throws {
     guard let data = photo.fileDataRepresentation(with: metadataProvider) else {
       throw CameraError.capture(.imageDataAccessError)
     }
-    let path = try writeDataToTempFile(data: data)
-    return path
+    try writeDataToFile(data: data, file: file)
   }
 
-  static func writeUIImageToTempFile(image: UIImage, compressionQuality: CGFloat = 1.0) throws -> URL {
+  static func writeUIImageToFile(image: UIImage, file: URL, compressionQuality: CGFloat = 1.0) throws {
     guard let data = image.jpegData(compressionQuality: compressionQuality) else {
       throw CameraError.capture(.imageDataAccessError)
     }
-    let path = try writeDataToTempFile(data: data)
-    return path
+    try writeDataToFile(data: data, file: file)
   }
 
-  static func createTempFile(fileExtension: String) -> URL {
-    let filename = UUID().uuidString + "." + fileExtension
-    let tempFilePath = FileManager.default.temporaryDirectory
-      .appendingPathComponent(filename)
-    return tempFilePath
+  static var tempDirectory: URL {
+    return FileManager.default.temporaryDirectory
+  }
+
+  static func createRandomFileName(withExtension fileExtension: String) -> String {
+    return UUID().uuidString + "." + fileExtension
+  }
+
+  static func getFilePath(directory: URL, fileExtension: String) throws -> URL {
+    // Random UUID filename
+    let filename = createRandomFileName(withExtension: fileExtension)
+    return directory.appendingPathComponent(filename)
+  }
+
+  static func getFilePath(customDirectory: String, fileExtension: String) throws -> URL {
+    // Prefix with file://
+    let prefixedDirectory = customDirectory.starts(with: "file:") ? customDirectory : "file://\(customDirectory)"
+    // Create URL
+    guard let url = URL(string: prefixedDirectory) else {
+      throw CameraError.capture(.invalidPath(path: customDirectory))
+    }
+    return try getFilePath(directory: url, fileExtension: fileExtension)
+  }
+
+  static func getFilePath(fileExtension: String) throws -> URL {
+    return try getFilePath(directory: tempDirectory, fileExtension: fileExtension)
   }
 }

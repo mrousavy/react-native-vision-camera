@@ -10,7 +10,6 @@ import androidx.camera.video.VideoRecordEvent
 import com.mrousavy.camera.core.extensions.getCameraError
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.Video
-import com.mrousavy.camera.core.utils.FileUtils
 
 @OptIn(ExperimentalPersistentRecording::class)
 @SuppressLint("MissingPermission", "RestrictedApi")
@@ -24,13 +23,16 @@ fun CameraSession.startRecording(
   if (recording != null) throw RecordingInProgressError()
   val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
-  val file = FileUtils.createTempFile(context, options.fileType.toExtension())
-  val outputOptions = FileOutputOptions.Builder(file).also { outputOptions ->
+  // Create output video file
+  val outputOptions = FileOutputOptions.Builder(options.file.file).also { outputOptions ->
     metadataProvider.location?.let { location ->
       Log.i(CameraSession.TAG, "Setting Video Location to ${location.latitude}, ${location.longitude}...")
       outputOptions.setLocation(location)
     }
   }.build()
+
+  // TODO: Move this to JS so users can prepare recordings earlier
+  // Prepare recording
   var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
   if (enableAudio) {
     checkMicrophonePermission()
@@ -38,7 +40,6 @@ fun CameraSession.startRecording(
   }
   pendingRecording = pendingRecording.asPersistentRecording()
 
-  val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
   isRecordingCanceled = false
   recording = pendingRecording.start(CameraQueues.cameraExecutor) { event ->
     when (event) {
@@ -55,7 +56,7 @@ fun CameraSession.startRecording(
           Log.i(CameraSession.TAG, "Recording was canceled, deleting file..")
           onError(RecordingCanceledError())
           try {
-            file.delete()
+            options.file.file.delete()
           } catch (e: Throwable) {
             this.callback.onError(FileIOError(e))
           }
@@ -73,9 +74,12 @@ fun CameraSession.startRecording(
             return@start
           }
         }
+
+        // Prepare output result
         val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
         Log.i(CameraSession.TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
         val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
+        val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
         val video = Video(path, durationMs, size)
         callback(video)
       }

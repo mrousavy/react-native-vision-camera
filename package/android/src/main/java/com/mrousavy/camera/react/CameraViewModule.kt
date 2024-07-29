@@ -21,7 +21,7 @@ import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.ViewNotFoundError
 import com.mrousavy.camera.core.types.PermissionStatus
 import com.mrousavy.camera.core.types.RecordVideoOptions
-import com.mrousavy.camera.core.types.SnapshotOptions
+import com.mrousavy.camera.core.types.TakeSnapshotOptions
 import com.mrousavy.camera.core.utils.runOnUiThread
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 import com.mrousavy.camera.frameprocessors.VisionCameraInstaller
@@ -104,7 +104,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       val view = findCameraView(viewTag)
       runOnUiThread {
         try {
-          val options = SnapshotOptions.fromJSValue(jsOptions)
+          val options = TakeSnapshotOptions.fromJSValue(reactApplicationContext, jsOptions)
           val result = view.takeSnapshot(options)
           promise.resolve(result)
         } catch (e: Throwable) {
@@ -120,7 +120,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
-        val options = RecordVideoOptions(jsOptions)
+        val options = RecordVideoOptions.fromJSValue(reactApplicationContext, jsOptions)
         view.startRecording(options, onRecordCallback)
       } catch (error: CameraError) {
         val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
