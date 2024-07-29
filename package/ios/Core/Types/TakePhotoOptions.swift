@@ -33,17 +33,10 @@ struct TakePhotoOptions {
       enableShutterSound = enable
     }
     // Custom Path
-    let filename = FileUtils.createRandomFileName(withExtension: "jpg")
-    if let customPath = dictionary["path"] as? NSString {
-      guard let url = URL(string: customPath as String) else {
-        throw CameraError.capture(.invalidPath(path: customPath as String))
-      }
-      guard url.hasDirectoryPath else {
-        throw CameraError.capture(.createTempFileError(message: "Path (\(customPath)) is not a directory!"))
-      }
-      path = url.appendingPathComponent(filename)
+    if let customPath = dictionary["path"] as? String {
+      path = try FileUtils.getFilePath(customDirectory: customPath, fileExtension: "jpg")
     } else {
-      path = FileUtils.tempDirectory.appendingPathComponent(filename)
+      path = try FileUtils.getFilePath(fileExtension: "jpg")
     }
   }
 }
