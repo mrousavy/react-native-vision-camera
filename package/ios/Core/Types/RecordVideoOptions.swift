@@ -46,10 +46,11 @@ struct RecordVideoOptions {
       bitRateMultiplier = parsed
     }
     // Custom Path
+    let fileExtension = fileType.descriptor ?? "mov"
     if let customPath = dictionary["path"] as? String {
-      path = try FileUtils.getFilePath(customDirectory: customPath, fileExtension: "jpg")
+      path = try FileUtils.getFilePath(customDirectory: customPath, fileExtension: fileExtension)
     } else {
-      path = try FileUtils.getFilePath(fileExtension: "jpg")
+      path = try FileUtils.getFilePath(fileExtension: fileExtension)
     }
   }
 }
