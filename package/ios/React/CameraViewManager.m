@@ -99,8 +99,8 @@ RCT_EXTERN_METHOD(takeSnapshot
                   : (RCTPromiseResolveBlock)resolve reject
                   : (RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(focus
-                  : (nonnull NSNumber*)node point
-                  : (NSDictionary*)point resolve
+                  : (nonnull NSNumber*)node focusOptions
+                  : (NSDictionary*)focusOptions resolve
                   : (RCTPromiseResolveBlock)resolve reject
                   : (RCTPromiseRejectBlock)reject);
 

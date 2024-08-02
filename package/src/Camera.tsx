@@ -25,6 +25,7 @@ import type {
 } from './NativeCameraView'
 import { NativeCameraView } from './NativeCameraView'
 import { RotationHelper } from './RotationHelper'
+import { convertPoint } from './types/CameraMatrix'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -123,6 +124,11 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
 
     return nodeHandle
+  }
+
+  private get enablePreviewView(): boolean {
+    const isRenderingWithSkia = isSkiaFrameProcessor(this.props.frameProcessor)
+    return isRenderingWithSkia ? false : this.props.preview ?? true
   }
 
   //#region View-specific functions (UIViewManager)
@@ -385,7 +391,24 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraModule.focus(this.handle, point)
+      if (isSkiaFrameProcessor(this.props.frameProcessor)) {
+        // We have a Skia Frame Processor as a Preview - use that Matrix for transformations
+        const matrix = this.props.frameProcessor.cameraMatrix.value
+        // TODO: Where do I get width/height from? Needs to happen in SkiaCameraCanvas
+        const converted = convertPoint(point, { width: 375, height: 667 }, matrix)
+        return await CameraModule.focus(this.handle, {
+          coordinateSystem: 'camera',
+          point: converted,
+        })
+      } else if ((this.props.preview ?? true) === true) {
+        // Use Preview coordinate system
+        return await CameraModule.focus(this.handle, {
+          coordinateSystem: 'preview-view',
+          point: point,
+        })
+      } else {
+        throw new Error('Cannot focus without a PreviewView!')
+      }
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
@@ -669,11 +692,12 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
-        preview={isRenderingWithSkia ? false : props.preview ?? true}>
+        preview={this.enablePreviewView}>
         {isRenderingWithSkia && (
           <SkiaCameraCanvas
             style={styles.customPreviewView}
             offscreenTextures={frameProcessor.offscreenTextures}
+            cameraMatrix={frameProcessor.cameraMatrix}
             resizeMode={props.resizeMode}
           />
         )}

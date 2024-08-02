@@ -7,6 +7,7 @@ import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
 import type { OutputOrientation } from './OutputOrientation'
 import type { Orientation } from './Orientation'
+import type { CameraMatrix } from './CameraMatrix'
 
 export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
@@ -17,6 +18,7 @@ export interface DrawableFrameProcessor {
   type: 'drawable-skia'
   offscreenTextures: ISharedValue<SkImage[]>
   previewOrientation: ISharedValue<Orientation>
+  cameraMatrix: ISharedValue<CameraMatrix>
 }
 
 export interface OnShutterEvent {
