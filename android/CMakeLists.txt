@@ -218,7 +218,7 @@ target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         ${JSI_LIB}
-        react-native-reanimated::reanimated
+        react-native-reanimated::worklets
         ${REACT_NATIVE_JNI_LIB}
         ${FBJNI_LIB}
         ${FOLLY_LIB}

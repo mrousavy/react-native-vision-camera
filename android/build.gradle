@@ -113,8 +113,8 @@ def resolveBuildType() {
     return buildType
 }
 
-// WorkletRuntime.h file only exists since Reanimated 3.5.0.
-def hasReanimated3 = file("${nodeModules}/react-native-reanimated/Common/cpp/ReanimatedRuntime/WorkletRuntime.h").exists()
+// This path only exists since Reanimated 3.15.0.
+def hasReanimated3 = file("${nodeModules}/react-native-reanimated/Common/cpp/worklets/WorkletRuntime/WorkletRuntime.h").exists()
 def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
 def ENABLE_FRAME_PROCESSORS = hasReanimated3 && !disableFrameProcessors
 

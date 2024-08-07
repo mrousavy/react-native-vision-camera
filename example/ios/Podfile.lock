@@ -365,35 +365,20 @@ PODS:
     - React-perflogger (= 0.71.12)
   - RNGestureHandler (2.12.1):
     - React-Core
-  - RNReanimated (3.4.0):
-    - DoubleConversion
-    - FBLazyVector
-    - FBReactNativeSpec
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCTRequired
-    - RCTTypeSafety
-    - React-callinvoker
+  - RNReanimated (3.15.0):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
-    - React-Core/DevSupport
-    - React-Core/RCTWebSocket
-    - React-CoreModules
-    - React-cxxreact
-    - React-hermes
-    - React-jsi
-    - React-jsiexecutor
-    - React-jsinspector
-    - React-RCTActionSheet
-    - React-RCTAnimation
-    - React-RCTBlob
-    - React-RCTImage
-    - React-RCTLinking
-    - React-RCTNetwork
-    - React-RCTSettings
-    - React-RCTText
     - ReactCommon/turbomodule/core
-    - Yoga
+    - RNReanimated/reanimated (= 3.15.0)
+    - RNReanimated/worklets (= 3.15.0)
+  - RNReanimated/reanimated (3.15.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+    - ReactCommon/turbomodule/core
+  - RNReanimated/worklets (3.15.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+    - ReactCommon/turbomodule/core
   - RNScreens (3.23.0):
     - React-Core
     - React-RCTImage
@@ -401,7 +386,7 @@ PODS:
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
-  - VisionCamera (2.16.7):
+  - VisionCamera (2.16.8):
     - React
     - React-callinvoker
     - React-Core
@@ -595,11 +580,11 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 7902246857a4ead4166869e6c42d4df329ff721d
   ReactCommon: a6d1c76b9e10b439e41db225263341240e1cda9f
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
-  RNReanimated: e8daac7c5ca8a1f0f965acc7643463be7c75be00
+  RNReanimated: 23c5e3940d5f4e6206480bcea18139d976324b00
   RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  VisionCamera: 0946f41cc4d1a0114f03d053f65577bed84428d7
+  VisionCamera: a979a8ee7554b4626e1270ff4aaf84da40ca73bd
   Yoga: 39310a10944fc864a7550700de349183450f8aaa
 
 PODFILE CHECKSUM: c9a6f4676a612af372440732ecc8fae75b559be7
