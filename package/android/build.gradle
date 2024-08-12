@@ -199,7 +199,7 @@ dependencies {
   } else {
     // Fall-back to just including the code for the CodeScanner to avoid the 2.4 MB bundle in the app.
     // On devices with Google Play Services, this can also download the CodeScanner model on-demand.
-    implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
+    implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1"
   }
 
   if (enableFrameProcessors) {
