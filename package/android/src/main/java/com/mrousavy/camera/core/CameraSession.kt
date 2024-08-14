@@ -84,6 +84,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
     isDestroyed = true
+    orientationManager.clearListeners()
     runOnUiThread {
       lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
