@@ -67,8 +67,7 @@ class OrientationManager(private val context: Context, private val callback: Cal
     }
   }
 
-  // remove previous listeners if attached
-  fun clearListeners() {
+  fun stopOrientationUpdates() {
     displayManager.unregisterDisplayListener(displayListener)
     orientationListener.disable()
   }
@@ -77,7 +76,8 @@ class OrientationManager(private val context: Context, private val callback: Cal
     Log.i(TAG, "Target Orientation changed $targetOutputOrientation -> $targetOrientation!")
     targetOutputOrientation = targetOrientation
 
-    clearListeners()
+    // remove previous listeners if we have any
+    stopOrientationUpdates()
 
     when (targetOrientation) {
       OutputOrientation.DEVICE -> {
