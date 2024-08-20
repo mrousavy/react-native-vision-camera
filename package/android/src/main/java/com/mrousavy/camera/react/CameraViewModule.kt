@@ -184,8 +184,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       val view = findCameraView(viewTag)
       withPromise(promise) {
         val coordinateSystem = CoordinateSystem.fromUnionValue(focusOptions.getString("coordinateSystem"))
-        val x = focusOptions.getDouble("x").toFloat()
-        val y = focusOptions.getDouble("y").toFloat()
+        val point = focusOptions.getMap("point")
+        val x = point.getDouble("x").toFloat()
+        val y = point.getDouble("y").toFloat()
         when (coordinateSystem) {
           CoordinateSystem.PREVIEW_VIEW -> view.focusInPreviewViewCoordinates(x, y)
           CoordinateSystem.CAMERA -> view.focusInCameraCoordinates(x, y)
