@@ -55,7 +55,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
     setHasMediaLoaded(true)
   }, [])
   const onMediaLoadError = useCallback((error: OnVideoErrorData) => {
-    console.log(`failed to load media: ${JSON.stringify(error)}`)
+    console.error(`failed to load media: ${JSON.stringify(error)}`)
   }, [])
 
   const onSavePressed = useCallback(async () => {

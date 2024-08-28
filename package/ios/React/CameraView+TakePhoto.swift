@@ -10,6 +10,14 @@ import AVFoundation
 
 extension CameraView {
   func takePhoto(options: NSDictionary, promise: Promise) {
-    cameraSession.takePhoto(options: options, promise: promise)
+    do {
+      // Parse options & take a photo
+      let photoOptions = try TakePhotoOptions(fromJSValue: options)
+      cameraSession.takePhoto(options: photoOptions, promise: promise)
+    } catch let error as CameraError {
+      promise.reject(error: error)
+    } catch {
+      promise.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
+    }
   }
 }

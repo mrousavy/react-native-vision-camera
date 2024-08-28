@@ -2,8 +2,6 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
-
 Pod::UI.puts "[VisionCamera] Thank you for using VisionCamera ❤️"
 Pod::UI.puts "[VisionCamera] If you enjoy using VisionCamera, please consider sponsoring this project: https://github.com/sponsors/mrousavy"
 
@@ -23,11 +21,20 @@ else
   Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is not set, enabling Frame Processors if Worklets is installed..."
 end
 
-Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
-workletsPath = File.join(nodeModules, "react-native-worklets-core")
-hasWorklets = File.exist?(workletsPath)
+def Pod::getWorkletsLibraryPath
+  output = `cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "try { require.resolve('react-native-worklets-core/package.json') } catch(e) { /* returning undefined, if package not found */ }"`
+  
+  if output.strip == "undefined"
+    return nil
+  else
+    return File.dirname(output)
+  end
+end
+
+workletsPath = getWorkletsLibraryPath()
+hasWorklets = workletsPath != nil && File.exist?(workletsPath)
 if hasWorklets
-  Pod::UI.puts("[VisionCamera] react-native-worklets-core found, Frame Processors are #{enableFrameProcessors ? "enabled" : "disabled"}!")
+  Pod::UI.puts("[VisionCamera] react-native-worklets-core found at #{workletsPath}, Frame Processors are #{enableFrameProcessors ? "enabled" : "disabled"}!")
 else
   Pod::UI.puts("[VisionCamera] react-native-worklets-core not found - Frame Processors are disabled!")
   enableFrameProcessors = false

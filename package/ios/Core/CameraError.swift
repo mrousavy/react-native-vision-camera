@@ -208,7 +208,9 @@ enum CaptureError {
   case recordingInProgress
   case recordingCanceled
   case noRecordingInProgress
+  case invalidPath(path: String)
   case fileError(cause: Error)
+  case flashNotAvailable
   case imageDataAccessError
   case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
@@ -233,6 +235,10 @@ enum CaptureError {
       return "file-io-error"
     case .createTempFileError:
       return "create-temp-file-error"
+    case .invalidPath:
+      return "invalid-path"
+    case .flashNotAvailable:
+      return "flash-not-available"
     case .createRecorderError:
       return "create-recorder-error"
     case .videoNotEnabled:
@@ -272,12 +278,16 @@ enum CaptureError {
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case .videoNotEnabled:
       return "Video capture is disabled! Pass `video={true}` to enable video recordings."
+    case let .invalidPath(path: path):
+      return "The given path (\(path)) is invalid, or not writable!"
     case .snapshotFailed:
       return "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case .imageDataAccessError:
       return "An unexpected error occurred while trying to access the image data!"
+    case .flashNotAvailable:
+      return "The Camera Device does not have a flash unit! Make sure you select a device where `device.hasFlash`/`device.hasTorch` is true."
     case .timedOut:
       return "The capture timed out."
     case .focusRequiresPreview:

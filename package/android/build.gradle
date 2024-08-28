@@ -16,7 +16,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:8.5.0"
+    classpath "com.android.tools.build:gradle:8.5.2"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
   }
 }
@@ -182,7 +182,7 @@ dependencies {
   implementation "com.facebook.react:react-android:+"
 
   // CameraX dependency
-  def camerax_version = "1.4.0-beta02"
+  def camerax_version = "1.4.0-rc01"
   implementation "androidx.camera:camera-core:${camerax_version}"
   implementation "androidx.camera:camera-camera2:${camerax_version}"
   implementation "androidx.camera:camera-lifecycle:${camerax_version}"
@@ -195,11 +195,11 @@ dependencies {
 
   if (enableCodeScanner) {
     // User enabled code-scanner, so we bundle the 2.4 MB model in the app.
-    implementation 'com.google.mlkit:barcode-scanning:17.2.0'
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
   } else {
     // Fall-back to just including the code for the CodeScanner to avoid the 2.4 MB bundle in the app.
     // On devices with Google Play Services, this can also download the CodeScanner model on-demand.
-    implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
+    implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1"
   }
 
   if (enableFrameProcessors) {
