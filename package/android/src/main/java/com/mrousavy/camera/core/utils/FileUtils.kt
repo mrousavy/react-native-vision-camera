@@ -1,18 +1,24 @@
 package com.mrousavy.camera.core.utils
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Size
+import com.mrousavy.camera.core.InvalidPathError
 import java.io.File
 import java.io.FileOutputStream
 
 class FileUtils {
   companion object {
-    fun createTempFile(context: Context, extension: String): File =
-      File.createTempFile("mrousavy-", extension, context.cacheDir).also {
-        it.deleteOnExit()
+    fun getDirectory(path: String?): File {
+      if (path == null) {
+        throw InvalidPathError("null")
       }
+      val file = File(path)
+      if (!file.isDirectory) {
+        throw InvalidPathError(path)
+      }
+      return file
+    }
 
     fun writeBitmapTofile(bitmap: Bitmap, file: File, quality: Int) {
       FileOutputStream(file).use { stream ->

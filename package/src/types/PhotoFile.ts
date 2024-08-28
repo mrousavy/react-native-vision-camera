@@ -9,6 +9,15 @@ export interface TakePhotoOptions {
    */
   flash?: 'on' | 'off' | 'auto'
   /**
+   * A custom `path` where the photo will be saved to.
+   *
+   * This must be a directory, as VisionCamera will generate a unique filename itself.
+   * If the given directory does not exist, this method will throw an error.
+   *
+   * By default, VisionCamera will use the device's temporary directory.
+   */
+  path?: string
+  /**
    * Specifies whether red-eye reduction should be applied automatically on flash captures.
    *
    * @platform iOS

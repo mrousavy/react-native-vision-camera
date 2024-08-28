@@ -10,7 +10,7 @@ import AVFoundation
 import UIKit
 
 extension CameraView {
-  func takeSnapshot(options _: NSDictionary, promise: Promise) {
+  func takeSnapshot(options optionsDictionary: NSDictionary, promise: Promise) {
     withPromise(promise) {
       guard let snapshot = latestVideoFrame else {
         throw CameraError.capture(.snapshotFailed)
@@ -19,14 +19,21 @@ extension CameraView {
         throw CameraError.capture(.imageDataAccessError)
       }
 
+      // Parse options
+      let options = try TakeSnapshotOptions(fromJSValue: optionsDictionary)
+
+      // Play shutter effect (JS event)
       self.onCaptureShutter(shutterType: .snapshot)
 
-      let ciImage = CIImage(cvPixelBuffer: imageBuffer)
+      // Grab latest frame, convert to UIImage, and save it
       let orientation = Orientation.portrait.relativeTo(orientation: snapshot.orientation)
+      let ciImage = CIImage(cvPixelBuffer: imageBuffer)
       let image = UIImage(ciImage: ciImage, scale: 1.0, orientation: orientation.imageOrientation)
-      let path = try FileUtils.writeUIImageToTempFile(image: image)
+      try FileUtils.writeUIImageToFile(image: image,
+                                       file: options.path,
+                                       compressionQuality: options.quality)
       return [
-        "path": path.absoluteString,
+        "path": options.path.absoluteString,
         "width": image.size.width,
         "height": image.size.height,
         "orientation": orientation.jsValue,

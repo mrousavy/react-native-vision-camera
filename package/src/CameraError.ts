@@ -39,6 +39,7 @@ export type CaptureError =
   | 'capture/recording-canceled'
   | 'capture/no-recording-in-progress'
   | 'capture/file-io-error'
+  | 'capture/invalid-path'
   | 'capture/create-temp-file-error'
   | 'capture/create-recorder-error'
   | 'capture/insufficient-storage'
