@@ -18,6 +18,7 @@ import com.facebook.react.uimanager.common.UIManagerType
 import com.mrousavy.camera.BuildConfig
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CameraQueues
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 import com.mrousavy.camera.core.ViewNotFoundError
 import com.mrousavy.camera.core.types.CoordinateSystem
 import com.mrousavy.camera.core.types.PermissionStatus
@@ -184,7 +185,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       val view = findCameraView(viewTag)
       withPromise(promise) {
         val coordinateSystem = CoordinateSystem.fromUnionValue(focusOptions.getString("coordinateSystem"))
-        val point = focusOptions.getMap("point")
+        val point = focusOptions.getMap("point") ?: throw InvalidTypeScriptUnionError("point", focusOptions.toString())
         val x = point.getDouble("x").toFloat()
         val y = point.getDouble("y").toFloat()
         when (coordinateSystem) {
