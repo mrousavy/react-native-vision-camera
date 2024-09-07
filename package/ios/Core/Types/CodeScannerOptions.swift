@@ -19,7 +19,7 @@ struct CodeScannerOptions: Equatable {
       self.codeTypes = try codeTypes.compactMap { value in
         do {
           return try AVMetadataObject.ObjectType(withString: value)
-        } catch CameraError.codeScanner(let codeScannerError) {
+        } catch let CameraError.codeScanner(codeScannerError) {
           switch codeScannerError {
           case .iosVersionNotSupported:
             VisionLogger.log(level: .warning, message: codeScannerError.message)
