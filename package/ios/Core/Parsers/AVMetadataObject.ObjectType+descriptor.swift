@@ -25,7 +25,7 @@ extension AVMetadataObject.ObjectType {
       if #available(iOS 15.4, *) {
         self = .codabar
       } else {
-        throw CameraError.codeScanner(.codeTypeNotSupported(codeType: string))
+        throw CameraError.codeScanner(.iosVersionNotSupported(codeType: string, minimumIOSVersion: "15.4"))
       }
       return
     case "ean-13":

@@ -16,8 +16,18 @@ struct CodeScannerOptions: Equatable {
 
   init(fromJsValue dictionary: NSDictionary) throws {
     if let codeTypes = dictionary["codeTypes"] as? [String] {
-      self.codeTypes = try codeTypes.map { value in
-        return try AVMetadataObject.ObjectType(withString: value)
+      self.codeTypes = try codeTypes.compactMap { value in
+        do {
+          return try AVMetadataObject.ObjectType(withString: value)
+        } catch CameraError.codeScanner(let codeScannerError) {
+          switch codeScannerError {
+          case .iosVersionNotSupported:
+            VisionLogger.log(level: .warning, message: codeScannerError.message)
+            return nil
+          default:
+            throw CameraError.codeScanner(codeScannerError)
+          }
+        }
       }
     } else {
       throw CameraError.parameter(.invalidCombination(provided: "codeScanner", missing: "codeTypes"))
