@@ -327,7 +327,8 @@ enum CodeScannerError {
     case let .codeTypeNotSupported(codeType: codeType):
       return "The codeType \"\(codeType)\" is not supported by the Code Scanner!"
     case let .iosVersionNotSupported(codeType: codeType, minimumIOSVersion: minimumIOSVersion):
-      return "The iOS version \(UIDevice.current.systemVersion) is not supported for the codeType \"\(codeType)\". The required version is \(minimumIOSVersion) or higher."
+      return "The iOS version \(UIDevice.current.systemVersion) is not supported for the codeType \"\(codeType)\". " +
+        "The required version is \(minimumIOSVersion) or higher."
     }
   }
 }
