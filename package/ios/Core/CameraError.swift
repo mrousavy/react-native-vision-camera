@@ -307,7 +307,6 @@ enum CaptureError {
 enum CodeScannerError {
   case notCompatibleWithOutputs
   case codeTypeNotSupported(codeType: String)
-  case iosVersionNotSupported(codeType: String, minimumIOSVersion: String)
 
   var code: String {
     switch self {
@@ -315,8 +314,6 @@ enum CodeScannerError {
       return "not-compatible-with-outputs"
     case .codeTypeNotSupported:
       return "code-type-not-supported"
-    case .iosVersionNotSupported:
-      return "ios-version-not-supported"
     }
   }
 
@@ -326,9 +323,6 @@ enum CodeScannerError {
       return "The Code Scanner is not supported in combination with the current outputs! Either disable video or photo outputs."
     case let .codeTypeNotSupported(codeType: codeType):
       return "The codeType \"\(codeType)\" is not supported by the Code Scanner!"
-    case let .iosVersionNotSupported(codeType: codeType, minimumIOSVersion: minimumIOSVersion):
-      return "The iOS version \(UIDevice.current.systemVersion) is not supported for the codeType \"\(codeType)\". " +
-        "The required version is \(minimumIOSVersion) or higher."
     }
   }
 }

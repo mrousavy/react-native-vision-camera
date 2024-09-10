@@ -10,53 +10,39 @@ import AVFoundation
 import Foundation
 
 extension AVMetadataObject.ObjectType {
-  init(withString string: String) throws {
+  
+  public static func parse(string: String) throws -> Self? {
     switch string {
     case "code-128":
-      self = .code128
-      return
+      return .code128
     case "code-39":
-      self = .code39
-      return
+      return .code39
     case "code-93":
-      self = .code93
-      return
+      return .code93
     case "codabar":
       if #available(iOS 15.4, *) {
-        self = .codabar
+        return .codabar
       } else {
-        throw CameraError.codeScanner(
-          .iosVersionNotSupported(codeType: string, minimumIOSVersion: "15.4")
-        )
+        return nil
       }
-      return
     case "ean-13":
-      self = .ean13
-      return
+      return .ean13
     case "ean-8":
-      self = .ean8
-      return
+      return .ean8
     case "itf":
-      self = .itf14
-      return
+      return .itf14
     case "upc-e":
-      self = .upce
-      return
+      return .upce
     case "upc-a":
-      self = .ean13
-      return
+      return .ean13
     case "qr":
-      self = .qr
-      return
+      return .qr
     case "pdf-417":
-      self = .pdf417
-      return
+      return .pdf417
     case "aztec":
-      self = .aztec
-      return
+      return .aztec
     case "data-matrix":
-      self = .dataMatrix
-      return
+      return .dataMatrix
     default:
       throw EnumParserError.invalidValue
     }
