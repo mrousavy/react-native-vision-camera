@@ -10,7 +10,6 @@ import AVFoundation
 import Foundation
 
 extension AVMetadataObject.ObjectType {
-  
   public static func parse(string: String) throws -> Self? {
     switch string {
     case "code-128":
