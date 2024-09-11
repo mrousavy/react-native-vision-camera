@@ -17,7 +17,7 @@ struct CodeScannerOptions: Equatable {
   init(fromJsValue dictionary: NSDictionary) throws {
     if let codeTypes = dictionary["codeTypes"] as? [String] {
       self.codeTypes = try codeTypes.compactMap { value in
-        return try AVMetadataObject.ObjectType.parse(string: value)
+        return try AVMetadataObject.ObjectType.init(withString: value)
       }
     } else {
       throw CameraError.parameter(.invalidCombination(provided: "codeScanner", missing: "codeTypes"))
