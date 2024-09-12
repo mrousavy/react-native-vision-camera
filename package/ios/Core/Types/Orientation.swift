@@ -14,7 +14,7 @@ import UIKit
  The Orientation used for the Preview, Photo, Video and Frame Processor outputs.
  */
 @frozen
-enum Orientation: String, JSUnionValue {
+public enum Orientation: String, JSUnionValue {
   /**
    Phone is in upright portrait mode, home button/indicator is at the bottom
    */
