@@ -4,13 +4,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     labels:
       - "🛠 dependencies"
   - package-ecosystem: "gradle"
     directory: "/package/android/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     labels:
       - "🛠 dependencies"
       - "🤖 android"
