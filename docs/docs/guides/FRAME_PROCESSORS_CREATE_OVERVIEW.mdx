@@ -80,7 +80,7 @@ public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> argum
 }
 ```
 
-Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/Frame.ts) in JS:
+Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/types/Frame.ts) in JS:
 
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
@@ -202,7 +202,7 @@ Your Frame Processor Plugins have to be fast. Use the FPS Graph (`enableFpsGraph
 
 #### 🚀 Create your first Frame Processor Plugin for [iOS](frame-processors-plugins-ios) or [Android](frame-processors-plugins-android)!
 
-[1]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/Frame.ts
+[1]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/types/Frame.ts
 [2]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/FrameProcessors/Frame.h
 [3]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessors/Frame.java
 [4]: https://github.com/facebook/react-native/blob/9a43eac7a32a6ba3164a048960101022a92fcd5a/React/Base/RCTBridgeModule.h#L20-L24
