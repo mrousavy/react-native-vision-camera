@@ -85,7 +85,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   return (
     <View style={[styles.container, screenStyle]}>
       {type === 'photo' && (
-        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="contain" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
       )}
       {type === 'video' && (
         <Video
