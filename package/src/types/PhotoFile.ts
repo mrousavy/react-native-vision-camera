@@ -38,6 +38,13 @@ export interface TakePhotoOptions {
    * @default true
    */
   enableShutterSound?: boolean
+
+  /**
+   * Whether to normalize orientation or not.
+   *
+   * @default false
+   */
+  normalizeOrientation?: boolean
 }
 
 /**

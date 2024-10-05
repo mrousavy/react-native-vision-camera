@@ -69,11 +69,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
   const format = useCameraFormat(device, [
-    { fps: targetFps },
-    { videoAspectRatio: screenAspectRatio },
-    { videoResolution: 'max' },
-    { photoAspectRatio: screenAspectRatio },
-    { photoResolution: 'max' },
+
+    { photoResolution: { width: 1440, height: 1440 } },
+
   ])
 
   const fps = Math.min(format?.maxFps ?? 1, targetFps)
