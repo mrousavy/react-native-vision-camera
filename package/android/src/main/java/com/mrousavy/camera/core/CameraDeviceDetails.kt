@@ -147,7 +147,7 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
           }
         }
       } catch (error: Throwable) {
-        Log.w(TAG, "Dynamic Range Profile ${dynamicRange} cannot be used as a format!", error)
+        Log.w(TAG, "Dynamic Range Profile $dynamicRange cannot be used as a format!", error)
       }
     }
 
