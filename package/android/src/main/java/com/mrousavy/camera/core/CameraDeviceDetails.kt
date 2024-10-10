@@ -3,6 +3,7 @@ package com.mrousavy.camera.core
 import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.util.Log
 import android.util.Range
 import android.util.Size
 import android.util.SizeF
@@ -36,6 +37,10 @@ import kotlin.math.sqrt
 @SuppressLint("RestrictedApi")
 @Suppress("FoldInitializerAndIfToElvis")
 class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager: ExtensionsManager) {
+  companion object {
+    private const val TAG = "CameraDeviceDetails"
+  }
+
   // Generic props available on all implementations
   private val cameraId = cameraInfo.id ?: throw NoCameraDeviceError()
   private val position = Position.fromLensFacing(cameraInfo.lensFacing)
@@ -113,24 +118,36 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
     val dynamicRangeProfiles = videoCapabilities.supportedDynamicRanges
 
     dynamicRangeProfiles.forEach { dynamicRange ->
-      val qualities = videoCapabilities.getSupportedQualities(dynamicRange)
-      val videoSizes = qualities.map { it as ConstantQuality }.flatMap { it.typicalSizes }
-      val photoSizes = cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG)
-      val fpsRanges = cameraInfo.supportedFrameRateRanges
-      val minFps = fpsRanges.minOf { it.lower }
-      val maxFps = fpsRanges.maxOf { it.upper }
+      try {
+        val qualities = videoCapabilities.getSupportedQualities(dynamicRange)
+        val videoSizes = qualities.map { it as ConstantQuality }.flatMap { it.typicalSizes }
+        val photoSizes = cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG)
+        val fpsRanges = cameraInfo.supportedFrameRateRanges
+        val minFps = fpsRanges.minOf { it.lower }
+        val maxFps = fpsRanges.maxOf { it.upper }
 
-      videoSizes.forEach { videoSize ->
-        // not every size supports the maximum FPS range
-        val maxFpsForSize = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize) ?: maxFps
-        // if the FPS range for this size is even smaller than min FPS, we need to clamp that as well.
-        val minFpsForSize = min(minFps, maxFpsForSize)
-        val fpsRange = Range(minFpsForSize, maxFpsForSize)
+        videoSizes.forEach { videoSize ->
+          try {
+            // not every size supports the maximum FPS range
+            val maxFpsForSize = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize) ?: maxFps
+            // if the FPS range for this size is even smaller than min FPS, we need to clamp that as well.
+            val minFpsForSize = min(minFps, maxFpsForSize)
+            val fpsRange = Range(minFpsForSize, maxFpsForSize)
 
-        photoSizes.forEach { photoSize ->
-          val map = buildFormatMap(photoSize, videoSize, fpsRange)
-          array.pushMap(map)
+            photoSizes.forEach { photoSize ->
+              try {
+                val map = buildFormatMap(photoSize, videoSize, fpsRange)
+                array.pushMap(map)
+              } catch (error: Throwable) {
+                Log.w(TAG, "Photo size ${photoSize.width}x${photoSize.height} cannot be used as a format!", error)
+              }
+            }
+          } catch (error: Throwable) {
+            Log.w(TAG, "Video size ${videoSize.width}x${videoSize.height} cannot be used as a format!", error)
+          }
         }
+      } catch (error: Throwable) {
+        Log.w(TAG, "Dynamic Range Profile $dynamicRange cannot be used as a format!", error)
       }
     }
 
