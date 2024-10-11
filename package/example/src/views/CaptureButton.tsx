@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react'
 import type { ViewProps } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Alert, StyleSheet, View } from 'react-native'
 import type { PanGestureHandlerGestureEvent, TapGestureHandlerStateChangeEvent } from 'react-native-gesture-handler'
 import { PanGestureHandler, State, TapGestureHandler } from 'react-native-gesture-handler'
 import Reanimated, {
@@ -17,6 +17,7 @@ import Reanimated, {
 } from 'react-native-reanimated'
 import type { Camera, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants'
+import { getImageMetaData } from 'react-native-compressor';
 
 const START_RECORDING_DELAY = 200
 const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1
@@ -62,7 +63,14 @@ const _CaptureButton: React.FC<Props> = ({
       const photo = await camera.current.takePhoto({
         flash: flash,
         enableShutterSound: false,
+        normalizeOrientation: true,
       })
+      Alert.alert('Photo taken!', `width: ${photo.width}, height: ${photo.height}`)
+      console.log('Photo taken!', photo.width, photo.height)
+      getImageMetaData(photo.path).then((data) => {
+        console.log('Image Meta Data:', data);
+        Alert.alert('Image Meta Data:', JSON.stringify(data));
+      });
       onMediaCaptured(photo, 'photo')
     } catch (e) {
       console.error('Failed to take photo!', e)
