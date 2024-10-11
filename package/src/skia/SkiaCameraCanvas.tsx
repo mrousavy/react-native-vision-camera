@@ -5,6 +5,7 @@ import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
 import { ReanimatedProxy } from '../dependencies/ReanimatedProxy'
 import { SkiaProxy } from '../dependencies/SkiaProxy'
+import type { CameraMatrix } from '../types/CameraMatrix'
 
 interface SkiaCameraCanvasProps extends ViewProps {
   /**
@@ -13,6 +14,13 @@ interface SkiaCameraCanvasProps extends ViewProps {
    * This view will always pop the latest Texture from this queue and render it.
    */
   offscreenTextures: ISharedValue<SkImage[]>
+  /**
+   * The Matrix created by the Skia Frame Processor.
+   *
+   * While the Skia Frame Processor populates the Matrix's width and orientation data,
+   * the `<SkiaCameraCanvas>` populates it's `viewWidth` and `viewHeight` properties.
+   */
+  cameraMatrix: ISharedValue<CameraMatrix>
   /**
    * The resize mode to use for displaying the feed
    */
@@ -49,7 +57,7 @@ function SkiaCameraCanvasImpl({ offscreenTextures, resizeMode = 'cover', childre
   return (
     <SkiaProxy.Canvas {...props} onLayout={onLayout} pointerEvents="none">
       {children}
-      <SkiaProxy.Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
+      <SkiaProxy.Image width={width} height={height} fit={resizeMode} image={texture} />
     </SkiaProxy.Canvas>
   )
 }
