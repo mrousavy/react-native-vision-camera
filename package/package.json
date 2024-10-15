@@ -92,6 +92,7 @@
     "@types/react": "^18.3.3",
     "@types/react-native": "^0.73.0",
     "eslint": "^8.46.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.0.1",
     "react": "^18.3.1",
