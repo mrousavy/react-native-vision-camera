@@ -28,7 +28,6 @@
     "react-native-screens": "^3.34.0",
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^10.2.0",
-    "react-native-video": "^6.6.4",
     "react-native-worklets-core": "^2.0.0-beta.4"
   },
   "devDependencies": {
@@ -41,7 +40,6 @@
     "@react-native/typescript-config": "0.75.4",
     "@types/react": "^18.3.3",
     "@types/react-native-vector-icons": "^6.4.13",
-    "@types/react-native-video": "^5.0.20",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^8.46.0",
     "eslint-plugin-prettier": "^5.1.3",

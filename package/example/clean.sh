@@ -19,6 +19,10 @@ echo "rm -rf android/.gradle"
 rm -rf android/.gradle
 echo "rm -rf android/build"
 rm -rf android/build
+echo "rm -rf android/app/build"
+rm -rf android/app/build
+echo "rm -rf android/app/.cxx"
+rm -rf android/app/.cxx
 
 cd ios
 echo "pod deintegrate"
