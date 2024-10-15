@@ -6321,10 +6321,10 @@ react-native-gesture-handler@^2.20.0:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-react-native-mmkv@^2.12.2:
-  version "2.12.2"
-  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-2.12.2.tgz#4bba0f5f04e2cf222494cce3a9794ba6a4894dee"
-  integrity sha512-6058Aq0p57chPrUutLGe9fYoiDVDNMU2PKV+lLFUJ3GhoHvUrLdsS1PDSCLr00yqzL4WJQ7TTzH+V8cpyrNcfg==
+react-native-mmkv@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-3.0.2.tgz#c6376678d33d51a5ace3285c8bbcb5cb613c2741"
+  integrity sha512-zd+n5qLDy8Ptcj+ZIVa/pkGgL13X/8xFId3o4Ec9TpQVjM3BJaIszNc8jo6UF7dtndtVcvLDoBWBkkYmkpdTYA==
 
 react-native-pressable-opacity@^1.0.10:
   version "1.0.10"
@@ -6379,10 +6379,10 @@ react-native-video@^6.6.4:
   resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.6.4.tgz#77630a7b20b93a12ebc83244e9171ea5f0da52fd"
   integrity sha512-YBaStWAhWZMDaRG7Q9u173Si7ho7I3xwrS1SCKnProeXfdaS7vZNbt84ueFwufa4YxZ0JZoyOypH0tA0JZK3GQ==
 
-react-native-worklets-core@^1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-1.3.3.tgz#3c7c89811758ae4109e2d7ca3b2258399172105c"
-  integrity sha512-wlkuhpUo4Wd9WBcnKuXWv775rYNYMfDxUySCZYxd3VDtwnF8PHPqAJllVIlHjamPNKpcitFvAgQa/C3YOsJwgQ==
+react-native-worklets-core@^2.0.0-beta.4:
+  version "2.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-2.0.0-beta.4.tgz#74141eb9cac873e06eb1f42ef019231210ce2463"
+  integrity sha512-XcflgOSBac8fqIb0Qanebnue7Emwxosk27NGa/q3KKWE+JAFZEWWFKlFCCyo9sG1zV9Z9SXULVEwfGI8mSDe2A==
   dependencies:
     string-hash-64 "^1.0.3"
 
