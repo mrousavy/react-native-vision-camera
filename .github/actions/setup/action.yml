@@ -24,5 +24,5 @@ runs:
 
     - name: Install dependencies
       if: steps.yarn-cache.outputs.cache-hit != 'true'
-      run: cd ${{ inputs.working-directory }} && yarn install --immutable
+      run: yarn install --immutable --cwd ${{ inputs.working-directory }}
       shell: bash
