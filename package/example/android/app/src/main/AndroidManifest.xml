@@ -24,7 +24,8 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:hardwareAccelerated="true"
       android:requestLegacyExternalStorage="true"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      android:supportsRtl="true">
       <activity
         android:name=".MainActivity"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
