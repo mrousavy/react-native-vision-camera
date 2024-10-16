@@ -74,7 +74,7 @@ class AverageFpsChangedEvent(surfaceId: Int, viewId: Int, private val data: Writ
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topAverageFpsChanged"
+    const val EVENT_NAME = "topCameraAverageFpsChanged"
   }
 }
 
