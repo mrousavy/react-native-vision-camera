@@ -90,7 +90,6 @@
     "@release-it/conventional-changelog": "^8.0.1",
     "@shopify/react-native-skia": "^1.4.2",
     "@types/react": "^18.3.3",
-    "@types/react-native": "^0.73.0",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
