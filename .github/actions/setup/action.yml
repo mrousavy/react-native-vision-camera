@@ -22,6 +22,10 @@ runs:
           ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           ${{ runner.os }}-yarn-
 
+    - name: DEBUG PRINT PWD
+      run: echo $PWD
+      shell: bash
+
     - name: Install dependencies
       if: steps.yarn-cache.outputs.cache-hit != 'true'
       run: yarn install --immutable --cwd ${{ inputs.working-directory }}
