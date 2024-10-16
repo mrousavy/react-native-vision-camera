@@ -90,9 +90,6 @@ if (hasWorklets) {
 def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
 logger.warn("[VisionCamera] VisionCamera_enableCodeScanner is set to $enableCodeScanner!")
 
-def isNewArchEnabled = isNewArchitectureEnabled()
-logger.warn("[VisionCamera] New Architecture is ${isNewArchEnabled ? "enabled" : "disabled"}!")
-
 repositories {
   google()
   mavenCentral()
@@ -129,15 +126,14 @@ android {
     targetSdkVersion safeExtGet("targetSdkVersion", 34)
     versionCode 1
     versionName "1.0"
-    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchEnabled.toString()
+    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
     externalNativeBuild {
       cmake {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}",
-                "-DIS_NEW_ARCHITECTURE_ENABLED=${isNewArchEnabled ? "ON" : "OFF"}"
+                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}"
         abiFilters (*reactNativeArchitectures())
       }
     }

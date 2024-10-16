@@ -71,18 +71,9 @@ message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
 if(ENABLE_FRAME_PROCESSORS)
         message("VisionCamera: Linking react-native-worklets...")
 
-        message("VisionCamera: IS_NEW_ARCHITECTURE_ENABLED: ${IS_NEW_ARCHITECTURE_ENABLED}!")
-
-        if(IS_NEW_ARCHITECTURE_ENABLED)
-                target_link_libraries(
-                        ${PACKAGE_NAME}
-                        react-native-worklets-core
-                )
-        else()
-                find_package(react-native-worklets-core REQUIRED CONFIG)
-                target_link_libraries(
-                        ${PACKAGE_NAME}
-                        react-native-worklets-core::rnworklets
-                )
-        endif()
+        find_package(react-native-worklets-core REQUIRED CONFIG)
+        target_link_libraries(
+                ${PACKAGE_NAME}
+                react-native-worklets-core::rnworklets
+        )
 endif()
