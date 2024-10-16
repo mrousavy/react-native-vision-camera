@@ -15,20 +15,21 @@ find_library(LOG_LIB log)
 add_definitions(-DEGL_EGLEXT_PROTOTYPES)
 add_definitions(-DGL_GLEXT_PROTOTYPES)
 
-if (ENABLE_FRAME_PROCESSORS)
+if(ENABLE_FRAME_PROCESSORS)
         add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
 else()
         add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=false)
 endif()
 
-
 # Add react-native-vision-camera sources
 add_library(
         ${PACKAGE_NAME}
         SHARED
+
         # Java JNI
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/MutableJByteBuffer.cpp
+
         # Frame Processor
         src/main/cpp/frameprocessors/FrameHostObject.cpp
         src/main/cpp/frameprocessors/FrameProcessorPluginHostObject.cpp
@@ -57,20 +58,31 @@ target_include_directories(
 # Link everything together
 target_link_libraries(
         ${PACKAGE_NAME}
-        ${LOG_LIB}                          # <-- Logcat logger
-        android                             # <-- Android JNI core
-        ReactAndroid::jsi                   # <-- RN: JSI
-        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
-        fbjni::fbjni                        # <-- fbjni
+        ${LOG_LIB} # <-- Logcat logger
+        android # <-- Android JNI core
+        ReactAndroid::jsi # <-- RN: JSI
+        ReactAndroid::reactnativejni # <-- RN: React Native JNI bindings
+        fbjni::fbjni # <-- fbjni
 )
 
 # Optionally also add Frame Processors here
 message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
-if (ENABLE_FRAME_PROCESSORS)
-    message("VisionCamera: Linking react-native-worklets...")
-    find_package(react-native-worklets-core REQUIRED CONFIG)
-    target_link_libraries(
-            ${PACKAGE_NAME}
-            react-native-worklets-core::rnworklets
-    )
+
+if(ENABLE_FRAME_PROCESSORS)
+        message("VisionCamera: Linking react-native-worklets...")
+
+        message("VisionCamera: IS_NEW_ARCHITECTURE_ENABLED: ${IS_NEW_ARCHITECTURE_ENABLED}!")
+
+        if(IS_NEW_ARCHITECTURE_ENABLED)
+                target_link_libraries(
+                        ${PACKAGE_NAME}
+                        react-native-worklets-core
+                )
+        else()
+                find_package(react-native-worklets-core REQUIRED CONFIG)
+                target_link_libraries(
+                        ${PACKAGE_NAME}
+                        react-native-worklets-core::rnworklets
+                )
+        endif()
 endif()
