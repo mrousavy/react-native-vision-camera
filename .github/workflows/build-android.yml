@@ -5,18 +5,18 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'package/android/**'
-      - 'package/example/android/**'
-      - 'package/yarn.lock'
-      - 'package/example/yarn.lock'
+      - ".github/workflows/build-android.yml"
+      - "package/android/**"
+      - "package/example/android/**"
+      - "package/yarn.lock"
+      - "package/example/yarn.lock"
   pull_request:
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'package/android/**'
-      - 'package/example/android/**'
-      - 'package/yarn.lock'
-      - 'package/example/yarn.lock'
+      - ".github/workflows/build-android.yml"
+      - "package/android/**"
+      - "package/example/android/**"
+      - "package/yarn.lock"
+      - "package/example/yarn.lock"
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 17
           java-package: jdk
 
@@ -78,25 +78,12 @@ jobs:
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 17
           java-package: jdk
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-without-fps-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Remove worklets, skia and reanimated
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
