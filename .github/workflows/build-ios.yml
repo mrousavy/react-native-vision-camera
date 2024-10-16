@@ -29,7 +29,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          working-directory: ..
+          working-directory: ./package
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -77,7 +77,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          working-directory: ..
+          working-directory: ./package
 
       - name: Remove worklets, skia and reanimated
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
