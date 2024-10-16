@@ -1,6 +1,12 @@
 name: Setup
 description: Install dependencies
 
+inputs:
+  working-directory:
+    description: "The working directory to run the setup script in"
+    required: false
+    default: "."
+
 runs:
   using: composite
   steps:
@@ -18,5 +24,5 @@ runs:
 
     - name: Install dependencies
       if: steps.yarn-cache.outputs.cache-hit != 'true'
-      run: yarn install --immutable
+      run: yarn install --immutable --cwd ${{ inputs.working-directory }}
       shell: bash

@@ -35,21 +35,8 @@ jobs:
           java-version: 17
           java-package: jdk
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-with-fps-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
+      - name: Setup
+        uses: ./.github/actions/setup
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -84,6 +71,7 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
       - name: Remove worklets, skia and reanimated
         run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
