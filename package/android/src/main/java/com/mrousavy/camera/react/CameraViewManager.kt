@@ -36,11 +36,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       .put(CameraShutterEvent.EVENT_NAME, MapBuilder.of("registrationName", "onShutter"))
       .put(CameraErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", "onError"))
       .put(CameraCodeScannedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(CameraPreviewStartedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(CameraPreviewStoppedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(CameraOutputOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
+      .put(CameraPreviewStartedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewStarted"))
+      .put(CameraPreviewStoppedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewStopped"))
+      .put(CameraOutputOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onOutputOrientationChanged"))
+      .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewOrientationChanged"))
+      .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onAverageFpsChanged"))
       .build()
 
   override fun getName(): String = TAG
