@@ -9,7 +9,7 @@
     "start": "react-native start",
     "pods": "cd ios && pod install",
     "lint": "eslint . --fix",
-    "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
+    "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions",
     "typescript": "tsc --noEmit"
   },
   "dependencies": {

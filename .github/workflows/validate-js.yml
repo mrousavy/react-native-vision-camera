@@ -67,13 +67,13 @@ jobs:
         run: bun install
 
       - name: Run ESLint
-        run: cd ./package && bun lint -f @jamesacarr/github-actions
+        run: cd ./package && bun lint-ci
 
       - name: Run ESLint with auto-fix
         run: cd ./package && bun lint --fix
 
       - name: Run ESLint in example/
-        run: cd example && bun lint -f @jamesacarr/github-actions
+        run: cd example && bun lint-ci
 
       - name: Run ESLint in example/ with auto-fix
         run: cd example && bun lint --fix
