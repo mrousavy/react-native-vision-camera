@@ -8,13 +8,13 @@ on:
       - ".github/workflows/build-ios.yml"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/ios/**"
+      - "example/ios/**"
   pull_request:
     paths:
       - ".github/workflows/build-ios.yml"
       - "package/ios/**"
       - "package/*.podspec"
-      - "package/example/ios/**"
+      - "example/ios/**"
 
 jobs:
   build:

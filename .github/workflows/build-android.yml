@@ -7,16 +7,16 @@ on:
     paths:
       - ".github/workflows/build-android.yml"
       - "package/android/**"
-      - "package/example/android/**"
-      - "package/yarn.lock"
-      - "package/example/yarn.lock"
+      - "example/android/**"
+      - "package/bun.lockb"
+      - "example/bun.lockb"
   pull_request:
     paths:
       - ".github/workflows/build-android.yml"
       - "package/android/**"
-      - "package/example/android/**"
-      - "package/yarn.lock"
-      - "package/example/yarn.lock"
+      - "example/android/**"
+      - "package/bun.lockb"
+      - "example/bun.lockb"
 
 jobs:
   build:

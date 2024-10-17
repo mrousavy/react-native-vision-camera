@@ -10,11 +10,11 @@ on:
       - "package/*.json"
       - "package/*.js"
       - "package/*.lock"
-      - "package/example/src/**"
-      - "package/example/*.json"
-      - "package/example/*.js"
-      - "package/example/*.lock"
-      - "package/example/*.tsx"
+      - "example/src/**"
+      - "example/*.json"
+      - "example/*.js"
+      - "example/*.lock"
+      - "example/*.tsx"
   pull_request:
     paths:
       - ".github/workflows/validate-js.yml"
@@ -22,11 +22,11 @@ on:
       - "package/*.json"
       - "package/*.js"
       - "package/*.lock"
-      - "package/example/src/**"
-      - "package/example/*.json"
-      - "package/example/*.js"
-      - "package/example/*.lock"
-      - "package/example/*.tsx"
+      - "example/src/**"
+      - "example/*.json"
+      - "example/*.js"
+      - "example/*.lock"
+      - "example/*.tsx"
 
 jobs:
   compile:

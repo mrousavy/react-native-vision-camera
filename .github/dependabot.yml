@@ -22,7 +22,7 @@ updates:
   #     - "🛠 dependencies"
   #     - "☕️ js"
   # - package-ecosystem: "npm"
-  #   directory: "/package/example/"
+  #   directory: "/example/"
   #   schedule:
   #     interval: "monthly"
   #   labels:
