@@ -31,7 +31,8 @@ export interface NativeProps extends ViewProps {
     minFps: Double
     maxFps: Double
     autoFocusSystem: string
-    videoStabilizationModes: string[]
+    // TODO: codegen doesn't support nested custom types
+    videoStabilizationModes?: string[]
   }>
   resizeMode?: WithDefault<'cover' | 'contain', 'cover'>
   androidPreviewViewType?: WithDefault<'surface-view' | 'texture-view', 'surface-view'>
@@ -41,7 +42,8 @@ export interface NativeProps extends ViewProps {
   photoQualityBalance?: WithDefault<'speed' | 'balanced' | 'quality', 'balanced'>
   enableBufferCompression?: boolean
   lowLightBoost?: boolean
-  videoStabilizationMode?: string
+  // TODO: is the default really off or is it auto?
+  videoStabilizationMode?: WithDefault<'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto', 'off'>
   enableDepthData?: boolean
   enablePortraitEffectsMatteDelivery?: boolean
   enableFpsGraph?: boolean
@@ -73,14 +75,29 @@ export interface NativeProps extends ViewProps {
   >
   onCodeScanned?: DirectEventHandler<
     Readonly<{
-      codes?: Readonly<
+      codes: Readonly<
         {
-          type?: string
+          type:
+            | 'code-128'
+            | 'code-39'
+            | 'code-93'
+            | 'codabar'
+            | 'ean-13'
+            | 'ean-8'
+            | 'itf'
+            | 'upc-e'
+            | 'upc-a'
+            | 'qr'
+            | 'pdf-417'
+            | 'aztec'
+            | 'data-matrix'
+            | 'unknown'
           value?: string
           frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
+          corners?: Readonly<{ x: Double; y: Double }[]>
         }[]
       >
-      frame?: Readonly<{ width: Int32; height: Int32 }>
+      frame: Readonly<{ width: Int32; height: Int32 }>
     }>
   >
   onStarted?: DirectEventHandler<Readonly<{}>>
