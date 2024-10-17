@@ -35,7 +35,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Install npm dependencies (bun)
-        run: cd ../ && bun install
+        run: bun install
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -68,7 +68,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Install npm dependencies (bun)
-        run: cd ../ && bun install
+        run: bun install
       - name: Remove worklets, skia and reanimated
         run: bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
