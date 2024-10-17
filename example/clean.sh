@@ -2,8 +2,8 @@
 
 echo "rm -rf node_modules"
 rm -rf node_modules
-echo "rm -rf yarn.lock"
-rm -rf yarn.lock
+echo "rm -rf bun.lockb"
+rm -rf bun.lockb
 rm -rf package-lock.json
 
 echo "rm -rf ~/Library/Caches/CocoaPods"
@@ -25,7 +25,7 @@ echo "pod deintegrate"
 pod deintegrate
 echo "pod setup"
 pod setup
-echo "yarn"
-yarn
+echo "bun install"
+bun install
 echo "pod install"
 pod install
