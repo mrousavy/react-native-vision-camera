@@ -41,6 +41,7 @@ jobs:
       - name: Install reviewdog
         uses: reviewdog/action-setup@v1
 
+      - uses: oven-sh/setup-bun@v2
       - name: Cache dependencies
         id: yarn-cache
         uses: actions/cache@v4
