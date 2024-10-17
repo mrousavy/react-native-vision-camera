@@ -1,7 +1,6 @@
 {
   "name": "monorepo",
-  "module": "index.ts",
-  "type": "module",
+  "private": true,
   "workspaces": [
     "package",
     "example",
