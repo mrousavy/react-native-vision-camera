@@ -6,5 +6,8 @@
     "package",
     "example",
     "docs"
+  ],
+  "trustedDependencies": [
+    "react-native-vision-camera"
   ]
 }
