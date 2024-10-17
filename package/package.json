@@ -30,7 +30,7 @@
     "postinstall": "tsc || exit 0;",
     "typecheck": "tsc --noEmit",
     "typescript": "tsc --noEmit false",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
     "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions",
     "start": "cd example && bun start",
     "build": "bob build",
