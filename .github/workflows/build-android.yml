@@ -5,51 +5,37 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'package/android/**'
-      - 'package/example/android/**'
-      - 'package/yarn.lock'
-      - 'package/example/yarn.lock'
+      - ".github/workflows/build-android.yml"
+      - "package/android/**"
+      - "package/example/android/**"
+      - "package/yarn.lock"
+      - "package/example/yarn.lock"
   pull_request:
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'package/android/**'
-      - 'package/example/android/**'
-      - 'package/yarn.lock'
-      - 'package/example/yarn.lock'
+      - ".github/workflows/build-android.yml"
+      - "package/android/**"
+      - "package/example/android/**"
+      - "package/yarn.lock"
+      - "package/example/yarn.lock"
 
 jobs:
   build:
     name: Build Android Example App
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 17
           java-package: jdk
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-with-fps-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: cd ../ && bun install
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -60,45 +46,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-with-fps-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache && cd ../..
+        run: cd example/android && ./gradlew assembleDebug --no-daemon --build-cache
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        run: cd android && ./gradlew --stop
+        run: cd example/android && ./gradlew --stop
 
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: 17
           java-package: jdk
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-without-fps-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: cd ../ && bun install
       - name: Remove worklets, skia and reanimated
-        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
+        run: bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
@@ -113,4 +85,4 @@ jobs:
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        run: cd android && ./gradlew --stop
+        run: cd example/android && ./gradlew --stop
