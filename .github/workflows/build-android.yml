@@ -70,7 +70,9 @@ jobs:
       - name: Install npm dependencies (bun)
         run: bun install
       - name: Remove worklets, skia and reanimated
-        run: bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
+        run: |
+          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd example
+          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated
 
       - name: Restore Gradle cache
         uses: actions/cache@v4
