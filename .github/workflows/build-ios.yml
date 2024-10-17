@@ -79,7 +79,7 @@ jobs:
       - name: Install npm dependencies (bun)
         run: cd ../../ && bun install
       - name: Remove worklets, skia and reanimated
-        run: cd ../../ && bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
+        run: bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
