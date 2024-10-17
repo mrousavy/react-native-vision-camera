@@ -5,28 +5,28 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/validate-js.yml'
-      - 'package/src/**'
-      - 'package/*.json'
-      - 'package/*.js'
-      - 'package/*.lock'
-      - 'package/example/src/**'
-      - 'package/example/*.json'
-      - 'package/example/*.js'
-      - 'package/example/*.lock'
-      - 'package/example/*.tsx'
+      - ".github/workflows/validate-js.yml"
+      - "package/src/**"
+      - "package/*.json"
+      - "package/*.js"
+      - "package/*.lock"
+      - "package/example/src/**"
+      - "package/example/*.json"
+      - "package/example/*.js"
+      - "package/example/*.lock"
+      - "package/example/*.tsx"
   pull_request:
     paths:
-      - '.github/workflows/validate-js.yml'
-      - 'package/src/**'
-      - 'package/*.json'
-      - 'package/*.js'
-      - 'package/*.lock'
-      - 'package/example/src/**'
-      - 'package/example/*.json'
-      - 'package/example/*.js'
-      - 'package/example/*.lock'
-      - 'package/example/*.tsx'
+      - ".github/workflows/validate-js.yml"
+      - "package/src/**"
+      - "package/*.json"
+      - "package/*.js"
+      - "package/*.lock"
+      - "package/example/src/**"
+      - "package/example/*.json"
+      - "package/example/*.js"
+      - "package/example/*.lock"
+      - "package/example/*.tsx"
 
 jobs:
   compile:
@@ -41,22 +41,18 @@ jobs:
       - name: Install reviewdog
         uses: reviewdog/action-setup@v1
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
+      - name: Cache dependencies
         id: yarn-cache
+        uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lockb') }}-${{ hashFiles('**/package.json', '!node_modules/**') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules (example/)
-        run: yarn install --frozen-lockfile --cwd example
+            ${{ runner.os }}-yarn-${{ hashFiles('bun.lockb') }}
+            ${{ runner.os }}-bun-
+      - name: Install npm dependencies (bun)
+        run: bun install
 
       - name: Run TypeScript # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
         run: |
