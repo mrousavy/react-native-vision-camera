@@ -200,8 +200,8 @@ export function createSkiaFrameProcessor(
     const size = getSurfaceSize(frame)
     if (
       surfaceHolder.value[threadId] == null ||
-      surfaceHolder.value[threadId]?.width !== size.width ||
-      surfaceHolder.value[threadId]?.height !== size.height
+      surfaceHolder.value[threadId].width !== size.width ||
+      surfaceHolder.value[threadId].height !== size.height
     ) {
       const surface = Skia.Surface.MakeOffscreen(size.width, size.height)
       if (surface == null) {
@@ -212,8 +212,7 @@ export function createSkiaFrameProcessor(
       delete surfaceHolder.value[threadId]
       surfaceHolder.value[threadId] = { surface: surface, width: size.width, height: size.height }
     }
-    const surface = surfaceHolder.value[threadId]?.surface
-    if (surface == null) throw new Error(`Couldn't find Surface in Thread-cache! ID: ${threadId}`)
+    const surface = surfaceHolder.value[threadId].surface
     return surface
   }
 
