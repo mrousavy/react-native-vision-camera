@@ -177,5 +177,13 @@
         }
       ]
     ]
+  },
+  "codegenConfig": {
+    "name": "RNVisionCameraSpec",
+    "type": "all",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "com.mrousavy.camera"
+    }
   }
 }

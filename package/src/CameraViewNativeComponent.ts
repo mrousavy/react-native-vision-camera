@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { HostComponent, ViewProps } from 'react-native'
-import type { DirectEventHandler, Double, Int32 } from 'react-native/Libraries/Types/CodegenTypes'
+import type { DirectEventHandler, Double, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes'
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
 
 export type VisionCameraComponentType = HostComponent<NativeProps>
@@ -11,9 +11,9 @@ export interface NativeProps extends ViewProps {
   photo?: boolean
   video?: boolean
   audio?: boolean
-  pixelFormat?: 'yuv' | 'rgb'
+  pixelFormat?: WithDefault<'yuv' | 'rgb', 'yuv'>
   enableLocation?: boolean
-  torch?: 'off' | 'on'
+  torch?: WithDefault<'off' | 'on', 'off'>
   zoom?: Double
   enableZoomGesture?: boolean
   exposure?: Double
@@ -33,19 +33,19 @@ export interface NativeProps extends ViewProps {
     autoFocusSystem: string
     videoStabilizationModes: string[]
   }>
-  resizeMode?: 'cover' | 'contain'
-  androidPreviewViewType?: 'surface-view' | 'texture-view'
+  resizeMode?: WithDefault<'cover' | 'contain', 'cover'>
+  androidPreviewViewType?: WithDefault<'surface-view' | 'texture-view', 'surface-view'>
   fps?: Double
   videoHdr?: boolean // not sure why was int on native side
   photoHdr?: boolean // not sure why was int on native side
-  photoQualityBalance?: 'speed' | 'balanced' | 'quality'
+  photoQualityBalance?: WithDefault<'speed' | 'balanced' | 'quality', 'balanced'>
   enableBufferCompression?: boolean
   lowLightBoost?: boolean
   videoStabilizationMode?: string
   enableDepthData?: boolean
   enablePortraitEffectsMatteDelivery?: boolean
   enableFpsGraph?: boolean
-  outputOrientation?: 'device' | 'preview'
+  outputOrientation?: WithDefault<'device' | 'preview', 'device'>
   isMirrored?: boolean
   cameraId: string
   enableFrameProcessor: boolean
@@ -73,11 +73,13 @@ export interface NativeProps extends ViewProps {
   >
   onCodeScanned?: DirectEventHandler<
     Readonly<{
-      codes?: Readonly<{
-        type?: string
-        value?: string
-        frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
-      }>[]
+      codes?: Readonly<
+        {
+          type?: string
+          value?: string
+          frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
+        }[]
+      >
       frame?: Readonly<{ width: Int32; height: Int32 }>
     }>
   >
