@@ -81,7 +81,7 @@ jobs:
       - name: Remove worklets, skia and reanimated
         run: |
           bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
-          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ../../
+          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ../../package
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
