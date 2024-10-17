@@ -4,6 +4,7 @@
   "type": "module",
   "workspaces": [
     "package",
-    "example"
+    "example",
+    "docs"
   ]
 }
