@@ -27,7 +27,9 @@
     "README.md"
   ],
   "scripts": {
-    "typescript": "tsc --noEmit",
+    "postinstall": "tsc || exit 0;",
+    "typecheck": "tsc --noEmit",
+    "typescript": "tsc --noEmit false",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "start": "cd example && yarn start",

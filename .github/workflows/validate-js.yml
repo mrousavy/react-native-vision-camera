@@ -45,13 +45,13 @@ jobs:
 
       - name: Run TypeScript # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
         run: |
-          cd package && yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
+          cd package && bun typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run TypeScript in example/ # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
         run: |
-          cd example && yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee && cd ..
+          cd example && bun typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee && cd ..
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -67,16 +67,16 @@ jobs:
         run: bun install
 
       - name: Run ESLint
-        run: cd ./package && yarn lint -f @jamesacarr/github-actions && cd ..
+        run: cd ./package && bun lint -f @jamesacarr/github-actions
 
       - name: Run ESLint with auto-fix
-        run: cd ./package && yarn lint --fix && cd ..
+        run: cd ./package && bun lint --fix
 
       - name: Run ESLint in example/
-        run: cd example && yarn lint -f @jamesacarr/github-actions && cd ..
+        run: cd example && bun lint -f @jamesacarr/github-actions
 
       - name: Run ESLint in example/ with auto-fix
-        run: cd example && yarn lint --fix && cd ..
+        run: cd example && bun lint --fix
 
       - name: Verify no files have changed after auto-fix
         run: git diff --exit-code HEAD
