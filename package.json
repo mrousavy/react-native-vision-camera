@@ -1,0 +1,9 @@
+{
+  "name": "monorepo",
+  "module": "index.ts",
+  "type": "module",
+  "workspaces": [
+    "package",
+    "example"
+  ]
+}
