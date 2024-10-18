@@ -13,12 +13,12 @@ else
   Pod::UI.puts "[VisionCamera] $VCEnableLocation is not set, enabling CLLocation APIs by default..."
 end
 
-enableFrameProcessors = true
+enableFrameProcessors = false
 if defined?($VCEnableFrameProcessors)
-  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
-  enableFrameProcessors = $VCEnableFrameProcessors
+ Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
+ enableFrameProcessors = $VCEnableFrameProcessors
 else
-  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is not set, enabling Frame Processors if Worklets is installed..."
+ Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is not set, enabling Frame Processors if Worklets is installed..."
 end
 
 def Pod::getWorkletsLibraryPath
@@ -40,6 +40,9 @@ else
   enableFrameProcessors = false
 end
 
+$new_arch_enabled = ENV['RCT_NEW_ARCH_ENABLED'] == '1'
+fabric_flags = $new_arch_enabled ? '-DRCT_NEW_ARCH_ENABLED' : ''
+
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
   s.version      = package["version"]
@@ -55,6 +58,11 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{enableFrameProcessors}",
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableFrameProcessors ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
+    "OTHER_SWIFT_FLAGS" => "$(inherited)" + " " + fabric_flags,
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++20",
+  }
+  s.xcconfig = {
+    "OTHER_CFLAGS" => "$(inherited)" + " " + fabric_flags
   }
 
   s.requires_arc = true
@@ -74,7 +82,7 @@ Pod::Spec.new do |s|
     # VisionCamera React-specific Swift codebase
     core.source_files = [
       "ios/React/**/*.swift",
-      "ios/React/**/*.{h,m}",
+      "ios/React/**/*.{h,m,mm,cpp}",
     ]
     core.public_header_files = [
       "ios/React/CameraBridge.h"
@@ -113,4 +121,6 @@ Pod::Spec.new do |s|
       fp.dependency "react-native-worklets-core"
     end
   end
+
+  install_modules_dependencies(s)
 end

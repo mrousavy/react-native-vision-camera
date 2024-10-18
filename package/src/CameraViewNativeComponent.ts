@@ -5,6 +5,43 @@ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNati
 
 export type VisionCameraComponentType = HostComponent<NativeProps>
 
+export type CodeTypes =
+  | 'code-128'
+  | 'code-39'
+  | 'code-93'
+  | 'codabar'
+  | 'ean-13'
+  | 'ean-8'
+  | 'itf'
+  | 'upc-e'
+  | 'upc-a'
+  | 'qr'
+  | 'pdf-417'
+  | 'aztec'
+  | 'data-matrix'
+  | 'unknown'
+
+// export interface Codes {
+//   type:
+//     | 'code-128'
+//     | 'code-39'
+//     | 'code-93'
+//     | 'codabar'
+//     | 'ean-13'
+//     | 'ean-8'
+//     | 'itf'
+//     | 'upc-e'
+//     | 'upc-a'
+//     | 'qr'
+//     | 'pdf-417'
+//     | 'aztec'
+//     | 'data-matrix'
+//     | 'unknown'
+//   value?: string
+//   frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
+//   corners?: Readonly<{ x: Double; y: Double }[]>
+// }
+
 export interface NativeProps extends ViewProps {
   isActive: boolean
   preview?: boolean
@@ -52,7 +89,7 @@ export interface NativeProps extends ViewProps {
   cameraId: string
   enableFrameProcessor: boolean
   codeScannerOptions?: Readonly<{
-    codeTypes?: string[]
+    codeTypes?: WithDefault<CodeTypes, 'unknown'>
     regionOfInterest?: Readonly<{
       x?: Double
       y?: Double
@@ -73,33 +110,15 @@ export interface NativeProps extends ViewProps {
       cause?: Readonly<{ code?: Int32; domain?: string; message?: string; details?: string; stacktrace?: string }>
     }>
   >
-  onCodeScanned?: DirectEventHandler<
-    Readonly<{
-      codes: Readonly<
-        {
-          type:
-            | 'code-128'
-            | 'code-39'
-            | 'code-93'
-            | 'codabar'
-            | 'ean-13'
-            | 'ean-8'
-            | 'itf'
-            | 'upc-e'
-            | 'upc-a'
-            | 'qr'
-            | 'pdf-417'
-            | 'aztec'
-            | 'data-matrix'
-            | 'unknown'
-          value?: string
-          frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
-          corners?: Readonly<{ x: Double; y: Double }[]>
-        }[]
-      >
-      frame: Readonly<{ width: Int32; height: Int32 }>
-    }>
-  >
+  onCodeScanned?: DirectEventHandler<{
+    codes: {
+      type: string
+      value?: string
+      frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
+      corners?: Readonly<{ x: Double; y: Double }[]>
+    }[]
+    frame: Readonly<{ width: Int32; height: Int32 }[]>
+  }>
   onStarted?: DirectEventHandler<Readonly<{}>>
   onStopped?: DirectEventHandler<Readonly<{}>>
   onPreviewStarted?: DirectEventHandler<Readonly<{}>>
