@@ -15,7 +15,7 @@
    yarn bootstrap
    ```
 
-Read the READMEs in [`android/`](android/README.md) and [`ios/`](ios/README.md) for a quick overview of the native development workflow.
+Read the READMEs in [`android/`](package/android/README.md) and [`ios/`](package/ios/README.md) for a quick overview of the native development workflow.
 
 > You can also open VisionCamera in [a quick online editor (github1s)](https://github1s.com/mrousavy/react-native-vision-camera)
 
