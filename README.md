@@ -41,7 +41,7 @@ cd ios && pod install
 
 * [Guides](https://react-native-vision-camera.com/docs/guides)
 * [API](https://react-native-vision-camera.com/docs/api)
-* [Example](./package/example/)
+* [Example](./example/)
 * [Frame Processor Plugins](https://react-native-vision-camera.com/docs/guides/frame-processor-plugins-community)
 
 ### ShadowLens
@@ -74,7 +74,7 @@ function App() {
 }
 ```
 
-> See the [example](./package/example/) app
+> See the [example](./example/) app
 
 ### Adopting at scale
 

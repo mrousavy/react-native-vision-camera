@@ -8,8 +8,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "pods": "cd ios && pod install",
-    "lint": "eslint . --fix",
-    "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
+    "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
+    "lint-ci": "eslint \"**/*.{js,ts,tsx}\" -f @jamesacarr/github-actions",
     "typescript": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,7 +29,8 @@
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-video": "^6.6.4",
-    "react-native-worklets-core": "^1.3.3"
+    "react-native-worklets-core": "^1.3.3",
+    "react-native-vision-camera": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

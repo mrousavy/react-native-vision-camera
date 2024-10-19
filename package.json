@@ -1,0 +1,12 @@
+{
+  "name": "monorepo",
+  "private": true,
+  "workspaces": [
+    "package",
+    "example",
+    "docs"
+  ],
+  "trustedDependencies": [
+    "react-native-vision-camera"
+  ]
+}
