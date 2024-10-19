@@ -35,6 +35,9 @@ extension AVMetadataObject.ObjectType {
       self = .ean8
       return
     case "itf":
+      self = .interleaved2of5
+      return
+    case "itf-14":
       self = .itf14
       return
     case "upc-e":
@@ -78,8 +81,10 @@ extension AVMetadataObject.ObjectType {
       return "ean-13"
     case .ean8:
       return "ean-8"
-    case .itf14:
+    case .interleaved2of5:
       return "itf"
+    case .itf14:
+      return "itf-14"
     case .upce:
       return "upce"
     case .qr:
