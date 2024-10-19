@@ -136,7 +136,7 @@ module.exports = {
           items: [
             {
               label: 'Community Discord',
-              href: 'https://discord.com/invite/6CSHz2qAvA',
+              href: 'https://margelo.com/discord',
             },
             {
               label: 'GitHub discussions',
