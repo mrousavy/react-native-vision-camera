@@ -142,4 +142,22 @@ const codeScanner = useCodeScanner({
 
 You will need to keep this in mind and do the conversion from EAN-13 to UPC-A yourself. This can be done by removing the front `0` digit from the code to get a UPC-A code.
 
+## Supported Code Types
+
+| Code Type            | iOS                | Android            |
+|----------------------|--------------------|--------------------|
+| qr                   | :white_check_mark: | :white_check_mark: |
+| aztec                | :white_check_mark: | :white_check_mark: |
+| data-matrix          | :white_check_mark: | :white_check_mark: |
+| ean-13               | :white_check_mark: | :white_check_mark: |
+| ean-8                | :white_check_mark: | :white_check_mark: |
+| code-128             | :white_check_mark: | :white_check_mark: |
+| code-39              | :white_check_mark: | :white_check_mark: |
+| code-93              | :white_check_mark: | :white_check_mark: |
+| codabar              | 15.4+              | :white_check_mark: |
+| itf                  | :white_check_mark: | :white_check_mark: |
+| upc-e                | :white_check_mark: | :white_check_mark: |
+| upc-a                | :white_check_mark: | :white_check_mark: |
+| pdf-417              | :white_check_mark: | :white_check_mark: |
+
 #### 🚀 Next section: [Frame Processors](frame-processors)
