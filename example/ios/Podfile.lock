@@ -2017,7 +2017,7 @@ DEPENDENCIES:
   - RNScreens (from `../../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
-  - VisionCamera (from `../../node_modules/react-native-vision-camera`)
+  - VisionCamera (from `../../package`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2173,7 +2173,7 @@ EXTERNAL SOURCES:
   RNVectorIcons:
     :path: "../../node_modules/react-native-vector-icons"
   VisionCamera:
-    :path: "../../node_modules/react-native-vision-camera"
+    :path: "../../package"
   Yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
@@ -2255,6 +2255,6 @@ SPEC CHECKSUMS:
   VisionCamera: fbe4f8de9a7243d5986d12a447b16d5528eb9a90
   Yoga: aa3df615739504eebb91925fc9c58b4922ea9a08
 
-PODFILE CHECKSUM: a43dbce8eba88fb736654cbed5c32f2a764615ef
+PODFILE CHECKSUM: f0198d9eea1d44be2bb929d80d6bfc9ddeae8414
 
 COCOAPODS: 1.15.2
