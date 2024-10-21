@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 20.04.24.
 //
 
+#ifndef RCT_NEW_ARCH_ENABLED
+
 #import "VisionCameraInstaller.h"
 #import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
@@ -33,3 +35,5 @@
 }
 
 @end
+
+#endif
