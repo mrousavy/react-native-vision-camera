@@ -121,7 +121,4 @@ Pod::Spec.new do |s|
       fp.dependency "react-native-worklets-core"
     end
   end
-
-  hash = s.to_hash
-  UI.puts "hash: #{hash}"
 end
