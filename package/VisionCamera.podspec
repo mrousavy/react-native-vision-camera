@@ -13,7 +13,7 @@ else
   Pod::UI.puts "[VisionCamera] $VCEnableLocation is not set, enabling CLLocation APIs by default..."
 end
 
-enableFrameProcessors = false
+enableFrameProcessors = true
 if defined?($VCEnableFrameProcessors)
  Pod::UI.puts "[VisionCamera] $VCEnableFrameProcessors is set to #{$VCEnableFrameProcessors}!"
  enableFrameProcessors = $VCEnableFrameProcessors
@@ -52,14 +52,15 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "12.4" }
+  s.platforms    = { :ios => "13.0" }
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
     "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{enableFrameProcessors}",
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableFrameProcessors ? "VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
     "OTHER_SWIFT_FLAGS" => "$(inherited)" + " " + fabric_flags,
-    "CLANG_CXX_LANGUAGE_STANDARD" => "c++20",
+    "USE_HEADERMAP" => "YES",
+    "DEFINES_MODULE" => "YES",
   }
   s.xcconfig = {
     "OTHER_CFLAGS" => "$(inherited)" + " " + fabric_flags
@@ -78,20 +79,24 @@ Pod::Spec.new do |s|
     }
   end
 
-  s.subspec 'React' do |core|
+  s.subspec 'React' do |react|
     # VisionCamera React-specific Swift codebase
-    core.source_files = [
+    react.source_files = [
       "ios/React/**/*.swift",
-      "ios/React/**/*.{h,m,mm,cpp}",
+      "ios/React/**/*.{h,m,mm}",
     ]
-    core.public_header_files = [
+    react.public_header_files = [
       "ios/React/CameraBridge.h"
     ]
 
-    core.dependency "React-Core"
+    # TODO: can those dependecies be removed now that we have install_modules_... ?
+    react.dependency "React-Core"
+    react.dependency "Yoga"
     if enableFrameProcessors
-      core.dependency "VisionCamera/FrameProcessors"
+      react.dependency "VisionCamera/FrameProcessors"
     end
+    
+    install_modules_dependencies(react)
   end
 
   if enableFrameProcessors
@@ -112,15 +117,11 @@ Pod::Spec.new do |s|
         "ios/FrameProcessors/VisionCameraInstaller.h",
       ]
 
-      fp.pod_target_xcconfig = {
-        "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-      }
-
-      fp.dependency "React"
-      fp.dependency "React-callinvoker"
+      install_modules_dependencies(fp)
       fp.dependency "react-native-worklets-core"
     end
   end
 
-  install_modules_dependencies(s)
+  hash = s.to_hash
+  UI.puts "hash: #{hash}"
 end
