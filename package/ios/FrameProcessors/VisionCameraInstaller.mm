@@ -5,8 +5,6 @@
 //  Created by Marc Rousavy on 20.04.24.
 //
 
-#ifndef RCT_NEW_ARCH_ENABLED
-
 #import "VisionCameraInstaller.h"
 #import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
@@ -18,7 +16,6 @@
 @implementation VisionCameraInstaller
 
 + (BOOL)installWithDelegate:(id<VisionCameraProxyDelegate>)delegate {
-  // TODO: Migrate away from RCTBridge to support new arch.
   RCTBridge* bridge = delegate.getBridge;
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)bridge;
   if (!cxxBridge.runtime) {
@@ -35,5 +32,3 @@
 }
 
 @end
-
-#endif
