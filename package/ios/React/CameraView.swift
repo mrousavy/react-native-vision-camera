@@ -20,7 +20,7 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegate, FpsSampleCollectorDelegate {
+public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegate, FpsSampleCollectorDelegate, CameraViewDirectEventDelegate {
   // pragma MARK: React Properties
 
   // props that require reconfiguring
@@ -66,7 +66,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
-  // events
+//#if !RCT_NEW_ARCH_ENABLED
+  // Define events blocks that on old arch will get synthesized by the CameraViewManager.m
+  // Events are bridged in CameraView+EventDelegate+OldArch.swift
   @objc public var onInitializedEvent: RCTDirectEventBlock?
   @objc public var onErrorEvent: RCTDirectEventBlock?
   @objc public var onStartedEvent: RCTDirectEventBlock?
@@ -79,6 +81,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc public var onViewReadyEvent: RCTDirectEventBlock?
   @objc public var onAverageFpsChangedEvent: RCTDirectEventBlock?
   @objc public var onCodeScannedEvent: RCTDirectEventBlock?
+//#endif
 
   // zoom
   @objc public var enableZoomGesture = false {
@@ -101,6 +104,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   var isMounted = false
   private var currentConfigureCall: DispatchTime?
   private let fpsSampleCollector = FpsSampleCollector()
+  @objc public var eventDelegate: CameraViewDirectEventDelegate!
 
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -108,25 +112,12 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
   // CameraView+TakeSnapshot
   var latestVideoFrame: Snapshot?
-    
-#if RCT_NEW_ARCH_ENABLED
-  @objc public var delegate: RNCameraViewDirectEventDelegate?
-#else
-
-  // events
-  @objc var onInitialized: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-  @objc var onStarted: RCTDirectEventBlock?
-  @objc var onStopped: RCTDirectEventBlock?
-  @objc var onShutter: RCTDirectEventBlock?
-  @objc var onViewReady: RCTDirectEventBlock?
-  @objc var onCodeScanned: RCTDirectEventBlock?
-#endif
 
   // pragma MARK: Setup
 
   override public init(frame: CGRect) {
     super.init(frame: frame)
+    eventDelegate = self;
     cameraSession.delegate = self
     fpsSampleCollector.delegate = self
     updatePreview()
@@ -144,7 +135,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       fpsSampleCollector.start()
       if !isMounted {
         isMounted = true
-        onViewReadyEvent?(nil)
+        eventDelegate.emitOnViewReadyEvent()
       }
     } else {
       fpsSampleCollector.stop()
@@ -329,7 +320,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         "details": cause.userInfo,
       ]
     }
-    onErrorEvent?([
+    eventDelegate.emitOnErrorEvent([
       "code": error.code,
       "message": error.message,
       "cause": causeDictionary ?? NSNull(),
@@ -337,39 +328,39 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   func onSessionInitialized() {
-    onInitializedEvent?([:])
+      eventDelegate.emitOnInitializedEvent()
   }
 
   func onCameraStarted() {
-    onStartedEvent?([:])
+      eventDelegate.emitOnStartedEvent()
   }
 
   func onCameraStopped() {
-    onStoppedEvent?([:])
+      eventDelegate.emitOnStoppedEvent()
   }
 
   func onPreviewStarted() {
-    onPreviewStartedEvent?([:])
+      eventDelegate.emitOnPreviewStartedEvent()
   }
 
   func onPreviewStopped() {
-    onPreviewStoppedEvent?([:])
+      eventDelegate.emitOnPreviewStoppedEvent()
   }
 
   func onCaptureShutter(shutterType: ShutterType) {
-    onShutterEvent?([
+      eventDelegate.emitOnShutterEvent([
       "type": shutterType.jsValue,
     ])
   }
 
   func onOutputOrientationChanged(_ outputOrientation: Orientation) {
-    onOutputOrientationChangedEvent?([
+      eventDelegate.emitOnOutputOrientationChangedEvent([
       "outputOrientation": outputOrientation.jsValue,
     ])
   }
 
   func onPreviewOrientationChanged(_ previewOrientation: Orientation) {
-    onPreviewOrientationChangedEvent?([
+      eventDelegate.emitOnPreviewOrientationChangedEvent([
       "previewOrientation": previewOrientation.jsValue,
     ])
   }
@@ -393,14 +384,14 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
-    onCodeScannedEvent?([
+      eventDelegate.emitOnCodeScannedEvent([
       "codes": codes.map { $0.toJSValue() },
       "frame": scannerFrame.toJSValue(),
     ])
   }
 
   func onAverageFpsChanged(averageFps: Double) {
-    onAverageFpsChangedEvent?([
+      eventDelegate.emitOnAverageFpsChangedEvent([
       "averageFps": averageFps,
     ])
   }

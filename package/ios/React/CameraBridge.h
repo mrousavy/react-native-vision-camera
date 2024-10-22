@@ -6,6 +6,7 @@
 //  Copyright © 2020 mrousavy. All rights reserved.
 //
 
+// Everything we want to bridge to Swift (Swift -> ObjC is automatically bridged)
 #pragma once
 
 #import <Foundation/Foundation.h>

@@ -180,7 +180,7 @@
   },
   "codegenConfig": {
     "name": "RNVisionCameraSpec",
-    "type": "components",
+    "type": "all",
     "jsSrcsDir": "./src",
     "android": {
       "javaPackageName": "com.mrousavy.camera"
