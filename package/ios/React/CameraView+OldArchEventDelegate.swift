@@ -7,64 +7,64 @@
 
 // On the new arch this is implemented on CameraViewNativeComponent.mm
 #if !RCT_NEW_ARCH_ENABLED
-import Foundation
+  import Foundation
 
-/**
- * This extension bridges the call to the synthesized RCTDirectEventBlock which are injected on the
- * old arch by the CameraViewManager.m into the CameraView.swift.
- */
-class CameraViewOldArchEventHandler: CameraViewDirectEventDelegate {
+  /**
+   * This extension bridges the call to the synthesized RCTDirectEventBlock which are injected on the
+   * old arch by the CameraViewManager.m into the CameraView.swift.
+   */
+  class CameraViewOldArchEventHandler: CameraViewDirectEventDelegate {
     private weak var view: CameraView?
-    init (view: CameraView) {
-        self.view = view
+    init(view: CameraView) {
+      self.view = view
     }
-    
+
     public func emitOnInitializedEvent() {
-        view?.onInitializedEvent?([:])
+      view?.onInitializedEvent?([:])
     }
-    
+
     public func emitOnErrorEvent(_ error: [String: Any]) {
-        view?.onErrorEvent?(error)
+      view?.onErrorEvent?(error)
     }
-    
+
     public func emitOnStartedEvent() {
-        view?.onStartedEvent?([:])
+      view?.onStartedEvent?([:])
     }
-    
+
     public func emitOnStoppedEvent() {
-        view?.onStartedEvent?([:])
+      view?.onStartedEvent?([:])
     }
-    
+
     public func emitOnPreviewStartedEvent() {
-        view?.onPreviewStartedEvent?([:])
+      view?.onPreviewStartedEvent?([:])
     }
-    
+
     public func emitOnPreviewStoppedEvent() {
-        view?.onPreviewStoppedEvent?([:])
+      view?.onPreviewStoppedEvent?([:])
     }
-    
+
     public func emitOnShutterEvent(_ message: [String: Any]) {
-        view?.onShutterEvent?(message)
+      view?.onShutterEvent?(message)
     }
-    
+
     public func emitOnPreviewOrientationChangedEvent(_ message: [String: Any]) {
-        view?.onPreviewOrientationChangedEvent?(message)
+      view?.onPreviewOrientationChangedEvent?(message)
     }
-    
+
     public func emitOnOutputOrientationChangedEvent(_ message: [String: Any]) {
-        view?.onOutputOrientationChangedEvent?(message)
+      view?.onOutputOrientationChangedEvent?(message)
     }
-    
+
     public func emitOnViewReadyEvent() {
-        view?.onViewReadyEvent?([:])
+      view?.onViewReadyEvent?([:])
     }
-    
+
     public func emitOnAverageFpsChangedEvent(_ message: [String: Any]) {
-        view?.onAverageFpsChangedEvent?(message)
+      view?.onAverageFpsChangedEvent?(message)
     }
-    
+
     public func emitOnCodeScannedEvent(_ message: [String: Any]) {
-        view?.onCodeScannedEvent?(message)
+      view?.onCodeScannedEvent?(message)
     }
-}
+  }
 #endif
