@@ -20,7 +20,7 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegate, FpsSampleCollectorDelegate, CameraViewDirectEventDelegate {
+public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegate, FpsSampleCollectorDelegate {
   // pragma MARK: React Properties
 
   // props that require reconfiguring
@@ -66,7 +66,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
-//#if !RCT_NEW_ARCH_ENABLED
+#if !RCT_NEW_ARCH_ENABLED
   // Define events blocks that on old arch will get synthesized by the CameraViewManager.m
   // Events are bridged in CameraView+EventDelegate+OldArch.swift
   @objc public var onInitializedEvent: RCTDirectEventBlock?
@@ -81,7 +81,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc public var onViewReadyEvent: RCTDirectEventBlock?
   @objc public var onAverageFpsChangedEvent: RCTDirectEventBlock?
   @objc public var onCodeScannedEvent: RCTDirectEventBlock?
-//#endif
+#endif
 
   // zoom
   @objc public var enableZoomGesture = false {
@@ -117,7 +117,10 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
   override public init(frame: CGRect) {
     super.init(frame: frame)
-    eventDelegate = self;
+#if !RCT_NEW_ARCH_ENABLED
+    // On the new arch this delegate is set in CameraViewNativeComponent.mm
+    eventDelegate = CameraViewOldArchEventHandler(view: self);
+#endif
     cameraSession.delegate = self
     fpsSampleCollector.delegate = self
     updatePreview()

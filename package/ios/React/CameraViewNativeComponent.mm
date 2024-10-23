@@ -12,6 +12,7 @@
 
 #import "RCTFabricComponentsPlugins.h"
 
+#import <AVFoundation/AVFoundation.h>
 #if __has_include(<VisionCamera/VisionCamera-Swift.h>)
 #import <VisionCamera/VisionCamera-Swift.h>
 #else
@@ -54,7 +55,7 @@ using namespace facebook::react;
 }
 
 - (void)emitOnAverageFpsChangedEvent:(NSDictionary<NSString *,id> * _Nonnull)message {
-    if (_eventEmitter) {
+    if (!_eventEmitter) {
         return;
     }
     
@@ -68,47 +69,98 @@ using namespace facebook::react;
 }
 
 - (void)emitOnCodeScannedEvent:(NSDictionary<NSString *,id> * _Nonnull)message {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    // TODO: implement
 }
 
 - (void)emitOnErrorEvent:(NSDictionary<NSString *,id> * _Nonnull)error {
-    <#code#>
+    // TODO: implement
 }
 
 - (void)emitOnInitializedEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onInitialized({});
 }
 
 - (void)emitOnOutputOrientationChangedEvent:(NSDictionary<NSString *,id> * _Nonnull)message {
-    <#code#>
+    // TODO: implement
 }
 
 - (void)emitOnPreviewOrientationChangedEvent:(NSDictionary<NSString *,id> * _Nonnull)message {
-    <#code#>
+    // TODO: implement
 }
 
 - (void)emitOnPreviewStartedEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onPreviewStarted({});
 }
 
 - (void)emitOnPreviewStoppedEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onPreviewStopped({});
 }
 
 - (void)emitOnShutterEvent:(NSDictionary<NSString *,id> * _Nonnull)message {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    CameraViewEventEmitter::OnShutter payload = {
+        .type = std::string([[message objectForKey:@"type"] UTF8String])
+    };
+    emitter->onShutter(payload);
 }
 
 - (void)emitOnStartedEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onStarted({});
 }
 
 - (void)emitOnStoppedEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onStopped({});
 }
 
 - (void)emitOnViewReadyEvent {
-    <#code#>
+    if (!_eventEmitter) {
+        return;
+    }
+    
+    std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+    
+    emitter->onViewReady({});
 }
 
 @end
