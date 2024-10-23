@@ -292,12 +292,56 @@ using namespace facebook::react;
   }
 
   std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
-
-  // TODO: implement
+  
+  CameraViewEventEmitter::OnCodeScanned payload = {};
+  
+  NSArray* codes = [[message objectForKey:@"codes"] array];
+  __block std::vector<CameraViewEventEmitter::OnCodeScannedCodes> vectorRef = payload.codes;
+  [codes enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    CameraViewEventEmitter::OnCodeScannedCodesFrame frame = {
+      .x = [[[obj objectForKey:@"frame"] objectForKey:@"x"] doubleValue],
+      .y = [[[obj objectForKey:@"frame"] objectForKey:@"y"] doubleValue],
+      .width = [[[obj objectForKey:@"frame"] objectForKey:@"width"] doubleValue],
+      .height = [[[obj objectForKey:@"frame"] objectForKey:@"height"] doubleValue],
+    };
+    
+    CameraViewEventEmitter::OnCodeScannedCodes code = {
+      .type = std::string([[obj objectForKey:@"type"] UTF8String]),
+      .value = std::string([[obj objectForKey:@"value"] UTF8String]),
+      .frame = frame,
+    };
+    
+    vectorRef.push_back(code);
+  }];
+  
+  payload.frame = {
+    .width = [[[message objectForKey:@"frame"] objectForKey:@"width"] intValue],
+    .height = [[[message objectForKey:@"frame"] objectForKey:@"height"] intValue],
+  };
+  
+  emitter->onCodeScanned(payload);
 }
 
 - (void)emitOnErrorEvent:(NSDictionary<NSString*, id>* _Nonnull)error {
-  // TODO: implement
+  if (!_eventEmitter) {
+    return;
+  }
+
+  std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+  
+  // TODO: recursive error type not supported yet?
+  CameraViewEventEmitter::OnError payload = {
+    .code = std::string([[error objectForKey:@"code"] UTF8String]),
+    .message = std::string([[error objectForKey:@"message"] UTF8String]),
+    .cause = {
+      .code = [[[error objectForKey:@"cause"] objectForKey:@"code"] intValue],
+      .domain = std::string([[[error objectForKey:@"cause"] objectForKey:@"domain"] UTF8String]),
+      .message = std::string([[[error objectForKey:@"cause"] objectForKey:@"message"] UTF8String]),
+      .details = std::string([[[error objectForKey:@"cause"] objectForKey:@"details"] UTF8String])
+    }
+  };
+  
+  emitter->onError(payload);
 }
 
 - (void)emitOnInitializedEvent {
@@ -311,11 +355,57 @@ using namespace facebook::react;
 }
 
 - (void)emitOnOutputOrientationChangedEvent:(NSDictionary<NSString*, id>* _Nonnull)message {
-  // TODO: implement
+  if (!_eventEmitter) {
+    return;
+  }
+
+  std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+  
+  CameraViewEventEmitter::OnOutputOrientationChangedOutputOrientation orientation;
+  std::string value = [[message objectForKey:@"outputOrientation"] UTF8String];
+  if (value == "portrait") {
+    orientation = CameraViewEventEmitter::OnOutputOrientationChangedOutputOrientation::Portrait;
+  } else if (value == "portrait-upside-down") {
+    orientation = CameraViewEventEmitter::OnOutputOrientationChangedOutputOrientation::PortraitUpsideDown;
+  } else if (value == "landscape-left") {
+    orientation = CameraViewEventEmitter::OnOutputOrientationChangedOutputOrientation::LandscapeLeft;
+  } else if (value == "landscape-right") {
+    orientation = CameraViewEventEmitter::OnOutputOrientationChangedOutputOrientation::LandscapeRight;
+  } else {
+    @throw [NSException exceptionWithName:@"Orientation string could not be mapped" reason:nil userInfo:nil];
+  }
+  
+  
+  emitter->onOutputOrientationChanged({
+    .outputOrientation = orientation
+  });
 }
 
 - (void)emitOnPreviewOrientationChangedEvent:(NSDictionary<NSString*, id>* _Nonnull)message {
-  // TODO: implement
+  if (!_eventEmitter) {
+    return;
+  }
+
+  std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
+  
+  CameraViewEventEmitter::OnPreviewOrientationChangedPreviewOrientation orientation;
+  std::string value = [[message objectForKey:@"previewOrientation"] UTF8String];
+  if (value == "portrait") {
+    orientation = CameraViewEventEmitter::OnPreviewOrientationChangedPreviewOrientation::Portrait;
+  } else if (value == "portrait-upside-down") {
+    orientation = CameraViewEventEmitter::OnPreviewOrientationChangedPreviewOrientation::PortraitUpsideDown;
+  } else if (value == "landscape-left") {
+    orientation = CameraViewEventEmitter::OnPreviewOrientationChangedPreviewOrientation::LandscapeLeft;
+  } else if (value == "landscape-right") {
+    orientation = CameraViewEventEmitter::OnPreviewOrientationChangedPreviewOrientation::LandscapeRight;
+  } else {
+    @throw [NSException exceptionWithName:@"Orientation string could not be mapped" reason:nil userInfo:nil];
+  }
+  
+  
+  emitter->onPreviewOrientationChanged({
+    .previewOrientation = orientation
+  });
 }
 
 - (void)emitOnPreviewStartedEvent {

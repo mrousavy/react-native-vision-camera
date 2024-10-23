@@ -95,7 +95,7 @@ export interface NativeProps extends ViewProps {
       frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
       corners?: Readonly<{ x: Double; y: Double }[]>
     }[]
-    frame: Readonly<{ width: Int32; height: Int32 }[]>
+    frame: Readonly<{ width: Int32; height: Int32 }>
   }>
   onStarted?: DirectEventHandler<Readonly<{}>>
   onStopped?: DirectEventHandler<Readonly<{}>>
