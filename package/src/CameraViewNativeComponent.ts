@@ -62,8 +62,8 @@ export interface NativeProps extends ViewProps {
     maxISO: Double
     minISO: Double
     fieldOfView: Double
-    supportsVideoHDR: boolean
-    supportsPhotoHDR: boolean
+    supportsVideoHdr: boolean
+    supportsPhotoHdr: boolean
     supportsDepthCapture: boolean
     minFps: Double
     maxFps: Double

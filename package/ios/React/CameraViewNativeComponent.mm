@@ -58,8 +58,6 @@ using namespace facebook::react;
 
   NSMutableArray* changedProps = [[NSMutableArray alloc] init];
 
-  [_view didSetProps:changedProps];
-
   if (oldViewProps.isActive != newViewProps.isActive) {
     _view.isActive = newViewProps.isActive;
     [changedProps addObject:@"isActive"];
@@ -158,13 +156,16 @@ using namespace facebook::react;
   bool hasFormatPropChanged = [self hasFormatPropChanged:oldViewProps newViewProps:newViewProps];
   if (hasFormatPropChanged) {
     NSDictionary* format = [self formatDictionaryFromProps:newViewProps];
+    _view.format = format;
     [changedProps addObject:@"format"];
   } else {
     //    TODO: in the patch was this but i am not sure if its actually needed...
     //    _view.format = nil;
   }
 
-  [_view didSetProps:changedProps];
+  if (changedProps.count > 0) {
+    [_view didSetProps:changedProps];
+  }
 
   [super updateProps:props oldProps:oldProps];
 }
@@ -180,11 +181,11 @@ using namespace facebook::react;
   [format setValue:[NSNumber numberWithDouble:formatProp.minISO] forKey:@"minISO"];
   [format setValue:[NSNumber numberWithDouble:formatProp.fieldOfView] forKey:@"fieldOfView"];
 
-  NSNumber* supportsVideoHDR = formatProp.supportsVideoHDR ? @1 : @0;
-  [format setValue:supportsVideoHDR forKey:@"supportsVideoHDR"];
+  NSNumber* supportsVideoHDR = formatProp.supportsVideoHdr ? @1 : @0;
+  [format setValue:supportsVideoHDR forKey:@"supportsVideoHdr"];
 
-  NSNumber* supportsPhotoHDR = formatProp.supportsPhotoHDR ? @1 : @0;
-  [format setValue:supportsPhotoHDR forKey:@"supportsPhotoHDR"];
+  NSNumber* supportsPhotoHDR = formatProp.supportsPhotoHdr ? @1 : @0;
+  [format setValue:supportsPhotoHDR forKey:@"supportsPhotoHdr"];
 
   NSNumber* supportsDepthCapture = formatProp.supportsDepthCapture ? @1 : @0;
   [format setValue:supportsDepthCapture forKey:@"supportsDepthCapture"];
@@ -210,8 +211,8 @@ using namespace facebook::react;
          oldViewProps.format.videoHeight != newViewProps.format.videoHeight ||
          oldViewProps.format.videoWidth != newViewProps.format.videoWidth || oldViewProps.format.maxISO != newViewProps.format.maxISO ||
          oldViewProps.format.minISO != newViewProps.format.minISO || oldViewProps.format.fieldOfView != newViewProps.format.fieldOfView ||
-         oldViewProps.format.supportsVideoHDR != newViewProps.format.supportsVideoHDR ||
-         oldViewProps.format.supportsPhotoHDR != newViewProps.format.supportsPhotoHDR ||
+         oldViewProps.format.supportsVideoHdr != newViewProps.format.supportsVideoHdr ||
+         oldViewProps.format.supportsPhotoHdr != newViewProps.format.supportsPhotoHdr ||
          oldViewProps.format.supportsDepthCapture != newViewProps.format.supportsDepthCapture ||
          oldViewProps.format.minFps != newViewProps.format.minFps || oldViewProps.format.maxFps != newViewProps.format.maxFps ||
          oldViewProps.format.autoFocusSystem != newViewProps.format.autoFocusSystem ||
