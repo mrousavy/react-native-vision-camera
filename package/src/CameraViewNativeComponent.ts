@@ -21,27 +21,6 @@ export type CodeTypes =
   | 'data-matrix'
   | 'unknown'
 
-// export interface Codes {
-//   type:
-//     | 'code-128'
-//     | 'code-39'
-//     | 'code-93'
-//     | 'codabar'
-//     | 'ean-13'
-//     | 'ean-8'
-//     | 'itf'
-//     | 'upc-e'
-//     | 'upc-a'
-//     | 'qr'
-//     | 'pdf-417'
-//     | 'aztec'
-//     | 'data-matrix'
-//     | 'unknown'
-//   value?: string
-//   frame?: Readonly<{ x: Double; y: Double; width: Double; height: Double }>
-//   corners?: Readonly<{ x: Double; y: Double }[]>
-// }
-
 export interface NativeProps extends ViewProps {
   isActive: boolean
   preview?: boolean
@@ -73,7 +52,6 @@ export interface NativeProps extends ViewProps {
   }>
   resizeMode?: WithDefault<'cover' | 'contain', 'cover'>
   androidPreviewViewType?: WithDefault<'surface-view' | 'texture-view', 'surface-view'>
-  fps?: Double
   videoHdr?: boolean // not sure why was int on native side
   photoHdr?: boolean // not sure why was int on native side
   photoQualityBalance?: WithDefault<'speed' | 'balanced' | 'quality', 'balanced'>
@@ -83,13 +61,13 @@ export interface NativeProps extends ViewProps {
   videoStabilizationMode?: WithDefault<'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto', 'off'>
   enableDepthData?: boolean
   enablePortraitEffectsMatteDelivery?: boolean
-  enableFpsGraph?: boolean
   outputOrientation?: WithDefault<'device' | 'preview', 'device'>
   isMirrored?: boolean
   cameraId: string
   enableFrameProcessor: boolean
   codeScannerOptions?: Readonly<{
-    codeTypes?: WithDefault<CodeTypes, 'unknown'>
+    // TODO: codegen doesn't support nested custom types
+    codeTypes?: string[]
     regionOfInterest?: Readonly<{
       x?: Double
       y?: Double

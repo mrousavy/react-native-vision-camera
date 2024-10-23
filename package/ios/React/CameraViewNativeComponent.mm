@@ -62,22 +62,9 @@ using namespace facebook::react;
     _view.isActive = newViewProps.isActive;
     [changedProps addObject:@"isActive"];
   }
-  if (oldViewProps.cameraId != newViewProps.cameraId) {
-    _view.cameraId = RCTNSStringFromString(newViewProps.cameraId);
-    [changedProps addObject:@"cameraId"];
-  }
-  if (oldViewProps.photoQualityBalance != newViewProps.photoQualityBalance) {
-    std::string value = toString(newViewProps.photoQualityBalance);
-    _view.photoQualityBalance = RCTNSStringFromString(value);
-    [changedProps addObject:@"photoQualityBalance"];
-  }
-  if (oldViewProps.enableDepthData != newViewProps.enableDepthData) {
-    _view.enableDepthData = newViewProps.enableDepthData;
-    [changedProps addObject:@"enableDepthData"];
-  }
-  if (oldViewProps.enablePortraitEffectsMatteDelivery != newViewProps.enablePortraitEffectsMatteDelivery) {
-    _view.enablePortraitEffectsMatteDelivery = newViewProps.enablePortraitEffectsMatteDelivery;
-    [changedProps addObject:@"enablePortraitEffectsMatteDelivery"];
+  if (oldViewProps.preview != newViewProps.preview) {
+      _view.preview = newViewProps.preview;
+      [changedProps addObject:@"preview"];
   }
   if (oldViewProps.photo != newViewProps.photo) {
     _view.photo = [NSNumber numberWithBool:newViewProps.photo];
@@ -91,17 +78,45 @@ using namespace facebook::react;
     _view.audio = [NSNumber numberWithBool:newViewProps.audio];
     [changedProps addObject:@"audio"];
   }
-  if (oldViewProps.enableFrameProcessor != newViewProps.enableFrameProcessor) {
-    _view.enableFrameProcessor = newViewProps.enableFrameProcessor;
-    [changedProps addObject:@"enableFrameProcessor"];
+  if (oldViewProps.pixelFormat != newViewProps.pixelFormat) {
+    std::string value = toString(newViewProps.pixelFormat);
+    _view.pixelFormat = RCTNSStringFromString(value);
+    [changedProps addObject:@"pixelFormat"];
   }
   if (oldViewProps.enableLocation != newViewProps.enableLocation) {
     _view.enableLocation = newViewProps.enableLocation;
     [changedProps addObject:@"enableLocation"];
   }
-  if (oldViewProps.enableBufferCompression != newViewProps.enableBufferCompression) {
-    _view.enableBufferCompression = newViewProps.enableBufferCompression;
-    [changedProps addObject:@"enableBufferCompression"];
+  if (oldViewProps.torch != newViewProps.torch) {
+    std::string value = toString(newViewProps.torch);
+    _view.torch = RCTNSStringFromString(value);
+    [changedProps addObject:@"torch"];
+  }
+  if (oldViewProps.zoom != newViewProps.zoom) {
+    _view.zoom = [NSNumber numberWithDouble:newViewProps.zoom];
+    [changedProps addObject:@"zoom"];
+  }
+  if (oldViewProps.enableZoomGesture != newViewProps.enableZoomGesture) {
+    _view.enableZoomGesture = newViewProps.enableZoomGesture;
+    [changedProps addObject:@"enableZoomGesture"];
+  }
+  if (oldViewProps.exposure != newViewProps.exposure) {
+    _view.exposure = [NSNumber numberWithDouble:newViewProps.exposure];
+    [changedProps addObject:@"exposure"];
+  }
+  
+  // Checking format prop
+  bool hasFormatPropChanged = [self hasFormatPropChanged:oldViewProps newViewProps:newViewProps];
+  if (hasFormatPropChanged) {
+    NSDictionary* format = [self formatDictionaryFromProps:newViewProps];
+    _view.format = format;
+    [changedProps addObject:@"format"];
+  }
+  
+  if (oldViewProps.resizeMode != newViewProps.resizeMode) {
+    std::string value = toString(newViewProps.resizeMode);
+    _view.resizeMode = RCTNSStringFromString(value);
+    [changedProps addObject:@"resizeMode"];
   }
   if (oldViewProps.videoHdr != newViewProps.videoHdr) {
     _view.videoHdr = newViewProps.videoHdr;
@@ -110,6 +125,15 @@ using namespace facebook::react;
   if (oldViewProps.photoHdr != newViewProps.photoHdr) {
     _view.photoHdr = newViewProps.photoHdr;
     [changedProps addObject:@"photoHdr"];
+  }
+  if (oldViewProps.photoQualityBalance != newViewProps.photoQualityBalance) {
+    std::string value = toString(newViewProps.photoQualityBalance);
+    _view.photoQualityBalance = RCTNSStringFromString(value);
+    [changedProps addObject:@"photoQualityBalance"];
+  }
+  if (oldViewProps.enableBufferCompression != newViewProps.enableBufferCompression) {
+    _view.enableBufferCompression = newViewProps.enableBufferCompression;
+    [changedProps addObject:@"enableBufferCompression"];
   }
   if (oldViewProps.lowLightBoost != newViewProps.lowLightBoost) {
     _view.lowLightBoost = newViewProps.lowLightBoost;
@@ -120,48 +144,49 @@ using namespace facebook::react;
     _view.videoStabilizationMode = RCTNSStringFromString(value);
     [changedProps addObject:@"videoStabilizationMode"];
   }
-  if (oldViewProps.torch != newViewProps.torch) {
-    std::string value = toString(newViewProps.torch);
-    _view.torch = RCTNSStringFromString(value);
-    [changedProps addObject:@"torch"];
+  if (oldViewProps.enableDepthData != newViewProps.enableDepthData) {
+    _view.enableDepthData = newViewProps.enableDepthData;
+    [changedProps addObject:@"enableDepthData"];
   }
-  if (oldViewProps.resizeMode != newViewProps.resizeMode) {
-    std::string value = toString(newViewProps.resizeMode);
-    _view.resizeMode = RCTNSStringFromString(value);
-    [changedProps addObject:@"resizeMode"];
+  if (oldViewProps.enablePortraitEffectsMatteDelivery != newViewProps.enablePortraitEffectsMatteDelivery) {
+    _view.enablePortraitEffectsMatteDelivery = newViewProps.enablePortraitEffectsMatteDelivery;
+    [changedProps addObject:@"enablePortraitEffectsMatteDelivery"];
   }
-  if (oldViewProps.pixelFormat != newViewProps.pixelFormat) {
-    std::string value = toString(newViewProps.pixelFormat);
-    _view.pixelFormat = RCTNSStringFromString(value);
-    [changedProps addObject:@"pixelFormat"];
+  if (oldViewProps.outputOrientation != newViewProps.outputOrientation) {
+    std::string value = toString(newViewProps.outputOrientation);
+    _view.outputOrientation = RCTNSStringFromString(value);
+    [changedProps addObject:@"outputOrientation"];
   }
-  if (oldViewProps.zoom != newViewProps.zoom) {
-    _view.zoom = [NSNumber numberWithDouble:newViewProps.zoom];
-    [changedProps addObject:@"zoom"];
+  if (oldViewProps.isMirrored != newViewProps.isMirrored) {
+    _view.isMirrored = newViewProps.isMirrored;
+    [changedProps addObject:@"isMirrored"];
   }
-  if (oldViewProps.exposure != newViewProps.exposure) {
-    _view.exposure = [NSNumber numberWithDouble:newViewProps.exposure];
-    [changedProps addObject:@"exposure"];
+  if (oldViewProps.cameraId != newViewProps.cameraId) {
+    _view.cameraId = RCTNSStringFromString(newViewProps.cameraId);
+    [changedProps addObject:@"cameraId"];
   }
-  if (oldViewProps.enableZoomGesture != newViewProps.enableZoomGesture) {
-    _view.enableZoomGesture = newViewProps.enableZoomGesture;
-    [changedProps addObject:@"enableZoomGesture"];
+  if (oldViewProps.enableFrameProcessor != newViewProps.enableFrameProcessor) {
+    _view.enableFrameProcessor = newViewProps.enableFrameProcessor;
+    [changedProps addObject:@"enableFrameProcessor"];
   }
-  //    if(oldViewProps.enableFpsGraph != newViewProps.enableFpsGraph){
-  //        _view.enableFpsGraph = newViewProps.enableFpsGraph;
-  //        [changedProps addObject:@"enableFpsGraph"];
-  //    }
+  
+  // Code scanner options
+  bool hasCodeScannerOptionsPropChanged = [self hasCodeScannerOptionsPropChanged:oldViewProps newViewProps:newViewProps];
+  if (hasCodeScannerOptionsPropChanged) {
+    NSDictionary* codeScannerOptions = [self codeScannerOptionsDictionaryFromProps:newViewProps];
+    _view.codeScannerOptions = codeScannerOptions;
+    [changedProps addObject:@"codeScannerOptions"];
+  }
+  
+  if (oldViewProps.minFps != newViewProps.minFps) {
+    _view.minFps = [NSNumber numberWithDouble:newViewProps.minFps];
+    [changedProps addObject:@"minFps"];
+  }
+  if (oldViewProps.maxFps != newViewProps.maxFps) {
+    _view.maxFps = [NSNumber numberWithDouble:newViewProps.maxFps];
+    [changedProps addObject:@"maxFps"];
+  }
 
-  // Checking format prop
-  bool hasFormatPropChanged = [self hasFormatPropChanged:oldViewProps newViewProps:newViewProps];
-  if (hasFormatPropChanged) {
-    NSDictionary* format = [self formatDictionaryFromProps:newViewProps];
-    _view.format = format;
-    [changedProps addObject:@"format"];
-  } else {
-    //    TODO: in the patch was this but i am not sure if its actually needed...
-    //    _view.format = nil;
-  }
 
   if (changedProps.count > 0) {
     [_view didSetProps:changedProps];
@@ -217,6 +242,34 @@ using namespace facebook::react;
          oldViewProps.format.minFps != newViewProps.format.minFps || oldViewProps.format.maxFps != newViewProps.format.maxFps ||
          oldViewProps.format.autoFocusSystem != newViewProps.format.autoFocusSystem ||
          oldViewProps.format.videoStabilizationModes.size() != newViewProps.format.videoStabilizationModes.size();
+}
+
+- (NSDictionary*)codeScannerOptionsDictionaryFromProps:(const CameraViewProps&)props {
+  NSDictionary* codeScannerOptions = [[NSMutableDictionary alloc] init];
+  
+  NSMutableArray* newCodeTypes = [[NSMutableArray alloc] init];
+  for(int i = 0; i < props.codeScannerOptions.codeTypes.size(); i++){
+      [newCodeTypes addObject:RCTNSStringFromString(props.codeScannerOptions.codeTypes.at(i))];
+  }
+  [codeScannerOptions setValue:newCodeTypes forKey:@"codeTypes"];
+
+  NSDictionary *newRegionOfInterest = @{
+      @"x": @(props.codeScannerOptions.regionOfInterest.x),
+      @"y": @(props.codeScannerOptions.regionOfInterest.y),
+      @"width": @(props.codeScannerOptions.regionOfInterest.width),
+      @"height": @(props.codeScannerOptions.regionOfInterest.height),
+  };
+  [codeScannerOptions setValue:newRegionOfInterest forKey:@"regionOfInterest"];
+  
+  return codeScannerOptions;
+}
+
+-(bool)hasCodeScannerOptionsPropChanged:(const CameraViewProps&)oldViewProps newViewProps:(const CameraViewProps&)newViewProps {
+  return oldViewProps.codeScannerOptions.regionOfInterest.x != newViewProps.codeScannerOptions.regionOfInterest.x ||
+  oldViewProps.codeScannerOptions.regionOfInterest.y != newViewProps.codeScannerOptions.regionOfInterest.y ||
+  oldViewProps.codeScannerOptions.regionOfInterest.width != newViewProps.codeScannerOptions.regionOfInterest.width ||
+  oldViewProps.codeScannerOptions.regionOfInterest.height != newViewProps.codeScannerOptions.regionOfInterest.height ||
+  oldViewProps.codeScannerOptions.codeTypes.size() != newViewProps.codeScannerOptions.codeTypes.size();
 }
 
 // MARK: Event emitter functions
