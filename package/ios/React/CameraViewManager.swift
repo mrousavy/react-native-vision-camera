@@ -150,7 +150,13 @@ final class CameraViewManager: RCTViewManager {
 
   func getCameraView(withTag tag: NSNumber) -> CameraView {
     // swiftlint:disable force_cast
-    return bridge.uiManager.view(forReactTag: tag) as! CameraView
+    let cameraView = bridge.uiManager.view(forReactTag: tag)
+  #if RCT_NEW_ARCH_ENABLED
+    let contentView = cameraView?.value(forKey: "contentView") as? UIView
+    return contentView as! CameraView
+  #else
+    return cameraView as! CameraView
+  #endif
     // swiftlint:enable force_cast
   }
 }

@@ -24,64 +24,67 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   // pragma MARK: React Properties
 
   // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var enableBufferCompression = false
-  @objc var isMirrored = false
+  @objc public var cameraId: NSString?
+  @objc public var enableDepthData = false
+  @objc public var enablePortraitEffectsMatteDelivery = false
+  @objc public var enableBufferCompression = false
+  @objc public var isMirrored = false
 
   // use cases
-  @objc var photo = false
-  @objc var video = false
-  @objc var audio = false
-  @objc var enableFrameProcessor = false
-  @objc var codeScannerOptions: NSDictionary?
-  @objc var pixelFormat: NSString?
-  @objc var enableLocation = false
-  @objc var preview = true {
+  @objc public var photo = false
+  @objc public var video = false
+  @objc public var audio = false
+  @objc public var enableFrameProcessor = false
+  @objc public var codeScannerOptions: NSDictionary?
+  @objc public var pixelFormat: NSString?
+  @objc public var enableLocation = false
+  @objc public var preview = true {
     didSet {
       updatePreview()
     }
   }
 
   // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var minFps: NSNumber?
-  @objc var maxFps: NSNumber?
-  @objc var videoHdr = false
-  @objc var photoHdr = false
-  @objc var photoQualityBalance: NSString?
-  @objc var lowLightBoost = false
-  @objc var outputOrientation: NSString?
+  @objc public var format: NSDictionary?
+  @objc public var minFps: NSNumber?
+  @objc public var maxFps: NSNumber?
+  @objc public var videoHdr = false
+  @objc public var photoHdr = false
+  @objc public var photoQualityBalance: NSString?
+  @objc public var lowLightBoost = false
+  @objc public var outputOrientation: NSString?
 
   // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 1.0 // in "factor"
-  @objc var exposure: NSNumber = 0.0
-  @objc var videoStabilizationMode: NSString?
-  @objc var resizeMode: NSString = "cover" {
+  @objc public var isActive = false
+  @objc public var torch = "off"
+  @objc public var zoom: NSNumber = 1.0 // in "factor"
+  @objc public var exposure: NSNumber = 0.0
+  @objc public var videoStabilizationMode: NSString?
+  @objc public var resizeMode: NSString = "cover" {
     didSet {
       updatePreview()
     }
   }
 
-  // events
-  @objc var onInitializedEvent: RCTDirectEventBlock?
-  @objc var onErrorEvent: RCTDirectEventBlock?
-  @objc var onStartedEvent: RCTDirectEventBlock?
-  @objc var onStoppedEvent: RCTDirectEventBlock?
-  @objc var onPreviewStartedEvent: RCTDirectEventBlock?
-  @objc var onPreviewStoppedEvent: RCTDirectEventBlock?
-  @objc var onShutterEvent: RCTDirectEventBlock?
-  @objc var onPreviewOrientationChangedEvent: RCTDirectEventBlock?
-  @objc var onOutputOrientationChangedEvent: RCTDirectEventBlock?
-  @objc var onViewReadyEvent: RCTDirectEventBlock?
-  @objc var onAverageFpsChangedEvent: RCTDirectEventBlock?
-  @objc var onCodeScannedEvent: RCTDirectEventBlock?
+  #if !RCT_NEW_ARCH_ENABLED
+    // Define events blocks that on old arch will get synthesized by the CameraViewManager.m
+    // Events are bridged in CameraView+EventDelegate+OldArch.swift
+    @objc public var onInitializedEvent: RCTDirectEventBlock?
+    @objc public var onErrorEvent: RCTDirectEventBlock?
+    @objc public var onStartedEvent: RCTDirectEventBlock?
+    @objc public var onStoppedEvent: RCTDirectEventBlock?
+    @objc public var onPreviewStartedEvent: RCTDirectEventBlock?
+    @objc public var onPreviewStoppedEvent: RCTDirectEventBlock?
+    @objc public var onShutterEvent: RCTDirectEventBlock?
+    @objc public var onPreviewOrientationChangedEvent: RCTDirectEventBlock?
+    @objc public var onOutputOrientationChangedEvent: RCTDirectEventBlock?
+    @objc public var onViewReadyEvent: RCTDirectEventBlock?
+    @objc public var onAverageFpsChangedEvent: RCTDirectEventBlock?
+    @objc public var onCodeScannedEvent: RCTDirectEventBlock?
+  #endif
 
   // zoom
-  @objc var enableZoomGesture = false {
+  @objc public var enableZoomGesture = false {
     didSet {
       if enableZoomGesture {
         addPinchGestureRecognizer()
@@ -101,6 +104,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   var isMounted = false
   private var currentConfigureCall: DispatchTime?
   private let fpsSampleCollector = FpsSampleCollector()
+  @objc public var eventDelegate: CameraViewDirectEventDelegate!
 
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -113,6 +117,10 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
   override public init(frame: CGRect) {
     super.init(frame: frame)
+    #if !RCT_NEW_ARCH_ENABLED
+      // On the new arch this delegate is set in CameraViewNativeComponent.mm
+      eventDelegate = CameraViewOldArchEventHandler(view: self)
+    #endif
     cameraSession.delegate = self
     fpsSampleCollector.delegate = self
     updatePreview()
@@ -130,7 +138,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       fpsSampleCollector.start()
       if !isMounted {
         isMounted = true
-        onViewReadyEvent?(nil)
+        eventDelegate.emitOnViewReadyEvent()
       }
     } else {
       fpsSampleCollector.stop()
@@ -315,7 +323,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         "details": cause.userInfo,
       ]
     }
-    onErrorEvent?([
+    eventDelegate.emitOnErrorEvent([
       "code": error.code,
       "message": error.message,
       "cause": causeDictionary ?? NSNull(),
@@ -323,39 +331,39 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   func onSessionInitialized() {
-    onInitializedEvent?([:])
+    eventDelegate.emitOnInitializedEvent()
   }
 
   func onCameraStarted() {
-    onStartedEvent?([:])
+    eventDelegate.emitOnStartedEvent()
   }
 
   func onCameraStopped() {
-    onStoppedEvent?([:])
+    eventDelegate.emitOnStoppedEvent()
   }
 
   func onPreviewStarted() {
-    onPreviewStartedEvent?([:])
+    eventDelegate.emitOnPreviewStartedEvent()
   }
 
   func onPreviewStopped() {
-    onPreviewStoppedEvent?([:])
+    eventDelegate.emitOnPreviewStoppedEvent()
   }
 
   func onCaptureShutter(shutterType: ShutterType) {
-    onShutterEvent?([
+    eventDelegate.emitOnShutterEvent([
       "type": shutterType.jsValue,
     ])
   }
 
   func onOutputOrientationChanged(_ outputOrientation: Orientation) {
-    onOutputOrientationChangedEvent?([
+    eventDelegate.emitOnOutputOrientationChangedEvent([
       "outputOrientation": outputOrientation.jsValue,
     ])
   }
 
   func onPreviewOrientationChanged(_ previewOrientation: Orientation) {
-    onPreviewOrientationChangedEvent?([
+    eventDelegate.emitOnPreviewOrientationChangedEvent([
       "previewOrientation": previewOrientation.jsValue,
     ])
   }
@@ -379,14 +387,14 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
-    onCodeScannedEvent?([
+    eventDelegate.emitOnCodeScannedEvent([
       "codes": codes.map { $0.toJSValue() },
       "frame": scannerFrame.toJSValue(),
     ])
   }
 
   func onAverageFpsChanged(averageFps: Double) {
-    onAverageFpsChangedEvent?([
+    eventDelegate.emitOnAverageFpsChangedEvent([
       "averageFps": averageFps,
     ])
   }

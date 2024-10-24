@@ -16,7 +16,6 @@
 @implementation VisionCameraInstaller
 
 + (BOOL)installWithDelegate:(id<VisionCameraProxyDelegate>)delegate {
-  // TODO: Migrate away from RCTBridge to support new arch.
   RCTBridge* bridge = delegate.getBridge;
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)bridge;
   if (!cxxBridge.runtime) {
