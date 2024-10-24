@@ -129,7 +129,7 @@ type CameraErrorCode =
   | UnknownError
 
 /**
- * Represents any kind of error that occured in the {@linkcode Camera} View Module.
+ * Represents any kind of error that occurred in the {@linkcode Camera} View Module.
  */
 class CameraError<TCode extends CameraErrorCode> extends Error {
   private readonly _code: TCode
@@ -168,7 +168,7 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
 }
 
 /**
- * Represents any kind of error that occured while trying to capture a video or photo.
+ * Represents any kind of error that occurred while trying to capture a video or photo.
  *
  * See the ["Camera Errors" documentation](https://react-native-vision-camera.com/docs/guides/errors) for more information about Camera Errors.
  */

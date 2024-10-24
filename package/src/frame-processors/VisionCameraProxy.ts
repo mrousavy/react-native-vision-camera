@@ -1,5 +1,5 @@
 import type { IWorkletContext } from 'react-native-worklets-core'
-import { CameraModule } from '../NativeCameraModule'
+import CameraModule from '../NativeCameraModule'
 import type { Frame } from '../types/Frame'
 import { FrameProcessorsUnavailableError } from './FrameProcessorsUnavailableError'
 
