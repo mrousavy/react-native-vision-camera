@@ -1,3 +1,5 @@
+# LightOS fork for finer focus control
+
 <a href="https://margelo.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-dark.png" />
