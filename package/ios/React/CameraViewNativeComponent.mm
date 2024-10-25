@@ -408,6 +408,18 @@ using namespace facebook::react;
   });
 }
 
+- (void)updateEventEmitter:(const facebook::react::EventEmitter::Shared &)eventEmitter {
+  bool isMount = _eventEmitter == nullptr;
+  
+  [super updateEventEmitter:eventEmitter];
+  
+  if (!isMount) {
+    return;
+  }
+  
+  [self emitOnViewReadyEvent];
+}
+
 - (void)emitOnPreviewStartedEvent {
   if (!_eventEmitter) {
     return;

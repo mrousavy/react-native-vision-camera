@@ -101,7 +101,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   // pragma MARK: Internal Properties
   var cameraSession = CameraSession()
   var previewView: PreviewView?
-  var isMounted = false
+  @objc public var isMounted = false
   private var currentConfigureCall: DispatchTime?
   private let fpsSampleCollector = FpsSampleCollector()
   @objc public var eventDelegate: CameraViewDirectEventDelegate!
