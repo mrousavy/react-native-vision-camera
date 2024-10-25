@@ -5,7 +5,7 @@ const supportedPlatforms = ['ios', 'android', 'macos']
 
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const CameraModule = NativeModules.CameraView
+export const CameraModule = NativeModules.CameraView
 if (CameraModule == null) {
   if (!supportedPlatforms.includes(Platform.OS)) {
     throw new CameraRuntimeError(
@@ -40,6 +40,3 @@ if (CameraModule == null) {
   message += '\n* Make sure you rebuilt the app.'
   throw new CameraRuntimeError('system/camera-module-not-found', message)
 }
-
-// Default export to avoid a metro/babel bug where this becomes undefined when imported as named export
-export default CameraModule
