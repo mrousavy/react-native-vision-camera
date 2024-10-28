@@ -7,8 +7,8 @@
 
 #import "CameraViewNativeComponent.h"
 
-#import <react/renderer/components/RNVisionCameraSpec/ComponentDescriptors.h>
-#import <react/renderer/components/RNVisionCameraSpec/RCTComponentViewHelpers.h>
+#include <react/renderer/components/RNVisionCameraSpec/ComponentDescriptors.h>
+#include <react/renderer/components/RNVisionCameraSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
 #import <React/RCTConversions.h>
@@ -52,7 +52,20 @@ using namespace facebook::react;
   return self;
 }
 
+- (void) prepareForRecycle {
+    [super prepareForRecycle];
+
+    self.contentView = _view;
+    _view.eventDelegate = nil;
+    _view = nil;
+    self.contentView = nil;
+}
+
 - (void)updateProps:(const facebook::react::Props::Shared&)props oldProps:(const facebook::react::Props::Shared&)oldProps {
+  if (_view == nil) {
+    [self initCamera];
+  }
+  
   const auto& newViewProps = *std::static_pointer_cast<CameraViewProps const>(props);
   const auto& oldViewProps = *std::static_pointer_cast<CameraViewProps const>(_props);
 
