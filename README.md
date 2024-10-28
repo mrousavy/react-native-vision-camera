@@ -1,5 +1,17 @@
 # LightOS fork for finer focus control
 
+To run the example app:
+
+```
+cd package
+yarn install
+cd example
+yarn install
+run android
+------
+run start
+```
+
 <a href="https://margelo.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-dark.png" />

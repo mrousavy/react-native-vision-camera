@@ -188,6 +188,28 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @ReactMethod
+  fun lockFocusAndExposureToPoint(viewTag: Int, point: ReadableMap, promise: Promise) {
+    backgroundCoroutineScope.launch {
+      val view = findCameraView(viewTag)
+      withPromise(promise) {
+        view.lockFocusAndExposureToPoint(point)
+        return@withPromise null
+      }
+    }
+  }
+
+  @ReactMethod
+  fun freeFocusAndExposure(viewTag: Int, promise: Promise) {
+    backgroundCoroutineScope.launch {
+      val view = findCameraView(viewTag)
+      withPromise(promise) {
+        view.freeFocusAndExposure()
+        return@withPromise null
+      }
+    }
+  }
+
   private fun canRequestPermission(permission: String): Boolean {
     val activity = currentActivity as? PermissionAwareActivity
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false

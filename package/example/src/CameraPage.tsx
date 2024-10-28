@@ -143,6 +143,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, [onFlipCameraPressed])
   //#endregion
 
+  const lockFocus = () => {
+    camera.current!.lockFocusAndExposureToPoint({ x: SCREEN_WIDTH/2, y: SCREEN_HEIGHT/2 });
+  }
+
+  const unlockFocus = () => {
+    camera.current!.freeFocusAndExposure()
+  }
+
   //#region Effects
   useEffect(() => {
     // Reset zoom to it's default everytime the `device` changes.
@@ -281,6 +289,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         </PressableOpacity>
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CodeScannerPage')}>
           <IonIcon name="qr-code-outline" color="white" size={24} />
+        </PressableOpacity>
+        <PressableOpacity style={styles.button} onPress={() => lockFocus()}>
+          <IonIcon name="settings-outline" color="white" size={12} />
+        </PressableOpacity>
+        <PressableOpacity style={styles.button} onPress={() => unlockFocus()}>
+          <IonIcon name="settings-outline" color="white" size={12} />
         </PressableOpacity>
       </View>
     </View>
