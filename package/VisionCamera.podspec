@@ -121,4 +121,21 @@ Pod::Spec.new do |s|
       fp.dependency "react-native-worklets-core"
     end
   end
+
+  if $new_arch_enabled
+    # There is a bug in codegen where it generates broken code, this is a workaround
+    # https://github.com/facebook/react-native/issues/47113
+    UI.puts "[VisionCamera] RCT_NEW_ARCH_ENABLED is enabled, adding workaround for EventEmitters"
+    root_dir = Pod::Config.instance.installation_root
+    target_file = Dir.glob("#{root_dir}/**/RNVisionCameraSpec/EventEmitters.cpp").first
+    
+    if target_file
+      content = File.read(target_file)
+      new_content = content.gsub("codesValue,frame.", "codesValue.frame.")
+      File.write(target_file, new_content)
+      UI.puts "[VisionCamera] Modified file: #{target_file}"
+    else
+      UI.puts "[VisionCamera] Warning: EventEmitters.cpp not found in any RNVisionCameraSpec directory"
+    end
+  end
 end
