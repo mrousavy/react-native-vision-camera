@@ -7,11 +7,12 @@
 
 #import "CameraViewNativeComponent.h"
 
-#include <react/renderer/components/RNVisionCameraSpec/ComponentDescriptors.h>
-#include <react/renderer/components/RNVisionCameraSpec/RCTComponentViewHelpers.h>
+#include "ComponentDescriptors.h"
+#include "RCTComponentViewHelpers.h"
 
 #import "RCTFabricComponentsPlugins.h"
 #import <React/RCTConversions.h>
+#import <React/RCTComponentViewFactory.h>
 
 #import <AVFoundation/AVFoundation.h>
 #if __has_include(<VisionCamera/VisionCamera-Swift.h>)
@@ -31,6 +32,12 @@ using namespace facebook::react;
 
 + (ComponentDescriptorProvider)componentDescriptorProvider {
   return concreteComponentDescriptorProvider<CameraViewComponentDescriptor>();
+}
+
+// Load the component manually into the global fabric view registry.
+// TODO: Remove once https://github.com/facebook/react-native/issues/47113 is fixed and we can rely fully on codegen
++ (void)load {
+  [RCTComponentViewFactory.currentComponentViewFactory registerComponentViewClass:[CameraViewNativeComponent class]];
 }
 
 - (void)initCamera {

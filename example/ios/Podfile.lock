@@ -2252,7 +2252,7 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 07792a9538e8577c1263fcad187712e90d65d8fb
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
-  VisionCamera: fbe4f8de9a7243d5986d12a447b16d5528eb9a90
+  VisionCamera: fa7ea32339d6c29bb43774e38d2d00a75075b37b
   Yoga: aa3df615739504eebb91925fc9c58b4922ea9a08
 
 PODFILE CHECKSUM: f0198d9eea1d44be2bb929d80d6bfc9ddeae8414
