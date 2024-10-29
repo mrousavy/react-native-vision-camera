@@ -15,16 +15,7 @@ import type { TakeSnapshotOptions } from './types/Snapshot'
 import { SkiaCameraCanvas } from './skia/SkiaCameraCanvas'
 import type { Frame } from './types/Frame'
 import { FpsGraph, MAX_BARS } from './FpsGraph'
-import type {
-  AverageFpsChangedEvent,
-  NativeCameraViewProps,
-  OnCodeScannedEvent,
-  OnErrorEvent,
-  OutputOrientationChangedEvent,
-  PreviewOrientationChangedEvent,
-} from './NativeCameraView'
-// import { NativeCameraView } from './NativeCameraView'
-import CameraViewNativeComponent from './CameraViewNativeComponent'
+import CameraViewNativeComponent, { type NativeProps } from './CameraViewNativeComponent'
 import { RotationHelper } from './RotationHelper'
 
 //#region Types
@@ -35,7 +26,7 @@ type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'o
   videoBitRateOverride?: number
   videoBitRateMultiplier?: number
 }
-type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
+type RefType = React.Component<NativeProps> & Readonly<NativeMethods>
 interface CameraState {
   isRecordingWithFlash: boolean
   averageFpsSamples: number[]
@@ -95,17 +86,12 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   constructor(props: CameraProps) {
     super(props)
     this.onViewReady = this.onViewReady.bind(this)
-    this.onAverageFpsChanged = this.onAverageFpsChanged.bind(this)
     this.onInitialized = this.onInitialized.bind(this)
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
     this.onPreviewStarted = this.onPreviewStarted.bind(this)
     this.onPreviewStopped = this.onPreviewStopped.bind(this)
     this.onShutter = this.onShutter.bind(this)
-    this.onOutputOrientationChanged = this.onOutputOrientationChanged.bind(this)
-    this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
-    this.onError = this.onError.bind(this)
-    this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
     this.lastFrameProcessor = undefined
     this.state = {
@@ -506,7 +492,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   //#endregion
 
   //#region Events (Wrapped to maintain reference equality)
-  private onError(event: NativeSyntheticEvent<OnErrorEvent>): void {
+  private onError: NativeProps['onError'] = (event) => {
     const error = event.nativeEvent
     const cause = isErrorWithCause(error.cause) ? error.cause : undefined
     // @ts-expect-error We're casting from unknown bridge types to TS unions, I expect it to hopefully work
@@ -544,13 +530,13 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.props.onShutter?.(event.nativeEvent)
   }
 
-  private onOutputOrientationChanged({ nativeEvent: { outputOrientation } }: NativeSyntheticEvent<OutputOrientationChangedEvent>): void {
+  private onOutputOrientationChanged: NativeProps['onOutputOrientationChanged'] = ({ nativeEvent: { outputOrientation } }) => {
     this.rotationHelper.outputOrientation = outputOrientation
     this.props.onOutputOrientationChanged?.(outputOrientation)
     this.maybeUpdateUIRotation()
   }
 
-  private onPreviewOrientationChanged({ nativeEvent: { previewOrientation } }: NativeSyntheticEvent<PreviewOrientationChangedEvent>): void {
+  private onPreviewOrientationChanged: NativeProps['onPreviewOrientationChanged'] = ({ nativeEvent: { previewOrientation } }) => {
     this.rotationHelper.previewOrientation = previewOrientation
     this.props.onPreviewOrientationChanged?.(previewOrientation)
     this.maybeUpdateUIRotation()
@@ -570,7 +556,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
   //#endregion
 
-  private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
+  private onCodeScanned: NativeProps['onCodeScanned'] = (event) => {
     const codeScanner = this.props.codeScanner
     if (codeScanner == null) return
 
@@ -595,7 +581,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
   }
 
-  private onAverageFpsChanged({ nativeEvent: { averageFps } }: NativeSyntheticEvent<AverageFpsChangedEvent>): void {
+  private onAverageFpsChanged: NativeProps['onAverageFpsChanged'] = ({ nativeEvent: { averageFps } }) => {
     this.setState((state) => {
       const averageFpsSamples = [...state.averageFpsSamples, averageFps]
       while (averageFpsSamples.length >= MAX_BARS + 1) {
