@@ -8,7 +8,7 @@ class CameraInitializedEvent(surfaceId: Int, viewId: Int) : Event<CameraInitiali
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraInitialized"
+    const val EVENT_NAME = "topInitialized"
   }
 }
 
@@ -16,7 +16,7 @@ class CameraStartedEvent(surfaceId: Int, viewId: Int) : Event<CameraStartedEvent
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraStarted"
+    const val EVENT_NAME = "topStarted"
   }
 }
 
@@ -24,7 +24,7 @@ class CameraStoppedEvent(surfaceId: Int, viewId: Int) : Event<CameraStoppedEvent
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraStopped"
+    const val EVENT_NAME = "topStopped"
   }
 }
 
@@ -32,7 +32,7 @@ class CameraPreviewStartedEvent(surfaceId: Int, viewId: Int) : Event<CameraPrevi
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraPreviewStarted"
+    const val EVENT_NAME = "topPreviewStarted"
   }
 }
 
@@ -40,7 +40,7 @@ class CameraPreviewStoppedEvent(surfaceId: Int, viewId: Int) : Event<CameraPrevi
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraPreviewStopped"
+    const val EVENT_NAME = "topPreviewStopped"
   }
 }
 
@@ -48,7 +48,7 @@ class CameraShutterEvent(surfaceId: Int, viewId: Int, private val data: Writable
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraShutter"
+    const val EVENT_NAME = "topShutter"
   }
 }
 
@@ -57,7 +57,7 @@ class CameraOutputOrientationChangedEvent(surfaceId: Int, viewId: Int, private v
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraOutputOrientationChanged"
+    const val EVENT_NAME = "topOutputOrientationChanged"
   }
 }
 
@@ -66,7 +66,7 @@ class CameraPreviewOrientationChangedEvent(surfaceId: Int, viewId: Int, private 
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraPreviewOrientationChanged"
+    const val EVENT_NAME = "topPreviewOrientationChanged"
   }
 }
 
@@ -74,7 +74,7 @@ class AverageFpsChangedEvent(surfaceId: Int, viewId: Int, private val data: Writ
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraAverageFpsChanged"
+    const val EVENT_NAME = "topAverageFpsChanged"
   }
 }
 
@@ -82,7 +82,7 @@ class CameraErrorEvent(surfaceId: Int, viewId: Int, private val data: WritableMa
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraError"
+    const val EVENT_NAME = "topError"
   }
 }
 
@@ -90,7 +90,7 @@ class CameraViewReadyEvent(surfaceId: Int, viewId: Int) : Event<CameraViewReadyE
   override fun getEventName() = EVENT_NAME
   override fun getEventData(): WritableMap = Arguments.createMap()
   companion object {
-    const val EVENT_NAME = "topCameraViewReady"
+    const val EVENT_NAME = "topViewReady"
   }
 }
 
@@ -99,6 +99,6 @@ class CameraCodeScannedEvent(surfaceId: Int, viewId: Int, private val data: Writ
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
   companion object {
-    const val EVENT_NAME = "topCameraCodeScanned"
+    const val EVENT_NAME = "topCodeScanned"
   }
 }
