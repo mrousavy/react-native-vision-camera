@@ -71,10 +71,10 @@ void CameraViewEventEmitter::onCodeScanned(OnCodeScanned $event) const {
 codesObject.setProperty(runtime, "value", codesValue.value);
 {
   auto frame = jsi::Object(runtime);
-  frame.setProperty(runtime, "x", codesValue,frame.x);
-  frame.setProperty(runtime, "y", codesValue,frame.y);
-  frame.setProperty(runtime, "width", codesValue,frame.width);
-  frame.setProperty(runtime, "height", codesValue,frame.height);
+  frame.setProperty(runtime, "x", codesValue.frame.x);
+  frame.setProperty(runtime, "y", codesValue.frame.y);
+  frame.setProperty(runtime, "width", codesValue.frame.width);
+  frame.setProperty(runtime, "height", codesValue.frame.height);
   codesObject.setProperty(runtime, "frame", frame);
 }
 

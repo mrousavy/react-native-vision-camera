@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class CameraDevicesManager(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
-    private const val TAG = "CameraDevices"
+    const val TAG = "CameraDevices"
   }
   private val executor = CameraQueues.cameraExecutor
   private val coroutineScope = CoroutineScope(executor.asCoroutineDispatcher())

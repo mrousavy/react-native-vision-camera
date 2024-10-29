@@ -10,6 +10,7 @@ module.exports = {
        */
       android: {
         packageImportPath: 'import com.mrousavy.camera.react.CameraPackage;',
+        cmakeListsPath: '../android/generated/jni/CMakeLists.txt',
       },
     },
   },
