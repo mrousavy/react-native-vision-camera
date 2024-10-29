@@ -46,7 +46,8 @@
     "clean-android": "scripts/clean-android.sh",
     "clean-js": "scripts/clean-js.sh",
     "prepack": "cp ../README.md ./README.md",
-    "postpack": "rm ./README.md"
+    "postpack": "rm ./README.md",
+    "codegen": "react-native codegen"
   },
   "keywords": [
     "react",
@@ -177,5 +178,18 @@
         }
       ]
     ]
+  },
+  "codegenConfig": {
+    "name": "RNVisionCameraSpec",
+    "type": "all",
+    "jsSrcsDir": "./src",
+    "outputDir": {
+      "ios": "ios/React/Fabric/generated",
+      "android": "android/generated"
+    },
+    "includesGeneratedCode": true,
+    "android": {
+      "javaPackageName": "com.mrousavy.camera"
+    }
   }
 }
