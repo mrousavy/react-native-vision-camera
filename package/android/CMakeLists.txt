@@ -60,7 +60,7 @@ target_link_libraries(
         ${LOG_LIB}                          # <-- Logcat logger
         android                             # <-- Android JNI core
         ReactAndroid::jsi                   # <-- RN: JSI
-        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
+        ReactAndroid::reactnative           # <-- RN: React Native JNI bindings
         fbjni::fbjni                        # <-- fbjni
 )
 
