@@ -46,7 +46,8 @@
     "clean-android": "scripts/clean-android.sh",
     "clean-js": "scripts/clean-js.sh",
     "prepack": "cp ../README.md ./README.md",
-    "postpack": "rm ./README.md"
+    "postpack": "rm ./README.md",
+    "codegen": "react-native codegen"
   },
   "keywords": [
     "react",
@@ -101,6 +102,7 @@
     "react-native": "^0.75.4",
     "react-native-builder-bob": "^0.23.2",
     "react-native-reanimated": "^3.15.5",
+    "react-native-worklets-core": "link:react-native-worklets-core",
     "release-it": "^17.3.0",
     "typescript": "^5.1.6"
   },
@@ -176,5 +178,18 @@
         }
       ]
     ]
+  },
+  "codegenConfig": {
+    "name": "RNVisionCameraSpec",
+    "type": "all",
+    "jsSrcsDir": "./src",
+    "outputDir": {
+      "ios": "ios/React/Fabric/generated",
+      "android": "android/generated"
+    },
+    "includesGeneratedCode": true,
+    "android": {
+      "javaPackageName": "com.mrousavy.camera"
+    }
   }
 }

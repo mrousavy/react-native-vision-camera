@@ -89,9 +89,6 @@ Pod::Spec.new do |s|
       "ios/React/CameraBridge.h"
     ]
 
-    # TODO: can those dependecies be removed now that we have install_modules_... ?
-    react.dependency "React-Core"
-    react.dependency "Yoga"
     if enableFrameProcessors
       react.dependency "VisionCamera/FrameProcessors"
     end
