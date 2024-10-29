@@ -33,7 +33,6 @@ class CameraViewEventEmitter : public ViewEventEmitter {
       int code;
     std::string domain;
     std::string message;
-    std::string details;
     std::string stacktrace;
     };
 
@@ -42,6 +41,42 @@ class CameraViewEventEmitter : public ViewEventEmitter {
     std::string message;
     OnErrorCause cause;
     };
+
+  enum class OnCodeScannedCodesType {
+    Code128,
+    Code39,
+    Code93,
+    Codabar,
+    Ean13,
+    Ean8,
+    Itf,
+    UpcE,
+    UpcA,
+    Qr,
+    Pdf417,
+    Aztec,
+    DataMatrix,
+    Unknown
+  };
+
+  static char const *toString(const OnCodeScannedCodesType value) {
+    switch (value) {
+      case OnCodeScannedCodesType::Code128: return "code-128";
+      case OnCodeScannedCodesType::Code39: return "code-39";
+      case OnCodeScannedCodesType::Code93: return "code-93";
+      case OnCodeScannedCodesType::Codabar: return "codabar";
+      case OnCodeScannedCodesType::Ean13: return "ean-13";
+      case OnCodeScannedCodesType::Ean8: return "ean-8";
+      case OnCodeScannedCodesType::Itf: return "itf";
+      case OnCodeScannedCodesType::UpcE: return "upc-e";
+      case OnCodeScannedCodesType::UpcA: return "upc-a";
+      case OnCodeScannedCodesType::Qr: return "qr";
+      case OnCodeScannedCodesType::Pdf417: return "pdf-417";
+      case OnCodeScannedCodesType::Aztec: return "aztec";
+      case OnCodeScannedCodesType::DataMatrix: return "data-matrix";
+      case OnCodeScannedCodesType::Unknown: return "unknown";
+    }
+  }
 
   struct OnCodeScannedCodesFrame {
       double x;
@@ -56,7 +91,7 @@ class CameraViewEventEmitter : public ViewEventEmitter {
     };
 
   struct OnCodeScannedCodes {
-      std::string type;
+      OnCodeScannedCodesType type;
     std::string value;
     OnCodeScannedCodesFrame frame;
     std::vector<OnCodeScannedCodesCorners> corners;
@@ -88,8 +123,20 @@ class CameraViewEventEmitter : public ViewEventEmitter {
       
     };
 
+  enum class OnShutterType {
+    Photo,
+    Snapshot
+  };
+
+  static char const *toString(const OnShutterType value) {
+    switch (value) {
+      case OnShutterType::Photo: return "photo";
+      case OnShutterType::Snapshot: return "snapshot";
+    }
+  }
+
   struct OnShutter {
-      std::string type;
+      OnShutterType type;
     };
 
   enum class OnOutputOrientationChangedOutputOrientation {

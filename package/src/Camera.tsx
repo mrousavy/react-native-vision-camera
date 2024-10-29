@@ -23,7 +23,8 @@ import type {
   OutputOrientationChangedEvent,
   PreviewOrientationChangedEvent,
 } from './NativeCameraView'
-import { NativeCameraView } from './NativeCameraView'
+// import { NativeCameraView } from './NativeCameraView'
+import CameraViewNativeComponent from './CameraViewNativeComponent'
 import { RotationHelper } from './RotationHelper'
 
 //#region Types
@@ -646,7 +647,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     const maxFps = fps == null ? undefined : typeof fps === 'number' ? fps : fps[1]
 
     return (
-      <NativeCameraView
+      <CameraViewNativeComponent
         {...props}
         cameraId={device.id}
         ref={this.ref}
@@ -680,7 +681,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         {enableFpsGraph && (
           <FpsGraph style={styles.fpsGraph} averageFpsSamples={this.state.averageFpsSamples} targetMaxFps={props.format?.maxFps ?? 60} />
         )}
-      </NativeCameraView>
+      </CameraViewNativeComponent>
     )
   }
 }

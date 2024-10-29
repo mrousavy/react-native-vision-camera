@@ -50,7 +50,6 @@ $payload.setProperty(runtime, "message", $event.message);
   cause.setProperty(runtime, "code", $event.cause.code);
   cause.setProperty(runtime, "domain", $event.cause.domain);
   cause.setProperty(runtime, "message", $event.cause.message);
-  cause.setProperty(runtime, "details", $event.cause.details);
   cause.setProperty(runtime, "stacktrace", $event.cause.stacktrace);
   $payload.setProperty(runtime, "cause", cause);
 }
@@ -67,7 +66,7 @@ void CameraViewEventEmitter::onCodeScanned(OnCodeScanned $event) const {
     size_t codesIndex = 0;
     for (auto codesValue : $event.codes) {
       auto codesObject = jsi::Object(runtime);
-      codesObject.setProperty(runtime, "type", codesValue.type);
+      codesObject.setProperty(runtime, "type", toString(codesValue.type));
 codesObject.setProperty(runtime, "value", codesValue.value);
 {
   auto frame = jsi::Object(runtime);
@@ -142,7 +141,7 @@ void CameraViewEventEmitter::onPreviewStopped(OnPreviewStopped $event) const {
 void CameraViewEventEmitter::onShutter(OnShutter $event) const {
   dispatchEvent("shutter", [$event=std::move($event)](jsi::Runtime &runtime) {
     auto $payload = jsi::Object(runtime);
-    $payload.setProperty(runtime, "type", $event.type);
+    $payload.setProperty(runtime, "type", toString($event.type));
     return $payload;
   });
 }
