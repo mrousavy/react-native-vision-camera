@@ -144,9 +144,7 @@ android {
       manifest.srcFile androidManifestPath
 
       java {
-        if (isNewArchitectureEnabled()) {
-          srcDirs += "generated/java"
-        }
+        srcDirs += "generated/java"
       }
     }
   }
