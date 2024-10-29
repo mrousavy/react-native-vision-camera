@@ -1,0 +1,1 @@
+{"version":3,"file":"ModuleProxy.d.ts","sourceRoot":"","sources":["../../../src/dependencies/ModuleProxy.ts"],"names":[],"mappings":"AAAA,KAAK,UAAU,GAAG,UAAU,CAAC,OAAO,OAAO,CAAC,CAAA;AAE5C;;;GAGG;AACH,eAAO,MAAM,iBAAiB,GAAI,OAAO,aAAa,MAAM,UAAU,KAAG,OAwBxE,CAAA;AAED,qBAAa,mCAAoC,SAAQ,KAAK;gBAChD,IAAI,EAAE,MAAM;CAGzB"}

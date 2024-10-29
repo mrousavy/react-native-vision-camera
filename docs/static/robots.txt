@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://react-native-vision-camera.com
-
-# Sitemaps
-Sitemap: https://react-native-vision-camera.com/sitemap.xml
