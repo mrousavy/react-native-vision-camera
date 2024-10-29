@@ -318,8 +318,11 @@ using namespace facebook::react;
       .height = [[[obj objectForKey:@"frame"] objectForKey:@"height"] doubleValue],
     };
     
+    const char* codeTypeCharString = [[obj objectForKey:@"type"] UTF8String];
+    NSString* codeTypeString = [NSString stringWithUTF8String:codeTypeCharString];
+    CameraViewEventEmitter::OnCodeScannedCodesType codeType = [self codeScannedCodesTypefromString:codeTypeString];
     CameraViewEventEmitter::OnCodeScannedCodes code = {
-      .type = std::string([[obj objectForKey:@"type"] UTF8String]),
+      .type = codeType,
       .value = std::string([[obj objectForKey:@"value"] UTF8String]),
       .frame = frame,
     };
@@ -342,7 +345,7 @@ using namespace facebook::react;
 
   std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
   
-  // TODO: recursive error type not supported yet?
+  // TODO: recursive error type not supported yet
   CameraViewEventEmitter::OnError payload = {
     .code = std::string([[error objectForKey:@"code"] UTF8String]),
     .message = std::string([[error objectForKey:@"message"] UTF8String]),
@@ -350,7 +353,6 @@ using namespace facebook::react;
       .code = [[[error objectForKey:@"cause"] objectForKey:@"code"] intValue],
       .domain = std::string([[[error objectForKey:@"cause"] objectForKey:@"domain"] UTF8String]),
       .message = std::string([[[error objectForKey:@"cause"] objectForKey:@"message"] UTF8String]),
-      .details = std::string([[[error objectForKey:@"cause"] objectForKey:@"details"] UTF8String])
     }
   };
   
@@ -460,7 +462,14 @@ using namespace facebook::react;
 
   std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
 
-  CameraViewEventEmitter::OnShutter payload = {.type = std::string([[message objectForKey:@"type"] UTF8String])};
+  CameraViewEventEmitter::OnShutterType shutterType = CameraViewEventEmitter::OnShutterType::Photo;
+  
+  const char* shutterString = [[message objectForKey:@"type"] UTF8String];
+  if (std::strcmp(shutterString, "snapshot") == 0) {
+    shutterType = CameraViewEventEmitter::OnShutterType::Snapshot;
+  }
+  
+  CameraViewEventEmitter::OnShutter payload = {.type = shutterType};
   emitter->onShutter(payload);
 }
 
@@ -492,6 +501,23 @@ using namespace facebook::react;
   std::shared_ptr<const CameraViewEventEmitter> emitter = std::static_pointer_cast<const CameraViewEventEmitter>(_eventEmitter);
 
   emitter->onViewReady({});
+}
+
+- (CameraViewEventEmitter::OnCodeScannedCodesType) codeScannedCodesTypefromString:(NSString*)value {
+    if ([value isEqualToString:@"code-128"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Code128;
+    if ([value isEqualToString:@"code-39"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Code39;
+    if ([value isEqualToString:@"code-93"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Code93;
+    if ([value isEqualToString:@"codabar"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Codabar;
+    if ([value isEqualToString:@"ean-13"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Ean13;
+    if ([value isEqualToString:@"ean-8"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Ean8;
+    if ([value isEqualToString:@"itf"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Itf;
+    if ([value isEqualToString:@"upc-e"]) return CameraViewEventEmitter::OnCodeScannedCodesType::UpcE;
+    if ([value isEqualToString:@"upc-a"]) return CameraViewEventEmitter::OnCodeScannedCodesType::UpcA;
+    if ([value isEqualToString:@"qr"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Qr;
+    if ([value isEqualToString:@"pdf-417"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Pdf417;
+    if ([value isEqualToString:@"aztec"]) return CameraViewEventEmitter::OnCodeScannedCodesType::Aztec;
+    if ([value isEqualToString:@"data-matrix"]) return CameraViewEventEmitter::OnCodeScannedCodesType::DataMatrix;
+    return CameraViewEventEmitter::OnCodeScannedCodesType::Unknown;
 }
 
 @end

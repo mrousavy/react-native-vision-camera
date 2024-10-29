@@ -33,13 +33,6 @@ export interface ErrorWithCause {
      */
     message: string;
     /**
-     * Optional additional details
-     *
-     * * iOS: `NSError.userInfo`
-     * * Android: N/A
-     */
-    details?: Record<string, unknown>;
-    /**
      * Optional Java stacktrace
      *
      * * iOS: N/A

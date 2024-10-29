@@ -142,6 +142,10 @@ android {
   sourceSets {
     main {
       manifest.srcFile androidManifestPath
+
+      java {
+        srcDirs += "generated/java"
+      }
     }
   }
 

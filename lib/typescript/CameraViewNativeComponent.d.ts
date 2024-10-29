@@ -1,7 +1,6 @@
 import type { HostComponent, ViewProps } from 'react-native';
 import type { DirectEventHandler, Double, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 export type VisionCameraComponentType = HostComponent<NativeProps>;
-export type CodeTypes = 'code-128' | 'code-39' | 'code-93' | 'codabar' | 'ean-13' | 'ean-8' | 'itf' | 'upc-e' | 'upc-a' | 'qr' | 'pdf-417' | 'aztec' | 'data-matrix' | 'unknown';
 export interface NativeProps extends ViewProps {
     isActive: boolean;
     preview?: boolean;
@@ -66,14 +65,13 @@ export interface NativeProps extends ViewProps {
         cause?: Readonly<{
             code?: Int32;
             domain?: string;
-            message?: string;
-            details?: string;
+            message: string;
             stacktrace?: string;
         }>;
     }>>;
     onCodeScanned?: DirectEventHandler<{
         codes: {
-            type: string;
+            type: 'code-128' | 'code-39' | 'code-93' | 'codabar' | 'ean-13' | 'ean-8' | 'itf' | 'upc-e' | 'upc-a' | 'qr' | 'pdf-417' | 'aztec' | 'data-matrix' | 'unknown';
             value?: string;
             frame?: Readonly<{
                 x: Double;
@@ -81,10 +79,10 @@ export interface NativeProps extends ViewProps {
                 width: Double;
                 height: Double;
             }>;
-            corners?: Readonly<{
+            corners?: {
                 x: Double;
                 y: Double;
-            }[]>;
+            }[];
         }[];
         frame: Readonly<{
             width: Int32;
@@ -96,7 +94,7 @@ export interface NativeProps extends ViewProps {
     onPreviewStarted?: DirectEventHandler<Readonly<{}>>;
     onPreviewStopped?: DirectEventHandler<Readonly<{}>>;
     onShutter?: DirectEventHandler<Readonly<{
-        type: string;
+        type: 'photo' | 'snapshot';
     }>>;
     onOutputOrientationChanged?: DirectEventHandler<Readonly<{
         outputOrientation: 'portrait' | 'portrait-upside-down' | 'landscape-left' | 'landscape-right';
