@@ -124,9 +124,15 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
           recorder.setQualitySelector(format.videoQualitySelector)
         }
         videoConfig.config.bitRateOverride?.let { bitRateOverride ->
-          video.setTargetVideoEncodingBitRate(bitRateOverride)
+          val bps = bitRateOverride * 1_000_000
+          recorder.setTargetVideoEncodingBitRate(bps.toInt())
         }
-        // TODO: BitRate Modifier????
+        videoConfig.config.bitRateModifier?.let { bitRateModifier ->
+          val currentBitRate = recorder.build().targetVideoEncodingBitRate
+          val targetBitRate = currentBitRate.toDouble() * bitRateModifier
+          val bps = targetBitRate * 1_000_000
+          recorder.setTargetVideoEncodingBitRate(bps.toInt())
+        }
       }.build()
     }
 
