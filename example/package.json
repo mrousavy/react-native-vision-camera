@@ -30,7 +30,7 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-video": "^6.6.4",
     "react-native-worklets-core": "^1.3.3",
-    "react-native-vision-camera": "workspace:*"
+    "react-native-vision-camera": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
