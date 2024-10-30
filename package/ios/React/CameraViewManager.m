@@ -73,37 +73,20 @@ RCT_EXPORT_VIEW_PROPERTY(codeScannerOptions, NSDictionary);
 RCT_REMAP_VIEW_PROPERTY(onCodeScanned, onCodeScannedEvent, RCTDirectEventBlock);
 
 // Camera View Functions
-RCT_EXTERN_METHOD(startRecording
-                  : (nonnull NSNumber*)node options
-                  : (NSDictionary*)options onRecordCallback
-                  : (RCTResponseSenderBlock)onRecordCallback);
-RCT_EXTERN_METHOD(pauseRecording
-                  : (nonnull NSNumber*)node resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(cancelRecording
-                  : (nonnull NSNumber*)node resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(resumeRecording
-                  : (nonnull NSNumber*)node resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(startRecording : (nonnull NSNumber*)node options : (NSDictionary*)options onRecordCallback : (RCTResponseSenderBlock)
+                      onRecordCallback);
+RCT_EXTERN_METHOD(pauseRecording : (nonnull NSNumber*)node resolve : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
+                      reject);
+RCT_EXTERN_METHOD(cancelRecording : (nonnull NSNumber*)node resolve : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
+                      reject);
+RCT_EXTERN_METHOD(resumeRecording : (nonnull NSNumber*)node resolve : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)
+                      reject);
 RCT_EXTERN_METHOD(stopRecording : (nonnull NSNumber*)node resolve : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(takePhoto
-                  : (nonnull NSNumber*)node options
-                  : (NSDictionary*)options resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(takeSnapshot
-                  : (nonnull NSNumber*)node options
-                  : (NSDictionary*)options resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(focus
-                  : (nonnull NSNumber*)node point
-                  : (NSDictionary*)point resolve
-                  : (RCTPromiseResolveBlock)resolve reject
-                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(takePhoto : (nonnull NSNumber*)node options : (NSDictionary*)options resolve : (RCTPromiseResolveBlock)
+                      resolve reject : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(takeSnapshot : (nonnull NSNumber*)node options : (NSDictionary*)options resolve : (RCTPromiseResolveBlock)
+                      resolve reject : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(focus : (nonnull NSNumber*)node point : (NSDictionary*)point resolve : (RCTPromiseResolveBlock)
+                      resolve reject : (RCTPromiseRejectBlock)reject);
 
 @end

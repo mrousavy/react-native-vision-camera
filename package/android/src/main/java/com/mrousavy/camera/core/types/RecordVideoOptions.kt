@@ -5,10 +5,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.utils.FileUtils
 import com.mrousavy.camera.core.utils.OutputFile
 
-class RecordVideoOptions(
-  val file: OutputFile,
-  val videoCodec: VideoCodec
-) {
+class RecordVideoOptions(val file: OutputFile, val videoCodec: VideoCodec) {
 
   companion object {
     fun fromJSValue(context: Context, map: ReadableMap): RecordVideoOptions {

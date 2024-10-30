@@ -182,7 +182,10 @@ class CameraView(context: Context) :
 
         // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(isMirrored, videoHdr, videoBitRateOverride, videoBitRateModifier))
+          config.video =
+            CameraConfiguration.Output.Enabled.create(
+              CameraConfiguration.Video(isMirrored, videoHdr, videoBitRateOverride, videoBitRateModifier)
+            )
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
         }
