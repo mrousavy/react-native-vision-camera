@@ -53,6 +53,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var outputOrientation: NSString?
+  @objc var videoBitRateOverride: NSNumber?
+  @objc var videoBitRateMultiplier: NSNumber?
 
   // other props
   @objc var isActive = false

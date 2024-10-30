@@ -191,6 +191,24 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.videoHdr = videoHdr
   }
 
+  @ReactProp(name = "videoBitRateOverride", defaultDouble = -1.0)
+  fun setVideoBitRateOverride(view: CameraView, videoBitRateOverride: Double) {
+    if (videoBitRateOverride != -1.0) {
+      view.videoBitRateOverride = videoBitRateOverride
+    } else {
+      view.videoBitRateOverride = null
+    }
+  }
+
+  @ReactProp(name = "videoBitRateMultiplier", defaultDouble = -1.0)
+  fun setVideoBitRateMultiplier(view: CameraView, videoBitRateMultiplier: Double) {
+    if (videoBitRateMultiplier != -1.0) {
+      view.videoBitRateMultiplier = videoBitRateMultiplier
+    } else {
+      view.videoBitRateMultiplier = null
+    }
+  }
+
   @ReactProp(name = "lowLightBoost")
   fun setLowLightBoost(view: CameraView, lowLightBoost: Boolean) {
     view.lowLightBoost = lowLightBoost

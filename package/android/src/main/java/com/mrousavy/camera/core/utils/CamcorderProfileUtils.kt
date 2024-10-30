@@ -1,12 +1,16 @@
 package com.mrousavy.camera.core.utils
 
+import android.annotation.SuppressLint
 import android.media.CamcorderProfile
 import android.os.Build
+import android.util.Log
 import android.util.Size
 import kotlin.math.abs
 
 class CamcorderProfileUtils {
   companion object {
+    private const val TAG = "CamcorderProfileUtils"
+
     private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int =
       when (camcorderProfile) {
         CamcorderProfile.QUALITY_QCIF -> 176 * 144
@@ -29,6 +33,7 @@ class CamcorderProfileUtils {
       val targetResolution = resolution.width * resolution.height
       val cameraIdInt = cameraId.toIntOrNull()
 
+      @SuppressLint("InlinedApi")
       var profiles = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).filter { profile ->
         if (cameraIdInt != null) {
           return@filter CamcorderProfile.hasProfile(cameraIdInt, profile)
@@ -70,6 +75,7 @@ class CamcorderProfileUtils {
         return null
       } catch (e: Throwable) {
         // some Samsung phones just crash when trying to get the CamcorderProfile. Only god knows why.
+        Log.e(TAG, "Failed to get maximum video size for Camera ID $cameraId! ${e.message}", e)
         return null
       }
     }
@@ -94,6 +100,32 @@ class CamcorderProfileUtils {
         return null
       } catch (e: Throwable) {
         // some Samsung phones just crash when trying to get the CamcorderProfile. Only god knows why.
+        Log.e(TAG, "Failed to get maximum FPS for Camera ID $cameraId! ${e.message}", e)
+        return null
+      }
+    }
+
+    fun getRecommendedBitRate(cameraId: String, videoSize: Size): Int? {
+      try {
+        val quality = findClosestCamcorderProfileQuality(cameraId, videoSize, true)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+          val profiles = CamcorderProfile.getAll(cameraId, quality)
+          if (profiles != null) {
+            return profiles.videoProfiles.maxOf { profile -> profile.bitrate }
+          }
+        }
+
+        val cameraIdInt = cameraId.toIntOrNull()
+        if (cameraIdInt != null) {
+          val profile = CamcorderProfile.get(cameraIdInt, quality)
+          return profile.videoBitRate
+        }
+
+        return null
+      } catch (e: Throwable) {
+        // some Samsung phones just crash when trying to get the CamcorderProfile. Only god knows why.
+        Log.e(TAG, "Failed to get recommended video bit-rate for Camera ID $cameraId! ${e.message}", e)
         return null
       }
     }

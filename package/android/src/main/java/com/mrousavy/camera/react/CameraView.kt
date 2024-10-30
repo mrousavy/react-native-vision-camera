@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
-// TODO: Support videoCodec and videoBitRate on Android
+// TODO: Support videoCodec on Android
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
@@ -75,6 +75,8 @@ class CameraView(context: Context) :
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
+  var videoBitRateOverride: Double? = null
+  var videoBitRateMultiplier: Double? = null
 
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
@@ -180,7 +182,10 @@ class CameraView(context: Context) :
 
         // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(isMirrored, videoHdr))
+          config.video =
+            CameraConfiguration.Output.Enabled.create(
+              CameraConfiguration.Video(isMirrored, videoHdr, videoBitRateOverride, videoBitRateMultiplier)
+            )
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
         }
