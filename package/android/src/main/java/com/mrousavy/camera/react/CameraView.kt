@@ -76,7 +76,7 @@ class CameraView(context: Context) :
   var videoHdr = false
   var photoHdr = false
   var videoBitRateOverride: Double? = null
-  var videoBitRateModifier: Double? = null
+  var videoBitRateMultiplier: Double? = null
 
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
@@ -184,7 +184,7 @@ class CameraView(context: Context) :
         if (video || enableFrameProcessor) {
           config.video =
             CameraConfiguration.Output.Enabled.create(
-              CameraConfiguration.Video(isMirrored, videoHdr, videoBitRateOverride, videoBitRateModifier)
+              CameraConfiguration.Video(isMirrored, videoHdr, videoBitRateOverride, videoBitRateMultiplier)
             )
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()

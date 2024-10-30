@@ -18,7 +18,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     do {
       let options = try RecordVideoOptions(fromJSValue: options,
                                            bitRateOverride: videoBitRateOverride,
-                                           videoBitRateModifier: videoBitRateModifier)
+                                           videoBitRateMultiplier: videoBitRateMultiplier)
 
       // Start Recording with success and error callbacks
       cameraSession.startRecording(

@@ -24,7 +24,7 @@ struct RecordVideoOptions {
    */
   var bitRateMultiplier: Double?
 
-  init(fromJSValue dictionary: NSDictionary, bitRateOverride: Double? = nil, bitRateModifier: Double? = nil) throws {
+  init(fromJSValue dictionary: NSDictionary, bitRateOverride: Double? = nil, bitRateMultiplier: Double? = nil) throws {
     // File Type (.mov or .mp4)
     if let fileTypeOption = dictionary["fileType"] as? String {
       fileType = try AVFileType(withString: fileTypeOption)
@@ -40,7 +40,7 @@ struct RecordVideoOptions {
     // BitRate Override
     self.bitRateOverride = bitRateOverride
     // BitRate Multiplier
-    self.bitRateModifier = bitRateModifier
+    self.bitRateMultiplier = bitRateMultiplier
     // Custom Path
     let fileExtension = fileType.descriptor ?? "mov"
     if let customPath = dictionary["path"] as? String {

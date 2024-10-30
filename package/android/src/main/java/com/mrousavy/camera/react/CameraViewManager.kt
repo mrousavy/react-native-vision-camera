@@ -200,12 +200,12 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     }
   }
 
-  @ReactProp(name = "videoBitRateModifier", defaultDouble = -1.0)
-  fun setVideoBitRateModifier(view: CameraView, videoBitRateModifier: Double) {
-    if (videoBitRateModifier != -1.0) {
-      view.videoBitRateModifier = videoBitRateModifier
+  @ReactProp(name = "videoBitRateMultiplier", defaultDouble = -1.0)
+  fun setVideoBitRateMultiplier(view: CameraView, videoBitRateMultiplier: Double) {
+    if (videoBitRateMultiplier != -1.0) {
+      view.videoBitRateMultiplier = videoBitRateMultiplier
     } else {
-      view.videoBitRateModifier = null
+      view.videoBitRateMultiplier = null
     }
   }
 
