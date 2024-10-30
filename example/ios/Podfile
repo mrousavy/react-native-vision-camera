@@ -25,7 +25,6 @@ target 'VisionCameraExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  # pod 'VisionCamera', :path => '../../package'
   require_relative './VisionCameraExampleCocoaPodUtils.rb'
 
   post_install do |installer|
