@@ -60,9 +60,21 @@ target_link_libraries(
         ${LOG_LIB}                          # <-- Logcat logger
         android                             # <-- Android JNI core
         ReactAndroid::jsi                   # <-- RN: JSI
-        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
         fbjni::fbjni                        # <-- fbjni
 )
+
+# Link react-native (different prefab between RN 0.75 and RN 0.76)
+if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
+    target_link_libraries(
+        ${PACKAGE_NAME}
+        ReactAndroid::reactnative                 # <-- RN: Native Modules umbrella prefab
+    )
+else()
+    target_link_libraries(
+        ${PACKAGE_NAME}
+        ReactAndroid::reactnativejni              # <-- RN: JNI Utils (e.g. CallInvoker)
+    )
+endif()
 
 # Optionally also add Frame Processors here
 message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
