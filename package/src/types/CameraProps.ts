@@ -201,6 +201,23 @@ export interface CameraProps extends ViewProps {
    */
   videoHdr?: boolean
   /**
+   * The bit-rate for encoding the video into a file, in Mbps (Megabits per second).
+   *
+   * Bit-rate is dependant on various factors such as resolution, FPS, pixel format (whether it's 10 bit HDR or not), and video codec.
+   *
+   * By default, it will be calculated by the hardware encoder, which takes all those factors into account.
+   *
+   * * `extra-low`: 40% lower than whatever the hardware encoder recommends.
+   * * `low`: 20% lower than whatever the hardware encoder recommends.
+   * * `normal`: The recommended value by the hardware encoder.
+   * * `high`: 20% higher than whatever the hardware encoder recommends.
+   * * `extra-high`: 40% higher than whatever the hardware encoder recommends.
+   * * `number`: Any custom number for the bit-rate, in Mbps.
+   *
+   * @default 'normal'
+   */
+  videoBitRate?: 'extra-low' | 'low' | 'normal' | 'high' | 'extra-high' | number
+  /**
    * Enables or disables HDR Photo Capture via a double capture routine that combines low- and high exposure photos.
    *
    * On Android, {@linkcode photoHdr} uses a vendor-specific "HDR" extension which is not compatible with {@linkcode videoHdr},

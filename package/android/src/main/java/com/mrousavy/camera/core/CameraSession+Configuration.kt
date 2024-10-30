@@ -123,8 +123,10 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
         configuration.format?.let { format ->
           recorder.setQualitySelector(format.videoQualitySelector)
         }
-        // TODO: Make videoBitRate a Camera Prop
-        // video.setTargetVideoEncodingBitRate()
+        videoConfig.config.bitRateOverride?.let { bitRateOverride ->
+          video.setTargetVideoEncodingBitRate(bitRateOverride)
+        }
+        // TODO: BitRate Modifier????
       }.build()
     }
 

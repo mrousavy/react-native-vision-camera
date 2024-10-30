@@ -53,6 +53,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var outputOrientation: NSString?
+  @objc var videoBitRateOverride: NSNumber?
+  @objc var videoBitRateModifier: NSNumber?
 
   // other props
   @objc var isActive = false
@@ -209,7 +211,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: videoHdr,
-                                                                  enableFrameProcessor: enableFrameProcessor))
+                                                                  enableFrameProcessor: enableFrameProcessor,
+                                                                  bitRateOverride: videoBitRateOverride,
+                                                                  bitRateModifier: videoBitRateModifier))
       } else {
         config.video = .disabled
       }

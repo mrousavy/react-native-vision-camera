@@ -47,6 +47,8 @@ RCT_EXPORT_VIEW_PROPERTY(photoQualityBalance, NSString);
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
 RCT_EXPORT_VIEW_PROPERTY(pixelFormat, NSString);
+RCT_EXPORT_VIEW_PROPERTY(videoBitRateOverride, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(videoBitRateModifier, NSNumber);
 // other props
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
