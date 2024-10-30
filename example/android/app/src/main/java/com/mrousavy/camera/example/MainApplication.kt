@@ -11,7 +11,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 
-import com.mrousavy.camera.react.CameraPackage
 import com.mrousavy.camera.frameprocessors.FrameProcessorPluginRegistry
 
 class MainApplication : Application(), ReactApplication {
@@ -27,7 +26,6 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
-              add(CameraPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

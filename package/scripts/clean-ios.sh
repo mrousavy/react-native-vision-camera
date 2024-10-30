@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd "$(dirname "$0")"
-cd ..
+cd ../../
 echo "Running clean script in $PWD"
 
 echo "rm -rf ~/Library/Caches/CocoaPods"

@@ -14,11 +14,11 @@ react {
     //   The root of your project, i.e. where "package.json" lives. Default is '..'
     // root = file("../")
     //   The folder where the react-native NPM package is. Default is ../node_modules/react-native
-    // reactNativeDir = file("../node_modules/react-native")
+     reactNativeDir = file("../../../node_modules/react-native")
     //   The folder where the react-native Codegen package is. Default is ../node_modules/@react-native/codegen
-    // codegenDir = file("../node_modules/@react-native/codegen")
+     codegenDir = file("../../../node_modules/@react-native/codegen")
     //   The cli.js file which is the React Native CLI entrypoint. Default is ../node_modules/react-native/cli.js
-    // cliFile = file("../node_modules/react-native/cli.js")
+     cliFile = file("../../../node_modules/react-native/cli.js")
 
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
@@ -48,7 +48,7 @@ react {
 
     /* Hermes Commands */
     //   The hermes compiler command to run. By default it is 'hermesc'
-    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
+    hermesCommand = "$rootDir/../node_modules/react-native/sdks/hermesc/%OS-BIN%/hermesc"
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
@@ -61,7 +61,7 @@ project.ext.vectoricons = [
     iconFontNames: [ 'MaterialCommunityIcons.ttf', 'Ionicons.ttf' ]
 ]
 
-apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+apply from: "../../../node_modules/react-native-vector-icons/fonts.gradle"
 
 /**
  * Set this to true to create four separate APKs instead of one,
@@ -173,6 +173,4 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-
-    implementation project(':react-native-vision-camera')
 }

@@ -5,16 +5,16 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/build-ios.yml'
-      - 'package/ios/**'
-      - 'package/*.podspec'
-      - 'package/example/ios/**'
+      - ".github/workflows/build-ios.yml"
+      - "package/ios/**"
+      - "package/*.podspec"
+      - "example/ios/**"
   pull_request:
     paths:
-      - '.github/workflows/build-ios.yml'
-      - 'package/ios/**'
-      - 'package/*.podspec'
-      - 'package/example/ios/**'
+      - ".github/workflows/build-ios.yml"
+      - "package/ios/**"
+      - "package/*.podspec"
+      - "example/ios/**"
 
 jobs:
   build:
@@ -22,23 +22,14 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: package/example/ios
+        working-directory: example/ios
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-with-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-with-fps-yarn-
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd ..
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: cd ../../ && bun install
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -49,12 +40,12 @@ jobs:
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: package/example/ios
+          working-directory: example/ios
 
       - name: Restore Pods cache
         uses: actions/cache@v4
         with:
-          path: package/example/ios/Pods
+          path: example/ios/Pods
           key: ${{ runner.os }}-with-fps-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-with-fps-pods-
@@ -79,25 +70,18 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: package/example/ios
+        working-directory: example/ios
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules from cache
-        uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-without-fps-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-without-fps-yarn-
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd ..
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: cd ../../ && bun install
       - name: Remove worklets, skia and reanimated
-        run: yarn remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
+        run: |
+          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ..
+          bun remove react-native-worklets-core @shopify/react-native-skia react-native-reanimated --cwd ../../package
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v2
@@ -108,12 +92,12 @@ jobs:
         with:
           ruby-version: 2.7.2
           bundler-cache: true
-          working-directory: package/example/ios
+          working-directory: example/ios
 
       - name: Restore Pods cache
         uses: actions/cache@v4
         with:
-          path: package/example/ios/Pods
+          path: example/ios/Pods
           key: ${{ runner.os }}-without-fps-pods-${{ hashFiles('**/Podfile.lock', '**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-without-fps-pods-

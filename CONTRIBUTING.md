@@ -12,7 +12,7 @@
    ```
    cd react-native-vision-camera
    cd package
-   yarn bootstrap
+   bun bootstrap
    ```
 
 Read the READMEs in [`android/`](package/android/README.md) and [`ios/`](package/ios/README.md) for a quick overview of the native development workflow.
@@ -22,10 +22,10 @@ Read the READMEs in [`android/`](package/android/README.md) and [`ios/`](package
 ### JS/TS
 
 1. Open the entire folder in Visual Studio Code
-2. Start the metro bundler in the `example/` directory using `yarn start`
+2. Start the metro bundler in the `example/` directory using `bun start`
 3. Run either the iOS or Android project to test changes
 
-> Run `yarn check-js` to validate codestyle
+> Run `bun check-js` to validate codestyle
 
 ### iOS
 
@@ -34,12 +34,12 @@ Read the READMEs in [`android/`](package/android/README.md) and [`ios/`](package
 3. Select your device in the devices drop-down
 4. Hit run
 
-> Run `yarn check-ios` to validate codestyle
+> Run `bun check-ios` to validate codestyle
 
 ### Android
 
 1. Open the `example/android/` folder with Android Studio
-2. Start the metro bundler in the `example/` directory using `yarn start`
+2. Start the metro bundler in the `example/` directory using `bun start`
 3. Select your device in the devices drop-down
 4. Once your device is connected, make sure it can find the metro bundler's port:
    ```
@@ -47,14 +47,14 @@ Read the READMEs in [`android/`](package/android/README.md) and [`ios/`](package
    ```
 6. Hit run
 
-> Run `yarn check-android` to validate codestyle
+> Run `bun check-android` to validate codestyle
 
 ### Docs
 
 1. Edit the relevant file, it may be easiest to search for what you're editing to find the right file
-2. Install all dependencies by running `yarn` inside the `docs` folder
+2. Install all dependencies by running `bun` inside the `docs` folder
 
-> Run `yarn start` to generate the docs, you can then view them in your browser to confirm your changes
+> Run `bun start` to generate the docs, you can then view them in your browser to confirm your changes
 
 ## Committing
 
@@ -65,14 +65,14 @@ Great code produces great products. That's why we love to keep our codebases cle
 Before pushing your changes, you can verify that everything is still correctly formatted by running all linters:
 
 ```
-yarn check-all
+bun check-all
 ```
 
 This validates Swift, Kotlin, C++ and JS/TS code:
 
 ```bash
-$ yarn check-all
-   yarn run v1.22.10
+$ bun check-all
+   bun run v1.22.10
    Formatting Swift code..
    Linting Swift code..
    Linting Kotlin code..
