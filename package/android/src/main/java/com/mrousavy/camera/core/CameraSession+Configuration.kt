@@ -137,8 +137,7 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
           val recommendedBitRate = CamcorderProfileUtils.getRecommendedBitRate(cameraId, format.videoSize)
           if (recommendedBitRate != null) {
             val targetBitRate = recommendedBitRate.toDouble() * bitRateMultiplier
-            val bps = targetBitRate * 1_000_000
-            recorder.setTargetVideoEncodingBitRate(bps.toInt())
+            recorder.setTargetVideoEncodingBitRate(targetBitRate.toInt())
           }
         }
       }.build()
