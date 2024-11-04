@@ -27,7 +27,6 @@
     "README.md"
   ],
   "scripts": {
-    "postinstall": "tsc || exit 0;",
     "typecheck": "tsc --noEmit",
     "typescript": "tsc --noEmit false",
     "lint": "eslint \"**/*.{js,ts,tsx}\" --fix",
