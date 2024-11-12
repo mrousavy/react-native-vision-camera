@@ -31,7 +31,7 @@ To try the playground out for yourself, run the following commands:
 ```sh
 git clone https://github.com/mrousavy/react-native-vision-camera
 cd react-native-vision-camera/package
-bun bootstrap
+run bootstrap
 ```
 
 ### iOS
