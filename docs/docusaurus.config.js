@@ -14,6 +14,9 @@ module.exports = {
     mermaid: true,
   },
   themes: ['@docusaurus/theme-mermaid'],
+  plugins: [
+    ['vercel-analytics', { }],
+  ],
   themeConfig: {
     /**
      * @type {import('@docusaurus/theme-mermaid').ThemeConfig['mermaid']}

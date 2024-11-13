@@ -7,6 +7,7 @@ updates:
       interval: "daily"
     labels:
       - "🛠 dependencies"
+
   - package-ecosystem: "gradle"
     directory: "/package/android/"
     schedule:
@@ -14,6 +15,19 @@ updates:
     labels:
       - "🛠 dependencies"
       - "🤖 android"
+
+  - package-ecosystem: "npm"
+    directories:
+      - "/docs/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "🛠 dependencies"
+    groups:
+      docusaurus:
+        patterns:
+          - "@docusaurus/*"
+
   # - package-ecosystem: "npm"
   #   directory: "/package/"
   #   schedule:
