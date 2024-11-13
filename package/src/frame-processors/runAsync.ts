@@ -74,7 +74,7 @@ try {
  *   runAsync(frame, () => {
  *     'worklet'
  *     const faces = detectFaces(frame)
- *     const face = [faces0]
+ *     const face = faces[0]
  *     console.log(`Detected a new face: ${face}`)
  *   })
  * })
