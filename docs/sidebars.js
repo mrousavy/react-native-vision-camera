@@ -45,16 +45,8 @@ module.exports = {
       'guides/troubleshooting',
       'guides/shadowlens',
     ],
+    API: [
+      ...require('./docs/api/typedoc-sidebar.cjs')
+    ]
   },
-  apiDocsSidebar: [
-    {
-      type: 'category',
-      label: 'API',
-      link: {
-        type: 'doc',
-        id: 'api/index',
-      },
-      items: require('./docs/api/typedoc-sidebar.cjs'),
-    }
-  ]
 }
