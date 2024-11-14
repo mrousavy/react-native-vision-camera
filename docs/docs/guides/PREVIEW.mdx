@@ -56,8 +56,7 @@ On iOS, the Video resolution also determines the Preview resolution, so if you C
 const lowResolutionFormat = useCameraFormat(device, [{ videoResolution: { width: 640, height: 480 } }])
 ```
 
-On Android, the Preview will always be in full HD, or the Preview View's size, whichever is smaller.
-If a format is specified the preview will comply with the format's resolution based on if the `photo` or `video` is set.
+On Android, the Preview will always be in full HD or the Preview View's size, whichever is smaller. If a format is specified, the preview will comply with the format's resolution based on whether the `photo` or `video` is set.
 E.g if `video` is not set, the preview will be in the photo resolution. If `video` is set, the preview will be in the video resolution.
 
 ```tsx
