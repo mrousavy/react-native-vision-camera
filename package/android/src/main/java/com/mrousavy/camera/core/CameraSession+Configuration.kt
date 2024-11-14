@@ -75,9 +75,11 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
       }
 
       if (format != null) {
-        // Similar to iOS, Preview will follow video size as it's size (and aspect ratio)
+        // If video is disable but photo is enabled, use photoSize
+        val targetSize = if (videoConfig == null) format.photoSize else format.videoSize
+
         val previewResolutionSelector = ResolutionSelector.Builder()
-          .forSize(format.videoSize)
+          .forSize(targetSize)
           .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
           .build()
         preview.setResolutionSelector(previewResolutionSelector)
