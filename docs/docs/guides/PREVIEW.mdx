@@ -8,8 +8,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 
 <div class="image-container">
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
-    <image href={useBaseUrl('img/demo_capture.gif')} x="18" y="33" width="247" height="469" />
-    <image href={useBaseUrl('img/frame.png')} width="283" height="535" />
+    <image href={useBaseUrl("img/demo_capture.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
 
@@ -35,7 +35,11 @@ When starting/stopping the Camera session or when switching Camera devices (e.g.
 To get notified about pauses in the preview view, use the [`onPreviewStarted`](/docs/api/interfaces/CameraProps#onpreviewstarted) and [`onPreviewStopped`](/docs/api/interfaces/CameraProps#onpreviewstopped) events:
 
 ```tsx
-<Camera {...props} onPreviewStarted={() => console.log('Preview started!')} onPreviewStopped={() => console.log('Preview stopped!')} />
+<Camera
+  {...props}
+  onPreviewStarted={() => console.log('Preview started!')}
+  onPreviewStopped={() => console.log('Preview stopped!')}
+/>
 ```
 
 ### Preview Frame Rate (FPS)
@@ -53,11 +57,12 @@ See [FPS](formats#fps) for more information.
 On iOS, the Video resolution also determines the Preview resolution, so if you Camera format has a low Video resolution, your Preview will also be in low resolution:
 
 ```ts
-const lowResolutionFormat = useCameraFormat(device, [{ videoResolution: { width: 640, height: 480 } }])
+const lowResolutionFormat = useCameraFormat(device, [
+  { videoResolution: { width: 640, height: 480 } },
+])
 ```
 
-On Android, the Preview will always be in full HD or the Preview View's size, whichever is smaller. If a format is specified, the preview will comply with the format's resolution based on whether the `photo` or `video` is set.
-E.g if `video` is not set, the preview will be in the photo resolution. If `video` is set, the preview will be in the video resolution.
+On Android, the Preview will always be in full HD or the Preview View's size, whichever is smaller. If a format is specified, the preview will comply with the format's resolution based on whether the `photo` or `video` is set.  E.g., if `video` is not set, the preview will be in the photo resolution. The preview will be in the video resolution if `video` is set.
 
 ```tsx
 <Camera
