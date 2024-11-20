@@ -75,8 +75,8 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
       }
 
       if (format != null) {
-        // If video is disable but photo is enabled, use photoSize
-        val targetSize = if (videoConfig == null) format.photoSize else format.videoSize
+        // Preview will follow video size as it's size & aspect ratio, or photo- if video is disabled.
+        val targetSize = if (videoConfig != null) format.videoSize else format.photoSize
 
         val previewResolutionSelector = ResolutionSelector.Builder()
           .forSize(targetSize)
