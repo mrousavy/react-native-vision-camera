@@ -62,7 +62,8 @@ const lowResolutionFormat = useCameraFormat(device, [
 ])
 ```
 
-On Android, the Preview will always be in full HD or the Preview View's size, whichever is smaller. If a format is specified, the preview will comply with the format's resolution based on whether the `photo` or `video` is set.  E.g., if `video` is not set, the preview will be in the photo resolution. The preview will be in the video resolution if `video` is set.
+On Android, the Preview will always be in full HD or the Preview View's size, whichever is smaller.
+If a format is specified, the preview will try to match the `video`'s resolution and aspect ratio if `video` is enabled, and `photo`'s resolution and aspect ratio if `photo` is enabled.
 
 ```tsx
 <Camera
