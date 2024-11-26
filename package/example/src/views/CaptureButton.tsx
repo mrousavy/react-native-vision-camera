@@ -34,6 +34,8 @@ interface Props extends ViewProps {
   enabled: boolean
 
   setIsPressingButton: (isPressingButton: boolean) => void
+
+  useFastMode: boolean
 }
 
 const _CaptureButton: React.FC<Props> = ({
@@ -45,6 +47,7 @@ const _CaptureButton: React.FC<Props> = ({
   flash,
   enabled,
   setIsPressingButton,
+  useFastMode,
   style,
   ...props
 }): React.ReactElement => {
@@ -62,6 +65,7 @@ const _CaptureButton: React.FC<Props> = ({
       const photo = await camera.current.takePhoto({
         flash: flash,
         enableShutterSound: false,
+        useFastMode: useFastMode,
       })
       onMediaCaptured(photo, 'photo')
     } catch (e) {

@@ -51,6 +51,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground()
   const isActive = isFocussed && isForeground
 
+  const useFastMode = useRef<boolean>(false)
+
   const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back')
   const [enableHdr, setEnableHdr] = useState(false)
   const [flash, setFlash] = useState<'off' | 'on'>('off')
@@ -145,10 +147,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const lockFocus = () => {
     camera.current!.lockFocusAndExposureToPoint({ x: SCREEN_WIDTH/2, y: SCREEN_HEIGHT/2 });
+    useFastMode.current = true;
   }
 
   const unlockFocus = () => {
     camera.current!.freeFocusAndExposure()
+    useFastMode.current = false;
   }
 
   //#region Effects
@@ -256,6 +260,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         flash={supportsFlash ? flash : 'off'}
         enabled={isCameraInitialized && isActive}
         setIsPressingButton={setIsPressingButton}
+        useFastMode={true}
       />
 
       <StatusBarBlurBackground />

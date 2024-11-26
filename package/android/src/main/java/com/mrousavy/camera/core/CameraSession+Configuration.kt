@@ -20,6 +20,7 @@ import androidx.camera.video.VideoCapture
 import androidx.lifecycle.Lifecycle
 import com.mrousavy.camera.core.extensions.*
 import com.mrousavy.camera.core.types.CameraDeviceFormat
+import com.mrousavy.camera.core.types.QualityBalance
 import com.mrousavy.camera.core.types.Torch
 import com.mrousavy.camera.core.types.VideoStabilizationMode
 import kotlin.math.roundToInt
@@ -106,6 +107,34 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
   } else {
     photoOutput = null
   }
+
+  /*
+   * LP3: The aim with this was to provide a second Photo UseCase which would be used for when we lock the focus
+   * This use case is set to aim for fastest shutter speed
+   * Unfortunately, we can't bind two Photo UseCases at once and so this fails to initialize
+   * And if we don't bind it, photo taking fails
+   * Trying to dynamically rebind which UseCase is being used at runtime also seems to be full of pitfalls and complications
+   * Rebinding takes time and passing in the appropriate
+  // 2.1 Image Capture with Locked Focus
+  if (photoConfig != null) {
+    Log.i(CameraSession.TAG, "Creating Photo output...")
+    val photo = ImageCapture.Builder().also { photo ->
+      // Configure Photo Output
+      photo.setCaptureMode(QualityBalance.BALANCED.toCaptureMode())
+      if (format != null) {
+        Log.i(CameraSession.TAG, "Photo size: ${format.photoSize}")
+        val resolutionSelector = ResolutionSelector.Builder()
+          .forSize(format.photoSize)
+          .setAllowedResolutionMode(ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION)
+          .build()
+        photo.setResolutionSelector(resolutionSelector)
+      }
+    }.build()
+    photoOutputLockedFocus = photo
+  } else {
+    photoOutputLockedFocus = null
+  }
+  */
 
   // 3. Video Capture
   if (videoConfig != null) {
@@ -219,6 +248,7 @@ internal suspend fun CameraSession.configureCamera(provider: ProcessCameraProvid
   checkCameraPermission()
 
   // Outputs
+  // val useCases = listOfNotNull(previewOutput, photoOutput, photoOutputLockedFocus, videoOutput, frameProcessorOutput, codeScannerOutput)
   val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
   if (useCases.isEmpty()) {
     throw NoOutputsError()
