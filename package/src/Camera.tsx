@@ -393,7 +393,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   //#endregion
 
   
-  public async lockFocusAndExposureToPoint(point: Point): Promise<void> {
+  public async lockFocusAndExposureToPoint(point: Point): Promise<boolean> {
     try {
       return await CameraModule.lockFocusAndExposureToPoint(this.handle, point)
     } catch (e) {
