@@ -7,7 +7,7 @@ import com.mrousavy.camera.core.lockFocusAndExposureToPoint
 import com.mrousavy.camera.core.freeFocusAndExposure
 import com.mrousavy.camera.core.utils.runOnUiThreadAndWait
 
-suspend fun CameraView.lockFocusAndExposureToPoint(pointMap: ReadableMap) {
+suspend fun CameraView.lockFocusAndExposureToPoint(pointMap: ReadableMap): Boolean {
   val x = pointMap.getDouble("x")
   val y = pointMap.getDouble("y")
   val previewView = previewView ?: throw FocusRequiresPreviewError()
@@ -16,7 +16,7 @@ suspend fun CameraView.lockFocusAndExposureToPoint(pointMap: ReadableMap) {
     val dp = Resources.getSystem().displayMetrics.density
     previewView.meteringPointFactory.createPoint(x.toFloat() * dp, y.toFloat() * dp)
   }
-  cameraSession.lockFocusAndExposureToPoint(point)
+  return cameraSession.lockFocusAndExposureToPoint(point)
 }
 
 suspend fun CameraView.freeFocusAndExposure() {

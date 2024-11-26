@@ -12,14 +12,12 @@ import com.mrousavy.camera.core.extensions.await
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 
-@OptIn(ExperimentalCamera2Interop::class)
-@SuppressLint("RestrictedApi")
-
 // There are a few different focus control modes available in the docs: 
 // https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AF_MODE
 // The relevant to us are:
 // - CONTROL_AF_MODE_AUTO - allows us to manually tell the camera where to focus
 // - CONTROL_AF_MODE_CONTINUOUS_PICTURE - tells the camera to continuously autofocus
+@OptIn(ExperimentalCamera2Interop::class)
 fun CameraSession.setFocusMode(mode: Int) {
   val camera = camera ?: throw CameraNotReadyError()
 
@@ -58,7 +56,8 @@ fun CameraSession.freeFocusAndExposure() {
   setFocusMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
 }
 
-suspend fun CameraSession.lockFocusAndExposureToPoint(meteringPoint: MeteringPoint) {
+@SuppressLint("RestrictedApi")
+suspend fun CameraSession.lockFocusAndExposureToPoint(meteringPoint: MeteringPoint): Boolean {
   val camera = camera ?: throw CameraNotReadyError()
 
   setFocusMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
@@ -82,10 +81,13 @@ suspend fun CameraSession.lockFocusAndExposureToPoint(meteringPoint: MeteringPoi
     if (result.isFocusSuccessful) {
       Log.i(CameraSession.TAG, "LP3: Focused successfully")
       setExposureLock(true)
+      return true
     } else {
       Log.i(CameraSession.TAG, "LP3: Failed to focus")
+      freeFocusAndExposure()
     }
   } catch (e: CameraControl.OperationCanceledException) {
     throw FocusCanceledError()
   }
+  return false
 }

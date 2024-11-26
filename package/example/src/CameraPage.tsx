@@ -145,8 +145,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, [onFlipCameraPressed])
   //#endregion
 
-  const lockFocus = () => {
-    camera.current!.lockFocusAndExposureToPoint({ x: SCREEN_WIDTH/2, y: SCREEN_HEIGHT/2 });
+  const lockFocus = async () => {
+    const s = await camera.current!.lockFocusAndExposureToPoint({ x: SCREEN_WIDTH/2, y: SCREEN_HEIGHT/2 });
+    console.log("focus status: ", s);
     useFastMode.current = true;
   }
 

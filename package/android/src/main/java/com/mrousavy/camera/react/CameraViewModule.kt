@@ -194,7 +194,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.lockFocusAndExposureToPoint(point)
-        return@withPromise null
       }
     }
   }
