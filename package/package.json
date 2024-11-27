@@ -45,7 +45,7 @@
     "clean-js": "scripts/clean-js.sh",
     "prepack": "cp ../README.md ./README.md",
     "postpack": "rm ./README.md",
-    "prepare": "bob build && mv * ../."
+    "prepare": "yarn build && mv cp -r ./* ../"
   },
   "keywords": [
     "react",
