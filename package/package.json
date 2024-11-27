@@ -72,7 +72,7 @@
     "processing",
     "realtime"
   ],
-  "repository": "https://github.com/mrousavy/react-native-vision-camera",
+  "repository": "https://github.com/sanctuarycomputer/react-native-vision-camera",
   "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "license": "MIT",
   "bugs": {
@@ -127,7 +127,7 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true
+      "publish": false
     },
     "github": {
       "release": true
