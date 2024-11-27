@@ -44,7 +44,8 @@
     "clean-android": "scripts/clean-android.sh",
     "clean-js": "scripts/clean-js.sh",
     "prepack": "cp ../README.md ./README.md",
-    "postpack": "rm ./README.md"
+    "postpack": "rm ./README.md",
+    "prepare": "bob build && mv * ../."
   },
   "keywords": [
     "react",
@@ -82,7 +83,7 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
-  "devDependencies": {
+  "dependencies": {
     "@expo/config-plugins": "^8.0.5",
     "@jamesacarr/eslint-formatter-github-actions": "^0.2.0",
     "@react-native/eslint-config": "^0.75.4",
