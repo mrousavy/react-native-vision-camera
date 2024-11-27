@@ -402,7 +402,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
 
   public async freeFocusAndExposure(): Promise<void> {
-    console.log("unlock")
     try {
       return await CameraModule.freeFocusAndExposure(this.handle)
     } catch (e) {
