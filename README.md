@@ -12,6 +12,17 @@ run android
 run start
 ```
 
+# Building a new release for LightOS
+
+After making changes to the package you'll need to build it for release before it can be imported into LightOS
+
+This theoretically should be as simple as running:
+```
+cd package
+yarn release
+```
+Which should publish the release to our git hub and then you can update the tag in /LightOS/package.json
+
 <a href="https://margelo.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-dark.png" />
