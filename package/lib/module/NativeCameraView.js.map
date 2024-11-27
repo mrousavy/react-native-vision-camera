@@ -1,0 +1,1 @@
+{"version":3,"names":["requireNativeComponent","NativeCameraView"],"sourceRoot":"../../src","sources":["NativeCameraView.ts"],"mappings":"AACA,SAASA,sBAAsB,QAAQ,cAAc;AA0DrD;AACA,OAAO,MAAMC,gBAAgB,GAAGD,sBAAsB,CAAwB,YAAY,CAAC"}
