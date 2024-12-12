@@ -54,7 +54,7 @@ extension CameraSession {
   // pragma MARK: Outputs
 
   /**
-   Configures all outputs (`photo` + `video` + `codeScanner`)
+   Configures all outputs (`photo` + `video` + `depth` + `codeScanner`)
    */
   func configureOutputs(configuration: CameraConfiguration) throws {
     VisionLogger.log(level: .info, message: "Configuring Outputs...")
@@ -65,7 +65,9 @@ extension CameraSession {
     }
     photoOutput = nil
     videoOutput = nil
+    depthOutput = nil
     codeScannerOutput = nil
+    outputSynchronizer = nil
 
     // Photo Output
     if case let .enabled(photo) = configuration.photo {
@@ -97,7 +99,7 @@ extension CameraSession {
     }
 
     // Video Output + Frame Processor
-    if case .enabled = configuration.video {
+    if case let .enabled(video) = configuration.video {
       VisionLogger.log(level: .info, message: "Adding Video Data output...")
 
       // 1. Add
@@ -107,8 +109,7 @@ extension CameraSession {
       }
       captureSession.addOutput(videoOutput)
 
-      // 2. Configure
-      videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
+      // 2. Configure Video
       videoOutput.alwaysDiscardsLateVideoFrames = true
       if configuration.isMirrored {
         // 2.1. If mirroring is enabled, mirror all connections along the vertical axis
@@ -118,6 +119,24 @@ extension CameraSession {
           videoOutput.orientation = videoOutput.orientation.flipped()
           VisionLogger.log(level: .info, message: "AVCaptureVideoDataOutput will rotate Frames to \(videoOutput.orientation)...")
         }
+      }
+      
+      // 3. Configure Depth
+      if video.enableDepth {
+        // Video is synchronized with depth data - use a joined delegate!
+        // 3.1. Create depth output
+        let depthOutput = AVCaptureDepthDataOutput()
+        depthOutput.alwaysDiscardsLateDepthData = true
+        depthOutput.isFilteringEnabled = false
+        // 3.2. Set up a synchronizer between video and depth data
+        outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [depthOutput, videoOutput])
+        outputSynchronizer!.setDelegate(self, queue: CameraQueues.videoQueue)
+        // 3.3. Add depth output to session
+        captureSession.addOutput(depthOutput)
+        self.depthOutput = depthOutput
+      } else {
+        // Video is the only output - use it's own delegate
+        videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       }
 
       self.videoOutput = videoOutput
