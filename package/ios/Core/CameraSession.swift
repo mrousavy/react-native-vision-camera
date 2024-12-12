@@ -13,7 +13,7 @@ import Foundation
  A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
  All changes to the session have to be controlled via the `configure` function.
  */
-final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureDataOutputSynchronizerDelegate {
   // Configuration
   private var isInitialized = false
   var configuration: CameraConfiguration?
@@ -27,7 +27,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var photoOutput: AVCapturePhotoOutput?
   var videoOutput: AVCaptureVideoDataOutput?
   var audioOutput: AVCaptureAudioDataOutput?
+  var depthOutput: AVCaptureDepthDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
+  var outputSynchronizer: AVCaptureDataOutputSynchronizer?
   // State
   var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
@@ -273,6 +275,12 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
       onAudioFrame(sampleBuffer: sampleBuffer)
     default:
       break
+    }
+  }
+  
+  func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+    for frame in synchronizedDataCollection {
+      // TODO: Cast to CMSampleBuffer!
     }
   }
 

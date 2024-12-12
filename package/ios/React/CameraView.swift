@@ -211,7 +211,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: videoHdr,
-                                                                  enableFrameProcessor: enableFrameProcessor))
+                                                                  enableFrameProcessor: enableFrameProcessor,
+                                                                  enableDepth: enableDepthData))
       } else {
         config.video = .disabled
       }
