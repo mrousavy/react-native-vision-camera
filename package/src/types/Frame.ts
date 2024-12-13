@@ -70,7 +70,6 @@ export interface Frame {
   readonly depth?: {
     readonly width: number
     readonly height: number
-    toArrayBuffer(): ArrayBuffer
   }
 
   /**

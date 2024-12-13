@@ -14,14 +14,16 @@
   CMSampleBufferRef _Nonnull _buffer;
   UIImageOrientation _orientation;
   BOOL _isMirrored;
+  CMSampleBufferRef _Nullable _depth;
 }
 
-- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation isMirrored:(BOOL)isMirrored {
+- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation isMirrored:(BOOL)isMirrored depthData:(nullable CMSampleBufferRef)depth {
   self = [super init];
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
     _isMirrored = isMirrored;
+    _depth = depth;
   }
   return self;
 }
@@ -45,6 +47,10 @@
                                     userInfo:nil];
   }
   return _buffer;
+}
+
+- (nullable CMSampleBufferRef)depth {
+  return _depth;
 }
 
 - (BOOL)isValid {
