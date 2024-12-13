@@ -128,11 +128,11 @@ extension CameraSession {
         let depthOutput = AVCaptureDepthDataOutput()
         depthOutput.alwaysDiscardsLateDepthData = true
         depthOutput.isFilteringEnabled = false
-        // 3.2. Set up a synchronizer between video and depth data
+        // 3.2. Add depth output to session
+        captureSession.addOutput(depthOutput)
+        // 3.3. Set up a synchronizer between video and depth data
         outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [depthOutput, videoOutput])
         outputSynchronizer!.setDelegate(self, queue: CameraQueues.videoQueue)
-        // 3.3. Add depth output to session
-        captureSession.addOutput(depthOutput)
         self.depthOutput = depthOutput
       } else {
         // Video is the only output - use it's own delegate
