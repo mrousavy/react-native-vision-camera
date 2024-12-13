@@ -279,12 +279,23 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   }
   
   func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
-    for frame in synchronizedDataCollection {
-      // TODO: Cast to CMSampleBuffer!
+    guard let videoOutput else { return }
+    guard let videoData = synchronizedDataCollection.synchronizedData(for: videoOutput) as? AVCaptureSynchronizedSampleBufferData else { return }
+    
+    if let depthOutput {
+      // We have depth data as well
+      guard let depthData = synchronizedDataCollection.synchronizedData(for: videoOutput) as? AVCaptureSynchronizedSampleBufferData else { return }
+      onVideoFrame(sampleBuffer: videoData.sampleBuffer,
+                   orientation: videoOutput.orientation,
+                   isMirrored: videoOutput.isMirrored,
+                   depthData: depthData.sampleBuffer)
+    } else {
+      // We only have video data
+      onVideoFrame(sampleBuffer: videoData.sampleBuffer, orientation: videoOutput.orientation, isMirrored: videoOutput.isMirrored)
     }
   }
 
-  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool) {
+  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool, depthData: CMSampleBuffer? = nil) {
     if let recordingSession {
       do {
         // Write the Video Buffer to the .mov/.mp4 file
@@ -298,7 +309,10 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     if let delegate {
       // Call Frame Processor (delegate) for every Video Frame
-      delegate.onFrame(sampleBuffer: sampleBuffer, orientation: orientation, isMirrored: isMirrored)
+      delegate.onFrame(sampleBuffer: sampleBuffer,
+                       orientation: orientation,
+                       isMirrored: isMirrored,
+                       depthBuffer: depthData)
     }
   }
 
