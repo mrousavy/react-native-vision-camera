@@ -120,7 +120,7 @@ extension CameraSession {
           VisionLogger.log(level: .info, message: "AVCaptureVideoDataOutput will rotate Frames to \(videoOutput.orientation)...")
         }
       }
-      
+
       // 3. Configure Depth
       if video.enableDepth {
         // Video is synchronized with depth data - use a joined delegate!
