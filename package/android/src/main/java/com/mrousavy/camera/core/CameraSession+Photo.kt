@@ -61,54 +61,56 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
   photoOutput.takePicture(CameraQueues.cameraExecutor, object : OnImageCapturedCallback() {
     override fun onCaptureSuccess(image: ImageProxy) {
       ensureBackgroundThread {
-        if (enableShutterSound) {
-          shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
-        }
-
-        val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Light")
-        if (!directory.exists()) {
-          directory.mkdirs()
-        }
-
-        // Create file with timestamp
-        val file = File(directory, filename)
-
-        try {
-          val buffer = image.planes[0].buffer
-          val bytes = ByteArray(buffer.remaining()).apply {
-            buffer.get(this)
-          }
-          FileOutputStream(file).use { output ->
-            output.write(bytes)
+        image.use {
+          if (enableShutterSound) {
+            shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
           }
 
-          // Add the image to MediaStore so it appears in the gallery
-          val values = ContentValues().apply {
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.DATE_ADDED, capturedAt / 1000)
-            put(MediaStore.Images.Media.DATE_TAKEN, capturedAt)
-            put(MediaStore.Images.Media.DATA, file.absolutePath)
+          val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Light")
+          if (!directory.exists()) {
+            directory.mkdirs()
           }
 
-          context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-          Log.i(TAG, "Image saved successfully to: ${file.absolutePath}, height: ${image.height}, width: ${image.width}, format: ${image.format}")
+          // Create file with timestamp
+          val file = File(directory, filename)
 
-          val exif = ExifInterface(file.absolutePath)
-          // Overwrite the original orientation if the quirk exists.
-          if (!ExifRotationAvailability().shouldUseExifOrientation(image)) {
-            exif.rotate(image.imageInfo.rotationDegrees)
+          try {
+            val buffer = image.planes[0].buffer
+            val bytes = ByteArray(buffer.remaining()).apply {
+              buffer.get(this)
+            }
+            FileOutputStream(file).use { output ->
+              output.write(bytes)
+            }
+
+            // Add the image to MediaStore so it appears in the gallery
+            val values = ContentValues().apply {
+              put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+              put(MediaStore.Images.Media.DATE_ADDED, capturedAt / 1000)
+              put(MediaStore.Images.Media.DATE_TAKEN, capturedAt)
+              put(MediaStore.Images.Media.DATA, file.absolutePath)
+            }
+
+            context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            Log.i(TAG, "Image saved successfully to: ${file.absolutePath}, height: ${image.height}, width: ${image.width}, format: ${image.format}")
+
+            val exif = ExifInterface(file.absolutePath)
+            // Overwrite the original orientation if the quirk exists.
+            if (!ExifRotationAvailability().shouldUseExifOrientation(image)) {
+              exif.rotate(image.imageInfo.rotationDegrees)
+            }
+            if (metadata.isReversedHorizontal) {
+              exif.flipHorizontally()
+            }
+            if (metadata.isReversedVertical) {
+              exif.flipVertically()
+            }
+            exif.saveAttributes();
+            Log.i(TAG, "EXIF data saved")
+          } catch (e: Exception) {
+            Log.e(TAG, "Error saving image: ${e.message}")
+            e.printStackTrace()
           }
-          if (metadata.isReversedHorizontal) {
-            exif.flipHorizontally()
-          }
-          if (metadata.isReversedVertical) {
-            exif.flipVertically()
-          }
-          exif.saveAttributes();
-          Log.i(TAG, "EXIF data saved")
-        } catch (e: Exception) {
-          Log.e(TAG, "Error saving image: ${e.message}")
-          e.printStackTrace()
         }
       }
     }
