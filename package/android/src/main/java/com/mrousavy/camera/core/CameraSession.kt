@@ -27,9 +27,14 @@ import com.mrousavy.camera.core.types.Orientation
 import com.mrousavy.camera.core.types.ShutterType
 import com.mrousavy.camera.core.utils.runOnUiThread
 import com.mrousavy.camera.frameprocessors.Frame
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class CameraSession(internal val context: Context, internal val callback: Callback) :
   Closeable,
@@ -38,6 +43,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   companion object {
     internal const val TAG = "CameraSession"
   }
+  internal val LP3_TAG = "LP3_Camera"
 
   // Camera Configuration
   internal var configuration: CameraConfiguration? = null
@@ -72,6 +78,9 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   val outputOrientation: Orientation
     get() = orientationManager.outputOrientation
 
+  // Used to keep prevent the camera being torn down on unmount until all photos are processed
+  internal var photosBeingProcessed = 0
+
   init {
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
     lifecycle.addObserver(object : LifecycleEventObserver {
@@ -83,10 +92,24 @@ class CameraSession(internal val context: Context, internal val callback: Callba
 
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
-    isDestroyed = true
-    orientationManager.stopOrientationUpdates()
-    runOnUiThread {
-      lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+    Log.i(LP3_TAG, "Closing CameraSession")
+    val coroutineScope = CoroutineScope(Dispatchers.Main)
+    coroutineScope.launch {
+      for (i in 1..10) {
+        Log.i(LP3_TAG, "photosBeingProcessed: ${photosBeingProcessed}")
+        if (photosBeingProcessed <= 0) {
+          break;
+        }
+        delay(500)
+      }
+      Log.i(LP3_TAG, "No more photos to process")
+
+      isDestroyed = true
+      orientationManager.stopOrientationUpdates()
+      runOnUiThread {
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+      }
+      Log.i(LP3_TAG, "Closed CameraSession")
     }
   }
 

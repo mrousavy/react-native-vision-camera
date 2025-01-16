@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import android.provider.MediaStore
 import android.content.ContentValues
+import android.graphics.Bitmap
 import java.io.File
 import android.os.Environment
 import java.io.FileOutputStream
@@ -37,6 +38,9 @@ fun ensureBackgroundThread(callback: () -> Unit) {
 val TAG = "CameraSession+Photo"
 
 suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
+
+  photosBeingProcessed++
+
   val camera = camera ?: throw CameraNotReadyError()
   val configuration = configuration ?: throw CameraNotReadyError()
   val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo> ?: throw PhotoNotEnabledError()
@@ -56,10 +60,29 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
     isReversedHorizontal = isMirrored
   }
 
+  Log.i(LP3_TAG, "starting take")
+
   var capturedAt = System.currentTimeMillis();
   val filename = "img_${capturedAt}.jpg"
   photoOutput.takePicture(CameraQueues.cameraExecutor, object : OnImageCapturedCallback() {
+    override fun onCaptureStarted() {
+      Log.i(LP3_TAG, "onCaptureStarted called")
+
+      // We need to wait for this callback before unlocking the focus lock
+      // Otherwise we risk the camera having time to refocus before shooting
+      freeFocusAndExposure();
+    }
+
+    // doesn't get called on LP3
+    override fun onCaptureProcessProgressed(progress: Int) {
+      Log.i(LP3_TAG, "onCaptureProcessProgressed called: $progress")
+    }
+    // doesn't get called on LP3
+    override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+      Log.i(LP3_TAG, "onPostviewBitmapAvailable called")
+    }
     override fun onCaptureSuccess(image: ImageProxy) {
+      Log.i(LP3_TAG, "onCaptureSuccess called")
       ensureBackgroundThread {
         image.use {
           if (enableShutterSound) {
@@ -71,10 +94,10 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
             directory.mkdirs()
           }
 
-          // Create file with timestamp
           val file = File(directory, filename)
 
           try {
+            Log.i(LP3_TAG, "Writing image")
             val buffer = image.planes[0].buffer
             val bytes = ByteArray(buffer.remaining()).apply {
               buffer.get(this)
@@ -82,7 +105,6 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
             FileOutputStream(file).use { output ->
               output.write(bytes)
             }
-
             // Add the image to MediaStore so it appears in the gallery
             val values = ContentValues().apply {
               put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
@@ -92,7 +114,8 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
             }
 
             context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            Log.i(TAG, "Image saved successfully to: ${file.absolutePath}, height: ${image.height}, width: ${image.width}, format: ${image.format}")
+            Log.i(LP3_TAG, "Image saved successfully to: ${file.absolutePath}, height: ${image.height}, width: ${image.width}, format: ${image.format}")
+
 
             val exif = ExifInterface(file.absolutePath)
             // Overwrite the original orientation if the quirk exists.
@@ -106,16 +129,17 @@ suspend fun CameraSession.takePhoto(options: TakePhotoOptions): Photo {
               exif.flipVertically()
             }
             exif.saveAttributes();
-            Log.i(TAG, "EXIF data saved")
+            Log.i(LP3_TAG, "EXIF data saved")
           } catch (e: Exception) {
-            Log.e(TAG, "Error saving image: ${e.message}")
+            Log.e(LP3_TAG, "Error saving image: ${e.message}")
             e.printStackTrace()
           }
+          photosBeingProcessed--
         }
       }
     }
-
     override fun onError(exception: ImageCaptureException) {
+      photosBeingProcessed--
       Log.d(TAG, "onError: ${exception.message}")
     }
   })
