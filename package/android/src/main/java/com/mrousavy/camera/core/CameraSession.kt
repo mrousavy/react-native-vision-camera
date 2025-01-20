@@ -90,7 +90,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     }
   }
 
-  override fun getLifecycle(): Lifecycle = lifecycleRegistry
+  override val lifecycle: Lifecycle get() = lifecycleRegistry
 
   /**
    * Configures the [CameraSession] with new values in one batch.
