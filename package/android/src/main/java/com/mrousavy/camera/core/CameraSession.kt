@@ -103,7 +103,13 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     }
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
-    val provider = cameraProvider.await(mainExecutor)
+    val provider = try {
+      cameraProvider.await(mainExecutor)
+    } catch (error: Throwable) {
+      Log.e(TAG, "Failed to get CameraProvider! Error: ${error.message}", error)
+      callback.onError(error)
+      return
+    }
 
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
