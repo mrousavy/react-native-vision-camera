@@ -8,10 +8,10 @@
 
 #pragma once
 
+#import <AVFoundation/AVDepthData.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIImage.h>
-#import <AVFoundation/AVDepthData.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
