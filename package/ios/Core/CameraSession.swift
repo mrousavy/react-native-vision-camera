@@ -288,18 +288,18 @@ final class CameraSession:
 
     if let depthOutput {
       // We have depth data as well
-      guard let depthData = synchronizedDataCollection.synchronizedData(for: videoOutput) as? AVCaptureSynchronizedSampleBufferData else { return }
+      guard let depthData = synchronizedDataCollection.synchronizedData(for: depthOutput) as? AVCaptureSynchronizedDepthData else { return }
       onVideoFrame(sampleBuffer: videoData.sampleBuffer,
                    orientation: videoOutput.orientation,
                    isMirrored: videoOutput.isMirrored,
-                   depthData: depthData.sampleBuffer)
+                   depthData: depthData.depthData)
     } else {
       // We only have video data
       onVideoFrame(sampleBuffer: videoData.sampleBuffer, orientation: videoOutput.orientation, isMirrored: videoOutput.isMirrored)
     }
   }
 
-  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool, depthData: CMSampleBuffer? = nil) {
+  private final func onVideoFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool, depthData: AVDepthData? = nil) {
     if let recordingSession {
       do {
         // Write the Video Buffer to the .mov/.mp4 file
@@ -316,7 +316,7 @@ final class CameraSession:
       delegate.onFrame(sampleBuffer: sampleBuffer,
                        orientation: orientation,
                        isMirrored: isMirrored,
-                       depthBuffer: depthData)
+                       depthData: depthData)
     }
   }
 

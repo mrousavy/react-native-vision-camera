@@ -14,13 +14,13 @@
   CMSampleBufferRef _Nonnull _buffer;
   UIImageOrientation _orientation;
   BOOL _isMirrored;
-  CMSampleBufferRef _Nullable _depth;
+  AVDepthData* _Nullable _depth;
 }
 
 - (instancetype)initWithBuffer:(CMSampleBufferRef)buffer
                    orientation:(UIImageOrientation)orientation
                     isMirrored:(BOOL)isMirrored
-                     depthData:(nullable CMSampleBufferRef)depth {
+                     depthData:(nullable AVDepthData*)depth {
   self = [super init];
   if (self) {
     _buffer = buffer;
@@ -52,7 +52,7 @@
   return _buffer;
 }
 
-- (nullable CMSampleBufferRef)depth {
+- (nullable AVDepthData*)depth {
   return _depth;
 }
 

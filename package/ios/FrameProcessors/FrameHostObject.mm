@@ -79,9 +79,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       return jsi::Value::undefined();
     }
     jsi::Object object(runtime);
-    CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_frame.depth);
-    object.setProperty(runtime, "width", jsi::Value(static_cast<double>(CVPixelBufferGetWidth(imageBuffer))));
-    object.setProperty(runtime, "height", jsi::Value(static_cast<double>(CVPixelBufferGetHeight(imageBuffer))));
+    CVPixelBufferRef depthMap = _frame.depth.depthDataMap;
+    object.setProperty(runtime, "width", jsi::Value(static_cast<double>(CVPixelBufferGetWidth(depthMap))));
+    object.setProperty(runtime, "height", jsi::Value(static_cast<double>(CVPixelBufferGetHeight(depthMap))));
     return object;
   }
 

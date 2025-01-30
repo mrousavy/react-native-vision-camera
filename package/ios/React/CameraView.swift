@@ -363,7 +363,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     ])
   }
 
-  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool, depthBuffer: CMSampleBuffer?) {
+  func onFrame(sampleBuffer: CMSampleBuffer, orientation: Orientation, isMirrored: Bool, depthData: AVDepthData?) {
     // Update latest frame that can be used for snapshot capture
     latestVideoFrame = Snapshot(imageBuffer: sampleBuffer, orientation: orientation)
 
@@ -376,7 +376,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         let frame = Frame(buffer: sampleBuffer,
                           orientation: orientation.imageOrientation,
                           isMirrored: isMirrored,
-                          depthData: depthBuffer)
+                          depthData: depthData)
         frameProcessor.call(frame)
       }
     #endif

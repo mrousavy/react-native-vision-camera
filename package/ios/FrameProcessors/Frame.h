@@ -11,6 +11,7 @@
 #import <CoreMedia/CMSampleBuffer.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIImage.h>
+#import <AVFoundation/AVDepthData.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,14 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithBuffer:(CMSampleBufferRef)buffer
                    orientation:(UIImageOrientation)orientation
                     isMirrored:(BOOL)isMirrored
-                     depthData:(nullable CMSampleBufferRef)depth;
+                     depthData:(nullable AVDepthData*)depth;
 - (instancetype)init NS_UNAVAILABLE;
 
 - (void)incrementRefCount;
 - (void)decrementRefCount;
 
 @property(nonatomic, readonly) CMSampleBufferRef buffer;
-@property(nonatomic, readonly, nullable) CMSampleBufferRef depth;
+@property(nonatomic, readonly, nullable) AVDepthData* depth;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 
 @property(nonatomic, readonly) NSString* pixelFormat;
