@@ -242,8 +242,8 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
 
     // Find depth data
     if (filter.depth != null) {
-      if (bestFormat.supportsDepthCapture) leftPoints += filter.depth.priority
-      if (format.supportsDepthCapture) rightPoints += filter.depth.priority
+      if (bestFormat.supportsDepthCapture === filter.depth.target) leftPoints += filter.depth.priority
+      if (format.supportsDepthCapture === filter.depth.target) rightPoints += filter.depth.priority
     }
 
     if (rightPoints > leftPoints) bestFormat = format
