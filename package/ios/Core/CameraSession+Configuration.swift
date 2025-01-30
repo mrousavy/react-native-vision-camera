@@ -125,12 +125,12 @@ extension CameraSession {
         // Video is synchronized with depth data - use a joined delegate!
         // 3.1. Create depth output
         let depthOutput = AVCaptureDepthDataOutput()
-        depthOutput.orientation = videoOutput.orientation
         videoOutput.alwaysDiscardsLateVideoFrames = false
         depthOutput.alwaysDiscardsLateDepthData = false
         depthOutput.isFilteringEnabled = false
         // 3.2. Add depth output to session
         captureSession.addOutput(depthOutput)
+        depthOutput.orientation = videoOutput.orientation
         // 3.3. Set up a synchronizer between video and depth data
         outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [depthOutput, videoOutput])
         outputSynchronizer!.setDelegate(self, queue: CameraQueues.videoQueue)
