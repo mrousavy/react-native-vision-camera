@@ -110,7 +110,6 @@ extension CameraSession {
       captureSession.addOutput(videoOutput)
 
       // 2. Configure Video
-      videoOutput.alwaysDiscardsLateVideoFrames = true
       if configuration.isMirrored {
         // 2.1. If mirroring is enabled, mirror all connections along the vertical axis
         videoOutput.isMirrored = true
@@ -126,6 +125,9 @@ extension CameraSession {
         // Video is synchronized with depth data - use a joined delegate!
         // 3.1. Create depth output
         let depthOutput = AVCaptureDepthDataOutput()
+        depthOutput.orientation = videoOutput.orientation
+        videoOutput.alwaysDiscardsLateVideoFrames = false
+        depthOutput.alwaysDiscardsLateDepthData = false
         depthOutput.isFilteringEnabled = false
         // 3.2. Add depth output to session
         captureSession.addOutput(depthOutput)
@@ -135,6 +137,7 @@ extension CameraSession {
         self.depthOutput = depthOutput
       } else {
         // Video is the only output - use it's own delegate
+        videoOutput.alwaysDiscardsLateVideoFrames = true
         videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       }
 
