@@ -64,7 +64,13 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     cameraManager.registerAvailabilityCallback(callback, null)
     coroutineScope.launch {
       Log.i(TAG, "Initializing ProcessCameraProvider...")
-      cameraProvider = ProcessCameraProvider.getInstance(reactContext).await(executor)
+      cameraProvider = try {
+        ProcessCameraProvider.getInstance(reactContext).await(executor)
+      } catch (error: Throwable) {
+        Log.e(TAG, "Failed to get CameraProvider! Error: ${error.message}", error)
+        sendAvailableDevicesChangedEvent()
+        return@launch
+      }
       Log.i(TAG, "Initializing ExtensionsManager...")
       extensionsManager = ExtensionsManager.getInstanceAsync(reactContext, cameraProvider!!).await(executor)
       Log.i(TAG, "Successfully initialized!")
