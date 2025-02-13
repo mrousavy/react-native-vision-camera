@@ -16,7 +16,7 @@
 
 VisionCamera is a powerful, high-performance Camera library for React Native. It features:
 
-* 📸 Photo capture 1
+* 📸 Photo capture 2
 * 👁️ QR/Barcode scanner
 * 📱 Customizable devices and multi-cameras ("fish-eye" zoom)
 * 🎞️ Customizable resolutions and aspect-ratios (4k/8k images)
