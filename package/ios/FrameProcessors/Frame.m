@@ -33,10 +33,16 @@
 
 - (void)incrementRefCount {
   CFRetain(_buffer);
+  if (_depth) {
+    CFRetain(_depth);
+  }
 }
 
 - (void)decrementRefCount {
   CFRelease(_buffer);
+  if (_depth) {
+    CFRelease(_depth);
+  }
 }
 
 - (CMSampleBufferRef)buffer {
