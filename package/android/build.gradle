@@ -191,6 +191,9 @@ dependencies {
   implementation "androidx.camera:camera-view:${camerax_version}"
   implementation "androidx.camera:camera-extensions:${camerax_version}"
 
+  // Lifecycle dependency
+  implementation "androidx.lifecycle:lifecycle-common:2.8.7"
+
   // Some Coroutines extension functions
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
 
