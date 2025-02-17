@@ -10,9 +10,10 @@ import Foundation
 
 extension CMAccelerometerData {
   /**
-   Get the current device orientation from the given acceleration/gyro data.
+   Get the current device orientation from the given acceleration/gyro data, or `nil` if it is unknown.
+   The orientation can only be unknown if the phone is flat, in which case it is not clear which orientation the phone is held in.
    */
-  var deviceOrientation: Orientation {
+  var deviceOrientation: Orientation? {
     let acceleration = acceleration
     let xNorm = abs(acceleration.x)
     let yNorm = abs(acceleration.y)

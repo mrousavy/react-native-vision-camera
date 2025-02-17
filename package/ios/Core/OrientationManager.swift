@@ -166,7 +166,11 @@ final class OrientationManager {
           VisionLogger.log(level: .error, message: "Failed to get Accelerometer data! \(error)")
         }
         if let accelerometerData {
-          self.deviceOrientation = accelerometerData.deviceOrientation
+          // There  is accelerometer data available
+          if let deviceOrientation = accelerometerData.deviceOrientation {
+            // The orientation can actually be determined - it is not `nil` (flat)! Update it
+            self.deviceOrientation = deviceOrientation
+          }
         }
       }
     }
