@@ -161,12 +161,17 @@ final class OrientationManager {
     stopDeviceOrientationListener()
     if motionManager.isAccelerometerAvailable {
       motionManager.accelerometerUpdateInterval = 0.2
-      motionManager.startAccelerometerUpdates(to: operationQueue) { accelerometerData, error in
+      motionManager.startAccelerometerUpdates(to: operationQueue) { [weak self] accelerometerData, error in
+        guard let self else { return }
         if let error {
           VisionLogger.log(level: .error, message: "Failed to get Accelerometer data! \(error)")
         }
         if let accelerometerData {
-          self.deviceOrientation = accelerometerData.deviceOrientation
+          // There  is accelerometer data available
+          if let deviceOrientation = accelerometerData.deviceOrientation {
+            // The orientation can actually be determined - it is not `nil` (flat)! Update it
+            self.deviceOrientation = deviceOrientation
+          }
         }
       }
     }
