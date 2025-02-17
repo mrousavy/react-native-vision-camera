@@ -16,7 +16,7 @@ updates:
       - "🛠 dependencies"
       - "🤖 android"
 
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directories:
       - "/docs/"
     schedule:
@@ -28,14 +28,14 @@ updates:
         patterns:
           - "@docusaurus/*"
 
-  # - package-ecosystem: "npm"
+  # - package-ecosystem: "bun"
   #   directory: "/package/"
   #   schedule:
   #     interval: "monthly"
   #   labels:
   #     - "🛠 dependencies"
   #     - "☕️ js"
-  # - package-ecosystem: "npm"
+  # - package-ecosystem: "bun"
   #   directory: "/example/"
   #   schedule:
   #     interval: "monthly"
@@ -43,7 +43,7 @@ updates:
   #     - "🛠 dependencies"
   #     - "🛸 example"
   #     - "☕️ js"
-  # - package-ecosystem: "npm"
+  # - package-ecosystem: "bun"
   #   directory: "/docs/"
   #   schedule:
   #     interval: "monthly"

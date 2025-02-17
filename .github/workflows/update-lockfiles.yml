@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   update-lockfiles:
-    name: "Update lockfiles (bun.lockb + Podfile.lock)"
+    name: "Update lockfiles (Podfile.lock)"
     if: github.actor == 'dependabot[bot]'
     runs-on: macOS-latest
     steps:
@@ -37,7 +37,6 @@ jobs:
 
       - run: |
           bun install
-          git add bun.lockb
 
           cd example
           bun pods
