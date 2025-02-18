@@ -21,7 +21,7 @@ extension CMAccelerometerData {
 
     // If the z-axis is greater than the other axes, the phone is flat.
     if zNorm > xNorm && zNorm > yNorm {
-      return .portrait
+      return nil
     }
 
     if xNorm > yNorm {
