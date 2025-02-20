@@ -36,6 +36,10 @@ class OrientationManager(private val context: Context, private val callback: Cal
   private val orientationListener = object : OrientationEventListener(context) {
     override fun onOrientationChanged(rotationDegrees: Int) {
       // Phone rotated!
+      if (rotationDegrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
+        // phone is laying flat - orientation is unknown! Avoid sending out event.
+        return
+      }
       deviceRotation = degreesToSurfaceRotation(rotationDegrees)
       maybeNotifyOrientationChanged()
     }
