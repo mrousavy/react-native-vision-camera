@@ -57,7 +57,17 @@ To use the Camera or Microphone you must first specify that your app requires ca
   ]}>
 <TabItem value="rn">
 
-### iOS
+### With RN-Integrate
+
+Apply extra steps automatically:
+
+```sh
+npx react-native-integrate react-native-vision-camera
+```
+
+### Manual
+
+#### iOS
 
 Open your project's `Info.plist` and add the following lines inside the outermost `<dict>` tag:
 
@@ -70,7 +80,7 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 <string>$(PRODUCT_NAME) needs access to your Microphone.</string>
 ```
 
-### Android
+#### Android
 
 Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
 
