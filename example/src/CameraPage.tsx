@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
 import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  runAtTargetFps,
   useCameraDevice,
   useCameraFormat,
   useFrameProcessor,
@@ -16,6 +15,7 @@ import {
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
+import { Worklets } from 'react-native-worklets-core'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
@@ -23,11 +23,16 @@ import { CaptureButton } from './views/CaptureButton'
 import { PressableOpacity } from 'react-native-pressable-opacity'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import IonIcon from 'react-native-vector-icons/Ionicons'
+
+// Add type assertions to fix TypeScript errors
+const TypedIonIcon = IonIcon as unknown as React.ComponentType<any>
+const TypedMaterialIcon = MaterialIcon as unknown as React.ComponentType<any>
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
+// Now that the first plugin is working, add the second one back
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
@@ -43,6 +48,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
   const microphone = useMicrophonePermission()
   const location = useLocationPermission()
+  
+  // Add state to store frame processor results
+  const [lastFrameTime, setLastFrameTime] = useState<string>('')
+  const [frameProcessorActive, setFrameProcessorActive] = useState<boolean>(false)
+  const [pluginResults, setPluginResults] = useState<string>('')
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
@@ -178,22 +188,59 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
+  // Create worklet callbacks for UI updates using Worklets.createRunOnJS
+  const updateFrameProcessorStatus = Worklets.createRunOnJS((isActive: boolean) => {
+    setFrameProcessorActive(isActive)
+  })
+  
+  const updateFrameTime = Worklets.createRunOnJS((time: string) => {
+    setLastFrameTime(time)
+  })
+  
+  const updatePluginResults = Worklets.createRunOnJS((results: string) => {
+    setPluginResults(results)
+  })
+  
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-
-    runAtTargetFps(10, () => {
-      'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-      examplePlugin(frame)
-      exampleKotlinSwiftPlugin(frame)
-    })
-  }, [])
+    
+    // Send initial frame processor active status
+    updateFrameProcessorStatus(true)
+    
+    // Create timestamp for this frame
+    const timeStr = new Date().toLocaleTimeString()
+    updateFrameTime(timeStr)
+    
+    try {
+      // Process the frame with both plugins
+      const result1 = examplePlugin(frame)
+      const result2 = exampleKotlinSwiftPlugin(frame)
+      
+      // Update UI with results from both plugins
+      const combinedResults = `ExamplePlugin: ${result1.example_str}\nKotlinSwiftPlugin: ${result2.example_str}`
+      updatePluginResults(combinedResults)
+    } catch (error) {
+      console.log(`Plugin error: ${String(error)}`)
+      updatePluginResults(`Error: ${String(error)}`)
+    }
+  }, [updateFrameProcessorStatus, updateFrameTime, updatePluginResults])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
   return (
     <View style={styles.container}>
+      {/* Frame Processor Debug Overlay */}
+      {frameProcessorActive && (
+        <SafeAreaView style={styles.frameProcessorOverlay}>
+          <View style={styles.frameProcessorStatus}>
+            <Text style={styles.frameProcessorText}>Frame Processor Active</Text>
+            <Text style={styles.frameProcessorText}>Last Frame: {lastFrameTime}</Text>
+            <Text style={styles.frameProcessorText}>{pluginResults}</Text>
+          </View>
+        </SafeAreaView>
+      )}
+      
       {device != null ? (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
@@ -254,11 +301,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       <View style={styles.rightButtonRow}>
         <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
-          <IonIcon name="camera-reverse" color="white" size={24} />
+          <TypedIonIcon name="camera-reverse" color="white" size={24} />
         </PressableOpacity>
         {supportsFlash && (
           <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
-            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
+            <TypedIonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {supports60Fps && (
@@ -268,19 +315,19 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         )}
         {supportsHdr && (
           <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
-            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
+            <TypedMaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {canToggleNightMode && (
           <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
-            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+            <TypedIonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
-          <IonIcon name="settings-outline" color="white" size={24} />
+          <TypedIonIcon name="settings-outline" color="white" size={24} />
         </PressableOpacity>
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CodeScannerPage')}>
-          <IonIcon name="qr-code-outline" color="white" size={24} />
+          <TypedIonIcon name="qr-code-outline" color="white" size={24} />
         </PressableOpacity>
       </View>
     </View>
@@ -291,6 +338,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
+  },
+  frameProcessorOverlay: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    alignItems: 'center',
+  },
+  frameProcessorStatus: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 10,
+    borderRadius: 10,
+    maxWidth: '80%',
+  },
+  frameProcessorText: {
+    color: '#00FF00',
+    fontSize: 12,
+    marginBottom: 4,
   },
   captureButton: {
     position: 'absolute',

@@ -13,14 +13,22 @@ interface Result {
 
 export function examplePlugin(frame: Frame): Result {
   'worklet'
-
+  
   if (plugin == null) throw new Error('Failed to load Frame Processor Plugin "example_plugin"!')
 
-  return plugin.call(frame, {
-    someString: 'hello!',
+  // Log more details but directly from the worklet without runOnJS
+  console.log(`[ExamplePlugin] Processing frame: ${frame.width}x${frame.height} at ${frame.timestamp}`)
+
+  const result = plugin.call(frame, {
+    someString: 'hello from iOS 18!',
     someBoolean: true,
-    someNumber: 42,
-    someObject: { test: 0, second: 'test' },
-    someArray: ['another test', 5],
+    someNumber: frame.width * frame.height,
+    someObject: { test: frame.width, second: 'test' },
+    someArray: ['frame processed', frame.height],
   }) as unknown as Result
+
+  // Log the result directly
+  console.log(`[ExamplePlugin] Result: ${result.example_str}`)
+
+  return result
 }
