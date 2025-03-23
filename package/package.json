@@ -112,13 +112,13 @@
     "react-native-worklets-core": "*"
   },
   "peerDependenciesMeta": {
-    "react-native-worklets-core": {
+    "@shopify/react-native-skia": {
       "optional": true
     },
     "react-native-reanimated": {
       "optional": true
     },
-    "@shopify/react-native-skia": {
+    "react-native-worklets-core": {
       "optional": true
     }
   },

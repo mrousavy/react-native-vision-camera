@@ -1,15 +1,18 @@
 # OSX
 #
 .DS_Store
+**/.DS_Store
 
 **/.xcode.env.local
 
 # XDE
 .expo/
+.expo-shared/
 
 # VSCode
 .vscode/
 jsconfig.json
+*.code-workspace
 
 # Xcode
 #
@@ -30,6 +33,9 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+iOS/Pods
+*.dSYM.zip
+*.dSYM
 
 # Android/IJ
 #
@@ -41,6 +47,11 @@ project.xcworkspace
 .settings
 local.properties
 android.iml
+**/*.iml
+android/app/release
+*.jks
+*.keystore
+!debug.keystore
 
 # Cocoapods
 #
@@ -48,11 +59,17 @@ example/ios/Pods
 
 # Ruby
 example/vendor/
+.ruby-version
 
 # node.js
 #
 node_modules/
 npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+npm-error.log*
+lerna-debug.log*
+.yarn
 
 # Bun
 package-lock.json
@@ -66,6 +83,8 @@ android/keystores/debug.keystore
 
 # Expo
 .expo/
+.expo-shared/
+__generated__/
 
 # Turborepo
 .turbo/
@@ -75,3 +94,31 @@ lib/
 
 # TypeScript
 tsconfig.tsbuildinfo
+
+# Jest
+.jest/
+coverage/
+
+# ESLint
+.eslintcache
+
+# Metro
+.metro-health-check*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Misc
+*.orig
+*.swp
+*.swo
+*.log
+.tmp/
+tmp/
+cache/
+.cache/
+
+# react-native-config codegen
+ios/tmp.xcconfig

@@ -181,7 +181,7 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = CJW62Q77E7;
+						DevelopmentTeam = BFA7BCRTXN;
 						LastSwiftMigration = 1240;
 					};
 				};
@@ -422,7 +422,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJW62Q77E7;
+				DEVELOPMENT_TEAM = BFA7BCRTXN;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
@@ -434,7 +434,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.derek.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -455,7 +455,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJW62Q77E7;
+				DEVELOPMENT_TEAM = BFA7BCRTXN;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
@@ -466,7 +466,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.derek.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
