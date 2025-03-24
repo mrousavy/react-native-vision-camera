@@ -327,7 +327,22 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
                 drawPoseSkeleton(context: context, keypoints: keypoints, width: width, height: height)
             }
             
-            return keypoints
+            // Convert keypoints to a dictionary format that can be properly converted to JSI values
+            var keypointArray: [[String: Any]] = []
+            for (index, keypoint) in keypoints.enumerated() {
+                let (point, confidence) = keypoint
+                keypointArray.append([
+                    "x": point.x,
+                    "y": point.y,
+                    "confidence": confidence,
+                    "name": keypointNames[index]
+                ])
+            }
+            
+            return [
+                "keypoints": keypointArray,
+                "keypointsDetected": keypointArray.count
+            ]
         } catch {
             return ["error": "Failed to process frame: \(error)"]
         }
