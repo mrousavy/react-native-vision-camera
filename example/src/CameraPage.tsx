@@ -31,9 +31,8 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { examplePlugin } from './frame-processors/ExamplePlugin'
-// Now that the first plugin is working, add the second one back
-import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
+// Import only the pose detection plugin
+import { detectPose, PoseModelType } from './frame-processors/PoseDetectionPlugin'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -49,7 +48,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const microphone = useMicrophonePermission()
   const location = useLocationPermission()
   
-  // Add state to store frame processor results
+  // State for frame processor and pose detection results
+  const [poseDetectionEnabled, setPoseDetectionEnabled] = useState(false)
+  const [poseModelType, setPoseModelType] = useState<PoseModelType>(PoseModelType.Thunder)
+  const [poseStats, setPoseStats] = useState<string>('')
   const [lastFrameTime, setLastFrameTime] = useState<string>('')
   const [frameProcessorActive, setFrameProcessorActive] = useState<boolean>(false)
   const [pluginResults, setPluginResults] = useState<string>('')
@@ -201,6 +203,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     setPluginResults(results)
   })
   
+  const updatePoseStats = Worklets.createRunOnJS((stats: string) => {
+    setPoseStats(stats)
+  })
+  
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     
@@ -212,24 +218,52 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     updateFrameTime(timeStr)
     
     try {
-      // Process the frame with both plugins
-      const result1 = examplePlugin(frame)
-      const result2 = exampleKotlinSwiftPlugin(frame)
-      
-      // Update UI with results from both plugins
-      const combinedResults = `ExamplePlugin: ${result1.example_str}\nKotlinSwiftPlugin: ${result2.example_str}`
-      updatePluginResults(combinedResults)
+      // Only process pose detection, disable example plugins for cleaner logs
+      // Process pose detection if enabled
+      if (poseDetectionEnabled) {
+        try {
+          console.log(`[POSE] Attempting detection with model: ${poseModelType}`)
+          
+          // Call the native pose detection plugin - visualization happens on the native side
+          const poseData = detectPose(frame, poseModelType, {
+            drawSkeleton: true,
+            minConfidence: 0.3
+          })
+          
+          console.log(`[POSE] Detection successful: ${JSON.stringify(poseData)}`)
+          
+          // Format stats about the pose detection
+          const poseStatsStr = `Model: ${poseData.modelType} | Points: ${poseData.keypointsDetected}`
+          updatePoseStats(poseStatsStr)
+          
+          // Update UI with only pose detection results for cleaner debugging
+          updatePluginResults(`Pose Detection: ${poseStatsStr}`)
+        } catch (poseError) {
+          console.log(`[POSE] Detection error: ${String(poseError)}`)
+          console.log(`[POSE] Error details:`, poseError)
+          
+          // Show only pose error for cleaner debugging
+          updatePluginResults(`Pose Error: ${String(poseError)}`)
+          updatePoseStats('Error detecting pose')
+        }
+      } else {
+        // Clear results when pose detection is disabled
+        updatePluginResults('Pose detection disabled')
+        updatePoseStats('')
+      }
     } catch (error) {
-      console.log(`Plugin error: ${String(error)}`)
+      console.log(`Frame processor error: ${String(error)}`)
       updatePluginResults(`Error: ${String(error)}`)
     }
-  }, [updateFrameProcessorStatus, updateFrameTime, updatePluginResults])
+  }, [updateFrameProcessorStatus, updateFrameTime, updatePluginResults, updatePoseStats, poseDetectionEnabled, poseModelType])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
   return (
     <View style={styles.container}>
+      {/* No separate pose visualization component needed - rendering happens in Swift */}
+      
       {/* Frame Processor Debug Overlay */}
       {frameProcessorActive && (
         <SafeAreaView style={styles.frameProcessorOverlay}>
@@ -237,6 +271,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             <Text style={styles.frameProcessorText}>Frame Processor Active</Text>
             <Text style={styles.frameProcessorText}>Last Frame: {lastFrameTime}</Text>
             <Text style={styles.frameProcessorText}>{pluginResults}</Text>
+            {poseDetectionEnabled && (
+              <Text style={styles.frameProcessorText}>Pose Detection: {poseStats}</Text>
+            )}
           </View>
         </SafeAreaView>
       )}
@@ -323,6 +360,33 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             <TypedIonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
+        {/* Pose detection toggle button */}
+        <PressableOpacity 
+          style={styles.button} 
+          onPress={() => setPoseDetectionEnabled(!poseDetectionEnabled)}
+        >
+          <TypedMaterialIcon 
+            name="human-handsup" 
+            color={poseDetectionEnabled ? "#00FF00" : "white"} 
+            size={24} 
+          />
+        </PressableOpacity>
+        
+        {/* Pose model toggle (only if pose detection is enabled) */}
+        {poseDetectionEnabled && (
+          <PressableOpacity 
+            style={styles.button} 
+            onPress={() => setPoseModelType(poseModelType === PoseModelType.Thunder ? 
+              PoseModelType.Lightning : PoseModelType.Thunder)}
+          >
+            <TypedIonIcon 
+              name={poseModelType === PoseModelType.Thunder ? "flash" : "flash-outline"} 
+              color={"white"} 
+              size={24} 
+            />
+          </PressableOpacity>
+        )}
+        
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
           <TypedIonIcon name="settings-outline" color="white" size={24} />
         </PressableOpacity>
@@ -341,17 +405,16 @@ const styles = StyleSheet.create({
   },
   frameProcessorOverlay: {
     position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
+    bottom: 120, // Positioned above the capture button
+    left: 10,
     zIndex: 1000,
-    alignItems: 'center',
+    alignItems: 'flex-start', // Align to the left
   },
   frameProcessorStatus: {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 10,
     borderRadius: 10,
-    maxWidth: '80%',
+    maxWidth: '60%', // Smaller to fit on the left side
   },
   frameProcessorText: {
     color: '#00FF00',
