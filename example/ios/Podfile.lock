@@ -1839,6 +1839,14 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.0)
+  - TensorFlowLiteC (2.7.0):
+    - TensorFlowLiteC/Core (= 2.7.0)
+  - TensorFlowLiteC/Core (2.7.0)
+  - TensorFlowLiteSwift (2.7.0):
+    - TensorFlowLiteSwift/Core (= 2.7.0)
+  - TensorFlowLiteSwift/Core (2.7.0):
+    - TensorFlowLiteC (= 2.7.0)
+  - TensorFlowLiteTaskVision (0.4.3)
   - VisionCamera (4.6.4):
     - VisionCamera/Core (= 4.6.4)
     - VisionCamera/FrameProcessors (= 4.6.4)
@@ -1929,6 +1937,8 @@ DEPENDENCIES:
   - RNScreens (from `../../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
+  - TensorFlowLiteSwift
+  - TensorFlowLiteTaskVision
   - VisionCamera (from `../../node_modules/react-native-vision-camera`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1937,6 +1947,9 @@ SPEC REPOS:
     - MMKV
     - MMKVCore
     - SocketRocket
+    - TensorFlowLiteC
+    - TensorFlowLiteSwift
+    - TensorFlowLiteTaskVision
 
 EXTERNAL SOURCES:
   boost:
@@ -2168,9 +2181,12 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 4696b82d3a11ba6f3a790159ddb7290f04abd275
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
+  TensorFlowLiteC: 50d75ed3640c15dcfbaf88ca4326297b445e00a1
+  TensorFlowLiteSwift: fe99748dc3d58ae08bd2ff38658e3ade7038670f
+  TensorFlowLiteTaskVision: 125d5b49d325ba2cf3938454da5f74a1cbfe0552
   VisionCamera: 52b101a7fa0a70ff455163c5a121d8dfe9871ab7
   Yoga: 1dd9dabb9df8fe08f12cd522eae04a2da0e252eb
 
-PODFILE CHECKSUM: 2ad84241179871ca890f7c65c855d117862f1a68
+PODFILE CHECKSUM: 8994dc032f1b95aa64d2432956e31ad94500029e
 
 COCOAPODS: 1.16.2

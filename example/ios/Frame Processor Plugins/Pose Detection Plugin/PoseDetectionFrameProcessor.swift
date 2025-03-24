@@ -8,8 +8,9 @@ import VisionCamera
 import CoreImage
 import UIKit
 import AVFoundation
-// Import LiteRT when available - for now we'll mock the pose detector
-// import LiteRT
+import TensorFlowLite
+import Accelerate
+import Foundation
 
 // Plugin for detecting human poses in frames using a model like LiteRT
 @objc(PoseDetectionFrameProcessorPlugin)
@@ -18,6 +19,15 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
     private var modelType: String = "thunder" // Default to Thunder (higher accuracy)
     private var drawSkeleton: Bool = true
     private var minPoseConfidence: CGFloat = 0.3
+    
+    // TFLite model properties
+    private let modelSize = 256 // MoveNet expects 256x256 input (changed from 192)
+    private var interpreter: Interpreter?
+    private let modelPath = Bundle.main.path(forResource: "movenet_thunder", ofType: "tflite", inDirectory: "PoseModels")
+    
+    // Model input and output tensors
+    private var inputTensor: Tensor?
+    private var outputTensor: Tensor?
     
     public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
         super.init(proxy: proxy, options: options)
@@ -92,6 +102,52 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
         if let minConfidence = options["minConfidence"] as? CGFloat {
             self.minPoseConfidence = minConfidence
         }
+        
+        // Initialize TFLite interpreter
+        do {
+            // Try to find the model file in different possible locations
+            var modelPath: String? = nil
+            let modelName = self.modelType == "lightning" ? "movenet_lightning" : "movenet_thunder"
+            
+            // Check in main bundle with PoseModels directory
+            modelPath = Bundle.main.path(forResource: modelName, ofType: "tflite", inDirectory: "PoseModels")
+            
+            // If not found, check in main bundle without directory
+            if modelPath == nil {
+                modelPath = Bundle.main.path(forResource: modelName, ofType: "tflite")
+            }
+            
+            // If still not found, check in RNVisionCamera bundle
+            if modelPath == nil {
+                if let rnVisionCameraBundle = Bundle(path: Bundle.main.bundlePath + "/RNVisionCamera") {
+                    modelPath = rnVisionCameraBundle.path(forResource: modelName, ofType: "tflite", inDirectory: "PoseModels")
+                }
+            }
+            
+            guard let finalModelPath = modelPath else {
+                print("[POSE PLUGIN] Failed to locate model file \(modelName).tflite")
+                print("[POSE PLUGIN] Searched in PoseModels directory and main bundle")
+                return
+            }
+            
+            print("[POSE PLUGIN] Found model at: \(finalModelPath)")
+            interpreter = try Interpreter(modelPath: finalModelPath)
+            try interpreter?.allocateTensors()
+            
+            // Get input and output tensors
+            guard let inputs = try interpreter?.input(at: 0),
+                  let outputs = try interpreter?.output(at: 0) else {
+                print("[POSE PLUGIN] Failed to get input/output tensors")
+                return
+            }
+            
+            inputTensor = inputs
+            outputTensor = outputs
+            
+            print("[POSE PLUGIN] Model loaded successfully")
+        } catch {
+            print("[POSE PLUGIN] Error initializing interpreter: \(error)")
+        }
     }
     
     // Required callback method for frame processor plugins
@@ -117,16 +173,178 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             return ["error": "Failed to get image buffer from frame"]
         }
         
-        // Lock the pixel buffer to access its data
-        CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
-        defer {
-            // Make sure we unlock the buffer when done
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly)
+        // Check if pixel buffer is already in BGRA format
+        let pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
+        var bgraPixelBuffer = pixelBuffer
+        
+        // If not in BGRA format, convert it
+        if pixelFormat != kCVPixelFormatType_32BGRA {
+            print("[POSE PLUGIN] Converting pixel buffer from format \(pixelFormat) to BGRA")
+            
+            // Create a CIImage from the original pixel buffer
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+            
+            // Create a new pixel buffer in BGRA format
+            let width = CVPixelBufferGetWidth(pixelBuffer)
+            let height = CVPixelBufferGetHeight(pixelBuffer)
+            var newPixelBuffer: CVPixelBuffer?
+            let attributes = [kCVPixelBufferCGImageCompatibilityKey: true, kCVPixelBufferCGBitmapContextCompatibilityKey: true] as CFDictionary
+            CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, attributes, &newPixelBuffer)
+            
+            guard let newBuffer = newPixelBuffer else {
+                return ["error": "Failed to create BGRA pixel buffer"]
+            }
+            
+            // Render the CIImage into the new pixel buffer
+            let context = CIContext(options: nil)
+            context.render(ciImage, to: newBuffer)
+            
+            // Use the new BGRA pixel buffer for processing
+            bgraPixelBuffer = newBuffer
         }
         
-        // Get frame dimensions
+        // Get frame dimensions and crop center square
+        let width = CVPixelBufferGetWidth(bgraPixelBuffer)
+        let height = CVPixelBufferGetHeight(bgraPixelBuffer)
+        let cropSize = min(width, height)
+        let cropX = (width - cropSize) / 2
+        let cropY = (height - cropSize) / 2
+        
+        // Lock the pixel buffer to access its data
+        CVPixelBufferLockBaseAddress(bgraPixelBuffer, .readOnly)
+        defer {
+            CVPixelBufferUnlockBaseAddress(bgraPixelBuffer, .readOnly)
+        }
+        
+        // Get base address for cropped region
+        guard let baseAddr = CVPixelBufferGetBaseAddress(bgraPixelBuffer)?
+            .advanced(by: cropY * CVPixelBufferGetBytesPerRow(bgraPixelBuffer) + cropX * 4) else {
+            return ["error": "Failed to get pixel buffer base address"]
+        }
+        
+        // Set up source buffer for vImage
+        var srcBuffer = vImage_Buffer(data: baseAddr,
+                                    height: vImagePixelCount(cropSize),
+                                    width: vImagePixelCount(cropSize),
+                                    rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer))
+        
+        // Set up destination buffer for resizing
+        let bytesPerPixel = 4
+        let destRowBytes = modelSize * bytesPerPixel
+        guard let destData = malloc(modelSize * modelSize * bytesPerPixel) else {
+            return ["error": "Failed to allocate memory for resized image"]
+        }
+        defer { free(destData) }
+        
+        var destBuffer = vImage_Buffer(data: destData,
+                                     height: vImagePixelCount(modelSize),
+                                     width: vImagePixelCount(modelSize),
+                                     rowBytes: destRowBytes)
+        
+        // Resize image to model input size
+        vImageScale_ARGB8888(&srcBuffer, &destBuffer, nil, vImage_Flags(0))
+        
+        // Convert BGRA to RGB
+        let rgbBytesPerRow = modelSize * 3
+        guard let rgbData = malloc(modelSize * modelSize * 3) else {
+            return ["error": "Failed to allocate memory for RGB conversion"]
+        }
+        defer { free(rgbData) }
+        
+        var rgbBuffer = vImage_Buffer(data: rgbData,
+                                    height: vImagePixelCount(modelSize),
+                                    width: vImagePixelCount(modelSize),
+                                    rowBytes: rgbBytesPerRow)
+        
+        vImageConvert_BGRA8888toRGB888(&destBuffer, &rgbBuffer, UInt32(kvImageNoFlags))
+        
+        // The model expects input in [1, height, width, channels] format as uint8
+        // For MoveNet, this is [1, 256, 256, 3] which equals 196,608 values
+        
+        // The model expects input in [1, height, width, channels] format as uint8
+        // For MoveNet, this is [1, 256, 256, 3] which equals 196,608 values
+        
+        // Create input data directly from the RGB data (already in uint8 format)
+        // No need to convert to float32 and normalize, as the model expects uint8 values
+        let inputData = Data(bytes: rgbData, count: modelSize * modelSize * 3)
+        
+        // Copy input data to model's input tensor
+        do {
+            try interpreter?.copy(inputData, toInputAt: 0)
+            
+            // Run inference
+            try interpreter?.invoke()
+            
+            // Get output tensor data
+            guard let outputTensor = try? interpreter?.output(at: 0) else {
+                return ["error": "Failed to get output tensor data"]
+            }
+            
+            // Access the data property directly since it's not optional
+            let outputData = outputTensor.data
+            
+            // Parse keypoints from output tensor
+            let keypoints = outputData.withUnsafeBytes { ptr -> [(CGPoint, CGFloat)] in
+                let floatPtr = ptr.bindMemory(to: Float32.self)
+                var results: [(CGPoint, CGFloat)] = []
+                
+                // MoveNet outputs [1, 17, 3] tensor where last dim is [y, x, confidence]
+                // We need to account for the batch dimension in the output
+                for i in 0..<17 {
+                    // Each keypoint has 3 values (y, x, confidence)
+                    let offset = i * 3
+                    let y = CGFloat(floatPtr[offset])
+                    let x = CGFloat(floatPtr[offset + 1])
+                    let confidence = CGFloat(floatPtr[offset + 2])
+                    
+                    // Convert normalized coordinates (0-1) to image coordinates
+                    let point = CGPoint(x: x * CGFloat(width),
+                                      y: y * CGFloat(height))
+                    results.append((point, confidence))
+                }
+                return results
+            }
+            
+            // Create a UIImage from the pixel buffer for drawing
+            let ciImage = CIImage(cvPixelBuffer: bgraPixelBuffer)
+            let context = CIContext(options: nil)
+            guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
+                return ["error": "Failed to create CGImage"]
+            }
+            
+            // Create a drawing context
+            UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+            defer {
+                UIGraphicsEndImageContext()
+            }
+            
+            // Draw the original frame
+            let image = UIImage(cgImage: cgImage)
+            image.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
+            
+            // Draw the pose skeleton if enabled
+            if let context = UIGraphicsGetCurrentContext(), drawSkeleton {
+                drawPoseSkeleton(context: context, keypoints: keypoints, width: width, height: height)
+            }
+            
+            return keypoints
+        } catch {
+            return ["error": "Failed to process frame: \(error)"]
+        }
+        
+        return ["error": "Failed to process frame"]
+    }
+    
+    // Helper method to create a mock visualization for testing
+    private func createMockVisualization(pixelBuffer: CVPixelBuffer) -> [String: Any] {
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
+        
+        // Create a drawing context
+        UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+        defer {
+            UIGraphicsEndImageContext()
+        }
         
         // Create a UIImage from the pixel buffer for drawing
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
@@ -135,19 +353,9 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             return ["error": "Failed to create CGImage"]
         }
         
-        // Create a drawing context
-        UIGraphicsBeginImageContext(CGSize(width: width, height: height))
-        defer {
-            UIGraphicsEndImageContext()
-        }
-        
         // Draw the original frame
         let image = UIImage(cgImage: cgImage)
         image.draw(in: CGRect(x: 0, y: 0, width: width, height: height))
-        
-        // TEMP: For testing - this is where we'd call the pose detector in production
-        // In a real implementation, we would use the LiteRT model to detect poses
-        // For now, we'll simulate detected poses with mock data
         let mockPoseKeypoints = getMockPoseKeypoints(width: width, height: height)
         
         // Get the graphics context for drawing
