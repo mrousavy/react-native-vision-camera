@@ -37,6 +37,8 @@
 	<string>VisionCamera needs access to your current location to add location tags to captured photos and videos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>VisionCamera needs access to your Microphone to record videos with audio.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>For debug imags</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>VisionCamera needs access to your photo library to save captured videos and photos.</string>
 	<key>UIAppFonts</key>
