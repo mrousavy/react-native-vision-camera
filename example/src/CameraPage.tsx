@@ -12,6 +12,7 @@ import {
   useFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
+  useSkiaFrameProcessor,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -29,6 +30,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
+import { useGrainyBlurShader } from './hooks/useGrainyBlurShader'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -55,6 +57,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false)
   const [flash, setFlash] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
+  const [enableBlur, setEnableBlur] = useState(false)
 
   // camera device settings
   const [preferredDevice] = usePreferredCameraDevice()
@@ -189,6 +192,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     })
   }, [])
 
+  const paint = useGrainyBlurShader()
+  const skiaFrameProcessor = useSkiaFrameProcessor(
+    (frame) => {
+      'worklet'
+
+      frame.render(paint)
+    },
+    [paint],
+  )
+
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
@@ -227,7 +240,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
-                frameProcessor={frameProcessor}
+                frameProcessor={enableBlur ? skiaFrameProcessor : frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
@@ -281,6 +294,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         </PressableOpacity>
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CodeScannerPage')}>
           <IonIcon name="qr-code-outline" color="white" size={24} />
+        </PressableOpacity>
+
+        <PressableOpacity style={styles.button} onPress={() => setEnableBlur((b) => !b)}>
+          <IonIcon name={enableBlur ? 'color-filter-outline' : 'eye-outline'} color="white" size={24} />
         </PressableOpacity>
       </View>
     </View>
