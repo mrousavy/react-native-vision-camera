@@ -323,9 +323,10 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
         let inputData = Data(bytes: rgbData, count: modelSize * modelSize * 3)
         
         // Save input image to photos (for debugging)
-        if frameCount <= 3 {
-            saveImageToPhotos(bitmapContext, label: "Rotated Input \(frameCount)")
-        }
+        // uncomment the below code to save the images to the photos app
+        // if frameCount <= 3 {
+        //     saveImageToPhotos(bitmapContext, label: "Rotated Input \(frameCount)")
+        // }
         
         return inputData
     }
