@@ -17,23 +17,15 @@ export type PoseKeypoint = {
 // Define connection type for drawing skeleton lines
 export type PoseConnection = string[];
 
-// Define transformation metadata
-export type PoseTransformation = {
-  type: 'rotation' | 'scale' | 'crop';
-  angle?: number;
-  originalWidth: number;
-  originalHeight: number;
-};
+// No longer need transformation metadata as it's handled in Swift
 
-// Define the pose detection result with normalized coordinates and metadata
+// Define the pose detection result with coordinates directly mapped to original frame
 export interface PoseDetectionResult {
   keypoints: PoseKeypoint[];
   connections: PoseConnection[];
   keypointsDetected: number;
   sourceWidth: number;
   sourceHeight: number;
-  modelInputSize: number;
-  transformation: PoseTransformation;
   error?: string;
 }
 
@@ -102,13 +94,15 @@ export function detectPose(
 }
 
 /**
- * Maps normalized keypoint coordinates to screen coordinates based on the view dimensions
- * and device orientation.
+ * Maps keypoint coordinates to view coordinates based on view dimensions.
+ * Coordinates from Swift are already in the original frame coordinates.
  * 
- * @param keypoint - The normalized keypoint (0-1 range)
+ * @param keypoint - The keypoint with coordinates mapped to the original frame
  * @param viewWidth - The width of the view where the keypoint will be drawn
  * @param viewHeight - The height of the view where the keypoint will be drawn
- * @param transformation - The transformation applied during processing
+ * @param sourceWidth - Original frame width
+ * @param sourceHeight - Original frame height
+ * @param isFrontCamera - Whether front camera is being used (for mirroring)
  * @returns The screen coordinates {x, y}
  */
 export function mapToViewCoordinates(
@@ -117,85 +111,29 @@ export function mapToViewCoordinates(
   viewHeight: number,
   sourceWidth: number,
   sourceHeight: number,
-  transformation: PoseTransformation,
-  modelInputSize: number,
   isFrontCamera: boolean = false
 ): { x: number; y: number } {
-  console.log(`[PoseMapping] Input coordinates - x: ${keypoint.x}, y: ${keypoint.y}`);
-  console.log(`[PoseMapping] viewWidth: ${viewWidth}, viewHeight: ${viewHeight}, sourceWidth: ${sourceWidth}, sourceHeight: ${sourceHeight}`);
-  console.log(`[PoseMapping] Transformation - type: ${transformation.type}, angle: ${transformation.angle}`);
-  console.log(`[PoseMapping] Model input size: ${modelInputSize}`);
+  // STEP 1: Apply 90-degree clockwise rotation to match display orientation
+  // For 90° clockwise rotation: (x, y) -> (y, width-x)
+  // Note: For counter-clockwise, it would be (sourceHeight-y, x)
+  const rotatedX = sourceHeight - keypoint.y;
+  const rotatedY = keypoint.x;
 
-  // For 90-degree rotation, we need to handle the coordinate system differently
-  // based on observation, the model would return the value in the right location, no need to rotate again. so, reverse the isRotated flag
-  const isRotated = !(transformation.type === 'rotation' && transformation.angle === 90);
-  console.log(`[PoseMapping] isRotated: ${isRotated}`);
-  console.log(`[PoseMapping] isFrontCamera: ${isFrontCamera}`);
-  // First normalize coordinates from model space to source space
-  const normalizedX = keypoint.x * modelInputSize;
-  const normalizedY = keypoint.y * modelInputSize;
-
-  // Swap dimensions for rotated frame
-  //since we reversed the isRotated flag, we need to swap the width and height for rotated frame
-  const effectiveSourceWidth = isRotated ? sourceHeight : sourceWidth;
-  const effectiveSourceHeight = isRotated ? sourceWidth : sourceHeight;
-
-  // Calculate the scaling factors for both dimensions
-  const scaleX = viewWidth / effectiveSourceWidth;
-  const scaleY = viewHeight / effectiveSourceHeight;
+  // STEP 2: Simple scaling from rotated dimensions to view dimensions
+  // Note: After rotation, sourceWidth and sourceHeight are effectively swapped
+  const scaleX = viewWidth / sourceHeight;
+  const scaleY = viewHeight / sourceWidth;
   
-  // Use separate scales for X and Y to fix the coordinate mapping issue
-  // This ensures landmarks maintain proper positioning regardless of where they appear in the frame
-  const scaleToUseX = scaleX;
+  // STEP 3: Map coordinates from source space to view space
+  let mappedX = rotatedX * scaleX;
+  let mappedY = rotatedY * scaleY;
   
-  // FIXED: Adjust Y-scale to account for center crop operation
-  // The model processes a center-cropped square from the original frame
-  // We need to adjust the Y-scale to map back to the original aspect ratio
-  const cropSize = Math.min(effectiveSourceWidth, effectiveSourceHeight);
-  const cropY = (effectiveSourceHeight - cropSize) / 2;
-  const scaleToUseY = viewHeight / cropSize;
-  
-  // Calculate centering offsets using separate scales for X and Y
-  const offsetX = (viewWidth - effectiveSourceWidth * scaleToUseX) / 2;
-  const offsetY = (viewHeight - cropSize * scaleToUseY) / 2;
-
-  console.log(`[PoseMapping] Normalized coordinates - x: ${normalizedX}, y: ${normalizedY}`);
-  console.log(`[PoseMapping] Scale factors - scaleX: ${scaleX}, scaleY: ${scaleY}, using scaleToUseX: ${scaleToUseX}, scaleToUseY: ${scaleToUseY}`);
-  console.log(`[PoseMapping] Offsets - offsetX: ${offsetX}, offsetY: ${offsetY}`);
-
-  // Apply clockwise rotation for 90-degree rotated frame and handle front camera mirroring
-  let mappedX, mappedY;
-  if (isRotated) {
-    // For 90-degree clockwise rotation
-    if (isFrontCamera) {
-      // For front camera, we need to handle both rotation and mirroring
-      // The front camera is mirrored horizontally, so we need to flip the X coordinate
-      // For 90-degree clockwise rotation: x becomes y, y becomes (1-x)
-      // Standard mapping for all keypoints - no special handling for eyes based on nose position
-      mappedX = offsetX + (normalizedY / modelInputSize) * sourceHeight * scaleToUseX;
-      mappedY = offsetY + (1.0 - normalizedX / modelInputSize) * sourceWidth * scaleToUseY;
-    } else {
-      // For back camera, just handle rotation
-      mappedX = offsetX + normalizedY / modelInputSize * sourceHeight * scaleToUseX;
-      mappedY = offsetY + (1.0 - normalizedX / modelInputSize) * sourceWidth * scaleToUseY;
-    }
-  } else {
-    // No rotation, map coordinates directly
-    if (isFrontCamera) {
-      // For front camera without rotation, just mirror horizontally
-      mappedX = offsetX + (1.0 - normalizedX / modelInputSize) * sourceWidth * scaleToUseX;
-      mappedY = offsetY + normalizedY / modelInputSize * sourceHeight * scaleToUseY;
-    } else {
-      // No mirroring for back camera
-      mappedX = offsetX + normalizedX / modelInputSize * sourceWidth * scaleToUseX;
-      mappedY = offsetY + normalizedY / modelInputSize * sourceHeight * scaleToUseY;
-    }
+  // STEP 4: Apply horizontal mirroring for front camera
+  if (isFrontCamera) {
+    mappedX = viewWidth - mappedX; // Mirror horizontally
   }
-
-  const mappedCoords = { x: mappedX, y: mappedY };
-  console.log(`[PoseMapping] Mapped coordinates - x: ${mappedCoords.x}, y: ${mappedCoords.y}`);
-
-  return mappedCoords;
+  
+  return { x: mappedX, y: mappedY };
 }
 
 /**
@@ -208,8 +146,6 @@ export function getConnectionPoints(
   viewHeight: number,
   sourceWidth: number,
   sourceHeight: number,
-  transformation: PoseTransformation,
-  modelInputSize: number,
   isFrontCamera: boolean = false
 ): { from: { x: number; y: number }; to: { x: number; y: number } } | null {
   // Find the keypoints for the connection
@@ -233,8 +169,6 @@ export function getConnectionPoints(
     viewHeight,
     sourceWidth,
     sourceHeight,
-    transformation,
-    modelInputSize,
     isFrontCamera
   );
   
@@ -244,8 +178,6 @@ export function getConnectionPoints(
     viewHeight,
     sourceWidth,
     sourceHeight,
-    transformation,
-    modelInputSize,
     isFrontCamera
   );
   

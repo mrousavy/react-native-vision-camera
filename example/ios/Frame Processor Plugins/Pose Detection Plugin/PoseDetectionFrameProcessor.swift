@@ -202,12 +202,20 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             let outputTensor = try interpreter.output(at: 0)
             
             // 4. Process results to get normalized coordinates
-            let keypoints = processOutputTensorNormalized(outputTensor.data)
+            let normalizedKeypoints = processOutputTensorNormalized(outputTensor.data)
             
-            // 5. Log results if needed
+            // 5. Transform normalized coordinates to original frame coordinates
+            let transformedKeypoints = transformKeypointsToOriginalFrame(
+                normalizedKeypoints: normalizedKeypoints,
+                imageWidth: width,
+                imageHeight: height,
+                modelSize: modelSize
+            )
+            
+            // 6. Log results if needed
             if shouldLog {
-                debugLog("Detected \(keypoints.count) keypoints")
-                for keypoint in keypoints.prefix(3) {
+                debugLog("Detected \(transformedKeypoints.count) keypoints")
+                for keypoint in transformedKeypoints.prefix(3) {
                     if let name = keypoint["name"] as? String,
                        let confidence = keypoint["confidence"] as? CGFloat {
                         debugLog(" - \(name): confidence \(confidence)")
@@ -215,20 +223,13 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
                 }
             }
             
-            // 6. Return results with metadata
+            // 7. Return results with transformed coordinates
             return [
-                "keypoints": keypoints,
+                "keypoints": transformedKeypoints,
                 "connections": skeletonConnections,
-                "keypointsDetected": keypoints.count,
+                "keypointsDetected": transformedKeypoints.count,
                 "sourceWidth": width,
-                "sourceHeight": height,
-                "modelInputSize": modelSize,
-                "transformation": [
-                    "type": "rotation",
-                    "angle": 90, // 90-degree clockwise rotation
-                    "originalWidth": width,
-                    "originalHeight": height
-                ]
+                "sourceHeight": height
             ]
             
         } catch {
@@ -356,6 +357,67 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             
             return keypointsArray
         }
+    }
+    
+    // Transform normalized keypoints to original frame coordinates
+    private func transformKeypointsToOriginalFrame(
+        normalizedKeypoints: [[String: Any]],
+        imageWidth: Int,
+        imageHeight: Int,
+        modelSize: Int
+    ) -> [[String: Any]] {
+        // Calculate crop region properties (from preprocessImageWithRotation)
+        let originalWidth = CGFloat(imageWidth)
+        let originalHeight = CGFloat(imageHeight)
+        
+        // The original image is rotated 90° clockwise
+        // So the width becomes height and vice versa
+        let rotatedWidth = originalHeight
+        let rotatedHeight = originalWidth
+        
+        // Calculate crop dimensions (center square)
+        let cropSize = min(rotatedWidth, rotatedHeight)
+        let cropX = (rotatedWidth - cropSize) / 2
+        let cropY = (rotatedHeight - cropSize) / 2
+        
+        // Calculate scaling ratios
+        let widthRatio = cropSize / CGFloat(modelSize)
+        let heightRatio = cropSize / CGFloat(modelSize)
+        
+        // Create transformed keypoints array
+        var transformedKeypoints: [[String: Any]] = []
+        
+        for keypoint in normalizedKeypoints {
+            guard let name = keypoint["name"] as? String,
+                  let normalizedX = keypoint["x"] as? CGFloat,
+                  let normalizedY = keypoint["y"] as? CGFloat,
+                  let confidence = keypoint["confidence"] as? CGFloat else {
+                continue
+            }
+            
+            // Step 1: Scale normalized coordinates [0,1] to model input size
+            let modelX = normalizedX * CGFloat(modelSize)
+            let modelY = normalizedY * CGFloat(modelSize)
+            
+            // Step 2: Scale to crop size and add crop offset
+            let cropX = (modelX * widthRatio) + cropX
+            let cropY = (modelY * heightRatio) + cropY
+            
+            // Step 3: De-rotate coordinates (90° counter-clockwise)
+            // x' = y, y' = width - x for 90° clockwise rotation reversal
+            let derotatedX = cropY
+            let derotatedY = rotatedWidth - cropX
+            
+            // Add the transformed keypoint to our results
+            transformedKeypoints.append([
+                "name": name,
+                "x": derotatedX,
+                "y": derotatedY,
+                "confidence": confidence
+            ])
+        }
+        
+        return transformedKeypoints
     }
     
     // MARK: - Debugging Helpers

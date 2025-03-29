@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Line, Circle, Text } from 'react-native-svg';
+import Svg, { Line, Circle } from 'react-native-svg';
 import { getConnectionPoints, PoseDetectionResult, mapToViewCoordinates } from './frame-processors/PoseDetectionPlugin';
 
 interface PoseSkeletonOverlayProps {
@@ -49,8 +49,6 @@ export const PoseSkeletonOverlay: React.FC<PoseSkeletonOverlayProps> = ({
   console.log(`[PoseOverlay] View dimensions: ${viewWidth}x${viewHeight}`);
   console.log(`[PoseOverlay] Style props:`, JSON.stringify(style, null, 2));
   console.log(`[PoseOverlay] Source dimensions: ${poseData.sourceWidth}x${poseData.sourceHeight}`);
-  console.log(`[PoseOverlay] Model input size: ${poseData.modelInputSize}`);
-  console.log(`[PoseOverlay] Transformation:`, JSON.stringify(poseData.transformation, null, 2));
   console.log(`[PoseOverlay] Visible keypoints:`, visibleKeypoints.length);
   console.log(`[PoseOverlay] Container style:`, JSON.stringify(styles.container, null, 2));
   console.log(`[PoseOverlay] Parent dimensions:`, style?.width ? 'Custom size' : 'Full window');
@@ -71,8 +69,6 @@ export const PoseSkeletonOverlay: React.FC<PoseSkeletonOverlayProps> = ({
       viewHeight,
       poseData.sourceWidth,
       poseData.sourceHeight,
-      poseData.transformation,
-      poseData.modelInputSize,
       mirrored
     );
     
@@ -109,18 +105,16 @@ export const PoseSkeletonOverlay: React.FC<PoseSkeletonOverlayProps> = ({
     faceKeypoints.map(kp => `${kp.name}(conf: ${kp.confidence.toFixed(2)})`));
 
   // Create the SVG elements for the keypoints (circles)
-  const keypoints = faceKeypoints.map((keypoint, index) => {
+  const keypoints = faceKeypoints.map((keypoint) => {
     console.log(`[PoseOverlay] Processing face keypoint ${keypoint.name} at (${keypoint.x}, ${keypoint.y})`);
     
-    // Map the normalized coordinates to view coordinates
+    // Map coordinates to view coordinates
     const { x, y } = mapToViewCoordinates(
       keypoint,
       viewWidth,
       viewHeight,
       poseData.sourceWidth,
       poseData.sourceHeight,
-      poseData.transformation,
-      poseData.modelInputSize,
       mirrored
     );
     
