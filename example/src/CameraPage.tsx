@@ -31,8 +31,9 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-// Import only the pose detection plugin
-import { detectPose, PoseModelType } from './frame-processors/PoseDetectionPlugin'
+// Import the updated pose detection plugin and overlay component
+import { detectPose, PoseModelType, PoseDetectionResult } from './frame-processors/PoseDetectionPlugin'
+import PoseSkeletonOverlay from './PoseSkeletonOverlay'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -55,6 +56,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [lastFrameTime, setLastFrameTime] = useState<string>('')
   const [frameProcessorActive, setFrameProcessorActive] = useState<boolean>(false)
   const [pluginResults, setPluginResults] = useState<string>('')
+  
+  // Add state for storing pose detection results
+  const [poseData, setPoseData] = useState<PoseDetectionResult | null>(null)
+  
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
@@ -207,6 +212,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     setPoseStats(stats)
   })
   
+  // New worklet callback for updating pose data in the UI
+  const updatePoseData = Worklets.createRunOnJS((data: PoseDetectionResult | null) => {
+    setPoseData(data)
+  })
+  
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     
@@ -218,51 +228,72 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     updateFrameTime(timeStr)
     
     try {
-      // Only process pose detection, disable example plugins for cleaner logs
       // Process pose detection if enabled
       if (poseDetectionEnabled) {
         try {
           console.log(`[POSE] Attempting detection with model: ${poseModelType}`)
           
-          // Call the native pose detection plugin - visualization happens on the native side
+          // Call the native pose detection plugin with normalized coordinates option
           const poseData = detectPose(frame, poseModelType, {
-            drawSkeleton: true,
+            drawSkeleton: false, // We'll draw in JS now
             minConfidence: 0.3
           })
           
           console.log(`[POSE] Detection successful: ${JSON.stringify(poseData)}`)
           
           // Format stats about the pose detection
-          const poseStatsStr = `Model: ${poseData.modelType} | Points: ${poseData.keypointsDetected}`
+          const poseStatsStr = `Model: ${poseModelType} | Points: ${poseData.keypointsDetected}`
           updatePoseStats(poseStatsStr)
           
-          // Update UI with only pose detection results for cleaner debugging
+          // Update UI with pose detection results
           updatePluginResults(`Pose Detection: ${poseStatsStr}`)
+          
+          // Update pose data state for rendering the overlay
+          updatePoseData(poseData)
         } catch (poseError) {
           console.log(`[POSE] Detection error: ${String(poseError)}`)
           console.log(`[POSE] Error details:`, poseError)
           
-          // Show only pose error for cleaner debugging
           updatePluginResults(`Pose Error: ${String(poseError)}`)
           updatePoseStats('Error detecting pose')
+          updatePoseData(null)
         }
       } else {
         // Clear results when pose detection is disabled
         updatePluginResults('Pose detection disabled')
         updatePoseStats('')
+        updatePoseData(null)
       }
     } catch (error) {
       console.log(`Frame processor error: ${String(error)}`)
       updatePluginResults(`Error: ${String(error)}`)
+      updatePoseData(null)
     }
-  }, [updateFrameProcessorStatus, updateFrameTime, updatePluginResults, updatePoseStats, poseDetectionEnabled, poseModelType])
+  }, [
+    updateFrameProcessorStatus, 
+    updateFrameTime, 
+    updatePluginResults, 
+    updatePoseStats, 
+    updatePoseData,
+    poseDetectionEnabled, 
+    poseModelType
+  ])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
   return (
     <View style={styles.container}>
-      {/* No separate pose visualization component needed - rendering happens in Swift */}
+      {/* React Native Pose Skeleton Overlay - render when pose data is available */}
+      {poseDetectionEnabled && poseData && (
+        <PoseSkeletonOverlay 
+          poseData={poseData}
+          mirrored={cameraPosition === 'front'}
+          confidenceThreshold={0.3}
+          keyPointColor="#00FF00"
+          connectionColor="#FFFF00"
+        />
+      )}
       
       {/* Frame Processor Debug Overlay */}
       {frameProcessorActive && (

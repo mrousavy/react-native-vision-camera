@@ -47,6 +47,23 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
         "left_knee", "right_knee", "left_ankle", "right_ankle"
     ]
     
+    // Define the skeleton connections for drawing
+    private let skeletonConnections = [
+        // Face
+        ["nose", "left_eye"], ["nose", "right_eye"], 
+        ["left_eye", "left_ear"], ["right_eye", "right_ear"],
+        // Upper body
+        ["left_shoulder", "right_shoulder"], ["left_shoulder", "left_elbow"], 
+        ["right_shoulder", "right_elbow"], ["left_elbow", "left_wrist"], 
+        ["right_elbow", "right_wrist"],
+        // Torso
+        ["left_shoulder", "left_hip"], ["right_shoulder", "right_hip"], 
+        ["left_hip", "right_hip"],
+        // Lower body
+        ["left_hip", "left_knee"], ["right_hip", "right_knee"], 
+        ["left_knee", "left_ankle"], ["right_knee", "right_ankle"]
+    ]
+    
     // Helper for controlled debug logging
     private func debugLog(_ message: String) {
         if enableDebugLogging {
@@ -184,8 +201,8 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             // 3. Get output tensor
             let outputTensor = try interpreter.output(at: 0)
             
-            // 4. Process results
-            let keypoints = processOutputTensor(outputTensor.data, width: width, height: height)
+            // 4. Process results to get normalized coordinates
+            let keypoints = processOutputTensorNormalized(outputTensor.data)
             
             // 5. Log results if needed
             if shouldLog {
@@ -198,10 +215,20 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
                 }
             }
             
-            // 6. Return results
+            // 6. Return results with metadata
             return [
                 "keypoints": keypoints,
-                "keypointsDetected": keypoints.count
+                "connections": skeletonConnections,
+                "keypointsDetected": keypoints.count,
+                "sourceWidth": width,
+                "sourceHeight": height,
+                "modelInputSize": modelSize,
+                "transformation": [
+                    "type": "rotation",
+                    "angle": 90, // 90-degree clockwise rotation
+                    "originalWidth": width,
+                    "originalHeight": height
+                ]
             ]
             
         } catch {
@@ -304,7 +331,8 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
     
     // MARK: - Output Processing
     
-    private func processOutputTensor(_ outputData: Data, width: Int, height: Int) -> [[String: Any]] {
+    // Process the output tensor and return normalized coordinates (0-1)
+    private func processOutputTensorNormalized(_ outputData: Data) -> [[String: Any]] {
         return outputData.withUnsafeBytes { ptr -> [[String: Any]] in
             let floatPtr = ptr.bindMemory(to: Float32.self)
             var keypointsArray: [[String: Any]] = []
@@ -313,20 +341,15 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             for i in 0..<17 {
                 // Each keypoint has 3 values (y, x, confidence)
                 let offset = i * 3
-                let y = CGFloat(floatPtr[offset])      // Normalized y-coordinate [0,1]
-                let x = CGFloat(floatPtr[offset + 1])  // Normalized x-coordinate [0,1]
+                let y = CGFloat(floatPtr[offset])      // Already normalized y-coordinate [0,1]
+                let x = CGFloat(floatPtr[offset + 1])  // Already normalized x-coordinate [0,1]
                 let confidence = CGFloat(floatPtr[offset + 2])
                 
-                // Convert normalized coordinates (0-1) to image coordinates
-                // Adjust for the rotation we applied: swap width and height
-                let pointX = x * CGFloat(height) // Use height here since we rotated
-                let pointY = y * CGFloat(width)  // Use width here since we rotated
-                
-                // Add the keypoint to our results
+                // Add the keypoint to our results with normalized coordinates
                 keypointsArray.append([
                     "name": self.keypointNames[i],
-                    "x": pointX,
-                    "y": pointY,
+                    "x": x,
+                    "y": y,
                     "confidence": confidence
                 ])
             }

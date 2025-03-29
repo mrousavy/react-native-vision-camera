@@ -1817,6 +1817,8 @@ PODS:
     - Yoga
   - RNStaticSafeAreaInsets (2.2.0):
     - React-Core
+  - RNSVG (15.11.2):
+    - React-Core
   - RNVectorIcons (10.2.0):
     - DoubleConversion
     - glog
@@ -1936,6 +1938,7 @@ DEPENDENCIES:
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../../node_modules/react-native-static-safe-area-insets`)
+  - RNSVG (from `../../node_modules/react-native-svg`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
   - TensorFlowLiteSwift
   - TensorFlowLiteTaskVision
@@ -2097,6 +2100,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-screens"
   RNStaticSafeAreaInsets:
     :path: "../../node_modules/react-native-static-safe-area-insets"
+  RNSVG:
+    :path: "../../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../../node_modules/react-native-vector-icons"
   VisionCamera:
@@ -2179,6 +2184,7 @@ SPEC CHECKSUMS:
   RNReanimated: aaad286a1d742cf1e7a44ff3b91dde365d2507ef
   RNScreens: 631b8768411a16e356f7934058d2139d0cc75157
   RNStaticSafeAreaInsets: 4696b82d3a11ba6f3a790159ddb7290f04abd275
+  RNSVG: 7d403633772d39f695b8a1ccb64db8499e807dac
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   TensorFlowLiteC: 50d75ed3640c15dcfbaf88ca4326297b445e00a1
