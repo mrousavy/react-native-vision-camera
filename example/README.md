@@ -70,7 +70,7 @@ The Swift implementation is structured as a Frame Processor Plugin that processe
 
 #### Key Components
 
-1. **Model Loading**: Loads the MoveNet TensorFlow Lite model (either "thunder" or "lightning" variant)
+1. **Model Loading**: Loads the MoveNet TensorFlow Lite model (Thunder variant)
 2. **Frame Preprocessing**:
    - Rotates and crops the input frame to match model requirements
    - Resizes the image to 256x256 pixels (model input size)
@@ -149,7 +149,7 @@ The frame processor can be configured with:
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet';
   const poses = pose_detection_plugin(frame, {
-    modelType: 'thunder', // or 'lightning'
+    modelType: 'thunder'
     minConfidence: 0.3,
     drawSkeleton: true
   });
