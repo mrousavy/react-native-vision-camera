@@ -16,12 +16,11 @@ import Foundation
 @objc(PoseDetectionFrameProcessorPlugin)
 public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
     // Settings and configurations
-    private var modelType: String = "thunder" // Default to Thunder (higher accuracy)
     private var drawSkeleton: Bool = true
     private var minPoseConfidence: CGFloat = 0.1 // Reduced threshold for testing
     
     // TFLite model properties
-    private let modelSize = 256 // MoveNet expects 256x256 input
+    private var modelSize: Int = 256 // Thunder model size (256x256)
     private var interpreter: Interpreter?
     
     // Model input and output tensors
@@ -73,10 +72,6 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
     
     private func configure(options: [AnyHashable: Any]! = [:]) {
         // Configure options from the JS side
-        if let modelTypeStr = options["modelType"] as? String {
-            self.modelType = modelTypeStr
-        }
-        
         if let drawSkeletonOption = options["drawSkeleton"] as? Bool {
             self.drawSkeleton = drawSkeletonOption
         }
@@ -85,12 +80,23 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             self.minPoseConfidence = minConfidence
         }
         
+        // Initialize the interpreter if it's not already initialized
+        if interpreter == nil {
+            debugLog("Initializing interpreter for Thunder model, size: \(self.modelSize)")
+            initializeInterpreter()
+        }
+    }
+    
+    private func initializeInterpreter() {
+        // Clean up existing interpreter if any
+        interpreter = nil
+        
         // Initialize TFLite interpreter
         do {
             // Find the model file
             var possibleLocations: [String?] = []
             
-            let modelName = self.modelType == "lightning" ? "movenet_lightning" : "movenet_thunder"
+            let modelName = "movenet_thunder"
             
             // Check main bundle with PoseModels directory
             possibleLocations.append(Bundle.main.path(forResource: modelName, ofType: "tflite", inDirectory: "PoseModels"))
@@ -156,18 +162,8 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
         
         // Update configuration if needed
         if let args = arguments {
-            if let modelTypeStr = args["modelType"] as? String, modelTypeStr != self.modelType {
-                self.modelType = modelTypeStr
-                configure(options: args)
-            }
-            
-            if let drawSkeletonOption = args["drawSkeleton"] as? Bool {
-                self.drawSkeleton = drawSkeletonOption
-            }
-            
-            if let minConfidence = args["minConfidence"] as? CGFloat {
-                self.minPoseConfidence = minConfidence
-            }
+            // Apply configuration changes through the configure method
+            configure(options: args)
         }
         
         // Check if interpreter is available
@@ -195,6 +191,9 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             let inputData = try preprocessImageWithRotation(pixelBuffer)
             
             // 2. Run inference
+            // No need to validate buffer size here as it's now handled in preprocessImageWithRotation
+            // which returns data with the correct size based on the actual tensor shape
+            
             try interpreter.copy(inputData, toInputAt: 0)
             try interpreter.invoke()
             
@@ -243,6 +242,9 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
     private func preprocessImageWithRotation(_ pixelBuffer: CVPixelBuffer) throws -> Data {
         // Create CIImage from pixel buffer
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        
+        // Log current model size for debugging
+        debugLog("Preprocessing image for model size: \(modelSize)x\(modelSize)")
         
         // *** ROTATION FIX ***
         // Apply 90-degree rotation clockwise to fix the orientation
@@ -298,37 +300,103 @@ public class PoseDetectionFrameProcessorPlugin: FrameProcessorPlugin {
             throw NSError(domain: "PoseDetection", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to access bitmap data"])
         }
         
-        // Convert RGBA to RGB since the model expects RGB inputs
-        let rgbData = UnsafeMutablePointer<UInt8>.allocate(capacity: modelSize * modelSize * 3)
+        // Get the actual input tensor shape from the interpreter
+        var actualModelSize = modelSize
+        if let inputTensor = inputTensor {
+            // Check if the input tensor shape is available
+            let shape = inputTensor.shape
+            // Convert shape to array to access dimensions
+            let dimensions = inputTensor.shape.dimensions
+            if dimensions.count >= 2 {
+                // TFLite models typically have shape [1, height, width, channels]
+                // or [height, width, channels]
+                let height = dimensions.count == 4 ? dimensions[1] : dimensions[0]
+                let width = dimensions.count == 4 ? dimensions[2] : dimensions[1]
+                
+                // Update the model size if needed
+                if height == width && height > 0 {
+                    actualModelSize = Int(height)
+                    if actualModelSize != modelSize {
+                        debugLog("Adjusting model size from \(modelSize) to \(actualModelSize) based on tensor shape")
+                    }
+                }
+            }
+        }
+        
+        // Thunder model expects: uint8[1,256,256,3] - 256x256 pixels with 0-255 uint8 values
+        
+        // Calculate the exact buffer size needed for this model
+        let bytesPerChannel = 1 // 1 byte for uint8
+        let bufferSize = actualModelSize * actualModelSize * 3 * bytesPerChannel
+        debugLog("Allocating buffer of size: \(bufferSize) bytes for model size \(actualModelSize)x\(actualModelSize), data type: uint8")
+        debugLog("Model tensor shape: [1,\(actualModelSize),\(actualModelSize),3], data type: uint8")
+        
+        // Bind bitmap data to UInt8
+        let bitmapDataPtr = bitmapData.bindMemory(to: UInt8.self, capacity: modelSize * modelSize * 4)
+        
+        // For Thunder model: allocate uint8 buffer
+        let rgbData = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
         defer {
             rgbData.deallocate()
         }
         
-        let bitmapDataPtr = bitmapData.bindMemory(to: UInt8.self, capacity: modelSize * modelSize * 4)
-        
-        // Copy RGB data (skipping alpha)
-        for y in 0..<modelSize {
-            for x in 0..<modelSize {
-                let sourceOffset = y * bitmapBytesPerRow + x * 4
-                let destOffset = (y * modelSize + x) * 3
-                
-                // Copy RGB values (skip alpha)
-                rgbData[destOffset] = bitmapDataPtr[sourceOffset]       // R
-                rgbData[destOffset + 1] = bitmapDataPtr[sourceOffset + 1] // G
-                rgbData[destOffset + 2] = bitmapDataPtr[sourceOffset + 2] // B
+        // If the actual model size is different from our current model size,
+        // we need to resize the data
+        if actualModelSize != modelSize {
+            // Create a new scaled context with the actual model size
+            guard let actualBitmapContext = CGContext(
+                data: nil,
+                width: actualModelSize,
+                height: actualModelSize,
+                bitsPerComponent: 8,
+                bytesPerRow: actualModelSize * 4,
+                space: rgbColorSpace,
+                bitmapInfo: bitmapInfo.rawValue
+            ) else {
+                throw NSError(domain: "PoseDetection", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to create actual size bitmap context"])
+            }
+            
+            // Draw the image at the actual model size
+            actualBitmapContext.draw(cgImage, in: CGRect(x: 0, y: 0, width: actualModelSize, height: actualModelSize))
+            
+            // Get access to the actual bitmap data
+            guard let actualBitmapData = actualBitmapContext.data else {
+                throw NSError(domain: "PoseDetection", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to access actual bitmap data"])
+            }
+            
+            let actualBitmapDataPtr = actualBitmapData.bindMemory(to: UInt8.self, capacity: actualModelSize * actualModelSize * 4)
+            let actualBitmapBytesPerRow = actualModelSize * 4
+            
+            // For Thunder model: keep as uint8
+            for y in 0..<actualModelSize {
+                for x in 0..<actualModelSize {
+                    let sourceOffset = y * actualBitmapBytesPerRow + x * 4
+                    let destOffset = (y * actualModelSize + x) * 3
+                    
+                    // Copy RGB values (skip alpha)
+                    rgbData[destOffset] = actualBitmapDataPtr[sourceOffset]       // R
+                    rgbData[destOffset + 1] = actualBitmapDataPtr[sourceOffset + 1] // G
+                    rgbData[destOffset + 2] = actualBitmapDataPtr[sourceOffset + 2] // B
+                }
+            }
+        } else {
+            // Use the original bitmap data if sizes match
+            // For Thunder model: keep as uint8
+            for y in 0..<modelSize {
+                for x in 0..<modelSize {
+                    let sourceOffset = y * bitmapBytesPerRow + x * 4
+                    let destOffset = (y * modelSize + x) * 3
+                    
+                    // Copy RGB values (skip alpha)
+                    rgbData[destOffset] = bitmapDataPtr[sourceOffset]       // R
+                    rgbData[destOffset + 1] = bitmapDataPtr[sourceOffset + 1] // G
+                    rgbData[destOffset + 2] = bitmapDataPtr[sourceOffset + 2] // B
+                }
             }
         }
         
         // Create Data object from the RGB buffer
-        let inputData = Data(bytes: rgbData, count: modelSize * modelSize * 3)
-        
-        // Save input image to photos (for debugging)
-        // uncomment the below code to save the images to the photos app
-        // if frameCount <= 3 {
-        //     saveImageToPhotos(bitmapContext, label: "Rotated Input \(frameCount)")
-        // }
-        
-        return inputData
+        return Data(bytes: rgbData, count: bufferSize)
     }
     
     // MARK: - Output Processing

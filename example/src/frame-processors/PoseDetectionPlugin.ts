@@ -35,10 +35,9 @@ export interface PoseDetectionOptions {
   minConfidence?: number;
 }
 
-// Model type for different accuracy/speed trade-offs
+// Model type (only Thunder is supported now)
 export enum PoseModelType {
-  Lightning = 'lightning', // Faster detection
-  Thunder = 'thunder',    // More accurate detection
+  Thunder = 'thunder'    // Accurate detection
 }
 
 // Initialize the plugin with default configuration
@@ -55,13 +54,11 @@ console.log('[POSE PLUGIN] Plugin initialization result:', plugin ? 'Success' : 
  * with metadata for JavaScript rendering
  * 
  * @param frame The camera frame to process
- * @param modelType Optional model type to use (lightning or thunder)
  * @param options Additional options like drawSkeleton and minConfidence
  * @returns Pose detection results with normalized coordinates and metadata
  */
 export function detectPose(
   frame: Frame,
-  modelType: PoseModelType = PoseModelType.Thunder,
   options: Partial<PoseDetectionOptions> = {}
 ): PoseDetectionResult {
   'worklet'
@@ -74,9 +71,8 @@ export function detectPose(
   // Log frame processing
   console.log(`[PoseDetection] Processing frame: ${frame.width}x${frame.height}`)
 
-  // Call the native plugin with the model configuration and options
+  // Call the native plugin with the options
   const result = plugin.call(frame, {
-    modelType: modelType,
     drawSkeleton: false, // Set to false since we'll draw in JS
     minConfidence: options.minConfidence ?? 0.3
   }) as unknown as PoseDetectionResult

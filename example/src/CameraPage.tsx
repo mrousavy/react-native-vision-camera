@@ -51,11 +51,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   
   // State for frame processor and pose detection results
   const [poseDetectionEnabled, setPoseDetectionEnabled] = useState(false)
-  const [poseModelType, setPoseModelType] = useState<PoseModelType>(PoseModelType.Thunder)
   const [poseStats, setPoseStats] = useState<string>('')
   const [lastFrameTime, setLastFrameTime] = useState<string>('')
   const [frameProcessorActive, setFrameProcessorActive] = useState<boolean>(false)
   const [pluginResults, setPluginResults] = useState<string>('')
+  // No model selection UI needed as we only use Thunder model
   
   // Add state for storing pose detection results
   const [poseData, setPoseData] = useState<PoseDetectionResult | null>(null)
@@ -231,10 +231,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       // Process pose detection if enabled
       if (poseDetectionEnabled) {
         try {
-          console.log(`[POSE] Attempting detection with model: ${poseModelType}`)
+          console.log(`[POSE] Attempting pose detection`)
           
           // Call the native pose detection plugin with normalized coordinates option
-          const poseData = detectPose(frame, poseModelType, {
+          const poseData = detectPose(frame, {
             drawSkeleton: false, // We'll draw in JS now
             minConfidence: 0.3
           })
@@ -242,7 +242,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           console.log(`[POSE] Detection successful: ${JSON.stringify(poseData)}`)
           
           // Format stats about the pose detection
-          const poseStatsStr = `Model: ${poseModelType} | Points: ${poseData.keypointsDetected}`
+          const poseStatsStr = `Points: ${poseData.keypointsDetected}`
           updatePoseStats(poseStatsStr)
           
           // Update UI with pose detection results
@@ -275,8 +275,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     updatePluginResults, 
     updatePoseStats, 
     updatePoseData,
-    poseDetectionEnabled, 
-    poseModelType
+    poseDetectionEnabled
   ])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
@@ -403,20 +402,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           />
         </PressableOpacity>
         
-        {/* Pose model toggle (only if pose detection is enabled) */}
-        {poseDetectionEnabled && (
-          <PressableOpacity 
-            style={styles.button} 
-            onPress={() => setPoseModelType(poseModelType === PoseModelType.Thunder ? 
-              PoseModelType.Lightning : PoseModelType.Thunder)}
-          >
-            <TypedIonIcon 
-              name={poseModelType === PoseModelType.Thunder ? "flash" : "flash-outline"} 
-              color={"white"} 
-              size={24} 
-            />
-          </PressableOpacity>
-        )}
+        {/* Pose detection is now using Thunder model only */}
         
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
           <TypedIonIcon name="settings-outline" color="white" size={24} />
@@ -466,6 +452,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // No model selection styles needed as we only use Thunder model
   rightButtonRow: {
     position: 'absolute',
     right: SAFE_AREA_PADDING.paddingRight,
