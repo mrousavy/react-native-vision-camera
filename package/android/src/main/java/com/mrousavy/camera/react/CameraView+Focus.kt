@@ -15,5 +15,7 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
     val dp = Resources.getSystem().displayMetrics.density
     previewView.meteringPointFactory.createPoint(x.toFloat() * dp, y.toFloat() * dp)
   }
-  cameraSession.focus(point)
+  try {
+    cameraSession.focus(point)
+  } catch (e: Exception) {}
 }
