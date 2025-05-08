@@ -121,7 +121,10 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
       try {
         val qualities = videoCapabilities.getSupportedQualities(dynamicRange)
         val videoSizes = qualities.map { it as ConstantQuality }.flatMap { it.typicalSizes }
-        val photoSizes = (cameraInfoInternal.getSupportedHighResolutions(ImageFormat.JPEG) union cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG)).toList()
+        val photoSizes = (
+          cameraInfoInternal.getSupportedHighResolutions(ImageFormat.JPEG) union
+            cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG)
+          ).toList()
         val fpsRanges = cameraInfo.supportedFrameRateRanges
         val minFps = fpsRanges.minOf { it.lower }
         val maxFps = fpsRanges.maxOf { it.upper }
