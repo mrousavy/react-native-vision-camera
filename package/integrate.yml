@@ -1,0 +1,162 @@
+steps:
+  - task: prompt
+    actions:
+      - text: Enter camera usage description to be added to Info.plist as NSCameraUsageDescription
+        name: camera_usage_description
+        type: text
+        defaultValue: $(PRODUCT_NAME) needs access to your Camera.
+        placeholder: $(PRODUCT_NAME) needs access to your Camera.
+
+      - text: Do you want to record audio?
+        name: microphone
+        type: boolean
+
+      - when:
+          microphone: true
+        text: Enter microphone usage description to be added to Info.plist as NSMicrophoneUsageDescription
+        name: mic_usage_description
+        type: text
+        defaultValue: $(PRODUCT_NAME) needs access to your Microphone.
+        placeholder: $(PRODUCT_NAME) needs access to your Microphone.
+
+      - text: Additional options
+        name: features
+        type: multiselect
+        required: false
+        options:
+          - label: Enable QR/Barcode Scanning
+            value: barcode_scanner
+            hint: Detect a variety of machine-readable codes
+
+          - label: Disable frame processors
+            value: disable_frame_processors
+            hint: If you're not using Frame Processors at all, you can disable them
+
+          - label: Enable GPS Location Tags
+            value: location
+            hint: Location properties stored in image files (via EXIF tags) or video files (via QuickTime/MP4 tags)
+
+      - when:
+          features: location
+        text: Enter location usage description to be added to Info.plist as NSLocationWhenInUseUsageDescription
+        name: location_usage_description
+        type: text
+        defaultValue: $(PRODUCT_NAME) needs access to your location.
+        placeholder: $(PRODUCT_NAME) needs access to your location.
+
+  - task: plist
+    label: Updating Info.plist
+    actions:
+      - set:
+          NSCameraUsageDescription: $[camera_usage_description]
+        strategy: append
+      - when:
+          microphone: true
+        set:
+          NSMicrophoneUsageDescription: $[mic_usage_description]
+        strategy: append
+      - when:
+          features: location
+        set:
+          NSLocationWhenInUseUsageDescription: $[location_usage_description]
+        strategy: append
+
+  - task: android_manifest
+    label: Updating android manifest
+    actions:
+      - block: manifest
+        before: <application
+        append: <uses-permission android:name="android.permission.CAMERA" />
+      - when:
+          microphone: true
+        block: manifest
+        before: <application
+        append: <uses-permission android:name="android.permission.RECORD_AUDIO" />
+      - when:
+          features: location
+        block: manifest
+        before: <application
+        append: <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+  - task: gradle_properties
+    label: Updating gradle.properties
+    actions:
+      # enable barcode scanning
+      - when:
+          features: barcode_scanner
+        ifNotPresent: VisionCamera_enableCodeScanner
+        append: VisionCamera_enableCodeScanner=true
+        name: barcode_injector
+      - when:
+          features: barcode_scanner
+          barcode_injector: skipped
+        search: VisionCamera_enableCodeScanner
+        replace: VisionCamera_enableCodeScanner=true
+
+      # disable barcode scanning
+      - when:
+          $not:
+            features: barcode_scanner
+        search: VisionCamera_enableCodeScanner
+        replace: VisionCamera_enableCodeScanner=false
+
+      # disable frame processors
+      - when:
+          features: disable_frame_processors
+        ifNotPresent: VisionCamera_enableFrameProcessors
+        append: VisionCamera_enableFrameProcessors=false
+        name: fp_injector
+      - when:
+          features: disable_frame_processors
+          fp_injector: skipped
+        search: VisionCamera_enableFrameProcessors
+        replace: VisionCamera_enableFrameProcessors=false
+
+      # enable frame processors
+      - when:
+          $not:
+            features: disable_frame_processors
+        search: VisionCamera_enableFrameProcessors
+        replace: VisionCamera_enableFrameProcessors=true
+
+  - task: podfile
+    label: Updating Podfile
+    actions:
+      # disable frame processors
+      - when:
+          features: disable_frame_processors
+        ifNotPresent: $VCEnableFrameProcessors
+        prepend: $VCEnableFrameProcessors = false
+        name: fp_injector
+      - when:
+          features: disable_frame_processors
+          fp_injector: skipped
+        search: $VCEnableFrameProcessors
+        replace: $VCEnableFrameProcessors = false
+
+      # enable frame processors
+      - when:
+          $not:
+            features: disable_frame_processors
+        search: $VCEnableFrameProcessors
+        replace: $VCEnableFrameProcessors = true
+
+      # disable location
+      - when:
+          $not:
+            features: location
+        ifNotPresent: $VCEnableLocation
+        prepend: $VCEnableLocation = false
+        name: location_injector
+      - when:
+          $not:
+            features: location
+          location_injector: skipped
+        search: $VCEnableLocation
+        replace: $VCEnableLocation = false
+
+      # enable location
+      - when:
+          features: location
+        search: $VCEnableLocation
+        replace: $VCEnableLocation = true
