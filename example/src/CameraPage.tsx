@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
 import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  runAtTargetFps,
   useCameraDevice,
   useCameraFormat,
   useFrameProcessor,
@@ -16,6 +15,7 @@ import {
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
+import { Worklets } from 'react-native-worklets-core'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
@@ -23,12 +23,17 @@ import { CaptureButton } from './views/CaptureButton'
 import { PressableOpacity } from 'react-native-pressable-opacity'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import IonIcon from 'react-native-vector-icons/Ionicons'
+
+// Add type assertions to fix TypeScript errors
+const TypedIonIcon = IonIcon as unknown as React.ComponentType<any>
+const TypedMaterialIcon = MaterialIcon as unknown as React.ComponentType<any>
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { examplePlugin } from './frame-processors/ExamplePlugin'
-import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
+// Import the updated pose detection plugin and overlay component
+import { detectPose, PoseModelType, PoseDetectionResult } from './frame-processors/PoseDetectionPlugin'
+import PoseSkeletonOverlay from './PoseSkeletonOverlay'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -43,6 +48,18 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
   const microphone = useMicrophonePermission()
   const location = useLocationPermission()
+  
+  // State for frame processor and pose detection results
+  const [poseDetectionEnabled, setPoseDetectionEnabled] = useState(false)
+  const [poseStats, setPoseStats] = useState<string>('')
+  const [lastFrameTime, setLastFrameTime] = useState<string>('')
+  const [frameProcessorActive, setFrameProcessorActive] = useState<boolean>(false)
+  const [pluginResults, setPluginResults] = useState<string>('')
+  // No model selection UI needed as we only use Thunder model
+  
+  // Add state for storing pose detection results
+  const [poseData, setPoseData] = useState<PoseDetectionResult | null>(null)
+  
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
@@ -178,22 +195,119 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
+  // Create worklet callbacks for UI updates using Worklets.createRunOnJS
+  const updateFrameProcessorStatus = Worklets.createRunOnJS((isActive: boolean) => {
+    setFrameProcessorActive(isActive)
+  })
+  
+  const updateFrameTime = Worklets.createRunOnJS((time: string) => {
+    setLastFrameTime(time)
+  })
+  
+  const updatePluginResults = Worklets.createRunOnJS((results: string) => {
+    setPluginResults(results)
+  })
+  
+  const updatePoseStats = Worklets.createRunOnJS((stats: string) => {
+    setPoseStats(stats)
+  })
+  
+  // New worklet callback for updating pose data in the UI
+  const updatePoseData = Worklets.createRunOnJS((data: PoseDetectionResult | null) => {
+    setPoseData(data)
+  })
+  
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-
-    runAtTargetFps(10, () => {
-      'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-      examplePlugin(frame)
-      exampleKotlinSwiftPlugin(frame)
-    })
-  }, [])
+    
+    // Send initial frame processor active status
+    updateFrameProcessorStatus(true)
+    
+    // Create timestamp for this frame
+    const timeStr = new Date().toLocaleTimeString()
+    updateFrameTime(timeStr)
+    
+    try {
+      // Process pose detection if enabled
+      if (poseDetectionEnabled) {
+        try {
+          console.log(`[POSE] Attempting pose detection`)
+          
+          // Call the native pose detection plugin with normalized coordinates option
+          const poseData = detectPose(frame, {
+            drawSkeleton: false, // We'll draw in JS now
+            minConfidence: 0.3
+          })
+          
+          console.log(`[POSE] Detection successful: ${JSON.stringify(poseData)}`)
+          
+          // Format stats about the pose detection
+          const poseStatsStr = `Points: ${poseData.keypointsDetected}`
+          updatePoseStats(poseStatsStr)
+          
+          // Update UI with pose detection results
+          updatePluginResults(`Pose Detection: ${poseStatsStr}`)
+          
+          // Update pose data state for rendering the overlay
+          updatePoseData(poseData)
+        } catch (poseError) {
+          console.log(`[POSE] Detection error: ${String(poseError)}`)
+          console.log(`[POSE] Error details:`, poseError)
+          
+          updatePluginResults(`Pose Error: ${String(poseError)}`)
+          updatePoseStats('Error detecting pose')
+          updatePoseData(null)
+        }
+      } else {
+        // Clear results when pose detection is disabled
+        updatePluginResults('Pose detection disabled')
+        updatePoseStats('')
+        updatePoseData(null)
+      }
+    } catch (error) {
+      console.log(`Frame processor error: ${String(error)}`)
+      updatePluginResults(`Error: ${String(error)}`)
+      updatePoseData(null)
+    }
+  }, [
+    updateFrameProcessorStatus, 
+    updateFrameTime, 
+    updatePluginResults, 
+    updatePoseStats, 
+    updatePoseData,
+    poseDetectionEnabled
+  ])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
 
   return (
     <View style={styles.container}>
+      {/* React Native Pose Skeleton Overlay - render when pose data is available */}
+      {poseDetectionEnabled && poseData && (
+        <PoseSkeletonOverlay 
+          poseData={poseData}
+          mirrored={cameraPosition === 'front'}
+          confidenceThreshold={0.3}
+          keyPointColor="#00FF00"
+          connectionColor="#FFFF00"
+        />
+      )}
+      
+      {/* Frame Processor Debug Overlay */}
+      {frameProcessorActive && (
+        <SafeAreaView style={styles.frameProcessorOverlay}>
+          <View style={styles.frameProcessorStatus}>
+            <Text style={styles.frameProcessorText}>Frame Processor Active</Text>
+            <Text style={styles.frameProcessorText}>Last Frame: {lastFrameTime}</Text>
+            <Text style={styles.frameProcessorText}>{pluginResults}</Text>
+            {poseDetectionEnabled && (
+              <Text style={styles.frameProcessorText}>Pose Detection: {poseStats}</Text>
+            )}
+          </View>
+        </SafeAreaView>
+      )}
+      
       {device != null ? (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
@@ -254,11 +368,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       <View style={styles.rightButtonRow}>
         <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
-          <IonIcon name="camera-reverse" color="white" size={24} />
+          <TypedIonIcon name="camera-reverse" color="white" size={24} />
         </PressableOpacity>
         {supportsFlash && (
           <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
-            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
+            <TypedIonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {supports60Fps && (
@@ -268,19 +382,33 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         )}
         {supportsHdr && (
           <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
-            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
+            <TypedMaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {canToggleNightMode && (
           <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
-            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+            <TypedIonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
+        {/* Pose detection toggle button */}
+        <PressableOpacity 
+          style={styles.button} 
+          onPress={() => setPoseDetectionEnabled(!poseDetectionEnabled)}
+        >
+          <TypedMaterialIcon 
+            name="human-handsup" 
+            color={poseDetectionEnabled ? "#00FF00" : "white"} 
+            size={24} 
+          />
+        </PressableOpacity>
+        
+        {/* Pose detection is now using Thunder model only */}
+        
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
-          <IonIcon name="settings-outline" color="white" size={24} />
+          <TypedIonIcon name="settings-outline" color="white" size={24} />
         </PressableOpacity>
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CodeScannerPage')}>
-          <IonIcon name="qr-code-outline" color="white" size={24} />
+          <TypedIonIcon name="qr-code-outline" color="white" size={24} />
         </PressableOpacity>
       </View>
     </View>
@@ -291,6 +419,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
+  },
+  frameProcessorOverlay: {
+    position: 'absolute',
+    bottom: 120, // Positioned above the capture button
+    left: 10,
+    zIndex: 1000,
+    alignItems: 'flex-start', // Align to the left
+  },
+  frameProcessorStatus: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 10,
+    borderRadius: 10,
+    maxWidth: '60%', // Smaller to fit on the left side
+  },
+  frameProcessorText: {
+    color: '#00FF00',
+    fontSize: 12,
+    marginBottom: 4,
   },
   captureButton: {
     position: 'absolute',
@@ -306,6 +452,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // No model selection styles needed as we only use Thunder model
   rightButtonRow: {
     position: 'absolute',
     right: SAFE_AREA_PADDING.paddingRight,
