@@ -1,7 +1,7 @@
 import type { ConfigPlugin } from '@expo/config-plugins'
 import { withAndroidManifest } from '@expo/config-plugins'
 
-export const withRequireFeatureAndroid: ConfigPlugin<[string, boolean]> = (c, [featureName, featureIsRequired]) => {
+export const withUsesFeatureAndroid: ConfigPlugin<[string, boolean]> = (c, [featureName, featureIsRequired]) => {
   return withAndroidManifest(c, (config) => {
     if (!Array.isArray(config.modResults.manifest['uses-feature'])) config.modResults.manifest['uses-feature'] = []
 
