@@ -3,6 +3,7 @@ import { withPlugins, AndroidConfig, createRunOncePlugin } from '@expo/config-pl
 import { withEnableFrameProcessorsAndroid } from './withEnableFrameProcessorsAndroid'
 import { withEnableFrameProcessorsIOS } from './withEnableFrameProcessorsIOS'
 import { withAndroidMLKitVisionModel } from './withAndroidMLKitVisionModel'
+import { withRequireFeatureAndroid } from './withRequireFeatureAndroid'
 import type { ConfigProps } from './@types'
 import { withEnableLocationIOS } from './withEnableLocationIOS'
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
@@ -40,6 +41,14 @@ const withCamera: ConfigPlugin<ConfigProps> = (config, props = {}) => {
     // set Podfile property to build frame-processor-related stuff
     config = withEnableFrameProcessorsAndroid(config, props.enableFrameProcessors)
     config = withEnableFrameProcessorsIOS(config, props.enableFrameProcessors)
+  }
+  if (props.requiresCamera !== null && props.requiresCamera !== undefined) {
+    // add uses-feature element to AndroidManifest.xml for hiding app from Play store in case camera is not available on the device
+    config = withRequireFeatureAndroid(config, ['android.hardware.camera', props.requiresCamera])
+  }
+  if (props.requiresMicrophone !== null && props.requiresMicrophone !== undefined) {
+    // add uses-feature element to AndroidManifest.xml for hiding app from Play store in case microphone is not available on the device
+    config = withRequireFeatureAndroid(config, ['android.hardware.microphone', props.requiresMicrophone])
   }
 
   if (props.enableCodeScanner) config = withAndroidMLKitVisionModel(config, props)
