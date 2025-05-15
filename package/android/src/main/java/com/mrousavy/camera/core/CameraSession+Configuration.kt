@@ -342,6 +342,7 @@ internal fun CameraSession.configureIsActive(config: CameraConfiguration) {
   if (config.isActive) {
     lifecycleRegistry.currentState = Lifecycle.State.STARTED
     lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    configureSideProps(config)
   } else {
     lifecycleRegistry.currentState = Lifecycle.State.STARTED
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
