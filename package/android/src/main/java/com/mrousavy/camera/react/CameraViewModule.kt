@@ -33,6 +33,8 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.max
+
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
@@ -52,7 +54,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       }
     }
   }
-
+  private var listenersCount = 0
   private val backgroundCoroutineScope = CoroutineScope(CameraQueues.cameraExecutor.asCoroutineDispatcher())
 
   override fun invalidate() {
@@ -73,6 +75,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       val uiManager = UIManagerHelper.getUIManager(context, uiManagerType) ?: throw Error("UIManager not found!")
 
       val view = uiManager.resolveView(viewId) as? CameraView ?: throw ViewNotFoundError(viewId)
+      view.setReactContext(reactApplicationContext)
       Log.d(TAG, "Found view $viewId!")
       return@runOnUiThreadAndWait view
     }
@@ -188,6 +191,20 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  // Required for rn built in EventEmitter Calls.
+  @ReactMethod
+  fun addListener(eventName: String?) {
+    this.listenersCount++
+  }
+
+  @ReactMethod
+  fun removeListeners(count: Int?) {
+    var finalCount = 0
+    if(count != null){
+      finalCount = count
+    }
+    this.listenersCount = max(0, this.listenersCount - finalCount);
+  }
   private fun canRequestPermission(permission: String): Boolean {
     val activity = currentActivity as? PermissionAwareActivity
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false

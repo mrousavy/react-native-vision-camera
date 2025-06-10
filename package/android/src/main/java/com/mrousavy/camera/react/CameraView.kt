@@ -7,6 +7,9 @@ import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
 import androidx.camera.view.PreviewView
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraSession
@@ -77,7 +80,7 @@ class CameraView(context: Context) :
   var photoHdr = false
   var videoBitRateOverride: Double? = null
   var videoBitRateMultiplier: Double? = null
-
+  private var reactContext: ReactApplicationContext? = null
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
   var lowLightBoost = false
@@ -125,6 +128,10 @@ class CameraView(context: Context) :
     updatePreview()
   }
 
+  fun setReactContext(reactContext: ReactApplicationContext) {
+    this.reactContext = reactContext
+  }
+
   override fun onAttachedToWindow() {
     Log.i(TAG, "CameraView attached to window!")
     super.onAttachedToWindow()
@@ -146,6 +153,10 @@ class CameraView(context: Context) :
 
   fun destroy() {
     cameraSession.close()
+  }
+
+  fun sendEvent(eventName: String, params: WritableMap?) {
+    reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit(eventName, params)
   }
 
   fun update() {

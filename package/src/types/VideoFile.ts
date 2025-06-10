@@ -22,6 +22,7 @@ export interface RecordVideoOptions {
   /**
    * Called when there was an unexpected runtime error while recording the video.
    */
+  onBytesWritten?: (bytes: number) => void
   onRecordingError: (error: CameraCaptureError) => void
   /**
    * Called when the recording has been successfully saved to file.

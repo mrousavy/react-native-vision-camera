@@ -1,5 +1,5 @@
 import React from 'react'
-import { findNodeHandle, StyleSheet } from 'react-native'
+import { findNodeHandle, StyleSheet, NativeEventEmitter } from 'react-native'
 import type { CameraDevice } from './types/CameraDevice'
 import type { CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
@@ -81,6 +81,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /** @internal */
   displayName = Camera.displayName
   private lastFrameProcessor: ((frame: Frame) => void) | undefined
+  private nativeEventEmitter: NativeEventEmitter = new NativeEventEmitter(CameraModule)
+  private bytesEventEmitterListener: EmitterSubscription | null = null
   private isNativeViewMounted = false
   private lastUIRotation: number | undefined = undefined
   private rotationHelper = new RotationHelper()
@@ -201,9 +203,13 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * ```
    */
   public startRecording(options: RecordVideoOptions): void {
-    const { onRecordingError, onRecordingFinished, ...passThruOptions } = options
+    const { onRecordingError, onRecordingFinished, onBytesWritten, ...passThruOptions } = options
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
+
+    this.bytesEventEmitterListener = this.nativeEventEmitter.addListener('onBytesWritten', (data) => {
+      onBytesWritten?.(data.bytes)
+    })
 
     if (options.flash === 'on') {
       // Enable torch for video recording
@@ -316,6 +322,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   public async stopRecording(): Promise<void> {
     try {
+      // this.bytesEventEmitterListener?.remove()
       return await CameraModule.stopRecording(this.handle)
     } catch (e) {
       throw tryParseNativeCameraError(e)
