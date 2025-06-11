@@ -33,8 +33,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.math.max
-
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
@@ -54,6 +52,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       }
     }
   }
+
   private val backgroundCoroutineScope = CoroutineScope(CameraQueues.cameraExecutor.asCoroutineDispatcher())
 
   override fun invalidate() {

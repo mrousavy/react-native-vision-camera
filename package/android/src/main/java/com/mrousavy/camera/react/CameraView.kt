@@ -7,9 +7,6 @@ import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
 import androidx.camera.view.PreviewView
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableMap
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraSession
@@ -80,6 +77,7 @@ class CameraView(context: Context) :
   var photoHdr = false
   var videoBitRateOverride: Double? = null
   var videoBitRateMultiplier: Double? = null
+
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
   var lowLightBoost = false
