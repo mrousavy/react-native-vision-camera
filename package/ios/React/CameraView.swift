@@ -80,6 +80,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var onOutputOrientationChangedEvent: RCTDirectEventBlock?
   @objc var onViewReadyEvent: RCTDirectEventBlock?
   @objc var onAverageFpsChangedEvent: RCTDirectEventBlock?
+  @objc var onBytesWrittenVideoEvent: RCTDirectEventBlock?
   @objc var onCodeScannedEvent: RCTDirectEventBlock?
 
   // zoom
@@ -390,6 +391,12 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   func onAverageFpsChanged(averageFps: Double) {
     onAverageFpsChangedEvent?([
       "averageFps": averageFps,
+    ])
+  }
+
+  func onBytesWrittenVideo(bytes: Double) {
+    onBytesWrittenVideoEvent?([
+      "bytesWritten": bytes,
     ])
   }
 }
