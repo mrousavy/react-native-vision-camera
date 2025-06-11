@@ -98,7 +98,16 @@ class CameraCodeScannedEvent(surfaceId: Int, viewId: Int, private val data: Writ
   Event<CameraCodeScannedEvent>(surfaceId, viewId) {
   override fun getEventName() = EVENT_NAME
   override fun getEventData() = data
+
   companion object {
     const val EVENT_NAME = "topCameraCodeScanned"
   }
+}
+  class BytesWrittenVideoEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) :
+    Event<BytesWrittenVideoEvent>(surfaceId, viewId) {
+    override fun getEventName() = EVENT_NAME
+    override fun getEventData() = data
+    companion object {
+      const val EVENT_NAME = "bytesWrittenVideoEvent"
+    }
 }

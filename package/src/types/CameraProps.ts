@@ -416,5 +416,9 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   codeScanner?: CodeScanner
+  /**
+   * Called whenever the video is written to the file.
+   */
+  onBytesWrittenVideo?: (bytes: number) => void
   //#endregion
 }

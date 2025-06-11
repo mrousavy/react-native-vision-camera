@@ -80,7 +80,6 @@ class CameraView(context: Context) :
   var photoHdr = false
   var videoBitRateOverride: Double? = null
   var videoBitRateMultiplier: Double? = null
-  private var reactContext: ReactApplicationContext? = null
   // TODO: Use .BALANCED once CameraX fixes it https://issuetracker.google.com/issues/337214687
   var photoQualityBalance = QualityBalance.SPEED
   var lowLightBoost = false
@@ -128,10 +127,6 @@ class CameraView(context: Context) :
     updatePreview()
   }
 
-  fun setReactContext(reactContext: ReactApplicationContext) {
-    this.reactContext = reactContext
-  }
-
   override fun onAttachedToWindow() {
     Log.i(TAG, "CameraView attached to window!")
     super.onAttachedToWindow()
@@ -153,10 +148,6 @@ class CameraView(context: Context) :
 
   fun destroy() {
     cameraSession.close()
-  }
-
-  fun sendEvent(eventName: String, params: WritableMap?) {
-    reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit(eventName, params)
   }
 
   fun update() {
@@ -360,5 +351,9 @@ class CameraView(context: Context) :
 
   override fun onAverageFpsChanged(averageFps: Double) {
     invokeOnAverageFpsChanged(averageFps)
+  }
+
+  override fun onBytesWrittenVideo(bytesWritten: Double) {
+    invokeOnBytesWrittenVideo(bytesWritten)
   }
 }

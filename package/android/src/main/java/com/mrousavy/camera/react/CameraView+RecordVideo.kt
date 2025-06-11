@@ -18,9 +18,7 @@ import com.mrousavy.camera.react.utils.makeErrorMap
 
 fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallback: Callback) {
   val onBytesWrittenCallback = { bytes: Long ->
-    val map = Arguments.createMap()
-    map.putDouble("bytes", bytes.toDouble())
-    sendEvent("onBytesWritten", map)
+    this.onBytesWrittenVideo(bytes.toDouble())
   }
   if (audio) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
