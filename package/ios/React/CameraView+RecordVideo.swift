@@ -29,7 +29,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         onError: { error in
           callback.reject(error: error)
         },
-        onBytesWritten: self.onBytesWrittenVideo
+        onBytesWritten: onBytesWrittenVideo
       )
     } catch {
       // Some error occured while initializing VideoSettings

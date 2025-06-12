@@ -418,8 +418,6 @@ export interface CameraProps extends ViewProps {
   codeScanner?: CodeScanner
   /**
    * Used to get the bytes written to the video file on real time while it is being recorded
-   *
-   * @see See [the Code Scanner documentation](https://react-native-vision-camera.com/docs/guides/code-scanning) for more information
    * @example
    * ```tsx
    * const onBytesWrittenVideo = (bytes: number) => {

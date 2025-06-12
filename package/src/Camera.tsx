@@ -92,7 +92,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     super(props)
     this.onViewReady = this.onViewReady.bind(this)
     this.onAverageFpsChanged = this.onAverageFpsChanged.bind(this)
-    this.onBytesWrittenVideo = this.onBytesWrittenVideo.bind(this)
     this.onInitialized = this.onInitialized.bind(this)
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
@@ -103,6 +102,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
+    this.onBytesWrittenVideo = this.onBytesWrittenVideo.bind(this)
     this.ref = React.createRef<RefType>()
     this.lastFrameProcessor = undefined
     this.state = {
