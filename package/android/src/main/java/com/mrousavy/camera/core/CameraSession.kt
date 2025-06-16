@@ -221,5 +221,6 @@ class CameraSession(internal val context: Context, internal val callback: Callba
     fun onOutputOrientationChanged(outputOrientation: Orientation)
     fun onPreviewOrientationChanged(previewOrientation: Orientation)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
+    fun onBytesWrittenVideo(bytesWritten: Double)
   }
 }
