@@ -174,7 +174,8 @@ android {
             "**/libreactnativejni.so",
             "**/libturbomodulejsijni.so",
             "**/libreact_nativemodule_core.so",
-            "**/libjscexecutor.so"
+            "**/libjscexecutor.so",
+            "**/libhermestooling.so"
     ]
   }
 }
