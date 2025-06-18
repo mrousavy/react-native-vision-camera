@@ -21,25 +21,32 @@ export interface RecordVideoOptions {
    */
   height?: number
   /**
-   * The x-coordinate of the top-left corner of the crop region, as a value from 0 to 1.
-   * @default 0
+   * The crop region of the video.
+   * All values are in the range 0 to 1, relative to the video dimensions.
+   * @default { left: 0, top: 0, width: 1, height: 1 }
    */
-  cropX?: number
-  /**
-   * The y-coordinate of the top-left corner of the crop region, as a value from 0 to 1.
-   * @default 0
-   */
-  cropY?: number
-  /**
-   * The width of the crop region, as a value from 0 to 1.
-   * @default 1
-   */
-  cropWidth?: number
-  /**
-   * The height of the crop region, as a value from 0 to 1.
-   * @default 1
-   */
-  cropHeight?: number
+  crop?: {
+    /**
+     * The x-coordinate of the top-left corner of the crop region (0-1)
+     * @default 0
+     */
+    left?: number
+    /**
+     * The y-coordinate of the top-left corner of the crop region (0-1)
+     * @default 0
+     */
+    top?: number
+    /**
+     * The width of the crop region (0-1)
+     * @default 1
+     */
+    width?: number
+    /**
+     * The height of the crop region (0-1)
+     * @default 1
+     */
+    height?: number
+  }
   /**
    * A custom `path` where the video will be saved to.
    *

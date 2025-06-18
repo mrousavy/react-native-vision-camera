@@ -94,11 +94,12 @@ const _CaptureButton: React.FC<Props> = ({
         flash: flash,
         width: 1024,  // Output width after crop
         height: 1024, // Output height after crop
-        cropX: 0.1,    // Start crop at 25% from left
-        cropY: 0.1,    // Start crop at 25% from top
-        cropWidth: 0.9,  // Crop to 50% width
-        cropHeight: 0.9, // Crop to 50% height
-        
+        crop: {
+          left: 0.1,    // Start crop at 10% from left
+          top: 0.1,     // Start crop at 10% from top
+          width: 0.9,   // Crop to 90% width
+          height: 0.9   // Crop to 90% height
+        },
         onRecordingError: (error) => {
           console.error('Recording failed!', error)
           onStoppedRecording()

@@ -93,11 +93,11 @@ extension CameraSession {
 
         // Create crop rect if needed
         var cropRect: CGRect?
-        if options.cropWidth > 0, options.cropHeight > 0 {
-          cropRect = CGRect(x: options.cropX,
-                          y: options.cropY,
-                          width: options.cropWidth,
-                          height: options.cropHeight)
+        if let crop = options.crop {
+          cropRect = CGRect(x: crop.x,
+                          y: crop.y,
+                          width: crop.width,
+                          height: crop.height)
           VisionLogger.log(level: .info, message: "Creating recording with crop rect: \(cropRect!)")
         }
         
