@@ -11,6 +11,36 @@ export interface RecordVideoOptions {
    */
   fileType?: 'mov' | 'mp4'
   /**
+   * The width of the video in pixels.
+   * If not specified, the native sensor resolution is used.
+   */
+  width?: number
+  /**
+   * The height of the video in pixels.
+   * If not specified, the native sensor resolution is used.
+   */
+  height?: number
+  /**
+   * The x-coordinate of the top-left corner of the crop region, as a value from 0 to 1.
+   * @default 0
+   */
+  cropX?: number
+  /**
+   * The y-coordinate of the top-left corner of the crop region, as a value from 0 to 1.
+   * @default 0
+   */
+  cropY?: number
+  /**
+   * The width of the crop region, as a value from 0 to 1.
+   * @default 1
+   */
+  cropWidth?: number
+  /**
+   * The height of the crop region, as a value from 0 to 1.
+   * @default 1
+   */
+  cropHeight?: number
+  /**
    * A custom `path` where the video will be saved to.
    *
    * This must be a directory, as VisionCamera will generate a unique filename itself.

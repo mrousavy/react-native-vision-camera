@@ -92,6 +92,13 @@ const _CaptureButton: React.FC<Props> = ({
       console.log('calling startRecording()...')
       camera.current.startRecording({
         flash: flash,
+        width: 1024,  // Output width after crop
+        height: 1024, // Output height after crop
+        cropX: 0.1,    // Start crop at 25% from left
+        cropY: 0.1,    // Start crop at 25% from top
+        cropWidth: 0.9,  // Crop to 50% width
+        cropHeight: 0.9, // Crop to 50% height
+        
         onRecordingError: (error) => {
           console.error('Recording failed!', error)
           onStoppedRecording()

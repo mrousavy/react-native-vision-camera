@@ -39,6 +39,13 @@ extension AVCaptureVideoDataOutput {
     guard var settings else {
       throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
     }
+    
+    // Apply custom width/height if provided
+    if let width = options.width, let height = options.height {
+      VisionLogger.log(level: .info, message: "Setting custom video dimensions: \(width)x\(height)")
+      settings[AVVideoWidthKey] = NSNumber(value: width)
+      settings[AVVideoHeightKey] = NSNumber(value: height)
+    }
 
     if let bitRateOverride = options.bitRateOverride {
       // Convert from Mbps -> bps

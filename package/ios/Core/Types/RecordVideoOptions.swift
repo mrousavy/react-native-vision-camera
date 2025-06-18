@@ -23,6 +23,12 @@ struct RecordVideoOptions {
    * or set via bitRate, in Megabits per second (Mbps)
    */
   var bitRateMultiplier: Double?
+  var width: Int?
+  var height: Int?
+  var cropX: CGFloat = 0
+  var cropY: CGFloat = 0
+  var cropWidth: CGFloat = 1.0
+  var cropHeight: CGFloat = 1.0
 
   init(fromJSValue dictionary: NSDictionary, bitRateOverride: Double? = nil, bitRateMultiplier: Double? = nil) throws {
     // File Type (.mov or .mp4)
@@ -41,6 +47,27 @@ struct RecordVideoOptions {
     self.bitRateOverride = bitRateOverride
     // BitRate Multiplier
     self.bitRateMultiplier = bitRateMultiplier
+    // Width
+    if let width = dictionary["width"] as? NSNumber {
+      self.width = width.intValue
+    }
+    // Height
+    if let height = dictionary["height"] as? NSNumber {
+      self.height = height.intValue
+    }
+    // Crop region
+    if let cropX = dictionary["cropX"] as? NSNumber {
+      self.cropX = CGFloat(truncating: cropX)
+    }
+    if let cropY = dictionary["cropY"] as? NSNumber {
+      self.cropY = CGFloat(truncating: cropY)
+    }
+    if let cropWidth = dictionary["cropWidth"] as? NSNumber {
+      self.cropWidth = CGFloat(truncating: cropWidth)
+    }
+    if let cropHeight = dictionary["cropHeight"] as? NSNumber {
+      self.cropHeight = CGFloat(truncating: cropHeight)
+    }
     // Custom Path
     let fileExtension = fileType.descriptor ?? "mov"
     if let customPath = dictionary["path"] as? String {
