@@ -27,6 +27,7 @@ This is an Example on how to use [react-native-gesture-handler](https://github.c
 ```tsx
 import { Camera, useCameraDevice } from 'react-native-vision-camera'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import { runOnJS } from 'react-native-reanimated';
 
 export function App() {
   const camera = useRef<Camera>(null)
