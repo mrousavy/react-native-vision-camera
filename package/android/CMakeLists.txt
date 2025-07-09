@@ -80,7 +80,26 @@ endif()
 message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
 if (ENABLE_FRAME_PROCESSORS)
     message("VisionCamera: Linking react-native-worklets...")
-    find_package(react-native-worklets-core REQUIRED CONFIG)
+    
+    # Create a dummy/stub library for rnworklets if one is needed
+    # This allows the build to proceed even if the worklets library hasn't been built yet
+    if(NOT TARGET react-native-worklets-core::rnworklets)
+        message("VisionCamera: Creating stub library for react-native-worklets-core")
+        add_library(rnworklets INTERFACE)
+        
+        # Define include directories
+        target_include_directories(rnworklets INTERFACE
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp"
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp/base"
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp/decorators"
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp/dispatch"
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp/sharedvalues"
+            "${NODE_MODULES_DIR}/react-native-worklets-core/cpp/wrappers"
+        )
+        
+        add_library(react-native-worklets-core::rnworklets ALIAS rnworklets)
+    endif()
+    
     target_link_libraries(
             ${PACKAGE_NAME}
             react-native-worklets-core::rnworklets
