@@ -189,7 +189,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   private fun canRequestPermission(permission: String): Boolean {
-    val activity = currentActivity as? PermissionAwareActivity
+    val activity = reactApplicationContext.currentActivity as? PermissionAwareActivity
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
   }
 
