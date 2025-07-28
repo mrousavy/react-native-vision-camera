@@ -11,10 +11,13 @@ import com.mrousavy.camera.core.extensions.getCameraError
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.Video
 
+import android.media.AudioDeviceInfo
+
 @OptIn(ExperimentalPersistentRecording::class)
 @SuppressLint("MissingPermission", "RestrictedApi")
 fun CameraSession.startRecording(
   enableAudio: Boolean,
+  audioDeviceId: Int?,
   options: RecordVideoOptions,
   callback: (video: Video) -> Unit,
   onError: (error: CameraError) -> Unit
@@ -37,6 +40,19 @@ fun CameraSession.startRecording(
   if (enableAudio) {
     checkMicrophonePermission()
     pendingRecording = pendingRecording.withAudioEnabled()
+
+    if (audioDeviceId != null) {
+      val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+      val audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+      val audioDevice = audioDevices.find { it.id == audioDeviceId }
+      if (audioDevice != null) {
+        val success = recorderOutput?.audioSource?.setPreferredDevice(audioDevice)
+        if (success == false) {
+          onError(MicrophonePermissionError())
+          return
+        }
+      }
+    }
   }
   pendingRecording = pendingRecording.asPersistentRecording()
 

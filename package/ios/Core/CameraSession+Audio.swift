@@ -10,6 +10,16 @@ import AVFoundation
 import Foundation
 
 extension CameraSession {
+  final func setAudioDevice(_ device: AVCaptureDevice) throws {
+    VisionLogger.log(level: .info, message: "Setting Audio Device to \(device.localizedName)...")
+    let audioSession = AVAudioSession.sharedInstance()
+    let inputs = audioSession.availableInputs ?? []
+    guard let input = inputs.first(where: { $0.uid == device.uniqueID }) else {
+      throw CameraError.device(.audioDeviceNotAvailable)
+    }
+    try audioSession.setPreferredInput(input)
+  }
+
   /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 

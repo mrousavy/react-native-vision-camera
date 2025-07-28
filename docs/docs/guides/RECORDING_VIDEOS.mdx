@@ -172,6 +172,27 @@ The resulting video will be recorded at the frame rate provided to the [`fps`](/
 
 See [FPS](formats#fps) for more information.
 
+### Selecting a Microphone
+
+By default, VisionCamera will use the device's built-in microphone for audio recording. If you want to use a different microphone, you can get a list of available audio devices using the `useCameraDevices()` hook:
+
+```tsx
+const { audio: audioDevices } = useCameraDevices()
+```
+
+Then, you can pass the desired audio device to the `startRecording` function:
+
+```ts
+const bluetoothMic = audioDevices.find(d => d.type === 'bluetooth-microphone')
+
+camera.current.startRecording({
+  ...props,
+  audioDevice: bluetoothMic,
+})
+```
+
+VisionCamera will then use the selected microphone for the recording.
+
 ## Saving the Video to the Camera Roll
 
 Since the Video is stored as a temporary file, you need save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:

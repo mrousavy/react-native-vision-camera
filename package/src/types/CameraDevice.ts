@@ -115,6 +115,25 @@ export interface CameraDeviceFormat {
 /**
  * Represents a camera device discovered by the {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()} function
  */
+export type AudioDeviceType =
+  | 'built-in-microphone'
+  | 'bluetooth-microphone'
+  | 'external-microphone'
+  | 'unknown';
+export interface AudioDevice {
+  /**
+   * The native ID of the audio device instance.
+   */
+  id: string;
+  /**
+   * The type of the audio device.
+   */
+  type: AudioDeviceType;
+  /**
+   * A friendly localized name describing the audio device.
+   */
+  name: string;
+}
 export interface CameraDevice {
   /**
    * The native ID of the camera device instance.
@@ -234,4 +253,8 @@ export interface CameraDevice {
    * @see See ["Orientation"](https://react-native-vision-camera.com/docs/guides/orientation)
    */
   sensorOrientation: Orientation
+  /**
+   * All available audio devices for this camera device.
+   */
+  audioDevices: AudioDevice[]
 }

@@ -42,11 +42,13 @@ final class CameraDevicesManager: RCTEventEmitter {
 
   override func constantsToExport() -> [AnyHashable: Any]! {
     let devices = getDevicesJson()
+    let audioDevices = getAudioDevicesJson()
     let preferredDevice = getPreferredDeviceJson()
     VisionLogger.log(level: .info, message: "Found \(devices.count) initial Camera Devices.")
 
     return [
       "availableCameraDevices": devices,
+      "availableAudioDevices": audioDevices,
       "userPreferredCameraDevice": preferredDevice as Any,
     ]
   }
@@ -54,6 +56,18 @@ final class CameraDevicesManager: RCTEventEmitter {
   private func getDevicesJson() -> [[String: Any]] {
     return discoverySession.devices.map {
       return $0.toDictionary()
+    }
+  }
+
+  private func getAudioDevicesJson() -> [[String: Any]] {
+    let audioSession = AVAudioSession.sharedInstance()
+    let availableInputs = audioSession.availableInputs ?? []
+    return availableInputs.map {
+      return [
+        "id": $0.uid,
+        "type": $0.portType.toString(),
+        "name": $0.portName,
+      ]
     }
   }
 

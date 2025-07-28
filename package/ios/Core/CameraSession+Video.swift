@@ -107,6 +107,9 @@ extension CameraSession {
           // Activate Audio Session asynchronously
           CameraQueues.audioQueue.async {
             do {
+              if let audioDevice = options.audioDevice {
+                try self.setAudioDevice(audioDevice)
+              }
               try self.activateAudioSession()
             } catch {
               self.onConfigureError(error)

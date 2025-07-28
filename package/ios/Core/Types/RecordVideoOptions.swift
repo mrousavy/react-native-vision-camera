@@ -14,6 +14,7 @@ struct RecordVideoOptions {
   var flash: Torch = .off
   var codec: AVVideoCodecType?
   var path: URL
+  var audioDevice: AVCaptureDevice?
   /**
    * Full Bit-Rate override for the Video Encoder, in Megabits per second (Mbps)
    */
@@ -28,6 +29,12 @@ struct RecordVideoOptions {
     // File Type (.mov or .mp4)
     if let fileTypeOption = dictionary["fileType"] as? String {
       fileType = try AVFileType(withString: fileTypeOption)
+    }
+    // Audio Device
+    if let audioDeviceOption = dictionary["audioDevice"] as? [String: Any] {
+        if let deviceId = audioDeviceOption["id"] as? String {
+            audioDevice = AVCaptureDevice(uniqueID: deviceId)
+        }
     }
     // Flash
     if let flashOption = dictionary["flash"] as? String {

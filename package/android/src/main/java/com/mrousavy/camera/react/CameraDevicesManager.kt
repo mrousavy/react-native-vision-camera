@@ -12,6 +12,8 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.mrousavy.camera.core.CameraDeviceDetails
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.extensions.await
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +23,18 @@ import kotlinx.coroutines.launch
 class CameraDevicesManager(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     private const val TAG = "CameraDevices"
+
+    fun getAudioDeviceType(deviceInfo: AudioDeviceInfo): String {
+      return when (deviceInfo.type) {
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+        AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "bluetooth-microphone"
+        AudioDeviceInfo.TYPE_BUILTIN_MIC -> "built-in-microphone"
+        AudioDeviceInfo.TYPE_EXTERNAL,
+        AudioDeviceInfo.TYPE_USB_DEVICE,
+        AudioDeviceInfo.TYPE_USB_HEADSET -> "external-microphone"
+        else -> "unknown"
+      }
+    }
   }
   private val executor = CameraQueues.cameraExecutor
   private val coroutineScope = CoroutineScope(executor.asCoroutineDispatcher())
@@ -104,13 +118,29 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     eventEmitter.emit("CameraDevicesChanged", devices)
   }
 
+  private fun getAudioDevicesJson(): ReadableArray {
+    val devices = Arguments.createArray()
+    val audioManager = reactContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+    for (device in audioDevices) {
+      val map = Arguments.createMap()
+      map.putString("id", device.id.toString())
+      map.putString("type", getAudioDeviceType(device))
+      map.putString("name", device.productName)
+      devices.pushMap(map)
+    }
+    return devices
+  }
+
   override fun getConstants(): MutableMap<String, Any?> {
-    val devices = getDevicesJson()
-    val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null
+    val cameraDevices = getDevicesJson()
+    val audioDevices = getAudioDevicesJson()
+    val preferredCameraDevice = if (cameraDevices.size() > 0) cameraDevices.getMap(0) else null
 
     return mutableMapOf(
-      "availableCameraDevices" to devices,
-      "userPreferredCameraDevice" to preferredDevice?.toHashMap()
+      "availableCameraDevices" to cameraDevices,
+      "availableAudioDevices" to audioDevices,
+      "userPreferredCameraDevice" to preferredCameraDevice?.toHashMap()
     )
   }
 
