@@ -62,12 +62,13 @@ Then, pass the `format` to the Camera and enable the `videoStabilizationMode` pr
 ```tsx
 const format = ...
 const supportsVideoStabilization = format.videoStabilizationModes.includes('cinematic-extended')
+const stabilizationMode = supportsVideoStabilization ? 'cinematic-extended' : undefined
 
 return (
   <Camera
     {...props}
     format={format}
-    videoStabilizationMode={supportsVideoStabilization}
+    videoStabilizationMode={stabilizationMode}
   />
 )
 ```
