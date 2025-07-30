@@ -26,6 +26,10 @@ final class RecordingSession {
   private var audioTrack: Track?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
   private var isFinishing = false
+  
+  // Crop properties
+  private var cropRect: CGRect?
+  private var inputSize: CGSize?
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -69,7 +73,10 @@ final class RecordingSession {
        metadataProvider: MetadataProvider,
        clock: CMClock,
        orientation: Orientation,
+       cropRect: CGRect? = nil,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
+    
+    self.cropRect = cropRect
     completionHandler = completion
     self.clock = clock
     videoOrientation = orientation
@@ -107,9 +114,49 @@ final class RecordingSession {
     guard assetWriter.canApply(outputSettings: settings, forMediaType: .video) else {
       throw CameraError.capture(.createRecorderError(message: "The given output settings are not supported!"))
     }
+    
+    // Store the input size for later use in crop calculations
+    if let width = settings[AVVideoWidthKey] as? NSNumber,
+       let height = settings[AVVideoHeightKey] as? NSNumber {
+      inputSize = CGSize(width: width.doubleValue, height: height.doubleValue)
+    }
 
     VisionLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
-    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    
+    // Create video writer input with initial settings
+    var videoWriter: AVAssetWriterInput
+    
+    if let cropRect = cropRect, let inputSize = inputSize {
+      // Calculate the actual crop rectangle based on input size
+      let renderSize = inputSize
+      let cropRect = CGRect(x: cropRect.origin.x * renderSize.width,
+                          y: cropRect.origin.y * renderSize.height,
+                          width: cropRect.width * renderSize.width,
+                          height: cropRect.height * renderSize.height)
+      
+      // Create a transform to apply the crop
+      let transform = CGAffineTransform(
+        translationX: -cropRect.origin.x,
+        y: -cropRect.origin.y
+      )
+      
+      // Create a new settings dictionary with the cropped size
+      var croppedSettings = settings
+      croppedSettings[AVVideoWidthKey] = NSNumber(value: Int(cropRect.width))
+      croppedSettings[AVVideoHeightKey] = NSNumber(value: Int(cropRect.height))
+      
+      // Create the video writer with cropped settings
+      videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: croppedSettings)
+      
+      // Apply the transform (combine with orientation transform)
+      videoWriter.transform = transform.concatenating(videoOrientation.affineTransform)
+      
+      VisionLogger.log(level: .info, message: "Applied video crop: \(cropRect)")
+    } else {
+      // No crop, use original settings
+      videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    }
+    
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = videoOrientation.affineTransform
     assetWriter.add(videoWriter)
