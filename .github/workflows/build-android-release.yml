@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: bun install
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -18,21 +22,9 @@ jobs:
           java-version: 17
           java-package: jdk
 
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install npm dependencies (bun)
-        run: bun install
-
-      - name: Restore Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: ${{ runner.os }}-with-fps-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-with-fps-gradle-
       - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleRelease --no-daemon --build-cache
+        working-directory: example/android
+        run: ./gradlew assembleRelease
 
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
@@ -46,4 +38,5 @@ jobs:
 
       # Gradle cache doesn't like daemons
       - name: Stop Gradle Daemon
-        run: cd example/android && ./gradlew --stop
+        working-directory: example/android
+        run: ./gradlew --stop
