@@ -31,6 +31,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   // State
   var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
+  var recordingSizeTimer: DispatchSourceTimer?
   var didCancelRecording = false
   var orientationManager = OrientationManager()
 
