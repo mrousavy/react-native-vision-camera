@@ -27,11 +27,11 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
   private val cameraManager = reactContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
   private var cameraProvider: ProcessCameraProvider? = null
   private var extensionsManager: ExtensionsManager? = null
+  private var pendingDevices: ReadableArray? = null
 
   private val callback = object : CameraManager.AvailabilityCallback() {
     private var deviceIds = cameraManager.cameraIdList.toMutableList()
 
-    // Check if device is still physically connected (even if onCameraUnavailable() is called)
     private fun isDeviceConnected(cameraId: String): Boolean =
       try {
         cameraManager.getCameraCharacteristics(cameraId)
@@ -44,7 +44,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
       Log.i(TAG, "Camera #$cameraId is now available.")
       if (!deviceIds.contains(cameraId)) {
         deviceIds.add(cameraId)
-        sendAvailableDevicesChangedEvent()
+        safeSendAvailableDevicesChangedEvent()
       }
     }
 
@@ -52,15 +52,22 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
       Log.i(TAG, "Camera #$cameraId is now unavailable.")
       if (deviceIds.contains(cameraId) && !isDeviceConnected(cameraId)) {
         deviceIds.remove(cameraId)
-        sendAvailableDevicesChangedEvent()
+        safeSendAvailableDevicesChangedEvent()
       }
     }
   }
 
   override fun getName(): String = TAG
 
-  // Init cameraProvider + manager as early as possible
-  init {
+  // removed the init { } block — initialization now happens in initialize()
+
+  override fun initialize() {
+    super.initialize()
+
+    // Register availability callback immediately so we don't miss events
+    cameraManager.registerAvailabilityCallback(callback, null)
+
+    // Do the heavy camera provider + extensions init on the background executor
     coroutineScope.launch {
       try {
         Log.i(TAG, "Initializing ProcessCameraProvider...")
@@ -71,14 +78,22 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to initialize ProcessCameraProvider/ExtensionsManager! Error: ${error.message}", error)
       }
-      sendAvailableDevicesChangedEvent()
-    }
-  }
 
-  // Note: initialize() will be called after getConstants on new arch!
-  override fun initialize() {
-    super.initialize()
-    cameraManager.registerAvailabilityCallback(callback, null)
+      // Safe send (will buffer if JS not yet ready)
+      safeSendAvailableDevicesChangedEvent()
+    }
+
+    // If anything was buffered before (rare), attempt to deliver it here also
+    pendingDevices?.let {
+      try {
+        val emitter = reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
+        emitter.emit("CameraDevicesChanged", it)
+      } catch (e: IllegalStateException) {
+        Log.w(TAG, "JS still not ready in initialize(): ${e.message}")
+      } finally {
+        pendingDevices = null
+      }
+    }
   }
 
   override fun invalidate() {
@@ -98,11 +113,27 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     return devices
   }
 
-  fun sendAvailableDevicesChangedEvent() {
-    val eventEmitter = reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
+  /**
+   * Safe send: if JS is ready, emit immediately; otherwise buffer for later.
+   */
+  private fun safeSendAvailableDevicesChangedEvent() {
     val devices = getDevicesJson()
-    eventEmitter.emit("CameraDevicesChanged", devices)
+    if (reactContext.hasActiveCatalystInstance()) {
+      try {
+        val eventEmitter = reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
+        eventEmitter.emit("CameraDevicesChanged", devices)
+      } catch (e: IllegalStateException) {
+        Log.w(TAG, "Race condition while emitting CameraDevicesChanged: ${e.message}")
+        pendingDevices = devices
+      }
+    } else {
+      Log.i(TAG, "Buffering CameraDevicesChanged until JS is ready")
+      pendingDevices = devices
+    }
   }
+
+  // keep this simple wrapper to avoid accidental direct calls elsewhere
+  fun sendAvailableDevicesChangedEvent() = safeSendAvailableDevicesChangedEvent()
 
   override fun getConstants(): MutableMap<String, Any?> {
     val devices = getDevicesJson()
@@ -114,7 +145,6 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     )
   }
 
-  // Required for NativeEventEmitter, this is just a dummy implementation:
   @Suppress("unused", "UNUSED_PARAMETER")
   @ReactMethod
   fun addListener(eventName: String) {}
