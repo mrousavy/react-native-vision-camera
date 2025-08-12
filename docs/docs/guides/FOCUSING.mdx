@@ -27,7 +27,7 @@ This is an Example on how to use [react-native-gesture-handler](https://github.c
 ```tsx
 import { Camera, useCameraDevice } from 'react-native-vision-camera'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
-import { runOnJS } from 'react-native-reanimated';
+import { runOnJS } from 'react-native-reanimated'
 
 export function App() {
   const camera = useRef<Camera>(null)
@@ -39,24 +39,37 @@ export function App() {
     c.focus(point)
   }, [])
 
-  const gesture = Gesture.Tap()
-    .onEnd(({ x, y }) => {
-      runOnJS(focus)({ x, y })
-    })
+  const gesture = Gesture.Tap().onEnd(({ x, y }) => {
+    runOnJS(focus)({ x, y })
+  })
 
   if (device == null) return <NoCameraDeviceError />
   return (
     <GestureDetector gesture={gesture}>
-      <Camera
-        ref={camera}
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-      />
+      <Camera ref={camera} style={StyleSheet.absoluteFill} device={device} isActive={true} />
     </GestureDetector>
   )
 }
 ```
+
+### Focus depth (focus on a fixed manual distance)
+
+You can programmatically set the distance of the focus, or the depth.
+
+```ts
+await camera.current.focusDepth(0.5)
+```
+
+The value between Android and iOS is reversed:
+| distance | Android | iOS |
+|---------------|--------------------------------|-----|
+| macro (close) | 10 | 0 |
+| infinite | 0.2 | 1 |
+
+In practice, you will probably use these values to prevent any issues on **Android**:
+
+- macro: `device.minFocusDistance + 0.1` (0.1 prevents some weird focus changes)
+- infinite: `Math.min(0.2, device.minFocusDistance)` (the lowest value for infinite focus, but setting it too low also produces focus artifacts)
 
 <br />
 

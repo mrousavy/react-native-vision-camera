@@ -12,6 +12,7 @@ export type DeviceError =
   | 'device/pixel-format-not-supported'
   | 'device/low-light-boost-not-supported'
   | 'device/focus-not-supported'
+  | 'device/focus-depth-not-supported'
   | 'device/camera-not-available-on-simulator'
   | 'device/camera-already-in-use'
 export type FormatError =

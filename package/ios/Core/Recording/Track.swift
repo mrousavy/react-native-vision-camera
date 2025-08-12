@@ -51,7 +51,7 @@ final class Track {
   /**
    Returns the last timestamp that was actually written to the track.
    */
-  public private(set) var lastTimestamp: CMTime?
+  private(set) var lastTimestamp: CMTime?
 
   /**
    Gets the natural size of the asset writer, or zero if it is not a visual track.

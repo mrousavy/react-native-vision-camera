@@ -76,6 +76,7 @@ enum DeviceError {
   case microphoneUnavailable
   case lowLightBoostNotSupported
   case focusNotSupported
+  case focusDepthNotSupported
   case notAvailableOnSimulator
   case pixelFormatNotSupported(targetFormats: [FourCharCode], availableFormats: [FourCharCode])
 
@@ -95,6 +96,8 @@ enum DeviceError {
       return "low-light-boost-not-supported"
     case .focusNotSupported:
       return "focus-not-supported"
+    case .focusDepthNotSupported:
+      return "focus-depth-not-supported"
     case .notAvailableOnSimulator:
       return "camera-not-available-on-simulator"
     case .pixelFormatNotSupported:
@@ -116,6 +119,8 @@ enum DeviceError {
       return "The currently selected camera device does not support low-light boost! Select a device where `device.supportsLowLightBoost` is true."
     case .focusNotSupported:
       return "The currently selected camera device does not support focusing!"
+    case .focusDepthNotSupported:
+      return "The currently selected camera device does not support manual depth-of-field focusing!"
     case .microphoneUnavailable:
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:
