@@ -97,6 +97,13 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
+  final func focusDepth(_ node: NSNumber, distance: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let promise = Promise(resolver: resolve, rejecter: reject)
+    let component = getCameraView(withTag: node)
+    component.focusDepth(distance: distance.floatValue, promise: promise)
+  }
+
+  @objc
   final func getCameraPermissionStatus() -> String {
     let status = AVCaptureDevice.authorizationStatus(for: .video)
     return status.descriptor

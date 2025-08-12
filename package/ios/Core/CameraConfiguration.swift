@@ -153,7 +153,7 @@ final class CameraConfiguration {
     case disabled
     case enabled(config: T)
 
-    public static func == (lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
+    static func == (lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
       switch (lhs, rhs) {
       case (.disabled, .disabled):
         return true
