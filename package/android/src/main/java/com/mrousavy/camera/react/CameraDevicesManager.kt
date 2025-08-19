@@ -104,11 +104,11 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     eventEmitter.emit("CameraDevicesChanged", devices)
   }
 
-  override fun getConstants(): MutableMap<String, Any?> {
+  override fun getConstants(): Map<String, Any?> {
     val devices = getDevicesJson()
     val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null
 
-    return mutableMapOf(
+    return mapOf(
       "availableCameraDevices" to devices,
       "userPreferredCameraDevice" to preferredDevice?.toHashMap()
     )
