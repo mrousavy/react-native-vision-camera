@@ -5,7 +5,7 @@ import type { CameraCaptureError } from './CameraError'
 import { CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
 import type { CameraProps, DrawableFrameProcessor, OnShutterEvent, ReadonlyFrameProcessor } from './types/CameraProps'
 import { CameraModule } from './NativeCameraModule'
-import type { PhotoFile, TakePhotoOptions } from './types/PhotoFile'
+import type { PhotoFile, TakePhotoOptions, ThumbnailFile } from './types/PhotoFile'
 import type { Point } from './types/Point'
 import type { RecordVideoOptions, VideoFile } from './types/VideoFile'
 import { VisionCameraProxy } from './frame-processors/VisionCameraProxy'
@@ -20,6 +20,7 @@ import type {
   NativeCameraViewProps,
   OnCodeScannedEvent,
   OnErrorEvent,
+  OnThumbnailReadyEvent,
   OutputOrientationChangedEvent,
   PreviewOrientationChangedEvent,
 } from './NativeCameraView'
@@ -84,6 +85,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private isNativeViewMounted = false
   private lastUIRotation: number | undefined = undefined
   private rotationHelper = new RotationHelper()
+  private currentThumbnailCallback: ((thumbnail: ThumbnailFile) => void) | undefined
 
   private readonly ref: React.RefObject<RefType>
 
@@ -102,6 +104,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
+    this.onThumbnailReady = this.onThumbnailReady.bind(this)
     this.ref = React.createRef<RefType>()
     this.lastFrameProcessor = undefined
     this.state = {
@@ -132,15 +135,28 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * ```ts
    * const photo = await camera.current.takePhoto({
    *   flash: 'on',
-   *   enableAutoRedEyeReduction: true
+   *   enableAutoRedEyeReduction: true,
+   *   thumbnailSize: { width: 200, height: 200 },
+   *   onThumbnailReady: (thumbnail) => console.log('Thumbnail ready!', thumbnail)
    * })
    * ```
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
-      return await CameraModule.takePhoto(this.handle, options ?? {})
+      // Store the thumbnail callback if provided
+      if (options?.onThumbnailReady != null) this.currentThumbnailCallback = options.onThumbnailReady
+
+      // Create options without the callback for native call
+      const { onThumbnailReady: _, ...nativeOptions } = options ?? {}
+
+      return await CameraModule.takePhoto(this.handle, nativeOptions)
     } catch (e) {
+      // Clear callback on error
+      this.currentThumbnailCallback = undefined
       throw tryParseNativeCameraError(e)
+    } finally {
+      // Clear callback after photo is taken
+      this.currentThumbnailCallback = undefined
     }
   }
 
@@ -566,6 +582,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     codeScanner.onCodeScanned(event.nativeEvent.codes, event.nativeEvent.frame)
   }
 
+  private onThumbnailReady(event: NativeSyntheticEvent<OnThumbnailReadyEvent>): void {
+    if (this.currentThumbnailCallback != null) this.currentThumbnailCallback(event.nativeEvent)
+  }
+
   //#region Lifecycle
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     VisionCameraProxy.setFrameProcessor(this.handle, frameProcessor)
@@ -669,6 +689,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onOutputOrientationChanged={this.onOutputOrientationChanged}
         onPreviewOrientationChanged={this.onPreviewOrientationChanged}
         onError={this.onError}
+        onThumbnailReady={this.onThumbnailReady}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}

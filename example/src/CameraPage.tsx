@@ -4,7 +4,7 @@ import type { GestureResponderEvent } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
-import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
+import type { CameraProps, CameraRuntimeError, PhotoFile, ThumbnailFile, VideoFile } from 'react-native-vision-camera'
 import {
   runAtTargetFps,
   useCameraDevice,
@@ -55,6 +55,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false)
   const [flash, setFlash] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
+  const [thumbnail, setThumbnail] = useState<ThumbnailFile | null>(null)
 
   // camera device settings
   const [preferredDevice] = usePreferredCameraDevice()
@@ -112,12 +113,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const onMediaCaptured = useCallback(
     (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
       console.log(`Media captured! ${JSON.stringify(media)}`)
+      console.log(`Thumbnail: ${JSON.stringify(thumbnail)}`)
+      console.log(new Date())
       navigation.navigate('MediaPage', {
         path: media.path,
         type: type,
+        thumbnail: thumbnail,
       })
     },
-    [navigation],
+    [navigation, thumbnail],
   )
   const onFlipCameraPressed = useCallback(() => {
     setCameraPosition((p) => (p === 'back' ? 'front' : 'back'))
@@ -177,6 +181,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   useEffect(() => {
     location.requestPermission()
   }, [location])
+
+  const onThumbnailReady = useCallback(
+    (t: ThumbnailFile) => {
+      console.log(`=============thumbnail Ready=============\n${t.width}x${t.height}`)
+      console.log(new Date())
+      setThumbnail(t)
+    },
+    [setThumbnail],
+  )
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
@@ -248,6 +261,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         flash={supportsFlash ? flash : 'off'}
         enabled={isCameraInitialized && isActive}
         setIsPressingButton={setIsPressingButton}
+        onThumbnailReady={onThumbnailReady}
       />
 
       <StatusBarBlurBackground />
