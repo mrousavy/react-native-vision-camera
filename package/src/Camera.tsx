@@ -85,7 +85,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private lastUIRotation: number | undefined = undefined
   private rotationHelper = new RotationHelper()
 
-  private readonly ref: React.RefObject<RefType>
+  private readonly ref: React.RefObject<RefType | null>
 
   /** @internal */
   constructor(props: CameraProps) {
@@ -102,7 +102,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
-    this.ref = React.createRef<RefType>()
+    this.ref = React.createRef<RefType | null>()
     this.lastFrameProcessor = undefined
     this.state = {
       isRecordingWithFlash: false,
