@@ -27,7 +27,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.update()
   }
 
-  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? =
+  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? =
     MapBuilder.builder<String, Any>()
       .put(CameraViewReadyEvent.EVENT_NAME, MapBuilder.of("registrationName", "onViewReady"))
       .put(CameraInitializedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onInitialized"))
@@ -42,6 +42,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewOrientationChanged"))
       .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onAverageFpsChanged"))
       .build()
+      .toMutableMap()
 
   override fun getName(): String = TAG
 
