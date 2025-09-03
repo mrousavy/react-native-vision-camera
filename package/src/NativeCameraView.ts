@@ -26,6 +26,7 @@ export interface PreviewOrientationChangedEvent {
 export type NativeCameraViewProps = Omit<
   CameraProps,
   | 'device'
+  | 'audioInputDevice'
   | 'onInitialized'
   | 'onError'
   | 'onShutter'
@@ -38,6 +39,7 @@ export type NativeCameraViewProps = Omit<
 > & {
   // private intermediate props
   cameraId: string
+  audioInputDeviceUid?: string
   enableFrameProcessor: boolean
   codeScannerOptions?: Omit<CodeScanner, 'onCodeScanned'>
   minFps?: number

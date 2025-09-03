@@ -1,17 +1,19 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import type { GestureResponderEvent } from 'react-native'
+import type { EmitterSubscription, GestureResponderEvent } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
 import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
   runAtTargetFps,
+  useAudioInputDevices,
   useCameraDevice,
   useCameraFormat,
   useFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
+  AudioInputLevel,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -29,6 +31,7 @@ import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
 import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -39,13 +42,15 @@ const SCALE_FULL_ZOOM = 3
 
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
+  const audioInputDevices = useAudioInputDevices()
+  const { bottom } = useSafeAreaInsets()
+  const [selectedMic, setSelectedMic] = useState(audioInputDevices[0])
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
   const microphone = useMicrophonePermission()
   const location = useLocationPermission()
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
-
   // check if camera page is active
   const isFocussed = useIsFocused()
   const isForeground = useIsForeground()
@@ -183,11 +188,22 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     runAtTargetFps(10, () => {
       'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
       examplePlugin(frame)
       exampleKotlinSwiftPlugin(frame)
     })
   }, [])
+
+  useEffect(() => {
+    let listener: EmitterSubscription | null = null
+    if (selectedMic?.uid) {
+      listener = AudioInputLevel.addAudioLevelChangedListener((level) => {
+        console.log('Current Audio device level:', level)
+      })
+    }
+    return () => {
+      listener?.remove()
+    }
+  }, [selectedMic?.uid])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
@@ -201,6 +217,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
               <ReanimatedCamera
                 style={StyleSheet.absoluteFill}
                 device={device}
+                audioInputDevice={selectedMic}
                 isActive={isActive}
                 ref={camera}
                 onInitialized={onInitialized}
@@ -283,6 +300,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           <IonIcon name="qr-code-outline" color="white" size={24} />
         </PressableOpacity>
       </View>
+      <View style={[styles.microphoneContainer, { bottom }]}>
+        {audioInputDevices.map((item) => (
+          <PressableOpacity onPress={() => setSelectedMic(item)} style={styles.microphoneButton}>
+            <Text style={[styles.microphoneButtonText, item.uid === selectedMic?.uid && styles.microphoneButtonSelectedText]}>
+              {item.portName}
+            </Text>
+          </PressableOpacity>
+        ))}
+      </View>
     </View>
   )
 }
@@ -321,5 +347,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  microphoneContainer: {
+    position: 'absolute',
+    left: 12,
+    top: 100,
+  },
+  microphoneButton: {
+    height: 48,
+  },
+  microphoneButtonText: {
+    color: 'white',
+  },
+  microphoneButtonSelectedText: {
+    color: 'blue',
   },
 })

@@ -20,6 +20,9 @@ export * from './devices/getCameraFormat'
 export * from './devices/getCameraDevice'
 export * from './devices/Templates'
 
+// Listeners
+export * from './listeners/AudioInputLevel'
+
 // Hooks
 export * from './hooks/useCameraDevice'
 export * from './hooks/useCameraDevices'
@@ -27,7 +30,7 @@ export * from './hooks/useCameraFormat'
 export * from './hooks/useCameraPermission'
 export * from './hooks/useCodeScanner'
 export * from './hooks/useFrameProcessor'
-
+export * from './hooks/useAudioInputDevices'
 // Frame Processors
 export * from './frame-processors/runAsync'
 export * from './frame-processors/runAtTargetFps'

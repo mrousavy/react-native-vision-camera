@@ -181,7 +181,6 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = CJW62Q77E7;
 						LastSwiftMigration = 1240;
 					};
 				};
@@ -422,7 +421,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJW62Q77E7;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
@@ -455,7 +454,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJW62Q77E7;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";

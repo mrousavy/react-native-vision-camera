@@ -25,6 +25,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
   // props that require reconfiguring
   @objc var cameraId: NSString?
+  @objc var audioInputDeviceUid: NSString?
+
   @objc var enableDepthData = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
@@ -183,7 +185,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     VisionLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
     let now = DispatchTime.now()
     currentConfigureCall = now
-
+   
     cameraSession.configure { [self] config in
       // Check if we're still the latest call to configure { ... }
       guard currentConfigureCall == now else {
@@ -196,7 +198,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       // Input Camera Device
       config.cameraId = cameraId as? String
       config.isMirrored = isMirrored
-
+        
       // Photo
       if photo {
         config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
@@ -272,13 +274,16 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
       // isActive
       config.isActive = isActive
+      
+      // Preffered audio input device uid
+      config.audioInputDeviceUid = audioInputDeviceUid as String?
     }
 
     // Store `zoom` offset for native pinch-gesture
     if changedProps.contains("zoom") {
       pinchScaleOffset = zoom.doubleValue
     }
-
+    
     // Prevent phone from going to sleep
     UIApplication.shared.isIdleTimerDisabled = isActive
   }
