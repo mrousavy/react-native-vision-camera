@@ -71,7 +71,6 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to initialize ProcessCameraProvider/ExtensionsManager! Error: ${error.message}", error)
       }
-      sendAvailableDevicesChangedEvent()
     }
   }
 
@@ -79,6 +78,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
   override fun initialize() {
     super.initialize()
     cameraManager.registerAvailabilityCallback(callback, null)
+    sendAvailableDevicesChangedEvent()
   }
 
   override fun invalidate() {
