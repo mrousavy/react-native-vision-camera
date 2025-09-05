@@ -7,7 +7,7 @@ import type { CameraProps, DrawableFrameProcessor, OnShutterEvent, ReadonlyFrame
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './types/PhotoFile'
 import type { Point } from './types/Point'
-import type { RecordVideoOptions, VideoFile } from './types/VideoFile'
+import type { OnBytesWrittenVideoEvent, RecordVideoOptions, VideoFile } from './types/VideoFile'
 import { VisionCameraProxy } from './frame-processors/VisionCameraProxy'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription, NativeSyntheticEvent, NativeMethods } from 'react-native'
@@ -102,6 +102,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onPreviewOrientationChanged = this.onPreviewOrientationChanged.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
+    this.onBytesWrittenVideo = this.onBytesWrittenVideo.bind(this)
     this.ref = React.createRef<RefType>()
     this.lastFrameProcessor = undefined
     this.state = {
@@ -599,6 +600,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     })
   }
 
+  private onBytesWrittenVideo({ nativeEvent: { bytesWritten } }: NativeSyntheticEvent<OnBytesWrittenVideoEvent>): void {
+    this.props.onBytesWrittenVideo?.(bytesWritten)
+  }
+
   /** @internal */
   componentDidUpdate(): void {
     if (!this.isNativeViewMounted) return
@@ -657,6 +662,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         isMirrored={props.isMirrored ?? shouldBeMirrored}
         onViewReady={this.onViewReady}
         onAverageFpsChanged={enableFpsGraph ? this.onAverageFpsChanged : undefined}
+        onBytesWrittenVideo={this.onBytesWrittenVideo}
         onInitialized={this.onInitialized}
         onCodeScanned={this.onCodeScanned}
         onStarted={this.onStarted}
