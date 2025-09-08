@@ -616,7 +616,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor, codeScanner, enableFpsGraph, fps, videoBitRate, ...props } = this.props
+    const { device, audioInputDevice, frameProcessor, codeScanner, enableFpsGraph, fps, videoBitRate, ...props } = this.props
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (device == null) {
@@ -650,6 +650,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
       <NativeCameraView
         {...props}
         cameraId={device.id}
+        audioInputDeviceUid={audioInputDevice?.uid}
         ref={this.ref}
         torch={torch}
         minFps={minFps}

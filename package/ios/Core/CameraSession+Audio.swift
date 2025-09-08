@@ -10,25 +10,17 @@ import AVFoundation
 import Foundation
 
 extension CameraSession {
+   
   /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
    The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.
    Background audio is allowed to play on speakers or bluetooth speakers.
    */
-  final func activateAudioSession() throws {
+    final func activateAudioSession() throws {
     VisionLogger.log(level: .info, message: "Activating Audio Session...")
 
     do {
-      let audioSession = AVAudioSession.sharedInstance()
-
-      try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
-                                      mode: .videoRecording,
-                                      options: [.mixWithOthers,
-                                                .allowBluetoothA2DP,
-                                                .defaultToSpeaker,
-                                                .allowAirPlay])
-
       if #available(iOS 14.5, *) {
         // prevents the audio session from being interrupted by a phone call
         try audioSession.setPrefersNoInterruptionsFromSystemAlerts(true)
@@ -51,10 +43,9 @@ extension CameraSession {
       }
     }
   }
-
+    
   final func deactivateAudioSession() {
     VisionLogger.log(level: .info, message: "Deactivating Audio Session...")
-
     audioCaptureSession.stopRunning()
     VisionLogger.log(level: .info, message: "Audio Session deactivated!")
   }
@@ -84,7 +75,7 @@ extension CameraSession {
           CameraQueues.audioQueue.async {
             VisionLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
             // restart audio session because interruption is over
-            try? self.activateAudioSession()
+              try? self.activateAudioSession()
           }
         }
       } else {
@@ -94,4 +85,70 @@ extension CameraSession {
       ()
     }
   }
+    
+    func setAudioConfig () {
+        do {
+            try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
+                                    mode: .videoRecording,
+                                    options: [.mixWithOthers,
+                                              .allowBluetoothA2DP,
+                                              .allowBluetooth,
+                                              .defaultToSpeaker,
+                                              .allowAirPlay])}
+        catch let error as NSError {
+          VisionLogger.log(level: .error, message: "Failed to update audio category! Error \(error.code): \(error.description)")
+          }
+    }
+    // Activates AvAudioSession
+    func enableAudioSession () {
+        do {
+            try audioSession.setActive(true)
+        }
+        catch let error as NSError {
+          VisionLogger.log(level: .error, message: "Failed to activate audio session! Error \(error.code): \(error.description)")
+          }
+    }
+    
+    // Deactivates AvAudioSession
+    func disableAudioSession () {
+        do {
+            try audioSession.setActive(false)
+        }
+        catch let error as NSError {
+          VisionLogger.log(level: .error, message: "Failed to deactivate audio session! Error \(error.code): \(error.description)")
+          }
+    }
+    // Gets the preffered audio input my comparing input device uids
+    func getPreferredAudioInput() -> AVAudioSessionPortDescription? {
+       guard let availableInputs = audioSession.availableInputs else {
+           VisionLogger.log(level: .error, message: "No available inputs detected")
+           return nil
+       }
+      
+        if configuration?.audioInputDeviceUid == nil {
+            VisionLogger.log(level: .error, message: "No audio input uid specificed, reverting to first/default input")
+            return availableInputs.first
+       }
+
+        return availableInputs.first(where: { $0.uid == configuration?.audioInputDeviceUid})
+   }
+    
+    // Sets the preffered audio input device by the user
+    func setPreferredAudioInput() {
+        guard let preferredInput = getPreferredAudioInput() else {
+            return
+        }
+        disableAudioSession()
+        do {
+            try audioSession.setPreferredInput(preferredInput)
+            enableAudioSession()
+        } catch {
+            VisionLogger.log(level: .error, message: "Error setting preferred audio input: \(error.localizedDescription)")
+        }
+    }
+    
+    
 }
+
+
+
