@@ -18,6 +18,10 @@ end
 
 target 'VisionCameraExample' do
   config = use_native_modules!
+  
+  # TensorFlow Lite for pose detection
+  pod 'TensorFlowLiteSwift'
+  pod 'TensorFlowLiteTaskVision'
 
   use_react_native!(
     :path => config[:reactNativePath],
