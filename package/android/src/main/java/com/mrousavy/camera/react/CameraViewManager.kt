@@ -1,7 +1,6 @@
 package com.mrousavy.camera.react
 
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -27,21 +26,20 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.update()
   }
 
-  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? =
-    MapBuilder.builder<String, Any>()
-      .put(CameraViewReadyEvent.EVENT_NAME, MapBuilder.of("registrationName", "onViewReady"))
-      .put(CameraInitializedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onInitialized"))
-      .put(CameraStartedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onStarted"))
-      .put(CameraStoppedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onStopped"))
-      .put(CameraShutterEvent.EVENT_NAME, MapBuilder.of("registrationName", "onShutter"))
-      .put(CameraErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", "onError"))
-      .put(CameraCodeScannedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onCodeScanned"))
-      .put(CameraPreviewStartedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewStarted"))
-      .put(CameraPreviewStoppedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewStopped"))
-      .put(CameraOutputOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onOutputOrientationChanged"))
-      .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewOrientationChanged"))
-      .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onAverageFpsChanged"))
-      .build()
+  override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> = mapOf(
+    CameraViewReadyEvent.EVENT_NAME to mapOf("registrationName" to "onViewReady"),
+    CameraInitializedEvent.EVENT_NAME to mapOf("registrationName" to "onInitialized"),
+    CameraStartedEvent.EVENT_NAME to mapOf("registrationName" to "onStarted"),
+    CameraStoppedEvent.EVENT_NAME to mapOf("registrationName" to "onStopped"),
+    CameraShutterEvent.EVENT_NAME to mapOf("registrationName" to "onShutter"),
+    CameraErrorEvent.EVENT_NAME to mapOf("registrationName" to "onError"),
+    CameraCodeScannedEvent.EVENT_NAME to mapOf("registrationName" to "onCodeScanned"),
+    CameraPreviewStartedEvent.EVENT_NAME to mapOf("registrationName" to "onPreviewStarted"),
+    CameraPreviewStoppedEvent.EVENT_NAME to mapOf("registrationName" to "onPreviewStopped"),
+    CameraOutputOrientationChangedEvent.EVENT_NAME to mapOf("registrationName" to "onOutputOrientationChanged"),
+    CameraPreviewOrientationChangedEvent.EVENT_NAME to mapOf("registrationName" to "onPreviewOrientationChanged"),
+    AverageFpsChangedEvent.EVENT_NAME to mapOf("registrationName" to "onAverageFpsChanged")
+  )
 
   override fun getName(): String = TAG
 
