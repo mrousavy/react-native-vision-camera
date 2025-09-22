@@ -46,12 +46,18 @@ final class CameraConfiguration {
 
   // Exposure
   var exposure: Float?
+  var exposureDuration: Double?
+  var iso: Float?
 
   // isActive (Start/Stop)
   var isActive = false
 
   // Audio Session
   var audio: OutputConfiguration<Audio> = .disabled
+  
+  var isManualExposure: Bool {
+    return exposureDuration != nil || iso != nil
+  }
 
   init(copyOf other: CameraConfiguration?) {
     if let other {
@@ -83,7 +89,6 @@ final class CameraConfiguration {
   /**
    Throw this to abort calls to configure { ... } and apply no changes.
    */
-  @frozen
   enum AbortThrow: Error {
     case abort
   }
@@ -131,7 +136,7 @@ final class CameraConfiguration {
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)
-      sidePropsChanged = formatChanged || left?.minFps != right.minFps || left?.maxFps != right.maxFps || left?.enableLowLightBoost != right.enableLowLightBoost
+      sidePropsChanged = formatChanged || left?.minFps != right.minFps || left?.maxFps != right.maxFps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.exposureDuration != right.exposureDuration || left?.iso != right.iso
       // torch (depends on isActive)
       let wasInactiveAndNeedsToEnableTorchAgain = left?.isActive == false && right.isActive == true && right.torch == .on
       torchChanged = inputChanged || wasInactiveAndNeedsToEnableTorchAgain || left?.torch != right.torch
@@ -148,7 +153,6 @@ final class CameraConfiguration {
     }
   }
 
-  @frozen
   enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled
     case enabled(config: T)

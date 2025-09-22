@@ -24,6 +24,9 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
 
   let minISO: Float
   let maxISO: Float
+  
+  let minExposureDuration: Double
+  let maxExposureDuration: Double
 
   let fieldOfView: Float
 
@@ -44,6 +47,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     maxFps = format.maxFps
     minISO = format.minISO
     maxISO = format.maxISO
+    minExposureDuration = format.minExposureDuration.seconds
+    maxExposureDuration = format.maxExposureDuration.seconds
     fieldOfView = format.videoFieldOfView
     videoStabilizationModes = format.videoStabilizationModes.map { VideoStabilizationMode(from: $0) }
     autoFocusSystem = AutoFocusSystem(fromFocusSystem: format.autoFocusSystem)
@@ -62,6 +67,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     maxFps = jsValue["maxFps"] as! Double
     minISO = jsValue["minISO"] as! Float
     maxISO = jsValue["maxISO"] as! Float
+    minExposureDuration = jsValue["minExposureDuration"] as! Double
+    maxExposureDuration = jsValue["minExposureDuration"] as! Double
     fieldOfView = jsValue["fieldOfView"] as! Float
     let jsVideoStabilizationModes = jsValue["videoStabilizationModes"] as! [String]
     videoStabilizationModes = try jsVideoStabilizationModes.map { try VideoStabilizationMode(jsValue: $0) }
@@ -88,6 +95,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "videoWidth": videoWidth,
       "minISO": minISO,
       "maxISO": maxISO,
+      "minExposureDuration": minExposureDuration,
+      "maxExposureDuration": maxExposureDuration,
       "fieldOfView": fieldOfView,
       "supportsVideoHdr": supportsVideoHdr,
       "supportsPhotoHdr": supportsPhotoHdr,

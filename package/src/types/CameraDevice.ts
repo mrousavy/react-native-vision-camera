@@ -79,6 +79,14 @@ export interface CameraDeviceFormat {
    */
   minISO: number
   /**
+   * Minimum supported exposure duration, in seconds
+   */
+  minExposureDuration: number
+  /**
+   * Maximum supported exposure duration, in seconds
+   */
+  maxExposureDuration: number
+  /**
    * The video field of view in degrees
    */
   fieldOfView: number

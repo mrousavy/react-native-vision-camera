@@ -273,7 +273,7 @@ extension CameraSession {
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
     }
-
+    
     // Configure auto-focus
     if device.isFocusModeSupported(.continuousAutoFocus) {
       if device.isFocusPointOfInterestSupported {
@@ -281,11 +281,21 @@ extension CameraSession {
       }
       device.focusMode = .continuousAutoFocus
     }
-    if device.isExposureModeSupported(.continuousAutoExposure) {
-      if device.isExposurePointOfInterestSupported {
-        device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+    
+    
+    if configuration.isManualExposure {
+      // Lock exposure to manual
+      let duration = CMTime(seconds: configuration.exposureDuration ?? AVCaptureDevice.currentExposureDuration.seconds, preferredTimescale: 1)
+      let iso = configuration.iso ?? AVCaptureDevice.currentISO
+      device.setExposureModeCustom(duration: duration, iso: iso)
+    } else {
+      // Configure auto-exposure
+      if device.isExposureModeSupported(.continuousAutoExposure) {
+        if device.isExposurePointOfInterestSupported {
+          device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+        }
+        device.exposureMode = .continuousAutoExposure
       }
-      device.exposureMode = .continuousAutoExposure
     }
   }
 
