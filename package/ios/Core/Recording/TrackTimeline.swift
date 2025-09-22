@@ -25,22 +25,22 @@ final class TrackTimeline {
    Represents whether the timeline has been marked as finished or not.
    A timeline will automatically be marked as finished when a timestamp arrives that appears after a stop().
    */
-  public private(set) var isFinished = false
+  private(set) var isFinished = false
 
   /**
    Gets the latency of the buffers in this timeline.
    This is computed by (currentTime - mostRecentBuffer.timestamp)
    */
-  public private(set) var latency: CMTime = .zero
+  private(set) var latency: CMTime = .zero
 
   /**
    Get the first actually written timestamp of this timeline
    */
-  public private(set) var firstTimestamp: CMTime?
+  private(set) var firstTimestamp: CMTime?
   /**
    Get the last actually written timestamp of this timeline.
    */
-  public private(set) var lastTimestamp: CMTime?
+  private(set) var lastTimestamp: CMTime?
 
   init(ofTrackType type: TrackType, withClock clock: CMClock) {
     trackType = type

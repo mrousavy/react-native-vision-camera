@@ -281,11 +281,21 @@ extension CameraSession {
       }
       device.focusMode = .continuousAutoFocus
     }
-    if device.isExposureModeSupported(.continuousAutoExposure) {
-      if device.isExposurePointOfInterestSupported {
-        device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+
+    if configuration.isManualExposure {
+      // Lock exposure to manual
+      let durationSeconds = configuration.exposureDuration ?? AVCaptureDevice.currentExposureDuration.seconds
+      let duration = CMTime(seconds: durationSeconds, preferredTimescale: 1_000_000_000)
+      let iso = configuration.iso ?? AVCaptureDevice.currentISO
+      device.setExposureModeCustom(duration: duration, iso: iso)
+    } else {
+      // Configure auto-exposure
+      if device.isExposureModeSupported(.continuousAutoExposure) {
+        if device.isExposurePointOfInterestSupported {
+          device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+        }
+        device.exposureMode = .continuousAutoExposure
       }
-      device.exposureMode = .continuousAutoExposure
     }
   }
 

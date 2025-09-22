@@ -14,7 +14,7 @@ import Foundation
  * Represents a JavaScript Promise instance. `reject()` and `resolve()` should only be called once.
  */
 class Promise {
-  public private(set) var didResolve = false
+  private(set) var didResolve = false
 
   init(resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
     self.resolver = resolver

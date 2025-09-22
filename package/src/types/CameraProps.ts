@@ -149,6 +149,23 @@ export interface CameraProps extends ViewProps {
    * The value between min- and max supported exposure is considered the default, neutral value.
    */
   exposure?: number
+
+  /**
+   * Manually configures the ISO value of the Camera.
+   *
+   * If either {@linkcode iso} or {@linkcode exposureDuration} is set, the Camera will be locked to manual exposure.
+   *
+   * @default undefined
+   */
+  iso?: number
+  /**
+   * Manually configures the exposure duration (in seconds) of the Camera.
+   *
+   * If either {@linkcode exposureDuration} or {@linkcode iso} is set, the Camera will be locked to manual exposure.
+   *
+   * @default undefined
+   */
+  exposureDuration?: number
   //#endregion
 
   //#region Format/Preset selection
