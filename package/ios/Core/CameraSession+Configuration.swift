@@ -284,7 +284,8 @@ extension CameraSession {
 
     if configuration.isManualExposure {
       // Lock exposure to manual
-      let duration = CMTime(seconds: configuration.exposureDuration ?? AVCaptureDevice.currentExposureDuration.seconds, preferredTimescale: 1)
+      let durationSeconds = configuration.exposureDuration ?? AVCaptureDevice.currentExposureDuration.seconds
+      let duration = CMTime(seconds: durationSeconds, preferredTimescale: 1_000_000_000)
       let iso = configuration.iso ?? AVCaptureDevice.currentISO
       device.setExposureModeCustom(duration: duration, iso: iso)
     } else {
