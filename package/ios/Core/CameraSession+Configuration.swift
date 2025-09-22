@@ -273,7 +273,7 @@ extension CameraSession {
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
     }
-    
+
     // Configure auto-focus
     if device.isFocusModeSupported(.continuousAutoFocus) {
       if device.isFocusPointOfInterestSupported {
@@ -281,8 +281,7 @@ extension CameraSession {
       }
       device.focusMode = .continuousAutoFocus
     }
-    
-    
+
     if configuration.isManualExposure {
       // Lock exposure to manual
       let duration = CMTime(seconds: configuration.exposureDuration ?? AVCaptureDevice.currentExposureDuration.seconds, preferredTimescale: 1)

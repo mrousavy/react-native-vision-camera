@@ -54,7 +54,7 @@ final class CameraConfiguration {
 
   // Audio Session
   var audio: OutputConfiguration<Audio> = .disabled
-  
+
   var isManualExposure: Bool {
     return exposureDuration != nil || iso != nil
   }
@@ -136,7 +136,8 @@ final class CameraConfiguration {
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)
-      sidePropsChanged = formatChanged || left?.minFps != right.minFps || left?.maxFps != right.maxFps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.exposureDuration != right.exposureDuration || left?.iso != right.iso
+      sidePropsChanged = formatChanged || left?.minFps != right.minFps || left?.maxFps != right.maxFps || left?.enableLowLightBoost != right.enableLowLightBoost
+        || left?.exposureDuration != right.exposureDuration || left?.iso != right.iso
       // torch (depends on isActive)
       let wasInactiveAndNeedsToEnableTorchAgain = left?.isActive == false && right.isActive == true && right.torch == .on
       torchChanged = inputChanged || wasInactiveAndNeedsToEnableTorchAgain || left?.torch != right.torch
@@ -157,7 +158,7 @@ final class CameraConfiguration {
     case disabled
     case enabled(config: T)
 
-    public static func == (lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
+    static func == (lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
       switch (lhs, rhs) {
       case (.disabled, .disabled):
         return true
