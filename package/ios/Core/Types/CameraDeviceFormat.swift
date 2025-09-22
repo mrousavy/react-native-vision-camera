@@ -68,7 +68,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     minISO = jsValue["minISO"] as! Float
     maxISO = jsValue["maxISO"] as! Float
     minExposureDuration = jsValue["minExposureDuration"] as! Double
-    maxExposureDuration = jsValue["minExposureDuration"] as! Double
+    maxExposureDuration = jsValue["maxExposureDuration"] as! Double
     fieldOfView = jsValue["fieldOfView"] as! Float
     let jsVideoStabilizationModes = jsValue["videoStabilizationModes"] as! [String]
     videoStabilizationModes = try jsVideoStabilizationModes.map { try VideoStabilizationMode(jsValue: $0) }
