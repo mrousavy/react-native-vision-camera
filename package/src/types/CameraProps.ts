@@ -416,5 +416,17 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   codeScanner?: CodeScanner
+  /**
+   * Used to get the bytes written to the video file on real time while it is being recorded
+   * @example
+   * ```tsx
+   * const onBytesWrittenVideo = (bytes: number) => {
+   *   console.log(`Bytes written: ${bytes}`)
+   * }
+   *
+   * return <Camera {...props} onBytesWrittenVideo={onBytesWrittenVideo} />
+   * ```
+   */
+  onBytesWrittenVideo?: (bytes: number) => void
   //#endregion
 }
