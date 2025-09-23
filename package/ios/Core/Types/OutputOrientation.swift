@@ -8,7 +8,7 @@
 import Foundation
 
 @frozen
-enum OutputOrientation: String, JSUnionValue {
+public enum OutputOrientation: String, JSUnionValue {
   /**
    Automatically rotate outputs based on device physical rotation (even if screen-lock is on)
    */
