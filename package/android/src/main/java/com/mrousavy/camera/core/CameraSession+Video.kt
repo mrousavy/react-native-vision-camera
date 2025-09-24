@@ -33,11 +33,13 @@ fun CameraSession.startRecording(
 
   // TODO: Move this to JS so users can prepare recordings earlier
   // Prepare recording
+  videoOutput.output.streamInfo
   var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
   if (enableAudio) {
     checkMicrophonePermission()
-    pendingRecording = pendingRecording.withAudioEnabled()
+//    pendingRecording = pendingRecording.withAudioEnabled()
   }
+    pendingRecording = pendingRecording.withAudioEnabled(false)
   pendingRecording = pendingRecording.asPersistentRecording()
 
   isRecordingCanceled = false

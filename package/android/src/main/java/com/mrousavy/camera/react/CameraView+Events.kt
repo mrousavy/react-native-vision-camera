@@ -115,7 +115,7 @@ fun CameraView.invokeOnViewReady() {
 }
 
 fun CameraView.invokeOnAverageFpsChanged(averageFps: Double) {
-  Log.i(CameraView.TAG, "invokeOnAverageFpsChanged($averageFps)")
+//  Log.i(CameraView.TAG, "invokeOnAverageFpsChanged($averageFps)")
 
   val surfaceId = UIManagerHelper.getSurfaceId(this)
   val data = Arguments.createMap()

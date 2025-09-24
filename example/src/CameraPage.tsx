@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import type { EmitterSubscription, GestureResponderEvent } from 'react-native'
+import type { GestureResponderEvent } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
@@ -13,7 +13,7 @@ import {
   useFrameProcessor,
   useLocationPermission,
   useMicrophonePermission,
-  AudioInputLevel,
+  // AudioInputLevel,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -193,17 +193,17 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     })
   }, [])
 
-  useEffect(() => {
-    let listener: EmitterSubscription | null = null
-    if (selectedMic?.uid) {
-      listener = AudioInputLevel.addAudioLevelChangedListener((level) => {
-        console.log('Current Audio device level:', level)
-      })
-    }
-    return () => {
-      listener?.remove()
-    }
-  }, [selectedMic?.uid])
+  // useEffect(() => {
+  //   let listener: EmitterSubscription | null = null
+  //   if (selectedMic?.uid) {
+  //     listener = AudioInputLevel.addAudioLevelChangedListener((level) => {
+  //       console.log('Current Audio device level:', level)
+  //     })
+  //   }
+  //   return () => {
+  //     listener?.remove()
+  //   }
+  // }, [selectedMic?.uid])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
@@ -230,7 +230,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onPreviewOrientationChanged={(o) => console.log(`Preview orientation changed to ${o}!`)}
                 onUIRotationChanged={(degrees) => console.log(`UI Rotation changed: ${degrees}°`)}
                 format={format}
-                fps={fps}
+                // fps={fps}
                 photoHdr={photoHdr}
                 videoHdr={videoHdr}
                 photoQualityBalance="quality"
@@ -238,13 +238,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
-                enableFpsGraph={true}
+                // enableFpsGraph={true}
                 outputOrientation="device"
                 photo={true}
                 video={true}
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
-                frameProcessor={frameProcessor}
+                // frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
@@ -304,7 +304,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         {audioInputDevices.map((item) => (
           <PressableOpacity onPress={() => setSelectedMic(item)} style={styles.microphoneButton}>
             <Text style={[styles.microphoneButtonText, item.uid === selectedMic?.uid && styles.microphoneButtonSelectedText]}>
-              {item.portName}
+              {item.portType}
             </Text>
           </PressableOpacity>
         ))}

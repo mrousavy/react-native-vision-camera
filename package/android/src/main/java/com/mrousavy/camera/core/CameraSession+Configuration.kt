@@ -1,6 +1,9 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
@@ -41,15 +44,27 @@ private fun assertFormatRequirement(
   }
 }
 
+fun getInputDevice(audioInputDeviceUid: String?, context: Context):Int{
+    if (audioInputDeviceUid!=null) {
+      return audioInputDeviceUid.toInt()
+    }
+  val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+// Make sure the returned device id is internal mic
+  val inputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+
+  val firstInputDevice = inputDevices.first()
+  return  firstInputDevice.id
+}
+
 @OptIn(ExperimentalGetImage::class)
-@SuppressLint("RestrictedApi")
+@SuppressLint("RestrictedApi", "NewApi")
 @Suppress("LiftReturnOrAssignment")
-internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) {
+internal fun CameraSession.configureOutputs(configuration: CameraConfiguration, context: Context) {
   val cameraId = configuration.cameraId!!
   Log.i(CameraSession.TAG, "Creating new Outputs for Camera #$cameraId...")
   val fpsRange = configuration.targetFpsRange
   val format = configuration.format
-
+  val audioInputDeviceUid = getInputDevice(configuration.audioInputDeviceUid, context )
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
 
   val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
@@ -143,7 +158,25 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
           }
         }
       }.build()
+
+
     }
+
+//    configuration.audioInputDeviceUid?.let { audioDevice ->
+//
+//      val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+//      var audioDevice  = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).firstOrNull() { it.id == audioDevice.toInt()}
+//
+//
+//      if( audioDevice == null)  {
+//        audioDevice = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).last()
+//      }
+//
+//      audioManager.setCommunicationDevice(audioDevice as AudioDeviceInfo)
+//      Log.i(CameraSession.TAG, "Setting audio communication device: ${audioDevice.id}")
+//
+//
+//    }
 
     val video = VideoCapture.Builder(recorder).also { video ->
       // Configure Video Output

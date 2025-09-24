@@ -140,7 +140,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         // Build up session or update any props
         if (diff.outputsChanged) {
           // 1. outputs changed, re-create them
-          configureOutputs(config)
+          configureOutputs(config,context)
           // 1.1. whenever the outputs changed, we need to update their orientation as well
           configureOrientation()
         }
