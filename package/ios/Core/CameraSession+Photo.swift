@@ -38,39 +38,12 @@ extension CameraSession {
 
       VisionLogger.log(level: .info, message: "Capturing photo...")
 
-      // Create photo settings
-      let photoSettings = AVCapturePhotoSettings()
-
-      // set photo resolution
-      if #available(iOS 16.0, *) {
-        photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
-      } else {
-        photoSettings.isHighResolutionPhotoEnabled = photoOutput.isHighResolutionCaptureEnabled
-      }
-
-      // depth data
-      photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
-      if #available(iOS 12.0, *) {
-        photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
-      }
-
-      // quality prioritization
-      if #available(iOS 13.0, *) {
-        photoSettings.photoQualityPrioritization = photoOutput.maxPhotoQualityPrioritization
-      }
-
-      // red-eye reduction
-      photoSettings.isAutoRedEyeReductionEnabled = options.enableAutoRedEyeReduction
-
-      // distortion correction
-      if #available(iOS 14.1, *) {
-        photoSettings.isAutoContentAwareDistortionCorrectionEnabled = options.enableAutoDistortionCorrection
-      }
+      // Create photo settings (for this capture)
+      let photoSettings = Self.makePhotoSettings(from: photoOutput, options: options)
 
       // flash
       if options.flash != .off {
         guard videoDeviceInput.device.hasFlash else {
-          // If user enabled flash, but the device doesn't have a flash, throw an error.
           promise.reject(error: .capture(.flashNotAvailable))
           return
         }
@@ -80,15 +53,63 @@ extension CameraSession {
       }
 
       // Actually do the capture!
-      let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
-                                                      enableShutterSound: options.enableShutterSound,
-                                                      metadataProvider: self.metadataProvider,
-                                                      path: options.path,
-                                                      cameraSessionDelegate: self.delegate)
+      let photoCaptureDelegate = PhotoCaptureDelegate(
+        promise: promise,
+        enableShutterSound: options.enableShutterSound,
+        metadataProvider: self.metadataProvider,
+        path: options.path,
+        cameraSessionDelegate: self.delegate
+      )
       photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 
-      // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
-      photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)
+      // Prepare next call with a *fresh* settings instance.
+      // (Do not reuse the in-flight settings object to avoid NSInvalidArgumentException on newer iOS/devices.)
+      let preparedSettings = Self.makePhotoSettings(from: photoOutput, options: options)
+      if videoDeviceInput.device.isFlashAvailable {
+        preparedSettings.flashMode = options.flash.toFlashMode()
+      }
+      photoOutput.setPreparedPhotoSettingsArray([preparedSettings], completionHandler: nil)
     }
+  }
+
+  // MARK: - Helpers
+
+  /// Builds a new AVCapturePhotoSettings that mirrors current output capabilities and given options.
+  private static func makePhotoSettings(from photoOutput: AVCapturePhotoOutput,
+                                        options: TakePhotoOptions) -> AVCapturePhotoSettings {
+    let photoSettings = AVCapturePhotoSettings()
+
+    // photo resolution
+    if #available(iOS 16.0, *) {
+      photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+    } else {
+      photoSettings.isHighResolutionPhotoEnabled = photoOutput.isHighResolutionCaptureEnabled
+    }
+
+    // depth (only if supported)
+    if photoOutput.isDepthDataDeliverySupported {
+      photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
+    }
+
+    // portrait effects matte (only if supported)
+    if #available(iOS 12.0, *), photoOutput.isPortraitEffectsMatteDeliverySupported {
+      photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
+    }
+
+    // quality prioritization
+    if #available(iOS 13.0, *) {
+      photoSettings.photoQualityPrioritization = photoOutput.maxPhotoQualityPrioritization
+    }
+
+    // red-eye reduction
+    photoSettings.isAutoRedEyeReductionEnabled = options.enableAutoRedEyeReduction
+
+    // distortion correction (only if supported)
+    if #available(iOS 14.1, *),
+       photoOutput.isContentAwareDistortionCorrectionSupported {
+      photoSettings.isAutoContentAwareDistortionCorrectionEnabled = options.enableAutoDistortionCorrection
+    }
+
+    return photoSettings
   }
 }
