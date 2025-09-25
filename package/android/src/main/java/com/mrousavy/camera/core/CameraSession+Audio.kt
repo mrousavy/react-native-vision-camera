@@ -7,6 +7,8 @@ import androidx.annotation.OptIn
 import androidx.camera.video.ExperimentalPersistentRecording
 import com.mrousavy.camera.core.types.RecordVideoOptions
 import com.mrousavy.camera.core.types.Video
+import com.mrousavy.camera.core.utils.OutputFile
+
 
 // handle Audio Recording errors here
 @OptIn(ExperimentalPersistentRecording::class)
@@ -26,11 +28,18 @@ fun CameraSession.startAudioRecording(
     MediaRecorder()
   }
 
-  audioRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
-  audioRecorder?.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+  val audioOut = OutputFile(context, context.cacheDir, ".m4a")
+  this.audioOutputFile = audioOut.file
+
+  audioRecorder?.setAudioSource(MediaRecorder.AudioSource.)
+  audioRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
   audioRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+  audioRecorder?.setAudioSamplingRate(44100)
+  val outFile = audioOut.file
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-    audioRecorder?.setOutputFile(options.file.file)
+    audioRecorder?.setOutputFile(outFile)
+  } else {
+    audioRecorder?.setOutputFile(outFile.absolutePath)
   }
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -38,8 +47,6 @@ fun CameraSession.startAudioRecording(
   }
   audioRecorder?.prepare()
   audioRecorder?.start()
-
-
 }
 
 fun CameraSession.stopAudioRecording() {

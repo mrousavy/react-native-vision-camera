@@ -69,6 +69,9 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal var isRecordingCanceled = false
   internal val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+  internal var recordingWithExternalAudio: Boolean = false
+  internal var audioOutputFile: java.io.File? = null
+
   // Threading
   internal val mainExecutor = ContextCompat.getMainExecutor(context)
 
@@ -144,7 +147,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         // Build up session or update any props
         if (diff.outputsChanged) {
           // 1. outputs changed, re-create them
-          configureOutputs(config,context)
+          configureOutputs(config)
           // 1.1. whenever the outputs changed, we need to update their orientation as well
           configureOrientation()
         }
@@ -167,6 +170,10 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         if (diff.locationChanged) {
           // 6. start or stop location update streaming
           metadataProvider.enableLocationUpdates(config.enableLocation)
+        }
+
+        if(diff.audioDeviceChanged) {
+          configureAudioDevice(config,context)
         }
 
         Log.i(

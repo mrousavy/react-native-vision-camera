@@ -35,6 +35,15 @@ fun CameraSession.startRecording(
   // Prepare recording
   videoOutput.output.streamInfo
   var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
+  recordingWithExternalAudio = enableAudio
+  if (enableAudio) {
+    try {
+      startAudioRecording(true, options, callback, onError)
+    } catch (e: Throwable) {
+      onError(EncoderError(e))
+      return
+    }
+  }
   pendingRecording.withAudioEnabled(false)
   pendingRecording = pendingRecording.asPersistentRecording()
 
@@ -72,14 +81,44 @@ fun CameraSession.startRecording(
             return@start
           }
         }
-
-        // Prepare output result
-        val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
-        Log.i(CameraSession.TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
-        val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
+        val rawVideoPath = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
         val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
-        val video = Video(path, durationMs, size)
+        val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
+
+        val finalFile = options.file.file
+        val audioFile = audioOutputFile
+        val canMux = recordingWithExternalAudio && audioFile != null && audioFile.exists() && audioFile.length() > 0L
+
+        if (canMux) {
+          try {
+            val tmpMux = java.io.File(finalFile.parentFile, finalFile.nameWithoutExtension + "-muxed.mp4")
+            com.mrousavy.camera.core.utils.MediaMuxerUtils.muxMp4(
+              videoPath = rawVideoPath,
+              audioPath = audioFile!!.absolutePath,
+              outputPath = tmpMux.absolutePath
+            )
+            finalFile.delete()
+            tmpMux.renameTo(finalFile)
+          } catch (e: Throwable) {
+            Log.e(CameraSession.TAG, "Muxing failed!", e)
+            onError(EncoderError(e))
+            return@start
+          } finally {
+            recordingWithExternalAudio = false
+            try { audioFile?.delete() } catch (_: Throwable) {}
+            audioOutputFile = null
+          }
+        } else {
+          // No audio or empty audio — just return the raw video
+          recordingWithExternalAudio = false
+          try { audioFile?.delete() } catch (_: Throwable) {}
+          audioOutputFile = null
+        }
+
+        val finalPath = finalFile.absolutePath
+        val video = Video(finalPath, durationMs, size)
         callback(video)
+
       }
     }
   }

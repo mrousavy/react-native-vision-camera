@@ -61,12 +61,13 @@ fun getInputDevice(audioInputDeviceUid: String?, context: Context): AudioDeviceI
 @OptIn(ExperimentalGetImage::class)
 @SuppressLint("RestrictedApi", "NewApi")
 @Suppress("LiftReturnOrAssignment")
-internal fun CameraSession.configureOutputs(configuration: CameraConfiguration, context: Context) {
+internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) {
   val cameraId = configuration.cameraId!!
   Log.i(CameraSession.TAG, "Creating new Outputs for Camera #$cameraId...")
   val fpsRange = configuration.targetFpsRange
   val format = configuration.format
-  audioDevice = getInputDevice(configuration.audioInputDeviceUid, context )
+
+
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
 
   val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
@@ -163,22 +164,6 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration, 
 
 
     }
-
-//    configuration.audioInputDeviceUid?.let { audioDevice ->
-//
-//      val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-//      var audioDevice  = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).firstOrNull() { it.id == audioDevice.toInt()}
-//
-//
-//      if( audioDevice == null)  {
-//        audioDevice = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).last()
-//      }
-//
-//      audioManager.setCommunicationDevice(audioDevice as AudioDeviceInfo)
-//      Log.i(CameraSession.TAG, "Setting audio communication device: ${audioDevice.id}")
-//
-//
-//    }
 
     val video = VideoCapture.Builder(recorder).also { video ->
       // Configure Video Output
@@ -381,4 +366,10 @@ internal fun CameraSession.configureIsActive(config: CameraConfiguration) {
     lifecycleRegistry.currentState = Lifecycle.State.STARTED
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
   }
+}
+
+
+internal fun CameraSession.configureAudioDevice(configuration: CameraConfiguration, context: Context) {
+  audioDevice = getInputDevice(configuration.audioInputDeviceUid, context)
+  Log.i(CameraSession.TAG, audioDevice?.id.toString())
 }
