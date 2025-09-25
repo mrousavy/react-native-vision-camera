@@ -44,16 +44,18 @@ private fun assertFormatRequirement(
   }
 }
 
-fun getInputDevice(audioInputDeviceUid: String?, context: Context):Int{
-    if (audioInputDeviceUid!=null) {
-      return audioInputDeviceUid.toInt()
-    }
+fun getInputDevice(audioInputDeviceUid: String?, context: Context): AudioDeviceInfo {
   val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-// Make sure the returned device id is internal mic
   val inputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
 
-  val firstInputDevice = inputDevices.first()
-  return  firstInputDevice.id
+  val inputDevice = if (audioInputDeviceUid != null) {
+    inputDevices.firstOrNull { device ->
+      device.id.toString() == audioInputDeviceUid
+    }
+  } else {
+    null
+  }
+  return inputDevice ?: inputDevices.first()
 }
 
 @OptIn(ExperimentalGetImage::class)
@@ -64,7 +66,7 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration, 
   Log.i(CameraSession.TAG, "Creating new Outputs for Camera #$cameraId...")
   val fpsRange = configuration.targetFpsRange
   val format = configuration.format
-  val audioInputDeviceUid = getInputDevice(configuration.audioInputDeviceUid, context )
+  audioDevice = getInputDevice(configuration.audioInputDeviceUid, context )
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
 
   val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>

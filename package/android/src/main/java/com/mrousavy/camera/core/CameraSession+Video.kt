@@ -35,11 +35,7 @@ fun CameraSession.startRecording(
   // Prepare recording
   videoOutput.output.streamInfo
   var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
-  if (enableAudio) {
-    checkMicrophonePermission()
-//    pendingRecording = pendingRecording.withAudioEnabled()
-  }
-    pendingRecording = pendingRecording.withAudioEnabled(false)
+  pendingRecording.withAudioEnabled(false)
   pendingRecording = pendingRecording.asPersistentRecording()
 
   isRecordingCanceled = false
@@ -91,7 +87,7 @@ fun CameraSession.startRecording(
 
 fun CameraSession.stopRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
-
+  stopAudioRecording()
   recording.stop()
   this.recording = null
 }
@@ -99,14 +95,17 @@ fun CameraSession.stopRecording() {
 fun CameraSession.cancelRecording() {
   isRecordingCanceled = true
   stopRecording()
+  cancelAudioRecording()
 }
 
 fun CameraSession.pauseRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
   recording.pause()
+  pauseAudioRecording()
 }
 
 fun CameraSession.resumeRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
   recording.resume()
+  resumeAudioRecording()
 }
