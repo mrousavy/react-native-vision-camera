@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.media.AudioRecord
+import android.media.MediaCodec
+import android.media.MediaMuxer
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
@@ -67,6 +70,9 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal var recording: Recording? = null
 
   internal var audioRecorder: MediaRecorder? = null
+  internal var audioRecord: AudioRecord? = null
+  internal var audioEncoder: MediaCodec? = null
+  internal var audioMuxer: MediaMuxer? = null
   internal var isRecordingCanceled = false
   internal val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -195,17 +201,6 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal fun checkMicrophonePermission() {
     val status = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
     if (status != PackageManager.PERMISSION_GRANTED) throw MicrophonePermissionError()
-  }
-
-  internal fun hasBluetoothPermissionForRouting(): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val isBt = audioDevice?.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
-      if (isBt) {
-        val bt = ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT)
-        return bt == PackageManager.PERMISSION_GRANTED
-      }
-    }
-    return true
   }
 
   override fun onOutputOrientationChanged(outputOrientation: Orientation) {

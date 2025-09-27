@@ -1,24 +1,21 @@
 import * as React from 'react'
-import { useRef, useState, useCallback, useMemo } from 'react'
+import { useRef, useState, useCallback, useMemo, useEffect } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 import type { PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'
 import { PinchGestureHandler, TapGestureHandler } from 'react-native-gesture-handler'
 import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import {
-  runAtTargetFps,
   useAudioInputDevices,
   useCameraDevice,
-  useCameraFormat,
-  useFrameProcessor,
-  useLocationPermission,
+  useCameraFormat, useLocationPermission,
   useMicrophonePermission,
-  // AudioInputLevel,
+  AudioInputLevel
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
-import { useEffect } from 'react'
+
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
 import { CaptureButton } from './views/CaptureButton'
@@ -29,8 +26,6 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
-import { examplePlugin } from './frame-processors/ExamplePlugin'
-import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
@@ -183,27 +178,18 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet'
+  // Frame processor example removed to avoid unused variable lint warning
 
-    runAtTargetFps(10, () => {
-      'worklet'
-      examplePlugin(frame)
-      exampleKotlinSwiftPlugin(frame)
+  useEffect(() => {
+    // Tell native module which device to monitor, then subscribe to level changes
+    AudioInputLevel.setPreferredAudioInputDevice(selectedMic?.uid)
+    const subscription = AudioInputLevel.addAudioLevelChangedListener((level) => {
+      console.log('Current Audio device level:', level)
     })
-  }, [])
-
-  // useEffect(() => {
-  //   let listener: EmitterSubscription | null = null
-  //   if (selectedMic?.uid) {
-  //     listener = AudioInputLevel.addAudioLevelChangedListener((level) => {
-  //       console.log('Current Audio device level:', level)
-  //     })
-  //   }
-  //   return () => {
-  //     listener?.remove()
-  //   }
-  // }, [selectedMic?.uid])
+    return () => {
+      subscription.remove()
+    }
+  }, [selectedMic?.uid])
 
   const videoHdr = format?.supportsVideoHdr && enableHdr
   const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr

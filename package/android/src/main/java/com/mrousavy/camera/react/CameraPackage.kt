@@ -11,6 +11,7 @@ class CameraPackage : ReactPackage {
       CameraViewModule(reactContext),
       CameraDevicesManager(reactContext),
       AudioInputDevicesManager(reactContext),
+      AudioInputLevelManager(reactContext),
     )
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> = listOf(CameraViewManager())

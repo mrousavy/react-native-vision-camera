@@ -16,10 +16,9 @@ private fun isMicrophoneDevice(type: Int): Boolean {
   return when (type) {
     android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC,
     android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET,
-    android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
-    android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
     android.media.AudioDeviceInfo.TYPE_BLE_HEADSET,
     android.media.AudioDeviceInfo.TYPE_USB_DEVICE,
+    android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
     android.media.AudioDeviceInfo.TYPE_USB_HEADSET -> true
 
     else -> false
@@ -30,12 +29,9 @@ private fun deviceTypeToString(type: Int): String {
   return when (type) {
     android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC -> "BUILTIN_MIC"
     android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET -> "WIRED_HEADSET"
-    android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO -> "BLUETOOTH_SCO"
-    android.media.AudioDeviceInfo.TYPE_FM -> "FM"
-    android.media.AudioDeviceInfo.TYPE_TELEPHONY -> "TELEPHONY"
     android.media.AudioDeviceInfo.TYPE_BLE_HEADSET -> "BLUETOOTH_HEADSET"
-    android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> "BLUETOOTH_A2DP"
     android.media.AudioDeviceInfo.TYPE_USB_DEVICE -> "USB_DEVICE"
+    android.media.AudioDeviceInfo.TYPE_USB_HEADSET -> "TYPE_USB_HEADSET"
     android.media.AudioDeviceInfo.TYPE_AUX_LINE -> "AUX_LINE"
     else -> "UNKNOWN"
   }
@@ -46,6 +42,7 @@ class AudioInputDevicesManager(private val reactContext: ReactApplicationContext
   private var deviceCallback: AudioDeviceCallback? = null
   private val audioManager: AudioManager =
     reactContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
   companion object {
     private val TAG = "AudioInputDevices"
   }
@@ -72,7 +69,6 @@ class AudioInputDevicesManager(private val reactContext: ReactApplicationContext
       map.putString("portName", input.productName?.toString() ?: "Unknown")
       map.putString("portType", deviceTypeToString(input.type))
       map.putString("uid", input.id.toString())
-
       devices.pushMap(map)
     }
 

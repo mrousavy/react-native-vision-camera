@@ -1,6 +1,7 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import androidx.annotation.OptIn
@@ -44,7 +45,9 @@ fun CameraSession.startRecording(
       return
     }
   }
-  pendingRecording.withAudioEnabled(false)
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    pendingRecording.withAudioEnabled(true)
+  }
   pendingRecording = pendingRecording.asPersistentRecording()
 
   isRecordingCanceled = false
