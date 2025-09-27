@@ -90,8 +90,8 @@ class AudioInputLevelManager(private val reactContext: ReactApplicationContext) 
           }
           val rms = sqrt(sum.toDouble() / read)
           val db = if (rms > 0) 20 * log10(rms / Short.MAX_VALUE) else -160.0
-
-          sendLevelToJS(db)
+          val normalized = ((db + 160) / 160 * 100).coerceIn(0.0, 100.0)
+          sendLevelToJS(normalized)
         }
 
         try {
