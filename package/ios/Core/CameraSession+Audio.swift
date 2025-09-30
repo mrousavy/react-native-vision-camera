@@ -118,7 +118,7 @@ extension CameraSession {
           VisionLogger.log(level: .error, message: "Failed to deactivate audio session! Error \(error.code): \(error.description)")
           }
     }
-    // Gets the preffered audio input my comparing input device uids
+    // Gets the preferred audio input my comparing input device uids
     func getPreferredAudioInput() -> AVAudioSessionPortDescription? {
        guard let availableInputs = audioSession.availableInputs else {
            VisionLogger.log(level: .error, message: "No available inputs detected")
@@ -133,7 +133,7 @@ extension CameraSession {
         return availableInputs.first(where: { $0.uid == configuration?.audioInputDeviceUid})
    }
     
-    // Sets the preffered audio input device by the user
+    // Sets the preferred audio input device by the user
     func setPreferredAudioInput() {
         guard let preferredInput = getPreferredAudioInput() else {
             return

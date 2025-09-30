@@ -70,9 +70,6 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal var recording: Recording? = null
 
   internal var audioRecorder: MediaRecorder? = null
-  internal var audioRecord: AudioRecord? = null
-  internal var audioEncoder: MediaCodec? = null
-  internal var audioMuxer: MediaMuxer? = null
   internal var isRecordingCanceled = false
   internal val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 

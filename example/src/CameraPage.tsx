@@ -8,9 +8,12 @@ import type { CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'reac
 import {
   useAudioInputDevices,
   useCameraDevice,
-  useCameraFormat, useLocationPermission,
+  useCameraFormat,
+  useLocationPermission,
   useMicrophonePermission,
-  AudioInputLevel
+  AudioInputLevel,
+  useFrameProcessor,
+  runAtTargetFps,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
@@ -27,6 +30,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { examplePlugin } from './frame-processors/ExamplePlugin'
+import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -178,10 +183,18 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     location.requestPermission()
   }, [location])
 
-  // Frame processor example removed to avoid unused variable lint warning
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet'
+
+    runAtTargetFps(10, () => {
+      'worklet'
+      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+      examplePlugin(frame)
+      exampleKotlinSwiftPlugin(frame)
+    })
+  }, [])
 
   useEffect(() => {
-    // Tell native module which device to monitor, then subscribe to level changes
     AudioInputLevel.setPreferredAudioInputDevice(selectedMic?.uid)
     const subscription = AudioInputLevel.addAudioLevelChangedListener((level) => {
       console.log('Current Audio device level:', level)
@@ -216,7 +229,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onPreviewOrientationChanged={(o) => console.log(`Preview orientation changed to ${o}!`)}
                 onUIRotationChanged={(degrees) => console.log(`UI Rotation changed: ${degrees}°`)}
                 format={format}
-                // fps={fps}
+                fps={fps}
                 photoHdr={photoHdr}
                 videoHdr={videoHdr}
                 photoQualityBalance="quality"
@@ -224,13 +237,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
-                // enableFpsGraph={true}
+                enableFpsGraph={true}
                 outputOrientation="device"
                 photo={true}
                 video={true}
                 audio={microphone.hasPermission}
                 enableLocation={location.hasPermission}
-                // frameProcessor={frameProcessor}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
@@ -287,8 +300,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         </PressableOpacity>
       </View>
       <View style={[styles.microphoneContainer, { bottom }]}>
-        {audioInputDevices.map((item) => (
-          <PressableOpacity onPress={() => setSelectedMic(item)} style={styles.microphoneButton}>
+        {audioInputDevices.map((item, index) => (
+          <PressableOpacity key={`mic-${index}`} onPress={() => setSelectedMic(item)} style={styles.microphoneButton}>
             <Text style={[styles.microphoneButtonText, item.uid === selectedMic?.uid && styles.microphoneButtonSelectedText]}>
               {item.portType}
             </Text>

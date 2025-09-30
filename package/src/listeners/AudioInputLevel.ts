@@ -1,24 +1,26 @@
 import { NativeModules, NativeEventEmitter } from 'react-native'
 
 type AudioInputLevelManagerType = {
-  setPreferredAudioInputDevice: (uid: string | null | undefined) => void
+  setPreferredAudioInputDevice: (uid: string | null) => void
 }
 
-const AudioInputLevelManager = NativeModules.AudioInputLevelManager as unknown as AudioInputLevelManagerType
+const AudioInputLevelManager = NativeModules.AudioInputLevelManager as AudioInputLevelManagerType
 const AUDIO_LEVEL_CHANGED_NAME = 'AudioInputLevelChanged'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const eventEmitter = new NativeEventEmitter(NativeModules.AudioInputLevelManager as any)
 
 export const AudioInputLevel = {
   /**
-   * Set the preferred audio input device for level monitoring by its UID.
-   * Pass null/undefined to reset to system default routing.
+   * Set the input you want to listen to audio levels for
+   * Pass undefined to reset to system default routing.
+   *
+   * @platform Android
    */
-  setPreferredAudioInputDevice: (uid: string | null | undefined) => {
-    AudioInputLevelManager.setPreferredAudioInputDevice(uid ?? null)
+  setPreferredAudioInputDevice: (uid: string | null) => {
+    AudioInputLevelManager.setPreferredAudioInputDevice(uid)
   },
   /**
-   * Listen to audio level changes (in dBFS). Returns a subscription.
+   * Listen to audio level changes.
    */
   addAudioLevelChangedListener: (callback: (level: number) => void) => {
     return eventEmitter.addListener(AUDIO_LEVEL_CHANGED_NAME, callback)

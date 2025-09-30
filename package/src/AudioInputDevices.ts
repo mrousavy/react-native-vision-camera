@@ -14,8 +14,13 @@ const DEVICES_CHANGED_NAME = 'AudioInputDevicesChanged'
 const eventEmitter = new NativeEventEmitter(AudioInputDevicesManager as any)
 
 export const AudioInputDevices = {
-  // userPreferredCameraDevice: constants.userPreferredCameraDevice,
+  /**
+   * Get the list of available input devices initially
+   */
   getAvailableAudioInputDevices: () => constants.availableAudioInputDevices,
+  /**
+   * Listen for audio input device changes. Returns an update list of input devices.
+   */
   addAudioInputChangedListener: (callback: (newDevices: AudioInputDevice[]) => void) => {
     return eventEmitter.addListener(DEVICES_CHANGED_NAME, callback)
   },

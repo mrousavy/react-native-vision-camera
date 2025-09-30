@@ -39,7 +39,7 @@ fun CameraSession.startRecording(
   recordingWithExternalAudio = enableAudio
   if (enableAudio) {
     try {
-      startAudioRecording(true, options, callback, onError)
+      startAudioRecording(true, onError)
     } catch (e: Throwable) {
       onError(EncoderError(e))
       return

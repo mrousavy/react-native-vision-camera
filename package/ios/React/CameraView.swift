@@ -275,7 +275,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       // isActive
       config.isActive = isActive
       
-      // Preffered audio input device uid
+      // Preferred audio input device uid
       config.audioInputDeviceUid = audioInputDeviceUid as String?
     }
 

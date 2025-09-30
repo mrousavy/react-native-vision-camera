@@ -158,6 +158,12 @@ class AudioInputLevelManager(private val reactContext: ReactApplicationContext) 
    */
   @ReactMethod
   fun setPreferredAudioInputDevice(uid: String?) {
+    if (uid==null) {
+      preferredAudioDevice = null
+      audioRecord?.preferredDevice = null
+      return
+    }
+
     val inputs = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
     val newDevice = uid?.let { idStr ->
       inputs.firstOrNull { it.id.toString() == idStr }

@@ -14,9 +14,13 @@ final class AudioInputDevicesManager: RCTEventEmitter {
     private let notificationCetner = NotificationCenter.default
     private var observer: NSKeyValueObservation?
     private let devicesChangedEventName = "AudioInputDevicesChanged"
+    
     override init(){
         super.init()
-        
+    }
+    
+    override func invalidate() {
+        notificationCetner.removeObserver(self)
     }
     
     override func supportedEvents() -> [String]! {
@@ -36,6 +40,7 @@ final class AudioInputDevicesManager: RCTEventEmitter {
             "availableAudioInputDevices": devices,
         ]
     }
+    
     @objc private func handleAvailableInputsChanged(_ notification: Notification) {
         let devices = getDevicesJson()
         VisionLogger.log(level: .info, message: "Audio Input Devices changed - found \(devices.count) Audio Devices.")
@@ -43,6 +48,7 @@ final class AudioInputDevicesManager: RCTEventEmitter {
     }
     
     private func getDevicesJson () ->  [[String: Any]] {
+        // Return initially available devices
         return audioSession.availableInputs?.map { input in
             return [
                 "portName": input.portName,
@@ -53,16 +59,12 @@ final class AudioInputDevicesManager: RCTEventEmitter {
     }
     
     override func startObserving() {
-        
         notificationCetner.addObserver(self, selector:#selector(handleAvailableInputsChanged(_:)) ,  name: AVAudioSession.routeChangeNotification, object: audioSession)
         
     }
     
     override func stopObserving() {
         notificationCetner.removeObserver(self)
-        
     }
     
 }
-
-

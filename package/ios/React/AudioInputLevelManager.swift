@@ -34,11 +34,11 @@ final class AudioInputLevelManager: RCTEventEmitter {
     }
     
     private func startInputNode () {
-        // update audio engine
+        // Update audio engine
         audioEngine = AVAudioEngine()
         let inputNode = audioEngine.inputNode
         let format = inputNode.inputFormat(forBus: 0)
-        
+        // Below guard prevents errors that might happen when installing tap
         if (format.sampleRate == 0) {
             return
         }
@@ -108,6 +108,13 @@ final class AudioInputLevelManager: RCTEventEmitter {
         try? audioEngine.start()
     }
     
+    @objc func setPreferredAudioInputDevice(uid:String?) {
+        // this fuction is a placeholder function
+        // ios apps handle audio globally for the app, therefore
+        // this function shouldn't change preferred input here as it would change it for the whole app
+        return
+    }
+    
     override func startObserving() {
         notificationCetner.addObserver(self, selector:#selector(restartInputNode(_:)) ,  name: AVAudioSession.routeChangeNotification, object: audioSession)
         notificationCetner.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
@@ -119,10 +126,3 @@ final class AudioInputLevelManager: RCTEventEmitter {
         self.removeInputNode()
     }
 }
-
-
-
-
-
-
-
