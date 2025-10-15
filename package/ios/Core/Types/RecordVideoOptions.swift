@@ -14,6 +14,7 @@ struct RecordVideoOptions {
   var flash: Torch = .off
   var codec: AVVideoCodecType?
   var path: URL
+  
   /**
    * Full Bit-Rate override for the Video Encoder, in Megabits per second (Mbps)
    */

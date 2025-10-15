@@ -247,3 +247,4 @@ class RecordingWhileFrameProcessingUnavailable :
   )
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)
+class MediaRecorderFailed

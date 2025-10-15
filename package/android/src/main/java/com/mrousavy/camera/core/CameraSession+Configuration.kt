@@ -1,6 +1,9 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
@@ -41,14 +44,29 @@ private fun assertFormatRequirement(
   }
 }
 
+fun getInputDevice(audioInputDeviceUid: String?, context: Context): AudioDeviceInfo {
+  val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+  val inputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
+
+  val inputDevice = if (audioInputDeviceUid != null) {
+    inputDevices.firstOrNull { device ->
+      device.id.toString() == audioInputDeviceUid
+    }
+  } else {
+    null
+  }
+  return inputDevice ?: inputDevices.first()
+}
+
 @OptIn(ExperimentalGetImage::class)
-@SuppressLint("RestrictedApi")
+@SuppressLint("RestrictedApi", "NewApi")
 @Suppress("LiftReturnOrAssignment")
 internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) {
   val cameraId = configuration.cameraId!!
   Log.i(CameraSession.TAG, "Creating new Outputs for Camera #$cameraId...")
   val fpsRange = configuration.targetFpsRange
   val format = configuration.format
+
 
   Log.i(CameraSession.TAG, "Using FPS Range: $fpsRange")
 
@@ -143,6 +161,8 @@ internal fun CameraSession.configureOutputs(configuration: CameraConfiguration) 
           }
         }
       }.build()
+
+
     }
 
     val video = VideoCapture.Builder(recorder).also { video ->
@@ -346,4 +366,10 @@ internal fun CameraSession.configureIsActive(config: CameraConfiguration) {
     lifecycleRegistry.currentState = Lifecycle.State.STARTED
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
   }
+}
+
+
+internal fun CameraSession.configureAudioDevice(configuration: CameraConfiguration, context: Context) {
+  audioDevice = getInputDevice(configuration.audioInputDeviceUid, context)
+  Log.i(CameraSession.TAG, audioDevice?.id.toString())
 }

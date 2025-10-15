@@ -13,8 +13,9 @@ import com.mrousavy.camera.core.types.VideoStabilizationMode
 data class CameraConfiguration(
   // Input
   var cameraId: String? = null,
-
   // Outputs
+
+  var audioInputDeviceUid: String? = null,
   var preview: Output<Preview> = Output.Disabled.create(),
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
@@ -106,10 +107,12 @@ data class CameraConfiguration(
     // (outputOrientation) changed
     val orientationChanged: Boolean,
     // (locationChanged) changed
-    val locationChanged: Boolean
+    val locationChanged: Boolean,
+    // Audio Input changed (audioInputDeviceUid)
+    val audioDeviceChanged: Boolean,
   ) {
     val hasChanges: Boolean
-      get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged || orientationChanged || locationChanged
+      get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged || orientationChanged || locationChanged || audioDeviceChanged
   }
 
   /**
@@ -148,13 +151,16 @@ data class CameraConfiguration(
 
       val locationChanged = left?.enableLocation != right.enableLocation
 
+      val audioDeviceChanged = left?.audioInputDeviceUid != right.audioInputDeviceUid
+
       return Difference(
         deviceChanged,
         outputsChanged,
         sidePropsChanged,
         isActiveChanged,
         orientationChanged,
-        locationChanged
+        locationChanged,
+        audioDeviceChanged
       )
     }
   }

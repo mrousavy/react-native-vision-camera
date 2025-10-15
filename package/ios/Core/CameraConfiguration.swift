@@ -16,6 +16,9 @@ final class CameraConfiguration {
 
   // Input
   var cameraId: String?
+  var audioInputDeviceUid: String?
+
+    
 
   // Outputs
   var photo: OutputConfiguration<Photo> = .disabled
@@ -57,6 +60,7 @@ final class CameraConfiguration {
     if let other {
       // copy over all values
       cameraId = other.cameraId
+      audioInputDeviceUid  = other.audioInputDeviceUid
       photo = other.photo
       video = other.video
       codeScanner = other.codeScanner
@@ -83,7 +87,7 @@ final class CameraConfiguration {
   /**
    Throw this to abort calls to configure { ... } and apply no changes.
    */
-  @frozen
+    
   enum AbortThrow: Error {
     case abort
   }
@@ -101,6 +105,7 @@ final class CameraConfiguration {
 
     let audioSessionChanged: Bool
     let locationChanged: Bool
+    
 
     /**
      Returns `true` when props that affect the AVCaptureSession configuration (i.e. props that require beginConfiguration()) have changed.
@@ -141,14 +146,15 @@ final class CameraConfiguration {
       exposureChanged = inputChanged || left?.exposure != right.exposure
 
       // audio session
-      audioSessionChanged = left?.audio != right.audio
+      audioSessionChanged = left?.audio != right.audio || left?.audioInputDeviceUid != right.audioInputDeviceUid
 
       // location
       locationChanged = left?.enableLocation != right.enableLocation
+        
     }
   }
 
-  @frozen
+    
   enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled
     case enabled(config: T)
