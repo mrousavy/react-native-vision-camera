@@ -61,6 +61,12 @@ extension CameraSession {
 
     // Remove all outputs
     for output in captureSession.outputs {
+      if let metadataOutput = output as? AVCaptureMetadataOutput {
+        metadataOutput.setMetadataObjectsDelegate(nil, queue: nil)
+      }
+      if let videoOutput = output as? AVCaptureVideoDataOutput {
+        videoOutput.setSampleBufferDelegate(nil, queue: nil)
+      }
       captureSession.removeOutput(output)
     }
     photoOutput = nil

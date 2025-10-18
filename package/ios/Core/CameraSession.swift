@@ -83,6 +83,18 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
+    let cameraCaptureSession = captureSession
+    CameraQueues.cameraQueue.async {
+      if cameraCaptureSession.isRunning {
+        cameraCaptureSession.stopRunning()
+      }
+    }
+    let cameraAudioSession = audioCaptureSession
+    CameraQueues.audioQueue.async {
+      if cameraAudioSession.isRunning {
+        cameraAudioSession.stopRunning()
+      }
+    }
   }
 
   /**
@@ -108,10 +120,13 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
    Any changes in here will be re-configured only if required, and under a lock (in this case, the serial cameraQueue DispatchQueue).
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
-  func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void) {
+  func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void,
+                 completion: (() -> Void)? = nil) {
     initialize()
 
     VisionLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
+
+    let completionBlock = completion
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
@@ -121,10 +136,12 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         try lambda(config)
       } catch CameraConfiguration.AbortThrow.abort {
         // call has been aborted and changes shall be discarded
+        completionBlock?()
         return
       } catch {
         // another error occured, possibly while trying to parse enums
         self.onConfigureError(error)
+        completionBlock?()
         return
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
@@ -244,7 +261,23 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
           }
         }
       }
+      completionBlock?()
     }
+  }
+
+  /**
+   Gracefully stop streaming and tear down any active outputs. Completion executes on the camera queue.
+   */
+  func shutdown(completion: (() -> Void)? = nil) {
+    configure({ config in
+      config.photo = .disabled
+      config.video = .disabled
+      config.audio = .disabled
+      config.codeScanner = .disabled
+      config.enableLocation = false
+      config.torch = .off
+      config.isActive = false
+    }, completion: completion)
   }
 
   /**
@@ -265,7 +298,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
   }
 
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+  final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     switch captureOutput {
     case is AVCaptureVideoDataOutput:
       onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.orientation, isMirrored: connection.isVideoMirrored)
