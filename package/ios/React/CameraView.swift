@@ -68,6 +68,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
+  @objc var iso: NSNumber?
+  @objc var exposureDuration: NSNumber?
+
   // events
   @objc var onInitializedEvent: RCTDirectEventBlock?
   @objc var onErrorEvent: RCTDirectEventBlock?
@@ -263,6 +266,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       config.maxFps = maxFps?.int32Value
       config.enableLowLightBoost = lowLightBoost
       config.torch = try Torch(jsValue: torch)
+      config.exposureDuration = exposureDuration?.doubleValue
+      config.iso = iso?.floatValue
 
       // Zoom
       config.zoom = zoom.doubleValue
