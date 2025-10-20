@@ -17,7 +17,8 @@ fun CameraSession.startRecording(
   enableAudio: Boolean,
   options: RecordVideoOptions,
   callback: (video: Video) -> Unit,
-  onError: (error: CameraError) -> Unit
+  onError: (error: CameraError) -> Unit,
+  onBytesWrittenCallback: (bytes: Long) -> Unit
 ) {
   if (camera == null) throw CameraNotReadyError()
   if (recording != null) throw RecordingInProgressError()
@@ -49,7 +50,10 @@ fun CameraSession.startRecording(
 
       is VideoRecordEvent.Pause -> Log.i(CameraSession.TAG, "Recording paused!")
 
-      is VideoRecordEvent.Status -> Log.i(CameraSession.TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
+      is VideoRecordEvent.Status -> {
+        Log.i(CameraSession.TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
+        onBytesWrittenCallback(event.recordingStats.numBytesRecorded)
+      }
 
       is VideoRecordEvent.Finalize -> {
         if (isRecordingCanceled) {
