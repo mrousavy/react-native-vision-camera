@@ -17,11 +17,14 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 
 #include <memory>
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include <NitroModules/Promise.hpp>
 #include "HybridCameraSessionSpec.hpp"
+#include "HybridCameraSessionPhotoOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -56,6 +59,7 @@ namespace margelo::nitro::camera {
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() = 0;
       virtual std::shared_ptr<HybridCameraSessionSpec> createCameraSession() = 0;
+      virtual std::shared_ptr<HybridCameraSessionPhotoOutputSpec> createPhotoOutput() = 0;
 
     protected:
       // Hybrid Setup

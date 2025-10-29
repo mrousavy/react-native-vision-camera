@@ -9,9 +9,17 @@ import NitroModules
 import AVFoundation
 
 class HybridCameraFactory: HybridCameraFactorySpec {
-  func createDeviceFactory() throws -> Promise<any HybridCameraDeviceFactorySpec> {
+  func createDeviceFactory() -> Promise<any HybridCameraDeviceFactorySpec> {
     return Promise.parallel(CameraQueues.cameraQueue) {
       return HybridCameraDeviceFactory()
     }
+  }
+  
+  func createCameraSession() -> any HybridCameraSessionSpec {
+    return HybridCameraSession()
+  }
+  
+  func createPhotoOutput() -> any HybridCameraSessionPhotoOutputSpec {
+    return HybridCameraSessionPhotoOutput()
   }
 }

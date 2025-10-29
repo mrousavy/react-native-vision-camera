@@ -154,4 +154,19 @@ open class HybridCameraFactorySpec_cxx {
       return bridge.create_Result_std__shared_ptr_HybridCameraSessionSpec__(__exceptionPtr)
     }
   }
+  
+  @inline(__always)
+  public final func createPhotoOutput() -> bridge.Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__ {
+    do {
+      let __result = try self.__implementation.createPhotoOutput()
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionPhotoOutputSpec_ in
+        let __cxxWrapped = __result.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__(__exceptionPtr)
+    }
+  }
 }

@@ -53,6 +53,10 @@ abstract class HybridCameraFactorySpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun createCameraSession(): HybridCameraSessionSpec
+  
+  @DoNotStrip
+  @Keep
+  abstract fun createPhotoOutput(): HybridCameraSessionPhotoOutputSpec
 
   private external fun initHybrid(): HybridData
 

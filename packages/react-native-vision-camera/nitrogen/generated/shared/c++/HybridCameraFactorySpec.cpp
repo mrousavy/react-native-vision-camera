@@ -16,6 +16,7 @@ namespace margelo::nitro::camera {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("createDeviceFactory", &HybridCameraFactorySpec::createDeviceFactory);
       prototype.registerHybridMethod("createCameraSession", &HybridCameraFactorySpec::createCameraSession);
+      prototype.registerHybridMethod("createPhotoOutput", &HybridCameraFactorySpec::createPhotoOutput);
     });
   }
 

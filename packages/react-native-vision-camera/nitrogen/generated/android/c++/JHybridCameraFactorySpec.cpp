@@ -11,6 +11,8 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 
 #include <memory>
 #include "HybridCameraDeviceFactorySpec.hpp"
@@ -19,6 +21,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 #include "JHybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
 #include "JHybridCameraSessionSpec.hpp"
+#include "HybridCameraSessionPhotoOutputSpec.hpp"
+#include "JHybridCameraSessionPhotoOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -72,6 +76,11 @@ namespace margelo::nitro::camera {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraSessionSpec::javaobject>()>("createCameraSession");
     auto __result = method(_javaPart);
     return __result->cthis()->shared_cast<JHybridCameraSessionSpec>();
+  }
+  std::shared_ptr<HybridCameraSessionPhotoOutputSpec> JHybridCameraFactorySpec::createPhotoOutput() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraSessionPhotoOutputSpec::javaobject>()>("createPhotoOutput");
+    auto __result = method(_javaPart);
+    return __result->cthis()->shared_cast<JHybridCameraSessionPhotoOutputSpec>();
   }
 
 } // namespace margelo::nitro::camera
