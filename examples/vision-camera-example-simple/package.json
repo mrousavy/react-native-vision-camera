@@ -10,10 +10,11 @@
     "start": "react-native start --client-logs"
   },
   "dependencies": {
+    "@types/jest": "^30.0.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
-    "react-native-nitro-modules": "0.31.3",
     "react-native-nitro-image": "0.8.1",
+    "react-native-nitro-modules": "0.31.3",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-vision-camera": "../../packages/react-native-vision-camera"
   },
