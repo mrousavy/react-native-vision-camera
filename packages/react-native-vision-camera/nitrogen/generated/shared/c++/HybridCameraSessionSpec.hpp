@@ -56,6 +56,8 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) = 0;
+      virtual std::shared_ptr<Promise<void>> start() = 0;
+      virtual std::shared_ptr<Promise<void>> stop() = 0;
 
     protected:
       // Hybrid Setup

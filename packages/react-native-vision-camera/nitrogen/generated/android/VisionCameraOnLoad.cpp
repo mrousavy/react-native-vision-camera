@@ -22,8 +22,11 @@
 #include "JHybridCameraFactorySpec.hpp"
 #include "JHybridCameraFormatSpec.hpp"
 #include "JHybridCameraSessionSpec.hpp"
+#include "JHybridPreviewViewSpec.hpp"
+#include "views/JHybridPreviewViewStateUpdater.hpp"
 #include "JHybridCameraSessionOutputSpec.hpp"
 #include "JHybridCameraSessionPhotoOutputSpec.hpp"
+#include <NitroModules/DefaultConstructableObject.hpp>
 
 namespace margelo::nitro::camera {
 
@@ -41,11 +44,28 @@ int initialize(JavaVM* vm) {
     margelo::nitro::camera::JHybridCameraFactorySpec::registerNatives();
     margelo::nitro::camera::JHybridCameraFormatSpec::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionSpec::registerNatives();
+    margelo::nitro::camera::JHybridPreviewViewSpec::registerNatives();
+    margelo::nitro::camera::views::JHybridPreviewViewStateUpdater::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionOutputSpec::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionPhotoOutputSpec::registerNatives();
 
     // Register Nitro Hybrid Objects
-    
+    HybridObjectRegistry::registerHybridObjectConstructor(
+      "CameraFactory",
+      []() -> std::shared_ptr<HybridObject> {
+        static DefaultConstructableObject<JHybridCameraFactorySpec::javaobject> object("com/margelo/nitro/camera/HybridCameraFactory");
+        auto instance = object.create();
+        return instance->cthis()->shared();
+      }
+    );
+    HybridObjectRegistry::registerHybridObjectConstructor(
+      "PreviewView",
+      []() -> std::shared_ptr<HybridObject> {
+        static DefaultConstructableObject<JHybridPreviewViewSpec::javaobject> object("com/margelo/nitro/camera/HybridPreviewView");
+        auto instance = object.create();
+        return instance->cthis()->shared();
+      }
+    );
   });
 }
 

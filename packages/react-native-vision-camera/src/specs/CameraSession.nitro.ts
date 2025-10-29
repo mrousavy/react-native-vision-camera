@@ -9,4 +9,7 @@ export interface CameraSession
     inputs: CameraDevice[],
     outputs: CameraSessionOutput[]
   ): Promise<void>
+
+  start(): Promise<void>
+  stop(): Promise<void>
 }

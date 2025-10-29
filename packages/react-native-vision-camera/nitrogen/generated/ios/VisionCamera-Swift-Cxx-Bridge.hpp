@@ -26,6 +26,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
+// Forward declaration of `HybridPreviewViewSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
@@ -48,6 +50,8 @@ namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 // Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
 namespace NitroImage { class HybridImageSpec_cxx; }
+// Forward declaration of `HybridPreviewViewSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 
 // Include C++ defined types
 #include "CapturePhotoCallbacks.hpp"
@@ -58,6 +62,7 @@ namespace NitroImage { class HybridImageSpec_cxx; }
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
+#include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
@@ -363,6 +368,33 @@ namespace margelo::nitro::camera::bridge::swift {
   inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
   }
+  
+  // pragma MARK: std::optional<std::shared_ptr<HybridCameraSessionSpec>>
+  /**
+   * Specialized version of `std::optional<std::shared_ptr<HybridCameraSessionSpec>>`.
+   */
+  using std__optional_std__shared_ptr_HybridCameraSessionSpec__ = std::optional<std::shared_ptr<HybridCameraSessionSpec>>;
+  inline std::optional<std::shared_ptr<HybridCameraSessionSpec>> create_std__optional_std__shared_ptr_HybridCameraSessionSpec__(const std::shared_ptr<HybridCameraSessionSpec>& value) noexcept {
+    return std::optional<std::shared_ptr<HybridCameraSessionSpec>>(value);
+  }
+  inline bool has_value_std__optional_std__shared_ptr_HybridCameraSessionSpec__(const std::optional<std::shared_ptr<HybridCameraSessionSpec>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::shared_ptr<HybridCameraSessionSpec> get_std__optional_std__shared_ptr_HybridCameraSessionSpec__(const std::optional<std::shared_ptr<HybridCameraSessionSpec>>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridPreviewViewSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridPreviewViewSpec>`.
+   */
+  using std__shared_ptr_HybridPreviewViewSpec_ = std::shared_ptr<HybridPreviewViewSpec>;
+  std::shared_ptr<HybridPreviewViewSpec> create_std__shared_ptr_HybridPreviewViewSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridPreviewViewSpec_(std__shared_ptr_HybridPreviewViewSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridPreviewViewSpec>
+  using std__weak_ptr_HybridPreviewViewSpec_ = std::weak_ptr<HybridPreviewViewSpec>;
+  inline std__weak_ptr_HybridPreviewViewSpec_ weakify_std__shared_ptr_HybridPreviewViewSpec_(const std::shared_ptr<HybridPreviewViewSpec>& strong) noexcept { return strong; }
   
   // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
   /**

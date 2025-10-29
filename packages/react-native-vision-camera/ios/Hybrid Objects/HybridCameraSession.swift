@@ -9,7 +9,7 @@ import NitroModules
 import AVFoundation
 
 class HybridCameraSession: HybridCameraSessionSpec {
-  private let session: AVCaptureSession
+  let session: AVCaptureSession
   
   override init() {
     self.session = AVCaptureSession()
@@ -21,7 +21,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
   }
   
   func configure(inputs: [any HybridCameraDeviceSpec],
-                 outputs: [any HybridCameraSessionOutputSpec]) throws -> Promise<Void> {
+                 outputs: [any HybridCameraSessionOutputSpec]) -> Promise<Void> {
     return Promise.parallel(CameraQueues.cameraQueue) {
       // 0. We do everything under a configuration - to keep it batched
       self.session.beginConfiguration()
@@ -42,6 +42,18 @@ class HybridCameraSession: HybridCameraSessionSpec {
       for outputSpec in outputs {
         try self.session.addOutput(outputSpec)
       }
+    }
+  }
+  
+  func start() -> Promise<Void> {
+    return Promise.parallel(CameraQueues.cameraQueue) {
+      self.session.startRunning()
+    }
+  }
+  
+  func stop() -> Promise<Void> {
+    return Promise.parallel(CameraQueues.cameraQueue) {
+      self.session.stopRunning()
     }
   }
 }

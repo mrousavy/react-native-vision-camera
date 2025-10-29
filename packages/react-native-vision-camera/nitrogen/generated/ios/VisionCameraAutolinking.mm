@@ -11,6 +11,7 @@
 #import <type_traits>
 
 #include "HybridCameraFactorySpecSwift.hpp"
+#include "HybridPreviewViewSpecSwift.hpp"
 
 @interface VisionCameraAutolinking : NSObject
 @end
@@ -25,6 +26,13 @@
     "CameraFactory",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridCameraFactorySpec> hybridObject = VisionCamera::VisionCameraAutolinking::createCameraFactory();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "PreviewView",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridPreviewViewSpec> hybridObject = VisionCamera::VisionCameraAutolinking::createPreviewView();
       return hybridObject;
     }
   );

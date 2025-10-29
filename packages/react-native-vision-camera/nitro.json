@@ -14,7 +14,12 @@
   },
   "autolinking": {
     "CameraFactory": {
-      "swift": "HybridCameraFactory"
+      "swift": "HybridCameraFactory",
+      "kotlin": "HybridCameraFactory"
+    },
+    "PreviewView": {
+      "swift": "HybridPreviewView",
+      "kotlin": "HybridPreviewView"
     }
   },
   "ignorePaths": [

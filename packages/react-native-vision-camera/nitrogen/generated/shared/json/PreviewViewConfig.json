@@ -1,0 +1,10 @@
+{
+  "uiViewClassName": "PreviewView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "session": true,
+    "hybridRef": true
+  }
+}

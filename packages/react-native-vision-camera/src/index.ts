@@ -5,3 +5,5 @@ export const HybridCameraFactory =
   NitroModules.createHybridObject<CameraFactory>('CameraFactory')
 
 export * from './hooks/useCameraDevices'
+
+export * from './PreviewView'

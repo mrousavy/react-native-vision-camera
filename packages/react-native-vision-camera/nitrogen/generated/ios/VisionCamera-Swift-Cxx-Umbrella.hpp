@@ -30,6 +30,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
+// Forward declaration of `HybridPreviewViewSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
@@ -48,6 +50,7 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
+#include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "Resolution.hpp"
@@ -87,6 +90,8 @@ namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 // Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
 namespace NitroImage { class HybridImageSpec_cxx; }
+// Forward declaration of `HybridPreviewViewSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("VisionCamera-Swift.h")

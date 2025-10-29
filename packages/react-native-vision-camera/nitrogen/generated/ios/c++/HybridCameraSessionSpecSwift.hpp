@@ -77,6 +77,22 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::shared_ptr<Promise<void>> start() override {
+      auto __result = _swiftPart.start();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> stop() override {
+      auto __result = _swiftPart.stop();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
 
   private:
     VisionCamera::HybridCameraSessionSpec_cxx _swiftPart;
