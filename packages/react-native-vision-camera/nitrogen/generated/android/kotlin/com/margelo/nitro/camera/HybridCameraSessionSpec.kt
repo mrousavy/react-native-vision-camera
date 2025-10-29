@@ -50,7 +50,7 @@ abstract class HybridCameraSessionSpec: HybridObject() {
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun configureOutputs(outputs: HybridCameraSessionOutputSpec): Promise<Unit>
+  abstract fun configure(inputs: Array<HybridCameraDeviceSpec>, outputs: Array<HybridCameraSessionOutputSpec>): Promise<Unit>
 
   private external fun initHybrid(): HybridData
 

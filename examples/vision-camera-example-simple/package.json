@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "pods": "bundle install && cd ios && bundle exec pod install",
     "lint": "eslint .",
-    "start": "react-native start"
+    "start": "react-native start --client-logs"
   },
   "dependencies": {
     "react": "19.1.1",

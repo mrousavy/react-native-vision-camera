@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -44,6 +46,7 @@ namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 
 // Include C++ defined types
+#include "CapturePhotoCallbacks.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -59,6 +62,7 @@ namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 #include <exception>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 /**
@@ -335,6 +339,17 @@ namespace margelo::nitro::camera::bridge::swift {
     return PromiseHolder<void>(std::move(promise));
   }
   
+  // pragma MARK: std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>`.
+   */
+  using std__vector_std__shared_ptr_HybridCameraSessionOutputSpec__ = std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>;
+  inline std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>> create_std__vector_std__shared_ptr_HybridCameraSessionOutputSpec__(size_t size) noexcept {
+    std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
   // pragma MARK: Result<std::shared_ptr<Promise<void>>>
   using Result_std__shared_ptr_Promise_void___ = Result<std::shared_ptr<Promise<void>>>;
   inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::shared_ptr<Promise<void>>& value) noexcept {
@@ -342,6 +357,36 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
+  }
+  
+  // pragma MARK: std::optional<std::function<void()>>
+  /**
+   * Specialized version of `std::optional<std::function<void()>>`.
+   */
+  using std__optional_std__function_void____ = std::optional<std::function<void()>>;
+  inline std::optional<std::function<void()>> create_std__optional_std__function_void____(const std::function<void()>& value) noexcept {
+    return std::optional<std::function<void()>>(value);
+  }
+  inline bool has_value_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::function<void()> get_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<CapturePhotoCallbacks>
+  /**
+   * Specialized version of `std::optional<CapturePhotoCallbacks>`.
+   */
+  using std__optional_CapturePhotoCallbacks_ = std::optional<CapturePhotoCallbacks>;
+  inline std::optional<CapturePhotoCallbacks> create_std__optional_CapturePhotoCallbacks_(const CapturePhotoCallbacks& value) noexcept {
+    return std::optional<CapturePhotoCallbacks>(value);
+  }
+  inline bool has_value_std__optional_CapturePhotoCallbacks_(const std::optional<CapturePhotoCallbacks>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline CapturePhotoCallbacks get_std__optional_CapturePhotoCallbacks_(const std::optional<CapturePhotoCallbacks>& optional) noexcept {
+    return *optional;
   }
 
 } // namespace margelo::nitro::camera::bridge::swift

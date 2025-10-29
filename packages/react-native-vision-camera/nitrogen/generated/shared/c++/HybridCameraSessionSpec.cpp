@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("isRunning", &HybridCameraSessionSpec::getIsRunning);
-      prototype.registerHybridMethod("configureOutputs", &HybridCameraSessionSpec::configureOutputs);
+      prototype.registerHybridMethod("configure", &HybridCameraSessionSpec::configure);
     });
   }
 

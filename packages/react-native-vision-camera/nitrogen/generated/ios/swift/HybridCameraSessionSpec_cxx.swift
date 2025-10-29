@@ -124,13 +124,17 @@ open class HybridCameraSessionSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func configureOutputs(outputs: bridge.std__shared_ptr_HybridCameraSessionOutputSpec_) -> bridge.Result_std__shared_ptr_Promise_void___ {
+  public final func configure(inputs: bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__, outputs: bridge.std__vector_std__shared_ptr_HybridCameraSessionOutputSpec__) -> bridge.Result_std__shared_ptr_Promise_void___ {
     do {
-      let __result = try self.__implementation.configureOutputs(outputs: { () -> HybridCameraSessionOutputSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraSessionOutputSpec_(outputs)
+      let __result = try self.__implementation.configure(inputs: inputs.map({ __item in { () -> HybridCameraDeviceSpec in
+        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(__item)
+        let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
+        return __instance.getHybridCameraDeviceSpec()
+      }() }), outputs: outputs.map({ __item in { () -> HybridCameraSessionOutputSpec in
+        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraSessionOutputSpec_(__item)
         let __instance = HybridCameraSessionOutputSpec_cxx.fromUnsafe(__unsafePointer)
         return __instance.getHybridCameraSessionOutputSpec()
-      }())
+      }() }))
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
         let __promise = bridge.create_std__shared_ptr_Promise_void__()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)

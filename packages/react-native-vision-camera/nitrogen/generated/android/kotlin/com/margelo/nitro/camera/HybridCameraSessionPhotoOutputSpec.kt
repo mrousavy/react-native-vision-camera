@@ -48,7 +48,7 @@ abstract class HybridCameraSessionPhotoOutputSpec: HybridCameraSessionOutputSpec
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun capturePhoto(): Promise<Unit>
+  abstract fun capturePhoto(callbacks: CapturePhotoCallbacks?): Promise<Unit>
 
   private external fun initHybrid(): HybridData
 

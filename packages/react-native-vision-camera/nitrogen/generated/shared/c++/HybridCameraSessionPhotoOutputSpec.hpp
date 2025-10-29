@@ -13,10 +13,14 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 
 #include <NitroModules/Promise.hpp>
+#include "CapturePhotoCallbacks.hpp"
+#include <optional>
 #include <memory>
 #include "HybridCameraSessionOutputSpec.hpp"
 
@@ -51,7 +55,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> capturePhoto() = 0;
+      virtual std::shared_ptr<Promise<void>> capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) = 0;
 
     protected:
       // Hybrid Setup

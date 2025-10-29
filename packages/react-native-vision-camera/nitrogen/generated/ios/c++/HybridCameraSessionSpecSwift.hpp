@@ -12,11 +12,15 @@
 // Forward declaration of `HybridCameraSessionSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 
+// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 
 #include <NitroModules/Promise.hpp>
 #include <memory>
+#include "HybridCameraDeviceSpec.hpp"
+#include <vector>
 #include "HybridCameraSessionOutputSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -65,8 +69,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<void>> configureOutputs(const std::shared_ptr<HybridCameraSessionOutputSpec>& outputs) override {
-      auto __result = _swiftPart.configureOutputs(outputs);
+    inline std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) override {
+      auto __result = _swiftPart.configure(inputs, outputs);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

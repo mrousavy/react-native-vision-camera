@@ -54,7 +54,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    std::shared_ptr<Promise<void>> configureOutputs(const std::shared_ptr<HybridCameraSessionOutputSpec>& outputs) override;
+    std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) override;
 
   private:
     friend HybridBase;

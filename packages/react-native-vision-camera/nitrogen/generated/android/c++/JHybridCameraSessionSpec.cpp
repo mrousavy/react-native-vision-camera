@@ -7,12 +7,17 @@
 
 #include "JHybridCameraSessionSpec.hpp"
 
+// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include <memory>
+#include "HybridCameraDeviceSpec.hpp"
+#include <vector>
+#include "JHybridCameraDeviceSpec.hpp"
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "JHybridCameraSessionOutputSpec.hpp"
 
@@ -52,9 +57,25 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<void>> JHybridCameraSessionSpec::configureOutputs(const std::shared_ptr<HybridCameraSessionOutputSpec>& outputs) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JHybridCameraSessionOutputSpec::javaobject> /* outputs */)>("configureOutputs");
-    auto __result = method(_javaPart, std::dynamic_pointer_cast<JHybridCameraSessionOutputSpec>(outputs)->getJavaPart());
+  std::shared_ptr<Promise<void>> JHybridCameraSessionSpec::configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<JHybridCameraDeviceSpec::javaobject>> /* inputs */, jni::alias_ref<jni::JArrayClass<JHybridCameraSessionOutputSpec::javaobject>> /* outputs */)>("configure");
+    auto __result = method(_javaPart, [&]() {
+      size_t __size = inputs.size();
+      jni::local_ref<jni::JArrayClass<JHybridCameraDeviceSpec::javaobject>> __array = jni::JArrayClass<JHybridCameraDeviceSpec::javaobject>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = inputs[__i];
+        __array->setElement(__i, *std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(__element)->getJavaPart());
+      }
+      return __array;
+    }(), [&]() {
+      size_t __size = outputs.size();
+      jni::local_ref<jni::JArrayClass<JHybridCameraSessionOutputSpec::javaobject>> __array = jni::JArrayClass<JHybridCameraSessionOutputSpec::javaobject>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = outputs[__i];
+        __array->setElement(__i, *std::dynamic_pointer_cast<JHybridCameraSessionOutputSpec>(__element)->getJavaPart());
+      }
+      return __array;
+    }());
     return [&]() {
       auto __promise = Promise<void>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {

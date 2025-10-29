@@ -15,9 +15,21 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
   }
   private let photoOutput = AVCapturePhotoOutput()
   
-  func capturePhoto() -> Promise<Void> {
-    return Promise.parallel(CameraQueues.cameraQueue) {
-      // TODO: Capture Photo
-    }
+  func capturePhoto(callbacks: CapturePhotoCallbacks?) -> Promise<Void> {
+    let callbacks = callbacks ?? CapturePhotoCallbacks(onWillBeginCapture: nil,
+                                                       onWillCapturePhoto: nil,
+                                                       onDidCapturePhoto: nil,
+                                                       onDidFinishCapture: nil)
+    let promise = Promise<Void>()
+    let delegate = CapturePhotoDelegate(
+      onCaptured: { photo in
+        
+      },
+      onError: { error in
+        
+      },
+      callbacks: callbacks)
+    photoOutput.capturePhoto(with: .init(), delegate: delegate)
+    return promise
   }
 }

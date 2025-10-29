@@ -12,6 +12,8 @@
 namespace margelo::nitro::camera { enum class CameraPosition; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
+// Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -36,6 +38,7 @@ namespace margelo::nitro::camera { struct Resolution; }
 // Include C++ defined types
 #include "CameraPosition.hpp"
 #include "CameraSessionOutputType.hpp"
+#include "CapturePhotoCallbacks.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -51,6 +54,7 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include <exception>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 

@@ -1,5 +1,5 @@
 ///
-/// HybridCameraDevice.swift
+/// AVCaptureDevice.DeviceType+all.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -15,28 +15,28 @@ extension AVCaptureDevice.DeviceType {
    */
   static var all: [AVCaptureDevice.DeviceType] {
     var devices: [AVCaptureDevice.DeviceType] = []
-    
+
     devices.append(.builtInWideAngleCamera)
     devices.append(.builtInUltraWideCamera)
     devices.append(.builtInTelephotoCamera)
     devices.append(.builtInDualCamera)
     devices.append(.builtInDualWideCamera)
     devices.append(.builtInTripleCamera)
-    
+
     if #available(iOS 17.0, *) {
       devices.append(.continuityCamera)
       devices.append(.external)
     }
-    
+
 #if os(macOS)
     devices.append(.deskViewCamera)
 #endif
-    
+
     if #available(iOS 15.4, *) {
       devices.append(.builtInLiDARDepthCamera)
     }
     devices.append(.builtInTrueDepthCamera)
-    
+
     return devices
   }
 }

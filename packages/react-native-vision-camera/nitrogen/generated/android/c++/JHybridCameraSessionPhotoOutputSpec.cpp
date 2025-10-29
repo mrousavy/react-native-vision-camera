@@ -7,11 +7,18 @@
 
 #include "JHybridCameraSessionPhotoOutputSpec.hpp"
 
+// Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
+#include "CapturePhotoCallbacks.hpp"
+#include <optional>
+#include "JCapturePhotoCallbacks.hpp"
+#include <functional>
+#include "JFunc_void.hpp"
 #include "CameraSessionOutputType.hpp"
 #include "JCameraSessionOutputType.hpp"
 
@@ -51,9 +58,9 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<void>> JHybridCameraSessionPhotoOutputSpec::capturePhoto() {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("capturePhoto");
-    auto __result = method(_javaPart);
+  std::shared_ptr<Promise<void>> JHybridCameraSessionPhotoOutputSpec::capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JCapturePhotoCallbacks> /* callbacks */)>("capturePhoto");
+    auto __result = method(_javaPart, callbacks.has_value() ? JCapturePhotoCallbacks::fromCpp(callbacks.value()) : nullptr);
     return [&]() {
       auto __promise = Promise<void>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {

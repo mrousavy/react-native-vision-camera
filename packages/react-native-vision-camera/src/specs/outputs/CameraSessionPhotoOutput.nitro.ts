@@ -1,5 +1,12 @@
 import type { CameraSessionOutput } from './CameraSessionOutput.nitro'
 
+interface CapturePhotoCallbacks {
+  onWillBeginCapture?: () => void
+  onWillCapturePhoto?: () => void
+  onDidCapturePhoto?: () => void
+  onDidFinishCapture?: () => void
+}
+
 export interface CameraSessionPhotoOutput extends CameraSessionOutput {
-  capturePhoto(): Promise<void>
+  capturePhoto(callbacks?: CapturePhotoCallbacks): Promise<void>
 }
