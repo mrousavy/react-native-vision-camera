@@ -5,16 +5,19 @@ import type { ListenerSubscription } from './specs/ListenerSubscription'
 // this caches our Camera Devices
 let cameraDevices: CameraDevice[] = []
 const listeners: ((newDevices: CameraDevice[]) => void)[] = []
+function setCameraDevices(devices: CameraDevice[]): void {
+  cameraDevices = devices
+  listeners.forEach((listener) => listener(devices))
+}
 
 // this is async so this might run in parallel
 HybridCameraFactory.createDeviceFactory().then((factory) => {
   // CameraDeviceFactory is loaded - get initial devices
-  cameraDevices = factory.cameraDevices
+  setCameraDevices(factory.cameraDevices)
 
   // Add listener when devices change
   factory.addOnCameraDevicesChangedListener((newDevices) => {
-    cameraDevices = newDevices
-    listeners.forEach((listener) => listener(newDevices))
+    setCameraDevices(newDevices)
   })
 })
 
