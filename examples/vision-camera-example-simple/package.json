@@ -12,7 +12,9 @@
   "dependencies": {
     "react": "19.1.1",
     "react-native": "0.82.1",
-    "react-native-safe-area-context": "^5.5.2"
+    "react-native-nitro-modules": "0.31.3",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-vision-camera": "../../packages/react-native-vision-camera"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -26,9 +28,9 @@
     "@react-native/metro-config": "0.82.1",
     "@react-native/typescript-config": "0.82.1",
     "@types/react": "^19.1.1",
-    "eslint": "^8.19.0",
+    "eslint": "8.57.0",
     "prettier": "2.8.8",
-    "typescript": "^5.8.3"
+    "typescript": "5.8.3"
   },
   "engines": {
     "node": ">=20"
