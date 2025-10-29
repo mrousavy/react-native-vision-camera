@@ -12,16 +12,12 @@
 // Forward declaration of `HybridCameraFactorySpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 
-// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
-// Forward declaration of `ListenerSubscription` to properly resolve imports.
-namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 
 #include <memory>
-#include "HybridCameraDeviceSpec.hpp"
-#include <vector>
-#include "ListenerSubscription.hpp"
-#include <functional>
+#include "HybridCameraDeviceFactorySpec.hpp"
+#include <NitroModules/Promise.hpp>
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -63,15 +59,12 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    inline std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getCameraDevices() noexcept override {
-      auto __result = _swiftPart.getCameraDevices();
-      return __result;
-    }
+    
 
   public:
     // Methods
-    inline ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) override {
-      auto __result = _swiftPart.addOnCameraDevicesChangedListener(listener);
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() override {
+      auto __result = _swiftPart.createDeviceFactory();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -7,6 +7,7 @@
 
 import Foundation
 import NitroModules
+import NitroModules
 
 /**
  * A class implementation that bridges HybridCameraFactorySpec over to C++.
@@ -114,46 +115,28 @@ open class HybridCameraFactorySpec_cxx {
   }
 
   // Properties
-  public final var cameraDevices: bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__ in
-        var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(self.__implementation.cameraDevices.count)
-        for __item in self.__implementation.cameraDevices {
-          __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
-            let __cxxWrapped = __item.getCxxWrapper()
-            return __cxxWrapped.getCxxPart()
-          }())
-        }
-        return __vector
-      }()
-    }
-  }
+  
 
   // Methods
   @inline(__always)
-  public final func addOnCameraDevicesChangedListener(listener: bridge.Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__) -> bridge.Result_ListenerSubscription_ {
+  public final func createDeviceFactory() -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec____ {
     do {
-      let __result = try self.__implementation.addOnCameraDevicesChangedListener(listener: { () -> ([(any HybridCameraDeviceSpec)]) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(listener)
-        return { (__newDevices: [(any HybridCameraDeviceSpec)]) -> Void in
-          __wrappedFunction.call({ () -> bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__ in
-            var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(__newDevices.count)
-            for __item in __newDevices {
-              __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
-                let __cxxWrapped = __item.getCxxWrapper()
-                return __cxxWrapped.getCxxPart()
-              }())
-            }
-            return __vector
-          }())
-        }
-      }())
-      let __resultCpp = __result
-      return bridge.create_Result_ListenerSubscription_(__resultCpp)
+      let __result = try self.__implementation.createDeviceFactory()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridCameraDeviceFactorySpec_ in
+              let __cxxWrapped = __result.getCxxWrapper()
+              return __cxxWrapped.getCxxPart()
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec____(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_ListenerSubscription_(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec____(__exceptionPtr)
     }
   }
 }

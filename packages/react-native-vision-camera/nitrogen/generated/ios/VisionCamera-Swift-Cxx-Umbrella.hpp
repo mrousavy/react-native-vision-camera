@@ -10,6 +10,8 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFactorySpec` to properly resolve imports.
@@ -25,12 +27,14 @@ namespace margelo::nitro::camera { struct Resolution; }
 
 // Include C++ defined types
 #include "CameraPosition.hpp"
+#include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "Resolution.hpp"
+#include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
 #include <functional>
@@ -48,6 +52,8 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include <NitroModules/DateToChronoDate.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraDeviceFactorySpec_cxx; }
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
 // Forward declaration of `HybridCameraFactorySpec_cxx` to properly resolve imports.

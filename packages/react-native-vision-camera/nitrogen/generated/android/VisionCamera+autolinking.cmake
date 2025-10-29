@@ -34,10 +34,12 @@ target_sources(
   ../nitrogen/generated/android/VisionCameraOnLoad.cpp
   # Shared Nitrogen C++ sources
   ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridCameraDeviceSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraFormatSpec.cpp
 )

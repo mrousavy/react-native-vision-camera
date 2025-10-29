@@ -13,16 +13,12 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
-// Forward declaration of `ListenerSubscription` to properly resolve imports.
-namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 
 #include <memory>
-#include "HybridCameraDeviceSpec.hpp"
-#include <vector>
-#include "ListenerSubscription.hpp"
-#include <functional>
+#include "HybridCameraDeviceFactorySpec.hpp"
+#include <NitroModules/Promise.hpp>
 
 namespace margelo::nitro::camera {
 
@@ -51,11 +47,11 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getCameraDevices() = 0;
+      
 
     public:
       // Methods
-      virtual ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() = 0;
 
     protected:
       // Hybrid Setup
