@@ -64,12 +64,14 @@
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-nitro-modules": "0.31.3",
+    "react-native-nitro-image": "0.8.1",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "react-native-nitro-modules": "*"
+    "react-native-nitro-modules": "*",
+    "react-native-nitro-image": "*"
   },
   "eslintConfig": {
     "root": true,

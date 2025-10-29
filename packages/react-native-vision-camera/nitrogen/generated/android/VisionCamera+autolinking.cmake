@@ -38,6 +38,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridPhotoSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionPhotoOutputSpec.cpp
   # Android-specific Nitrogen C++ sources
@@ -46,6 +47,7 @@ target_sources(
   ../nitrogen/generated/android/c++/JHybridCameraFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraFormatSpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraSessionSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridPhotoSpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraSessionOutputSpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraSessionPhotoOutputSpec.cpp
 )

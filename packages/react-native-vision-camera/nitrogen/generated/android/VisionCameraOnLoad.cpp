@@ -22,6 +22,7 @@
 #include "JHybridCameraFactorySpec.hpp"
 #include "JHybridCameraFormatSpec.hpp"
 #include "JHybridCameraSessionSpec.hpp"
+#include "JHybridPhotoSpec.hpp"
 #include "JHybridCameraSessionOutputSpec.hpp"
 #include "JHybridCameraSessionPhotoOutputSpec.hpp"
 
@@ -41,6 +42,7 @@ int initialize(JavaVM* vm) {
     margelo::nitro::camera::JHybridCameraFactorySpec::registerNatives();
     margelo::nitro::camera::JHybridCameraFormatSpec::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionSpec::registerNatives();
+    margelo::nitro::camera::JHybridPhotoSpec::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionOutputSpec::registerNatives();
     margelo::nitro::camera::JHybridCameraSessionPhotoOutputSpec::registerNatives();
 

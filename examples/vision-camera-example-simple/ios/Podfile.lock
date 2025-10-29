@@ -8,6 +8,36 @@ PODS:
   - hermes-engine (0.82.1):
     - hermes-engine/Pre-built (= 0.82.1)
   - hermes-engine/Pre-built (0.82.1)
+  - NitroImage (0.8.1):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - NitroModules
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - NitroModules (0.31.3):
     - boost
     - DoubleConversion
@@ -2445,6 +2475,7 @@ PODS:
     - fmt
     - glog
     - hermes-engine
+    - NitroImage
     - NitroModules
     - RCT-Folly
     - RCT-Folly/Fabric
@@ -2478,6 +2509,7 @@ DEPENDENCIES:
   - fmt (from `../../../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../../../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - NitroImage (from `../../../node_modules/react-native-nitro-image`)
   - NitroModules (from `../../../node_modules/react-native-nitro-modules`)
   - RCT-Folly (from `../../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../../../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2570,6 +2602,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../../../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-09-01-RNv0.82.0-265ef62ff3eb7289d17e366664ac0da82303e101
+  NitroImage:
+    :path: "../../../node_modules/react-native-nitro-image"
   NitroModules:
     :path: "../../../node_modules/react-native-nitro-modules"
   RCT-Folly:
@@ -2717,6 +2751,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 273e30e7fb618279934b0b95ffab60ecedb7acf5
+  NitroImage: 76da8995cc5476111ac5069300a3ec5de0f65e9b
   NitroModules: ca848159e82a7e9ae956ffe26c34a11631e6176b
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: f17e2ebc07876ca9ab8eb6e4b0a4e4647497ae3a
@@ -2785,7 +2820,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 65ae48ae967a383859da021028e6e8dd7b2d97d1
   ReactCommon: 804dc80944fa90b86800b43c871742ec005ca424
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  VisionCamera: 8fb406ce7ab4499394b80409f60e70808545d9c7
+  VisionCamera: 12a48031a0037715b804329f9d2aa3b96a2bb266
   Yoga: 8e01cef9947ca77f0477a098f0b32848a8e448c6
 
 PODFILE CHECKSUM: a09ed9b7582a2fb64fda2ad50a89e4d011a0ac1b

@@ -20,10 +20,12 @@ include_directories(
 )
 
 find_library(LOG_LIB log)
+find_package(react-native-nitro-image REQUIRED)   # <-- for the HybridImageSpec
 
 # Link all libraries together
 target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         android                                   # <-- Android core
+        react-native-nitro-image::NitroImage
 )

@@ -15,7 +15,9 @@
 #include "HybridCameraSessionOutputSpecSwift.hpp"
 #include "HybridCameraSessionPhotoOutputSpecSwift.hpp"
 #include "HybridCameraSessionSpecSwift.hpp"
+#include "HybridPhotoSpecSwift.hpp"
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
+#include <NitroImage/NitroImage-Swift-Cxx-Bridge.hpp>
 
 namespace margelo::nitro::camera::bridge::swift {
 
@@ -160,6 +162,72 @@ namespace margelo::nitro::camera::bridge::swift {
     }
     #endif
     VisionCamera::HybridCameraFactorySpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::function<void(const RawPixelData& /* result */)>
+  Func_void_RawPixelData create_Func_void_RawPixelData(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_RawPixelData::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const RawPixelData& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const EncodedImageData& /* result */)>
+  Func_void_EncodedImageData create_Func_void_EncodedImageData(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_EncodedImageData::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const EncodedImageData& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
+  std::shared_ptr<margelo::nitro::image::HybridImageSpec> create_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::create_std__shared_ptr_HybridImageSpec_(swiftUnsafePointer);
+  }
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(std__shared_ptr_margelo__nitro__image__HybridImageSpec_ cppType) {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::get_std__shared_ptr_HybridImageSpec_(cppType);
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& /* result */)>
+  Func_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec_ create_Func_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::string& /* result */)>
+  Func_void_std__string create_Func_void_std__string(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_std__string::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::string& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<ArrayBuffer>& /* result */)>
+  Func_void_std__shared_ptr_ArrayBuffer_ create_Func_void_std__shared_ptr_ArrayBuffer_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_std__shared_ptr_ArrayBuffer_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<ArrayBuffer>& result) mutable -> void {
+      swiftClosure.call(ArrayBufferHolder(result));
+    };
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridPhotoSpec>
+  std::shared_ptr<HybridPhotoSpec> create_std__shared_ptr_HybridPhotoSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    VisionCamera::HybridPhotoSpec_cxx swiftPart = VisionCamera::HybridPhotoSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::camera::HybridPhotoSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridPhotoSpec_(std__shared_ptr_HybridPhotoSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::camera::HybridPhotoSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridPhotoSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridPhotoSpec\" is not implemented in Swift!");
+    }
+    #endif
+    VisionCamera::HybridPhotoSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
 

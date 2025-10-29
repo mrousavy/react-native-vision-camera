@@ -1,0 +1,14 @@
+//
+//  HybridPhoto.swift
+//  VisionCamera
+//
+//  Created by Marc Rousavy on 29.10.25.
+//
+
+import Foundation
+import AVFoundation
+import NitroModules
+
+class HybridPhoto: HybridPhotoSpec {
+  
+}
