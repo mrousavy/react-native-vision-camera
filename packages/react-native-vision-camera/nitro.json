@@ -1,0 +1,19 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": [
+    "visioncamera"
+  ],
+  "ios": {
+    "iosModuleName": "NitroVisionCamera"
+  },
+  "android": {
+    "androidNamespace": [
+      "visioncamera"
+    ],
+    "androidCxxLibName": "NitroVisionCamera"
+  },
+  "autolinking": {},
+  "ignorePaths": [
+    "**/node_modules"
+  ]
+}
