@@ -13,9 +13,19 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-
+// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 
 #include <string>
+#include "PhysicalCameraDeviceType.hpp"
+#include <vector>
+#include "CameraPosition.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -45,6 +55,11 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual std::string getId() = 0;
+      virtual std::vector<PhysicalCameraDeviceType> getPhysicalDevices() = 0;
+      virtual CameraPosition getPosition() = 0;
+      virtual std::string getDeviceName() = 0;
+      virtual bool getHasFlash() = 0;
+      virtual std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() = 0;
 
     public:
       // Methods

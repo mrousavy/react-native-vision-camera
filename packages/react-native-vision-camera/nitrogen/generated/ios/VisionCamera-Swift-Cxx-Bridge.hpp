@@ -12,6 +12,8 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
@@ -22,7 +24,9 @@ namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
 // Include C++ defined types
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
+#include "PhysicalCameraDeviceType.hpp"
 #include <memory>
+#include <vector>
 
 /**
  * Contains specialized versions of C++ templated types so they can be accessed from Swift,
@@ -30,17 +34,16 @@ namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
  */
 namespace margelo::nitro::camera::bridge::swift {
 
-  // pragma MARK: std::shared_ptr<HybridCameraDeviceSpec>
+  // pragma MARK: std::vector<PhysicalCameraDeviceType>
   /**
-   * Specialized version of `std::shared_ptr<HybridCameraDeviceSpec>`.
+   * Specialized version of `std::vector<PhysicalCameraDeviceType>`.
    */
-  using std__shared_ptr_HybridCameraDeviceSpec_ = std::shared_ptr<HybridCameraDeviceSpec>;
-  std::shared_ptr<HybridCameraDeviceSpec> create_std__shared_ptr_HybridCameraDeviceSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
-  void* NON_NULL get_std__shared_ptr_HybridCameraDeviceSpec_(std__shared_ptr_HybridCameraDeviceSpec_ cppType);
-  
-  // pragma MARK: std::weak_ptr<HybridCameraDeviceSpec>
-  using std__weak_ptr_HybridCameraDeviceSpec_ = std::weak_ptr<HybridCameraDeviceSpec>;
-  inline std__weak_ptr_HybridCameraDeviceSpec_ weakify_std__shared_ptr_HybridCameraDeviceSpec_(const std::shared_ptr<HybridCameraDeviceSpec>& strong) noexcept { return strong; }
+  using std__vector_PhysicalCameraDeviceType_ = std::vector<PhysicalCameraDeviceType>;
+  inline std::vector<PhysicalCameraDeviceType> create_std__vector_PhysicalCameraDeviceType_(size_t size) noexcept {
+    std::vector<PhysicalCameraDeviceType> vector;
+    vector.reserve(size);
+    return vector;
+  }
   
   // pragma MARK: std::shared_ptr<HybridCameraFormatSpec>
   /**
@@ -53,5 +56,28 @@ namespace margelo::nitro::camera::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridCameraFormatSpec>
   using std__weak_ptr_HybridCameraFormatSpec_ = std::weak_ptr<HybridCameraFormatSpec>;
   inline std__weak_ptr_HybridCameraFormatSpec_ weakify_std__shared_ptr_HybridCameraFormatSpec_(const std::shared_ptr<HybridCameraFormatSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: std::vector<std::shared_ptr<HybridCameraFormatSpec>>
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<HybridCameraFormatSpec>>`.
+   */
+  using std__vector_std__shared_ptr_HybridCameraFormatSpec__ = std::vector<std::shared_ptr<HybridCameraFormatSpec>>;
+  inline std::vector<std::shared_ptr<HybridCameraFormatSpec>> create_std__vector_std__shared_ptr_HybridCameraFormatSpec__(size_t size) noexcept {
+    std::vector<std::shared_ptr<HybridCameraFormatSpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridCameraDeviceSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridCameraDeviceSpec>`.
+   */
+  using std__shared_ptr_HybridCameraDeviceSpec_ = std::shared_ptr<HybridCameraDeviceSpec>;
+  std::shared_ptr<HybridCameraDeviceSpec> create_std__shared_ptr_HybridCameraDeviceSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridCameraDeviceSpec_(std__shared_ptr_HybridCameraDeviceSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridCameraDeviceSpec>
+  using std__weak_ptr_HybridCameraDeviceSpec_ = std::weak_ptr<HybridCameraDeviceSpec>;
+  inline std__weak_ptr_HybridCameraDeviceSpec_ weakify_std__shared_ptr_HybridCameraDeviceSpec_(const std::shared_ptr<HybridCameraDeviceSpec>& strong) noexcept { return strong; }
 
 } // namespace margelo::nitro::camera::bridge::swift

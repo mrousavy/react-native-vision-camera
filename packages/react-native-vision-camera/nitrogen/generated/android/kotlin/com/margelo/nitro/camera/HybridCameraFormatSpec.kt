@@ -42,7 +42,13 @@ abstract class HybridCameraFormatSpec: HybridObject() {
   }
 
   // Properties
+  @get:DoNotStrip
+  @get:Keep
+  abstract val photoResolution: Resolution
   
+  @get:DoNotStrip
+  @get:Keep
+  abstract val videoResolution: Resolution
 
   // Methods
   

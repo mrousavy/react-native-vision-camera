@@ -15,6 +15,11 @@ namespace margelo::nitro::camera {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("id", &HybridCameraDeviceSpec::getId);
+      prototype.registerHybridGetter("physicalDevices", &HybridCameraDeviceSpec::getPhysicalDevices);
+      prototype.registerHybridGetter("position", &HybridCameraDeviceSpec::getPosition);
+      prototype.registerHybridGetter("deviceName", &HybridCameraDeviceSpec::getDeviceName);
+      prototype.registerHybridGetter("hasFlash", &HybridCameraDeviceSpec::getHasFlash);
+      prototype.registerHybridGetter("formats", &HybridCameraDeviceSpec::getFormats);
     });
   }
 

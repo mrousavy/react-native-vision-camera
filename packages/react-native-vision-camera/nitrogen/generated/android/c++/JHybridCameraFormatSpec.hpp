@@ -50,7 +50,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    Resolution getPhotoResolution() override;
+    Resolution getVideoResolution() override;
 
   public:
     // Methods

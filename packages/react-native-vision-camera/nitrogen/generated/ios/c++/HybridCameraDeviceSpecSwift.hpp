@@ -12,9 +12,19 @@
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
 
-
+// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 
 #include <string>
+#include "PhysicalCameraDeviceType.hpp"
+#include <vector>
+#include "CameraPosition.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -58,6 +68,25 @@ namespace margelo::nitro::camera {
     // Properties
     inline std::string getId() noexcept override {
       auto __result = _swiftPart.getId();
+      return __result;
+    }
+    inline std::vector<PhysicalCameraDeviceType> getPhysicalDevices() noexcept override {
+      auto __result = _swiftPart.getPhysicalDevices();
+      return __result;
+    }
+    inline CameraPosition getPosition() noexcept override {
+      auto __result = _swiftPart.getPosition();
+      return static_cast<CameraPosition>(__result);
+    }
+    inline std::string getDeviceName() noexcept override {
+      auto __result = _swiftPart.getDeviceName();
+      return __result;
+    }
+    inline bool getHasFlash() noexcept override {
+      return _swiftPart.hasFlash();
+    }
+    inline std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() noexcept override {
+      auto __result = _swiftPart.getFormats();
       return __result;
     }
 

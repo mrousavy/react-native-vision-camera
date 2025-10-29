@@ -14,7 +14,8 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      
+      prototype.registerHybridGetter("photoResolution", &HybridCameraFormatSpec::getPhotoResolution);
+      prototype.registerHybridGetter("videoResolution", &HybridCameraFormatSpec::getVideoResolution);
     });
   }
 

@@ -51,6 +51,11 @@ namespace margelo::nitro::camera {
   public:
     // Properties
     std::string getId() override;
+    std::vector<PhysicalCameraDeviceType> getPhysicalDevices() override;
+    CameraPosition getPosition() override;
+    std::string getDeviceName() override;
+    bool getHasFlash() override;
+    std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() override;
 
   public:
     // Methods

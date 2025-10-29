@@ -11,7 +11,8 @@ import NitroModules
 /// See ``HybridCameraFormatSpec``
 public protocol HybridCameraFormatSpec_protocol: HybridObject {
   // Properties
-  
+  var photoResolution: Resolution { get }
+  var videoResolution: Resolution { get }
 
   // Methods
   

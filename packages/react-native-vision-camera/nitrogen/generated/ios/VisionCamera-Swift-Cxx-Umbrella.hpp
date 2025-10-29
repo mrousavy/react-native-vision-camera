@@ -8,16 +8,26 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::camera { struct Resolution; }
 
 // Include C++ defined types
+#include "CameraPosition.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
+#include "PhysicalCameraDeviceType.hpp"
+#include "Resolution.hpp"
 #include <memory>
 #include <string>
+#include <vector>
 
 // C++ helpers for Swift
 #include "VisionCamera-Swift-Cxx-Bridge.hpp"

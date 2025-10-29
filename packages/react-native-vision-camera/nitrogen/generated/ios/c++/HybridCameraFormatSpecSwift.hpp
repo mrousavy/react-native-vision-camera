@@ -12,9 +12,10 @@
 // Forward declaration of `HybridCameraFormatSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
 
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::camera { struct Resolution; }
 
-
-
+#include "Resolution.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -56,7 +57,12 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    inline Resolution getPhotoResolution() noexcept override {
+      return _swiftPart.getPhotoResolution();
+    }
+    inline Resolution getVideoResolution() noexcept override {
+      return _swiftPart.getVideoResolution();
+    }
 
   public:
     // Methods

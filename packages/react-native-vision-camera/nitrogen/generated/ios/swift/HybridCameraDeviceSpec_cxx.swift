@@ -120,6 +120,56 @@ open class HybridCameraDeviceSpec_cxx {
       return std.string(self.__implementation.id)
     }
   }
+  
+  public final var physicalDevices: bridge.std__vector_PhysicalCameraDeviceType_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_PhysicalCameraDeviceType_ in
+        var __vector = bridge.create_std__vector_PhysicalCameraDeviceType_(self.__implementation.physicalDevices.count)
+        for __item in self.__implementation.physicalDevices {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var position: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.position.rawValue
+    }
+  }
+  
+  public final var deviceName: std.string {
+    @inline(__always)
+    get {
+      return std.string(self.__implementation.deviceName)
+    }
+  }
+  
+  public final var hasFlash: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.hasFlash
+    }
+  }
+  
+  public final var formats: bridge.std__vector_std__shared_ptr_HybridCameraFormatSpec__ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_std__shared_ptr_HybridCameraFormatSpec__ in
+        var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraFormatSpec__(self.__implementation.formats.count)
+        for __item in self.__implementation.formats {
+          __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraFormatSpec_ in
+            let __cxxWrapped = __item.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        }
+        return __vector
+      }()
+    }
+  }
 
   // Methods
   

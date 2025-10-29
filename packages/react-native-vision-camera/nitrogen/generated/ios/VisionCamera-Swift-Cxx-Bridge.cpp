@@ -14,22 +14,6 @@
 
 namespace margelo::nitro::camera::bridge::swift {
 
-  // pragma MARK: std::shared_ptr<HybridCameraDeviceSpec>
-  std::shared_ptr<HybridCameraDeviceSpec> create_std__shared_ptr_HybridCameraDeviceSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
-    VisionCamera::HybridCameraDeviceSpec_cxx swiftPart = VisionCamera::HybridCameraDeviceSpec_cxx::fromUnsafe(swiftUnsafePointer);
-    return std::make_shared<margelo::nitro::camera::HybridCameraDeviceSpecSwift>(swiftPart);
-  }
-  void* NON_NULL get_std__shared_ptr_HybridCameraDeviceSpec_(std__shared_ptr_HybridCameraDeviceSpec_ cppType) {
-    std::shared_ptr<margelo::nitro::camera::HybridCameraDeviceSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridCameraDeviceSpecSwift>(cppType);
-    #ifdef NITRO_DEBUG
-    if (swiftWrapper == nullptr) [[unlikely]] {
-      throw std::runtime_error("Class \"HybridCameraDeviceSpec\" is not implemented in Swift!");
-    }
-    #endif
-    VisionCamera::HybridCameraDeviceSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
-    return swiftPart.toUnsafe();
-  }
-  
   // pragma MARK: std::shared_ptr<HybridCameraFormatSpec>
   std::shared_ptr<HybridCameraFormatSpec> create_std__shared_ptr_HybridCameraFormatSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     VisionCamera::HybridCameraFormatSpec_cxx swiftPart = VisionCamera::HybridCameraFormatSpec_cxx::fromUnsafe(swiftUnsafePointer);
@@ -43,6 +27,22 @@ namespace margelo::nitro::camera::bridge::swift {
     }
     #endif
     VisionCamera::HybridCameraFormatSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridCameraDeviceSpec>
+  std::shared_ptr<HybridCameraDeviceSpec> create_std__shared_ptr_HybridCameraDeviceSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    VisionCamera::HybridCameraDeviceSpec_cxx swiftPart = VisionCamera::HybridCameraDeviceSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::camera::HybridCameraDeviceSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridCameraDeviceSpec_(std__shared_ptr_HybridCameraDeviceSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::camera::HybridCameraDeviceSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridCameraDeviceSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridCameraDeviceSpec\" is not implemented in Swift!");
+    }
+    #endif
+    VisionCamera::HybridCameraDeviceSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
 

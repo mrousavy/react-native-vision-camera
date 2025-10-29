@@ -114,7 +114,19 @@ open class HybridCameraFormatSpec_cxx {
   }
 
   // Properties
+  public final var photoResolution: Resolution {
+    @inline(__always)
+    get {
+      return self.__implementation.photoResolution
+    }
+  }
   
+  public final var videoResolution: Resolution {
+    @inline(__always)
+    get {
+      return self.__implementation.videoResolution
+    }
+  }
 
   // Methods
   

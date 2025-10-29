@@ -45,6 +45,26 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   @get:DoNotStrip
   @get:Keep
   abstract val id: String
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val physicalDevices: Array<PhysicalCameraDeviceType>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val position: CameraPosition
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val deviceName: String
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val hasFlash: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val formats: Array<HybridCameraFormatSpec>
 
   // Methods
   

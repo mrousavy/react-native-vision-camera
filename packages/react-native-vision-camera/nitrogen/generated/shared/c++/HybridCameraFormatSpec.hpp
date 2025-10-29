@@ -13,9 +13,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::camera { struct Resolution; }
 
-
-
+#include "Resolution.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -44,7 +45,8 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      
+      virtual Resolution getPhotoResolution() = 0;
+      virtual Resolution getVideoResolution() = 0;
 
     public:
       // Methods

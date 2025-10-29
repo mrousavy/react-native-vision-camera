@@ -7,9 +7,11 @@
 
 #include "JHybridCameraFormatSpec.hpp"
 
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::camera { struct Resolution; }
 
-
-
+#include "Resolution.hpp"
+#include "JResolution.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -40,7 +42,16 @@ namespace margelo::nitro::camera {
   }
 
   // Properties
-  
+  Resolution JHybridCameraFormatSpec::getPhotoResolution() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JResolution>()>("getPhotoResolution");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  Resolution JHybridCameraFormatSpec::getVideoResolution() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JResolution>()>("getVideoResolution");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
 
   // Methods
   

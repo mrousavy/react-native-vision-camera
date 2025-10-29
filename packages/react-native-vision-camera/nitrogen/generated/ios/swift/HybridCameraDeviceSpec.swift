@@ -12,6 +12,11 @@ import NitroModules
 public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   // Properties
   var id: String { get }
+  var physicalDevices: [PhysicalCameraDeviceType] { get }
+  var position: CameraPosition { get }
+  var deviceName: String { get }
+  var hasFlash: Bool { get }
+  var formats: [(any HybridCameraFormatSpec)] { get }
 
   // Methods
   

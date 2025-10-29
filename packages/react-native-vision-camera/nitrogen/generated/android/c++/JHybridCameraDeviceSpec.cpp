@@ -7,9 +7,22 @@
 
 #include "JHybridCameraDeviceSpec.hpp"
 
-
+// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 
 #include <string>
+#include "PhysicalCameraDeviceType.hpp"
+#include <vector>
+#include "JPhysicalCameraDeviceType.hpp"
+#include "CameraPosition.hpp"
+#include "JCameraPosition.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
+#include "JHybridCameraFormatSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -44,6 +57,49 @@ namespace margelo::nitro::camera {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getId");
     auto __result = method(_javaPart);
     return __result->toStdString();
+  }
+  std::vector<PhysicalCameraDeviceType> JHybridCameraDeviceSpec::getPhysicalDevices() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JPhysicalCameraDeviceType>>()>("getPhysicalDevices");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<PhysicalCameraDeviceType> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  CameraPosition JHybridCameraDeviceSpec::getPosition() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JCameraPosition>()>("getPosition");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  std::string JHybridCameraDeviceSpec::getDeviceName() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getDeviceName");
+    auto __result = method(_javaPart);
+    return __result->toStdString();
+  }
+  bool JHybridCameraDeviceSpec::getHasFlash() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("hasFlash");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::vector<std::shared_ptr<HybridCameraFormatSpec>> JHybridCameraDeviceSpec::getFormats() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraFormatSpec::javaobject>>()>("getFormats");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<std::shared_ptr<HybridCameraFormatSpec>> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->cthis()->shared_cast<JHybridCameraFormatSpec>());
+      }
+      return __vector;
+    }();
   }
 
   // Methods
