@@ -7,13 +7,18 @@
 
 #include "JHybridCameraSessionPhotoOutputSpec.hpp"
 
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 
+#include <memory>
+#include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
+#include <NitroImage/JHybridImageSpec.hpp>
 #include "CapturePhotoCallbacks.hpp"
 #include <optional>
 #include "JCapturePhotoCallbacks.hpp"
@@ -58,13 +63,14 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<void>> JHybridCameraSessionPhotoOutputSpec::capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) {
+  std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> JHybridCameraSessionPhotoOutputSpec::capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JCapturePhotoCallbacks> /* callbacks */)>("capturePhoto");
     auto __result = method(_javaPart, callbacks.has_value() ? JCapturePhotoCallbacks::fromCpp(callbacks.value()) : nullptr);
     return [&]() {
-      auto __promise = Promise<void>::create();
-      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
-        __promise->resolve();
+      auto __promise = Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<margelo::nitro::image::JHybridImageSpec::javaobject>(__boxedResult);
+        __promise->resolve(__result->cthis()->shared_cast<margelo::nitro::image::JHybridImageSpec>());
       });
       __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
         jni::JniException __jniError(__throwable);

@@ -14,8 +14,6 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
-// Forward declaration of `EncodedImageData` to properly resolve imports.
-namespace margelo::nitro::camera { struct EncodedImageData; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -32,18 +30,10 @@ namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
-// Forward declaration of `HybridPhotoSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridPhotoSpec; }
-// Forward declaration of `ImageFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class ImageFormat; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
-// Forward declaration of `PixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class PixelFormat; }
-// Forward declaration of `RawPixelData` to properly resolve imports.
-namespace margelo::nitro::camera { struct RawPixelData; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
 
@@ -51,7 +41,6 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "CameraPosition.hpp"
 #include "CameraSessionOutputType.hpp"
 #include "CapturePhotoCallbacks.hpp"
-#include "EncodedImageData.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -59,15 +48,10 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
-#include "HybridPhotoSpec.hpp"
-#include "ImageFormat.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
-#include "PixelFormat.hpp"
-#include "RawPixelData.hpp"
 #include "Resolution.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
-#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
@@ -103,8 +87,6 @@ namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 // Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
 namespace NitroImage { class HybridImageSpec_cxx; }
-// Forward declaration of `HybridPhotoSpec_cxx` to properly resolve imports.
-namespace VisionCamera { class HybridPhotoSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("VisionCamera-Swift.h")

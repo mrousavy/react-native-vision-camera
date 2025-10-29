@@ -16,6 +16,12 @@ function App() {
   );
 }
 
+function timeout(ms: number): Promise<void> {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), ms)
+  })
+}
+
 function AppContent() {
   const devices = useCameraDevices()
 
@@ -24,6 +30,7 @@ function AppContent() {
     if (device == null) return
 
     (async () => {
+      try {
       const mark1 = globalThis.performance.now()
       const session = HybridCameraFactory.createCameraSession()
       const photo = HybridCameraFactory.createPhotoOutput()
@@ -31,9 +38,29 @@ function AppContent() {
       const mark2 = globalThis.performance.now()
       console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
 
-      await photo.capturePhoto()
+      await timeout(5000)
+
+      const image = await photo.capturePhoto({
+        onDidCapturePhoto() {
+          console.log('onDidCapturePhoto')
+        },
+        onDidFinishCapture() {
+          console.log('onDidFinishCapture')
+        },
+        onWillBeginCapture() {
+          console.log('onWillBeginCapture')
+        },
+        onWillCapturePhoto() {
+          console.log('onWillCapturePhoto')
+        }
+      })
       const mark3 = globalThis.performance.now()
       console.log(`Photo capture took ${(mark3 - mark2).toFixed(0)}ms!`)
+      console.log(image.width, image.height)
+      console.log(image.toRawPixelData().buffer.byteLength)
+    } catch(e) {
+      console.error(e)
+    }
     })()
   }, [devices])
 

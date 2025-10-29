@@ -12,11 +12,15 @@
 // Forward declaration of `HybridCameraSessionPhotoOutputSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `HybridCameraSessionOutputSpecSwift` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
 
+#include <memory>
+#include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 #include "CapturePhotoCallbacks.hpp"
 #include <optional>
@@ -68,7 +72,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<void>> capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) override {
+    inline std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) override {
       auto __result = _swiftPart.capturePhoto(callbacks);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

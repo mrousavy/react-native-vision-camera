@@ -15,6 +15,7 @@ class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let onCaptured: (AVCapturePhoto) -> Void
   private let onError: (any Error) -> Void
   private let callbacks: CapturePhotoCallbacks
+  private var didResolve = false
   
   init(onCaptured: @escaping (AVCapturePhoto) -> Void,
        onError: @escaping (any Error) -> Void,
@@ -29,12 +30,12 @@ class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   
   // 1. Begin capture process
   func photoOutput(_ output: AVCapturePhotoOutput, willBeginCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-    callbacks.onWillBeginCapture?.()
+    callbacks.onWillBeginCapture?()
   }
   
   // 2. About to capture photo
   func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-    callbacks.onWillCapturePhoto?.()
+    callbacks.onWillCapturePhoto?()
   }
   
   // 3. Captured actual photo (or error)
@@ -44,23 +45,27 @@ class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     } else {
       onCaptured(photo)
     }
+    didResolve = true
   }
   
   // 4. Photo capture done
   func photoOutput(_ output: AVCapturePhotoOutput, didCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
-    callbacks.onDidCapturePhoto?.()
+    callbacks.onDidCapturePhoto?()
   }
   
   // 5. Capture process done
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: (any Error)?) {
     if let error {
-      onError(error)
+      if !didResolve {
+        onError(error)
+      }
     }
-    callbacks.onDidFinishCapture?.()
+    callbacks.onDidFinishCapture?()
     // Remove the static strong reference, we're done
     CapturePhotoDelegate.delegates.removeAll { $0 == self }
   }
   
+  @available(iOS 17.0, *)
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?, error: (any Error)?) {
     fatalError("didFinishCapturingDeferredPhotoProxy: is not yet implemented!")
   }

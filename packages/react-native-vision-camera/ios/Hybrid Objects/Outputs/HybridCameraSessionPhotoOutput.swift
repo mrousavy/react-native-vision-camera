@@ -7,6 +7,7 @@
 import Foundation
 import NitroModules
 import AVFoundation
+import NitroImage
 
 class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, CameraSessionOutput {
   let type: CameraSessionOutputType = .photo
@@ -15,18 +16,19 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
   }
   private let photoOutput = AVCapturePhotoOutput()
   
-  func capturePhoto(callbacks: CapturePhotoCallbacks?) -> Promise<Void> {
+  func capturePhoto(callbacks: CapturePhotoCallbacks?) -> Promise<any HybridImageSpec> {
     let callbacks = callbacks ?? CapturePhotoCallbacks(onWillBeginCapture: nil,
                                                        onWillCapturePhoto: nil,
                                                        onDidCapturePhoto: nil,
                                                        onDidFinishCapture: nil)
-    let promise = Promise<Void>()
+    let promise = Promise<any HybridImageSpec>()
     let delegate = CapturePhotoDelegate(
       onCaptured: { photo in
-        
+        let image = HybridPhoto(photo: photo)
+        promise.resolve(withResult: image)
       },
       onError: { error in
-        
+        promise.reject(withError: error)
       },
       callbacks: callbacks)
     photoOutput.capturePhoto(with: .init(), delegate: delegate)

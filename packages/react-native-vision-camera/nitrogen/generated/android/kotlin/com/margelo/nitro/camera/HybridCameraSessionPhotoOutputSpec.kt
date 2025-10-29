@@ -10,6 +10,7 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.image.HybridImageSpec
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.HybridObject
 
@@ -48,7 +49,7 @@ abstract class HybridCameraSessionPhotoOutputSpec: HybridCameraSessionOutputSpec
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun capturePhoto(callbacks: CapturePhotoCallbacks?): Promise<Unit>
+  abstract fun capturePhoto(callbacks: CapturePhotoCallbacks?): Promise<com.margelo.nitro.image.HybridImageSpec>
 
   private external fun initHybrid(): HybridData
 
