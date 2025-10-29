@@ -31,11 +31,11 @@ function AppContent() {
 
     (async () => {
       try {
-      const mark1 = globalThis.performance.now()
+      const mark1 = performance.now()
       const session = HybridCameraFactory.createCameraSession()
       const photo = HybridCameraFactory.createPhotoOutput()
       await session.configure([device], [photo])
-      const mark2 = globalThis.performance.now()
+      const mark2 = performance.now()
       console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
 
       await timeout(5000)
@@ -54,7 +54,7 @@ function AppContent() {
           console.log('onWillCapturePhoto')
         }
       })
-      const mark3 = globalThis.performance.now()
+      const mark3 = performance.now()
       console.log(`Photo capture took ${(mark3 - mark2).toFixed(0)}ms!`)
       console.log(image.width, image.height)
       console.log(image.toRawPixelData().buffer.byteLength)
