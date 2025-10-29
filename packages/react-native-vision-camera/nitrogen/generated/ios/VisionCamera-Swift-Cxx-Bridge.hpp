@@ -10,21 +10,32 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
+// Forward declaration of `HybridCameraFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFactorySpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `ListenerSubscription` to properly resolve imports.
+namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
+// Forward declaration of `HybridCameraFactorySpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 // Forward declaration of `HybridCameraFormatSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
 
 // Include C++ defined types
 #include "HybridCameraDeviceSpec.hpp"
+#include "HybridCameraFactorySpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
+#include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
+#include <NitroModules/Result.hpp>
+#include <exception>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -79,5 +90,81 @@ namespace margelo::nitro::camera::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridCameraDeviceSpec>
   using std__weak_ptr_HybridCameraDeviceSpec_ = std::weak_ptr<HybridCameraDeviceSpec>;
   inline std__weak_ptr_HybridCameraDeviceSpec_ weakify_std__shared_ptr_HybridCameraDeviceSpec_(const std::shared_ptr<HybridCameraDeviceSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: std::vector<std::shared_ptr<HybridCameraDeviceSpec>>
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<HybridCameraDeviceSpec>>`.
+   */
+  using std__vector_std__shared_ptr_HybridCameraDeviceSpec__ = std::vector<std::shared_ptr<HybridCameraDeviceSpec>>;
+  inline std::vector<std::shared_ptr<HybridCameraDeviceSpec>> create_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(size_t size) noexcept {
+    std::vector<std::shared_ptr<HybridCameraDeviceSpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::function<void()>
+  /**
+   * Specialized version of `std::function<void()>`.
+   */
+  using Func_void = std::function<void()>;
+  /**
+   * Wrapper class for a `std::function<void()>`, this can be used from Swift.
+   */
+  class Func_void_Wrapper final {
+  public:
+    explicit Func_void_Wrapper(std::function<void()>&& func): _function(std::make_unique<std::function<void()>>(std::move(func))) {}
+    inline void call() const noexcept {
+      _function->operator()();
+    }
+  private:
+    std::unique_ptr<std::function<void()>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void create_Func_void(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_Wrapper wrap_Func_void(Func_void value) noexcept {
+    return Func_void_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>
+  /**
+   * Specialized version of `std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>&)>`.
+   */
+  using Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__ = std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& / * newDevices * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___Wrapper final {
+  public:
+    explicit Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___Wrapper(std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>&& func): _function(std::make_unique<std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>>(std::move(func))) {}
+    inline void call(std::vector<std::shared_ptr<HybridCameraDeviceSpec>> newDevices) const noexcept {
+      _function->operator()(newDevices);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__ create_Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___Wrapper wrap_Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__ value) noexcept {
+    return Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridCameraFactorySpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridCameraFactorySpec>`.
+   */
+  using std__shared_ptr_HybridCameraFactorySpec_ = std::shared_ptr<HybridCameraFactorySpec>;
+  std::shared_ptr<HybridCameraFactorySpec> create_std__shared_ptr_HybridCameraFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridCameraFactorySpec_(std__shared_ptr_HybridCameraFactorySpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridCameraFactorySpec>
+  using std__weak_ptr_HybridCameraFactorySpec_ = std::weak_ptr<HybridCameraFactorySpec>;
+  inline std__weak_ptr_HybridCameraFactorySpec_ weakify_std__shared_ptr_HybridCameraFactorySpec_(const std::shared_ptr<HybridCameraFactorySpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<ListenerSubscription>
+  using Result_ListenerSubscription_ = Result<ListenerSubscription>;
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const ListenerSubscription& value) noexcept {
+    return Result<ListenerSubscription>::withValue(value);
+  }
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const std::exception_ptr& error) noexcept {
+    return Result<ListenerSubscription>::withError(error);
+  }
 
 } // namespace margelo::nitro::camera::bridge::swift

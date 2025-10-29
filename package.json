@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "specs": "bun camera specs",
+    "build": "bun camera build",
     "example": "bun --cwd examples/vision-camera-example-simple",
     "camera": "bun --cwd packages/react-native-vision-camera"
   },

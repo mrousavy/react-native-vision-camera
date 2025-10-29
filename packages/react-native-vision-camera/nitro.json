@@ -12,7 +12,11 @@
     ],
     "androidCxxLibName": "VisionCamera"
   },
-  "autolinking": {},
+  "autolinking": {
+    "CameraFactory": {
+      "swift": "HybridCameraFactory"
+    }
+  },
   "ignorePaths": [
     "**/node_modules"
   ]

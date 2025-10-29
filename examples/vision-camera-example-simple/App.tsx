@@ -2,6 +2,7 @@ import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native'
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import { HybridCameraFactory } from 'react-native-vision-camera'
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -17,7 +18,7 @@ function App() {
 function AppContent() {
   return (
     <View style={styles.container}>
-      <Text>Hello world!</Text>
+      <Text>{HybridCameraFactory.cameraDevices.map((d) => d.deviceName).join(', ')}</Text>
     </View>
   );
 }

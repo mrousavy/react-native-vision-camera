@@ -16,6 +16,9 @@
 #include <NitroModules/HybridObjectRegistry.hpp>
 
 #include "JHybridCameraDeviceSpec.hpp"
+#include "JHybridCameraFactorySpec.hpp"
+#include "JFunc_void.hpp"
+#include "JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__.hpp"
 #include "JHybridCameraFormatSpec.hpp"
 
 namespace margelo::nitro::camera {
@@ -28,6 +31,9 @@ int initialize(JavaVM* vm) {
   return facebook::jni::initialize(vm, [] {
     // Register native JNI methods
     margelo::nitro::camera::JHybridCameraDeviceSpec::registerNatives();
+    margelo::nitro::camera::JHybridCameraFactorySpec::registerNatives();
+    margelo::nitro::camera::JFunc_void_cxx::registerNatives();
+    margelo::nitro::camera::JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___cxx::registerNatives();
     margelo::nitro::camera::JHybridCameraFormatSpec::registerNatives();
 
     // Register Nitro Hybrid Objects
