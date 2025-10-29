@@ -1,0 +1,21 @@
+{
+  "name": "react-native-vision-camera-monorepo",
+  "packageManager": "bun@1.1.42",
+  "type": "module",
+  "private": true,
+  "version": "5.0.0-alpha.1",
+  "workspaces": [
+    "packages/react-native-vision-camera",
+    "examples/vision-camera-example-simple"
+  ],
+  "scripts": {
+    "example-simple": "bun --cwd examples/vision-camera-example-simple",
+    "camera": "bun --cwd examples/react-native-vision-camera"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
