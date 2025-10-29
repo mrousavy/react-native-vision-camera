@@ -16,9 +16,14 @@ function App() {
 }
 
 function AppContent() {
+
+  const devices = HybridCameraFactory.cameraDevices
+
   return (
     <View style={styles.container}>
-      <Text>{HybridCameraFactory.cameraDevices.map((d) => d.deviceName).join(', ')}</Text>
+      {devices.map((d) => (
+        <Text key={d.id}>{d.id}</Text>
+      ))}
     </View>
   );
 }
