@@ -12,6 +12,9 @@
 #include "HybridCameraDeviceSpecSwift.hpp"
 #include "HybridCameraFactorySpecSwift.hpp"
 #include "HybridCameraFormatSpecSwift.hpp"
+#include "HybridCameraSessionOutputSpecSwift.hpp"
+#include "HybridCameraSessionPhotoOutputSpecSwift.hpp"
+#include "HybridCameraSessionSpecSwift.hpp"
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
 namespace margelo::nitro::camera::bridge::swift {
@@ -96,6 +99,22 @@ namespace margelo::nitro::camera::bridge::swift {
     };
   }
   
+  // pragma MARK: std::shared_ptr<HybridCameraSessionSpec>
+  std::shared_ptr<HybridCameraSessionSpec> create_std__shared_ptr_HybridCameraSessionSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    VisionCamera::HybridCameraSessionSpec_cxx swiftPart = VisionCamera::HybridCameraSessionSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::camera::HybridCameraSessionSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridCameraSessionSpec_(std__shared_ptr_HybridCameraSessionSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::camera::HybridCameraSessionSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridCameraSessionSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridCameraSessionSpec\" is not implemented in Swift!");
+    }
+    #endif
+    VisionCamera::HybridCameraSessionSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
   // pragma MARK: std::shared_ptr<HybridCameraFactorySpec>
   std::shared_ptr<HybridCameraFactorySpec> create_std__shared_ptr_HybridCameraFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     VisionCamera::HybridCameraFactorySpec_cxx swiftPart = VisionCamera::HybridCameraFactorySpec_cxx::fromUnsafe(swiftUnsafePointer);
@@ -109,6 +128,38 @@ namespace margelo::nitro::camera::bridge::swift {
     }
     #endif
     VisionCamera::HybridCameraFactorySpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridCameraSessionOutputSpec>
+  std::shared_ptr<HybridCameraSessionOutputSpec> create_std__shared_ptr_HybridCameraSessionOutputSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    VisionCamera::HybridCameraSessionOutputSpec_cxx swiftPart = VisionCamera::HybridCameraSessionOutputSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::camera::HybridCameraSessionOutputSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridCameraSessionOutputSpec_(std__shared_ptr_HybridCameraSessionOutputSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::camera::HybridCameraSessionOutputSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridCameraSessionOutputSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridCameraSessionOutputSpec\" is not implemented in Swift!");
+    }
+    #endif
+    VisionCamera::HybridCameraSessionOutputSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
+    return swiftPart.toUnsafe();
+  }
+  
+  // pragma MARK: std::shared_ptr<HybridCameraSessionPhotoOutputSpec>
+  std::shared_ptr<HybridCameraSessionPhotoOutputSpec> create_std__shared_ptr_HybridCameraSessionPhotoOutputSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    VisionCamera::HybridCameraSessionPhotoOutputSpec_cxx swiftPart = VisionCamera::HybridCameraSessionPhotoOutputSpec_cxx::fromUnsafe(swiftUnsafePointer);
+    return std::make_shared<margelo::nitro::camera::HybridCameraSessionPhotoOutputSpecSwift>(swiftPart);
+  }
+  void* NON_NULL get_std__shared_ptr_HybridCameraSessionPhotoOutputSpec_(std__shared_ptr_HybridCameraSessionPhotoOutputSpec_ cppType) {
+    std::shared_ptr<margelo::nitro::camera::HybridCameraSessionPhotoOutputSpecSwift> swiftWrapper = std::dynamic_pointer_cast<margelo::nitro::camera::HybridCameraSessionPhotoOutputSpecSwift>(cppType);
+    #ifdef NITRO_DEBUG
+    if (swiftWrapper == nullptr) [[unlikely]] {
+      throw std::runtime_error("Class \"HybridCameraSessionPhotoOutputSpec\" is not implemented in Swift!");
+    }
+    #endif
+    VisionCamera::HybridCameraSessionPhotoOutputSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
 

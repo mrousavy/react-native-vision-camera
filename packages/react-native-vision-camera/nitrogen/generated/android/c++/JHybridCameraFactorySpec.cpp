@@ -9,12 +9,16 @@
 
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
+// Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 
 #include <memory>
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include "JHybridCameraDeviceFactorySpec.hpp"
+#include "HybridCameraSessionSpec.hpp"
+#include "JHybridCameraSessionSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -63,6 +67,11 @@ namespace margelo::nitro::camera {
       });
       return __promise;
     }();
+  }
+  std::shared_ptr<HybridCameraSessionSpec> JHybridCameraFactorySpec::createCameraSession() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraSessionSpec::javaobject>()>("createCameraSession");
+    auto __result = method(_javaPart);
+    return __result->cthis()->shared_cast<JHybridCameraSessionSpec>();
   }
 
 } // namespace margelo::nitro::camera

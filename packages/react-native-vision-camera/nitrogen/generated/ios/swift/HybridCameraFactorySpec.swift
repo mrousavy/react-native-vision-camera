@@ -16,6 +16,7 @@ public protocol HybridCameraFactorySpec_protocol: HybridObject {
 
   // Methods
   func createDeviceFactory() throws -> Promise<(any HybridCameraDeviceFactorySpec)>
+  func createCameraSession() throws -> (any HybridCameraSessionSpec)
 }
 
 public extension HybridCameraFactorySpec_protocol {

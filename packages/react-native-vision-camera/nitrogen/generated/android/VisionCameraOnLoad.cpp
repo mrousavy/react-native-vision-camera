@@ -21,6 +21,9 @@
 #include "JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__.hpp"
 #include "JHybridCameraFactorySpec.hpp"
 #include "JHybridCameraFormatSpec.hpp"
+#include "JHybridCameraSessionSpec.hpp"
+#include "JHybridCameraSessionOutputSpec.hpp"
+#include "JHybridCameraSessionPhotoOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -37,6 +40,9 @@ int initialize(JavaVM* vm) {
     margelo::nitro::camera::JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___cxx::registerNatives();
     margelo::nitro::camera::JHybridCameraFactorySpec::registerNatives();
     margelo::nitro::camera::JHybridCameraFormatSpec::registerNatives();
+    margelo::nitro::camera::JHybridCameraSessionSpec::registerNatives();
+    margelo::nitro::camera::JHybridCameraSessionOutputSpec::registerNatives();
+    margelo::nitro::camera::JHybridCameraSessionPhotoOutputSpec::registerNatives();
 
     // Register Nitro Hybrid Objects
     

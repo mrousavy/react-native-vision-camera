@@ -10,6 +10,8 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `CameraSessionOutputType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -18,6 +20,12 @@ namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 namespace margelo::nitro::camera { class HybridCameraFactorySpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
+// Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
+// Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
@@ -27,10 +35,14 @@ namespace margelo::nitro::camera { struct Resolution; }
 
 // Include C++ defined types
 #include "CameraPosition.hpp"
+#include "CameraSessionOutputType.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
+#include "HybridCameraSessionOutputSpec.hpp"
+#include "HybridCameraSessionPhotoOutputSpec.hpp"
+#include "HybridCameraSessionSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "Resolution.hpp"
@@ -60,6 +72,12 @@ namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
 namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 // Forward declaration of `HybridCameraFormatSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
+// Forward declaration of `HybridCameraSessionOutputSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraSessionOutputSpec_cxx; }
+// Forward declaration of `HybridCameraSessionPhotoOutputSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
+// Forward declaration of `HybridCameraSessionSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("VisionCamera-Swift.h")

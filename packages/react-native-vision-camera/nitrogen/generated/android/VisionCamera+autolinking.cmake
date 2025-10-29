@@ -37,11 +37,17 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraSessionSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraSessionOutputSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraSessionPhotoOutputSpec.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridCameraDeviceSpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraFactorySpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraFormatSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridCameraSessionSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridCameraSessionOutputSpec.cpp
+  ../nitrogen/generated/android/c++/JHybridCameraSessionPhotoOutputSpec.cpp
 )
 
 # From node_modules/react-native/ReactAndroid/cmake-utils/folly-flags.cmake
