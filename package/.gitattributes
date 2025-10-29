@@ -1,4 +1,0 @@
-# iOS Headers are mainly Objective-C++
-ios/**/*.h linguist-language=Objective-C++
-# Android Headers are C++
-android/**/*.h linguist-language=C++
