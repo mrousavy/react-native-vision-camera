@@ -7,7 +7,7 @@
 
 #include "HybridCameraFormatSpec.hpp"
 
-namespace margelo::nitro::visioncamera {
+namespace margelo::nitro::camera {
 
   void HybridCameraFormatSpec::loadHybridMethods() {
     // load base methods/properties
@@ -18,4 +18,4 @@ namespace margelo::nitro::visioncamera {
     });
   }
 
-} // namespace margelo::nitro::visioncamera
+} // namespace margelo::nitro::camera

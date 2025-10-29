@@ -11,7 +11,7 @@
 
 #include <string>
 
-namespace margelo::nitro::visioncamera {
+namespace margelo::nitro::camera {
 
   jni::local_ref<JHybridCameraDeviceSpec::jhybriddata> JHybridCameraDeviceSpec::initHybrid(jni::alias_ref<jhybridobject> jThis) {
     return makeCxxInstance(jThis);
@@ -49,4 +49,4 @@ namespace margelo::nitro::visioncamera {
   // Methods
   
 
-} // namespace margelo::nitro::visioncamera
+} // namespace margelo::nitro::camera

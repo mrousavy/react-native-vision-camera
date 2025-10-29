@@ -7,5 +7,5 @@
 
 #include "HybridCameraDeviceSpecSwift.hpp"
 
-namespace margelo::nitro::visioncamera {
-} // namespace margelo::nitro::visioncamera
+namespace margelo::nitro::camera {
+} // namespace margelo::nitro::camera

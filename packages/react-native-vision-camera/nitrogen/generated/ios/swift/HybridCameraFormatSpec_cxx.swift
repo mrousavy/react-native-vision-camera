@@ -19,11 +19,11 @@ import NitroModules
  */
 open class HybridCameraFormatSpec_cxx {
   /**
-   * The Swift <> C++ bridge's namespace (`margelo::nitro::visioncamera::bridge::swift`)
-   * from `NitroVisionCamera-Swift-Cxx-Bridge.hpp`.
+   * The Swift <> C++ bridge's namespace (`margelo::nitro::camera::bridge::swift`)
+   * from `VisionCamera-Swift-Cxx-Bridge.hpp`.
    * This contains specialized C++ templates, and C++ helper functions that can be accessed from Swift.
    */
-  public typealias bridge = margelo.nitro.visioncamera.bridge.swift
+  public typealias bridge = margelo.nitro.camera.bridge.swift
 
   /**
    * Holds an instance of the `HybridCameraFormatSpec` Swift protocol.

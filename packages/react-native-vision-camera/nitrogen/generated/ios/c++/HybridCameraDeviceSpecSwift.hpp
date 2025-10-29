@@ -10,15 +10,15 @@
 #include "HybridCameraDeviceSpec.hpp"
 
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
-namespace NitroVisionCamera { class HybridCameraDeviceSpec_cxx; }
+namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
 
 
 
 #include <string>
 
-#include "NitroVisionCamera-Swift-Cxx-Umbrella.hpp"
+#include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
-namespace margelo::nitro::visioncamera {
+namespace margelo::nitro::camera {
 
   /**
    * The C++ part of HybridCameraDeviceSpec_cxx.swift.
@@ -33,13 +33,13 @@ namespace margelo::nitro::visioncamera {
   class HybridCameraDeviceSpecSwift: public virtual HybridCameraDeviceSpec {
   public:
     // Constructor from a Swift instance
-    explicit HybridCameraDeviceSpecSwift(const NitroVisionCamera::HybridCameraDeviceSpec_cxx& swiftPart):
+    explicit HybridCameraDeviceSpecSwift(const VisionCamera::HybridCameraDeviceSpec_cxx& swiftPart):
       HybridObject(HybridCameraDeviceSpec::TAG),
       _swiftPart(swiftPart) { }
 
   public:
     // Get the Swift part
-    inline NitroVisionCamera::HybridCameraDeviceSpec_cxx& getSwiftPart() noexcept {
+    inline VisionCamera::HybridCameraDeviceSpec_cxx& getSwiftPart() noexcept {
       return _swiftPart;
     }
 
@@ -66,7 +66,7 @@ namespace margelo::nitro::visioncamera {
     
 
   private:
-    NitroVisionCamera::HybridCameraDeviceSpec_cxx _swiftPart;
+    VisionCamera::HybridCameraDeviceSpec_cxx _swiftPart;
   };
 
-} // namespace margelo::nitro::visioncamera
+} // namespace margelo::nitro::camera

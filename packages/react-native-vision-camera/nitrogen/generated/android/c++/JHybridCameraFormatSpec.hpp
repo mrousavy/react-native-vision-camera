@@ -14,14 +14,14 @@
 
 
 
-namespace margelo::nitro::visioncamera {
+namespace margelo::nitro::camera {
 
   using namespace facebook;
 
   class JHybridCameraFormatSpec: public jni::HybridClass<JHybridCameraFormatSpec, JHybridObject>,
                                  public virtual HybridCameraFormatSpec {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/visioncamera/HybridCameraFormatSpec;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/camera/HybridCameraFormatSpec;";
     static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
     static void registerNatives();
 
@@ -62,4 +62,4 @@ namespace margelo::nitro::visioncamera {
     jni::global_ref<JHybridCameraFormatSpec::javaobject> _javaPart;
   };
 
-} // namespace margelo::nitro::visioncamera
+} // namespace margelo::nitro::camera

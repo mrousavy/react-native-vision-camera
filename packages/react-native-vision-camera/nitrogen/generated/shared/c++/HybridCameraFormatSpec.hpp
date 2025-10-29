@@ -17,7 +17,7 @@
 
 
 
-namespace margelo::nitro::visioncamera {
+namespace margelo::nitro::camera {
 
   using namespace margelo::nitro;
 
@@ -59,4 +59,4 @@ namespace margelo::nitro::visioncamera {
       static constexpr auto TAG = "CameraFormat";
   };
 
-} // namespace margelo::nitro::visioncamera
+} // namespace margelo::nitro::camera
