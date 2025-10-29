@@ -1,9 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraDevice } from './CameraDevice.nitro'
-
-interface ListenerSubscription {
-  remove: () => void
-}
+import type { ListenerSubscription } from './ListenerSubscription'
 
 export interface CameraDeviceFactory
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
