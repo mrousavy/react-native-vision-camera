@@ -50,8 +50,8 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
-#include "HybridCameraFormatSpec.hpp"
 #include <optional>
+#include "HybridCameraFormatSpec.hpp"
 #include "Range.hpp"
 #include "FocusMode.hpp"
 #include "Size.hpp"
@@ -103,9 +103,9 @@ namespace margelo::nitro::camera {
       virtual bool getIsSuspended() = 0;
       virtual bool getIsUsedByAnotherApp() = 0;
       virtual bool getIsVirtualDevice() = 0;
-      virtual double getFocalLength() = 0;
+      virtual std::optional<double> getFocalLength() = 0;
       virtual bool getIsContinuityCamera() = 0;
-      virtual std::shared_ptr<HybridCameraDeviceSpec> getCompanionDeskViewCamera() = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCompanionDeskViewCamera() = 0;
       virtual std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() = 0;
       virtual std::shared_ptr<HybridCameraFormatSpec> getActiveFormat() = 0;
       virtual void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) = 0;
@@ -124,7 +124,7 @@ namespace margelo::nitro::camera {
       virtual void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) = 0;
       virtual bool getSupportsFocusingPoint() = 0;
       virtual bool getSupportsFocusingRect() = 0;
-      virtual Size getMinFocusRectSize() = 0;
+      virtual std::optional<Size> getMinFocusRectSize() = 0;
       virtual bool getIsAdjustingFocus() = 0;
       virtual bool getSupportsLockingFocusLensPosition() = 0;
       virtual double getLensPosition() = 0;
@@ -132,7 +132,7 @@ namespace margelo::nitro::camera {
       virtual void setExposureMode(ExposureMode exposureMode) = 0;
       virtual bool getSupportsExposurePoint() = 0;
       virtual bool getSupportsExposureRect() = 0;
-      virtual Size getMinExposureRectSize() = 0;
+      virtual std::optional<Size> getMinExposureRectSize() = 0;
       virtual bool getEnableFaceDrivenAutoExposure() = 0;
       virtual void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) = 0;
       virtual bool getIsAdjustingExposure() = 0;
@@ -151,8 +151,7 @@ namespace margelo::nitro::camera {
       virtual double getTorchLevel() = 0;
       virtual TorchMode getTorchMode() = 0;
       virtual bool getSupportsLowLightBoost() = 0;
-      virtual bool getEnableLowLightBoost() = 0;
-      virtual void setEnableLowLightBoost(bool enableLowLightBoost) = 0;
+      virtual bool getIsLowLightBoostEnabled() = 0;
       virtual bool getAutomaticallyEnableLowLightBoost() = 0;
       virtual void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) = 0;
       virtual bool getEnableVideoHDR() = 0;
@@ -179,12 +178,12 @@ namespace margelo::nitro::camera {
       virtual bool supportsFocusMode(FocusMode mode) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) = 0;
-      virtual std::shared_ptr<Promise<Rect>> getDefaultRectForFocusPoint(const Point& point) = 0;
+      virtual Rect getDefaultRectForFocusPoint(const Point& point) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) = 0;
       virtual bool supportsExposureMode(ExposureMode exposureMode) = 0;
       virtual std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) = 0;
       virtual std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) = 0;
-      virtual std::shared_ptr<Promise<Rect>> getDefaultRectForExposurePoint(const Point& point) = 0;
+      virtual Rect getDefaultRectForExposurePoint(const Point& point) = 0;
       virtual std::shared_ptr<Promise<void>> setExposureBias(double exposure) = 0;
       virtual std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) = 0;
       virtual bool supportsWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) = 0;
@@ -192,7 +191,7 @@ namespace margelo::nitro::camera {
       virtual bool supportsTorchMode(TorchMode torch) = 0;
       virtual std::shared_ptr<Promise<void>> enableTorch(double level) = 0;
       virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
-      virtual void cancelZoomAnimation() = 0;
+      virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;
 
     protected:
       // Hybrid Setup

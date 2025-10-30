@@ -201,10 +201,16 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var focalLength: Double {
+  public final var focalLength: bridge.std__optional_double_ {
     @inline(__always)
     get {
-      return self.__implementation.focalLength
+      return { () -> bridge.std__optional_double_ in
+        if let __unwrappedValue = self.__implementation.focalLength {
+          return bridge.create_std__optional_double_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   
@@ -215,12 +221,18 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var companionDeskViewCamera: bridge.std__shared_ptr_HybridCameraDeviceSpec_ {
+  public final var companionDeskViewCamera: bridge.std__optional_std__shared_ptr_HybridCameraDeviceSpec__ {
     @inline(__always)
     get {
-      return { () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
-        let __cxxWrapped = self.__implementation.companionDeskViewCamera.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
+      return { () -> bridge.std__optional_std__shared_ptr_HybridCameraDeviceSpec__ in
+        if let __unwrappedValue = self.__implementation.companionDeskViewCamera {
+          return bridge.create_std__optional_std__shared_ptr_HybridCameraDeviceSpec__({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
+            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        } else {
+          return .init()
+        }
       }()
     }
   }
@@ -366,10 +378,16 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var minFocusRectSize: Size {
+  public final var minFocusRectSize: bridge.std__optional_Size_ {
     @inline(__always)
     get {
-      return self.__implementation.minFocusRectSize
+      return { () -> bridge.std__optional_Size_ in
+        if let __unwrappedValue = self.__implementation.minFocusRectSize {
+          return bridge.create_std__optional_Size_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   
@@ -419,10 +437,16 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var minExposureRectSize: Size {
+  public final var minExposureRectSize: bridge.std__optional_Size_ {
     @inline(__always)
     get {
-      return self.__implementation.minExposureRectSize
+      return { () -> bridge.std__optional_Size_ in
+        if let __unwrappedValue = self.__implementation.minExposureRectSize {
+          return bridge.create_std__optional_Size_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   
@@ -546,14 +570,10 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var enableLowLightBoost: Bool {
+  public final var isLowLightBoostEnabled: Bool {
     @inline(__always)
     get {
-      return self.__implementation.enableLowLightBoost
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableLowLightBoost = newValue
+      return self.__implementation.isLowLightBoostEnabled
     }
   }
   
@@ -742,21 +762,14 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func getDefaultRectForFocusPoint(point: Point) -> bridge.Result_std__shared_ptr_Promise_Rect___ {
+  public final func getDefaultRectForFocusPoint(point: Point) -> bridge.Result_Rect_ {
     do {
       let __result = try self.__implementation.getDefaultRectForFocusPoint(point: point)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_Rect__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_Rect__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_Rect__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_Rect___(__resultCpp)
+      let __resultCpp = __result
+      return bridge.create_Result_Rect_(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_Rect___(__exceptionPtr)
+      return bridge.create_Result_Rect_(__exceptionPtr)
     }
   }
   
@@ -830,21 +843,14 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func getDefaultRectForExposurePoint(point: Point) -> bridge.Result_std__shared_ptr_Promise_Rect___ {
+  public final func getDefaultRectForExposurePoint(point: Point) -> bridge.Result_Rect_ {
     do {
       let __result = try self.__implementation.getDefaultRectForExposurePoint(point: point)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_Rect__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_Rect__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_Rect__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve(__result) })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_Rect___(__resultCpp)
+      let __resultCpp = __result
+      return bridge.create_Result_Rect_(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_Rect___(__exceptionPtr)
+      return bridge.create_Result_Rect_(__exceptionPtr)
     }
   }
   
@@ -968,13 +974,21 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func cancelZoomAnimation() -> bridge.Result_void_ {
+  public final func cancelZoomAnimation() -> bridge.Result_std__shared_ptr_Promise_void___ {
     do {
-      try self.__implementation.cancelZoomAnimation()
-      return bridge.create_Result_void_()
+      let __result = try self.__implementation.cancelZoomAnimation()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_void__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve() })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
     }
   }
 }

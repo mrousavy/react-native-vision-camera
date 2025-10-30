@@ -34,11 +34,11 @@ export interface CameraDevice
   /**
    * Returns the Camera Device's nominal focal length in 35mm film format.
    */
-  readonly focalLength: number
+  readonly focalLength?: number
 
   // pragma MARK: Continuity
   readonly isContinuityCamera: boolean
-  readonly companionDeskViewCamera: CameraDevice
+  readonly companionDeskViewCamera?: CameraDevice
 
   // pragma MARK: Methods
   hasMediaType(mediaType: MediaType): boolean
@@ -62,8 +62,8 @@ export interface CameraDevice
   setFocusPoint(point: Point): Promise<void>
   readonly supportsFocusingRect: boolean
   setFocusRect(rect: Rect): Promise<void>
-  getDefaultRectForFocusPoint(point: Point): Promise<Rect>
-  readonly minFocusRectSize: Size
+  getDefaultRectForFocusPoint(point: Point): Rect
+  readonly minFocusRectSize?: Size
   readonly isAdjustingFocus: boolean
   readonly supportsLockingFocusLensPosition: boolean
   setFocusLensPosition(lensPosition: number): Promise<void>
@@ -76,8 +76,8 @@ export interface CameraDevice
   setExposurePoint(point: Point): Promise<void>
   readonly supportsExposureRect: boolean
   setExposureRect(rect: Rect): Promise<void>
-  readonly minExposureRectSize: Size
-  getDefaultRectForExposurePoint(point: Point): Promise<Rect>
+  readonly minExposureRectSize?: Size
+  getDefaultRectForExposurePoint(point: Point): Rect
   enableFaceDrivenAutoExposure: boolean
   readonly isAdjustingExposure: boolean
   setExposureBias(exposure: number): Promise<void>
@@ -106,7 +106,7 @@ export interface CameraDevice
 
   // pragma MARK: Low Light Boost
   readonly supportsLowLightBoost: boolean
-  enableLowLightBoost: boolean
+  readonly isLowLightBoostEnabled: boolean
   automaticallyEnableLowLightBoost: boolean
 
   // pragma MARK: Colors
@@ -122,7 +122,7 @@ export interface CameraDevice
   readonly displayVideoZoomFactorMultiplier: number
   zoom: number
   startZoomAnimation(zoom: number, rate: number): Promise<void>
-  cancelZoomAnimation(): void
+  cancelZoomAnimation(): Promise<void>
   readonly isZoomingAnimation: boolean
   readonly supportsDistortionCorrection: boolean
   readonly enableDistortionCorrection: boolean

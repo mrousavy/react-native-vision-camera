@@ -73,8 +73,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("torchLevel", &HybridCameraDeviceSpec::getTorchLevel);
       prototype.registerHybridGetter("torchMode", &HybridCameraDeviceSpec::getTorchMode);
       prototype.registerHybridGetter("supportsLowLightBoost", &HybridCameraDeviceSpec::getSupportsLowLightBoost);
-      prototype.registerHybridGetter("enableLowLightBoost", &HybridCameraDeviceSpec::getEnableLowLightBoost);
-      prototype.registerHybridSetter("enableLowLightBoost", &HybridCameraDeviceSpec::setEnableLowLightBoost);
+      prototype.registerHybridGetter("isLowLightBoostEnabled", &HybridCameraDeviceSpec::getIsLowLightBoostEnabled);
       prototype.registerHybridGetter("automaticallyEnableLowLightBoost", &HybridCameraDeviceSpec::getAutomaticallyEnableLowLightBoost);
       prototype.registerHybridSetter("automaticallyEnableLowLightBoost", &HybridCameraDeviceSpec::setAutomaticallyEnableLowLightBoost);
       prototype.registerHybridGetter("enableVideoHDR", &HybridCameraDeviceSpec::getEnableVideoHDR);

@@ -50,6 +50,8 @@ namespace margelo::nitro::camera { struct Range; }
 namespace margelo::nitro::camera { struct Rect; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `Size` to properly resolve imports.
+namespace margelo::nitro::camera { struct Size; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
@@ -93,6 +95,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "Range.hpp"
 #include "Rect.hpp"
 #include "Resolution.hpp"
+#include "Size.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
@@ -133,6 +136,36 @@ namespace margelo::nitro::camera::bridge::swift {
     std::vector<std::shared_ptr<HybridCameraDeviceSpec>> vector;
     vector.reserve(size);
     return vector;
+  }
+  
+  // pragma MARK: std::optional<double>
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
+    return std::optional<double>(value);
+  }
+  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<std::shared_ptr<HybridCameraDeviceSpec>>
+  /**
+   * Specialized version of `std::optional<std::shared_ptr<HybridCameraDeviceSpec>>`.
+   */
+  using std__optional_std__shared_ptr_HybridCameraDeviceSpec__ = std::optional<std::shared_ptr<HybridCameraDeviceSpec>>;
+  inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> create_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::shared_ptr<HybridCameraDeviceSpec>& value) noexcept {
+    return std::optional<std::shared_ptr<HybridCameraDeviceSpec>>(value);
+  }
+  inline bool has_value_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::shared_ptr<HybridCameraDeviceSpec> get_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& optional) noexcept {
+    return *optional;
   }
   
   // pragma MARK: std::shared_ptr<HybridCameraFormatSpec>
@@ -229,38 +262,19 @@ namespace margelo::nitro::camera::bridge::swift {
     return Func_void_std__exception_ptr_Wrapper(std::move(value));
   }
   
-  // pragma MARK: std::shared_ptr<Promise<Rect>>
+  // pragma MARK: std::optional<Size>
   /**
-   * Specialized version of `std::shared_ptr<Promise<Rect>>`.
+   * Specialized version of `std::optional<Size>`.
    */
-  using std__shared_ptr_Promise_Rect__ = std::shared_ptr<Promise<Rect>>;
-  inline std::shared_ptr<Promise<Rect>> create_std__shared_ptr_Promise_Rect__() noexcept {
-    return Promise<Rect>::create();
+  using std__optional_Size_ = std::optional<Size>;
+  inline std::optional<Size> create_std__optional_Size_(const Size& value) noexcept {
+    return std::optional<Size>(value);
   }
-  inline PromiseHolder<Rect> wrap_std__shared_ptr_Promise_Rect__(std::shared_ptr<Promise<Rect>> promise) noexcept {
-    return PromiseHolder<Rect>(std::move(promise));
+  inline bool has_value_std__optional_Size_(const std::optional<Size>& optional) noexcept {
+    return optional.has_value();
   }
-  
-  // pragma MARK: std::function<void(const Rect& /* result */)>
-  /**
-   * Specialized version of `std::function<void(const Rect&)>`.
-   */
-  using Func_void_Rect = std::function<void(const Rect& /* result */)>;
-  /**
-   * Wrapper class for a `std::function<void(const Rect& / * result * /)>`, this can be used from Swift.
-   */
-  class Func_void_Rect_Wrapper final {
-  public:
-    explicit Func_void_Rect_Wrapper(std::function<void(const Rect& /* result */)>&& func): _function(std::make_unique<std::function<void(const Rect& /* result */)>>(std::move(func))) {}
-    inline void call(Rect result) const noexcept {
-      _function->operator()(result);
-    }
-  private:
-    std::unique_ptr<std::function<void(const Rect& /* result */)>> _function;
-  } SWIFT_NONCOPYABLE;
-  Func_void_Rect create_Func_void_Rect(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_Rect_Wrapper wrap_Func_void_Rect(Func_void_Rect value) noexcept {
-    return Func_void_Rect_Wrapper(std::move(value));
+  inline Size get_std__optional_Size_(const std::optional<Size>& optional) noexcept {
+    return *optional;
   }
   
   // pragma MARK: std::vector<double>
@@ -292,37 +306,13 @@ namespace margelo::nitro::camera::bridge::swift {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
   }
   
-  // pragma MARK: Result<std::shared_ptr<Promise<Rect>>>
-  using Result_std__shared_ptr_Promise_Rect___ = Result<std::shared_ptr<Promise<Rect>>>;
-  inline Result_std__shared_ptr_Promise_Rect___ create_Result_std__shared_ptr_Promise_Rect___(const std::shared_ptr<Promise<Rect>>& value) noexcept {
-    return Result<std::shared_ptr<Promise<Rect>>>::withValue(value);
+  // pragma MARK: Result<Rect>
+  using Result_Rect_ = Result<Rect>;
+  inline Result_Rect_ create_Result_Rect_(const Rect& value) noexcept {
+    return Result<Rect>::withValue(value);
   }
-  inline Result_std__shared_ptr_Promise_Rect___ create_Result_std__shared_ptr_Promise_Rect___(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<Promise<Rect>>>::withError(error);
-  }
-  
-  // pragma MARK: Result<void>
-  using Result_void_ = Result<void>;
-  inline Result_void_ create_Result_void_() noexcept {
-    return Result<void>::withValue();
-  }
-  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
-    return Result<void>::withError(error);
-  }
-  
-  // pragma MARK: std::optional<std::shared_ptr<HybridCameraDeviceSpec>>
-  /**
-   * Specialized version of `std::optional<std::shared_ptr<HybridCameraDeviceSpec>>`.
-   */
-  using std__optional_std__shared_ptr_HybridCameraDeviceSpec__ = std::optional<std::shared_ptr<HybridCameraDeviceSpec>>;
-  inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> create_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::shared_ptr<HybridCameraDeviceSpec>& value) noexcept {
-    return std::optional<std::shared_ptr<HybridCameraDeviceSpec>>(value);
-  }
-  inline bool has_value_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::shared_ptr<HybridCameraDeviceSpec> get_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& optional) noexcept {
-    return *optional;
+  inline Result_Rect_ create_Result_Rect_(const std::exception_ptr& error) noexcept {
+    return Result<Rect>::withError(error);
   }
   
   // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>
@@ -550,21 +540,6 @@ namespace margelo::nitro::camera::bridge::swift {
     std::vector<ColorSpace> vector;
     vector.reserve(size);
     return vector;
-  }
-  
-  // pragma MARK: std::optional<double>
-  /**
-   * Specialized version of `std::optional<double>`.
-   */
-  using std__optional_double_ = std::optional<double>;
-  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
-    return std::optional<double>(value);
-  }
-  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return *optional;
   }
   
   // pragma MARK: std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>

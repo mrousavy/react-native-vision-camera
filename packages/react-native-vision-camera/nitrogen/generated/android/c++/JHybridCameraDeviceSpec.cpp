@@ -47,9 +47,9 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "JHybridCameraDeviceSpec.hpp"
+#include <optional>
 #include "HybridCameraFormatSpec.hpp"
 #include "JHybridCameraFormatSpec.hpp"
-#include <optional>
 #include "Range.hpp"
 #include "JRange.hpp"
 #include "FocusMode.hpp"
@@ -168,20 +168,20 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  double JHybridCameraDeviceSpec::getFocalLength() {
-    static const auto method = javaClassStatic()->getMethod<double()>("getFocalLength");
+  std::optional<double> JHybridCameraDeviceSpec::getFocalLength() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getFocalLength");
     auto __result = method(_javaPart);
-    return __result;
+    return __result != nullptr ? std::make_optional(__result->value()) : std::nullopt;
   }
   bool JHybridCameraDeviceSpec::getIsContinuityCamera() {
     static const auto method = javaClassStatic()->getMethod<jboolean()>("isContinuityCamera");
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  std::shared_ptr<HybridCameraDeviceSpec> JHybridCameraDeviceSpec::getCompanionDeskViewCamera() {
+  std::optional<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceSpec::getCompanionDeskViewCamera() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::javaobject>()>("getCompanionDeskViewCamera");
     auto __result = method(_javaPart);
-    return __result->cthis()->shared_cast<JHybridCameraDeviceSpec>();
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraDeviceSpec>()) : std::nullopt;
   }
   std::vector<std::shared_ptr<HybridCameraFormatSpec>> JHybridCameraDeviceSpec::getFormats() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraFormatSpec::javaobject>>()>("getFormats");
@@ -275,10 +275,10 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  Size JHybridCameraDeviceSpec::getMinFocusRectSize() {
+  std::optional<Size> JHybridCameraDeviceSpec::getMinFocusRectSize() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getMinFocusRectSize");
     auto __result = method(_javaPart);
-    return __result->toCpp();
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
   bool JHybridCameraDeviceSpec::getIsAdjustingFocus() {
     static const auto method = javaClassStatic()->getMethod<jboolean()>("isAdjustingFocus");
@@ -314,10 +314,10 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  Size JHybridCameraDeviceSpec::getMinExposureRectSize() {
+  std::optional<Size> JHybridCameraDeviceSpec::getMinExposureRectSize() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getMinExposureRectSize");
     auto __result = method(_javaPart);
-    return __result->toCpp();
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
   bool JHybridCameraDeviceSpec::getEnableFaceDrivenAutoExposure() {
     static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableFaceDrivenAutoExposure");
@@ -407,14 +407,10 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  bool JHybridCameraDeviceSpec::getEnableLowLightBoost() {
-    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableLowLightBoost");
+  bool JHybridCameraDeviceSpec::getIsLowLightBoostEnabled() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isLowLightBoostEnabled");
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
-  }
-  void JHybridCameraDeviceSpec::setEnableLowLightBoost(bool enableLowLightBoost) {
-    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableLowLightBoost */)>("setEnableLowLightBoost");
-    method(_javaPart, enableLowLightBoost);
   }
   bool JHybridCameraDeviceSpec::getAutomaticallyEnableLowLightBoost() {
     static const auto method = javaClassStatic()->getMethod<jboolean()>("getAutomaticallyEnableLowLightBoost");
@@ -552,21 +548,10 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  std::shared_ptr<Promise<Rect>> JHybridCameraDeviceSpec::getDefaultRectForFocusPoint(const Point& point) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForFocusPoint");
+  Rect JHybridCameraDeviceSpec::getDefaultRectForFocusPoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRect>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForFocusPoint");
     auto __result = method(_javaPart, JPoint::fromCpp(point));
-    return [&]() {
-      auto __promise = Promise<Rect>::create();
-      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
-        auto __result = jni::static_ref_cast<JRect>(__boxedResult);
-        __promise->resolve(__result->toCpp());
-      });
-      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
-        jni::JniException __jniError(__throwable);
-        __promise->reject(std::make_exception_ptr(__jniError));
-      });
-      return __promise;
-    }();
+    return __result->toCpp();
   }
   std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setFocusLensPosition(double lensPosition) {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* lensPosition */)>("setFocusLensPosition");
@@ -618,21 +603,10 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  std::shared_ptr<Promise<Rect>> JHybridCameraDeviceSpec::getDefaultRectForExposurePoint(const Point& point) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForExposurePoint");
+  Rect JHybridCameraDeviceSpec::getDefaultRectForExposurePoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRect>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForExposurePoint");
     auto __result = method(_javaPart, JPoint::fromCpp(point));
-    return [&]() {
-      auto __promise = Promise<Rect>::create();
-      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
-        auto __result = jni::static_ref_cast<JRect>(__boxedResult);
-        __promise->resolve(__result->toCpp());
-      });
-      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
-        jni::JniException __jniError(__throwable);
-        __promise->reject(std::make_exception_ptr(__jniError));
-      });
-      return __promise;
-    }();
+    return __result->toCpp();
   }
   std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setExposureBias(double exposure) {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* exposure */)>("setExposureBias");
@@ -719,9 +693,20 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  void JHybridCameraDeviceSpec::cancelZoomAnimation() {
-    static const auto method = javaClassStatic()->getMethod<void()>("cancelZoomAnimation");
-    method(_javaPart);
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::cancelZoomAnimation() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>()>("cancelZoomAnimation");
+    auto __result = method(_javaPart);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
   }
 
 } // namespace margelo::nitro::camera

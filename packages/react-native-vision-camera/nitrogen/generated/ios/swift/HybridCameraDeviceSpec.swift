@@ -23,9 +23,9 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var isSuspended: Bool { get }
   var isUsedByAnotherApp: Bool { get }
   var isVirtualDevice: Bool { get }
-  var focalLength: Double { get }
+  var focalLength: Double? { get }
   var isContinuityCamera: Bool { get }
-  var companionDeskViewCamera: (any HybridCameraDeviceSpec) { get }
+  var companionDeskViewCamera: (any HybridCameraDeviceSpec)? { get }
   var formats: [(any HybridCameraFormatSpec)] { get }
   var activeFormat: (any HybridCameraFormatSpec) { get set }
   var activeDepthFormat: (any HybridCameraFormatSpec)? { get set }
@@ -37,14 +37,14 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var enableFaceDrivenAutoFocus: Bool { get set }
   var supportsFocusingPoint: Bool { get }
   var supportsFocusingRect: Bool { get }
-  var minFocusRectSize: Size { get }
+  var minFocusRectSize: Size? { get }
   var isAdjustingFocus: Bool { get }
   var supportsLockingFocusLensPosition: Bool { get }
   var lensPosition: Double { get }
   var exposureMode: ExposureMode { get set }
   var supportsExposurePoint: Bool { get }
   var supportsExposureRect: Bool { get }
-  var minExposureRectSize: Size { get }
+  var minExposureRectSize: Size? { get }
   var enableFaceDrivenAutoExposure: Bool { get set }
   var isAdjustingExposure: Bool { get }
   var exposureDuration: Double { get }
@@ -61,7 +61,7 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var torchLevel: Double { get }
   var torchMode: TorchMode { get }
   var supportsLowLightBoost: Bool { get }
-  var enableLowLightBoost: Bool { get set }
+  var isLowLightBoostEnabled: Bool { get }
   var automaticallyEnableLowLightBoost: Bool { get set }
   var enableVideoHDR: Bool { get set }
   var automaticallyEnableVideoHDR: Bool { get set }
@@ -81,12 +81,12 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   func supportsFocusMode(mode: FocusMode) throws -> Bool
   func setFocusPoint(point: Point) throws -> Promise<Void>
   func setFocusRect(rect: Rect) throws -> Promise<Void>
-  func getDefaultRectForFocusPoint(point: Point) throws -> Promise<Rect>
+  func getDefaultRectForFocusPoint(point: Point) throws -> Rect
   func setFocusLensPosition(lensPosition: Double) throws -> Promise<Void>
   func supportsExposureMode(exposureMode: ExposureMode) throws -> Bool
   func setExposurePoint(point: Point) throws -> Promise<Void>
   func setExposureRect(rect: Rect) throws -> Promise<Void>
-  func getDefaultRectForExposurePoint(point: Point) throws -> Promise<Rect>
+  func getDefaultRectForExposurePoint(point: Point) throws -> Rect
   func setExposureBias(exposure: Double) throws -> Promise<Void>
   func setExposureLocked(duration: Double, iso: Double) throws -> Promise<Void>
   func supportsWhiteBalanceMode(whiteBalanceMode: WhiteBalanceMode) throws -> Bool
@@ -94,7 +94,7 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   func supportsTorchMode(torch: TorchMode) throws -> Bool
   func enableTorch(level: Double) throws -> Promise<Void>
   func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
-  func cancelZoomAnimation() throws -> Void
+  func cancelZoomAnimation() throws -> Promise<Void>
 }
 
 public extension HybridCameraDeviceSpec_protocol {

@@ -61,9 +61,9 @@ namespace margelo::nitro::camera {
     bool getIsSuspended() override;
     bool getIsUsedByAnotherApp() override;
     bool getIsVirtualDevice() override;
-    double getFocalLength() override;
+    std::optional<double> getFocalLength() override;
     bool getIsContinuityCamera() override;
-    std::shared_ptr<HybridCameraDeviceSpec> getCompanionDeskViewCamera() override;
+    std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCompanionDeskViewCamera() override;
     std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() override;
     std::shared_ptr<HybridCameraFormatSpec> getActiveFormat() override;
     void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) override;
@@ -82,7 +82,7 @@ namespace margelo::nitro::camera {
     void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) override;
     bool getSupportsFocusingPoint() override;
     bool getSupportsFocusingRect() override;
-    Size getMinFocusRectSize() override;
+    std::optional<Size> getMinFocusRectSize() override;
     bool getIsAdjustingFocus() override;
     bool getSupportsLockingFocusLensPosition() override;
     double getLensPosition() override;
@@ -90,7 +90,7 @@ namespace margelo::nitro::camera {
     void setExposureMode(ExposureMode exposureMode) override;
     bool getSupportsExposurePoint() override;
     bool getSupportsExposureRect() override;
-    Size getMinExposureRectSize() override;
+    std::optional<Size> getMinExposureRectSize() override;
     bool getEnableFaceDrivenAutoExposure() override;
     void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) override;
     bool getIsAdjustingExposure() override;
@@ -109,8 +109,7 @@ namespace margelo::nitro::camera {
     double getTorchLevel() override;
     TorchMode getTorchMode() override;
     bool getSupportsLowLightBoost() override;
-    bool getEnableLowLightBoost() override;
-    void setEnableLowLightBoost(bool enableLowLightBoost) override;
+    bool getIsLowLightBoostEnabled() override;
     bool getAutomaticallyEnableLowLightBoost() override;
     void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) override;
     bool getEnableVideoHDR() override;
@@ -137,12 +136,12 @@ namespace margelo::nitro::camera {
     bool supportsFocusMode(FocusMode mode) override;
     std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) override;
     std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) override;
-    std::shared_ptr<Promise<Rect>> getDefaultRectForFocusPoint(const Point& point) override;
+    Rect getDefaultRectForFocusPoint(const Point& point) override;
     std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) override;
     bool supportsExposureMode(ExposureMode exposureMode) override;
     std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) override;
     std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) override;
-    std::shared_ptr<Promise<Rect>> getDefaultRectForExposurePoint(const Point& point) override;
+    Rect getDefaultRectForExposurePoint(const Point& point) override;
     std::shared_ptr<Promise<void>> setExposureBias(double exposure) override;
     std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) override;
     bool supportsWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) override;
@@ -150,7 +149,7 @@ namespace margelo::nitro::camera {
     bool supportsTorchMode(TorchMode torch) override;
     std::shared_ptr<Promise<void>> enableTorch(double level) override;
     std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) override;
-    void cancelZoomAnimation() override;
+    std::shared_ptr<Promise<void>> cancelZoomAnimation() override;
 
   private:
     friend HybridBase;

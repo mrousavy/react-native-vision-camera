@@ -89,7 +89,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val focalLength: Double
+  abstract val focalLength: Double?
   
   @get:DoNotStrip
   @get:Keep
@@ -97,7 +97,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val companionDeskViewCamera: HybridCameraDeviceSpec
+  abstract val companionDeskViewCamera: HybridCameraDeviceSpec?
   
   @get:DoNotStrip
   @get:Keep
@@ -159,7 +159,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val minFocusRectSize: Size
+  abstract val minFocusRectSize: Size?
   
   @get:DoNotStrip
   @get:Keep
@@ -189,7 +189,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val minExposureRectSize: Size
+  abstract val minExposureRectSize: Size?
   
   @get:DoNotStrip
   @get:Keep
@@ -261,9 +261,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  @set:DoNotStrip
-  @set:Keep
-  abstract var enableLowLightBoost: Boolean
+  abstract val isLowLightBoostEnabled: Boolean
   
   @get:DoNotStrip
   @get:Keep
@@ -348,7 +346,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun getDefaultRectForFocusPoint(point: Point): Promise<Rect>
+  abstract fun getDefaultRectForFocusPoint(point: Point): Rect
   
   @DoNotStrip
   @Keep
@@ -368,7 +366,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun getDefaultRectForExposurePoint(point: Point): Promise<Rect>
+  abstract fun getDefaultRectForExposurePoint(point: Point): Rect
   
   @DoNotStrip
   @Keep
@@ -400,7 +398,7 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun cancelZoomAnimation(): Unit
+  abstract fun cancelZoomAnimation(): Promise<Unit>
 
   private external fun initHybrid(): HybridData
 

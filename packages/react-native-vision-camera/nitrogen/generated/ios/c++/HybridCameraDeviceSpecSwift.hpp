@@ -49,8 +49,8 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
-#include "HybridCameraFormatSpec.hpp"
 #include <optional>
+#include "HybridCameraFormatSpec.hpp"
 #include "Range.hpp"
 #include "FocusMode.hpp"
 #include "Size.hpp"
@@ -144,13 +144,14 @@ namespace margelo::nitro::camera {
     inline bool getIsVirtualDevice() noexcept override {
       return _swiftPart.isVirtualDevice();
     }
-    inline double getFocalLength() noexcept override {
-      return _swiftPart.getFocalLength();
+    inline std::optional<double> getFocalLength() noexcept override {
+      auto __result = _swiftPart.getFocalLength();
+      return __result;
     }
     inline bool getIsContinuityCamera() noexcept override {
       return _swiftPart.isContinuityCamera();
     }
-    inline std::shared_ptr<HybridCameraDeviceSpec> getCompanionDeskViewCamera() noexcept override {
+    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCompanionDeskViewCamera() noexcept override {
       auto __result = _swiftPart.getCompanionDeskViewCamera();
       return __result;
     }
@@ -212,8 +213,9 @@ namespace margelo::nitro::camera {
     inline bool getSupportsFocusingRect() noexcept override {
       return _swiftPart.getSupportsFocusingRect();
     }
-    inline Size getMinFocusRectSize() noexcept override {
-      return _swiftPart.getMinFocusRectSize();
+    inline std::optional<Size> getMinFocusRectSize() noexcept override {
+      auto __result = _swiftPart.getMinFocusRectSize();
+      return __result;
     }
     inline bool getIsAdjustingFocus() noexcept override {
       return _swiftPart.isAdjustingFocus();
@@ -237,8 +239,9 @@ namespace margelo::nitro::camera {
     inline bool getSupportsExposureRect() noexcept override {
       return _swiftPart.getSupportsExposureRect();
     }
-    inline Size getMinExposureRectSize() noexcept override {
-      return _swiftPart.getMinExposureRectSize();
+    inline std::optional<Size> getMinExposureRectSize() noexcept override {
+      auto __result = _swiftPart.getMinExposureRectSize();
+      return __result;
     }
     inline bool getEnableFaceDrivenAutoExposure() noexcept override {
       return _swiftPart.getEnableFaceDrivenAutoExposure();
@@ -296,11 +299,8 @@ namespace margelo::nitro::camera {
     inline bool getSupportsLowLightBoost() noexcept override {
       return _swiftPart.getSupportsLowLightBoost();
     }
-    inline bool getEnableLowLightBoost() noexcept override {
-      return _swiftPart.getEnableLowLightBoost();
-    }
-    inline void setEnableLowLightBoost(bool enableLowLightBoost) noexcept override {
-      _swiftPart.setEnableLowLightBoost(std::forward<decltype(enableLowLightBoost)>(enableLowLightBoost));
+    inline bool getIsLowLightBoostEnabled() noexcept override {
+      return _swiftPart.isLowLightBoostEnabled();
     }
     inline bool getAutomaticallyEnableLowLightBoost() noexcept override {
       return _swiftPart.getAutomaticallyEnableLowLightBoost();
@@ -396,7 +396,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<Rect>> getDefaultRectForFocusPoint(const Point& point) override {
+    inline Rect getDefaultRectForFocusPoint(const Point& point) override {
       auto __result = _swiftPart.getDefaultRectForFocusPoint(std::forward<decltype(point)>(point));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
@@ -436,7 +436,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<Rect>> getDefaultRectForExposurePoint(const Point& point) override {
+    inline Rect getDefaultRectForExposurePoint(const Point& point) override {
       auto __result = _swiftPart.getDefaultRectForExposurePoint(std::forward<decltype(point)>(point));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
@@ -500,11 +500,13 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline void cancelZoomAnimation() override {
+    inline std::shared_ptr<Promise<void>> cancelZoomAnimation() override {
       auto __result = _swiftPart.cancelZoomAnimation();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
+      auto __value = std::move(__result.value());
+      return __value;
     }
 
   private:

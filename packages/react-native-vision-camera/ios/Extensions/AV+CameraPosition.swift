@@ -9,6 +9,20 @@ import AVFoundation
 import Foundation
 
 extension CameraPosition {
+  init(position: AVCaptureDevice.Position) {
+    switch position {
+    case .unspecified:
+      self = .unspecified
+    case .back:
+      self = .back
+    case .front:
+      self = .front
+    @unknown default:
+      print("Unknown Device Position: \(position)")
+      self = .unspecified
+    }
+  }
+  
   func toAVCaptureDevicePosition() -> AVCaptureDevice.Position {
     switch self {
     case .back:
