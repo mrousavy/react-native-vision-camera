@@ -1,5 +1,5 @@
-import type { Image } from 'react-native-nitro-image'
 import type { CameraSessionOutput } from './CameraSessionOutput.nitro'
+import type { Photo } from '../Photo.nitro'
 
 interface CapturePhotoCallbacks {
   onWillBeginCapture?: () => void
@@ -9,5 +9,5 @@ interface CapturePhotoCallbacks {
 }
 
 export interface CameraSessionPhotoOutput extends CameraSessionOutput {
-  capturePhoto(callbacks?: CapturePhotoCallbacks): Promise<Image>
+  capturePhoto(callbacks?: CapturePhotoCallbacks): Promise<Photo>
 }

@@ -16,12 +16,12 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
   }
   private let photoOutput = AVCapturePhotoOutput()
   
-  func capturePhoto(callbacks: CapturePhotoCallbacks?) -> Promise<any HybridImageSpec> {
+  func capturePhoto(callbacks: CapturePhotoCallbacks?) -> Promise<any HybridPhotoSpec> {
     let callbacks = callbacks ?? CapturePhotoCallbacks(onWillBeginCapture: nil,
                                                        onWillCapturePhoto: nil,
                                                        onDidCapturePhoto: nil,
                                                        onDidFinishCapture: nil)
-    let promise = Promise<any HybridImageSpec>()
+    let promise = Promise<any HybridPhotoSpec>()
     let delegate = CapturePhotoDelegate(
       onCaptured: { photo in
         let image = HybridPhoto(photo: photo)

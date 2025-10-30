@@ -30,6 +30,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
+// Forward declaration of `HybridPhotoSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridPhotoSpec; }
 // Forward declaration of `HybridPreviewViewSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
@@ -50,11 +52,13 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
+#include "HybridPhotoSpec.hpp"
 #include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "Resolution.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
+#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
 #include <exception>
@@ -90,6 +94,8 @@ namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 // Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
 namespace NitroImage { class HybridImageSpec_cxx; }
+// Forward declaration of `HybridPhotoSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridPhotoSpec_cxx; }
 // Forward declaration of `HybridPreviewViewSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 

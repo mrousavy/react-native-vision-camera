@@ -10,92 +10,134 @@ import AVFoundation
 import NitroModules
 import NitroImage
 
-/**
- * An implementation of `Image` (from `react-native-nitro-image`) that
- * holds an `AVCapturePhoto`
- */
-class HybridPhoto: HybridImageSpec {
+// Implementation of HybridImageSpec using NitroImage's default UIImage impl (`NativeImage`)
+private class HybridImageImpl: HybridImageSpec, NativeImage {
+  let uiImage: UIImage
+  init(uiImage: UIImage) {
+    self.uiImage = uiImage
+    super.init()
+  }
+}
+
+class HybridPhoto: HybridPhotoSpec {
   let photo: AVCapturePhoto
-  
+
   init(photo: AVCapturePhoto) {
     self.photo = photo
     super.init()
   }
   
-  var width: Double {
-    guard let pixelBuffer = photo.pixelBuffer else {
-      return 0
-    }
-    return Double(CVPixelBufferGetWidth(pixelBuffer))
-  }
-  var height: Double {
-    guard let pixelBuffer = photo.pixelBuffer else {
-      return 0
-    }
-    return Double(CVPixelBufferGetHeight(pixelBuffer))
+  // pragma MARK: Photo metadata
+  
+  var timestamp: Double {
+    return photo.timestamp.seconds
   }
   
-  func toRawPixelData(allowGpu: Bool?) throws -> RawPixelData {
-    guard let pixelBuffer = photo.pixelBuffer else {
-      throw RuntimeError.error(withMessage: "This Photo does not contain raw pixel data!")
-    }
-    guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer) else {
-      throw RuntimeError.error(withMessage: "Photo's PixelBuffer does not contain CPU-mapped data!")
-    }
-    
-    let buffer = ArrayBuffer.wrap(dataWithoutCopy: baseAddress,
-                                  size: CVPixelBufferGetDataSize(pixelBuffer)) {
-      print("Releasing \(pixelBuffer)")
-    }
-    return RawPixelData(buffer: buffer,
-                        width: Double(CVPixelBufferGetWidth(pixelBuffer)),
-                        height: Double(CVPixelBufferGetHeight(pixelBuffer)),
-                        pixelFormat: .rgba)
+  var isRawPhoto: Bool {
+    return photo.isRawPhoto
   }
   
-  func toRawPixelDataAsync(allowGpu: Bool?) throws -> Promise<RawPixelData> {
+  // pragma MARK: Pixel Buffer access
+  
+  var hasPixelBuffer: Bool {
+    return photo.pixelBuffer != nil
+  }
+  func getPixelBuffer() throws -> ArrayBuffer {
+    guard let pixelBuffer = photo.pixelBuffer else {
+      throw RuntimeError.error(withMessage: "This Photo does not contain a pixel buffer! " +
+                               "Check `photo.hasPixelBuffer` before calling `photo.getPixelBuffer()`")
+    }
+    return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
+  }
+  
+  // pragma MARK: Preview Pixel Buffer access
+  
+  var hasPreviewPixelBuffer: Bool {
+    return photo.previewPixelBuffer != nil
+  }
+  func getPreviewPixelBuffer() throws -> ArrayBuffer {
+    guard let pixelBuffer = photo.previewPixelBuffer else {
+      throw RuntimeError.error(withMessage: "This Photo does not contain a preview pixel buffer! " +
+                               "Check `photo.hasPreviewPixelBuffer` before calling `photo.getPreviewPixelBuffer()`")
+    }
+    return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
+  }
+  
+  // pragma MARK: File Data
+  
+  func getFileData() throws -> ArrayBuffer {
+    guard let data = photo.fileDataRepresentation() else {
+      throw RuntimeError.error(withMessage: "Failed to get photo's file data!")
+    }
+    return try ArrayBuffer.copy(data: data)
+  }
+  
+  func getFileDataAsync() throws -> Promise<ArrayBuffer> {
     return Promise.async {
-      return try self.toRawPixelData(allowGpu: allowGpu)
+      return try self.getFileData()
     }
   }
   
-  func toEncodedImageData(format: ImageFormat, quality: Double?) throws -> EncodedImageData {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  // pragma MARK: Saving Photo to File
+  
+  private func saveImage(to path: String, quality: Double) throws {
+    // TODO: Use `quality`
+    guard let data = photo.fileDataRepresentation() else {
+      throw RuntimeError.error(withMessage: "Failed to get file data representation of Photo!")
+    }
+    guard let url = URL(string: path) else {
+      throw RuntimeError.error(withMessage: "The given path \"\(path)\" is not a valid URL!")
+    }
+    try data.write(to: url)
   }
   
-  func toEncodedImageDataAsync(format: ImageFormat, quality: Double?) throws -> Promise<EncodedImageData> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  func saveToFileAsync(path: String, quality: Double) throws -> Promise<Void> {
+    return Promise.async(.utility) {
+      try self.saveImage(to: path, quality: quality)
+    }
   }
   
-  func resize(width: Double, height: Double) throws -> any HybridImageSpec {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  func saveToTemporaryFileAsync(quality: Double) throws -> Promise<String> {
+    return Promise.async(.utility) {
+      // 1. Create temp path
+      let tempDirectory = FileManager.default.temporaryDirectory
+      let fileName = UUID().uuidString
+      let file = tempDirectory.appendingPathComponent(fileName, conformingTo: .jpeg)
+      let path = file.absoluteString
+      // 2. Save image
+      try self.saveImage(to: path, quality: quality)
+      // 3. Return path
+      return path
+    }
   }
   
-  func resizeAsync(width: Double, height: Double) throws -> Promise<any HybridImageSpec> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  // pragma MARK: Conversion to Image
+  
+  func toPreviewImage() throws -> any HybridImageSpec {
+    guard let cgImage = photo.previewCGImageRepresentation() else {
+      throw RuntimeError.error(withMessage: "Failed to get Preview Image data!")
+    }
+    let uiImage = UIImage(cgImage: cgImage)
+    return HybridImageImpl(uiImage: uiImage)
   }
   
-  func crop(startX: Double, startY: Double, endX: Double, endY: Double) throws -> any HybridImageSpec {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  func toPreviewImageAsync() throws -> Promise<any HybridImageSpec> {
+    return Promise.async {
+      return try self.toPreviewImage()
+    }
   }
   
-  func cropAsync(startX: Double, startY: Double, endX: Double, endY: Double) throws -> Promise<any HybridImageSpec> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  func toImage() throws -> any HybridImageSpec {
+    guard let cgImage = photo.cgImageRepresentation() else {
+      throw RuntimeError.error(withMessage: "Failed to get Image data!")
+    }
+    let uiImage = UIImage(cgImage: cgImage)
+    return HybridImageImpl(uiImage: uiImage)
   }
   
-  func saveToFileAsync(path: String, format: ImageFormat, quality: Double?) throws -> Promise<Void> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
-  }
-  
-  func saveToTemporaryFileAsync(format: ImageFormat, quality: Double?) throws -> Promise<String> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
-  }
-  
-  func toThumbHash() throws -> ArrayBuffer {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
-  }
-  
-  func toThumbHashAsync() throws -> Promise<ArrayBuffer> {
-    throw RuntimeError.error(withMessage: "This method is not yet implemented!")
+  func toImageAsync() throws -> Promise<any HybridImageSpec> {
+    return Promise.async {
+      return try self.toImage()
+    }
   }
 }

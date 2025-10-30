@@ -43,6 +43,7 @@ function AppContent() {
       console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
 
       await timeout(5000)
+      const mark4 = performance.now()
 
       const image = await photo.capturePhoto({
         onDidCapturePhoto() {
@@ -58,10 +59,11 @@ function AppContent() {
           console.log('onWillCapturePhoto')
         }
       })
-      const mark4 = performance.now()
-      console.log(`Photo capture took ${(mark4 - mark3).toFixed(0)}ms!`)
-      console.log(image.width, image.height)
-      console.log(image.toRawPixelData().buffer.byteLength)
+      const mark5 = performance.now()
+      console.log(`Photo capture took ${(mark5 - mark4).toFixed(0)}ms!`)
+      const converted = image.toImage()
+      const mark6 = performance.now()
+      console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
     } catch(e) {
       console.error(e)
     }

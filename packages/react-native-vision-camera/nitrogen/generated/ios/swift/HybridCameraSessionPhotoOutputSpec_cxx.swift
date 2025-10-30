@@ -7,7 +7,6 @@
 
 import Foundation
 import NitroModules
-import NitroImage
 import NitroModules
 
 /**
@@ -123,24 +122,24 @@ open class HybridCameraSessionPhotoOutputSpec_cxx : HybridCameraSessionOutputSpe
 
   // Methods
   @inline(__always)
-  public final func capturePhoto(callbacks: bridge.std__optional_CapturePhotoCallbacks_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec____ {
+  public final func capturePhoto(callbacks: bridge.std__optional_CapturePhotoCallbacks_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec____ {
     do {
       let __result = try self.__implementation.capturePhoto(callbacks: callbacks.value)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec___ in
-        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec___()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec___(__promise)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___(__promise)
         __result
-          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_margelo__nitro__image__HybridImageSpec_ in
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridPhotoSpec_ in
               let __cxxWrapped = __result.getCxxWrapper()
               return __cxxWrapped.getCxxPart()
             }()) })
           .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
         return __promise
       }()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec____(__resultCpp)
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec____(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_margelo__nitro__image__HybridImageSpec____(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec____(__exceptionPtr)
     }
   }
 }

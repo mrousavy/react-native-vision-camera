@@ -7,7 +7,6 @@
 
 import Foundation
 import NitroModules
-import NitroImage
 import NitroModules
 
 /// See ``HybridCameraSessionPhotoOutputSpec``
@@ -16,7 +15,7 @@ public protocol HybridCameraSessionPhotoOutputSpec_protocol: HybridObject, Hybri
   
 
   // Methods
-  func capturePhoto(callbacks: CapturePhotoCallbacks?) throws -> Promise<(any HybridImageSpec)>
+  func capturePhoto(callbacks: CapturePhotoCallbacks?) throws -> Promise<(any HybridPhotoSpec)>
 }
 
 public extension HybridCameraSessionPhotoOutputSpec_protocol {
