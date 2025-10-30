@@ -30,6 +30,7 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
                                                        onWillCapturePhoto: nil,
                                                        onDidCapturePhoto: nil,
                                                        onDidFinishCapture: nil)
+    // 1. Prepare delegate that will resolve/reject Promise
     let promise = Promise<any HybridPhotoSpec>()
     let delegate = CapturePhotoDelegate(
       onCaptured: { photo in
@@ -41,12 +42,12 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
       },
       callbacks: callbacks)
     
-    // TODO: Convert CapturePhotoSettings to AVCapturePhotoSettings
-    let captureSettings = AVCapturePhotoSettings()
-    if let flashMode = settings.flashMode {
-      captureSettings.flashMode = .on
-    }
+    // 2. Prepare Photo settings
+    let captureSettings = settings.toAVCapturePhotoSettings()
+    // 3. Perform capture
     photoOutput.capturePhoto(with: .init(), delegate: delegate)
+    // 4. Prepare settings for next photo capture so it'll be faster
+    photoOutput.setPreparedPhotoSettingsArray([captureSettings])
     return promise
   }
 }

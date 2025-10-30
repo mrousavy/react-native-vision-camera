@@ -15,6 +15,7 @@ export type QualityPrioritization = 'speed' | 'balanced' | 'quality'
 export interface CapturePhotoSettings {
   flashMode?: FlashMode
   qualityPrioritization?: QualityPrioritization
+  // TODO: separate enableDepthData with embedsDepthDataInPhoto
   enableDepthData?: boolean
   enableShutterSound?: boolean
   isAutoRedEyeReductionEnabled?: boolean
@@ -25,6 +26,7 @@ export interface CapturePhotoSettings {
 }
 
 export interface CameraSessionPhotoOutput extends CameraSessionOutput {
+  // TODO: Add prepareSettings(...)
   capturePhoto(
     settings?: CapturePhotoSettings,
     callbacks?: CapturePhotoCallbacks

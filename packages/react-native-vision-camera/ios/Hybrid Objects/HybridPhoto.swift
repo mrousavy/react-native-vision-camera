@@ -11,7 +11,6 @@ import NitroModules
 import NitroImage
 
 class HybridPhoto: HybridPhotoSpec {
-
   let photo: AVCapturePhoto
 
   init(photo: AVCapturePhoto) {
