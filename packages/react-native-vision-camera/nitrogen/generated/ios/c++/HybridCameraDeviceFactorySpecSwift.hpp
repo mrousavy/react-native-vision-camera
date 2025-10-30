@@ -81,6 +81,9 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getUserPreferredCamera();
       return __result;
     }
+    inline void setUserPreferredCamera(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& userPreferredCamera) noexcept override {
+      _swiftPart.setUserPreferredCamera(userPreferredCamera);
+    }
 
   public:
     // Methods

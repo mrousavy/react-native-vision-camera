@@ -83,6 +83,10 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraDeviceSpec>()) : std::nullopt;
   }
+  void JHybridCameraDeviceFactorySpec::setUserPreferredCamera(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& userPreferredCamera) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraDeviceSpec::javaobject> /* userPreferredCamera */)>("setUserPreferredCamera");
+    method(_javaPart, userPreferredCamera.has_value() ? std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(userPreferredCamera.value())->getJavaPart() : nullptr);
+  }
 
   // Methods
   ListenerSubscription JHybridCameraDeviceFactorySpec::addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) {

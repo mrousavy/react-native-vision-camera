@@ -39,13 +39,24 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
   }
   
   var userPreferredCamera: (any HybridCameraDeviceSpec)? {
-    guard #available(iOS 17.0, *) else {
-      return nil
+    get {
+      guard #available(iOS 17.0, *) else {
+        return nil
+      }
+      guard let device = AVCaptureDevice.userPreferredCamera else {
+        return nil
+      }
+      return HybridCameraDevice(device: device)
     }
-    guard let device = AVCaptureDevice.userPreferredCamera else {
-      return nil
+    set {
+      guard #available(iOS 17.0, *) else {
+        return
+      }
+      guard let hybridDevice = newValue as? HybridCameraDevice else {
+        return
+      }
+      AVCaptureDevice.userPreferredCamera = hybridDevice.device
     }
-    return HybridCameraDevice(device: device)
   }
 
   func addOnCameraDevicesChangedListener(listener: @escaping ([any HybridCameraDeviceSpec]) -> Void) throws -> ListenerSubscription {

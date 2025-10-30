@@ -48,7 +48,9 @@ abstract class HybridCameraDeviceFactorySpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val userPreferredCamera: HybridCameraDeviceSpec?
+  @set:DoNotStrip
+  @set:Keep
+  abstract var userPreferredCamera: HybridCameraDeviceSpec?
 
   // Methods
   abstract fun addOnCameraDevicesChangedListener(listener: (newDevices: Array<HybridCameraDeviceSpec>) -> Unit): ListenerSubscription

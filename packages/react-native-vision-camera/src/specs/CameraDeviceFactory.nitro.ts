@@ -13,9 +13,10 @@ export interface CameraDeviceFactory
    */
   readonly cameraDevices: CameraDevice[]
   /**
-   * Get the user's default preferred camera device.
+   * Get or set the user's default preferred camera device.
+   * Setting a device here will persist the preference between apps.
    */
-  readonly userPreferredCamera?: CameraDevice
+  userPreferredCamera?: CameraDevice
 
   addOnCameraDevicesChangedListener(
     listener: (newDevices: CameraDevice[]) => void

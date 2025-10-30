@@ -144,6 +144,21 @@ open class HybridCameraDeviceFactorySpec_cxx {
         }
       }()
     }
+    @inline(__always)
+    set {
+      self.__implementation.userPreferredCamera = { () -> (any HybridCameraDeviceSpec)? in
+        if bridge.has_value_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(newValue) {
+          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridCameraDeviceSpec__(newValue)
+          return { () -> HybridCameraDeviceSpec in
+            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(__unwrapped)
+            let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
+            return __instance.getHybridCameraDeviceSpec()
+          }()
+        } else {
+          return nil
+        }
+      }()
+    }
   }
 
   // Methods

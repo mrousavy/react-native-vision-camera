@@ -63,6 +63,7 @@ namespace margelo::nitro::camera {
       // Properties
       virtual std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getCameraDevices() = 0;
       virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getUserPreferredCamera() = 0;
+      virtual void setUserPreferredCamera(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& userPreferredCamera) = 0;
 
     public:
       // Methods
