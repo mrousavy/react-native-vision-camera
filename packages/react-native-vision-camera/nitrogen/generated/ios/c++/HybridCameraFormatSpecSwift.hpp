@@ -28,8 +28,8 @@ namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
-#include "Range.hpp"
 #include <vector>
+#include "Range.hpp"
 #include <optional>
 #include "MediaType.hpp"
 #include "AutoFocusSystem.hpp"
@@ -84,8 +84,8 @@ namespace margelo::nitro::camera {
     inline Resolution getVideoResolution() noexcept override {
       return _swiftPart.getVideoResolution();
     }
-    inline std::vector<Range> getSupportedMaxPhotoDimensions() noexcept override {
-      auto __result = _swiftPart.getSupportedMaxPhotoDimensions();
+    inline std::vector<Resolution> getSupportedPhotoResolutions() noexcept override {
+      auto __result = _swiftPart.getSupportedPhotoResolutions();
       return __result;
     }
     inline bool getSupportsHighQualityPhoto() noexcept override {
@@ -217,14 +217,17 @@ namespace margelo::nitro::camera {
     inline bool getSupportsCinematicVideo() noexcept override {
       return _swiftPart.getSupportsCinematicVideo();
     }
-    inline double getDefaultSimulatedAperture() noexcept override {
-      return _swiftPart.getDefaultSimulatedAperture();
+    inline std::optional<double> getDefaultSimulatedAperture() noexcept override {
+      auto __result = _swiftPart.getDefaultSimulatedAperture();
+      return __result;
     }
-    inline Range getSimulatedApertureRange() noexcept override {
-      return _swiftPart.getSimulatedApertureRange();
+    inline std::optional<Range> getSimulatedApertureRange() noexcept override {
+      auto __result = _swiftPart.getSimulatedApertureRange();
+      return __result;
     }
-    inline Range getZoomFactorForCinematicVideo() noexcept override {
-      return _swiftPart.getZoomFactorForCinematicVideo();
+    inline std::optional<Range> getZoomFactorForCinematicVideo() noexcept override {
+      auto __result = _swiftPart.getZoomFactorForCinematicVideo();
+      return __result;
     }
     inline std::optional<Range> getFrameRateRangeForCinematicVideo() noexcept override {
       auto __result = _swiftPart.getFrameRateRangeForCinematicVideo();

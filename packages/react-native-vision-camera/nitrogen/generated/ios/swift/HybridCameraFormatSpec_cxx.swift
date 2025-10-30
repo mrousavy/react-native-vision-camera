@@ -128,12 +128,12 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var supportedMaxPhotoDimensions: bridge.std__vector_Range_ {
+  public final var supportedPhotoResolutions: bridge.std__vector_Resolution_ {
     @inline(__always)
     get {
-      return { () -> bridge.std__vector_Range_ in
-        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedMaxPhotoDimensions.count)
-        for __item in self.__implementation.supportedMaxPhotoDimensions {
+      return { () -> bridge.std__vector_Resolution_ in
+        var __vector = bridge.create_std__vector_Resolution_(self.__implementation.supportedPhotoResolutions.count)
+        for __item in self.__implementation.supportedPhotoResolutions {
           __vector.push_back(__item)
         }
         return __vector
@@ -488,24 +488,42 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var defaultSimulatedAperture: Double {
+  public final var defaultSimulatedAperture: bridge.std__optional_double_ {
     @inline(__always)
     get {
-      return self.__implementation.defaultSimulatedAperture
+      return { () -> bridge.std__optional_double_ in
+        if let __unwrappedValue = self.__implementation.defaultSimulatedAperture {
+          return bridge.create_std__optional_double_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   
-  public final var simulatedApertureRange: Range {
+  public final var simulatedApertureRange: bridge.std__optional_Range_ {
     @inline(__always)
     get {
-      return self.__implementation.simulatedApertureRange
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.simulatedApertureRange {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   
-  public final var zoomFactorForCinematicVideo: Range {
+  public final var zoomFactorForCinematicVideo: bridge.std__optional_Range_ {
     @inline(__always)
     get {
-      return self.__implementation.zoomFactorForCinematicVideo
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.zoomFactorForCinematicVideo {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
     }
   }
   

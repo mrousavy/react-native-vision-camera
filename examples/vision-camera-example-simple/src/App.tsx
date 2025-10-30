@@ -30,6 +30,15 @@ function AppContent() {
   const [i, setI] = useState<AsyncImageSource>()
 
   useEffect(() => {
+    for (const device of devices) {
+      console.log(`${device.id} ${device.deviceName}:`)
+      for (const format of device.formats) {
+        console.log(`   -- ${format.photoResolution.width}x${format.photoResolution.height}`)
+      }
+    }
+  }, [devices])
+
+  useEffect(() => {
     const device = devices[0]
     if (device == null) return
 

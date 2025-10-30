@@ -52,7 +52,7 @@ abstract class HybridCameraFormatSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val supportedMaxPhotoDimensions: Array<Range>
+  abstract val supportedPhotoResolutions: Array<Resolution>
   
   @get:DoNotStrip
   @get:Keep
@@ -208,15 +208,15 @@ abstract class HybridCameraFormatSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val defaultSimulatedAperture: Double
+  abstract val defaultSimulatedAperture: Double?
   
   @get:DoNotStrip
   @get:Keep
-  abstract val simulatedApertureRange: Range
+  abstract val simulatedApertureRange: Range?
   
   @get:DoNotStrip
   @get:Keep
-  abstract val zoomFactorForCinematicVideo: Range
+  abstract val zoomFactorForCinematicVideo: Range?
   
   @get:DoNotStrip
   @get:Keep

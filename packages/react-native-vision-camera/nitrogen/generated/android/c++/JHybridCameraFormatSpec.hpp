@@ -52,7 +52,7 @@ namespace margelo::nitro::camera {
     // Properties
     Resolution getPhotoResolution() override;
     Resolution getVideoResolution() override;
-    std::vector<Range> getSupportedMaxPhotoDimensions() override;
+    std::vector<Resolution> getSupportedPhotoResolutions() override;
     bool getSupportsHighQualityPhoto() override;
     bool getIsHighestPhotoFormat() override;
     bool getSupportsAutoFps() override;
@@ -91,9 +91,9 @@ namespace margelo::nitro::camera {
     bool getSupportsStudioLight() override;
     std::optional<Range> getFrameRateRangeForStudioLight() override;
     bool getSupportsCinematicVideo() override;
-    double getDefaultSimulatedAperture() override;
-    Range getSimulatedApertureRange() override;
-    Range getZoomFactorForCinematicVideo() override;
+    std::optional<double> getDefaultSimulatedAperture() override;
+    std::optional<Range> getSimulatedApertureRange() override;
+    std::optional<Range> getZoomFactorForCinematicVideo() override;
     std::optional<Range> getFrameRateRangeForCinematicVideo() override;
 
   public:

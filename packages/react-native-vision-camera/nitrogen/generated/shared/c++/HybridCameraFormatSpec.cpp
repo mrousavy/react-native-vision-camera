@@ -16,7 +16,7 @@ namespace margelo::nitro::camera {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("photoResolution", &HybridCameraFormatSpec::getPhotoResolution);
       prototype.registerHybridGetter("videoResolution", &HybridCameraFormatSpec::getVideoResolution);
-      prototype.registerHybridGetter("supportedMaxPhotoDimensions", &HybridCameraFormatSpec::getSupportedMaxPhotoDimensions);
+      prototype.registerHybridGetter("supportedPhotoResolutions", &HybridCameraFormatSpec::getSupportedPhotoResolutions);
       prototype.registerHybridGetter("supportsHighQualityPhoto", &HybridCameraFormatSpec::getSupportsHighQualityPhoto);
       prototype.registerHybridGetter("isHighestPhotoFormat", &HybridCameraFormatSpec::getIsHighestPhotoFormat);
       prototype.registerHybridGetter("supportsAutoFps", &HybridCameraFormatSpec::getSupportsAutoFps);

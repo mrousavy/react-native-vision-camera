@@ -13,7 +13,7 @@ public protocol HybridCameraFormatSpec_protocol: HybridObject {
   // Properties
   var photoResolution: Resolution { get }
   var videoResolution: Resolution { get }
-  var supportedMaxPhotoDimensions: [Range] { get }
+  var supportedPhotoResolutions: [Resolution] { get }
   var supportsHighQualityPhoto: Bool { get }
   var isHighestPhotoFormat: Bool { get }
   var supportsAutoFps: Bool { get }
@@ -52,9 +52,9 @@ public protocol HybridCameraFormatSpec_protocol: HybridObject {
   var supportsStudioLight: Bool { get }
   var frameRateRangeForStudioLight: Range? { get }
   var supportsCinematicVideo: Bool { get }
-  var defaultSimulatedAperture: Double { get }
-  var simulatedApertureRange: Range { get }
-  var zoomFactorForCinematicVideo: Range { get }
+  var defaultSimulatedAperture: Double? { get }
+  var simulatedApertureRange: Range? { get }
+  var zoomFactorForCinematicVideo: Range? { get }
   var frameRateRangeForCinematicVideo: Range? { get }
 
   // Methods

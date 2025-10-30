@@ -24,8 +24,8 @@ namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
 #include "JResolution.hpp"
-#include "Range.hpp"
 #include <vector>
+#include "Range.hpp"
 #include "JRange.hpp"
 #include <optional>
 #include "MediaType.hpp"
@@ -79,12 +79,12 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  std::vector<Range> JHybridCameraFormatSpec::getSupportedMaxPhotoDimensions() {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JRange>>()>("getSupportedMaxPhotoDimensions");
+  std::vector<Resolution> JHybridCameraFormatSpec::getSupportedPhotoResolutions() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JResolution>>()>("getSupportedPhotoResolutions");
     auto __result = method(_javaPart);
     return [&]() {
       size_t __size = __result->size();
-      std::vector<Range> __vector;
+      std::vector<Resolution> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
         auto __element = __result->getElement(__i);
@@ -324,20 +324,20 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  double JHybridCameraFormatSpec::getDefaultSimulatedAperture() {
-    static const auto method = javaClassStatic()->getMethod<double()>("getDefaultSimulatedAperture");
+  std::optional<double> JHybridCameraFormatSpec::getDefaultSimulatedAperture() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JDouble>()>("getDefaultSimulatedAperture");
     auto __result = method(_javaPart);
-    return __result;
+    return __result != nullptr ? std::make_optional(__result->value()) : std::nullopt;
   }
-  Range JHybridCameraFormatSpec::getSimulatedApertureRange() {
+  std::optional<Range> JHybridCameraFormatSpec::getSimulatedApertureRange() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getSimulatedApertureRange");
     auto __result = method(_javaPart);
-    return __result->toCpp();
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
-  Range JHybridCameraFormatSpec::getZoomFactorForCinematicVideo() {
+  std::optional<Range> JHybridCameraFormatSpec::getZoomFactorForCinematicVideo() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getZoomFactorForCinematicVideo");
     auto __result = method(_javaPart);
-    return __result->toCpp();
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
   std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForCinematicVideo() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForCinematicVideo");

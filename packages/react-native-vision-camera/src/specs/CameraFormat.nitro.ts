@@ -12,7 +12,7 @@ export interface CameraFormat
   // pragma MARK: Resolutions
   readonly photoResolution: Resolution
   readonly videoResolution: Resolution
-  readonly supportedMaxPhotoDimensions: Range[]
+  readonly supportedPhotoResolutions: Resolution[]
   readonly supportsHighQualityPhoto: boolean
   readonly isHighestPhotoFormat: boolean
 
@@ -82,8 +82,8 @@ export interface CameraFormat
 
   // pragma MARK: Cinematic Video
   readonly supportsCinematicVideo: boolean
-  readonly defaultSimulatedAperture: number
-  readonly simulatedApertureRange: Range
-  readonly zoomFactorForCinematicVideo: Range
+  readonly defaultSimulatedAperture?: number
+  readonly simulatedApertureRange?: Range
+  readonly zoomFactorForCinematicVideo?: Range
   readonly frameRateRangeForCinematicVideo?: Range
 }

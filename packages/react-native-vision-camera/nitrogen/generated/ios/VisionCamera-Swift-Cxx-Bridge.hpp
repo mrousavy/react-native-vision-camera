@@ -46,6 +46,8 @@ namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `Range` to properly resolve imports.
 namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `Resolution` to properly resolve imports.
+namespace margelo::nitro::camera { struct Resolution; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
@@ -87,6 +89,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "PhysicalCameraDeviceType.hpp"
 #include "QualityPrioritization.hpp"
 #include "Range.hpp"
+#include "Resolution.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
@@ -362,6 +365,17 @@ namespace margelo::nitro::camera::bridge::swift {
     return Result<std::shared_ptr<HybridCameraSessionPhotoOutputSpec>>::withError(error);
   }
   
+  // pragma MARK: std::vector<Resolution>
+  /**
+   * Specialized version of `std::vector<Resolution>`.
+   */
+  using std__vector_Resolution_ = std::vector<Resolution>;
+  inline std::vector<Resolution> create_std__vector_Resolution_(size_t size) noexcept {
+    std::vector<Resolution> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
   // pragma MARK: std::vector<Range>
   /**
    * Specialized version of `std::vector<Range>`.
@@ -408,6 +422,21 @@ namespace margelo::nitro::camera::bridge::swift {
     std::vector<double> vector;
     vector.reserve(size);
     return vector;
+  }
+  
+  // pragma MARK: std::optional<double>
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
+    return std::optional<double>(value);
+  }
+  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return *optional;
   }
   
   // pragma MARK: Result<bool>

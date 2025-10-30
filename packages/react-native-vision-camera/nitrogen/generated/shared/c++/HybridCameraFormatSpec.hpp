@@ -29,8 +29,8 @@ namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
-#include "Range.hpp"
 #include <vector>
+#include "Range.hpp"
 #include <optional>
 #include "MediaType.hpp"
 #include "AutoFocusSystem.hpp"
@@ -68,7 +68,7 @@ namespace margelo::nitro::camera {
       // Properties
       virtual Resolution getPhotoResolution() = 0;
       virtual Resolution getVideoResolution() = 0;
-      virtual std::vector<Range> getSupportedMaxPhotoDimensions() = 0;
+      virtual std::vector<Resolution> getSupportedPhotoResolutions() = 0;
       virtual bool getSupportsHighQualityPhoto() = 0;
       virtual bool getIsHighestPhotoFormat() = 0;
       virtual bool getSupportsAutoFps() = 0;
@@ -107,9 +107,9 @@ namespace margelo::nitro::camera {
       virtual bool getSupportsStudioLight() = 0;
       virtual std::optional<Range> getFrameRateRangeForStudioLight() = 0;
       virtual bool getSupportsCinematicVideo() = 0;
-      virtual double getDefaultSimulatedAperture() = 0;
-      virtual Range getSimulatedApertureRange() = 0;
-      virtual Range getZoomFactorForCinematicVideo() = 0;
+      virtual std::optional<double> getDefaultSimulatedAperture() = 0;
+      virtual std::optional<Range> getSimulatedApertureRange() = 0;
+      virtual std::optional<Range> getZoomFactorForCinematicVideo() = 0;
       virtual std::optional<Range> getFrameRateRangeForCinematicVideo() = 0;
 
     public:
