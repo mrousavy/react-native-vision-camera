@@ -13,9 +13,52 @@ public protocol HybridCameraFormatSpec_protocol: HybridObject {
   // Properties
   var photoResolution: Resolution { get }
   var videoResolution: Resolution { get }
+  var supportedMaxPhotoDimensions: [Range] { get }
+  var supportsHighQualityPhoto: Bool { get }
+  var isHighestPhotoFormat: Bool { get }
+  var supportsAutoFps: Bool { get }
+  var supportedFrameRateRanges: [Range] { get }
+  var isVideoBinned: Bool { get }
+  var supportsVideoHDR: Bool { get }
+  var supportsMultiCam: Bool { get }
+  var fieldOfView: Double { get }
+  var fieldOfViewDistortionCorrected: Double { get }
+  var supportsBackgroundReplacement: Bool { get }
+  var frameRateRangeForBackgroundReplacement: Range? { get }
+  var supportsReactionEffects: Bool { get }
+  var frameRateRangeForReactionEffects: Range? { get }
+  var mediaType: MediaType { get }
+  var autoFocusSystem: AutoFocusSystem { get }
+  var supportsGlobalToneMapping: Bool { get }
+  var supportedColorSpaces: [ColorSpace] { get }
+  var maxZoomFactor: Double { get }
+  var zoomFactorUpscaleThreshold: Double { get }
+  var secondaryNativeResolutionZoomFactory: [Double] { get }
+  var recommendedZoomRange: Range? { get }
+  var minISO: Double { get }
+  var maxISO: Double { get }
+  var minExposureDuration: Double { get }
+  var maxExposureDuration: Double { get }
+  var recommendedExposureRange: Range? { get }
+  var depthDataFormats: [(any HybridCameraFormatSpec)] { get }
+  var supportedZoomRangesForDepthDataDelivery: [Range] { get }
+  var supportsSmartFraming: Bool { get }
+  var supportsCenterStage: Bool { get }
+  var frameRateRangeForCenterStage: Range? { get }
+  var zoomRangeForCenterStage: Range? { get }
+  var supportsPortraitEffect: Bool { get }
+  var supportsPortraitEffectMatteStillImageDelivery: Bool { get }
+  var frameRateRangeForPortraitEffect: Range? { get }
+  var supportsStudioLight: Bool { get }
+  var frameRateRangeForStudioLight: Range? { get }
+  var supportsCinematicVideo: Bool { get }
+  var defaultSimulatedAperture: Double { get }
+  var simulatedApertureRange: Range { get }
+  var zoomFactorForCinematicVideo: Range { get }
+  var frameRateRangeForCinematicVideo: Range? { get }
 
   // Methods
-  
+  func supportsVideoStabilizationMode(mode: VideoStabilizationMode) throws -> Bool
 }
 
 public extension HybridCameraFormatSpec_protocol {

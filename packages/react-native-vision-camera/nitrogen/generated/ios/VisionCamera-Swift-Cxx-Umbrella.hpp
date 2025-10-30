@@ -8,6 +8,8 @@
 #pragma once
 
 // Forward declarations of C++ defined types
+// Forward declaration of `AutoFocusSystem` to properly resolve imports.
+namespace margelo::nitro::camera { enum class AutoFocusSystem; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
@@ -16,6 +18,8 @@ namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CapturePhotoSettings` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoSettings; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
 // Forward declaration of `FlashMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
@@ -40,18 +44,26 @@ namespace margelo::nitro::camera { class HybridPhotoSpec; }
 namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
 // Forward declaration of `QualityPrioritization` to properly resolve imports.
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `VideoStabilizationMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 // Include C++ defined types
+#include "AutoFocusSystem.hpp"
 #include "CameraPosition.hpp"
 #include "CameraSessionOutputType.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
+#include "ColorSpace.hpp"
 #include "FlashMode.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
@@ -63,9 +75,12 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "HybridPhotoSpec.hpp"
 #include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
+#include "MediaType.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "QualityPrioritization.hpp"
+#include "Range.hpp"
 #include "Resolution.hpp"
+#include "VideoStabilizationMode.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>

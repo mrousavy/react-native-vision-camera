@@ -14,8 +14,29 @@ namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
 
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `AutoFocusSystem` to properly resolve imports.
+namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `VideoStabilizationMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
+#include "Range.hpp"
+#include <vector>
+#include <optional>
+#include "MediaType.hpp"
+#include "AutoFocusSystem.hpp"
+#include "ColorSpace.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
+#include "VideoStabilizationMode.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -63,10 +84,163 @@ namespace margelo::nitro::camera {
     inline Resolution getVideoResolution() noexcept override {
       return _swiftPart.getVideoResolution();
     }
+    inline std::vector<Range> getSupportedMaxPhotoDimensions() noexcept override {
+      auto __result = _swiftPart.getSupportedMaxPhotoDimensions();
+      return __result;
+    }
+    inline bool getSupportsHighQualityPhoto() noexcept override {
+      return _swiftPart.getSupportsHighQualityPhoto();
+    }
+    inline bool getIsHighestPhotoFormat() noexcept override {
+      return _swiftPart.isHighestPhotoFormat();
+    }
+    inline bool getSupportsAutoFps() noexcept override {
+      return _swiftPart.getSupportsAutoFps();
+    }
+    inline std::vector<Range> getSupportedFrameRateRanges() noexcept override {
+      auto __result = _swiftPart.getSupportedFrameRateRanges();
+      return __result;
+    }
+    inline bool getIsVideoBinned() noexcept override {
+      return _swiftPart.isVideoBinned();
+    }
+    inline bool getSupportsVideoHDR() noexcept override {
+      return _swiftPart.getSupportsVideoHDR();
+    }
+    inline bool getSupportsMultiCam() noexcept override {
+      return _swiftPart.getSupportsMultiCam();
+    }
+    inline double getFieldOfView() noexcept override {
+      return _swiftPart.getFieldOfView();
+    }
+    inline double getFieldOfViewDistortionCorrected() noexcept override {
+      return _swiftPart.getFieldOfViewDistortionCorrected();
+    }
+    inline bool getSupportsBackgroundReplacement() noexcept override {
+      return _swiftPart.getSupportsBackgroundReplacement();
+    }
+    inline std::optional<Range> getFrameRateRangeForBackgroundReplacement() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForBackgroundReplacement();
+      return __result;
+    }
+    inline bool getSupportsReactionEffects() noexcept override {
+      return _swiftPart.getSupportsReactionEffects();
+    }
+    inline std::optional<Range> getFrameRateRangeForReactionEffects() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForReactionEffects();
+      return __result;
+    }
+    inline MediaType getMediaType() noexcept override {
+      auto __result = _swiftPart.getMediaType();
+      return static_cast<MediaType>(__result);
+    }
+    inline AutoFocusSystem getAutoFocusSystem() noexcept override {
+      auto __result = _swiftPart.getAutoFocusSystem();
+      return static_cast<AutoFocusSystem>(__result);
+    }
+    inline bool getSupportsGlobalToneMapping() noexcept override {
+      return _swiftPart.getSupportsGlobalToneMapping();
+    }
+    inline std::vector<ColorSpace> getSupportedColorSpaces() noexcept override {
+      auto __result = _swiftPart.getSupportedColorSpaces();
+      return __result;
+    }
+    inline double getMaxZoomFactor() noexcept override {
+      return _swiftPart.getMaxZoomFactor();
+    }
+    inline double getZoomFactorUpscaleThreshold() noexcept override {
+      return _swiftPart.getZoomFactorUpscaleThreshold();
+    }
+    inline std::vector<double> getSecondaryNativeResolutionZoomFactory() noexcept override {
+      auto __result = _swiftPart.getSecondaryNativeResolutionZoomFactory();
+      return __result;
+    }
+    inline std::optional<Range> getRecommendedZoomRange() noexcept override {
+      auto __result = _swiftPart.getRecommendedZoomRange();
+      return __result;
+    }
+    inline double getMinISO() noexcept override {
+      return _swiftPart.getMinISO();
+    }
+    inline double getMaxISO() noexcept override {
+      return _swiftPart.getMaxISO();
+    }
+    inline double getMinExposureDuration() noexcept override {
+      return _swiftPart.getMinExposureDuration();
+    }
+    inline double getMaxExposureDuration() noexcept override {
+      return _swiftPart.getMaxExposureDuration();
+    }
+    inline std::optional<Range> getRecommendedExposureRange() noexcept override {
+      auto __result = _swiftPart.getRecommendedExposureRange();
+      return __result;
+    }
+    inline std::vector<std::shared_ptr<HybridCameraFormatSpec>> getDepthDataFormats() noexcept override {
+      auto __result = _swiftPart.getDepthDataFormats();
+      return __result;
+    }
+    inline std::vector<Range> getSupportedZoomRangesForDepthDataDelivery() noexcept override {
+      auto __result = _swiftPart.getSupportedZoomRangesForDepthDataDelivery();
+      return __result;
+    }
+    inline bool getSupportsSmartFraming() noexcept override {
+      return _swiftPart.getSupportsSmartFraming();
+    }
+    inline bool getSupportsCenterStage() noexcept override {
+      return _swiftPart.getSupportsCenterStage();
+    }
+    inline std::optional<Range> getFrameRateRangeForCenterStage() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForCenterStage();
+      return __result;
+    }
+    inline std::optional<Range> getZoomRangeForCenterStage() noexcept override {
+      auto __result = _swiftPart.getZoomRangeForCenterStage();
+      return __result;
+    }
+    inline bool getSupportsPortraitEffect() noexcept override {
+      return _swiftPart.getSupportsPortraitEffect();
+    }
+    inline bool getSupportsPortraitEffectMatteStillImageDelivery() noexcept override {
+      return _swiftPart.getSupportsPortraitEffectMatteStillImageDelivery();
+    }
+    inline std::optional<Range> getFrameRateRangeForPortraitEffect() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForPortraitEffect();
+      return __result;
+    }
+    inline bool getSupportsStudioLight() noexcept override {
+      return _swiftPart.getSupportsStudioLight();
+    }
+    inline std::optional<Range> getFrameRateRangeForStudioLight() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForStudioLight();
+      return __result;
+    }
+    inline bool getSupportsCinematicVideo() noexcept override {
+      return _swiftPart.getSupportsCinematicVideo();
+    }
+    inline double getDefaultSimulatedAperture() noexcept override {
+      return _swiftPart.getDefaultSimulatedAperture();
+    }
+    inline Range getSimulatedApertureRange() noexcept override {
+      return _swiftPart.getSimulatedApertureRange();
+    }
+    inline Range getZoomFactorForCinematicVideo() noexcept override {
+      return _swiftPart.getZoomFactorForCinematicVideo();
+    }
+    inline std::optional<Range> getFrameRateRangeForCinematicVideo() noexcept override {
+      auto __result = _swiftPart.getFrameRateRangeForCinematicVideo();
+      return __result;
+    }
 
   public:
     // Methods
-    
+    inline bool supportsVideoStabilizationMode(VideoStabilizationMode mode) override {
+      auto __result = _swiftPart.supportsVideoStabilizationMode(static_cast<int>(mode));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
 
   private:
     VisionCamera::HybridCameraFormatSpec_cxx _swiftPart;

@@ -3,7 +3,7 @@ import type { CameraFormat } from './CameraFormat.nitro'
 
 export type PhysicalCameraDeviceType =
   | 'ultra-wide-angle-camera'
-  | 'widle-angle-camera'
+  | 'wide-angle-camera'
   | 'telephoto-camera'
 
 export type CameraPosition = 'front' | 'back' | 'external'

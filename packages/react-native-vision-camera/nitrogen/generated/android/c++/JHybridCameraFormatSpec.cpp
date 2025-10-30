@@ -9,9 +9,36 @@
 
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `AutoFocusSystem` to properly resolve imports.
+namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `VideoStabilizationMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
 #include "JResolution.hpp"
+#include "Range.hpp"
+#include <vector>
+#include "JRange.hpp"
+#include <optional>
+#include "MediaType.hpp"
+#include "JMediaType.hpp"
+#include "AutoFocusSystem.hpp"
+#include "JAutoFocusSystem.hpp"
+#include "ColorSpace.hpp"
+#include "JColorSpace.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
+#include "JHybridCameraFormatSpec.hpp"
+#include "VideoStabilizationMode.hpp"
+#include "JVideoStabilizationMode.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -52,8 +79,277 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
+  std::vector<Range> JHybridCameraFormatSpec::getSupportedMaxPhotoDimensions() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JRange>>()>("getSupportedMaxPhotoDimensions");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<Range> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  bool JHybridCameraFormatSpec::getSupportsHighQualityPhoto() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsHighQualityPhoto");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getIsHighestPhotoFormat() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isHighestPhotoFormat");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getSupportsAutoFps() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsAutoFps");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::vector<Range> JHybridCameraFormatSpec::getSupportedFrameRateRanges() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JRange>>()>("getSupportedFrameRateRanges");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<Range> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  bool JHybridCameraFormatSpec::getIsVideoBinned() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isVideoBinned");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getSupportsVideoHDR() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsVideoHDR");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getSupportsMultiCam() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsMultiCam");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraFormatSpec::getFieldOfView() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getFieldOfView");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraFormatSpec::getFieldOfViewDistortionCorrected() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getFieldOfViewDistortionCorrected");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  bool JHybridCameraFormatSpec::getSupportsBackgroundReplacement() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsBackgroundReplacement");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForBackgroundReplacement() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForBackgroundReplacement");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  bool JHybridCameraFormatSpec::getSupportsReactionEffects() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsReactionEffects");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForReactionEffects() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForReactionEffects");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  MediaType JHybridCameraFormatSpec::getMediaType() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JMediaType>()>("getMediaType");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  AutoFocusSystem JHybridCameraFormatSpec::getAutoFocusSystem() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JAutoFocusSystem>()>("getAutoFocusSystem");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  bool JHybridCameraFormatSpec::getSupportsGlobalToneMapping() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsGlobalToneMapping");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::vector<ColorSpace> JHybridCameraFormatSpec::getSupportedColorSpaces() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JColorSpace>>()>("getSupportedColorSpaces");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<ColorSpace> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  double JHybridCameraFormatSpec::getMaxZoomFactor() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMaxZoomFactor");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraFormatSpec::getZoomFactorUpscaleThreshold() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getZoomFactorUpscaleThreshold");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  std::vector<double> JHybridCameraFormatSpec::getSecondaryNativeResolutionZoomFactory() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayDouble>()>("getSecondaryNativeResolutionZoomFactory");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<double> __vector(__size);
+      __result->getRegion(0, __size, __vector.data());
+      return __vector;
+    }();
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getRecommendedZoomRange() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getRecommendedZoomRange");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  double JHybridCameraFormatSpec::getMinISO() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMinISO");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraFormatSpec::getMaxISO() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMaxISO");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraFormatSpec::getMinExposureDuration() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMinExposureDuration");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraFormatSpec::getMaxExposureDuration() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMaxExposureDuration");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getRecommendedExposureRange() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getRecommendedExposureRange");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  std::vector<std::shared_ptr<HybridCameraFormatSpec>> JHybridCameraFormatSpec::getDepthDataFormats() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraFormatSpec::javaobject>>()>("getDepthDataFormats");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<std::shared_ptr<HybridCameraFormatSpec>> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->cthis()->shared_cast<JHybridCameraFormatSpec>());
+      }
+      return __vector;
+    }();
+  }
+  std::vector<Range> JHybridCameraFormatSpec::getSupportedZoomRangesForDepthDataDelivery() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JRange>>()>("getSupportedZoomRangesForDepthDataDelivery");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<Range> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  bool JHybridCameraFormatSpec::getSupportsSmartFraming() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsSmartFraming");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getSupportsCenterStage() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsCenterStage");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForCenterStage() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForCenterStage");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getZoomRangeForCenterStage() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getZoomRangeForCenterStage");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  bool JHybridCameraFormatSpec::getSupportsPortraitEffect() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsPortraitEffect");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraFormatSpec::getSupportsPortraitEffectMatteStillImageDelivery() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsPortraitEffectMatteStillImageDelivery");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForPortraitEffect() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForPortraitEffect");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  bool JHybridCameraFormatSpec::getSupportsStudioLight() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsStudioLight");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForStudioLight() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForStudioLight");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
+  bool JHybridCameraFormatSpec::getSupportsCinematicVideo() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsCinematicVideo");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraFormatSpec::getDefaultSimulatedAperture() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getDefaultSimulatedAperture");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  Range JHybridCameraFormatSpec::getSimulatedApertureRange() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getSimulatedApertureRange");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  Range JHybridCameraFormatSpec::getZoomFactorForCinematicVideo() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getZoomFactorForCinematicVideo");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  std::optional<Range> JHybridCameraFormatSpec::getFrameRateRangeForCinematicVideo() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFrameRateRangeForCinematicVideo");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
 
   // Methods
-  
+  bool JHybridCameraFormatSpec::supportsVideoStabilizationMode(VideoStabilizationMode mode) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JVideoStabilizationMode> /* mode */)>("supportsVideoStabilizationMode");
+    auto __result = method(_javaPart, JVideoStabilizationMode::fromCpp(mode));
+    return static_cast<bool>(__result);
+  }
 
 } // namespace margelo::nitro::camera

@@ -29,8 +29,8 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (CameraSessionOutputType).
    */
   enum class CameraSessionOutputType {
-    PHOTO      SWIFT_NAME(photo) = 0,
-    VIDEO      SWIFT_NAME(video) = 1,
+    VIDEO      SWIFT_NAME(video) = 0,
+    PHOTO      SWIFT_NAME(photo) = 1,
     STREAM      SWIFT_NAME(stream) = 2,
     PREVIEW      SWIFT_NAME(preview) = 3,
   } CLOSED_ENUM;
@@ -45,8 +45,8 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::CameraSessionOutputType fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("photo"): return margelo::nitro::camera::CameraSessionOutputType::PHOTO;
         case hashString("video"): return margelo::nitro::camera::CameraSessionOutputType::VIDEO;
+        case hashString("photo"): return margelo::nitro::camera::CameraSessionOutputType::PHOTO;
         case hashString("stream"): return margelo::nitro::camera::CameraSessionOutputType::STREAM;
         case hashString("preview"): return margelo::nitro::camera::CameraSessionOutputType::PREVIEW;
         default: [[unlikely]]
@@ -55,8 +55,8 @@ namespace margelo::nitro {
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::CameraSessionOutputType arg) {
       switch (arg) {
-        case margelo::nitro::camera::CameraSessionOutputType::PHOTO: return JSIConverter<std::string>::toJSI(runtime, "photo");
         case margelo::nitro::camera::CameraSessionOutputType::VIDEO: return JSIConverter<std::string>::toJSI(runtime, "video");
+        case margelo::nitro::camera::CameraSessionOutputType::PHOTO: return JSIConverter<std::string>::toJSI(runtime, "photo");
         case margelo::nitro::camera::CameraSessionOutputType::STREAM: return JSIConverter<std::string>::toJSI(runtime, "stream");
         case margelo::nitro::camera::CameraSessionOutputType::PREVIEW: return JSIConverter<std::string>::toJSI(runtime, "preview");
         default: [[unlikely]]
@@ -70,8 +70,8 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("photo"):
         case hashString("video"):
+        case hashString("photo"):
         case hashString("stream"):
         case hashString("preview"):
           return true;

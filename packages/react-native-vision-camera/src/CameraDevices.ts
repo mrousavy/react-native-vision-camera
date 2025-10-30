@@ -1,6 +1,6 @@
 import { HybridCameraFactory } from '.'
 import type { CameraDevice } from './specs/CameraDevice.nitro'
-import type { ListenerSubscription } from './specs/ListenerSubscription'
+import type { ListenerSubscription } from './specs/common-types/ListenerSubscription'
 
 // this caches our Camera Devices
 let cameraDevices: CameraDevice[] = []

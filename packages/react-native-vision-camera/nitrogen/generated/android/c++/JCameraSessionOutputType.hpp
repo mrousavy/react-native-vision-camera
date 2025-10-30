@@ -41,16 +41,16 @@ namespace margelo::nitro::camera {
     [[maybe_unused]]
     static jni::alias_ref<JCameraSessionOutputType> fromCpp(CameraSessionOutputType value) {
       static const auto clazz = javaClassStatic();
-      static const auto fieldPHOTO = clazz->getStaticField<JCameraSessionOutputType>("PHOTO");
       static const auto fieldVIDEO = clazz->getStaticField<JCameraSessionOutputType>("VIDEO");
+      static const auto fieldPHOTO = clazz->getStaticField<JCameraSessionOutputType>("PHOTO");
       static const auto fieldSTREAM = clazz->getStaticField<JCameraSessionOutputType>("STREAM");
       static const auto fieldPREVIEW = clazz->getStaticField<JCameraSessionOutputType>("PREVIEW");
       
       switch (value) {
-        case CameraSessionOutputType::PHOTO:
-          return clazz->getStaticFieldValue(fieldPHOTO);
         case CameraSessionOutputType::VIDEO:
           return clazz->getStaticFieldValue(fieldVIDEO);
+        case CameraSessionOutputType::PHOTO:
+          return clazz->getStaticFieldValue(fieldPHOTO);
         case CameraSessionOutputType::STREAM:
           return clazz->getStaticFieldValue(fieldSTREAM);
         case CameraSessionOutputType::PREVIEW:

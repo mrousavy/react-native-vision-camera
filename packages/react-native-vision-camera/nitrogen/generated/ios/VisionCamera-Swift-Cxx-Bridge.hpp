@@ -14,6 +14,8 @@ namespace NitroModules { class ArrayBufferHolder; }
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CapturePhotoSettings` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoSettings; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
 // Forward declaration of `FlashMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
@@ -42,6 +44,8 @@ namespace margelo::nitro::camera { struct ListenerSubscription; }
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
 // Forward declaration of `QualityPrioritization` to properly resolve imports.
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
@@ -68,6 +72,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 // Include C++ defined types
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
+#include "ColorSpace.hpp"
 #include "FlashMode.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
@@ -81,6 +86,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
 #include "QualityPrioritization.hpp"
+#include "Range.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
@@ -354,6 +360,63 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__ create_Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<HybridCameraSessionPhotoOutputSpec>>::withError(error);
+  }
+  
+  // pragma MARK: std::vector<Range>
+  /**
+   * Specialized version of `std::vector<Range>`.
+   */
+  using std__vector_Range_ = std::vector<Range>;
+  inline std::vector<Range> create_std__vector_Range_(size_t size) noexcept {
+    std::vector<Range> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::optional<Range>
+  /**
+   * Specialized version of `std::optional<Range>`.
+   */
+  using std__optional_Range_ = std::optional<Range>;
+  inline std::optional<Range> create_std__optional_Range_(const Range& value) noexcept {
+    return std::optional<Range>(value);
+  }
+  inline bool has_value_std__optional_Range_(const std::optional<Range>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline Range get_std__optional_Range_(const std::optional<Range>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::vector<ColorSpace>
+  /**
+   * Specialized version of `std::vector<ColorSpace>`.
+   */
+  using std__vector_ColorSpace_ = std::vector<ColorSpace>;
+  inline std::vector<ColorSpace> create_std__vector_ColorSpace_(size_t size) noexcept {
+    std::vector<ColorSpace> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: std::vector<double>
+  /**
+   * Specialized version of `std::vector<double>`.
+   */
+  using std__vector_double_ = std::vector<double>;
+  inline std::vector<double> create_std__vector_double_(size_t size) noexcept {
+    std::vector<double> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
+  // pragma MARK: Result<bool>
+  using Result_bool_ = Result<bool>;
+  inline Result_bool_ create_Result_bool_(bool value) noexcept {
+    return Result<bool>::withValue(std::move(value));
+  }
+  inline Result_bool_ create_Result_bool_(const std::exception_ptr& error) noexcept {
+    return Result<bool>::withError(error);
   }
   
   // pragma MARK: std::shared_ptr<Promise<void>>

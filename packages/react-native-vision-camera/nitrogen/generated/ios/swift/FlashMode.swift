@@ -19,10 +19,10 @@ public extension FlashMode {
     switch string {
       case "off":
         self = .off
-      case "on":
-        self = .on
       case "auto":
         self = .auto
+      case "on":
+        self = .on
       default:
         return nil
     }
@@ -35,10 +35,10 @@ public extension FlashMode {
     switch self {
       case .off:
         return "off"
-      case .on:
-        return "on"
       case .auto:
         return "auto"
+      case .on:
+        return "on"
     }
   }
 }

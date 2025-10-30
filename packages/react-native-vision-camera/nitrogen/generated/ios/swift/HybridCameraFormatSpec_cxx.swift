@@ -127,7 +127,411 @@ open class HybridCameraFormatSpec_cxx {
       return self.__implementation.videoResolution
     }
   }
+  
+  public final var supportedMaxPhotoDimensions: bridge.std__vector_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_Range_ in
+        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedMaxPhotoDimensions.count)
+        for __item in self.__implementation.supportedMaxPhotoDimensions {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var supportsHighQualityPhoto: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsHighQualityPhoto
+    }
+  }
+  
+  public final var isHighestPhotoFormat: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isHighestPhotoFormat
+    }
+  }
+  
+  public final var supportsAutoFps: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsAutoFps
+    }
+  }
+  
+  public final var supportedFrameRateRanges: bridge.std__vector_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_Range_ in
+        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedFrameRateRanges.count)
+        for __item in self.__implementation.supportedFrameRateRanges {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var isVideoBinned: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isVideoBinned
+    }
+  }
+  
+  public final var supportsVideoHDR: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsVideoHDR
+    }
+  }
+  
+  public final var supportsMultiCam: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsMultiCam
+    }
+  }
+  
+  public final var fieldOfView: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.fieldOfView
+    }
+  }
+  
+  public final var fieldOfViewDistortionCorrected: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.fieldOfViewDistortionCorrected
+    }
+  }
+  
+  public final var supportsBackgroundReplacement: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsBackgroundReplacement
+    }
+  }
+  
+  public final var frameRateRangeForBackgroundReplacement: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForBackgroundReplacement {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var supportsReactionEffects: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsReactionEffects
+    }
+  }
+  
+  public final var frameRateRangeForReactionEffects: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForReactionEffects {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var mediaType: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.mediaType.rawValue
+    }
+  }
+  
+  public final var autoFocusSystem: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.autoFocusSystem.rawValue
+    }
+  }
+  
+  public final var supportsGlobalToneMapping: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsGlobalToneMapping
+    }
+  }
+  
+  public final var supportedColorSpaces: bridge.std__vector_ColorSpace_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_ColorSpace_ in
+        var __vector = bridge.create_std__vector_ColorSpace_(self.__implementation.supportedColorSpaces.count)
+        for __item in self.__implementation.supportedColorSpaces {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var maxZoomFactor: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.maxZoomFactor
+    }
+  }
+  
+  public final var zoomFactorUpscaleThreshold: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.zoomFactorUpscaleThreshold
+    }
+  }
+  
+  public final var secondaryNativeResolutionZoomFactory: bridge.std__vector_double_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_double_ in
+        var __vector = bridge.create_std__vector_double_(self.__implementation.secondaryNativeResolutionZoomFactory.count)
+        for __item in self.__implementation.secondaryNativeResolutionZoomFactory {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var recommendedZoomRange: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.recommendedZoomRange {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var minISO: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.minISO
+    }
+  }
+  
+  public final var maxISO: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.maxISO
+    }
+  }
+  
+  public final var minExposureDuration: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.minExposureDuration
+    }
+  }
+  
+  public final var maxExposureDuration: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.maxExposureDuration
+    }
+  }
+  
+  public final var recommendedExposureRange: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.recommendedExposureRange {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var depthDataFormats: bridge.std__vector_std__shared_ptr_HybridCameraFormatSpec__ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_std__shared_ptr_HybridCameraFormatSpec__ in
+        var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraFormatSpec__(self.__implementation.depthDataFormats.count)
+        for __item in self.__implementation.depthDataFormats {
+          __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraFormatSpec_ in
+            let __cxxWrapped = __item.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var supportedZoomRangesForDepthDataDelivery: bridge.std__vector_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_Range_ in
+        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedZoomRangesForDepthDataDelivery.count)
+        for __item in self.__implementation.supportedZoomRangesForDepthDataDelivery {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+  
+  public final var supportsSmartFraming: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsSmartFraming
+    }
+  }
+  
+  public final var supportsCenterStage: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsCenterStage
+    }
+  }
+  
+  public final var frameRateRangeForCenterStage: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForCenterStage {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var zoomRangeForCenterStage: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.zoomRangeForCenterStage {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var supportsPortraitEffect: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsPortraitEffect
+    }
+  }
+  
+  public final var supportsPortraitEffectMatteStillImageDelivery: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsPortraitEffectMatteStillImageDelivery
+    }
+  }
+  
+  public final var frameRateRangeForPortraitEffect: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForPortraitEffect {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var supportsStudioLight: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsStudioLight
+    }
+  }
+  
+  public final var frameRateRangeForStudioLight: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForStudioLight {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
+  public final var supportsCinematicVideo: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsCinematicVideo
+    }
+  }
+  
+  public final var defaultSimulatedAperture: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.defaultSimulatedAperture
+    }
+  }
+  
+  public final var simulatedApertureRange: Range {
+    @inline(__always)
+    get {
+      return self.__implementation.simulatedApertureRange
+    }
+  }
+  
+  public final var zoomFactorForCinematicVideo: Range {
+    @inline(__always)
+    get {
+      return self.__implementation.zoomFactorForCinematicVideo
+    }
+  }
+  
+  public final var frameRateRangeForCinematicVideo: bridge.std__optional_Range_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Range_ in
+        if let __unwrappedValue = self.__implementation.frameRateRangeForCinematicVideo {
+          return bridge.create_std__optional_Range_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
 
   // Methods
-  
+  @inline(__always)
+  public final func supportsVideoStabilizationMode(mode: Int32) -> bridge.Result_bool_ {
+    do {
+      let __result = try self.__implementation.supportsVideoStabilizationMode(mode: margelo.nitro.camera.VideoStabilizationMode(rawValue: mode)!)
+      let __resultCpp = __result
+      return bridge.create_Result_bool_(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_bool_(__exceptionPtr)
+    }
+  }
 }

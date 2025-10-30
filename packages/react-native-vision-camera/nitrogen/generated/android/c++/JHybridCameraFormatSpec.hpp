@@ -52,10 +52,53 @@ namespace margelo::nitro::camera {
     // Properties
     Resolution getPhotoResolution() override;
     Resolution getVideoResolution() override;
+    std::vector<Range> getSupportedMaxPhotoDimensions() override;
+    bool getSupportsHighQualityPhoto() override;
+    bool getIsHighestPhotoFormat() override;
+    bool getSupportsAutoFps() override;
+    std::vector<Range> getSupportedFrameRateRanges() override;
+    bool getIsVideoBinned() override;
+    bool getSupportsVideoHDR() override;
+    bool getSupportsMultiCam() override;
+    double getFieldOfView() override;
+    double getFieldOfViewDistortionCorrected() override;
+    bool getSupportsBackgroundReplacement() override;
+    std::optional<Range> getFrameRateRangeForBackgroundReplacement() override;
+    bool getSupportsReactionEffects() override;
+    std::optional<Range> getFrameRateRangeForReactionEffects() override;
+    MediaType getMediaType() override;
+    AutoFocusSystem getAutoFocusSystem() override;
+    bool getSupportsGlobalToneMapping() override;
+    std::vector<ColorSpace> getSupportedColorSpaces() override;
+    double getMaxZoomFactor() override;
+    double getZoomFactorUpscaleThreshold() override;
+    std::vector<double> getSecondaryNativeResolutionZoomFactory() override;
+    std::optional<Range> getRecommendedZoomRange() override;
+    double getMinISO() override;
+    double getMaxISO() override;
+    double getMinExposureDuration() override;
+    double getMaxExposureDuration() override;
+    std::optional<Range> getRecommendedExposureRange() override;
+    std::vector<std::shared_ptr<HybridCameraFormatSpec>> getDepthDataFormats() override;
+    std::vector<Range> getSupportedZoomRangesForDepthDataDelivery() override;
+    bool getSupportsSmartFraming() override;
+    bool getSupportsCenterStage() override;
+    std::optional<Range> getFrameRateRangeForCenterStage() override;
+    std::optional<Range> getZoomRangeForCenterStage() override;
+    bool getSupportsPortraitEffect() override;
+    bool getSupportsPortraitEffectMatteStillImageDelivery() override;
+    std::optional<Range> getFrameRateRangeForPortraitEffect() override;
+    bool getSupportsStudioLight() override;
+    std::optional<Range> getFrameRateRangeForStudioLight() override;
+    bool getSupportsCinematicVideo() override;
+    double getDefaultSimulatedAperture() override;
+    Range getSimulatedApertureRange() override;
+    Range getZoomFactorForCinematicVideo() override;
+    std::optional<Range> getFrameRateRangeForCinematicVideo() override;
 
   public:
     // Methods
-    
+    bool supportsVideoStabilizationMode(VideoStabilizationMode mode) override;
 
   private:
     friend HybridBase;

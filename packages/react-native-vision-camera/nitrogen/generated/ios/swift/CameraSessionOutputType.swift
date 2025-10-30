@@ -17,10 +17,10 @@ public extension CameraSessionOutputType {
    */
   init?(fromString string: String) {
     switch string {
-      case "photo":
-        self = .photo
       case "video":
         self = .video
+      case "photo":
+        self = .photo
       case "stream":
         self = .stream
       case "preview":
@@ -35,10 +35,10 @@ public extension CameraSessionOutputType {
    */
   var stringValue: String {
     switch self {
-      case .photo:
-        return "photo"
       case .video:
         return "video"
+      case .photo:
+        return "photo"
       case .stream:
         return "stream"
       case .preview:

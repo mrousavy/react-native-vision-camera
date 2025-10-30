@@ -30,7 +30,7 @@ namespace margelo::nitro::camera {
    */
   enum class PhysicalCameraDeviceType {
     ULTRA_WIDE_ANGLE_CAMERA      SWIFT_NAME(ultraWideAngleCamera) = 0,
-    WIDLE_ANGLE_CAMERA      SWIFT_NAME(widleAngleCamera) = 1,
+    WIDE_ANGLE_CAMERA      SWIFT_NAME(wideAngleCamera) = 1,
     TELEPHOTO_CAMERA      SWIFT_NAME(telephotoCamera) = 2,
   } CLOSED_ENUM;
 
@@ -45,7 +45,7 @@ namespace margelo::nitro {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("ultra-wide-angle-camera"): return margelo::nitro::camera::PhysicalCameraDeviceType::ULTRA_WIDE_ANGLE_CAMERA;
-        case hashString("widle-angle-camera"): return margelo::nitro::camera::PhysicalCameraDeviceType::WIDLE_ANGLE_CAMERA;
+        case hashString("wide-angle-camera"): return margelo::nitro::camera::PhysicalCameraDeviceType::WIDE_ANGLE_CAMERA;
         case hashString("telephoto-camera"): return margelo::nitro::camera::PhysicalCameraDeviceType::TELEPHOTO_CAMERA;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum PhysicalCameraDeviceType - invalid value!");
@@ -54,7 +54,7 @@ namespace margelo::nitro {
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::PhysicalCameraDeviceType arg) {
       switch (arg) {
         case margelo::nitro::camera::PhysicalCameraDeviceType::ULTRA_WIDE_ANGLE_CAMERA: return JSIConverter<std::string>::toJSI(runtime, "ultra-wide-angle-camera");
-        case margelo::nitro::camera::PhysicalCameraDeviceType::WIDLE_ANGLE_CAMERA: return JSIConverter<std::string>::toJSI(runtime, "widle-angle-camera");
+        case margelo::nitro::camera::PhysicalCameraDeviceType::WIDE_ANGLE_CAMERA: return JSIConverter<std::string>::toJSI(runtime, "wide-angle-camera");
         case margelo::nitro::camera::PhysicalCameraDeviceType::TELEPHOTO_CAMERA: return JSIConverter<std::string>::toJSI(runtime, "telephoto-camera");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert PhysicalCameraDeviceType to JS - invalid value: "
@@ -68,7 +68,7 @@ namespace margelo::nitro {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("ultra-wide-angle-camera"):
-        case hashString("widle-angle-camera"):
+        case hashString("wide-angle-camera"):
         case hashString("telephoto-camera"):
           return true;
         default:

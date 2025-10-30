@@ -49,9 +49,183 @@ abstract class HybridCameraFormatSpec: HybridObject() {
   @get:DoNotStrip
   @get:Keep
   abstract val videoResolution: Resolution
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportedMaxPhotoDimensions: Array<Range>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsHighQualityPhoto: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isHighestPhotoFormat: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsAutoFps: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportedFrameRateRanges: Array<Range>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isVideoBinned: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsVideoHDR: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsMultiCam: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val fieldOfView: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val fieldOfViewDistortionCorrected: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsBackgroundReplacement: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForBackgroundReplacement: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsReactionEffects: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForReactionEffects: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val mediaType: MediaType
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val autoFocusSystem: AutoFocusSystem
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsGlobalToneMapping: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportedColorSpaces: Array<ColorSpace>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val maxZoomFactor: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val zoomFactorUpscaleThreshold: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val secondaryNativeResolutionZoomFactory: DoubleArray
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val recommendedZoomRange: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val minISO: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val maxISO: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val minExposureDuration: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val maxExposureDuration: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val recommendedExposureRange: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val depthDataFormats: Array<HybridCameraFormatSpec>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportedZoomRangesForDepthDataDelivery: Array<Range>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsSmartFraming: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsCenterStage: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForCenterStage: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val zoomRangeForCenterStage: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsPortraitEffect: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsPortraitEffectMatteStillImageDelivery: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForPortraitEffect: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsStudioLight: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForStudioLight: Range?
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsCinematicVideo: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val defaultSimulatedAperture: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val simulatedApertureRange: Range
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val zoomFactorForCinematicVideo: Range
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val frameRateRangeForCinematicVideo: Range?
 
   // Methods
-  
+  @DoNotStrip
+  @Keep
+  abstract fun supportsVideoStabilizationMode(mode: VideoStabilizationMode): Boolean
 
   private external fun initHybrid(): HybridData
 

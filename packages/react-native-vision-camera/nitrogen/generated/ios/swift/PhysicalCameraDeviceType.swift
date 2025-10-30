@@ -19,8 +19,8 @@ public extension PhysicalCameraDeviceType {
     switch string {
       case "ultra-wide-angle-camera":
         self = .ultraWideAngleCamera
-      case "widle-angle-camera":
-        self = .widleAngleCamera
+      case "wide-angle-camera":
+        self = .wideAngleCamera
       case "telephoto-camera":
         self = .telephotoCamera
       default:
@@ -35,8 +35,8 @@ public extension PhysicalCameraDeviceType {
     switch self {
       case .ultraWideAngleCamera:
         return "ultra-wide-angle-camera"
-      case .widleAngleCamera:
-        return "widle-angle-camera"
+      case .wideAngleCamera:
+        return "wide-angle-camera"
       case .telephotoCamera:
         return "telephoto-camera"
     }

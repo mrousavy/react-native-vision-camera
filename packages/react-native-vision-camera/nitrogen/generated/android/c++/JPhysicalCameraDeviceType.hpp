@@ -42,14 +42,14 @@ namespace margelo::nitro::camera {
     static jni::alias_ref<JPhysicalCameraDeviceType> fromCpp(PhysicalCameraDeviceType value) {
       static const auto clazz = javaClassStatic();
       static const auto fieldULTRA_WIDE_ANGLE_CAMERA = clazz->getStaticField<JPhysicalCameraDeviceType>("ULTRA_WIDE_ANGLE_CAMERA");
-      static const auto fieldWIDLE_ANGLE_CAMERA = clazz->getStaticField<JPhysicalCameraDeviceType>("WIDLE_ANGLE_CAMERA");
+      static const auto fieldWIDE_ANGLE_CAMERA = clazz->getStaticField<JPhysicalCameraDeviceType>("WIDE_ANGLE_CAMERA");
       static const auto fieldTELEPHOTO_CAMERA = clazz->getStaticField<JPhysicalCameraDeviceType>("TELEPHOTO_CAMERA");
       
       switch (value) {
         case PhysicalCameraDeviceType::ULTRA_WIDE_ANGLE_CAMERA:
           return clazz->getStaticFieldValue(fieldULTRA_WIDE_ANGLE_CAMERA);
-        case PhysicalCameraDeviceType::WIDLE_ANGLE_CAMERA:
-          return clazz->getStaticFieldValue(fieldWIDLE_ANGLE_CAMERA);
+        case PhysicalCameraDeviceType::WIDE_ANGLE_CAMERA:
+          return clazz->getStaticFieldValue(fieldWIDE_ANGLE_CAMERA);
         case PhysicalCameraDeviceType::TELEPHOTO_CAMERA:
           return clazz->getStaticFieldValue(fieldTELEPHOTO_CAMERA);
         default:

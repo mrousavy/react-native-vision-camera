@@ -15,8 +15,29 @@
 
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `AutoFocusSystem` to properly resolve imports.
+namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `VideoStabilizationMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
 #include "Resolution.hpp"
+#include "Range.hpp"
+#include <vector>
+#include <optional>
+#include "MediaType.hpp"
+#include "AutoFocusSystem.hpp"
+#include "ColorSpace.hpp"
+#include <memory>
+#include "HybridCameraFormatSpec.hpp"
+#include "VideoStabilizationMode.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -47,10 +68,53 @@ namespace margelo::nitro::camera {
       // Properties
       virtual Resolution getPhotoResolution() = 0;
       virtual Resolution getVideoResolution() = 0;
+      virtual std::vector<Range> getSupportedMaxPhotoDimensions() = 0;
+      virtual bool getSupportsHighQualityPhoto() = 0;
+      virtual bool getIsHighestPhotoFormat() = 0;
+      virtual bool getSupportsAutoFps() = 0;
+      virtual std::vector<Range> getSupportedFrameRateRanges() = 0;
+      virtual bool getIsVideoBinned() = 0;
+      virtual bool getSupportsVideoHDR() = 0;
+      virtual bool getSupportsMultiCam() = 0;
+      virtual double getFieldOfView() = 0;
+      virtual double getFieldOfViewDistortionCorrected() = 0;
+      virtual bool getSupportsBackgroundReplacement() = 0;
+      virtual std::optional<Range> getFrameRateRangeForBackgroundReplacement() = 0;
+      virtual bool getSupportsReactionEffects() = 0;
+      virtual std::optional<Range> getFrameRateRangeForReactionEffects() = 0;
+      virtual MediaType getMediaType() = 0;
+      virtual AutoFocusSystem getAutoFocusSystem() = 0;
+      virtual bool getSupportsGlobalToneMapping() = 0;
+      virtual std::vector<ColorSpace> getSupportedColorSpaces() = 0;
+      virtual double getMaxZoomFactor() = 0;
+      virtual double getZoomFactorUpscaleThreshold() = 0;
+      virtual std::vector<double> getSecondaryNativeResolutionZoomFactory() = 0;
+      virtual std::optional<Range> getRecommendedZoomRange() = 0;
+      virtual double getMinISO() = 0;
+      virtual double getMaxISO() = 0;
+      virtual double getMinExposureDuration() = 0;
+      virtual double getMaxExposureDuration() = 0;
+      virtual std::optional<Range> getRecommendedExposureRange() = 0;
+      virtual std::vector<std::shared_ptr<HybridCameraFormatSpec>> getDepthDataFormats() = 0;
+      virtual std::vector<Range> getSupportedZoomRangesForDepthDataDelivery() = 0;
+      virtual bool getSupportsSmartFraming() = 0;
+      virtual bool getSupportsCenterStage() = 0;
+      virtual std::optional<Range> getFrameRateRangeForCenterStage() = 0;
+      virtual std::optional<Range> getZoomRangeForCenterStage() = 0;
+      virtual bool getSupportsPortraitEffect() = 0;
+      virtual bool getSupportsPortraitEffectMatteStillImageDelivery() = 0;
+      virtual std::optional<Range> getFrameRateRangeForPortraitEffect() = 0;
+      virtual bool getSupportsStudioLight() = 0;
+      virtual std::optional<Range> getFrameRateRangeForStudioLight() = 0;
+      virtual bool getSupportsCinematicVideo() = 0;
+      virtual double getDefaultSimulatedAperture() = 0;
+      virtual Range getSimulatedApertureRange() = 0;
+      virtual Range getZoomFactorForCinematicVideo() = 0;
+      virtual std::optional<Range> getFrameRateRangeForCinematicVideo() = 0;
 
     public:
       // Methods
-      
+      virtual bool supportsVideoStabilizationMode(VideoStabilizationMode mode) = 0;
 
     protected:
       // Hybrid Setup

@@ -42,16 +42,16 @@ namespace margelo::nitro::camera {
     static jni::alias_ref<JFlashMode> fromCpp(FlashMode value) {
       static const auto clazz = javaClassStatic();
       static const auto fieldOFF = clazz->getStaticField<JFlashMode>("OFF");
-      static const auto fieldON = clazz->getStaticField<JFlashMode>("ON");
       static const auto fieldAUTO = clazz->getStaticField<JFlashMode>("AUTO");
+      static const auto fieldON = clazz->getStaticField<JFlashMode>("ON");
       
       switch (value) {
         case FlashMode::OFF:
           return clazz->getStaticFieldValue(fieldOFF);
-        case FlashMode::ON:
-          return clazz->getStaticFieldValue(fieldON);
         case FlashMode::AUTO:
           return clazz->getStaticFieldValue(fieldAUTO);
+        case FlashMode::ON:
+          return clazz->getStaticFieldValue(fieldON);
         default:
           std::string stringValue = std::to_string(static_cast<int>(value));
           throw std::invalid_argument("Invalid enum value (" + stringValue + "!");

@@ -1,8 +1,89 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { Resolution } from './Resolution'
+import type { Resolution } from './common-types/Resolution'
+import type { VideoStabilizationMode } from './common-types/VideoStabilizationMode'
+import type { Range } from './common-types/Range'
+import type { ColorSpace } from './common-types/ColorSpace'
+import type { AutoFocusSystem } from './common-types/AutoFocusSystem'
+
+export type MediaType = 'video' | 'depth' | 'other'
 
 export interface CameraFormat
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+  // pragma MARK: Resolutions
   readonly photoResolution: Resolution
   readonly videoResolution: Resolution
+  readonly supportedMaxPhotoDimensions: Range[]
+  readonly supportsHighQualityPhoto: boolean
+  readonly isHighestPhotoFormat: boolean
+
+  // pragma MARK: FPS
+  readonly supportsAutoFps: boolean
+  readonly supportedFrameRateRanges: Range[]
+  readonly isVideoBinned: boolean
+  readonly supportsVideoHDR: boolean
+  readonly supportsMultiCam: boolean
+
+  // pragma MARK: Field of View
+  readonly fieldOfView: number
+  readonly fieldOfViewDistortionCorrected: number
+
+  // pragma MARK: Background Replacement
+  readonly supportsBackgroundReplacement: boolean
+  readonly frameRateRangeForBackgroundReplacement?: Range
+
+  // pragma MARK: Reaction Effects
+  readonly supportsReactionEffects: boolean
+  readonly frameRateRangeForReactionEffects?: Range
+
+  // pragma MARK: Media Type
+  readonly mediaType: MediaType
+
+  // pragma MARK: Auto Focus
+  readonly autoFocusSystem: AutoFocusSystem
+
+  // pragma MARK: Video Stabilization
+  supportsVideoStabilizationMode(mode: VideoStabilizationMode): boolean
+
+  // pragma MARK: Color Spaces
+  readonly supportsGlobalToneMapping: boolean
+  readonly supportedColorSpaces: ColorSpace[]
+
+  // pragma MARK: Zoom
+  readonly maxZoomFactor: number
+  readonly zoomFactorUpscaleThreshold: number
+  readonly secondaryNativeResolutionZoomFactory: number[]
+  readonly recommendedZoomRange?: Range
+
+  // pragma MARK: Exposure / ISO
+  readonly minISO: number
+  readonly maxISO: number
+  readonly minExposureDuration: number
+  readonly maxExposureDuration: number
+  readonly recommendedExposureRange?: Range
+
+  // pragma MARK: Depth
+  readonly depthDataFormats: CameraFormat[]
+  readonly supportedZoomRangesForDepthDataDelivery: Range[]
+
+  // pragma MARK: Smart Framing
+  readonly supportsSmartFraming: boolean
+  readonly supportsCenterStage: boolean
+  readonly frameRateRangeForCenterStage?: Range
+  readonly zoomRangeForCenterStage?: Range
+
+  // pragma MARK: Portrait Effect
+  readonly supportsPortraitEffect: boolean
+  readonly supportsPortraitEffectMatteStillImageDelivery: boolean
+  readonly frameRateRangeForPortraitEffect?: Range
+
+  // pragma MARK: Studio Light
+  readonly supportsStudioLight: boolean
+  readonly frameRateRangeForStudioLight?: Range
+
+  // pragma MARK: Cinematic Video
+  readonly supportsCinematicVideo: boolean
+  readonly defaultSimulatedAperture: number
+  readonly simulatedApertureRange: Range
+  readonly zoomFactorForCinematicVideo: Range
+  readonly frameRateRangeForCinematicVideo?: Range
 }

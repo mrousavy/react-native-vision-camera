@@ -17,6 +17,6 @@ import com.facebook.proguard.annotations.DoNotStrip
 @Keep
 enum class PhysicalCameraDeviceType(@DoNotStrip @Keep val value: Int) {
   ULTRA_WIDE_ANGLE_CAMERA(0),
-  WIDLE_ANGLE_CAMERA(1),
+  WIDE_ANGLE_CAMERA(1),
   TELEPHOTO_CAMERA(2);
 }
