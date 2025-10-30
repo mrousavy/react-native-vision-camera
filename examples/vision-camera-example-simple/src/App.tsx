@@ -1,5 +1,7 @@
-import { useEffect, useMemo,  } from 'react';
+import { useEffect, useMemo, useState,  } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { NitroImage } from 'react-native-nitro-image';
+import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncImageSource';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
@@ -25,6 +27,7 @@ function timeout(ms: number): Promise<void> {
 function AppContent() {
   const devices = useCameraDevices()
   const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
+  const [i, setI] = useState<AsyncImageSource>()
 
   useEffect(() => {
     const device = devices[0]
@@ -42,7 +45,7 @@ function AppContent() {
       const mark3 = performance.now()
       console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
 
-      await timeout(5000)
+      await timeout(3000)
       const mark4 = performance.now()
 
       const image = await photo.capturePhoto({
@@ -67,6 +70,7 @@ function AppContent() {
       const mark6 = performance.now()
       console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
       console.log(image.metadata)
+      setI(converted)
     } catch(e) {
       console.error(e)
     }
@@ -79,6 +83,7 @@ function AppContent() {
         <Text key={d.id}>{d.id}</Text>
       ))}
       <NativePreviewView style={styles.camera} session={session} />
+      {i != null && (<NitroImage style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200 }} image={i} />)}
     </View>
   );
 }
