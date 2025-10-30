@@ -6,7 +6,6 @@ export type DeviceType =
   | 'dual-wide'
   | 'triple'
   | 'continuity'
-  | 'desk-view'
   | 'lidar-depth'
   | 'true-depth'
   | 'external'

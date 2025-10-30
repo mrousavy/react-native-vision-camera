@@ -17,12 +17,12 @@ public extension CameraPosition {
    */
   init?(fromString string: String) {
     switch string {
-      case "external":
-        self = .external
       case "front":
         self = .front
       case "back":
         self = .back
+      case "unspecified":
+        self = .unspecified
       default:
         return nil
     }
@@ -33,12 +33,12 @@ public extension CameraPosition {
    */
   var stringValue: String {
     switch self {
-      case .external:
-        return "external"
       case .front:
         return "front"
       case .back:
         return "back"
+      case .unspecified:
+        return "unspecified"
     }
   }
 }

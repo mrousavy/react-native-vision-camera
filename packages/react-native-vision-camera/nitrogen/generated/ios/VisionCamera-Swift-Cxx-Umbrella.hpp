@@ -54,8 +54,6 @@ namespace margelo::nitro::camera { struct ListenerSubscription; }
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera { struct Point; }
-// Forward declaration of `Position` to properly resolve imports.
-namespace margelo::nitro::camera { struct Position; }
 // Forward declaration of `QualityPrioritization` to properly resolve imports.
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `Range` to properly resolve imports.
@@ -98,7 +96,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "ListenerSubscription.hpp"
 #include "MediaType.hpp"
 #include "Point.hpp"
-#include "Position.hpp"
 #include "QualityPrioritization.hpp"
 #include "Range.hpp"
 #include "Rect.hpp"

@@ -36,10 +36,9 @@ namespace margelo::nitro::camera {
     DUAL_WIDE      SWIFT_NAME(dualWide) = 4,
     TRIPLE      SWIFT_NAME(triple) = 5,
     CONTINUITY      SWIFT_NAME(continuity) = 6,
-    DESK_VIEW      SWIFT_NAME(deskView) = 7,
-    LIDAR_DEPTH      SWIFT_NAME(lidarDepth) = 8,
-    TRUE_DEPTH      SWIFT_NAME(trueDepth) = 9,
-    EXTERNAL      SWIFT_NAME(external) = 10,
+    LIDAR_DEPTH      SWIFT_NAME(lidarDepth) = 7,
+    TRUE_DEPTH      SWIFT_NAME(trueDepth) = 8,
+    EXTERNAL      SWIFT_NAME(external) = 9,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -59,7 +58,6 @@ namespace margelo::nitro {
         case hashString("dual-wide"): return margelo::nitro::camera::DeviceType::DUAL_WIDE;
         case hashString("triple"): return margelo::nitro::camera::DeviceType::TRIPLE;
         case hashString("continuity"): return margelo::nitro::camera::DeviceType::CONTINUITY;
-        case hashString("desk-view"): return margelo::nitro::camera::DeviceType::DESK_VIEW;
         case hashString("lidar-depth"): return margelo::nitro::camera::DeviceType::LIDAR_DEPTH;
         case hashString("true-depth"): return margelo::nitro::camera::DeviceType::TRUE_DEPTH;
         case hashString("external"): return margelo::nitro::camera::DeviceType::EXTERNAL;
@@ -76,7 +74,6 @@ namespace margelo::nitro {
         case margelo::nitro::camera::DeviceType::DUAL_WIDE: return JSIConverter<std::string>::toJSI(runtime, "dual-wide");
         case margelo::nitro::camera::DeviceType::TRIPLE: return JSIConverter<std::string>::toJSI(runtime, "triple");
         case margelo::nitro::camera::DeviceType::CONTINUITY: return JSIConverter<std::string>::toJSI(runtime, "continuity");
-        case margelo::nitro::camera::DeviceType::DESK_VIEW: return JSIConverter<std::string>::toJSI(runtime, "desk-view");
         case margelo::nitro::camera::DeviceType::LIDAR_DEPTH: return JSIConverter<std::string>::toJSI(runtime, "lidar-depth");
         case margelo::nitro::camera::DeviceType::TRUE_DEPTH: return JSIConverter<std::string>::toJSI(runtime, "true-depth");
         case margelo::nitro::camera::DeviceType::EXTERNAL: return JSIConverter<std::string>::toJSI(runtime, "external");
@@ -98,7 +95,6 @@ namespace margelo::nitro {
         case hashString("dual-wide"):
         case hashString("triple"):
         case hashString("continuity"):
-        case hashString("desk-view"):
         case hashString("lidar-depth"):
         case hashString("true-depth"):
         case hashString("external"):

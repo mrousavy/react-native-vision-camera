@@ -1,1 +1,1 @@
-export type CameraPosition = 'front' | 'back' | 'external'
+export type CameraPosition = 'front' | 'back' | 'unspecified'

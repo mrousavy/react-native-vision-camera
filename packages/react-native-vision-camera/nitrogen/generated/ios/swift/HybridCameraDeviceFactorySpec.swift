@@ -7,16 +7,16 @@
 
 import Foundation
 import NitroModules
-import NitroModules
 
 /// See ``HybridCameraDeviceFactorySpec``
 public protocol HybridCameraDeviceFactorySpec_protocol: HybridObject {
   // Properties
   var cameraDevices: [(any HybridCameraDeviceSpec)] { get }
+  var userPreferredCamera: (any HybridCameraDeviceSpec)? { get }
 
   // Methods
   func addOnCameraDevicesChangedListener(listener: @escaping (_ newDevices: [(any HybridCameraDeviceSpec)]) -> Void) throws -> ListenerSubscription
-  func getDefaultCamera(position: Position) throws -> Promise<(any HybridCameraDeviceSpec)>
+  func getDefaultCamera(deviceType: DeviceType, position: CameraPosition, mediaType: MediaType?) throws -> (any HybridCameraDeviceSpec)?
 }
 
 public extension HybridCameraDeviceFactorySpec_protocol {

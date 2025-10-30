@@ -16,17 +16,22 @@ namespace VisionCamera { class HybridCameraDeviceFactorySpec_cxx; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
-// Forward declaration of `Position` to properly resolve imports.
-namespace margelo::nitro::camera { struct Position; }
+// Forward declaration of `DeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class DeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
+#include <optional>
 #include "ListenerSubscription.hpp"
 #include <functional>
-#include <NitroModules/Promise.hpp>
-#include "Position.hpp"
-#include <string>
+#include "DeviceType.hpp"
+#include "CameraPosition.hpp"
+#include "MediaType.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -72,6 +77,10 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getCameraDevices();
       return __result;
     }
+    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getUserPreferredCamera() noexcept override {
+      auto __result = _swiftPart.getUserPreferredCamera();
+      return __result;
+    }
 
   public:
     // Methods
@@ -83,8 +92,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceSpec>>> getDefaultCamera(const Position& position) override {
-      auto __result = _swiftPart.getDefaultCamera(std::forward<decltype(position)>(position));
+    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(DeviceType deviceType, CameraPosition position, std::optional<MediaType> mediaType) override {
+      auto __result = _swiftPart.getDefaultCamera(static_cast<int>(deviceType), static_cast<int>(position), mediaType);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -14,6 +14,7 @@ struct ListenerPair {
 }
 
 class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
+  
   let discoverySession: AVCaptureDevice.DiscoverySession
   var cameraDevices: [any HybridCameraDeviceSpec]
 
@@ -36,6 +37,16 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
       self.cameraDevices = newDevices.map { HybridCameraDevice(device: $0) }
     }
   }
+  
+  var userPreferredCamera: (any HybridCameraDeviceSpec)? {
+    guard #available(iOS 17.0, *) else {
+      return nil
+    }
+    guard let device = AVCaptureDevice.userPreferredCamera else {
+      return nil
+    }
+    return HybridCameraDevice(device: device)
+  }
 
   func addOnCameraDevicesChangedListener(listener: @escaping ([any HybridCameraDeviceSpec]) -> Void) throws -> ListenerSubscription {
     // 1. Attach a listener and capture it's ID
@@ -49,5 +60,15 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
       guard let self else { return }
       self.listeners.removeAll { $0.id == id }
     })
+  }
+  
+  func getDefaultCamera(deviceType: DeviceType, position: CameraPosition, mediaType: MediaType?) throws -> (any HybridCameraDeviceSpec)? {
+    let device = AVCaptureDevice.default(try deviceType.toAVCaptureDeviceDeviceType(),
+                                         for: mediaType?.toAVMediaType(),
+                                         position: position.toAVCaptureDevicePosition())
+    guard let device else {
+      return nil
+    }
+    return HybridCameraDevice(device: device)
   }
 }

@@ -48,7 +48,6 @@ namespace margelo::nitro::camera {
       static const auto fieldDUAL_WIDE = clazz->getStaticField<JDeviceType>("DUAL_WIDE");
       static const auto fieldTRIPLE = clazz->getStaticField<JDeviceType>("TRIPLE");
       static const auto fieldCONTINUITY = clazz->getStaticField<JDeviceType>("CONTINUITY");
-      static const auto fieldDESK_VIEW = clazz->getStaticField<JDeviceType>("DESK_VIEW");
       static const auto fieldLIDAR_DEPTH = clazz->getStaticField<JDeviceType>("LIDAR_DEPTH");
       static const auto fieldTRUE_DEPTH = clazz->getStaticField<JDeviceType>("TRUE_DEPTH");
       static const auto fieldEXTERNAL = clazz->getStaticField<JDeviceType>("EXTERNAL");
@@ -68,8 +67,6 @@ namespace margelo::nitro::camera {
           return clazz->getStaticFieldValue(fieldTRIPLE);
         case DeviceType::CONTINUITY:
           return clazz->getStaticFieldValue(fieldCONTINUITY);
-        case DeviceType::DESK_VIEW:
-          return clazz->getStaticFieldValue(fieldDESK_VIEW);
         case DeviceType::LIDAR_DEPTH:
           return clazz->getStaticFieldValue(fieldLIDAR_DEPTH);
         case DeviceType::TRUE_DEPTH:

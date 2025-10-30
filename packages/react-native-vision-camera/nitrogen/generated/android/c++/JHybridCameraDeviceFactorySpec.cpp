@@ -11,23 +11,29 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
-// Forward declaration of `Position` to properly resolve imports.
-namespace margelo::nitro::camera { struct Position; }
+// Forward declaration of `DeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class DeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "JHybridCameraDeviceSpec.hpp"
+#include <optional>
 #include "ListenerSubscription.hpp"
 #include "JListenerSubscription.hpp"
 #include <functional>
 #include "JFunc_void.hpp"
-#include <NitroModules/Promise.hpp>
-#include <NitroModules/JPromise.hpp>
 #include "JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__.hpp"
-#include "Position.hpp"
-#include "JPosition.hpp"
-#include <string>
+#include "DeviceType.hpp"
+#include "JDeviceType.hpp"
+#include "CameraPosition.hpp"
+#include "JCameraPosition.hpp"
+#include "MediaType.hpp"
+#include "JMediaType.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -72,6 +78,11 @@ namespace margelo::nitro::camera {
       return __vector;
     }();
   }
+  std::optional<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceFactorySpec::getUserPreferredCamera() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::javaobject>()>("getUserPreferredCamera");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraDeviceSpec>()) : std::nullopt;
+  }
 
   // Methods
   ListenerSubscription JHybridCameraDeviceFactorySpec::addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) {
@@ -79,21 +90,10 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart, JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___cxx::fromCpp(listener));
     return __result->toCpp();
   }
-  std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceSpec>>> JHybridCameraDeviceFactorySpec::getDefaultCamera(const Position& position) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPosition> /* position */)>("getDefaultCamera");
-    auto __result = method(_javaPart, JPosition::fromCpp(position));
-    return [&]() {
-      auto __promise = Promise<std::shared_ptr<HybridCameraDeviceSpec>>::create();
-      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
-        auto __result = jni::static_ref_cast<JHybridCameraDeviceSpec::javaobject>(__boxedResult);
-        __promise->resolve(__result->cthis()->shared_cast<JHybridCameraDeviceSpec>());
-      });
-      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
-        jni::JniException __jniError(__throwable);
-        __promise->reject(std::make_exception_ptr(__jniError));
-      });
-      return __promise;
-    }();
+  std::optional<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceFactorySpec::getDefaultCamera(DeviceType deviceType, CameraPosition position, std::optional<MediaType> mediaType) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::javaobject>(jni::alias_ref<JDeviceType> /* deviceType */, jni::alias_ref<JCameraPosition> /* position */, jni::alias_ref<JMediaType> /* mediaType */)>("getDefaultCamera");
+    auto __result = method(_javaPart, JDeviceType::fromCpp(deviceType), JCameraPosition::fromCpp(position), mediaType.has_value() ? JMediaType::fromCpp(mediaType.value()) : nullptr);
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraDeviceSpec>()) : std::nullopt;
   }
 
 } // namespace margelo::nitro::camera

@@ -31,8 +31,6 @@ public extension DeviceType {
         self = .triple
       case "continuity":
         self = .continuity
-      case "desk-view":
-        self = .deskView
       case "lidar-depth":
         self = .lidarDepth
       case "true-depth":
@@ -63,8 +61,6 @@ public extension DeviceType {
         return "triple"
       case .continuity:
         return "continuity"
-      case .deskView:
-        return "desk-view"
       case .lidarDepth:
         return "lidar-depth"
       case .trueDepth:

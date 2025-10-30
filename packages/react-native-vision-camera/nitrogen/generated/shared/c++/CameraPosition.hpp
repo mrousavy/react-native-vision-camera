@@ -29,9 +29,9 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (CameraPosition).
    */
   enum class CameraPosition {
-    EXTERNAL      SWIFT_NAME(external) = 0,
-    FRONT      SWIFT_NAME(front) = 1,
-    BACK      SWIFT_NAME(back) = 2,
+    FRONT      SWIFT_NAME(front) = 0,
+    BACK      SWIFT_NAME(back) = 1,
+    UNSPECIFIED      SWIFT_NAME(unspecified) = 2,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -44,18 +44,18 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::CameraPosition fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("external"): return margelo::nitro::camera::CameraPosition::EXTERNAL;
         case hashString("front"): return margelo::nitro::camera::CameraPosition::FRONT;
         case hashString("back"): return margelo::nitro::camera::CameraPosition::BACK;
+        case hashString("unspecified"): return margelo::nitro::camera::CameraPosition::UNSPECIFIED;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum CameraPosition - invalid value!");
       }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::CameraPosition arg) {
       switch (arg) {
-        case margelo::nitro::camera::CameraPosition::EXTERNAL: return JSIConverter<std::string>::toJSI(runtime, "external");
         case margelo::nitro::camera::CameraPosition::FRONT: return JSIConverter<std::string>::toJSI(runtime, "front");
         case margelo::nitro::camera::CameraPosition::BACK: return JSIConverter<std::string>::toJSI(runtime, "back");
+        case margelo::nitro::camera::CameraPosition::UNSPECIFIED: return JSIConverter<std::string>::toJSI(runtime, "unspecified");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert CameraPosition to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -67,9 +67,9 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("external"):
         case hashString("front"):
         case hashString("back"):
+        case hashString("unspecified"):
           return true;
         default:
           return false;

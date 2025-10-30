@@ -41,17 +41,17 @@ namespace margelo::nitro::camera {
     [[maybe_unused]]
     static jni::alias_ref<JCameraPosition> fromCpp(CameraPosition value) {
       static const auto clazz = javaClassStatic();
-      static const auto fieldEXTERNAL = clazz->getStaticField<JCameraPosition>("EXTERNAL");
       static const auto fieldFRONT = clazz->getStaticField<JCameraPosition>("FRONT");
       static const auto fieldBACK = clazz->getStaticField<JCameraPosition>("BACK");
+      static const auto fieldUNSPECIFIED = clazz->getStaticField<JCameraPosition>("UNSPECIFIED");
       
       switch (value) {
-        case CameraPosition::EXTERNAL:
-          return clazz->getStaticFieldValue(fieldEXTERNAL);
         case CameraPosition::FRONT:
           return clazz->getStaticFieldValue(fieldFRONT);
         case CameraPosition::BACK:
           return clazz->getStaticFieldValue(fieldBACK);
+        case CameraPosition::UNSPECIFIED:
+          return clazz->getStaticFieldValue(fieldUNSPECIFIED);
         default:
           std::string stringValue = std::to_string(static_cast<int>(value));
           throw std::invalid_argument("Invalid enum value (" + stringValue + "!");

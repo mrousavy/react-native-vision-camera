@@ -15,6 +15,7 @@ namespace margelo::nitro::camera {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("cameraDevices", &HybridCameraDeviceFactorySpec::getCameraDevices);
+      prototype.registerHybridGetter("userPreferredCamera", &HybridCameraDeviceFactorySpec::getUserPreferredCamera);
       prototype.registerHybridMethod("addOnCameraDevicesChangedListener", &HybridCameraDeviceFactorySpec::addOnCameraDevicesChangedListener);
       prototype.registerHybridMethod("getDefaultCamera", &HybridCameraDeviceFactorySpec::getDefaultCamera);
     });

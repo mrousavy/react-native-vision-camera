@@ -17,16 +17,22 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
-// Forward declaration of `Position` to properly resolve imports.
-namespace margelo::nitro::camera { struct Position; }
+// Forward declaration of `DeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class DeviceType; }
+// Forward declaration of `CameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
+#include <optional>
 #include "ListenerSubscription.hpp"
 #include <functional>
-#include <NitroModules/Promise.hpp>
-#include "Position.hpp"
+#include "DeviceType.hpp"
+#include "CameraPosition.hpp"
+#include "MediaType.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -56,11 +62,12 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getCameraDevices() = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getUserPreferredCamera() = 0;
 
     public:
       // Methods
       virtual ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) = 0;
-      virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceSpec>>> getDefaultCamera(const Position& position) = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(DeviceType deviceType, CameraPosition position, std::optional<MediaType> mediaType) = 0;
 
     protected:
       // Hybrid Setup

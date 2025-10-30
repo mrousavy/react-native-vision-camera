@@ -23,8 +23,7 @@ enum class DeviceType(@DoNotStrip @Keep val value: Int) {
   DUAL_WIDE(4),
   TRIPLE(5),
   CONTINUITY(6),
-  DESK_VIEW(7),
-  LIDAR_DEPTH(8),
-  TRUE_DEPTH(9),
-  EXTERNAL(10);
+  LIDAR_DEPTH(7),
+  TRUE_DEPTH(8),
+  EXTERNAL(9);
 }
