@@ -55,6 +55,7 @@ namespace margelo::nitro::camera {
   public:
     // Methods
     ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) override;
+    std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceSpec>>> getDefaultCamera(const Position& position) override;
 
   private:
     friend HybridBase;

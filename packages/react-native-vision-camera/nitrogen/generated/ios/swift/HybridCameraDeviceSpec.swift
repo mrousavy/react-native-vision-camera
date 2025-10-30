@@ -7,19 +7,94 @@
 
 import Foundation
 import NitroModules
+import NitroModules
 
 /// See ``HybridCameraDeviceSpec``
 public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   // Properties
   var id: String { get }
-  var physicalDevices: [PhysicalCameraDeviceType] { get }
+  var modelID: String { get }
+  var localizedName: String { get }
+  var manufacturer: String { get }
+  var type: DeviceType { get }
   var position: CameraPosition { get }
-  var deviceName: String { get }
-  var hasFlash: Bool { get }
+  var constituentDevices: [(any HybridCameraDeviceSpec)] { get }
+  var isConnected: Bool { get }
+  var isSuspended: Bool { get }
+  var isUsedByAnotherApp: Bool { get }
+  var isVirtualDevice: Bool { get }
+  var focalLength: Double { get }
+  var isContinuityCamera: Bool { get }
+  var companionDeskViewCamera: (any HybridCameraDeviceSpec) { get }
   var formats: [(any HybridCameraFormatSpec)] { get }
+  var activeFormat: (any HybridCameraFormatSpec) { get set }
+  var activeDepthFormat: (any HybridCameraFormatSpec)? { get set }
+  var enableAutoFrameRate: Bool { get set }
+  var fps: Range { get set }
+  var focusMode: FocusMode { get set }
+  var supportsSmoothAutoFocus: Bool { get }
+  var enableSmoothAutoFocus: Bool { get set }
+  var enableFaceDrivenAutoFocus: Bool { get set }
+  var supportsFocusingPoint: Bool { get }
+  var supportsFocusingRect: Bool { get }
+  var minFocusRectSize: Size { get }
+  var isAdjustingFocus: Bool { get }
+  var supportsLockingFocusLensPosition: Bool { get }
+  var lensPosition: Double { get }
+  var exposureMode: ExposureMode { get set }
+  var supportsExposurePoint: Bool { get }
+  var supportsExposureRect: Bool { get }
+  var minExposureRectSize: Size { get }
+  var enableFaceDrivenAutoExposure: Bool { get set }
+  var isAdjustingExposure: Bool { get }
+  var exposureDuration: Double { get }
+  var activeMaxExposureDuration: Double { get }
+  var iso: Double { get }
+  var lensAperture: Double { get }
+  var whiteBalanceMode: WhiteBalanceMode { get set }
+  var isAdjustingWhiteBalance: Bool { get }
+  var supportsLockingWhiteBalanceGains: Bool { get }
+  var hasFlash: Bool { get }
+  var isFlashReady: Bool { get }
+  var hasTorch: Bool { get }
+  var isTorchReady: Bool { get }
+  var torchLevel: Double { get }
+  var torchMode: TorchMode { get }
+  var supportsLowLightBoost: Bool { get }
+  var enableLowLightBoost: Bool { get set }
+  var automaticallyEnableLowLightBoost: Bool { get set }
+  var enableVideoHDR: Bool { get set }
+  var automaticallyEnableVideoHDR: Bool { get set }
+  var enableGlobalToneMapping: Bool { get set }
+  var colorSpace: ColorSpace { get set }
+  var minZoom: Double { get }
+  var maxZoom: Double { get }
+  var zoomLensSwitchFactors: [Double] { get }
+  var displayVideoZoomFactorMultiplier: Double { get }
+  var zoom: Double { get set }
+  var isZoomingAnimation: Bool { get }
+  var supportsDistortionCorrection: Bool { get }
+  var enableDistortionCorrection: Bool { get }
 
   // Methods
-  
+  func hasMediaType(mediaType: MediaType) throws -> Bool
+  func supportsFocusMode(mode: FocusMode) throws -> Bool
+  func setFocusPoint(point: Point) throws -> Promise<Void>
+  func setFocusRect(rect: Rect) throws -> Promise<Void>
+  func getDefaultRectForFocusPoint(point: Point) throws -> Promise<Rect>
+  func setFocusLensPosition(lensPosition: Double) throws -> Promise<Void>
+  func supportsExposureMode(exposureMode: ExposureMode) throws -> Bool
+  func setExposurePoint(point: Point) throws -> Promise<Void>
+  func setExposureRect(rect: Rect) throws -> Promise<Void>
+  func getDefaultRectForExposurePoint(point: Point) throws -> Promise<Rect>
+  func setExposureBias(exposure: Double) throws -> Promise<Void>
+  func setExposureLocked(duration: Double, iso: Double) throws -> Promise<Void>
+  func supportsWhiteBalanceMode(whiteBalanceMode: WhiteBalanceMode) throws -> Bool
+  func setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains) throws -> Promise<Void>
+  func supportsTorchMode(torch: TorchMode) throws -> Bool
+  func enableTorch(level: Double) throws -> Promise<Void>
+  func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
+  func cancelZoomAnimation() throws -> Void
 }
 
 public extension HybridCameraDeviceSpec_protocol {

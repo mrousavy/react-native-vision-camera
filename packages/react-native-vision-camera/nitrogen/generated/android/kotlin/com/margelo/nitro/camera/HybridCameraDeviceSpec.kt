@@ -10,6 +10,7 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -48,7 +49,19 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val physicalDevices: Array<PhysicalCameraDeviceType>
+  abstract val modelID: String
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val localizedName: String
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val manufacturer: String
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val type: DeviceType
   
   @get:DoNotStrip
   @get:Keep
@@ -56,7 +69,167 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val deviceName: String
+  abstract val constituentDevices: Array<HybridCameraDeviceSpec>
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isConnected: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isSuspended: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isUsedByAnotherApp: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isVirtualDevice: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val focalLength: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isContinuityCamera: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val companionDeskViewCamera: HybridCameraDeviceSpec
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val formats: Array<HybridCameraFormatSpec>
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var activeFormat: HybridCameraFormatSpec
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var activeDepthFormat: HybridCameraFormatSpec?
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableAutoFrameRate: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var fps: Range
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var focusMode: FocusMode
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsSmoothAutoFocus: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableSmoothAutoFocus: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableFaceDrivenAutoFocus: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsFocusingPoint: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsFocusingRect: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val minFocusRectSize: Size
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isAdjustingFocus: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsLockingFocusLensPosition: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val lensPosition: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var exposureMode: ExposureMode
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsExposurePoint: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsExposureRect: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val minExposureRectSize: Size
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableFaceDrivenAutoExposure: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isAdjustingExposure: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val exposureDuration: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val activeMaxExposureDuration: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val iso: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val lensAperture: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var whiteBalanceMode: WhiteBalanceMode
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isAdjustingWhiteBalance: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsLockingWhiteBalanceGains: Boolean
   
   @get:DoNotStrip
   @get:Keep
@@ -64,10 +237,170 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val formats: Array<HybridCameraFormatSpec>
+  abstract val isFlashReady: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val hasTorch: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isTorchReady: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val torchLevel: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val torchMode: TorchMode
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsLowLightBoost: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableLowLightBoost: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var automaticallyEnableLowLightBoost: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableVideoHDR: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var automaticallyEnableVideoHDR: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var enableGlobalToneMapping: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var colorSpace: ColorSpace
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val minZoom: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val maxZoom: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val zoomLensSwitchFactors: DoubleArray
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val displayVideoZoomFactorMultiplier: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var zoom: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val isZoomingAnimation: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportsDistortionCorrection: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val enableDistortionCorrection: Boolean
 
   // Methods
+  @DoNotStrip
+  @Keep
+  abstract fun hasMediaType(mediaType: MediaType): Boolean
   
+  @DoNotStrip
+  @Keep
+  abstract fun supportsFocusMode(mode: FocusMode): Boolean
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setFocusPoint(point: Point): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setFocusRect(rect: Rect): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun getDefaultRectForFocusPoint(point: Point): Promise<Rect>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setFocusLensPosition(lensPosition: Double): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun supportsExposureMode(exposureMode: ExposureMode): Boolean
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setExposurePoint(point: Point): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setExposureRect(rect: Rect): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun getDefaultRectForExposurePoint(point: Point): Promise<Rect>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setExposureBias(exposure: Double): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setExposureLocked(duration: Double, iso: Double): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun supportsWhiteBalanceMode(whiteBalanceMode: WhiteBalanceMode): Boolean
+  
+  @DoNotStrip
+  @Keep
+  abstract fun setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun supportsTorchMode(torch: TorchMode): Boolean
+  
+  @DoNotStrip
+  @Keep
+  abstract fun enableTorch(level: Double): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun startZoomAnimation(zoom: Double, rate: Double): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun cancelZoomAnimation(): Unit
 
   private external fun initHybrid(): HybridData
 

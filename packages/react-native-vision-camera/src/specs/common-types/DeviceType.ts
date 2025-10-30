@@ -1,0 +1,12 @@
+export type DeviceType =
+  | 'wide-angle'
+  | 'ultra-wide-angle'
+  | 'telephoto'
+  | 'dual'
+  | 'dual-wide'
+  | 'triple'
+  | 'continuity'
+  | 'desk-view'
+  | 'lidar-depth'
+  | 'true-depth'
+  | 'external'

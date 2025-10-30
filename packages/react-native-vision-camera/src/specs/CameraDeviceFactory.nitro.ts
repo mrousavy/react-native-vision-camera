@@ -8,4 +8,6 @@ export interface CameraDeviceFactory
   addOnCameraDevicesChangedListener(
     listener: (newDevices: CameraDevice[]) => void
   ): ListenerSubscription
+
+  getDefaultCamera(position: Position): Promise<CameraDevice>
 }

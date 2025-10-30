@@ -7,22 +7,73 @@
 
 #include "JHybridCameraDeviceSpec.hpp"
 
-// Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `DeviceType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class DeviceType; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `Size` to properly resolve imports.
+namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `ExposureMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ExposureMode; }
+// Forward declaration of `WhiteBalanceMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
+// Forward declaration of `TorchMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TorchMode; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `Rect` to properly resolve imports.
+namespace margelo::nitro::camera { struct Rect; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `Point` to properly resolve imports.
+namespace margelo::nitro::camera { struct Point; }
+// Forward declaration of `WhiteBalanceGains` to properly resolve imports.
+namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <string>
-#include "PhysicalCameraDeviceType.hpp"
-#include <vector>
-#include "JPhysicalCameraDeviceType.hpp"
+#include "DeviceType.hpp"
+#include "JDeviceType.hpp"
 #include "CameraPosition.hpp"
 #include "JCameraPosition.hpp"
 #include <memory>
+#include "HybridCameraDeviceSpec.hpp"
+#include <vector>
+#include "JHybridCameraDeviceSpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
 #include "JHybridCameraFormatSpec.hpp"
+#include <optional>
+#include "Range.hpp"
+#include "JRange.hpp"
+#include "FocusMode.hpp"
+#include "JFocusMode.hpp"
+#include "Size.hpp"
+#include "JSize.hpp"
+#include "ExposureMode.hpp"
+#include "JExposureMode.hpp"
+#include "WhiteBalanceMode.hpp"
+#include "JWhiteBalanceMode.hpp"
+#include "TorchMode.hpp"
+#include "JTorchMode.hpp"
+#include "ColorSpace.hpp"
+#include "JColorSpace.hpp"
+#include <NitroModules/Promise.hpp>
+#include <NitroModules/JPromise.hpp>
+#include "Rect.hpp"
+#include "JRect.hpp"
+#include "MediaType.hpp"
+#include "JMediaType.hpp"
+#include "Point.hpp"
+#include "JPoint.hpp"
+#include "WhiteBalanceGains.hpp"
+#include "JWhiteBalanceGains.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -58,34 +109,79 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toStdString();
   }
-  std::vector<PhysicalCameraDeviceType> JHybridCameraDeviceSpec::getPhysicalDevices() {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JPhysicalCameraDeviceType>>()>("getPhysicalDevices");
+  std::string JHybridCameraDeviceSpec::getModelID() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getModelID");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
-      std::vector<PhysicalCameraDeviceType> __vector;
-      __vector.reserve(__size);
-      for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
-        __vector.push_back(__element->toCpp());
-      }
-      return __vector;
-    }();
+    return __result->toStdString();
+  }
+  std::string JHybridCameraDeviceSpec::getLocalizedName() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getLocalizedName");
+    auto __result = method(_javaPart);
+    return __result->toStdString();
+  }
+  std::string JHybridCameraDeviceSpec::getManufacturer() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getManufacturer");
+    auto __result = method(_javaPart);
+    return __result->toStdString();
+  }
+  DeviceType JHybridCameraDeviceSpec::getType() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JDeviceType>()>("getType");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
   }
   CameraPosition JHybridCameraDeviceSpec::getPosition() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<JCameraPosition>()>("getPosition");
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  std::string JHybridCameraDeviceSpec::getDeviceName() {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JString>()>("getDeviceName");
+  std::vector<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceSpec::getConstituentDevices() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraDeviceSpec::javaobject>>()>("getConstituentDevices");
     auto __result = method(_javaPart);
-    return __result->toStdString();
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<std::shared_ptr<HybridCameraDeviceSpec>> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->cthis()->shared_cast<JHybridCameraDeviceSpec>());
+      }
+      return __vector;
+    }();
   }
-  bool JHybridCameraDeviceSpec::getHasFlash() {
-    static const auto method = javaClassStatic()->getMethod<jboolean()>("hasFlash");
+  bool JHybridCameraDeviceSpec::getIsConnected() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isConnected");
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getIsSuspended() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isSuspended");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getIsUsedByAnotherApp() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isUsedByAnotherApp");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getIsVirtualDevice() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isVirtualDevice");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraDeviceSpec::getFocalLength() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getFocalLength");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  bool JHybridCameraDeviceSpec::getIsContinuityCamera() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isContinuityCamera");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  std::shared_ptr<HybridCameraDeviceSpec> JHybridCameraDeviceSpec::getCompanionDeskViewCamera() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::javaobject>()>("getCompanionDeskViewCamera");
+    auto __result = method(_javaPart);
+    return __result->cthis()->shared_cast<JHybridCameraDeviceSpec>();
   }
   std::vector<std::shared_ptr<HybridCameraFormatSpec>> JHybridCameraDeviceSpec::getFormats() {
     static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraFormatSpec::javaobject>>()>("getFormats");
@@ -101,8 +197,531 @@ namespace margelo::nitro::camera {
       return __vector;
     }();
   }
+  std::shared_ptr<HybridCameraFormatSpec> JHybridCameraDeviceSpec::getActiveFormat() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraFormatSpec::javaobject>()>("getActiveFormat");
+    auto __result = method(_javaPart);
+    return __result->cthis()->shared_cast<JHybridCameraFormatSpec>();
+  }
+  void JHybridCameraDeviceSpec::setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraFormatSpec::javaobject> /* activeFormat */)>("setActiveFormat");
+    method(_javaPart, std::dynamic_pointer_cast<JHybridCameraFormatSpec>(activeFormat)->getJavaPart());
+  }
+  std::optional<std::shared_ptr<HybridCameraFormatSpec>> JHybridCameraDeviceSpec::getActiveDepthFormat() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraFormatSpec::javaobject>()>("getActiveDepthFormat");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraFormatSpec>()) : std::nullopt;
+  }
+  void JHybridCameraDeviceSpec::setActiveDepthFormat(const std::optional<std::shared_ptr<HybridCameraFormatSpec>>& activeDepthFormat) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraFormatSpec::javaobject> /* activeDepthFormat */)>("setActiveDepthFormat");
+    method(_javaPart, activeDepthFormat.has_value() ? std::dynamic_pointer_cast<JHybridCameraFormatSpec>(activeDepthFormat.value())->getJavaPart() : nullptr);
+  }
+  bool JHybridCameraDeviceSpec::getEnableAutoFrameRate() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableAutoFrameRate");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableAutoFrameRate(bool enableAutoFrameRate) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableAutoFrameRate */)>("setEnableAutoFrameRate");
+    method(_javaPart, enableAutoFrameRate);
+  }
+  Range JHybridCameraDeviceSpec::getFps() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JRange>()>("getFps");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridCameraDeviceSpec::setFps(const Range& fps) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JRange> /* fps */)>("setFps");
+    method(_javaPart, JRange::fromCpp(fps));
+  }
+  FocusMode JHybridCameraDeviceSpec::getFocusMode() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JFocusMode>()>("getFocusMode");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridCameraDeviceSpec::setFocusMode(FocusMode focusMode) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JFocusMode> /* focusMode */)>("setFocusMode");
+    method(_javaPart, JFocusMode::fromCpp(focusMode));
+  }
+  bool JHybridCameraDeviceSpec::getSupportsSmoothAutoFocus() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsSmoothAutoFocus");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getEnableSmoothAutoFocus() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableSmoothAutoFocus");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableSmoothAutoFocus(bool enableSmoothAutoFocus) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableSmoothAutoFocus */)>("setEnableSmoothAutoFocus");
+    method(_javaPart, enableSmoothAutoFocus);
+  }
+  bool JHybridCameraDeviceSpec::getEnableFaceDrivenAutoFocus() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableFaceDrivenAutoFocus");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableFaceDrivenAutoFocus */)>("setEnableFaceDrivenAutoFocus");
+    method(_javaPart, enableFaceDrivenAutoFocus);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsFocusingPoint() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsFocusingPoint");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsFocusingRect() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsFocusingRect");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  Size JHybridCameraDeviceSpec::getMinFocusRectSize() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getMinFocusRectSize");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  bool JHybridCameraDeviceSpec::getIsAdjustingFocus() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isAdjustingFocus");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsLockingFocusLensPosition() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsLockingFocusLensPosition");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraDeviceSpec::getLensPosition() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getLensPosition");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  ExposureMode JHybridCameraDeviceSpec::getExposureMode() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JExposureMode>()>("getExposureMode");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridCameraDeviceSpec::setExposureMode(ExposureMode exposureMode) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JExposureMode> /* exposureMode */)>("setExposureMode");
+    method(_javaPart, JExposureMode::fromCpp(exposureMode));
+  }
+  bool JHybridCameraDeviceSpec::getSupportsExposurePoint() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsExposurePoint");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsExposureRect() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsExposureRect");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  Size JHybridCameraDeviceSpec::getMinExposureRectSize() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getMinExposureRectSize");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  bool JHybridCameraDeviceSpec::getEnableFaceDrivenAutoExposure() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableFaceDrivenAutoExposure");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableFaceDrivenAutoExposure */)>("setEnableFaceDrivenAutoExposure");
+    method(_javaPart, enableFaceDrivenAutoExposure);
+  }
+  bool JHybridCameraDeviceSpec::getIsAdjustingExposure() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isAdjustingExposure");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraDeviceSpec::getExposureDuration() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getExposureDuration");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraDeviceSpec::getActiveMaxExposureDuration() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getActiveMaxExposureDuration");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraDeviceSpec::getIso() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getIso");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraDeviceSpec::getLensAperture() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getLensAperture");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  WhiteBalanceMode JHybridCameraDeviceSpec::getWhiteBalanceMode() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JWhiteBalanceMode>()>("getWhiteBalanceMode");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridCameraDeviceSpec::setWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JWhiteBalanceMode> /* whiteBalanceMode */)>("setWhiteBalanceMode");
+    method(_javaPart, JWhiteBalanceMode::fromCpp(whiteBalanceMode));
+  }
+  bool JHybridCameraDeviceSpec::getIsAdjustingWhiteBalance() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isAdjustingWhiteBalance");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsLockingWhiteBalanceGains() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsLockingWhiteBalanceGains");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getHasFlash() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("hasFlash");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getIsFlashReady() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isFlashReady");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getHasTorch() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("hasTorch");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getIsTorchReady() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isTorchReady");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  double JHybridCameraDeviceSpec::getTorchLevel() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getTorchLevel");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  TorchMode JHybridCameraDeviceSpec::getTorchMode() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JTorchMode>()>("getTorchMode");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  bool JHybridCameraDeviceSpec::getSupportsLowLightBoost() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsLowLightBoost");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getEnableLowLightBoost() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableLowLightBoost");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableLowLightBoost(bool enableLowLightBoost) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableLowLightBoost */)>("setEnableLowLightBoost");
+    method(_javaPart, enableLowLightBoost);
+  }
+  bool JHybridCameraDeviceSpec::getAutomaticallyEnableLowLightBoost() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getAutomaticallyEnableLowLightBoost");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* automaticallyEnableLowLightBoost */)>("setAutomaticallyEnableLowLightBoost");
+    method(_javaPart, automaticallyEnableLowLightBoost);
+  }
+  bool JHybridCameraDeviceSpec::getEnableVideoHDR() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableVideoHDR");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableVideoHDR(bool enableVideoHDR) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableVideoHDR */)>("setEnableVideoHDR");
+    method(_javaPart, enableVideoHDR);
+  }
+  bool JHybridCameraDeviceSpec::getAutomaticallyEnableVideoHDR() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getAutomaticallyEnableVideoHDR");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setAutomaticallyEnableVideoHDR(bool automaticallyEnableVideoHDR) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* automaticallyEnableVideoHDR */)>("setAutomaticallyEnableVideoHDR");
+    method(_javaPart, automaticallyEnableVideoHDR);
+  }
+  bool JHybridCameraDeviceSpec::getEnableGlobalToneMapping() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableGlobalToneMapping");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  void JHybridCameraDeviceSpec::setEnableGlobalToneMapping(bool enableGlobalToneMapping) {
+    static const auto method = javaClassStatic()->getMethod<void(jboolean /* enableGlobalToneMapping */)>("setEnableGlobalToneMapping");
+    method(_javaPart, enableGlobalToneMapping);
+  }
+  ColorSpace JHybridCameraDeviceSpec::getColorSpace() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JColorSpace>()>("getColorSpace");
+    auto __result = method(_javaPart);
+    return __result->toCpp();
+  }
+  void JHybridCameraDeviceSpec::setColorSpace(ColorSpace colorSpace) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JColorSpace> /* colorSpace */)>("setColorSpace");
+    method(_javaPart, JColorSpace::fromCpp(colorSpace));
+  }
+  double JHybridCameraDeviceSpec::getMinZoom() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMinZoom");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraDeviceSpec::getMaxZoom() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getMaxZoom");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  std::vector<double> JHybridCameraDeviceSpec::getZoomLensSwitchFactors() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<jni::JArrayDouble>()>("getZoomLensSwitchFactors");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<double> __vector(__size);
+      __result->getRegion(0, __size, __vector.data());
+      return __vector;
+    }();
+  }
+  double JHybridCameraDeviceSpec::getDisplayVideoZoomFactorMultiplier() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getDisplayVideoZoomFactorMultiplier");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  double JHybridCameraDeviceSpec::getZoom() {
+    static const auto method = javaClassStatic()->getMethod<double()>("getZoom");
+    auto __result = method(_javaPart);
+    return __result;
+  }
+  void JHybridCameraDeviceSpec::setZoom(double zoom) {
+    static const auto method = javaClassStatic()->getMethod<void(double /* zoom */)>("setZoom");
+    method(_javaPart, zoom);
+  }
+  bool JHybridCameraDeviceSpec::getIsZoomingAnimation() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("isZoomingAnimation");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getSupportsDistortionCorrection() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getSupportsDistortionCorrection");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::getEnableDistortionCorrection() {
+    static const auto method = javaClassStatic()->getMethod<jboolean()>("getEnableDistortionCorrection");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
 
   // Methods
-  
+  bool JHybridCameraDeviceSpec::hasMediaType(MediaType mediaType) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JMediaType> /* mediaType */)>("hasMediaType");
+    auto __result = method(_javaPart, JMediaType::fromCpp(mediaType));
+    return static_cast<bool>(__result);
+  }
+  bool JHybridCameraDeviceSpec::supportsFocusMode(FocusMode mode) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JFocusMode> /* mode */)>("supportsFocusMode");
+    auto __result = method(_javaPart, JFocusMode::fromCpp(mode));
+    return static_cast<bool>(__result);
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setFocusPoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("setFocusPoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(point));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setFocusRect(const Rect& rect) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JRect> /* rect */)>("setFocusRect");
+    auto __result = method(_javaPart, JRect::fromCpp(rect));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<Rect>> JHybridCameraDeviceSpec::getDefaultRectForFocusPoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForFocusPoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(point));
+    return [&]() {
+      auto __promise = Promise<Rect>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JRect>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setFocusLensPosition(double lensPosition) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* lensPosition */)>("setFocusLensPosition");
+    auto __result = method(_javaPart, lensPosition);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  bool JHybridCameraDeviceSpec::supportsExposureMode(ExposureMode exposureMode) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JExposureMode> /* exposureMode */)>("supportsExposureMode");
+    auto __result = method(_javaPart, JExposureMode::fromCpp(exposureMode));
+    return static_cast<bool>(__result);
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setExposurePoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("setExposurePoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(point));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setExposureRect(const Rect& rect) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JRect> /* rect */)>("setExposureRect");
+    auto __result = method(_javaPart, JRect::fromCpp(rect));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<Rect>> JHybridCameraDeviceSpec::getDefaultRectForExposurePoint(const Point& point) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JPoint> /* point */)>("getDefaultRectForExposurePoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(point));
+    return [&]() {
+      auto __promise = Promise<Rect>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JRect>(__boxedResult);
+        __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setExposureBias(double exposure) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* exposure */)>("setExposureBias");
+    auto __result = method(_javaPart, exposure);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setExposureLocked(double duration, double iso) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* duration */, double /* iso */)>("setExposureLocked");
+    auto __result = method(_javaPart, duration, iso);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  bool JHybridCameraDeviceSpec::supportsWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JWhiteBalanceMode> /* whiteBalanceMode */)>("supportsWhiteBalanceMode");
+    auto __result = method(_javaPart, JWhiteBalanceMode::fromCpp(whiteBalanceMode));
+    return static_cast<bool>(__result);
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::setWhiteBalanceLocked(const WhiteBalanceGains& whiteBalanceGains) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JWhiteBalanceGains> /* whiteBalanceGains */)>("setWhiteBalanceLocked");
+    auto __result = method(_javaPart, JWhiteBalanceGains::fromCpp(whiteBalanceGains));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  bool JHybridCameraDeviceSpec::supportsTorchMode(TorchMode torch) {
+    static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<JTorchMode> /* torch */)>("supportsTorchMode");
+    auto __result = method(_javaPart, JTorchMode::fromCpp(torch));
+    return static_cast<bool>(__result);
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::enableTorch(double level) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* level */)>("enableTorch");
+    auto __result = method(_javaPart, level);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraDeviceSpec::startZoomAnimation(double zoom, double rate) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* zoom */, double /* rate */)>("startZoomAnimation");
+    auto __result = method(_javaPart, zoom, rate);
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  void JHybridCameraDeviceSpec::cancelZoomAnimation() {
+    static const auto method = javaClassStatic()->getMethod<void()>("cancelZoomAnimation");
+    method(_javaPart);
+  }
 
 } // namespace margelo::nitro::camera

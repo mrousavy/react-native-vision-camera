@@ -7,6 +7,7 @@
 
 import Foundation
 import NitroModules
+import NitroModules
 
 /**
  * A class implementation that bridges HybridCameraDeviceFactorySpec over to C++.
@@ -154,6 +155,28 @@ open class HybridCameraDeviceFactorySpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_ListenerSubscription_(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func getDefaultCamera(position: Position) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec____ {
+    do {
+      let __result = try self.__implementation.getDefaultCamera(position: position)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
+              let __cxxWrapped = __result.getCxxWrapper()
+              return __cxxWrapped.getCxxPart()
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceSpec____(__exceptionPtr)
     }
   }
 }

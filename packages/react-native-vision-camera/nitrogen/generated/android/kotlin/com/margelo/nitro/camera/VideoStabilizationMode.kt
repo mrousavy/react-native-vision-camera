@@ -17,11 +17,11 @@ import com.facebook.proguard.annotations.DoNotStrip
 @Keep
 enum class VideoStabilizationMode(@DoNotStrip @Keep val value: Int) {
   OFF(0),
-  STANDARD(1),
-  CINEMATIC(2),
-  CINEMATIC_EXTENDED(3),
-  PREVIEW_OPTIMIZED(4),
-  CINEMATIC_EXTENDED_ENHANCED(5),
-  AUTO(6),
+  AUTO(1),
+  STANDARD(2),
+  CINEMATIC(3),
+  CINEMATIC_EXTENDED(4),
+  PREVIEW_OPTIMIZED(5),
+  CINEMATIC_EXTENDED_ENHANCED(6),
   LOW_LATENCY(7);
 }

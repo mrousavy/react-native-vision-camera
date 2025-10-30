@@ -42,17 +42,19 @@ namespace margelo::nitro::camera {
     static jni::alias_ref<JVideoStabilizationMode> fromCpp(VideoStabilizationMode value) {
       static const auto clazz = javaClassStatic();
       static const auto fieldOFF = clazz->getStaticField<JVideoStabilizationMode>("OFF");
+      static const auto fieldAUTO = clazz->getStaticField<JVideoStabilizationMode>("AUTO");
       static const auto fieldSTANDARD = clazz->getStaticField<JVideoStabilizationMode>("STANDARD");
       static const auto fieldCINEMATIC = clazz->getStaticField<JVideoStabilizationMode>("CINEMATIC");
       static const auto fieldCINEMATIC_EXTENDED = clazz->getStaticField<JVideoStabilizationMode>("CINEMATIC_EXTENDED");
       static const auto fieldPREVIEW_OPTIMIZED = clazz->getStaticField<JVideoStabilizationMode>("PREVIEW_OPTIMIZED");
       static const auto fieldCINEMATIC_EXTENDED_ENHANCED = clazz->getStaticField<JVideoStabilizationMode>("CINEMATIC_EXTENDED_ENHANCED");
-      static const auto fieldAUTO = clazz->getStaticField<JVideoStabilizationMode>("AUTO");
       static const auto fieldLOW_LATENCY = clazz->getStaticField<JVideoStabilizationMode>("LOW_LATENCY");
       
       switch (value) {
         case VideoStabilizationMode::OFF:
           return clazz->getStaticFieldValue(fieldOFF);
+        case VideoStabilizationMode::AUTO:
+          return clazz->getStaticFieldValue(fieldAUTO);
         case VideoStabilizationMode::STANDARD:
           return clazz->getStaticFieldValue(fieldSTANDARD);
         case VideoStabilizationMode::CINEMATIC:
@@ -63,8 +65,6 @@ namespace margelo::nitro::camera {
           return clazz->getStaticFieldValue(fieldPREVIEW_OPTIMIZED);
         case VideoStabilizationMode::CINEMATIC_EXTENDED_ENHANCED:
           return clazz->getStaticFieldValue(fieldCINEMATIC_EXTENDED_ENHANCED);
-        case VideoStabilizationMode::AUTO:
-          return clazz->getStaticFieldValue(fieldAUTO);
         case VideoStabilizationMode::LOW_LATENCY:
           return clazz->getStaticFieldValue(fieldLOW_LATENCY);
         default:

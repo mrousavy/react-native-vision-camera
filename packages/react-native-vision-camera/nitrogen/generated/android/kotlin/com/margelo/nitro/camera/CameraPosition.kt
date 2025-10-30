@@ -16,7 +16,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class CameraPosition(@DoNotStrip @Keep val value: Int) {
-  FRONT(0),
-  BACK(1),
-  EXTERNAL(2);
+  EXTERNAL(0),
+  FRONT(1),
+  BACK(2);
 }

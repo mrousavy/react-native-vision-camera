@@ -16,7 +16,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class FlashMode(@DoNotStrip @Keep val value: Int) {
-  OFF(0),
-  AUTO(1),
-  ON(2);
+  ON(0),
+  OFF(1),
+  AUTO(2);
 }

@@ -10,6 +10,7 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -55,6 +56,10 @@ abstract class HybridCameraDeviceFactorySpec: HybridObject() {
     val __result = addOnCameraDevicesChangedListener(listener)
     return __result
   }
+  
+  @DoNotStrip
+  @Keep
+  abstract fun getDefaultCamera(position: Position): Promise<HybridCameraDeviceSpec>
 
   private external fun initHybrid(): HybridData
 

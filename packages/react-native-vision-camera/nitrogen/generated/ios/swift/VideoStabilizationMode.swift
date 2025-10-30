@@ -19,6 +19,8 @@ public extension VideoStabilizationMode {
     switch string {
       case "off":
         self = .off
+      case "auto":
+        self = .auto
       case "standard":
         self = .standard
       case "cinematic":
@@ -29,8 +31,6 @@ public extension VideoStabilizationMode {
         self = .previewOptimized
       case "cinematic-extended-enhanced":
         self = .cinematicExtendedEnhanced
-      case "auto":
-        self = .auto
       case "low-latency":
         self = .lowLatency
       default:
@@ -45,6 +45,8 @@ public extension VideoStabilizationMode {
     switch self {
       case .off:
         return "off"
+      case .auto:
+        return "auto"
       case .standard:
         return "standard"
       case .cinematic:
@@ -55,8 +57,6 @@ public extension VideoStabilizationMode {
         return "preview-optimized"
       case .cinematicExtendedEnhanced:
         return "cinematic-extended-enhanced"
-      case .auto:
-        return "auto"
       case .lowLatency:
         return "low-latency"
     }
