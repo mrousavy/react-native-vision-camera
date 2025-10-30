@@ -45,7 +45,7 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
     // 2. Prepare Photo settings
     let captureSettings = settings.toAVCapturePhotoSettings()
     // 3. Perform capture
-    photoOutput.capturePhoto(with: .init(), delegate: delegate)
+    photoOutput.capturePhoto(with: captureSettings, delegate: delegate)
     // 4. Prepare settings for next photo capture so it'll be faster
     photoOutput.setPreparedPhotoSettingsArray([captureSettings])
     return promise
