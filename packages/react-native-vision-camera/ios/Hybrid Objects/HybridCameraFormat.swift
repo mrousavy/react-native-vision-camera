@@ -18,7 +18,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
   var photoResolution: Resolution {
     if #available(iOS 16.0, *) {
       let maxResolution = format.supportedMaxPhotoDimensions.max { left, right in
-        return (left.width * left.height) > (right.width * right.height)
+        return (left.width * left.height) < (right.width * right.height)
       }
       if let maxResolution {
         return Resolution(dimensions: maxResolution)

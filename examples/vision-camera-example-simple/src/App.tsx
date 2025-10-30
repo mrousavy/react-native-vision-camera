@@ -31,10 +31,7 @@ function AppContent() {
 
   useEffect(() => {
     for (const device of devices) {
-      console.log(`${device.id} ${device.deviceName}:`)
-      for (const format of device.formats) {
-        console.log(`   -- ${format.photoResolution.width}x${format.photoResolution.height}`)
-      }
+      console.log(`${device.id} ${device.formats[0].mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0].photoResolution.width} x ${device.formats[0].photoResolution.height} ("${device.deviceName}")`)
     }
   }, [devices])
 
