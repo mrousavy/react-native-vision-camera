@@ -12,6 +12,10 @@
 namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
+// Forward declaration of `CapturePhotoSettings` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoSettings; }
+// Forward declaration of `FlashMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -36,6 +40,8 @@ namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `QualityPrioritization` to properly resolve imports.
+namespace margelo::nitro::camera { enum class QualityPrioritization; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
@@ -61,6 +67,8 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 
 // Include C++ defined types
 #include "CapturePhotoCallbacks.hpp"
+#include "CapturePhotoSettings.hpp"
+#include "FlashMode.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -72,6 +80,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
+#include "QualityPrioritization.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
@@ -609,6 +618,66 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_std__shared_ptr_HybridPhotoSpec_ create_Func_void_std__shared_ptr_HybridPhotoSpec_(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__shared_ptr_HybridPhotoSpec__Wrapper wrap_Func_void_std__shared_ptr_HybridPhotoSpec_(Func_void_std__shared_ptr_HybridPhotoSpec_ value) noexcept {
     return Func_void_std__shared_ptr_HybridPhotoSpec__Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::optional<FlashMode>
+  /**
+   * Specialized version of `std::optional<FlashMode>`.
+   */
+  using std__optional_FlashMode_ = std::optional<FlashMode>;
+  inline std::optional<FlashMode> create_std__optional_FlashMode_(const FlashMode& value) noexcept {
+    return std::optional<FlashMode>(value);
+  }
+  inline bool has_value_std__optional_FlashMode_(const std::optional<FlashMode>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline FlashMode get_std__optional_FlashMode_(const std::optional<FlashMode>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<QualityPrioritization>
+  /**
+   * Specialized version of `std::optional<QualityPrioritization>`.
+   */
+  using std__optional_QualityPrioritization_ = std::optional<QualityPrioritization>;
+  inline std::optional<QualityPrioritization> create_std__optional_QualityPrioritization_(const QualityPrioritization& value) noexcept {
+    return std::optional<QualityPrioritization>(value);
+  }
+  inline bool has_value_std__optional_QualityPrioritization_(const std::optional<QualityPrioritization>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline QualityPrioritization get_std__optional_QualityPrioritization_(const std::optional<QualityPrioritization>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<bool>
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
+    return std::optional<bool>(value);
+  }
+  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<CapturePhotoSettings>
+  /**
+   * Specialized version of `std::optional<CapturePhotoSettings>`.
+   */
+  using std__optional_CapturePhotoSettings_ = std::optional<CapturePhotoSettings>;
+  inline std::optional<CapturePhotoSettings> create_std__optional_CapturePhotoSettings_(const CapturePhotoSettings& value) noexcept {
+    return std::optional<CapturePhotoSettings>(value);
+  }
+  inline bool has_value_std__optional_CapturePhotoSettings_(const std::optional<CapturePhotoSettings>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline CapturePhotoSettings get_std__optional_CapturePhotoSettings_(const std::optional<CapturePhotoSettings>& optional) noexcept {
+    return *optional;
   }
   
   // pragma MARK: std::optional<std::function<void()>>

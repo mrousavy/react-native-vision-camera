@@ -20,6 +20,7 @@ private class HybridImageImpl: HybridImageSpec, NativeImage {
 }
 
 class HybridPhoto: HybridPhotoSpec {
+  
   let photo: AVCapturePhoto
 
   init(photo: AVCapturePhoto) {
@@ -35,6 +36,10 @@ class HybridPhoto: HybridPhotoSpec {
   
   var isRawPhoto: Bool {
     return photo.isRawPhoto
+  }
+  
+  var metadata: AnyMap {
+    return AnyMap.fromDictionaryIgnoreIncompatible(photo.metadata)
   }
   
   // pragma MARK: Pixel Buffer access

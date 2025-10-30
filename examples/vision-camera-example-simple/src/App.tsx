@@ -46,6 +46,8 @@ function AppContent() {
       const mark4 = performance.now()
 
       const image = await photo.capturePhoto({
+      },
+      {
         onDidCapturePhoto() {
           console.log('onDidCapturePhoto')
         },
@@ -64,6 +66,7 @@ function AppContent() {
       const converted = image.toImage()
       const mark6 = performance.now()
       console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
+      console.log(image.metadata)
     } catch(e) {
       console.error(e)
     }

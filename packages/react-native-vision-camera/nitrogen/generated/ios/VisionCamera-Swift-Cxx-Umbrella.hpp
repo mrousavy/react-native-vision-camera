@@ -14,6 +14,10 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
+// Forward declaration of `CapturePhotoSettings` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoSettings; }
+// Forward declaration of `FlashMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -38,6 +42,8 @@ namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `PhysicalCameraDeviceType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhysicalCameraDeviceType; }
+// Forward declaration of `QualityPrioritization` to properly resolve imports.
+namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
 
@@ -45,6 +51,8 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "CameraPosition.hpp"
 #include "CameraSessionOutputType.hpp"
 #include "CapturePhotoCallbacks.hpp"
+#include "CapturePhotoSettings.hpp"
+#include "FlashMode.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -56,8 +64,10 @@ namespace margelo::nitro::camera { struct Resolution; }
 #include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "PhysicalCameraDeviceType.hpp"
+#include "QualityPrioritization.hpp"
 #include "Resolution.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
+#include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>

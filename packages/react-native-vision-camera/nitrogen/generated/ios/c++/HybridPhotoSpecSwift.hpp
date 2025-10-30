@@ -17,6 +17,7 @@ namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
+#include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
 #include <memory>
@@ -69,6 +70,10 @@ namespace margelo::nitro::camera {
     }
     inline bool getIsRawPhoto() noexcept override {
       return _swiftPart.isRawPhoto();
+    }
+    inline std::shared_ptr<AnyMap> getMetadata() noexcept override {
+      auto __result = _swiftPart.getMetadata();
+      return __result;
     }
     inline bool getHasPixelBuffer() noexcept override {
       return _swiftPart.hasPixelBuffer();

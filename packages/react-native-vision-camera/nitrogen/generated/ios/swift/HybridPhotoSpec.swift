@@ -15,6 +15,7 @@ public protocol HybridPhotoSpec_protocol: HybridObject {
   // Properties
   var timestamp: Double { get }
   var isRawPhoto: Bool { get }
+  var metadata: AnyMap { get }
   var hasPixelBuffer: Bool { get }
   var hasPreviewPixelBuffer: Bool { get }
 

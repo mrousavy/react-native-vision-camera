@@ -130,6 +130,13 @@ open class HybridPhotoSpec_cxx {
     }
   }
   
+  public final var metadata: margelo.nitro.SharedAnyMap {
+    @inline(__always)
+    get {
+      return self.__implementation.metadata.cppPart
+    }
+  }
+  
   public final var hasPixelBuffer: Bool {
     @inline(__always)
     get {

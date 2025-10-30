@@ -9,6 +9,12 @@
 
 // Forward declaration of `HybridPhotoSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridPhotoSpec; }
+// Forward declaration of `CapturePhotoSettings` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoSettings; }
+// Forward declaration of `FlashMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FlashMode; }
+// Forward declaration of `QualityPrioritization` to properly resolve imports.
+namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
@@ -19,8 +25,14 @@ namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include "JHybridPhotoSpec.hpp"
-#include "CapturePhotoCallbacks.hpp"
+#include "CapturePhotoSettings.hpp"
 #include <optional>
+#include "JCapturePhotoSettings.hpp"
+#include "FlashMode.hpp"
+#include "JFlashMode.hpp"
+#include "QualityPrioritization.hpp"
+#include "JQualityPrioritization.hpp"
+#include "CapturePhotoCallbacks.hpp"
 #include "JCapturePhotoCallbacks.hpp"
 #include <functional>
 #include "JFunc_void.hpp"
@@ -63,9 +75,9 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> JHybridCameraSessionPhotoOutputSpec::capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JCapturePhotoCallbacks> /* callbacks */)>("capturePhoto");
-    auto __result = method(_javaPart, callbacks.has_value() ? JCapturePhotoCallbacks::fromCpp(callbacks.value()) : nullptr);
+  std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> JHybridCameraSessionPhotoOutputSpec::capturePhoto(const std::optional<CapturePhotoSettings>& settings, const std::optional<CapturePhotoCallbacks>& callbacks) {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JCapturePhotoSettings> /* settings */, jni::alias_ref<JCapturePhotoCallbacks> /* callbacks */)>("capturePhoto");
+    auto __result = method(_javaPart, settings.has_value() ? JCapturePhotoSettings::fromCpp(settings.value()) : nullptr, callbacks.has_value() ? JCapturePhotoCallbacks::fromCpp(callbacks.value()) : nullptr);
     return [&]() {
       auto __promise = Promise<std::shared_ptr<HybridPhotoSpec>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {

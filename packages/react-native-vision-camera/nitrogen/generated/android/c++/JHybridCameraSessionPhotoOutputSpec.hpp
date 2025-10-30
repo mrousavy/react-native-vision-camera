@@ -55,7 +55,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> capturePhoto(const std::optional<CapturePhotoCallbacks>& callbacks) override;
+    std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> capturePhoto(const std::optional<CapturePhotoSettings>& settings, const std::optional<CapturePhotoCallbacks>& callbacks) override;
 
   private:
     friend HybridBase;

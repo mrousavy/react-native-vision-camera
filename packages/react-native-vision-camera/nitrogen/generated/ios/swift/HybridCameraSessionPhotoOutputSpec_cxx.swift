@@ -122,9 +122,9 @@ open class HybridCameraSessionPhotoOutputSpec_cxx : HybridCameraSessionOutputSpe
 
   // Methods
   @inline(__always)
-  public final func capturePhoto(callbacks: bridge.std__optional_CapturePhotoCallbacks_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec____ {
+  public final func capturePhoto(settings: bridge.std__optional_CapturePhotoSettings_, callbacks: bridge.std__optional_CapturePhotoCallbacks_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec____ {
     do {
-      let __result = try self.__implementation.capturePhoto(callbacks: callbacks.value)
+      let __result = try self.__implementation.capturePhoto(settings: settings.value, callbacks: callbacks.value)
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridPhotoSpec___(__promise)

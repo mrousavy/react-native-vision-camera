@@ -1,10 +1,10 @@
 import type { Image } from 'react-native-nitro-image'
-import type { HybridObject } from 'react-native-nitro-modules'
+import type { AnyMap, HybridObject } from 'react-native-nitro-modules'
 
 export interface Photo extends HybridObject<{ ios: 'swift' }> {
   readonly timestamp: number
-
   readonly isRawPhoto: boolean
+  readonly metadata: AnyMap
 
   readonly hasPixelBuffer: boolean
   getPixelBuffer(): ArrayBuffer

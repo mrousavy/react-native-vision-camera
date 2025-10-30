@@ -16,6 +16,7 @@
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
+#include <NitroModules/AnyMap.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <memory>
 #include <NitroImage/HybridImageSpec.hpp>
@@ -51,6 +52,7 @@ namespace margelo::nitro::camera {
       // Properties
       virtual double getTimestamp() = 0;
       virtual bool getIsRawPhoto() = 0;
+      virtual std::shared_ptr<AnyMap> getMetadata() = 0;
       virtual bool getHasPixelBuffer() = 0;
       virtual bool getHasPreviewPixelBuffer() = 0;
 
