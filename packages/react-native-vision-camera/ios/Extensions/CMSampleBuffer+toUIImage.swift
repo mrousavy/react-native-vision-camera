@@ -12,7 +12,7 @@ import CoreImage
 extension CMSampleBuffer {
   private static let context = CIContext(options: [.useSoftwareRenderer: false])
   
-  func toUIImage() throws -> UIImage {
+  func toUIImage(orientation: UIImage.Orientation) throws -> UIImage {
     guard let imageBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not have a PixelBuffer!")
     }
@@ -22,14 +22,16 @@ extension CMSampleBuffer {
                                                     target: self,
                                                     attachmentMode: kCMAttachmentMode_ShouldPropagate)
     let ciAttachments = attachments as? [CIImageOption: Any]
+    // No-copy wrap the PixelBuffer in a CIImage
     let ciImage = CIImage(cvPixelBuffer: imageBuffer, options: ciAttachments)
-    // return UIImage(ciImage: ciImage)
+    // Copy the CIImage into a CGImage (render)
     guard let cgImage = Self.context.createCGImage(ciImage,
                                                    from: ciImage.extent) else {
       throw RuntimeError.error(withMessage: "Failed to copy Frame into CGImage!")
     }
+    // No-copy wrap the CGImage in a UIImage
     return UIImage(cgImage: cgImage,
                    scale: 1,
-                   orientation: .up)
+                   orientation: orientation)
   }
 }

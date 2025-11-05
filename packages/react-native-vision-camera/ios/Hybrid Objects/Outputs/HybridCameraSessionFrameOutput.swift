@@ -60,8 +60,9 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
   
   func setOnFrameCallback(onFrame: ((any HybridFrameSpec) -> Bool)?) throws {
     if let onFrame {
-      delegate.onFrame = { sampleBuffer in
-        let frame = HybridFrame(buffer: sampleBuffer)
+      delegate.onFrame = { (sampleBuffer, orientation) in
+        let frame = HybridFrame(buffer: sampleBuffer,
+                                orientation: orientation)
         _ = onFrame(frame)
       }
     } else {

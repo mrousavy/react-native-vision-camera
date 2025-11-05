@@ -9,7 +9,7 @@ import Foundation
 import AVFoundation
 
 class FrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-  var onFrame: ((CMSampleBuffer) -> Void)?
+  var onFrame: ((CMSampleBuffer, Orientation) -> Void)?
   var onFrameDropped: ((CMSampleBuffer) -> Void)?
   
   func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -20,7 +20,8 @@ class FrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
   
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     if let onFrame {
-      onFrame(sampleBuffer)
+      let orientation = connection.orientation
+      onFrame(sampleBuffer, orientation)
     }
   }
 }

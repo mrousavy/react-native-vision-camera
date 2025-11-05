@@ -66,7 +66,7 @@ function AppContent() {
       'worklet'
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
-        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived!`)
+        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
         const image = frame.toImage()
         console.log(`Created ${image.width}x${image.height} Image!`)
         const boxed = boxFn(image)

@@ -15,10 +15,13 @@
 
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `Orientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include "PixelFormat.hpp"
+#include "Orientation.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <memory>
 #include <NitroImage/HybridImageSpec.hpp>
@@ -56,6 +59,7 @@ namespace margelo::nitro::camera {
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
       virtual PixelFormat getPixelFormat() = 0;
+      virtual Orientation getOrientation() = 0;
 
     public:
       // Methods

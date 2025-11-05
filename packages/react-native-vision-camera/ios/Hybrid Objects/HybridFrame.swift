@@ -12,9 +12,17 @@ import NitroImage
 
 class HybridFrame: HybridFrameSpec {
   var sampleBuffer: CMSampleBuffer?
+  private var pixelBuffer: CVPixelBuffer? {
+    guard let sampleBuffer,
+          sampleBuffer.isValid else {
+      return nil
+    }
+    return sampleBuffer.imageBuffer
+  }
 
-  init(buffer: CMSampleBuffer) {
+  init(buffer: CMSampleBuffer, orientation: Orientation) {
     self.sampleBuffer = buffer
+    self.orientation = orientation
     super.init()
   }
 
@@ -30,14 +38,6 @@ class HybridFrame: HybridFrameSpec {
       return -1
     }
     return sampleBuffer.presentationTimeStamp.seconds
-  }
-
-  private var pixelBuffer: CVPixelBuffer? {
-    guard let sampleBuffer,
-          sampleBuffer.isValid else {
-      return nil
-    }
-    return sampleBuffer.imageBuffer
   }
 
   var width: Double {
@@ -65,6 +65,8 @@ class HybridFrame: HybridFrameSpec {
     let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
     return PixelFormat(osType: format)
   }
+  
+  let orientation: Orientation
 
   func dispose() {
     try? self.sampleBuffer?.invalidate()
@@ -85,7 +87,8 @@ class HybridFrame: HybridFrameSpec {
     guard let sampleBuffer, isValid else {
       throw RuntimeError.error(withMessage: "Cannot convert an invalidated Frame to an Image!")
     }
-    let uiImage = try sampleBuffer.toUIImage()
+    let uiOrientation = orientation.toUIImageOrientation()
+    let uiImage = try sampleBuffer.toUIImage(orientation: uiOrientation)
     return HybridUIImage(uiImage: uiImage)
   }
   

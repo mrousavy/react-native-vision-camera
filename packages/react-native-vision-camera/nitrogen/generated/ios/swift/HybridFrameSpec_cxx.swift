@@ -150,6 +150,13 @@ open class HybridFrameSpec_cxx {
       return self.__implementation.pixelFormat.rawValue
     }
   }
+  
+  public final var orientation: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.orientation.rawValue
+    }
+  }
 
   // Methods
   @inline(__always)
