@@ -17,6 +17,8 @@
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `FrameDroppedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 
@@ -25,6 +27,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 #include "HybridFrameSpec.hpp"
 #include <functional>
 #include <optional>
+#include "FrameDroppedReason.hpp"
 #include "HybridCameraSessionOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
@@ -59,6 +62,7 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual void setOnFrameCallback(const std::optional<std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)>>& onFrame) = 0;
+      virtual void setOnFrameDroppedCallback(const std::optional<std::function<void(FrameDroppedReason /* reason */)>>& onFrameDropped) = 0;
 
     protected:
       // Hybrid Setup

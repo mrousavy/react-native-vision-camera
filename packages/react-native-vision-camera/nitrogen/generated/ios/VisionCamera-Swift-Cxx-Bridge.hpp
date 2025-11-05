@@ -22,6 +22,8 @@ namespace margelo::nitro::camera { enum class ExposureMode; }
 namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `FocusMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `FrameDroppedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -100,6 +102,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "ExposureMode.hpp"
 #include "FlashMode.hpp"
 #include "FocusMode.hpp"
+#include "FrameDroppedReason.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -972,6 +975,43 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.has_value();
   }
   inline std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)> get_std__optional_std__function_bool_const_std__shared_ptr_HybridFrameSpec______frame______(const std::optional<std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)>>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::function<void(FrameDroppedReason /* reason */)>
+  /**
+   * Specialized version of `std::function<void(FrameDroppedReason)>`.
+   */
+  using Func_void_FrameDroppedReason = std::function<void(FrameDroppedReason /* reason */)>;
+  /**
+   * Wrapper class for a `std::function<void(FrameDroppedReason / * reason * /)>`, this can be used from Swift.
+   */
+  class Func_void_FrameDroppedReason_Wrapper final {
+  public:
+    explicit Func_void_FrameDroppedReason_Wrapper(std::function<void(FrameDroppedReason /* reason */)>&& func): _function(std::make_unique<std::function<void(FrameDroppedReason /* reason */)>>(std::move(func))) {}
+    inline void call(int reason) const noexcept {
+      _function->operator()(static_cast<FrameDroppedReason>(reason));
+    }
+  private:
+    std::unique_ptr<std::function<void(FrameDroppedReason /* reason */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_FrameDroppedReason create_Func_void_FrameDroppedReason(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_FrameDroppedReason_Wrapper wrap_Func_void_FrameDroppedReason(Func_void_FrameDroppedReason value) noexcept {
+    return Func_void_FrameDroppedReason_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::optional<std::function<void(FrameDroppedReason /* reason */)>>
+  /**
+   * Specialized version of `std::optional<std::function<void(FrameDroppedReason / * reason * /)>>`.
+   */
+  using std__optional_std__function_void_FrameDroppedReason____reason______ = std::optional<std::function<void(FrameDroppedReason /* reason */)>>;
+  inline std::optional<std::function<void(FrameDroppedReason /* reason */)>> create_std__optional_std__function_void_FrameDroppedReason____reason______(const std::function<void(FrameDroppedReason /* reason */)>& value) noexcept {
+    return std::optional<std::function<void(FrameDroppedReason /* reason */)>>(value);
+  }
+  inline bool has_value_std__optional_std__function_void_FrameDroppedReason____reason______(const std::optional<std::function<void(FrameDroppedReason /* reason */)>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::function<void(FrameDroppedReason /* reason */)> get_std__optional_std__function_void_FrameDroppedReason____reason______(const std::optional<std::function<void(FrameDroppedReason /* reason */)>>& optional) noexcept {
     return *optional;
   }
   

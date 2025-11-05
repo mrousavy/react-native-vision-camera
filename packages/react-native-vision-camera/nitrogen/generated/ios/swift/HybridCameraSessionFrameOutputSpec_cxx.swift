@@ -154,4 +154,27 @@ open class HybridCameraSessionFrameOutputSpec_cxx : HybridCameraSessionOutputSpe
       return bridge.create_Result_void_(__exceptionPtr)
     }
   }
+  
+  @inline(__always)
+  public final func setOnFrameDroppedCallback(onFrameDropped: bridge.std__optional_std__function_void_FrameDroppedReason____reason______) -> bridge.Result_void_ {
+    do {
+      try self.__implementation.setOnFrameDroppedCallback(onFrameDropped: { () -> ((_ reason: FrameDroppedReason) -> Void)? in
+        if bridge.has_value_std__optional_std__function_void_FrameDroppedReason____reason______(onFrameDropped) {
+          let __unwrapped = bridge.get_std__optional_std__function_void_FrameDroppedReason____reason______(onFrameDropped)
+          return { () -> (FrameDroppedReason) -> Void in
+            let __wrappedFunction = bridge.wrap_Func_void_FrameDroppedReason(__unwrapped)
+            return { (__reason: FrameDroppedReason) -> Void in
+              __wrappedFunction.call(__reason.rawValue)
+            }
+          }()
+        } else {
+          return nil
+        }
+      }())
+      return bridge.create_Result_void_()
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_void_(__exceptionPtr)
+    }
+  }
 }

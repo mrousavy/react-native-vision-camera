@@ -60,4 +60,25 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
       delegate.onFrame = nil
     }
   }
+  
+  func setOnFrameDroppedCallback(onFrameDropped: ((FrameDroppedReason) -> Void)?) throws {
+    if let onFrameDropped {
+      delegate.onFrameDropped = { sampleBuffer in
+        guard let attachment = sampleBuffer.attachments[.droppedFrameReason],
+              let reason = attachment.value as? String else { return }
+        switch reason as CFString {
+        case kCMSampleBufferDroppedFrameReason_FrameWasLate:
+          onFrameDropped(.frameWasLate)
+        case kCMSampleBufferDroppedFrameReason_OutOfBuffers:
+          onFrameDropped(.outOfBuffers)
+        case kCMSampleBufferDroppedFrameReason_Discontinuity:
+          onFrameDropped(.discontinuity)
+        default:
+          onFrameDropped(.unknown)
+        }
+      }
+    } else {
+      delegate.onFrameDropped = nil
+    }
+  }
 }

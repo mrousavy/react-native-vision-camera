@@ -16,6 +16,8 @@ namespace VisionCamera { class HybridCameraSessionFrameOutputSpec_cxx; }
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `FrameDroppedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraSessionOutputSpecSwift` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
 
@@ -24,6 +26,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
 #include "HybridFrameSpec.hpp"
 #include <functional>
 #include <optional>
+#include "FrameDroppedReason.hpp"
 #include "HybridCameraSessionOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -76,6 +79,12 @@ namespace margelo::nitro::camera {
     // Methods
     inline void setOnFrameCallback(const std::optional<std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)>>& onFrame) override {
       auto __result = _swiftPart.setOnFrameCallback(onFrame);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+    }
+    inline void setOnFrameDroppedCallback(const std::optional<std::function<void(FrameDroppedReason /* reason */)>>& onFrameDropped) override {
+      auto __result = _swiftPart.setOnFrameDroppedCallback(onFrameDropped);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

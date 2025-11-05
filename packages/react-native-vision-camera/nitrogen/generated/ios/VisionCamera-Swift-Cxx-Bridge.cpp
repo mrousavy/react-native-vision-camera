@@ -292,6 +292,14 @@ namespace margelo::nitro::camera::bridge::swift {
     };
   }
   
+  // pragma MARK: std::function<void(FrameDroppedReason /* reason */)>
+  Func_void_FrameDroppedReason create_Func_void_FrameDroppedReason(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_FrameDroppedReason::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](FrameDroppedReason reason) mutable -> void {
+      swiftClosure.call(static_cast<int>(reason));
+    };
+  }
+  
   // pragma MARK: std::function<void(const std::shared_ptr<HybridPhotoSpec>& /* result */)>
   Func_void_std__shared_ptr_HybridPhotoSpec_ create_Func_void_std__shared_ptr_HybridPhotoSpec_(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = VisionCamera::Func_void_std__shared_ptr_HybridPhotoSpec_::fromUnsafe(swiftClosureWrapper);

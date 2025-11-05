@@ -3,6 +3,12 @@ import type { Frame } from '../Frame.nitro'
 import type { Sync } from 'react-native-nitro-modules'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
 
+export type FrameDroppedReason =
+  | 'frame-was-late'
+  | 'out-of-buffers'
+  | 'discontinuity'
+  | 'unknown'
+
 export interface CameraSessionFrameOutput extends CameraSessionOutput {
   /**
    * Get the {@linkcode NativeThread} that this {@linkcode CameraSessionFrameOutput}
@@ -18,4 +24,11 @@ export interface CameraSessionFrameOutput extends CameraSessionOutput {
    * that is running on this {@linkcode thread}.
    */
   setOnFrameCallback(onFrame: Sync<(frame: Frame) => boolean> | undefined): void
+  /**
+   * Adds a callback that gets called when a {@linkcode Frame} has been dropped.
+   * This often happens if your Frame Callback is taking longer than a frame interval.
+   */
+  setOnFrameDroppedCallback(
+    onFrameDropped: ((reason: FrameDroppedReason) => void) | undefined
+  ): void
 }

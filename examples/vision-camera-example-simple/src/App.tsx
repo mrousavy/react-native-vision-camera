@@ -49,6 +49,9 @@ function AppContent() {
       useDefaultQueue: false,
       customQueue: queue
     })
+    output.setOnFrameDroppedCallback((reason) => {
+      console.log(`Frame dropped - reason: ${reason}`)
+    })
     const boxedOutput = NitroModules.box(output)
     scheduleOnRuntime(runtime, () => {
       'worklet'

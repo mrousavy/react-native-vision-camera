@@ -15,6 +15,7 @@ public protocol HybridCameraSessionFrameOutputSpec_protocol: HybridObject, Hybri
 
   // Methods
   func setOnFrameCallback(onFrame: ((_ frame: (any HybridFrameSpec)) -> Bool)?) throws -> Void
+  func setOnFrameDroppedCallback(onFrameDropped: ((_ reason: FrameDroppedReason) -> Void)?) throws -> Void
 }
 
 public extension HybridCameraSessionFrameOutputSpec_protocol {
