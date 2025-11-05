@@ -55,6 +55,7 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log('Frame produced:', frame.width, frame.height)
+        frame.dispose()
         return true
       })
     })

@@ -10,6 +10,6 @@ import Foundation
 
 extension CMSampleBuffer {
   var memorySize: Int {
-    return CVPixelBufferGetDataSize(self)
+    return self.totalSampleSize
   }
 }

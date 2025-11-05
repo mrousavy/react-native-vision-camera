@@ -36,7 +36,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
   func configure(inputs: [any HybridCameraDeviceSpec],
                  outputs: [any HybridCameraSessionOutputSpec],
                  configuration: CameraSessionConfiguration) -> Promise<Void> {
-    return Promise.parallel(CameraQueues.cameraQueue) {
+    return Promise.parallel(queue) {
       // 1. Check if we need to do an actual session configuration batch
       let isSessionTheSame = self.areInputsTheSame(inputs) && self.areOutputsTheSame(outputs)
       if !isSessionTheSame {
@@ -65,13 +65,13 @@ class HybridCameraSession: HybridCameraSessionSpec {
   }
   
   func start() -> Promise<Void> {
-    return Promise.parallel(CameraQueues.cameraQueue) {
+    return Promise.parallel(queue) {
       self.session.startRunning()
     }
   }
   
   func stop() -> Promise<Void> {
-    return Promise.parallel(CameraQueues.cameraQueue) {
+    return Promise.parallel(queue) {
       self.session.stopRunning()
     }
   }

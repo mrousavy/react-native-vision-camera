@@ -10,7 +10,7 @@ import AVFoundation
 
 class HybridCameraFactory: HybridCameraFactorySpec {
   func createDeviceFactory() -> Promise<any HybridCameraDeviceFactorySpec> {
-    return Promise.parallel(CameraQueues.cameraQueue) {
+    return Promise.async {
       return HybridCameraDeviceFactory()
     }
   }
