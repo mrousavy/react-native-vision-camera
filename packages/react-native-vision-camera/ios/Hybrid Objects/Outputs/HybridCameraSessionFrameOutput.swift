@@ -7,24 +7,6 @@
 import Foundation
 import NitroModules
 import AVFoundation
-import NitroImage
-
-private class FrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-  var onFrame: ((CMSampleBuffer) -> Void)?
-  var onFrameDropped: ((CMSampleBuffer) -> Void)?
-  
-  func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-    if let onFrameDropped {
-      onFrameDropped(sampleBuffer)
-    }
-  }
-  
-  func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-    if let onFrame {
-      onFrame(sampleBuffer)
-    }
-  }
-}
 
 class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, CameraSessionOutput {
   private let videoOutput: AVCaptureVideoDataOutput
@@ -44,6 +26,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
                                autoreleaseFrequency: .inherit,
                                target: nil)
     videoOutput.setSampleBufferDelegate(delegate, queue: queue)
+    videoOutput.alwaysDiscardsLateVideoFrames = true
   }
   
   var thread: any HybridNativeThreadSpec {
@@ -54,7 +37,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
     if let onFrame {
       delegate.onFrame = { sampleBuffer in
         let frame = HybridFrame(buffer: sampleBuffer)
-        onFrame(frame)
+        _ = onFrame(frame)
       }
     } else {
       delegate.onFrame = nil
@@ -64,18 +47,11 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
   func setOnFrameDroppedCallback(onFrameDropped: ((FrameDroppedReason) -> Void)?) throws {
     if let onFrameDropped {
       delegate.onFrameDropped = { sampleBuffer in
-        guard let attachment = sampleBuffer.attachments[.droppedFrameReason],
-              let reason = attachment.value as? String else { return }
-        switch reason as CFString {
-        case kCMSampleBufferDroppedFrameReason_FrameWasLate:
-          onFrameDropped(.frameWasLate)
-        case kCMSampleBufferDroppedFrameReason_OutOfBuffers:
-          onFrameDropped(.outOfBuffers)
-        case kCMSampleBufferDroppedFrameReason_Discontinuity:
-          onFrameDropped(.discontinuity)
-        default:
-          onFrameDropped(.unknown)
+        guard let attachment = sampleBuffer.attachments[.droppedFrameReason] else {
+          return
         }
+        let reason = FrameDroppedReason(sampleBufferReason: attachment)
+        onFrameDropped(reason)
       }
     } else {
       delegate.onFrameDropped = nil
