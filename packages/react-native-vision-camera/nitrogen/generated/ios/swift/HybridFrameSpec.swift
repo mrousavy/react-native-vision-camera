@@ -13,6 +13,9 @@ import NitroModules
 public protocol HybridFrameSpec_protocol: HybridObject {
   // Properties
   var timestamp: Double { get }
+  var isValid: Bool { get }
+  var width: Double { get }
+  var height: Double { get }
 
   // Methods
   func getPixelBuffer() throws -> ArrayBuffer

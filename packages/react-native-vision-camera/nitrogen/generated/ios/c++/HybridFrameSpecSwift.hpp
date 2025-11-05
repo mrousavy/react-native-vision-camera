@@ -61,6 +61,15 @@ namespace margelo::nitro::camera {
     inline double getTimestamp() noexcept override {
       return _swiftPart.getTimestamp();
     }
+    inline bool getIsValid() noexcept override {
+      return _swiftPart.isValid();
+    }
+    inline double getWidth() noexcept override {
+      return _swiftPart.getWidth();
+    }
+    inline double getHeight() noexcept override {
+      return _swiftPart.getHeight();
+    }
 
   public:
     // Methods

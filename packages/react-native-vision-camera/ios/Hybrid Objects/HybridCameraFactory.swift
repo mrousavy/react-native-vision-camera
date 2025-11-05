@@ -22,4 +22,8 @@ class HybridCameraFactory: HybridCameraFactorySpec {
   func createPhotoOutput() -> any HybridCameraSessionPhotoOutputSpec {
     return HybridCameraSessionPhotoOutput()
   }
+  
+  func createFrameOutput() -> any HybridCameraSessionFrameOutputSpec {
+    return HybridCameraSessionFrameOutput()
+  }
 }

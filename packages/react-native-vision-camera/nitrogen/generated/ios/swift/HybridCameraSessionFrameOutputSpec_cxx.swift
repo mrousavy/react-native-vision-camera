@@ -117,26 +117,41 @@ open class HybridCameraSessionFrameOutputSpec_cxx : HybridCameraSessionOutputSpe
   }
 
   // Properties
-  
+  public final var thread: bridge.std__shared_ptr_HybridNativeThreadSpec_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__shared_ptr_HybridNativeThreadSpec_ in
+        let __cxxWrapped = self.__implementation.thread.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+    }
+  }
 
   // Methods
   @inline(__always)
-  public final func addOnFrameListener(listener: bridge.Func_void_std__shared_ptr_HybridFrameSpec_) -> bridge.Result_ListenerSubscription_ {
+  public final func setOnFrameCallback(onFrame: bridge.std__optional_std__function_bool_const_std__shared_ptr_HybridFrameSpec______frame______) -> bridge.Result_void_ {
     do {
-      let __result = try self.__implementation.addOnFrameListener(listener: { () -> ((any HybridFrameSpec)) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__shared_ptr_HybridFrameSpec_(listener)
-        return { (__frame: (any HybridFrameSpec)) -> Void in
-          __wrappedFunction.call({ () -> bridge.std__shared_ptr_HybridFrameSpec_ in
-            let __cxxWrapped = __frame.getCxxWrapper()
-            return __cxxWrapped.getCxxPart()
-          }())
+      try self.__implementation.setOnFrameCallback(onFrame: { () -> ((_ frame: (any HybridFrameSpec)) -> Bool)? in
+        if bridge.has_value_std__optional_std__function_bool_const_std__shared_ptr_HybridFrameSpec______frame______(onFrame) {
+          let __unwrapped = bridge.get_std__optional_std__function_bool_const_std__shared_ptr_HybridFrameSpec______frame______(onFrame)
+          return { () -> ((any HybridFrameSpec)) -> Bool in
+            let __wrappedFunction = bridge.wrap_Func_bool_std__shared_ptr_HybridFrameSpec_(__unwrapped)
+            return { (__frame: (any HybridFrameSpec)) -> Bool in
+              let __result = __wrappedFunction.call({ () -> bridge.std__shared_ptr_HybridFrameSpec_ in
+                let __cxxWrapped = __frame.getCxxWrapper()
+                return __cxxWrapped.getCxxPart()
+              }())
+              return __result
+            }
+          }()
+        } else {
+          return nil
         }
       }())
-      let __resultCpp = __result
-      return bridge.create_Result_ListenerSubscription_(__resultCpp)
+      return bridge.create_Result_void_()
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_ListenerSubscription_(__exceptionPtr)
+      return bridge.create_Result_void_(__exceptionPtr)
     }
   }
 }

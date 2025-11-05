@@ -1,6 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraSessionOutput } from './outputs/CameraSessionOutput.nitro'
-import type { CameraDevice } from './CameraDevice.nitro'
+import type { CameraDevice } from './inputs/CameraDevice.nitro'
 import type { CameraFormat } from './CameraFormat.nitro'
 import type { Range } from './common-types/Range'
 import type { FocusMode } from './common-types/FocusMode'

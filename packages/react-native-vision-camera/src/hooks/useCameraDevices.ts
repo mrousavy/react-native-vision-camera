@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { CameraDevice } from '../specs/CameraDevice.nitro'
+import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import {
   addOnCameraDevicesChangedListener,
   getAllCameraDevices,

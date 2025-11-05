@@ -1,9 +1,9 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraDevice } from './CameraDevice.nitro'
-import type { ListenerSubscription } from './common-types/ListenerSubscription'
-import type { CameraPosition } from './common-types/CameraPosition'
-import type { MediaType } from './CameraFormat.nitro'
-import type { DeviceType } from './common-types/DeviceType'
+import type { ListenerSubscription } from '../common-types/ListenerSubscription'
+import type { CameraPosition } from '../common-types/CameraPosition'
+import type { MediaType } from '../CameraFormat.nitro'
+import type { DeviceType } from '../common-types/DeviceType'
 
 export interface CameraDeviceFactory extends HybridObject<{ ios: 'swift' }> {
   /**

@@ -121,6 +121,27 @@ open class HybridFrameSpec_cxx {
       return self.__implementation.timestamp
     }
   }
+  
+  public final var isValid: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isValid
+    }
+  }
+  
+  public final var width: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.width
+    }
+  }
+  
+  public final var height: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.height
+    }
+  }
 
   // Methods
   @inline(__always)

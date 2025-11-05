@@ -30,12 +30,12 @@ namespace margelo::nitro::camera {
    */
   enum class VideoStabilizationMode {
     OFF      SWIFT_NAME(off) = 0,
-    AUTO      SWIFT_NAME(auto) = 1,
-    STANDARD      SWIFT_NAME(standard) = 2,
-    CINEMATIC      SWIFT_NAME(cinematic) = 3,
-    CINEMATIC_EXTENDED      SWIFT_NAME(cinematicExtended) = 4,
-    PREVIEW_OPTIMIZED      SWIFT_NAME(previewOptimized) = 5,
-    CINEMATIC_EXTENDED_ENHANCED      SWIFT_NAME(cinematicExtendedEnhanced) = 6,
+    STANDARD      SWIFT_NAME(standard) = 1,
+    CINEMATIC      SWIFT_NAME(cinematic) = 2,
+    CINEMATIC_EXTENDED      SWIFT_NAME(cinematicExtended) = 3,
+    PREVIEW_OPTIMIZED      SWIFT_NAME(previewOptimized) = 4,
+    CINEMATIC_EXTENDED_ENHANCED      SWIFT_NAME(cinematicExtendedEnhanced) = 5,
+    AUTO      SWIFT_NAME(auto) = 6,
     LOW_LATENCY      SWIFT_NAME(lowLatency) = 7,
   } CLOSED_ENUM;
 
@@ -50,12 +50,12 @@ namespace margelo::nitro {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("off"): return margelo::nitro::camera::VideoStabilizationMode::OFF;
-        case hashString("auto"): return margelo::nitro::camera::VideoStabilizationMode::AUTO;
         case hashString("standard"): return margelo::nitro::camera::VideoStabilizationMode::STANDARD;
         case hashString("cinematic"): return margelo::nitro::camera::VideoStabilizationMode::CINEMATIC;
         case hashString("cinematic-extended"): return margelo::nitro::camera::VideoStabilizationMode::CINEMATIC_EXTENDED;
         case hashString("preview-optimized"): return margelo::nitro::camera::VideoStabilizationMode::PREVIEW_OPTIMIZED;
         case hashString("cinematic-extended-enhanced"): return margelo::nitro::camera::VideoStabilizationMode::CINEMATIC_EXTENDED_ENHANCED;
+        case hashString("auto"): return margelo::nitro::camera::VideoStabilizationMode::AUTO;
         case hashString("low-latency"): return margelo::nitro::camera::VideoStabilizationMode::LOW_LATENCY;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum VideoStabilizationMode - invalid value!");
@@ -64,12 +64,12 @@ namespace margelo::nitro {
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::VideoStabilizationMode arg) {
       switch (arg) {
         case margelo::nitro::camera::VideoStabilizationMode::OFF: return JSIConverter<std::string>::toJSI(runtime, "off");
-        case margelo::nitro::camera::VideoStabilizationMode::AUTO: return JSIConverter<std::string>::toJSI(runtime, "auto");
         case margelo::nitro::camera::VideoStabilizationMode::STANDARD: return JSIConverter<std::string>::toJSI(runtime, "standard");
         case margelo::nitro::camera::VideoStabilizationMode::CINEMATIC: return JSIConverter<std::string>::toJSI(runtime, "cinematic");
         case margelo::nitro::camera::VideoStabilizationMode::CINEMATIC_EXTENDED: return JSIConverter<std::string>::toJSI(runtime, "cinematic-extended");
         case margelo::nitro::camera::VideoStabilizationMode::PREVIEW_OPTIMIZED: return JSIConverter<std::string>::toJSI(runtime, "preview-optimized");
         case margelo::nitro::camera::VideoStabilizationMode::CINEMATIC_EXTENDED_ENHANCED: return JSIConverter<std::string>::toJSI(runtime, "cinematic-extended-enhanced");
+        case margelo::nitro::camera::VideoStabilizationMode::AUTO: return JSIConverter<std::string>::toJSI(runtime, "auto");
         case margelo::nitro::camera::VideoStabilizationMode::LOW_LATENCY: return JSIConverter<std::string>::toJSI(runtime, "low-latency");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert VideoStabilizationMode to JS - invalid value: "
@@ -83,12 +83,12 @@ namespace margelo::nitro {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("off"):
-        case hashString("auto"):
         case hashString("standard"):
         case hashString("cinematic"):
         case hashString("cinematic-extended"):
         case hashString("preview-optimized"):
         case hashString("cinematic-extended-enhanced"):
+        case hashString("auto"):
         case hashString("low-latency"):
           return true;
         default:

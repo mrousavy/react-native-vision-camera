@@ -33,8 +33,6 @@ target_sources(
   # Autolinking Setup
   ../nitrogen/generated/android/VisionCameraOnLoad.cpp
   # Shared Nitrogen C++ sources
-  ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionSpec.cpp
@@ -44,6 +42,8 @@ target_sources(
   ../nitrogen/generated/shared/c++/views/HybridPreviewViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridNativeThreadSpec.cpp
   ../nitrogen/generated/shared/c++/HybridWorkletQueueFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionFrameOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionPhotoOutputSpec.cpp

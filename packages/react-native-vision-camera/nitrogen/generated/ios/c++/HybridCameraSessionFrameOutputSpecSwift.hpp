@@ -12,17 +12,18 @@
 // Forward declaration of `HybridCameraSessionFrameOutputSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionFrameOutputSpec_cxx; }
 
-// Forward declaration of `ListenerSubscription` to properly resolve imports.
-namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpecSwift` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
 
-#include "ListenerSubscription.hpp"
-#include <functional>
 #include <memory>
+#include "HybridNativeThreadSpec.hpp"
 #include "HybridFrameSpec.hpp"
+#include <functional>
+#include <optional>
 #include "HybridCameraSessionOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -66,17 +67,18 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    inline std::shared_ptr<HybridNativeThreadSpec> getThread() noexcept override {
+      auto __result = _swiftPart.getThread();
+      return __result;
+    }
 
   public:
     // Methods
-    inline ListenerSubscription addOnFrameListener(const std::function<void(const std::shared_ptr<HybridFrameSpec>& /* frame */)>& listener) override {
-      auto __result = _swiftPart.addOnFrameListener(listener);
+    inline void setOnFrameCallback(const std::optional<std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)>>& onFrame) override {
+      auto __result = _swiftPart.setOnFrameCallback(onFrame);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
-      auto __value = std::move(__result.value());
-      return __value;
     }
 
   private:

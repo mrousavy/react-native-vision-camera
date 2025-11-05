@@ -17,12 +17,12 @@ public extension TorchMode {
    */
   init?(fromString string: String) {
     switch string {
-      case "on":
-        self = .on
       case "off":
         self = .off
       case "auto":
         self = .auto
+      case "on":
+        self = .on
       default:
         return nil
     }
@@ -33,12 +33,12 @@ public extension TorchMode {
    */
   var stringValue: String {
     switch self {
-      case .on:
-        return "on"
       case .off:
         return "off"
       case .auto:
         return "auto"
+      case .on:
+        return "on"
     }
   }
 }

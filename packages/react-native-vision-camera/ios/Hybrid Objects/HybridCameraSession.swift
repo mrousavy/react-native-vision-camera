@@ -12,10 +12,13 @@ class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
   private let queue: DispatchQueue
   private var configuration: CameraSessionConfiguration? = nil
+  private static var counter = 0
   
   override init() {
     self.session = AVCaptureSession()
-    self.queue = DispatchQueue(label: "mrousavy/VisionCamera.main",
+    Self.counter += 1
+    let instanceId = Self.counter
+    self.queue = DispatchQueue(label: "com.margelo.camera.session-\(instanceId)",
                                qos: .userInteractive,
                                attributes: [],
                                autoreleaseFrequency: .inherit,

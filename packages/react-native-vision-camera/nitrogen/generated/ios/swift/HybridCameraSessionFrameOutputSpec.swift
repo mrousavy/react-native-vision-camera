@@ -11,10 +11,10 @@ import NitroModules
 /// See ``HybridCameraSessionFrameOutputSpec``
 public protocol HybridCameraSessionFrameOutputSpec_protocol: HybridObject, HybridCameraSessionOutputSpec_protocol {
   // Properties
-  
+  var thread: (any HybridNativeThreadSpec) { get }
 
   // Methods
-  func addOnFrameListener(listener: @escaping (_ frame: (any HybridFrameSpec)) -> Void) throws -> ListenerSubscription
+  func setOnFrameCallback(onFrame: ((_ frame: (any HybridFrameSpec)) -> Bool)?) throws -> Void
 }
 
 public extension HybridCameraSessionFrameOutputSpec_protocol {

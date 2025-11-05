@@ -45,6 +45,9 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual double getTimestamp() = 0;
+      virtual bool getIsValid() = 0;
+      virtual double getWidth() = 0;
+      virtual double getHeight() = 0;
 
     public:
       // Methods

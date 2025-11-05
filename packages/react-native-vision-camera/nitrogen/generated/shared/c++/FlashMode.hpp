@@ -29,9 +29,9 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (FlashMode).
    */
   enum class FlashMode {
-    ON      SWIFT_NAME(on) = 0,
-    OFF      SWIFT_NAME(off) = 1,
-    AUTO      SWIFT_NAME(auto) = 2,
+    OFF      SWIFT_NAME(off) = 0,
+    AUTO      SWIFT_NAME(auto) = 1,
+    ON      SWIFT_NAME(on) = 2,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -44,18 +44,18 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::FlashMode fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("on"): return margelo::nitro::camera::FlashMode::ON;
         case hashString("off"): return margelo::nitro::camera::FlashMode::OFF;
         case hashString("auto"): return margelo::nitro::camera::FlashMode::AUTO;
+        case hashString("on"): return margelo::nitro::camera::FlashMode::ON;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum FlashMode - invalid value!");
       }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::FlashMode arg) {
       switch (arg) {
-        case margelo::nitro::camera::FlashMode::ON: return JSIConverter<std::string>::toJSI(runtime, "on");
         case margelo::nitro::camera::FlashMode::OFF: return JSIConverter<std::string>::toJSI(runtime, "off");
         case margelo::nitro::camera::FlashMode::AUTO: return JSIConverter<std::string>::toJSI(runtime, "auto");
+        case margelo::nitro::camera::FlashMode::ON: return JSIConverter<std::string>::toJSI(runtime, "on");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert FlashMode to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -67,9 +67,9 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("on"):
         case hashString("off"):
         case hashString("auto"):
+        case hashString("on"):
           return true;
         default:
           return false;

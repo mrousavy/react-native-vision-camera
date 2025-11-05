@@ -3,6 +3,7 @@ import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NitroImage } from 'react-native-nitro-image';
 import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncImageSource';
+import { NitroModules } from 'react-native-nitro-modules';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
@@ -39,23 +40,26 @@ function AppContent() {
     }
   }, [devices])
 
-  useEffect(() => {
-    const thread = session.cameraThread
-    console.log(thread.id)
+  const createVideoOutput = () => {
+    const output = HybridCameraFactory.createFrameOutput()
+    const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
-    console.log(queue)
     const runtime = createWorkletRuntime({
-      name: 'VisionCameraRuntime',
+      name: 'com.margelo.camera.frame-processor',
       useDefaultQueue: false,
       customQueue: queue
     })
-    console.log(runtime.name)
+    const boxedOutput = NitroModules.box(output)
     scheduleOnRuntime(runtime, () => {
       'worklet'
-      console.log('Running on Worklet Runtime!!')
+      const unboxed = boxedOutput.unbox()
+      unboxed.setOnFrameCallback((frame) => {
+        console.log('Frame produced:', frame.width, frame.height)
+        return true
+      })
     })
-    console.log('Done')
-  }, [session])
+    return output
+  }
 
   useEffect(() => {
     const device = devices[0]
@@ -65,7 +69,8 @@ function AppContent() {
       try {
         const mark1 = performance.now()
         const photo = HybridCameraFactory.createPhotoOutput()
-        await session.configure([device], [photo], {  })
+        const video = createVideoOutput()
+        await session.configure([device], [photo, video], {  })
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
 

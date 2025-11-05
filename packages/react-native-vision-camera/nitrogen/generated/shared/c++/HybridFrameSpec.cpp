@@ -15,6 +15,9 @@ namespace margelo::nitro::camera {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("timestamp", &HybridFrameSpec::getTimestamp);
+      prototype.registerHybridGetter("isValid", &HybridFrameSpec::getIsValid);
+      prototype.registerHybridGetter("width", &HybridFrameSpec::getWidth);
+      prototype.registerHybridGetter("height", &HybridFrameSpec::getHeight);
       prototype.registerHybridMethod("getPixelBuffer", &HybridFrameSpec::getPixelBuffer);
     });
   }

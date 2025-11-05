@@ -1,5 +1,5 @@
 import { HybridCameraFactory } from '.'
-import type { CameraDevice } from './specs/CameraDevice.nitro'
+import type { CameraDevice } from './specs/inputs/CameraDevice.nitro'
 import type { ListenerSubscription } from './specs/common-types/ListenerSubscription'
 
 // this caches our Camera Devices

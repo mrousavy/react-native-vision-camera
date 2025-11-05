@@ -15,7 +15,8 @@ namespace margelo::nitro::camera {
     HybridCameraSessionOutputSpec::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridMethod("addOnFrameListener", &HybridCameraSessionFrameOutputSpec::addOnFrameListener);
+      prototype.registerHybridGetter("thread", &HybridCameraSessionFrameOutputSpec::getThread);
+      prototype.registerHybridMethod("setOnFrameCallback", &HybridCameraSessionFrameOutputSpec::setOnFrameCallback);
     });
   }
 

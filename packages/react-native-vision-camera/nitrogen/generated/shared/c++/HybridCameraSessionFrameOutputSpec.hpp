@@ -13,17 +13,18 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `ListenerSubscription` to properly resolve imports.
-namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 
-#include "ListenerSubscription.hpp"
 #include <memory>
+#include "HybridNativeThreadSpec.hpp"
 #include "HybridFrameSpec.hpp"
 #include <functional>
+#include <optional>
 #include "HybridCameraSessionOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
@@ -53,11 +54,11 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      
+      virtual std::shared_ptr<HybridNativeThreadSpec> getThread() = 0;
 
     public:
       // Methods
-      virtual ListenerSubscription addOnFrameListener(const std::function<void(const std::shared_ptr<HybridFrameSpec>& /* frame */)>& listener) = 0;
+      virtual void setOnFrameCallback(const std::optional<std::function<bool(const std::shared_ptr<HybridFrameSpec>& /* frame */)>>& onFrame) = 0;
 
     protected:
       // Hybrid Setup
