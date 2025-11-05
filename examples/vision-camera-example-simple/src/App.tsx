@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState,  } from 'react';
+import { useEffect, useMemo, useState, } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NitroImage } from 'react-native-nitro-image';
 import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncImageSource';
 import {
@@ -11,10 +12,12 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    <GestureHandlerRootView>
+      <SafeAreaProvider>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <AppContent />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -41,45 +44,45 @@ function AppContent() {
 
     (async () => {
       try {
-      const mark1 = performance.now()
-      const photo = HybridCameraFactory.createPhotoOutput()
-      await session.configure([device], [photo])
-      const mark2 = performance.now()
-      console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
+        const mark1 = performance.now()
+        const photo = HybridCameraFactory.createPhotoOutput()
+        await session.configure([device], [photo], {  })
+        const mark2 = performance.now()
+        console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
 
-      await session.start()
-      const mark3 = performance.now()
-      console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
+        await session.start()
+        const mark3 = performance.now()
+        console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
 
-      await timeout(3000)
-      const mark4 = performance.now()
+        await timeout(3000)
+        const mark4 = performance.now()
 
-      const image = await photo.capturePhoto({
-      },
-      {
-        onDidCapturePhoto() {
-          console.log('onDidCapturePhoto')
+        const image = await photo.capturePhoto({
         },
-        onDidFinishCapture() {
-          console.log('onDidFinishCapture')
-        },
-        onWillBeginCapture() {
-          console.log('onWillBeginCapture')
-        },
-        onWillCapturePhoto() {
-          console.log('onWillCapturePhoto')
-        }
-      })
-      const mark5 = performance.now()
-      console.log(`Photo capture took ${(mark5 - mark4).toFixed(0)}ms!`)
-      const converted = image.toImage()
-      const mark6 = performance.now()
-      console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
-      console.log(image.metadata)
-      setI(converted)
-    } catch(e) {
-      console.error(e)
-    }
+          {
+            onDidCapturePhoto() {
+              console.log('onDidCapturePhoto')
+            },
+            onDidFinishCapture() {
+              console.log('onDidFinishCapture')
+            },
+            onWillBeginCapture() {
+              console.log('onWillBeginCapture')
+            },
+            onWillCapturePhoto() {
+              console.log('onWillCapturePhoto')
+            }
+          })
+        const mark5 = performance.now()
+        console.log(`Photo capture took ${(mark5 - mark4).toFixed(0)}ms!`)
+        const converted = image.toImage()
+        const mark6 = performance.now()
+        console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
+        console.log(image.metadata)
+        setI(converted)
+      } catch (e) {
+        console.error(e)
+      }
     })()
   }, [devices, session])
 
