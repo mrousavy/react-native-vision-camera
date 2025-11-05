@@ -15,7 +15,7 @@ public protocol HybridCameraSessionSpec_protocol: HybridObject {
   var isRunning: Bool { get }
 
   // Methods
-  func configure(inputs: [(any HybridCameraDeviceSpec)], outputs: [(any HybridCameraSessionOutputSpec)]) throws -> Promise<Void>
+  func configure(inputs: [(any HybridCameraDeviceSpec)], outputs: [(any HybridCameraSessionOutputSpec)], configuration: CameraSessionConfiguration) throws -> Promise<Void>
   func start() throws -> Promise<Void>
   func stop() throws -> Promise<Void>
 }

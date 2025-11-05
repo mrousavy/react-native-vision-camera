@@ -17,12 +17,15 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
+// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 
 #include <NitroModules/Promise.hpp>
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "HybridCameraSessionOutputSpec.hpp"
+#include "CameraSessionConfiguration.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -55,7 +58,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) = 0;
+      virtual std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs, const CameraSessionConfiguration& configuration) = 0;
       virtual std::shared_ptr<Promise<void>> start() = 0;
       virtual std::shared_ptr<Promise<void>> stop() = 0;
 

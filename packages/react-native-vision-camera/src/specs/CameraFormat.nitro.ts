@@ -8,7 +8,7 @@ import type { AutoFocusSystem } from './common-types/AutoFocusSystem'
 export type MediaType = 'video' | 'depth' | 'other'
 
 export interface CameraFormat
-  extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+  extends HybridObject<{ ios: 'swift' }> {
   // pragma MARK: Resolutions
   readonly photoResolution: Resolution
   readonly videoResolution: Resolution

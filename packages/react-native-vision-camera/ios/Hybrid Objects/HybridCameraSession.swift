@@ -10,6 +10,7 @@ import AVFoundation
 
 class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
+  private var configuration: CameraSessionConfiguration? = nil
   
   override init() {
     self.session = AVCaptureSession()
@@ -21,26 +22,32 @@ class HybridCameraSession: HybridCameraSessionSpec {
   }
   
   func configure(inputs: [any HybridCameraDeviceSpec],
-                 outputs: [any HybridCameraSessionOutputSpec]) -> Promise<Void> {
+                 outputs: [any HybridCameraSessionOutputSpec],
+                 configuration: CameraSessionConfiguration) -> Promise<Void> {
     return Promise.parallel(CameraQueues.cameraQueue) {
-      // 0. We do everything under a configuration - to keep it batched
-      self.session.beginConfiguration()
-      defer { self.session.commitConfiguration() }
-      
-      // 1. Remove all current inputs
-      self.session.inputs.forEach { self.session.removeInput($0) }
-      
-      // 2. Add all inputs again
-      for inputSpec in inputs {
-        try self.session.addInput(inputSpec)
+      // 1. Check if we need to do an actual session configuration batch
+      let isSessionTheSame = self.areInputsTheSame(inputs) && self.areOutputsTheSame(outputs)
+      if !isSessionTheSame {
+        // 1.1. Wrap the configuration in a batch
+        self.session.beginConfiguration()
+        defer { self.session.commitConfiguration() }
+        
+        // 1.2. Remove all inputs that are not part of our target inputs array
+        try self.session.removeOtherInputs(except: inputs)
+        // 1.3. Add all inputs from our target array that are not part of the session yet
+        try self.session.addNewInputs(from: inputs)
+        
+        // 1.4. Remove all outputs that are not part of our target outputs array
+        try self.session.removeOtherOutputs(except: outputs)
+        // 1.5. Add all outputs from our target array that are not part of the session yet
+        try self.session.addNewOutputs(from: outputs)
       }
       
-      // 3. Remove all current outputs
-      self.session.outputs.forEach { self.session.removeOutput($0) }
-      
-      // 4. Add all outputs again
-      for outputSpec in outputs {
-        try self.session.addOutput(outputSpec)
+      // 2. Check if the configuration itself changed - we need to batch that in device locks
+      // TODO: Detect if configuration changed.. somehow.
+      let isConfigTheSame = false
+      if !isConfigTheSame {
+        
       }
     }
   }
@@ -55,5 +62,18 @@ class HybridCameraSession: HybridCameraSessionSpec {
     return Promise.parallel(CameraQueues.cameraQueue) {
       self.session.stopRunning()
     }
+  }
+  
+  private func areInputsTheSame(_ inputs:  [any HybridCameraDeviceSpec]) -> Bool {
+    guard session.inputs.count == inputs.count else {
+      return false
+    }
+    return inputs.allSatisfy { input in session.containsInput(input) }
+  }
+  private func areOutputsTheSame(_ outputs:  [any HybridCameraSessionOutputSpec]) -> Bool {
+    guard session.outputs.count == outputs.count else {
+      return false
+    }
+    return outputs.allSatisfy { output in session.containsOutput(output) }
   }
 }

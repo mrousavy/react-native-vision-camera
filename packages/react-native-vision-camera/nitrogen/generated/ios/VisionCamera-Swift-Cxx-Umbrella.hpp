@@ -12,6 +12,8 @@
 namespace margelo::nitro::camera { enum class AutoFocusSystem; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 // Forward declaration of `CameraSessionOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
@@ -76,6 +78,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 // Include C++ defined types
 #include "AutoFocusSystem.hpp"
 #include "CameraPosition.hpp"
+#include "CameraSessionConfiguration.hpp"
 #include "CameraSessionOutputType.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
@@ -115,6 +118,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include <memory>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 // C++ helpers for Swift

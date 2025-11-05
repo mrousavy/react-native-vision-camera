@@ -13,8 +13,7 @@ import type { CameraPosition } from './common-types/CameraPosition'
 import type { TorchMode } from './common-types/TorchMode'
 import type { ColorSpace } from './common-types/ColorSpace'
 
-export interface CameraDevice
-  extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+export interface CameraDevice extends HybridObject<{ ios: 'swift' }> {
   // pragma MARK: Device Metadata
   readonly id: string
   readonly modelID: string

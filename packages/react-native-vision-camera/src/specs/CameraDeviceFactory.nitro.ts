@@ -5,8 +5,7 @@ import type { CameraPosition } from './common-types/CameraPosition'
 import type { MediaType } from './CameraFormat.nitro'
 import type { DeviceType } from './common-types/DeviceType'
 
-export interface CameraDeviceFactory
-  extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+export interface CameraDeviceFactory extends HybridObject<{ ios: 'swift' }> {
   /**
    * Get a list of all devices.
    * This list may change as camera devices get plugged in/out.

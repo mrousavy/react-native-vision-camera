@@ -16,12 +16,32 @@ namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
+// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `ExposureMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ExposureMode; }
+// Forward declaration of `WhiteBalanceMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 
 #include <NitroModules/Promise.hpp>
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "HybridCameraSessionOutputSpec.hpp"
+#include "CameraSessionConfiguration.hpp"
+#include "HybridCameraFormatSpec.hpp"
+#include <optional>
+#include "Range.hpp"
+#include <variant>
+#include "FocusMode.hpp"
+#include "ExposureMode.hpp"
+#include "WhiteBalanceMode.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -69,8 +89,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs) override {
-      auto __result = _swiftPart.configure(inputs, outputs);
+    inline std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs, const CameraSessionConfiguration& configuration) override {
+      auto __result = _swiftPart.configure(inputs, outputs, std::forward<decltype(configuration)>(configuration));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -16,8 +16,12 @@ namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 namespace margelo::nitro::camera { struct CapturePhotoSettings; }
 // Forward declaration of `ColorSpace` to properly resolve imports.
 namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `ExposureMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ExposureMode; }
 // Forward declaration of `FlashMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FlashMode; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -52,6 +56,8 @@ namespace margelo::nitro::camera { struct Rect; }
 namespace margelo::nitro::camera { struct Resolution; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `WhiteBalanceMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 
 // Forward declarations of Swift defined types
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
@@ -79,7 +85,9 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
 #include "ColorSpace.hpp"
+#include "ExposureMode.hpp"
 #include "FlashMode.hpp"
+#include "FocusMode.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
@@ -96,6 +104,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "Rect.hpp"
 #include "Resolution.hpp"
 #include "Size.hpp"
+#include "WhiteBalanceMode.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
@@ -107,6 +116,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include <memory>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 /**
@@ -553,6 +563,110 @@ namespace margelo::nitro::camera::bridge::swift {
     return vector;
   }
   
+  // pragma MARK: std::variant<double, Range>
+  /**
+   * Wrapper struct for `std::variant<double, Range>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_double__Range_ {
+    std::variant<double, Range> variant;
+    std__variant_double__Range_(std::variant<double, Range> variant): variant(variant) { }
+    operator std::variant<double, Range>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline double get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline Range get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_double__Range_ create_std__variant_double__Range_(double value) noexcept {
+    return std__variant_double__Range_(value);
+  }
+  inline std__variant_double__Range_ create_std__variant_double__Range_(const Range& value) noexcept {
+    return std__variant_double__Range_(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<double, Range>>
+  /**
+   * Specialized version of `std::optional<std::variant<double, Range>>`.
+   */
+  using std__optional_std__variant_double__Range__ = std::optional<std::variant<double, Range>>;
+  inline std::optional<std::variant<double, Range>> create_std__optional_std__variant_double__Range__(const std::variant<double, Range>& value) noexcept {
+    return std::optional<std::variant<double, Range>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_double__Range__(const std::optional<std::variant<double, Range>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::variant<double, Range> get_std__optional_std__variant_double__Range__(const std::optional<std::variant<double, Range>>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<bool>
+  /**
+   * Specialized version of `std::optional<bool>`.
+   */
+  using std__optional_bool_ = std::optional<bool>;
+  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
+    return std::optional<bool>(value);
+  }
+  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<FocusMode>
+  /**
+   * Specialized version of `std::optional<FocusMode>`.
+   */
+  using std__optional_FocusMode_ = std::optional<FocusMode>;
+  inline std::optional<FocusMode> create_std__optional_FocusMode_(const FocusMode& value) noexcept {
+    return std::optional<FocusMode>(value);
+  }
+  inline bool has_value_std__optional_FocusMode_(const std::optional<FocusMode>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline FocusMode get_std__optional_FocusMode_(const std::optional<FocusMode>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<ExposureMode>
+  /**
+   * Specialized version of `std::optional<ExposureMode>`.
+   */
+  using std__optional_ExposureMode_ = std::optional<ExposureMode>;
+  inline std::optional<ExposureMode> create_std__optional_ExposureMode_(const ExposureMode& value) noexcept {
+    return std::optional<ExposureMode>(value);
+  }
+  inline bool has_value_std__optional_ExposureMode_(const std::optional<ExposureMode>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline ExposureMode get_std__optional_ExposureMode_(const std::optional<ExposureMode>& optional) noexcept {
+    return *optional;
+  }
+  
+  // pragma MARK: std::optional<WhiteBalanceMode>
+  /**
+   * Specialized version of `std::optional<WhiteBalanceMode>`.
+   */
+  using std__optional_WhiteBalanceMode_ = std::optional<WhiteBalanceMode>;
+  inline std::optional<WhiteBalanceMode> create_std__optional_WhiteBalanceMode_(const WhiteBalanceMode& value) noexcept {
+    return std::optional<WhiteBalanceMode>(value);
+  }
+  inline bool has_value_std__optional_WhiteBalanceMode_(const std::optional<WhiteBalanceMode>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline WhiteBalanceMode get_std__optional_WhiteBalanceMode_(const std::optional<WhiteBalanceMode>& optional) noexcept {
+    return *optional;
+  }
+  
   // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
   /**
    * Specialized version of `std::shared_ptr<margelo::nitro::image::HybridImageSpec>`.
@@ -812,21 +926,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.has_value();
   }
   inline QualityPrioritization get_std__optional_QualityPrioritization_(const std::optional<QualityPrioritization>& optional) noexcept {
-    return *optional;
-  }
-  
-  // pragma MARK: std::optional<bool>
-  /**
-   * Specialized version of `std::optional<bool>`.
-   */
-  using std__optional_bool_ = std::optional<bool>;
-  inline std::optional<bool> create_std__optional_bool_(const bool& value) noexcept {
-    return std::optional<bool>(value);
-  }
-  inline bool has_value_std__optional_bool_(const std::optional<bool>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline bool get_std__optional_bool_(const std::optional<bool>& optional) noexcept {
     return *optional;
   }
   
