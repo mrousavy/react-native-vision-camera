@@ -17,14 +17,14 @@ public extension FrameDroppedReason {
    */
   init?(fromString string: String) {
     switch string {
+      case "unknown":
+        self = .unknown
       case "frame-was-late":
         self = .frameWasLate
       case "out-of-buffers":
         self = .outOfBuffers
       case "discontinuity":
         self = .discontinuity
-      case "unknown":
-        self = .unknown
       default:
         return nil
     }
@@ -35,14 +35,14 @@ public extension FrameDroppedReason {
    */
   var stringValue: String {
     switch self {
+      case .unknown:
+        return "unknown"
       case .frameWasLate:
         return "frame-was-late"
       case .outOfBuffers:
         return "out-of-buffers"
       case .discontinuity:
         return "discontinuity"
-      case .unknown:
-        return "unknown"
     }
   }
 }

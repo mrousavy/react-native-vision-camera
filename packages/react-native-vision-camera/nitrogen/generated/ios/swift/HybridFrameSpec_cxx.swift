@@ -142,6 +142,13 @@ open class HybridFrameSpec_cxx {
       return self.__implementation.height
     }
   }
+  
+  public final var pixelFormat: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.pixelFormat.rawValue
+    }
+  }
 
   // Methods
   @inline(__always)

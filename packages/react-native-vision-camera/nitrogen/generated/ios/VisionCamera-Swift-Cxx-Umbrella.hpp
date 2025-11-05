@@ -62,6 +62,8 @@ namespace margelo::nitro::camera { class HybridPreviewViewSpec; }
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `PixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `QualityPrioritization` to properly resolve imports.
@@ -110,6 +112,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "HybridPreviewViewSpec.hpp"
 #include "ListenerSubscription.hpp"
 #include "MediaType.hpp"
+#include "PixelFormat.hpp"
 #include "Point.hpp"
 #include "QualityPrioritization.hpp"
 #include "Range.hpp"

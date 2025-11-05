@@ -16,6 +16,7 @@ public protocol HybridFrameSpec_protocol: HybridObject {
   var isValid: Bool { get }
   var width: Double { get }
   var height: Double { get }
+  var pixelFormat: PixelFormat { get }
 
   // Methods
   func getPixelBuffer() throws -> ArrayBuffer

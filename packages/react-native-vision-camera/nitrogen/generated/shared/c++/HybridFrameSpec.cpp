@@ -18,6 +18,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("isValid", &HybridFrameSpec::getIsValid);
       prototype.registerHybridGetter("width", &HybridFrameSpec::getWidth);
       prototype.registerHybridGetter("height", &HybridFrameSpec::getHeight);
+      prototype.registerHybridGetter("pixelFormat", &HybridFrameSpec::getPixelFormat);
       prototype.registerHybridMethod("getPixelBuffer", &HybridFrameSpec::getPixelBuffer);
     });
   }

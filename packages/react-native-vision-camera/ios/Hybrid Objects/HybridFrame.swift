@@ -11,48 +11,64 @@ import NitroModules
 import NitroImage
 
 class HybridFrame: HybridFrameSpec {
-  let sampleBuffer: CMSampleBuffer
-  
+  var sampleBuffer: CMSampleBuffer?
+
   init(buffer: CMSampleBuffer) {
     self.sampleBuffer = buffer
     super.init()
   }
 
   var memorySize: Int {
+    guard let sampleBuffer else {
+      return 0
+    }
     return sampleBuffer.memorySize
   }
-  
+
   var timestamp: Double {
+    guard let sampleBuffer else {
+      return -1
+    }
     return sampleBuffer.presentationTimeStamp.seconds
   }
-  
+
   private var pixelBuffer: CVPixelBuffer? {
-    guard sampleBuffer.isValid else {
+    guard let sampleBuffer,
+          sampleBuffer.isValid else {
       return nil
     }
     return sampleBuffer.imageBuffer
   }
-  
+
   var width: Double {
     guard let pixelBuffer else {
       return 0
     }
     return Double(CVPixelBufferGetWidth(pixelBuffer))
   }
-  
+
   var height: Double {
     guard let pixelBuffer else {
       return 0
     }
     return Double(CVPixelBufferGetHeight(pixelBuffer))
   }
-  
+
   var isValid: Bool {
-    return sampleBuffer.isValid
+    return sampleBuffer?.isValid ?? false
   }
-  
+
+  var pixelFormat: PixelFormat {
+    guard let pixelBuffer else {
+      return .unknown
+    }
+    let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
+    return PixelFormat(osType: format)
+  }
+
   func dispose() {
-    try? sampleBuffer.invalidate()
+    try? self.sampleBuffer?.invalidate()
+    self.sampleBuffer = nil
   }
 
   func getPixelBuffer() throws -> ArrayBuffer {

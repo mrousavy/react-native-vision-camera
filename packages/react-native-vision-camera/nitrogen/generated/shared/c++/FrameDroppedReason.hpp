@@ -29,10 +29,10 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (FrameDroppedReason).
    */
   enum class FrameDroppedReason {
-    FRAME_WAS_LATE      SWIFT_NAME(frameWasLate) = 0,
-    OUT_OF_BUFFERS      SWIFT_NAME(outOfBuffers) = 1,
-    DISCONTINUITY      SWIFT_NAME(discontinuity) = 2,
-    UNKNOWN      SWIFT_NAME(unknown) = 3,
+    UNKNOWN      SWIFT_NAME(unknown) = 0,
+    FRAME_WAS_LATE      SWIFT_NAME(frameWasLate) = 1,
+    OUT_OF_BUFFERS      SWIFT_NAME(outOfBuffers) = 2,
+    DISCONTINUITY      SWIFT_NAME(discontinuity) = 3,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -45,20 +45,20 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::FrameDroppedReason fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"): return margelo::nitro::camera::FrameDroppedReason::UNKNOWN;
         case hashString("frame-was-late"): return margelo::nitro::camera::FrameDroppedReason::FRAME_WAS_LATE;
         case hashString("out-of-buffers"): return margelo::nitro::camera::FrameDroppedReason::OUT_OF_BUFFERS;
         case hashString("discontinuity"): return margelo::nitro::camera::FrameDroppedReason::DISCONTINUITY;
-        case hashString("unknown"): return margelo::nitro::camera::FrameDroppedReason::UNKNOWN;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum FrameDroppedReason - invalid value!");
       }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::FrameDroppedReason arg) {
       switch (arg) {
+        case margelo::nitro::camera::FrameDroppedReason::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
         case margelo::nitro::camera::FrameDroppedReason::FRAME_WAS_LATE: return JSIConverter<std::string>::toJSI(runtime, "frame-was-late");
         case margelo::nitro::camera::FrameDroppedReason::OUT_OF_BUFFERS: return JSIConverter<std::string>::toJSI(runtime, "out-of-buffers");
         case margelo::nitro::camera::FrameDroppedReason::DISCONTINUITY: return JSIConverter<std::string>::toJSI(runtime, "discontinuity");
-        case margelo::nitro::camera::FrameDroppedReason::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert FrameDroppedReason to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -70,10 +70,10 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"):
         case hashString("frame-was-late"):
         case hashString("out-of-buffers"):
         case hashString("discontinuity"):
-        case hashString("unknown"):
           return true;
         default:
           return false;

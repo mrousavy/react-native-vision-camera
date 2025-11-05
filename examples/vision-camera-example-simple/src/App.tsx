@@ -57,7 +57,7 @@ function AppContent() {
       'worklet'
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
-        console.log('Frame produced:', frame.width, frame.height)
+        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived!`)
         frame.dispose()
         return true
       })

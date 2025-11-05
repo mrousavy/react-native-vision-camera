@@ -13,8 +13,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `PixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PixelFormat; }
 
-
+#include "PixelFormat.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 
 namespace margelo::nitro::camera {
@@ -48,6 +50,7 @@ namespace margelo::nitro::camera {
       virtual bool getIsValid() = 0;
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
+      virtual PixelFormat getPixelFormat() = 0;
 
     public:
       // Methods

@@ -10,7 +10,7 @@ import Foundation
 
 extension ArrayBuffer {
   static func fromPixelBuffer(_ pixelBuffer: CVPixelBuffer) throws -> ArrayBuffer {
-    let result = CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags.readOnly)
+    let result = CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
     if (result != kCVReturnSuccess) {
       throw RuntimeError.error(withMessage: "Failed to lock CVPixelBuffer for read!")
     }
@@ -21,7 +21,7 @@ extension ArrayBuffer {
     return ArrayBuffer.wrap(dataWithoutCopy: baseAddress,
                             size: size,
                             onDelete: {
-      let result = CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags.readOnly)
+      let result = CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly)
       if (result != kCVReturnSuccess) {
         print("Failed to unlock CVPixelBuffer to cleanup after ArrayBuffer!")
       }
