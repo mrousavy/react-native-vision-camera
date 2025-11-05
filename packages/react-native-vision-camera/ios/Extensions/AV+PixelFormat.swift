@@ -22,7 +22,7 @@ extension PixelFormat {
     case kCVPixelFormatType_32BGRA:
       self = .rgbBgra32Bit
     case kCVPixelFormatType_DepthFloat16:
-      self = .depth32Bit
+      self = .depth16Bit
     case kCVPixelFormatType_DepthFloat32:
       self = .depth32Bit
     case kCVPixelFormatType_DisparityFloat16:

@@ -41,7 +41,7 @@ function AppContent() {
   }, [devices])
 
   const createVideoOutput = () => {
-    const output = HybridCameraFactory.createFrameOutput()
+    const output = HybridCameraFactory.createFrameOutput('native')
     const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
     const runtime = createWorkletRuntime({

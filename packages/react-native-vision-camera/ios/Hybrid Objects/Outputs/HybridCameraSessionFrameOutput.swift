@@ -17,7 +17,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
     return videoOutput
   }
   
-  override init() {
+  init(targetPixelFormat: TargetPixelFormat) {
     self.videoOutput = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
     self.queue = DispatchQueue(label: "com.margelo.camera.frame",
@@ -25,8 +25,33 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
                                attributes: [],
                                autoreleaseFrequency: .inherit,
                                target: nil)
+    super.init()
+    
+    // Set up our `delegate`
     videoOutput.setSampleBufferDelegate(delegate, queue: queue)
+    // Configure `videoSettings`
+    videoOutput.videoSettings = videoSettingsForPixelFormat(targetPixelFormat)
+    // If the pipeline stalls, drop frames to avoid blowing up RAM
     videoOutput.alwaysDiscardsLateVideoFrames = true
+    // JS configures the video resolution, we don't want to downscale here.
+    videoOutput.automaticallyConfiguresOutputBufferDimensions = false
+    if #available(iOS 26.0, *) {
+      // Don't process HDR metadata - keep it native.
+      videoOutput.preservesDynamicHDRMetadata = true
+    }
+  }
+  
+  private func videoSettingsForPixelFormat(_ targetPixelFormat: TargetPixelFormat) -> [String: Any] {
+    let pixelFormat = targetPixelFormat.toCVPixelFormatType()
+    if case let .specific(format) = pixelFormat {
+      // Use a specific format (e.g. 32 BGRA)
+      return [
+        kCVPixelBufferPixelFormatTypeKey as String: format
+      ]
+    } else {
+      // Empty dictionary means "choose device-native format" (most efficient)
+      return [:]
+    }
   }
   
   var thread: any HybridNativeThreadSpec {

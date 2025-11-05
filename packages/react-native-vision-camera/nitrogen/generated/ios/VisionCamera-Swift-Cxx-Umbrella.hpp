@@ -76,6 +76,8 @@ namespace margelo::nitro::camera { struct Rect; }
 namespace margelo::nitro::camera { struct Resolution; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `TargetPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetPixelFormat; }
 // Forward declaration of `TorchMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TorchMode; }
 // Forward declaration of `VideoStabilizationMode` to properly resolve imports.
@@ -119,6 +121,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "Rect.hpp"
 #include "Resolution.hpp"
 #include "Size.hpp"
+#include "TargetPixelFormat.hpp"
 #include "TorchMode.hpp"
 #include "VideoStabilizationMode.hpp"
 #include "WhiteBalanceGains.hpp"
