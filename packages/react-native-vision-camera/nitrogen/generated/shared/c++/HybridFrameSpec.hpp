@@ -15,9 +15,14 @@
 
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include "PixelFormat.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
+#include <memory>
+#include <NitroImage/HybridImageSpec.hpp>
+#include <NitroModules/Promise.hpp>
 
 namespace margelo::nitro::camera {
 
@@ -55,6 +60,8 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual std::shared_ptr<ArrayBuffer> getPixelBuffer() = 0;
+      virtual std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> toImageAsync() = 0;
 
     protected:
       // Hybrid Setup

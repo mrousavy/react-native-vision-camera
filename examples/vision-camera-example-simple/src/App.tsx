@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState, } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NitroImage } from 'react-native-nitro-image';
+import { Image, Images, NitroImage } from 'react-native-nitro-image';
 import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncImageSource';
 import { NitroModules } from 'react-native-nitro-modules';
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/typescript/BoxedHybridObject';
+import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
-import { createWorkletRuntime, scheduleOnRuntime} from 'react-native-worklets';
+import { createWorkletRuntime, scheduleOnRN, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -32,7 +34,11 @@ function timeout(ms: number): Promise<void> {
 function AppContent() {
   const devices = useCameraDevices()
   const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
-  const [i, setI] = useState<AsyncImageSource>()
+  const [i, setI] = useState<BoxedHybridObject<Image> | undefined>(undefined)
+
+  const updateI = (i: BoxedHybridObject<Image>) => {
+    setI(i)
+  }
 
   useEffect(() => {
     for (const device of devices) {
@@ -40,8 +46,11 @@ function AppContent() {
     }
   }, [devices])
 
+  NitroModules.isHybridObject({})
+  const boxFn = globalThis.__box__ as Function
+
   const createVideoOutput = () => {
-    const output = HybridCameraFactory.createFrameOutput('native')
+    const output = HybridCameraFactory.createFrameOutput('rgb-bgra-32-bit')
     const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
     const runtime = createWorkletRuntime({
@@ -58,6 +67,10 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived!`)
+        const image = frame.toImage()
+        console.log(`Created ${image.width}x${image.height} Image!`)
+        const boxed = boxFn(image)
+        scheduleOnRN(updateI, boxed)
         frame.dispose()
         return true
       })
@@ -74,40 +87,13 @@ function AppContent() {
         const mark1 = performance.now()
         const photo = HybridCameraFactory.createPhotoOutput()
         const video = createVideoOutput()
-        await session.configure([device], [photo, video], {  })
+        await session.configure([device], [photo, video], {})
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
 
         await session.start()
         const mark3 = performance.now()
         console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
-
-        await timeout(3000)
-        const mark4 = performance.now()
-
-        const image = await photo.capturePhoto({
-        },
-          {
-            onDidCapturePhoto() {
-              console.log('onDidCapturePhoto')
-            },
-            onDidFinishCapture() {
-              console.log('onDidFinishCapture')
-            },
-            onWillBeginCapture() {
-              console.log('onWillBeginCapture')
-            },
-            onWillCapturePhoto() {
-              console.log('onWillCapturePhoto')
-            }
-          })
-        const mark5 = performance.now()
-        console.log(`Photo capture took ${(mark5 - mark4).toFixed(0)}ms!`)
-        const converted = image.toImage()
-        const mark6 = performance.now()
-        console.log(`Captured ${converted.width}x${converted.height} image, conversion took ${(mark6 - mark5).toFixed(0)}ms!`)
-        console.log(image.metadata)
-        setI(converted)
       } catch (e) {
         console.error(e)
       }
@@ -120,7 +106,7 @@ function AppContent() {
         <Text key={d.id}>{d.id}</Text>
       ))}
       <NativePreviewView style={styles.camera} session={session} />
-      {i != null && (<NitroImage style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200 }} image={i} />)}
+      {i != null && (<NitroImage style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200 }} image={i.unbox()} />)}
     </View>
   );
 }

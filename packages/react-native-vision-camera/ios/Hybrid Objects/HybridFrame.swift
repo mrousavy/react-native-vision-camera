@@ -80,4 +80,18 @@ class HybridFrame: HybridFrameSpec {
     }
     return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
   }
+  
+  func toImage() throws -> any HybridImageSpec {
+    guard let sampleBuffer, isValid else {
+      throw RuntimeError.error(withMessage: "Cannot convert an invalidated Frame to an Image!")
+    }
+    let uiImage = try sampleBuffer.toUIImage()
+    return HybridUIImage(uiImage: uiImage)
+  }
+  
+  func toImageAsync() throws -> Promise<any HybridImageSpec> {
+    return Promise.async {
+      return try self.toImage()
+    }
+  }
 }

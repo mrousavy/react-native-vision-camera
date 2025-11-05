@@ -8,6 +8,7 @@
 import Foundation
 import NitroModules
 import NitroModules
+import NitroImage
 
 /// See ``HybridFrameSpec``
 public protocol HybridFrameSpec_protocol: HybridObject {
@@ -20,6 +21,8 @@ public protocol HybridFrameSpec_protocol: HybridObject {
 
   // Methods
   func getPixelBuffer() throws -> ArrayBuffer
+  func toImage() throws -> (any HybridImageSpec)
+  func toImageAsync() throws -> Promise<(any HybridImageSpec)>
 }
 
 public extension HybridFrameSpec_protocol {

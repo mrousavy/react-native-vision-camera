@@ -108,6 +108,6 @@
     "semi": false
   },
   "dependencies": {
-    "react-native-worklets": "^0.5.2"
+    "react-native-worklets": "^0.6.1"
   }
 }

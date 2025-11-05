@@ -16,10 +16,15 @@ namespace VisionCamera { class HybridFrameSpec_cxx; }
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
 namespace NitroModules { class ArrayBufferHolder; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include "PixelFormat.hpp"
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
+#include <memory>
+#include <NitroImage/HybridImageSpec.hpp>
+#include <NitroModules/Promise.hpp>
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -82,6 +87,22 @@ namespace margelo::nitro::camera {
     // Methods
     inline std::shared_ptr<ArrayBuffer> getPixelBuffer() override {
       auto __result = _swiftPart.getPixelBuffer();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() override {
+      auto __result = _swiftPart.toImage();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> toImageAsync() override {
+      auto __result = _swiftPart.toImageAsync();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
