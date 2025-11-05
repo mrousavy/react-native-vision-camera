@@ -106,5 +106,8 @@
     "trailingComma": "es5",
     "useTabs": false,
     "semi": false
+  },
+  "dependencies": {
+    "react-native-worklets": "^0.5.2"
   }
 }

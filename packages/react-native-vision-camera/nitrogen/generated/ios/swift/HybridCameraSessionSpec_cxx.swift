@@ -121,6 +121,16 @@ open class HybridCameraSessionSpec_cxx {
       return self.__implementation.isRunning
     }
   }
+  
+  public final var cameraThread: bridge.std__shared_ptr_HybridNativeThreadSpec_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__shared_ptr_HybridNativeThreadSpec_ in
+        let __cxxWrapped = self.__implementation.cameraThread.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+    }
+  }
 
   // Methods
   @inline(__always)

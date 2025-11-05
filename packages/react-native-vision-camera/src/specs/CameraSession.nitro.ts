@@ -6,6 +6,7 @@ import type { Range } from './common-types/Range'
 import type { FocusMode } from './common-types/FocusMode'
 import type { ExposureMode } from './common-types/ExposureMode'
 import type { WhiteBalanceMode } from './common-types/WhiteBalanceMode'
+import type { NativeThread } from './frame-processors/NativeThread.nitro'
 
 export type FrameRateConfiguration = 'auto-fps' | 'default-fps'
 
@@ -22,6 +23,7 @@ export interface CameraSessionConfiguration {
 
 export interface CameraSession extends HybridObject<{ ios: 'swift' }> {
   readonly isRunning: boolean
+  readonly cameraThread: NativeThread
   configure(
     inputs: CameraDevice[],
     outputs: CameraSessionOutput[],

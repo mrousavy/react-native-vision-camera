@@ -19,6 +19,7 @@
 #include "views/JHybridPreviewViewStateUpdater.hpp"
 #include "JHybridCameraFactorySpec.hpp"
 #include <NitroModules/DefaultConstructableObject.hpp>
+#include "HybridWorkletQueueFactory.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -47,6 +48,15 @@ int initialize(JavaVM* vm) {
         static DefaultConstructableObject<JHybridPreviewViewSpec::javaobject> object("com/margelo/nitro/camera/HybridPreviewView");
         auto instance = object.create();
         return instance->cthis()->shared();
+      }
+    );
+    HybridObjectRegistry::registerHybridObjectConstructor(
+      "WorkletQueueFactory",
+      []() -> std::shared_ptr<HybridObject> {
+        static_assert(std::is_default_constructible_v<HybridWorkletQueueFactory>,
+                      "The HybridObject \"HybridWorkletQueueFactory\" is not default-constructible! "
+                      "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
+        return std::make_shared<HybridWorkletQueueFactory>();
       }
     );
   });

@@ -13,6 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
@@ -20,8 +22,9 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 // Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 
-#include <NitroModules/Promise.hpp>
 #include <memory>
+#include "HybridNativeThreadSpec.hpp"
+#include <NitroModules/Promise.hpp>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "HybridCameraSessionOutputSpec.hpp"
@@ -55,6 +58,7 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual bool getIsRunning() = 0;
+      virtual std::shared_ptr<HybridNativeThreadSpec> getCameraThread() = 0;
 
     public:
       // Methods

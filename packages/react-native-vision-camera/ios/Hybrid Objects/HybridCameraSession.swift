@@ -10,13 +10,22 @@ import AVFoundation
 
 class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
+  private let queue: DispatchQueue
   private var configuration: CameraSessionConfiguration? = nil
   
   override init() {
     self.session = AVCaptureSession()
+    self.queue = DispatchQueue(label: "mrousavy/VisionCamera.main",
+                               qos: .userInteractive,
+                               attributes: [],
+                               autoreleaseFrequency: .inherit,
+                               target: nil)
     super.init()
   }
   
+  var cameraThread: any HybridNativeThreadSpec {
+    return HybridNativeThread(queue: queue)
+  }
   var isRunning: Bool {
     return session.isRunning
   }

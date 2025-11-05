@@ -12,6 +12,7 @@
 
 #include "HybridCameraFactorySpecSwift.hpp"
 #include "HybridPreviewViewSpecSwift.hpp"
+#include "HybridWorkletQueueFactory.hpp"
 
 @interface VisionCameraAutolinking : NSObject
 @end
@@ -34,6 +35,15 @@
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridPreviewViewSpec> hybridObject = VisionCamera::VisionCameraAutolinking::createPreviewView();
       return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "WorkletQueueFactory",
+    []() -> std::shared_ptr<HybridObject> {
+      static_assert(std::is_default_constructible_v<HybridWorkletQueueFactory>,
+                    "The HybridObject \"HybridWorkletQueueFactory\" is not default-constructible! "
+                    "Create a public constructor that takes zero arguments to be able to autolink this HybridObject.");
+      return std::make_shared<HybridWorkletQueueFactory>();
     }
   );
 }

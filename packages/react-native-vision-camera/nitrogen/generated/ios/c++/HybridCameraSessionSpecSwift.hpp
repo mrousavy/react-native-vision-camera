@@ -12,6 +12,8 @@
 // Forward declaration of `HybridCameraSessionSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 
+// Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
@@ -29,8 +31,9 @@ namespace margelo::nitro::camera { enum class ExposureMode; }
 // Forward declaration of `WhiteBalanceMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 
-#include <NitroModules/Promise.hpp>
 #include <memory>
+#include "HybridNativeThreadSpec.hpp"
+#include <NitroModules/Promise.hpp>
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "HybridCameraSessionOutputSpec.hpp"
@@ -85,6 +88,10 @@ namespace margelo::nitro::camera {
     // Properties
     inline bool getIsRunning() noexcept override {
       return _swiftPart.isRunning();
+    }
+    inline std::shared_ptr<HybridNativeThreadSpec> getCameraThread() noexcept override {
+      auto __result = _swiftPart.getCameraThread();
+      return __result;
     }
 
   public:

@@ -6,7 +6,8 @@ import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncI
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
+import { createWorkletRuntime, scheduleOnRuntime} from 'react-native-worklets';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -37,6 +38,24 @@ function AppContent() {
       console.log(`${device.id} ${device.formats[0].mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0].photoResolution.width} x ${device.formats[0].photoResolution.height} ("${device.localizedName}")`)
     }
   }, [devices])
+
+  useEffect(() => {
+    const thread = session.cameraThread
+    console.log(thread.id)
+    const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
+    console.log(queue)
+    const runtime = createWorkletRuntime({
+      name: 'VisionCameraRuntime',
+      useDefaultQueue: false,
+      customQueue: queue
+    })
+    console.log(runtime.name)
+    scheduleOnRuntime(runtime, () => {
+      'worklet'
+      console.log('Running on Worklet Runtime!!')
+    })
+    console.log('Done')
+  }, [session])
 
   useEffect(() => {
     const device = devices[0]

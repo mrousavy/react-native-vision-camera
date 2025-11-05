@@ -20,6 +20,9 @@
     "PreviewView": {
       "swift": "HybridPreviewView",
       "kotlin": "HybridPreviewView"
+    },
+    "WorkletQueueFactory": {
+      "cpp": "HybridWorkletQueueFactory"
     }
   },
   "ignorePaths": [

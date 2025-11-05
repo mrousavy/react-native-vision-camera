@@ -13,6 +13,7 @@ import NitroModules
 public protocol HybridCameraSessionSpec_protocol: HybridObject {
   // Properties
   var isRunning: Bool { get }
+  var cameraThread: (any HybridNativeThreadSpec) { get }
 
   // Methods
   func configure(inputs: [(any HybridCameraDeviceSpec)], outputs: [(any HybridCameraSessionOutputSpec)], configuration: CameraSessionConfiguration) throws -> Promise<Void>
