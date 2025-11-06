@@ -3,10 +3,46 @@ import type { PixelFormat } from './common-types/PixelFormat'
 import type { Image } from 'react-native-nitro-image'
 import type { Orientation } from './common-types/Orientation'
 
+/**
+ * Represents a single Plane of a **planar** {@linkcode Frame}.
+ */
 export interface FramePlane extends HybridObject<{ ios: 'swift' }> {
+  /**
+   * Returns the width of this Plane.
+   *
+   * @note If this Plane (or it's parent Frame) is invalid ({@linkcode isValid}),
+   * this just returns `0`.
+   */
   readonly width: number
+  /**
+   * Returns the height of this Plane.
+   *
+   * @note If this Plane (or it's parent Frame) is invalid ({@linkcode isValid}),
+   * this just returns `0`.
+   */
   readonly height: number
+  /**
+   * Gets whether this {@linkcode FramePlane} (or it's parent {@linkcode Frame})
+   * is still valid, or not.
+   *
+   * If the Plane is invalid, you cannot access it's data anymore.
+   * A Plane is automatically invalidated via {@linkcode HybridObject.dispose | dispose()}.
+   */
   readonly isValid: boolean
+  /**
+   * Gets the {@linkcode FramePlane}'s pixel data as an `ArrayBuffer`.
+   *
+   * @discussion
+   * This does **not** perform a copy, but since the {@linkcode Frame}'s data is stored
+   * on the GPU, it might lazily perform a GPU -> CPU download.
+   *
+   * @discussion
+   * Once the {@linkcode FramePlane} gets invalidated ({@linkcode isValid}),
+   * this ArrayBuffer is no longer safe to access.
+   *
+   * @note If this Plane (or it's parent Frame) is invalid ({@linkcode isValid}),
+   * this method throws.
+   */
   getPixelBuffer(): ArrayBuffer
 }
 
@@ -135,9 +171,18 @@ export interface Frame extends HybridObject<{ ios: 'swift' }> {
    * Gets the {@linkcode Frame}'s entire pixel data as a full contiguous `ArrayBuffer`,
    * if it contains one.
    *
+   * @discussion
    * - If the frame is planar (see {@linkcode isPlanar | Frame.isPlanar}, e.g. YUV), this
    * might or might not contain valid data.
    * - If the frame is **not** planar (e.g. RGB), this will contain the entire pixel data.
+   *
+   * @discussion
+   * This does **not** perform a copy, but since the {@linkcode Frame}'s data is stored
+   * on the GPU, it might lazily perform a GPU -> CPU download.
+   *
+   * @discussion
+   * Once the {@linkcode Frame} gets invalidated ({@linkcode isValid}),
+   * this ArrayBuffer is no longer safe to access.
    *
    * @note If this Frame is invalid ({@linkcode isValid}), this method throws.
    */

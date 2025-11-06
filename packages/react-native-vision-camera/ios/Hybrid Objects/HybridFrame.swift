@@ -10,7 +10,7 @@ import AVFoundation
 import NitroModules
 import NitroImage
 
-class HybridFrame: HybridFrameSpec {
+class HybridFrame: HybridFrameSpec, NativeFrame {
   var sampleBuffer: CMSampleBuffer?
   private var pixelBuffer: CVPixelBuffer? {
     guard let sampleBuffer,
