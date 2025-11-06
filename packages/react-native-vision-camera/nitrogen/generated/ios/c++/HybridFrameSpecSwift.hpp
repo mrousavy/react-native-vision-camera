@@ -16,6 +16,8 @@ namespace VisionCamera { class HybridFrameSpec_cxx; }
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `Orientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
 namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
@@ -23,9 +25,11 @@ namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include "PixelFormat.hpp"
 #include "Orientation.hpp"
+#include <memory>
+#include "HybridFramePlaneSpec.hpp"
+#include <vector>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
-#include <memory>
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 
@@ -89,9 +93,20 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getOrientation();
       return static_cast<Orientation>(__result);
     }
+    inline bool getIsPlanar() noexcept override {
+      return _swiftPart.isPlanar();
+    }
 
   public:
     // Methods
+    inline std::vector<std::shared_ptr<HybridFramePlaneSpec>> getPlanes() override {
+      auto __result = _swiftPart.getPlanes();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
     inline std::shared_ptr<ArrayBuffer> getPixelBuffer() override {
       auto __result = _swiftPart.getPixelBuffer();
       if (__result.hasError()) [[unlikely]] {

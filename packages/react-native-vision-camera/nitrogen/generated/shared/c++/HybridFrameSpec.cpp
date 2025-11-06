@@ -20,6 +20,8 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("height", &HybridFrameSpec::getHeight);
       prototype.registerHybridGetter("pixelFormat", &HybridFrameSpec::getPixelFormat);
       prototype.registerHybridGetter("orientation", &HybridFrameSpec::getOrientation);
+      prototype.registerHybridGetter("isPlanar", &HybridFrameSpec::getIsPlanar);
+      prototype.registerHybridMethod("getPlanes", &HybridFrameSpec::getPlanes);
       prototype.registerHybridMethod("getPixelBuffer", &HybridFrameSpec::getPixelBuffer);
       prototype.registerHybridMethod("toImage", &HybridFrameSpec::toImage);
       prototype.registerHybridMethod("toImageAsync", &HybridFrameSpec::toImageAsync);

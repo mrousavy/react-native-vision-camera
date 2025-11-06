@@ -19,8 +19,10 @@ public protocol HybridFrameSpec_protocol: HybridObject {
   var height: Double { get }
   var pixelFormat: PixelFormat { get }
   var orientation: Orientation { get }
+  var isPlanar: Bool { get }
 
   // Methods
+  func getPlanes() throws -> [(any HybridFramePlaneSpec)]
   func getPixelBuffer() throws -> ArrayBuffer
   func toImage() throws -> (any HybridImageSpec)
   func toImageAsync() throws -> Promise<(any HybridImageSpec)>

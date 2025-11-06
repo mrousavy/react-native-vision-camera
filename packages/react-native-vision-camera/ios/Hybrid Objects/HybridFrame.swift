@@ -35,7 +35,7 @@ class HybridFrame: HybridFrameSpec {
 
   var timestamp: Double {
     guard let sampleBuffer else {
-      return -1
+      return 0
     }
     return sampleBuffer.presentationTimeStamp.seconds
   }
@@ -58,6 +58,13 @@ class HybridFrame: HybridFrameSpec {
     return sampleBuffer?.isValid ?? false
   }
 
+  var isPlanar: Bool {
+    guard let pixelBuffer else {
+      return false
+    }
+    return CVPixelBufferIsPlanar(pixelBuffer)
+  }
+
   var pixelFormat: PixelFormat {
     guard let pixelBuffer else {
       return .unknown
@@ -65,7 +72,14 @@ class HybridFrame: HybridFrameSpec {
     let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
     return PixelFormat(osType: format)
   }
-  
+
+  var planesCount: Double {
+    guard let pixelBuffer else {
+      return 0
+    }
+    return Double(CVPixelBufferGetPlaneCount(pixelBuffer))
+  }
+
   let orientation: Orientation
 
   func dispose() {
@@ -73,25 +87,38 @@ class HybridFrame: HybridFrameSpec {
     self.sampleBuffer = nil
   }
 
+  func getPlanes() throws -> [any HybridFramePlaneSpec] {
+    guard isValid else {
+      throw RuntimeError.error(withMessage: "This Frame has already been disposed!")
+    }
+    guard let pixelBuffer else {
+      throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
+    }
+    let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)
+    return (0..<planeCount).map { index in
+      HybridFramePlane(buffer: pixelBuffer, planeIndex: index)
+    }
+  }
+
   func getPixelBuffer() throws -> ArrayBuffer {
     guard isValid else {
-      throw RuntimeError.error(withMessage: "This Frame is invalid!")
+      throw RuntimeError.error(withMessage: "This Frame has already been disposed!")
     }
     guard let pixelBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
     }
     return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
   }
-  
+
   func toImage() throws -> any HybridImageSpec {
     guard let sampleBuffer, isValid else {
-      throw RuntimeError.error(withMessage: "Cannot convert an invalidated Frame to an Image!")
+      throw RuntimeError.error(withMessage: "This Frame has already been disposed!")
     }
     let uiOrientation = orientation.toUIImageOrientation()
     let uiImage = try sampleBuffer.toUIImage(orientation: uiOrientation)
     return HybridUIImage(uiImage: uiImage)
   }
-  
+
   func toImageAsync() throws -> Promise<any HybridImageSpec> {
     return Promise.async {
       return try self.toImage()

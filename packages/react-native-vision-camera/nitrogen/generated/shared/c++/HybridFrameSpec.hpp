@@ -17,13 +17,17 @@
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `Orientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include "PixelFormat.hpp"
 #include "Orientation.hpp"
-#include <NitroModules/ArrayBuffer.hpp>
 #include <memory>
+#include "HybridFramePlaneSpec.hpp"
+#include <vector>
+#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 
@@ -60,9 +64,11 @@ namespace margelo::nitro::camera {
       virtual double getHeight() = 0;
       virtual PixelFormat getPixelFormat() = 0;
       virtual Orientation getOrientation() = 0;
+      virtual bool getIsPlanar() = 0;
 
     public:
       // Methods
+      virtual std::vector<std::shared_ptr<HybridFramePlaneSpec>> getPlanes() = 0;
       virtual std::shared_ptr<ArrayBuffer> getPixelBuffer() = 0;
       virtual std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> toImageAsync() = 0;

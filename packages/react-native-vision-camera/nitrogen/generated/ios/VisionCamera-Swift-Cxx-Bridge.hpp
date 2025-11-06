@@ -40,6 +40,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
@@ -84,6 +86,8 @@ namespace VisionCamera { class HybridCameraSessionOutputSpec_cxx; }
 namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
 // Forward declaration of `HybridCameraSessionSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
+// Forward declaration of `HybridFramePlaneSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridFramePlaneSpec_cxx; }
 // Forward declaration of `HybridFrameSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridFrameSpec_cxx; }
 // Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
@@ -111,6 +115,7 @@ namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 #include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
+#include "HybridFramePlaneSpec.hpp"
 #include "HybridFrameSpec.hpp"
 #include "HybridNativeThreadSpec.hpp"
 #include "HybridPhotoSpec.hpp"
@@ -627,6 +632,38 @@ namespace margelo::nitro::camera::bridge::swift {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
   }
   
+  // pragma MARK: std::shared_ptr<HybridFramePlaneSpec>
+  /**
+   * Specialized version of `std::shared_ptr<HybridFramePlaneSpec>`.
+   */
+  using std__shared_ptr_HybridFramePlaneSpec_ = std::shared_ptr<HybridFramePlaneSpec>;
+  std::shared_ptr<HybridFramePlaneSpec> create_std__shared_ptr_HybridFramePlaneSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_HybridFramePlaneSpec_(std__shared_ptr_HybridFramePlaneSpec_ cppType);
+  
+  // pragma MARK: std::weak_ptr<HybridFramePlaneSpec>
+  using std__weak_ptr_HybridFramePlaneSpec_ = std::weak_ptr<HybridFramePlaneSpec>;
+  inline std__weak_ptr_HybridFramePlaneSpec_ weakify_std__shared_ptr_HybridFramePlaneSpec_(const std::shared_ptr<HybridFramePlaneSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: Result<std::shared_ptr<ArrayBuffer>>
+  using Result_std__shared_ptr_ArrayBuffer__ = Result<std::shared_ptr<ArrayBuffer>>;
+  inline Result_std__shared_ptr_ArrayBuffer__ create_Result_std__shared_ptr_ArrayBuffer__(const std::shared_ptr<ArrayBuffer>& value) noexcept {
+    return Result<std::shared_ptr<ArrayBuffer>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_ArrayBuffer__ create_Result_std__shared_ptr_ArrayBuffer__(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<ArrayBuffer>>::withError(error);
+  }
+  
+  // pragma MARK: std::vector<std::shared_ptr<HybridFramePlaneSpec>>
+  /**
+   * Specialized version of `std::vector<std::shared_ptr<HybridFramePlaneSpec>>`.
+   */
+  using std__vector_std__shared_ptr_HybridFramePlaneSpec__ = std::vector<std::shared_ptr<HybridFramePlaneSpec>>;
+  inline std::vector<std::shared_ptr<HybridFramePlaneSpec>> create_std__vector_std__shared_ptr_HybridFramePlaneSpec__(size_t size) noexcept {
+    std::vector<std::shared_ptr<HybridFramePlaneSpec>> vector;
+    vector.reserve(size);
+    return vector;
+  }
+  
   // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
   /**
    * Specialized version of `std::shared_ptr<margelo::nitro::image::HybridImageSpec>`.
@@ -685,13 +722,13 @@ namespace margelo::nitro::camera::bridge::swift {
   using std__weak_ptr_HybridFrameSpec_ = std::weak_ptr<HybridFrameSpec>;
   inline std__weak_ptr_HybridFrameSpec_ weakify_std__shared_ptr_HybridFrameSpec_(const std::shared_ptr<HybridFrameSpec>& strong) noexcept { return strong; }
   
-  // pragma MARK: Result<std::shared_ptr<ArrayBuffer>>
-  using Result_std__shared_ptr_ArrayBuffer__ = Result<std::shared_ptr<ArrayBuffer>>;
-  inline Result_std__shared_ptr_ArrayBuffer__ create_Result_std__shared_ptr_ArrayBuffer__(const std::shared_ptr<ArrayBuffer>& value) noexcept {
-    return Result<std::shared_ptr<ArrayBuffer>>::withValue(value);
+  // pragma MARK: Result<std::vector<std::shared_ptr<HybridFramePlaneSpec>>>
+  using Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___ = Result<std::vector<std::shared_ptr<HybridFramePlaneSpec>>>;
+  inline Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___ create_Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___(const std::vector<std::shared_ptr<HybridFramePlaneSpec>>& value) noexcept {
+    return Result<std::vector<std::shared_ptr<HybridFramePlaneSpec>>>::withValue(value);
   }
-  inline Result_std__shared_ptr_ArrayBuffer__ create_Result_std__shared_ptr_ArrayBuffer__(const std::exception_ptr& error) noexcept {
-    return Result<std::shared_ptr<ArrayBuffer>>::withError(error);
+  inline Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___ create_Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___(const std::exception_ptr& error) noexcept {
+    return Result<std::vector<std::shared_ptr<HybridFramePlaneSpec>>>::withError(error);
   }
   
   // pragma MARK: Result<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>

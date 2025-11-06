@@ -157,8 +157,36 @@ open class HybridFrameSpec_cxx {
       return self.__implementation.orientation.rawValue
     }
   }
+  
+  public final var isPlanar: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isPlanar
+    }
+  }
 
   // Methods
+  @inline(__always)
+  public final func getPlanes() -> bridge.Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___ {
+    do {
+      let __result = try self.__implementation.getPlanes()
+      let __resultCpp = { () -> bridge.std__vector_std__shared_ptr_HybridFramePlaneSpec__ in
+        var __vector = bridge.create_std__vector_std__shared_ptr_HybridFramePlaneSpec__(__result.count)
+        for __item in __result {
+          __vector.push_back({ () -> bridge.std__shared_ptr_HybridFramePlaneSpec_ in
+            let __cxxWrapped = __item.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        }
+        return __vector
+      }()
+      return bridge.create_Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___(__exceptionPtr)
+    }
+  }
+  
   @inline(__always)
   public final func getPixelBuffer() -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
     do {

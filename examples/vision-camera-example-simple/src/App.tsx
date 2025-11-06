@@ -1,16 +1,12 @@
-import { useEffect, useMemo, useState, } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Image, Images, NitroImage } from 'react-native-nitro-image';
-import { AsyncImageSource } from 'react-native-nitro-image/lib/typescript/AsyncImageSource';
 import { NitroModules } from 'react-native-nitro-modules';
-import { BoxedHybridObject } from 'react-native-nitro-modules/lib/typescript/BoxedHybridObject';
-import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
-import { createWorkletRuntime, scheduleOnRN, scheduleOnRuntime } from 'react-native-worklets';
+import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -25,29 +21,15 @@ function App() {
   );
 }
 
-function timeout(ms: number): Promise<void> {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => resolve(), ms)
-  })
-}
-
 function AppContent() {
   const devices = useCameraDevices()
   const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
-  const [i, setI] = useState<BoxedHybridObject<Image> | undefined>(undefined)
-
-  const updateI = (i: BoxedHybridObject<Image>) => {
-    setI(i)
-  }
 
   useEffect(() => {
     for (const device of devices) {
       console.log(`${device.id} ${device.formats[0].mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0].photoResolution.width} x ${device.formats[0].photoResolution.height} ("${device.localizedName}")`)
     }
   }, [devices])
-
-  NitroModules.isHybridObject({})
-  const boxFn = globalThis.__box__ as Function
 
   const createVideoOutput = () => {
     const output = HybridCameraFactory.createFrameOutput('rgb-bgra-32-bit')
@@ -67,11 +49,13 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-        const image = frame.toImage()
-        console.log(`Created ${image.width}x${image.height} Image!`)
-        const boxed = boxFn(image)
-        scheduleOnRN(updateI, boxed)
+        for (const plane of frame.getPlanes()) {
+          const buf = plane.getPixelBuffer()
+          console.log(`${plane.width}x${plane.height} = ${buf.byteLength}`)
+        }
+
         frame.dispose()
+
         return true
       })
     })
@@ -106,7 +90,6 @@ function AppContent() {
         <Text key={d.id}>{d.id}</Text>
       ))}
       <NativePreviewView style={styles.camera} session={session} />
-      {i != null && (<NitroImage style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200 }} image={i.unbox()} />)}
     </View>
   );
 }
