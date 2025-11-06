@@ -37,7 +37,7 @@ export interface FramePlane extends HybridObject<{ ios: 'swift' }> {
    * on the GPU, it might lazily perform a GPU -> CPU download.
    *
    * @discussion
-   * Once the {@linkcode FramePlane} gets invalidated ({@linkcode isValid}),
+   * Once the {@linkcode FramePlane} gets invalidated ({@linkcode isValid} == false),
    * this ArrayBuffer is no longer safe to access.
    *
    * @note If this Plane (or it's parent Frame) is invalid ({@linkcode isValid}),
@@ -181,7 +181,7 @@ export interface Frame extends HybridObject<{ ios: 'swift' }> {
    * on the GPU, it might lazily perform a GPU -> CPU download.
    *
    * @discussion
-   * Once the {@linkcode Frame} gets invalidated ({@linkcode isValid}),
+   * Once the {@linkcode Frame} gets invalidated ({@linkcode isValid} == false),
    * this ArrayBuffer is no longer safe to access.
    *
    * @note If this Frame is invalid ({@linkcode isValid}), this method throws.
