@@ -83,18 +83,6 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
-    let cameraCaptureSession = captureSession
-    CameraQueues.cameraQueue.async {
-      if cameraCaptureSession.isRunning {
-        cameraCaptureSession.stopRunning()
-      }
-    }
-    let cameraAudioSession = audioCaptureSession
-    CameraQueues.audioQueue.async {
-      if cameraAudioSession.isRunning {
-        cameraAudioSession.stopRunning()
-      }
-    }
   }
 
   /**
@@ -120,28 +108,37 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
    Any changes in here will be re-configured only if required, and under a lock (in this case, the serial cameraQueue DispatchQueue).
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
-  func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void,
-                 completion: (() -> Void)? = nil) {
+  func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void) {
     initialize()
 
     VisionLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
 
-    let completionBlock = completion
+    let slowConfigurationWarning = DispatchWorkItem {
+      VisionLogger.log(level: .warning, message: "configure { ... }: is still running after 2 seconds.")
+    }
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + .seconds(2), execute: slowConfigurationWarning)
+
+    let completionGroup = DispatchGroup()
+
+    completionGroup.enter()
+    completionGroup.notify(queue: CameraQueues.cameraQueue) {
+      slowConfigurationWarning.cancel()
+      VisionLogger.log(level: .info, message: "configure { ... }: completed.")
+    }
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
+      defer { completionGroup.leave() }
       // Let caller configure a new configuration for the Camera.
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
         try lambda(config)
       } catch CameraConfiguration.AbortThrow.abort {
         // call has been aborted and changes shall be discarded
-        completionBlock?()
         return
       } catch {
         // another error occured, possibly while trying to parse enums
         self.onConfigureError(error)
-        completionBlock?()
         return
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
@@ -232,7 +229,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
       // Set up Audio Capture Session (on audio queue)
       if difference.audioSessionChanged {
+        completionGroup.enter()
         CameraQueues.audioQueue.async {
+          defer { completionGroup.leave() }
           do {
             // Lock Capture Session for configuration
             VisionLogger.log(level: .info, message: "Beginning AudioSession configuration...")
@@ -251,7 +250,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
       // Set up Location streaming (on location queue)
       if difference.locationChanged {
+        completionGroup.enter()
         CameraQueues.locationQueue.async {
+          defer { completionGroup.leave() }
           do {
             VisionLogger.log(level: .info, message: "Beginning Location Output configuration...")
             try self.configureLocationOutput(configuration: config)
@@ -261,23 +262,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
           }
         }
       }
-      completionBlock?()
     }
-  }
-
-  /**
-   Gracefully stop streaming and tear down any active outputs. Completion executes on the camera queue.
-   */
-  func shutdown(completion: (() -> Void)? = nil) {
-    configure({ config in
-      config.photo = .disabled
-      config.video = .disabled
-      config.audio = .disabled
-      config.codeScanner = .disabled
-      config.enableLocation = false
-      config.torch = .off
-      config.isActive = false
-    }, completion: completion)
   }
 
   /**
