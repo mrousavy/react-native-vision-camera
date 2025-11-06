@@ -32,7 +32,7 @@ function AppContent() {
   }, [devices])
 
   const createVideoOutput = () => {
-    const output = HybridCameraFactory.createFrameOutput('rgb-bgra-32-bit')
+    const output = HybridCameraFactory.createFrameOutput('native')
     const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
     const runtime = createWorkletRuntime({
@@ -57,7 +57,10 @@ function AppContent() {
           console.log(`- PLANE: ${plane.width}x${plane.height} = ${buf.byteLength}`)
         }
 
+        const view = new Uint8Array(mainBuf)
+        console.log(`[0,0] BEFORE: ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
         frame.dispose()
+        console.log(`[0,0] AFTER:  ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
 
         return true
       })
