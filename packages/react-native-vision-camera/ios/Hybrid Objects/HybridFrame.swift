@@ -12,6 +12,8 @@ import NitroImage
 
 class HybridFrame: HybridFrameSpec, NativeFrame {
   var sampleBuffer: CMSampleBuffer?
+  private var isLocked: Bool
+  private var planesCached: [HybridFramePlane]?
   private var pixelBuffer: CVPixelBuffer? {
     guard let sampleBuffer,
           sampleBuffer.isValid else {
@@ -19,11 +21,12 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     }
     return sampleBuffer.imageBuffer
   }
-  private var isLocked = false
 
   init(buffer: CMSampleBuffer, orientation: Orientation) {
     self.sampleBuffer = buffer
     self.orientation = orientation
+    self.isLocked = false
+    self.planesCached = nil
     super.init()
   }
 
@@ -114,6 +117,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     }
     try? self.sampleBuffer?.invalidate()
     self.sampleBuffer = nil
+    self.planesCached?.forEach { $0.dispose() }
   }
 
   func getPlanes() throws -> [any HybridFramePlaneSpec] {
@@ -123,11 +127,17 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     guard let pixelBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
     }
+    if let planesCached {
+      // we have planes cached
+      return planesCached
+    }
     try lockBuffer()
     let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)
-    return (0..<planeCount).map { index in
+    let planes = (0..<planeCount).map { index in
       HybridFramePlane(buffer: pixelBuffer, planeIndex: index)
     }
+    self.planesCached = planes
+    return planes
   }
 
   func getPixelBuffer() throws -> ArrayBuffer {
