@@ -19,6 +19,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     }
     return sampleBuffer.imageBuffer
   }
+  private var isLocked = false
 
   init(buffer: CMSampleBuffer, orientation: Orientation) {
     self.sampleBuffer = buffer
@@ -81,8 +82,36 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
   }
 
   let orientation: Orientation
+  
+  /**
+   * Manually lock the `CVPixelBuffer` to allow it being accessed from the CPU
+   * via the `ArrayBuffer` APIs.
+   * The buffer only stays locked as long as the Frame is valid (`isValid`).
+   * Once the Frame is invalidated (`dispose()`), the buffer will be unlocked
+   * and is no longer safe to access.
+   */
+  func lockBuffer() throws {
+    if isLocked {
+      // already locked
+      return
+    }
+    guard let pixelBuffer else {
+      throw RuntimeError.error(withMessage: "Cannot lock an already disposed Frame for CPU access!")
+    }
+    let result = CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+    if result != kCVReturnSuccess {
+      throw RuntimeError.error(withMessage: "Failed to lock CVPixelBuffer for CPU access!")
+    }
+    isLocked = true
+  }
 
   func dispose() {
+    if isLocked, let pixelBuffer {
+      let result = CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly)
+      if result != kCVReturnSuccess {
+        print("Failed to unlock CVPixelBuffer!")
+      }
+    }
     try? self.sampleBuffer?.invalidate()
     self.sampleBuffer = nil
   }
@@ -94,6 +123,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     guard let pixelBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
     }
+    try lockBuffer()
     let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)
     return (0..<planeCount).map { index in
       HybridFramePlane(buffer: pixelBuffer, planeIndex: index)
@@ -107,6 +137,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     guard let pixelBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
     }
+    try lockBuffer()
     return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
   }
 

@@ -49,9 +49,12 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+
+        const mainBuf = frame.getPixelBuffer()
+        console.log(`MAIN: ${frame.width}x${frame.height} = ${mainBuf.byteLength}`)
         for (const plane of frame.getPlanes()) {
           const buf = plane.getPixelBuffer()
-          console.log(`${plane.width}x${plane.height} = ${buf.byteLength}`)
+          console.log(`- PLANE: ${plane.width}x${plane.height} = ${buf.byteLength}`)
         }
 
         frame.dispose()
