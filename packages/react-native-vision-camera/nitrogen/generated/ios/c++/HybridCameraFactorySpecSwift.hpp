@@ -107,6 +107,14 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::shared_ptr<HybridCameraSessionFrameOutputSpec> createDepthOutput() override {
+      auto __result = _swiftPart.createDepthOutput();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
 
   private:
     VisionCamera::HybridCameraFactorySpec_cxx _swiftPart;

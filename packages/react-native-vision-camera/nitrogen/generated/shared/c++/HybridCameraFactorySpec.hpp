@@ -67,6 +67,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<HybridCameraSessionSpec> createCameraSession() = 0;
       virtual std::shared_ptr<HybridCameraSessionPhotoOutputSpec> createPhotoOutput() = 0;
       virtual std::shared_ptr<HybridCameraSessionFrameOutputSpec> createFrameOutput(TargetPixelFormat pixelFormat) = 0;
+      virtual std::shared_ptr<HybridCameraSessionFrameOutputSpec> createDepthOutput() = 0;
 
     protected:
       // Hybrid Setup

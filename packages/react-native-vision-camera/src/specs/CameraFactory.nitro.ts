@@ -10,4 +10,5 @@ export interface CameraFactory extends HybridObject<{ ios: 'swift' }> {
   createCameraSession(): CameraSession
   createPhotoOutput(): CameraSessionPhotoOutput
   createFrameOutput(pixelFormat: TargetPixelFormat): CameraSessionFrameOutput
+  createDepthOutput(): CameraSessionFrameOutput
 }

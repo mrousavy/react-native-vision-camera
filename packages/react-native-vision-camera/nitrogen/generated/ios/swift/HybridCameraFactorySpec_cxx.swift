@@ -184,4 +184,19 @@ open class HybridCameraFactorySpec_cxx {
       return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__exceptionPtr)
     }
   }
+  
+  @inline(__always)
+  public final func createDepthOutput() -> bridge.Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__ {
+    do {
+      let __result = try self.__implementation.createDepthOutput()
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionFrameOutputSpec_ in
+        let __cxxWrapped = __result.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__exceptionPtr)
+    }
+  }
 }

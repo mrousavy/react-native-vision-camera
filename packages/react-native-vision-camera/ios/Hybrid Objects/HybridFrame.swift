@@ -11,7 +11,7 @@ import NitroModules
 import NitroImage
 
 class HybridFrame: HybridFrameSpec, NativeFrame {
-  var sampleBuffer: CMSampleBuffer?
+  private(set) var sampleBuffer: CMSampleBuffer?
   private var isLocked: Bool
   private var planesCached: [HybridFramePlane]?
   private var pixelBuffer: CVPixelBuffer? {
