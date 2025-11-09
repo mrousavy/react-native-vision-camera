@@ -1,6 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraDeviceFactory } from './inputs/CameraDeviceFactory.nitro'
-import type { CameraSession } from './CameraSession.nitro'
+import type { CameraSession, CameraSessionType } from './CameraSession.nitro'
 import type { CameraSessionPhotoOutput } from './outputs/CameraSessionPhotoOutput.nitro'
 import type { CameraSessionFrameOutput } from './outputs/CameraSessionFrameOutput.nitro'
 import type { TargetPixelFormat } from './common-types/TargetPixelFormat'
@@ -8,7 +8,7 @@ import type { CameraSessionPreviewOutput } from './outputs/CameraSessionPreviewO
 
 export interface CameraFactory extends HybridObject<{ ios: 'swift' }> {
   createDeviceFactory(): Promise<CameraDeviceFactory>
-  createCameraSession(): CameraSession
+  createCameraSession(sessionType: CameraSessionType): CameraSession
   createPhotoOutput(): CameraSessionPhotoOutput
   createFrameOutput(pixelFormat: TargetPixelFormat): CameraSessionFrameOutput
   createPreviewOutput(): CameraSessionPreviewOutput

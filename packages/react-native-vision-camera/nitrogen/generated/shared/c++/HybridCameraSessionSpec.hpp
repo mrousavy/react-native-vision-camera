@@ -15,6 +15,8 @@
 
 // Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
+// Forward declaration of `CameraSessionType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraSessionType; }
 // Forward declaration of `HybridCameraDeviceControllerSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceControllerSpec; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
@@ -22,6 +24,7 @@ namespace margelo::nitro::camera { struct CameraSessionConnection; }
 
 #include <memory>
 #include "HybridNativeThreadSpec.hpp"
+#include "CameraSessionType.hpp"
 #include "HybridCameraDeviceControllerSpec.hpp"
 #include <vector>
 #include <NitroModules/Promise.hpp>
@@ -56,6 +59,7 @@ namespace margelo::nitro::camera {
       // Properties
       virtual bool getIsRunning() = 0;
       virtual std::shared_ptr<HybridNativeThreadSpec> getCameraThread() = 0;
+      virtual CameraSessionType getSessionType() = 0;
 
     public:
       // Methods

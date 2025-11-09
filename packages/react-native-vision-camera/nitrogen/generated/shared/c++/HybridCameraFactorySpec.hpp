@@ -17,6 +17,8 @@
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `CameraSessionType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraSessionType; }
 // Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 // Forward declaration of `HybridCameraSessionFrameOutputSpec` to properly resolve imports.
@@ -30,6 +32,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include <NitroModules/Promise.hpp>
 #include "HybridCameraSessionSpec.hpp"
+#include "CameraSessionType.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionFrameOutputSpec.hpp"
 #include "TargetPixelFormat.hpp"
@@ -67,7 +70,7 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() = 0;
-      virtual std::shared_ptr<HybridCameraSessionSpec> createCameraSession() = 0;
+      virtual std::shared_ptr<HybridCameraSessionSpec> createCameraSession(CameraSessionType sessionType) = 0;
       virtual std::shared_ptr<HybridCameraSessionPhotoOutputSpec> createPhotoOutput() = 0;
       virtual std::shared_ptr<HybridCameraSessionFrameOutputSpec> createFrameOutput(TargetPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<HybridCameraSessionPreviewOutputSpec> createPreviewOutput() = 0;

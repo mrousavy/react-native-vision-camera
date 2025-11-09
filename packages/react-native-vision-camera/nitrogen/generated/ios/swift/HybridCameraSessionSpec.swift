@@ -14,6 +14,7 @@ public protocol HybridCameraSessionSpec_protocol: HybridObject {
   // Properties
   var isRunning: Bool { get }
   var cameraThread: (any HybridNativeThreadSpec) { get }
+  var sessionType: CameraSessionType { get }
 
   // Methods
   func configure(connections: [CameraSessionConnection]) throws -> Promise<[(any HybridCameraDeviceControllerSpec)]>

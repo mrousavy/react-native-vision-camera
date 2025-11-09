@@ -131,6 +131,13 @@ open class HybridCameraSessionSpec_cxx {
       }()
     }
   }
+  
+  public final var sessionType: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.sessionType.rawValue
+    }
+  }
 
   // Methods
   @inline(__always)

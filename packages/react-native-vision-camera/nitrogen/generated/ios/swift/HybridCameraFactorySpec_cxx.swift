@@ -141,9 +141,9 @@ open class HybridCameraFactorySpec_cxx {
   }
   
   @inline(__always)
-  public final func createCameraSession() -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
+  public final func createCameraSession(sessionType: Int32) -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
     do {
-      let __result = try self.__implementation.createCameraSession()
+      let __result = try self.__implementation.createCameraSession(sessionType: margelo.nitro.camera.CameraSessionType(rawValue: sessionType)!)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()

@@ -23,8 +23,9 @@ function App() {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
-  const preview = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
+  const session = useMemo(() => HybridCameraFactory.createCameraSession('multi-cam'), [])
+  const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
+  const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
 
   useEffect(() => {
     for (const device of devices) {
@@ -57,19 +58,24 @@ function AppContent() {
   }
 
   useEffect(() => {
-    const device = devices[0]
-    if (device == null) return
+    const deviceFront = devices.find((d) => d.position === 'front')
+    const deviceBack = devices.find((d) => d.position === 'back')
+    if (deviceFront == null) return
+    if (deviceBack == null) return
 
     (async () => {
       try {
         const mark1 = performance.now()
-        const photo = HybridCameraFactory.createPhotoOutput()
+        const _photo = HybridCameraFactory.createPhotoOutput()
         const video = createVideoOutput()
         const controller = await session.configure([
           {
-            input: device,
-            outputs: [photo, video, preview]
-          }
+            input: deviceFront,
+            outputs: [previewFront]
+          },{
+            input: deviceBack,
+            outputs: [previewBack, video]
+          },
         ])
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
@@ -82,14 +88,15 @@ function AppContent() {
         console.error(e)
       }
     })()
-  }, [devices, session])
+  }, [devices, previewBack, previewFront, session])
 
   return (
     <View style={styles.container}>
       {devices.map((d) => (
         <Text key={d.id}>{d.id}</Text>
       ))}
-      <NativePreviewView style={styles.camera} previewOutput={preview} />
+      <NativePreviewView style={styles.camera} previewOutput={previewFront} />
+      <NativePreviewView style={styles.camera} previewOutput={previewBack} />
     </View>
   );
 }

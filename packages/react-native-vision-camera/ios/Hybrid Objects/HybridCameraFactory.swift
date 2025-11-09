@@ -15,8 +15,8 @@ class HybridCameraFactory: HybridCameraFactorySpec {
     }
   }
   
-  func createCameraSession() -> any HybridCameraSessionSpec {
-    return HybridCameraSession()
+  func createCameraSession(sessionType: CameraSessionType) -> any HybridCameraSessionSpec {
+    return HybridCameraSession(sessionType: sessionType)
   }
   
   func createPhotoOutput() -> any HybridCameraSessionPhotoOutputSpec {

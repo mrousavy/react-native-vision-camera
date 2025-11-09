@@ -10,14 +10,18 @@ import AVFoundation
 
 class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
+  let sessionType: CameraSessionType
   private let queue: DispatchQueue
-  private static var counter = 0
 
-  override init() {
-    self.session = AVCaptureSession()
-    Self.counter += 1
-    let instanceId = Self.counter
-    self.queue = DispatchQueue(label: "com.margelo.camera.session-\(instanceId)",
+  init(sessionType: CameraSessionType) {
+    switch sessionType {
+    case .singleCam:
+      self.session = AVCaptureSession()
+    case .multiCam:
+      self.session = AVCaptureMultiCamSession()
+    }
+    self.sessionType = sessionType
+    self.queue = DispatchQueue(label: "com.margelo.camera.session-\(sessionType.stringValue)",
                                qos: .userInteractive,
                                attributes: [],
                                autoreleaseFrequency: .inherit,
@@ -42,12 +46,21 @@ class HybridCameraSession: HybridCameraSessionSpec {
       self.session.connections.forEach { self.session.removeConnection($0) }
       self.session.inputs.forEach { self.session.removeInput($0) }
       self.session.outputs.forEach { self.session.removeOutput($0) }
+      
+      let allInputs = connections.map { $0.input }.withoutDuplicates { left, right in left === right }
+      // Ensure multi-cam is enabled if we have multiple inputs
+      if allInputs.count > 1 {
+        guard self.sessionType == .multiCam else {
+          throw RuntimeError.error(withMessage: "Cannot add multiple inputs (\(allInputs)) to a single-cam CameraSession! " + "Create your CameraSession as a \"multi-cam\" to add multiple camera inputs.")
+        }
+      }
 
       // Connect inputs and outputs
       for connection in connections {
         // 2. Maybe add input
         let input = connection.input
         if !self.session.containsInput(input) {
+          print("Adding Input \"\(input)\"...")
           try self.session.addInputWithNoConnections(input)
         }
 
@@ -55,6 +68,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
         for output in connection.outputs {
           // 3.1. Maybe add output (preview is not a real output so that's the exception)
           if !self.session.containsOutput(output) {
+            print("Adding Output \"\(output)\"...")
             try self.session.addOutputWithNoConnections(output)
           }
 
@@ -63,6 +77,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
           guard self.session.canAddConnection(connection) else {
             throw RuntimeError.error(withMessage: "Connection from \"\(input)\" -> \"\(output)\" cannot be added to Camera Session!")
           }
+          print("Adding Connection \"\(connection)\"...")
           self.session.addConnection(connection)
         }
       }
