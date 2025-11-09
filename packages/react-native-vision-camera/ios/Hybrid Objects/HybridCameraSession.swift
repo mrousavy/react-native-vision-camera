@@ -53,6 +53,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
       }
 
       // Connect inputs and outputs
+      let connectionsCountBefore = self.session.connections.count
       for connection in connections {
         // 2. Maybe add input
         guard let input = connection.input as? HybridCameraDevice else {
@@ -79,6 +80,11 @@ class HybridCameraSession: HybridCameraSessionSpec {
             try self.session.addConnection(deviceInput: deviceInput, output: output)
           }
         }
+      }
+      let connectionsCountAfter = self.session.connections.count
+      let addedConnectionsCount = connectionsCountAfter - connectionsCountBefore
+      if addedConnectionsCount > 0 {
+        print("Added \(addedConnectionsCount) Connection(s)!")
       }
       
       // 4. Return CameraDeviceControllers per connection to adjust camera settings (focus, etc)
@@ -145,6 +151,9 @@ class HybridCameraSession: HybridCameraSessionSpec {
     }
     
     let connectionsCountAfter = self.session.connections.count
-    print("Removed \(connectionsCountBefore - connectionsCountAfter) Connection(s)!")
+    let removedConnectionsCount = connectionsCountBefore - connectionsCountAfter
+    if removedConnectionsCount > 0 {
+      print("Removed \(removedConnectionsCount) Connection(s)!")
+    }
   }
 }
