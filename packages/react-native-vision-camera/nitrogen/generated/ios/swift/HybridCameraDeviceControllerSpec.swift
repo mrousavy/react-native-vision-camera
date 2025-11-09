@@ -15,7 +15,18 @@ public protocol HybridCameraDeviceControllerSpec_protocol: HybridObject {
   var device: (any HybridCameraDeviceSpec) { get }
 
   // Methods
-  func configure(zoom: Double) throws -> Promise<Void>
+  func configure(config: CameraDeviceConfiguration) throws -> Promise<Void>
+  func setFocusPoint(point: Point) throws -> Promise<Void>
+  func setFocusRect(rect: Rect) throws -> Promise<Void>
+  func setFocusLensPosition(lensPosition: Double) throws -> Promise<Void>
+  func setExposurePoint(point: Point) throws -> Promise<Void>
+  func setExposureBias(exposure: Double) throws -> Promise<Void>
+  func setExposureRect(rect: Rect) throws -> Promise<Void>
+  func setExposureLocked(duration: Double, iso: Double) throws -> Promise<Void>
+  func setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains) throws -> Promise<Void>
+  func enableTorch(level: Double) throws -> Promise<Void>
+  func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
+  func cancelZoomAnimation() throws -> Promise<Void>
 }
 
 public extension HybridCameraDeviceControllerSpec_protocol {

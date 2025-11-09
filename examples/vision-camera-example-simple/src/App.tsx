@@ -101,7 +101,7 @@ function AppContent() {
     .onUpdate((e) => {
       controllers.current.forEach((c) => {
         scale.value = clamp(savedScale.value * e.scale, c.device.minZoom, c.device.maxZoom)
-        c.configure(scale.value)
+        c.configure({ zoom: scale.value })
       })
     })
     .onEnd(() => {

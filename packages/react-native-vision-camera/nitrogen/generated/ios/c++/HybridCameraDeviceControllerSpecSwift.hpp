@@ -14,10 +14,41 @@ namespace VisionCamera { class HybridCameraDeviceControllerSpec_cxx; }
 
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
+// Forward declaration of `CameraDeviceConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraDeviceConfiguration; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `ExposureMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ExposureMode; }
+// Forward declaration of `WhiteBalanceMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `Point` to properly resolve imports.
+namespace margelo::nitro::camera { struct Point; }
+// Forward declaration of `Rect` to properly resolve imports.
+namespace margelo::nitro::camera { struct Rect; }
+// Forward declaration of `WhiteBalanceGains` to properly resolve imports.
+namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <NitroModules/Promise.hpp>
+#include "CameraDeviceConfiguration.hpp"
+#include "HybridCameraFormatSpec.hpp"
+#include <optional>
+#include "Range.hpp"
+#include "FocusMode.hpp"
+#include "ExposureMode.hpp"
+#include "WhiteBalanceMode.hpp"
+#include "ColorSpace.hpp"
+#include "Point.hpp"
+#include "Rect.hpp"
+#include "WhiteBalanceGains.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -66,8 +97,96 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<void>> configure(double zoom) override {
-      auto __result = _swiftPart.configure(std::forward<decltype(zoom)>(zoom));
+    inline std::shared_ptr<Promise<void>> configure(const CameraDeviceConfiguration& config) override {
+      auto __result = _swiftPart.configure(std::forward<decltype(config)>(config));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) override {
+      auto __result = _swiftPart.setFocusPoint(std::forward<decltype(point)>(point));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) override {
+      auto __result = _swiftPart.setFocusRect(std::forward<decltype(rect)>(rect));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) override {
+      auto __result = _swiftPart.setFocusLensPosition(std::forward<decltype(lensPosition)>(lensPosition));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) override {
+      auto __result = _swiftPart.setExposurePoint(std::forward<decltype(point)>(point));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setExposureBias(double exposure) override {
+      auto __result = _swiftPart.setExposureBias(std::forward<decltype(exposure)>(exposure));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) override {
+      auto __result = _swiftPart.setExposureRect(std::forward<decltype(rect)>(rect));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) override {
+      auto __result = _swiftPart.setExposureLocked(std::forward<decltype(duration)>(duration), std::forward<decltype(iso)>(iso));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> setWhiteBalanceLocked(const WhiteBalanceGains& whiteBalanceGains) override {
+      auto __result = _swiftPart.setWhiteBalanceLocked(std::forward<decltype(whiteBalanceGains)>(whiteBalanceGains));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> enableTorch(double level) override {
+      auto __result = _swiftPart.enableTorch(std::forward<decltype(level)>(level));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) override {
+      auto __result = _swiftPart.startZoomAnimation(std::forward<decltype(zoom)>(zoom), std::forward<decltype(rate)>(rate));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> cancelZoomAnimation() override {
+      auto __result = _swiftPart.cancelZoomAnimation();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

@@ -16,6 +16,17 @@ namespace margelo::nitro::camera {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("device", &HybridCameraDeviceControllerSpec::getDevice);
       prototype.registerHybridMethod("configure", &HybridCameraDeviceControllerSpec::configure);
+      prototype.registerHybridMethod("setFocusPoint", &HybridCameraDeviceControllerSpec::setFocusPoint);
+      prototype.registerHybridMethod("setFocusRect", &HybridCameraDeviceControllerSpec::setFocusRect);
+      prototype.registerHybridMethod("setFocusLensPosition", &HybridCameraDeviceControllerSpec::setFocusLensPosition);
+      prototype.registerHybridMethod("setExposurePoint", &HybridCameraDeviceControllerSpec::setExposurePoint);
+      prototype.registerHybridMethod("setExposureBias", &HybridCameraDeviceControllerSpec::setExposureBias);
+      prototype.registerHybridMethod("setExposureRect", &HybridCameraDeviceControllerSpec::setExposureRect);
+      prototype.registerHybridMethod("setExposureLocked", &HybridCameraDeviceControllerSpec::setExposureLocked);
+      prototype.registerHybridMethod("setWhiteBalanceLocked", &HybridCameraDeviceControllerSpec::setWhiteBalanceLocked);
+      prototype.registerHybridMethod("enableTorch", &HybridCameraDeviceControllerSpec::enableTorch);
+      prototype.registerHybridMethod("startZoomAnimation", &HybridCameraDeviceControllerSpec::startZoomAnimation);
+      prototype.registerHybridMethod("cancelZoomAnimation", &HybridCameraDeviceControllerSpec::cancelZoomAnimation);
     });
   }
 

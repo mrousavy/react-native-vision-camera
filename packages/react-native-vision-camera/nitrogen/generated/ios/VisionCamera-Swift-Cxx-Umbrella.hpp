@@ -10,6 +10,8 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
 namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `CameraDeviceConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraDeviceConfiguration; }
 // Forward declaration of `CameraOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOutputType; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
@@ -97,6 +99,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 
 // Include C++ defined types
 #include "AutoFocusSystem.hpp"
+#include "CameraDeviceConfiguration.hpp"
 #include "CameraOutputType.hpp"
 #include "CameraPosition.hpp"
 #include "CameraSessionConnection.hpp"

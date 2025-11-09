@@ -21,28 +21,22 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
-// Forward declaration of `Range` to properly resolve imports.
-namespace margelo::nitro::camera { struct Range; }
-// Forward declaration of `FocusMode` to properly resolve imports.
-namespace margelo::nitro::camera { enum class FocusMode; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `TorchMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TorchMode; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `Rect` to properly resolve imports.
+namespace margelo::nitro::camera { struct Rect; }
+// Forward declaration of `Point` to properly resolve imports.
+namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `ExposureMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class ExposureMode; }
 // Forward declaration of `WhiteBalanceMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
-// Forward declaration of `TorchMode` to properly resolve imports.
-namespace margelo::nitro::camera { enum class TorchMode; }
-// Forward declaration of `ColorSpace` to properly resolve imports.
-namespace margelo::nitro::camera { enum class ColorSpace; }
-// Forward declaration of `MediaType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class MediaType; }
-// Forward declaration of `Point` to properly resolve imports.
-namespace margelo::nitro::camera { struct Point; }
-// Forward declaration of `Rect` to properly resolve imports.
-namespace margelo::nitro::camera { struct Rect; }
-// Forward declaration of `WhiteBalanceGains` to properly resolve imports.
-namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <string>
 #include "DeviceType.hpp"
@@ -52,18 +46,14 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 #include <vector>
 #include <optional>
 #include "HybridCameraFormatSpec.hpp"
-#include "Range.hpp"
-#include "FocusMode.hpp"
 #include "Size.hpp"
+#include "TorchMode.hpp"
+#include "MediaType.hpp"
+#include "FocusMode.hpp"
+#include "Rect.hpp"
+#include "Point.hpp"
 #include "ExposureMode.hpp"
 #include "WhiteBalanceMode.hpp"
-#include "TorchMode.hpp"
-#include "ColorSpace.hpp"
-#include "MediaType.hpp"
-#include <NitroModules/Promise.hpp>
-#include "Point.hpp"
-#include "Rect.hpp"
-#include "WhiteBalanceGains.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -107,41 +97,21 @@ namespace margelo::nitro::camera {
       virtual bool getIsContinuityCamera() = 0;
       virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCompanionDeskViewCamera() = 0;
       virtual std::vector<std::shared_ptr<HybridCameraFormatSpec>> getFormats() = 0;
-      virtual std::shared_ptr<HybridCameraFormatSpec> getActiveFormat() = 0;
-      virtual void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) = 0;
-      virtual std::optional<std::shared_ptr<HybridCameraFormatSpec>> getActiveDepthFormat() = 0;
-      virtual void setActiveDepthFormat(const std::optional<std::shared_ptr<HybridCameraFormatSpec>>& activeDepthFormat) = 0;
-      virtual bool getEnableAutoFrameRate() = 0;
-      virtual void setEnableAutoFrameRate(bool enableAutoFrameRate) = 0;
-      virtual Range getFps() = 0;
-      virtual void setFps(const Range& fps) = 0;
-      virtual FocusMode getFocusMode() = 0;
-      virtual void setFocusMode(FocusMode focusMode) = 0;
       virtual bool getSupportsSmoothAutoFocus() = 0;
-      virtual bool getEnableSmoothAutoFocus() = 0;
-      virtual void setEnableSmoothAutoFocus(bool enableSmoothAutoFocus) = 0;
-      virtual bool getEnableFaceDrivenAutoFocus() = 0;
-      virtual void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) = 0;
       virtual bool getSupportsFocusingPoint() = 0;
       virtual bool getSupportsFocusingRect() = 0;
       virtual std::optional<Size> getMinFocusRectSize() = 0;
       virtual bool getIsAdjustingFocus() = 0;
       virtual bool getSupportsLockingFocusLensPosition() = 0;
       virtual double getLensPosition() = 0;
-      virtual ExposureMode getExposureMode() = 0;
-      virtual void setExposureMode(ExposureMode exposureMode) = 0;
       virtual bool getSupportsExposurePoint() = 0;
       virtual bool getSupportsExposureRect() = 0;
       virtual std::optional<Size> getMinExposureRectSize() = 0;
-      virtual bool getEnableFaceDrivenAutoExposure() = 0;
-      virtual void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) = 0;
       virtual bool getIsAdjustingExposure() = 0;
       virtual double getExposureDuration() = 0;
       virtual double getActiveMaxExposureDuration() = 0;
       virtual double getIso() = 0;
       virtual double getLensAperture() = 0;
-      virtual WhiteBalanceMode getWhiteBalanceMode() = 0;
-      virtual void setWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) = 0;
       virtual bool getIsAdjustingWhiteBalance() = 0;
       virtual bool getSupportsLockingWhiteBalanceGains() = 0;
       virtual bool getHasFlash() = 0;
@@ -152,22 +122,10 @@ namespace margelo::nitro::camera {
       virtual TorchMode getTorchMode() = 0;
       virtual bool getSupportsLowLightBoost() = 0;
       virtual bool getIsLowLightBoostEnabled() = 0;
-      virtual bool getAutomaticallyEnableLowLightBoost() = 0;
-      virtual void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) = 0;
-      virtual bool getEnableVideoHDR() = 0;
-      virtual void setEnableVideoHDR(bool enableVideoHDR) = 0;
-      virtual bool getAutomaticallyEnableVideoHDR() = 0;
-      virtual void setAutomaticallyEnableVideoHDR(bool automaticallyEnableVideoHDR) = 0;
-      virtual bool getEnableGlobalToneMapping() = 0;
-      virtual void setEnableGlobalToneMapping(bool enableGlobalToneMapping) = 0;
-      virtual ColorSpace getColorSpace() = 0;
-      virtual void setColorSpace(ColorSpace colorSpace) = 0;
       virtual double getMinZoom() = 0;
       virtual double getMaxZoom() = 0;
       virtual std::vector<double> getZoomLensSwitchFactors() = 0;
       virtual double getDisplayVideoZoomFactorMultiplier() = 0;
-      virtual double getZoom() = 0;
-      virtual void setZoom(double zoom) = 0;
       virtual bool getIsZoomingAnimation() = 0;
       virtual bool getSupportsDistortionCorrection() = 0;
       virtual bool getEnableDistortionCorrection() = 0;
@@ -176,22 +134,11 @@ namespace margelo::nitro::camera {
       // Methods
       virtual bool hasMediaType(MediaType mediaType) = 0;
       virtual bool supportsFocusMode(FocusMode mode) = 0;
-      virtual std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) = 0;
-      virtual std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) = 0;
       virtual Rect getDefaultRectForFocusPoint(const Point& point) = 0;
-      virtual std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) = 0;
       virtual bool supportsExposureMode(ExposureMode exposureMode) = 0;
-      virtual std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) = 0;
-      virtual std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) = 0;
       virtual Rect getDefaultRectForExposurePoint(const Point& point) = 0;
-      virtual std::shared_ptr<Promise<void>> setExposureBias(double exposure) = 0;
-      virtual std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) = 0;
       virtual bool supportsWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) = 0;
-      virtual std::shared_ptr<Promise<void>> setWhiteBalanceLocked(const WhiteBalanceGains& whiteBalanceGains) = 0;
       virtual bool supportsTorchMode(TorchMode torch) = 0;
-      virtual std::shared_ptr<Promise<void>> enableTorch(double level) = 0;
-      virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
-      virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;
 
     protected:
       // Hybrid Setup

@@ -15,10 +15,22 @@
 
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
+// Forward declaration of `CameraDeviceConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraDeviceConfiguration; }
+// Forward declaration of `Point` to properly resolve imports.
+namespace margelo::nitro::camera { struct Point; }
+// Forward declaration of `Rect` to properly resolve imports.
+namespace margelo::nitro::camera { struct Rect; }
+// Forward declaration of `WhiteBalanceGains` to properly resolve imports.
+namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
 #include <NitroModules/Promise.hpp>
+#include "CameraDeviceConfiguration.hpp"
+#include "Point.hpp"
+#include "Rect.hpp"
+#include "WhiteBalanceGains.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -51,7 +63,18 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> configure(double zoom) = 0;
+      virtual std::shared_ptr<Promise<void>> configure(const CameraDeviceConfiguration& config) = 0;
+      virtual std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) = 0;
+      virtual std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) = 0;
+      virtual std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) = 0;
+      virtual std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) = 0;
+      virtual std::shared_ptr<Promise<void>> setExposureBias(double exposure) = 0;
+      virtual std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) = 0;
+      virtual std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) = 0;
+      virtual std::shared_ptr<Promise<void>> setWhiteBalanceLocked(const WhiteBalanceGains& whiteBalanceGains) = 0;
+      virtual std::shared_ptr<Promise<void>> enableTorch(double level) = 0;
+      virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
+      virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;
 
     protected:
       // Hybrid Setup
