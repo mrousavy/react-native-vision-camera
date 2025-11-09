@@ -54,10 +54,8 @@ class HybridCameraSession: HybridCameraSessionSpec {
         // 3. Loop through all outputs of this connection
         for output in connection.outputs {
           // 3.1. Maybe add output (preview is not a real output so that's the exception)
-          if output.type != .preview {
-            if !self.session.containsOutput(output) {
-              try self.session.addOutputWithNoConnections(output)
-            }
+          if !self.session.containsOutput(output) {
+            try self.session.addOutputWithNoConnections(output)
           }
 
           // 3.3. Create connection

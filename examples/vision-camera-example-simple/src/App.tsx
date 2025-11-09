@@ -68,7 +68,7 @@ function AppContent() {
         const controller = await session.configure([
           {
             input: device,
-            outputs: [photo, video]
+            outputs: [photo, video, preview]
           }
         ])
         const mark2 = performance.now()

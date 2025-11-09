@@ -10,22 +10,31 @@ import AVFoundation
 
 extension AVCaptureSession {
   func containsOutput(_ outputSpec: any HybridCameraOutputSpec) -> Bool {
-    // 1. Downcast
-    guard let hybridOutput = outputSpec as? NativeCameraOutput else {
+    if let hybridOutput = outputSpec as? NativeCameraOutput {
+      // It's a normal AVCaptureOutput
+      return outputs.contains(hybridOutput.output)
+    } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
+      // It's an AVVideoPreviewLayer - this is a bit different than normal outputs:
+      // We "add" it by setting it's .session property.
+      return hybridPreview.previewLayer.session == self
+    } else {
       return false
     }
-    // 2. Find if it is contained
-    return outputs.contains(hybridOutput.output)
   }
   
   func addOutputWithNoConnections(_ outputSpec: any HybridCameraOutputSpec) throws {
-    guard let hybridOutput = outputSpec as? NativeCameraOutput else {
-      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" does not conform to `NativeCameraOutput`!")
+    if let hybridOutput = outputSpec as? NativeCameraOutput {
+      // It's a normal AVCaptureOutput
+      let output = hybridOutput.output
+      guard canAddOutput(output) else {
+        throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" cannot be added to Camera Session!")
+      }
+      addOutputWithNoConnections(output)
+    } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
+      // It's an AVVideoPreviewLayer - we need to set it's .session
+      hybridPreview.previewLayer.setSessionWithNoConnection(self)
+    } else {
+      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!")
     }
-    let output = hybridOutput.output
-    guard canAddOutput(output) else {
-      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" cannot be added to Camera Session!")
-    }
-    addOutputWithNoConnections(output)
   }
 }

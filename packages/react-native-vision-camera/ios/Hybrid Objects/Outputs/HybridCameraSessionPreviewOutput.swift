@@ -8,7 +8,7 @@ import Foundation
 import NitroModules
 import AVFoundation
 
-class HybridCameraSessionPreviewOutput: HybridCameraSessionPreviewOutputSpec {
+class HybridCameraSessionPreviewOutput: HybridCameraSessionPreviewOutputSpec, NativePreviewViewOutput {
   let type: CameraOutputType = .preview
   let previewLayer: AVCaptureVideoPreviewLayer
 

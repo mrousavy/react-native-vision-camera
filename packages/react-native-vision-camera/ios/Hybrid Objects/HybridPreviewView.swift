@@ -21,6 +21,7 @@ class HybridPreviewView: HybridPreviewViewSpec {
       self.view.layer.sublayers?.removeAll()
       if let previewOutput = self.previewOutput as? HybridCameraSessionPreviewOutput {
         self.view.layer.addSublayer(previewOutput.previewLayer)
+        previewOutput.previewLayer.frame = self.view.bounds
       }
     }
   }
