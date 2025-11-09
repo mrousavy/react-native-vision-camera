@@ -14,8 +14,11 @@ namespace VisionCamera { class HybridCameraOutputSpec_cxx; }
 
 // Forward declaration of `CameraOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOutputType; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 
 #include "CameraOutputType.hpp"
+#include "MediaType.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -57,9 +60,13 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    inline CameraOutputType getType() noexcept override {
-      auto __result = _swiftPart.getType();
+    inline CameraOutputType getOutputType() noexcept override {
+      auto __result = _swiftPart.getOutputType();
       return static_cast<CameraOutputType>(__result);
+    }
+    inline MediaType getMediaType() noexcept override {
+      auto __result = _swiftPart.getMediaType();
+      return static_cast<MediaType>(__result);
     }
 
   public:

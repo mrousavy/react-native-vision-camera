@@ -11,7 +11,8 @@ import NitroModules
 /// See ``HybridCameraOutputSpec``
 public protocol HybridCameraOutputSpec_protocol: HybridObject {
   // Properties
-  var type: CameraOutputType { get }
+  var outputType: CameraOutputType { get }
+  var mediaType: MediaType { get }
 
   // Methods
   

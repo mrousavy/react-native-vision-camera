@@ -10,7 +10,8 @@ import AVFoundation
 import NitroImage
 
 class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, NativeCameraOutput {
-  let type: CameraOutputType = .photo
+  let outputType: CameraOutputType = .photo
+  let mediaType: MediaType = .video
   var output: AVCaptureOutput {
     return photoOutput
   }

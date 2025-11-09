@@ -114,10 +114,17 @@ open class HybridCameraOutputSpec_cxx {
   }
 
   // Properties
-  public final var type: Int32 {
+  public final var outputType: Int32 {
     @inline(__always)
     get {
-      return self.__implementation.type.rawValue
+      return self.__implementation.outputType.rawValue
+    }
+  }
+  
+  public final var mediaType: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.mediaType.rawValue
     }
   }
 

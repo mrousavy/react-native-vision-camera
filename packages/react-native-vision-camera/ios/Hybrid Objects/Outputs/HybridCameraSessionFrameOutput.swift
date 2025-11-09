@@ -12,7 +12,8 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Native
   private let videoOutput: AVCaptureVideoDataOutput
   private let delegate: FrameDelegate
   private let queue: DispatchQueue
-  let type: CameraOutputType = .stream
+  let outputType: CameraOutputType = .stream
+  let mediaType: MediaType = .video
   var output: AVCaptureOutput {
     return videoOutput
   }

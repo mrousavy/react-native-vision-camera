@@ -11,8 +11,10 @@ import AVFoundation
 extension AVCaptureConnection {
   convenience init(input: AVCaptureDeviceInput, output: any HybridCameraOutputSpec) throws {
     if let hybridOutput = output as? NativeCameraOutput {
-      // a) It's a normal AVCaptureSessionOutput
-      self.init(inputPorts: input.ports, output: hybridOutput.output)
+      // a) It's a normal AVCaptureSessionOutput - connect it to all it's desired ports
+      let mediaType = output.mediaType.toAVMediaType()
+      let ports = input.ports(for: mediaType, sourceDeviceType: nil, sourceDevicePosition: .unspecified)
+      self.init(inputPorts: ports, output: hybridOutput.output)
     } else if let hybridPreview = output as? NativePreviewViewOutput {
       // b) It's a preview AVCapturePreviewLayer
       let videoPort = input.ports.first { $0.mediaType == .video }

@@ -15,8 +15,11 @@
 
 // Forward declaration of `CameraOutputType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOutputType; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
 
 #include "CameraOutputType.hpp"
+#include "MediaType.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -45,7 +48,8 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual CameraOutputType getType() = 0;
+      virtual CameraOutputType getOutputType() = 0;
+      virtual MediaType getMediaType() = 0;
 
     public:
       // Methods
