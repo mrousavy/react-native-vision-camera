@@ -72,16 +72,17 @@ namespace margelo::nitro::camera {
       virtual bool getSupportsHighQualityPhoto() = 0;
       virtual bool getIsHighestPhotoFormat() = 0;
       virtual bool getSupportsAutoFps() = 0;
-      virtual std::vector<Range> getSupportedFrameRateRanges() = 0;
+      virtual std::vector<Range> getSupportedFpsRanges() = 0;
+      virtual double getMaxFps() = 0;
       virtual bool getIsVideoBinned() = 0;
       virtual bool getSupportsVideoHDR() = 0;
       virtual bool getSupportsMultiCam() = 0;
       virtual double getFieldOfView() = 0;
       virtual double getFieldOfViewDistortionCorrected() = 0;
       virtual bool getSupportsBackgroundReplacement() = 0;
-      virtual std::optional<Range> getFrameRateRangeForBackgroundReplacement() = 0;
+      virtual std::optional<Range> getFpsRangeForBackgroundReplacement() = 0;
       virtual bool getSupportsReactionEffects() = 0;
-      virtual std::optional<Range> getFrameRateRangeForReactionEffects() = 0;
+      virtual std::optional<Range> getFpsRangeForReactionEffects() = 0;
       virtual MediaType getMediaType() = 0;
       virtual AutoFocusSystem getAutoFocusSystem() = 0;
       virtual bool getSupportsGlobalToneMapping() = 0;
@@ -99,18 +100,18 @@ namespace margelo::nitro::camera {
       virtual std::vector<Range> getSupportedZoomRangesForDepthDataDelivery() = 0;
       virtual bool getSupportsSmartFraming() = 0;
       virtual bool getSupportsCenterStage() = 0;
-      virtual std::optional<Range> getFrameRateRangeForCenterStage() = 0;
+      virtual std::optional<Range> getFpsRangeForCenterStage() = 0;
       virtual std::optional<Range> getZoomRangeForCenterStage() = 0;
       virtual bool getSupportsPortraitEffect() = 0;
       virtual bool getSupportsPortraitEffectMatteStillImageDelivery() = 0;
-      virtual std::optional<Range> getFrameRateRangeForPortraitEffect() = 0;
+      virtual std::optional<Range> getFpsRangeForPortraitEffect() = 0;
       virtual bool getSupportsStudioLight() = 0;
-      virtual std::optional<Range> getFrameRateRangeForStudioLight() = 0;
+      virtual std::optional<Range> getFpsRangeForStudioLight() = 0;
       virtual bool getSupportsCinematicVideo() = 0;
       virtual std::optional<double> getDefaultSimulatedAperture() = 0;
       virtual std::optional<Range> getSimulatedApertureRange() = 0;
       virtual std::optional<Range> getZoomFactorForCinematicVideo() = 0;
-      virtual std::optional<Range> getFrameRateRangeForCinematicVideo() = 0;
+      virtual std::optional<Range> getFpsRangeForCinematicVideo() = 0;
 
     public:
       // Methods

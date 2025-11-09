@@ -17,16 +17,17 @@ public protocol HybridCameraFormatSpec_protocol: HybridObject {
   var supportsHighQualityPhoto: Bool { get }
   var isHighestPhotoFormat: Bool { get }
   var supportsAutoFps: Bool { get }
-  var supportedFrameRateRanges: [Range] { get }
+  var supportedFpsRanges: [Range] { get }
+  var maxFps: Double { get }
   var isVideoBinned: Bool { get }
   var supportsVideoHDR: Bool { get }
   var supportsMultiCam: Bool { get }
   var fieldOfView: Double { get }
   var fieldOfViewDistortionCorrected: Double { get }
   var supportsBackgroundReplacement: Bool { get }
-  var frameRateRangeForBackgroundReplacement: Range? { get }
+  var fpsRangeForBackgroundReplacement: Range? { get }
   var supportsReactionEffects: Bool { get }
-  var frameRateRangeForReactionEffects: Range? { get }
+  var fpsRangeForReactionEffects: Range? { get }
   var mediaType: MediaType { get }
   var autoFocusSystem: AutoFocusSystem { get }
   var supportsGlobalToneMapping: Bool { get }
@@ -44,18 +45,18 @@ public protocol HybridCameraFormatSpec_protocol: HybridObject {
   var supportedZoomRangesForDepthDataDelivery: [Range] { get }
   var supportsSmartFraming: Bool { get }
   var supportsCenterStage: Bool { get }
-  var frameRateRangeForCenterStage: Range? { get }
+  var fpsRangeForCenterStage: Range? { get }
   var zoomRangeForCenterStage: Range? { get }
   var supportsPortraitEffect: Bool { get }
   var supportsPortraitEffectMatteStillImageDelivery: Bool { get }
-  var frameRateRangeForPortraitEffect: Range? { get }
+  var fpsRangeForPortraitEffect: Range? { get }
   var supportsStudioLight: Bool { get }
-  var frameRateRangeForStudioLight: Range? { get }
+  var fpsRangeForStudioLight: Range? { get }
   var supportsCinematicVideo: Bool { get }
   var defaultSimulatedAperture: Double? { get }
   var simulatedApertureRange: Range? { get }
   var zoomFactorForCinematicVideo: Range? { get }
-  var frameRateRangeForCinematicVideo: Range? { get }
+  var fpsRangeForCinematicVideo: Range? { get }
 
   // Methods
   func supportsVideoStabilizationMode(mode: VideoStabilizationMode) throws -> Bool

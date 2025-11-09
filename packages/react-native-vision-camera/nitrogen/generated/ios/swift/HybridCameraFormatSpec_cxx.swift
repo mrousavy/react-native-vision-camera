@@ -162,16 +162,23 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var supportedFrameRateRanges: bridge.std__vector_Range_ {
+  public final var supportedFpsRanges: bridge.std__vector_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__vector_Range_ in
-        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedFrameRateRanges.count)
-        for __item in self.__implementation.supportedFrameRateRanges {
+        var __vector = bridge.create_std__vector_Range_(self.__implementation.supportedFpsRanges.count)
+        for __item in self.__implementation.supportedFpsRanges {
           __vector.push_back(__item)
         }
         return __vector
       }()
+    }
+  }
+  
+  public final var maxFps: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.maxFps
     }
   }
   
@@ -217,11 +224,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForBackgroundReplacement: bridge.std__optional_Range_ {
+  public final var fpsRangeForBackgroundReplacement: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForBackgroundReplacement {
+        if let __unwrappedValue = self.__implementation.fpsRangeForBackgroundReplacement {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()
@@ -237,11 +244,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForReactionEffects: bridge.std__optional_Range_ {
+  public final var fpsRangeForReactionEffects: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForReactionEffects {
+        if let __unwrappedValue = self.__implementation.fpsRangeForReactionEffects {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()
@@ -408,11 +415,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForCenterStage: bridge.std__optional_Range_ {
+  public final var fpsRangeForCenterStage: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForCenterStage {
+        if let __unwrappedValue = self.__implementation.fpsRangeForCenterStage {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()
@@ -448,11 +455,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForPortraitEffect: bridge.std__optional_Range_ {
+  public final var fpsRangeForPortraitEffect: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForPortraitEffect {
+        if let __unwrappedValue = self.__implementation.fpsRangeForPortraitEffect {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()
@@ -468,11 +475,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForStudioLight: bridge.std__optional_Range_ {
+  public final var fpsRangeForStudioLight: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForStudioLight {
+        if let __unwrappedValue = self.__implementation.fpsRangeForStudioLight {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()
@@ -527,11 +534,11 @@ open class HybridCameraFormatSpec_cxx {
     }
   }
   
-  public final var frameRateRangeForCinematicVideo: bridge.std__optional_Range_ {
+  public final var fpsRangeForCinematicVideo: bridge.std__optional_Range_ {
     @inline(__always)
     get {
       return { () -> bridge.std__optional_Range_ in
-        if let __unwrappedValue = self.__implementation.frameRateRangeForCinematicVideo {
+        if let __unwrappedValue = self.__implementation.fpsRangeForCinematicVideo {
           return bridge.create_std__optional_Range_(__unwrappedValue)
         } else {
           return .init()

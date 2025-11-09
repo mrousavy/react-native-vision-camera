@@ -97,9 +97,12 @@ namespace margelo::nitro::camera {
     inline bool getSupportsAutoFps() noexcept override {
       return _swiftPart.getSupportsAutoFps();
     }
-    inline std::vector<Range> getSupportedFrameRateRanges() noexcept override {
-      auto __result = _swiftPart.getSupportedFrameRateRanges();
+    inline std::vector<Range> getSupportedFpsRanges() noexcept override {
+      auto __result = _swiftPart.getSupportedFpsRanges();
       return __result;
+    }
+    inline double getMaxFps() noexcept override {
+      return _swiftPart.getMaxFps();
     }
     inline bool getIsVideoBinned() noexcept override {
       return _swiftPart.isVideoBinned();
@@ -119,15 +122,15 @@ namespace margelo::nitro::camera {
     inline bool getSupportsBackgroundReplacement() noexcept override {
       return _swiftPart.getSupportsBackgroundReplacement();
     }
-    inline std::optional<Range> getFrameRateRangeForBackgroundReplacement() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForBackgroundReplacement();
+    inline std::optional<Range> getFpsRangeForBackgroundReplacement() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForBackgroundReplacement();
       return __result;
     }
     inline bool getSupportsReactionEffects() noexcept override {
       return _swiftPart.getSupportsReactionEffects();
     }
-    inline std::optional<Range> getFrameRateRangeForReactionEffects() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForReactionEffects();
+    inline std::optional<Range> getFpsRangeForReactionEffects() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForReactionEffects();
       return __result;
     }
     inline MediaType getMediaType() noexcept override {
@@ -189,8 +192,8 @@ namespace margelo::nitro::camera {
     inline bool getSupportsCenterStage() noexcept override {
       return _swiftPart.getSupportsCenterStage();
     }
-    inline std::optional<Range> getFrameRateRangeForCenterStage() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForCenterStage();
+    inline std::optional<Range> getFpsRangeForCenterStage() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForCenterStage();
       return __result;
     }
     inline std::optional<Range> getZoomRangeForCenterStage() noexcept override {
@@ -203,15 +206,15 @@ namespace margelo::nitro::camera {
     inline bool getSupportsPortraitEffectMatteStillImageDelivery() noexcept override {
       return _swiftPart.getSupportsPortraitEffectMatteStillImageDelivery();
     }
-    inline std::optional<Range> getFrameRateRangeForPortraitEffect() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForPortraitEffect();
+    inline std::optional<Range> getFpsRangeForPortraitEffect() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForPortraitEffect();
       return __result;
     }
     inline bool getSupportsStudioLight() noexcept override {
       return _swiftPart.getSupportsStudioLight();
     }
-    inline std::optional<Range> getFrameRateRangeForStudioLight() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForStudioLight();
+    inline std::optional<Range> getFpsRangeForStudioLight() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForStudioLight();
       return __result;
     }
     inline bool getSupportsCinematicVideo() noexcept override {
@@ -229,8 +232,8 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getZoomFactorForCinematicVideo();
       return __result;
     }
-    inline std::optional<Range> getFrameRateRangeForCinematicVideo() noexcept override {
-      auto __result = _swiftPart.getFrameRateRangeForCinematicVideo();
+    inline std::optional<Range> getFpsRangeForCinematicVideo() noexcept override {
+      auto __result = _swiftPart.getFpsRangeForCinematicVideo();
       return __result;
     }
 

@@ -7,6 +7,7 @@ import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController } from 'react-native-vision-camera'
+import { CameraFormat } from 'react-native-vision-camera/lib/specs/CameraFormat.nitro';
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -84,10 +85,14 @@ function AppContent() {
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
         controllers.current.forEach((c) => {
-          const format = c.device.formats.find((f) => f.supportsMultiCam && f.supportedFrameRateRanges.some((r) => r.max >= 120))
-          const maxFps = format != null ? 120 : 30
+          const format = c.device.formats
+            .filter((f) => f.supportsMultiCam)
+            .reduce<CameraFormat | undefined>((prev, curr) => curr.maxFps > (prev?.maxFps ?? 0) ? curr : prev, undefined)
+          const maxFps = format?.maxFps
           console.log(format?.videoResolution, maxFps)
-          c.configure({ activeFormat : format, fps: { min: maxFps, max: maxFps } })
+          if (maxFps != null) {
+            c.configure({ activeFormat: format, fps: { min: maxFps, max: maxFps } })
+          }
         })
 
         await session.start()
