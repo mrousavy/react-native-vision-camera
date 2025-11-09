@@ -111,6 +111,8 @@ class HybridCameraSession: HybridCameraSessionSpec {
     let allOutputs = flatOutputs.compactMap { $0 as? NativeCameraOutput }
     let allPreviews = flatOutputs.compactMap { $0 as? NativePreviewViewOutput }
     
+    let connectionsCountBefore = self.session.connections.count
+    
     // Remove any old inputs that we don't need anymore
     for input in self.session.inputs {
       guard let deviceInput = input as? AVCaptureDeviceInput else {
@@ -141,5 +143,8 @@ class HybridCameraSession: HybridCameraSessionSpec {
         }
       }
     }
+    
+    let connectionsCountAfter = self.session.connections.count
+    print("Removed \(connectionsCountBefore - connectionsCountAfter) Connection(s)!")
   }
 }
