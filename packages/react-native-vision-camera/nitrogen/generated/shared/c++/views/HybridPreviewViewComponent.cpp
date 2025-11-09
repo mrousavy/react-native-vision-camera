@@ -25,12 +25,12 @@ namespace margelo::nitro::camera::views {
                                                  const HybridPreviewViewProps& sourceProps,
                                                  const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    previewOutput([&]() -> CachedProp<std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>> {
+    previewOutput([&]() -> CachedProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>> {
       try {
         const react::RawValue* rawValue = rawProps.at("previewOutput", nullptr, nullptr);
         if (rawValue == nullptr) return sourceProps.previewOutput;
         const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>>::fromRawValue(*runtime, value, sourceProps.previewOutput);
+        return CachedProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>>::fromRawValue(*runtime, value, sourceProps.previewOutput);
       } catch (const std::exception& exc) {
         throw std::runtime_error(std::string("PreviewView.previewOutput: ") + exc.what());
       }

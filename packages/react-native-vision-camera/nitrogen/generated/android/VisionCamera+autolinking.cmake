@@ -46,10 +46,10 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridWorkletQueueFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraFrameOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraOutputSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridCameraSessionFrameOutputSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridCameraSessionPhotoOutputSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridCameraSessionPreviewOutputSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraPhotoOutputSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraPreviewOutputSpec.cpp
   # Android-specific Nitrogen C++ sources
   ../nitrogen/generated/android/c++/JHybridPreviewViewSpec.cpp
   ../nitrogen/generated/android/c++/views/JHybridPreviewViewStateUpdater.cpp

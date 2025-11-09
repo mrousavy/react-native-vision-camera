@@ -39,9 +39,9 @@ export * from './specs/inputs/CameraDevice.nitro'
 export * from './specs/inputs/CameraDeviceFactory.nitro'
 
 export * from './specs/outputs/CameraOutput.nitro'
-export * from './specs/outputs/CameraSessionFrameOutput.nitro'
-export * from './specs/outputs/CameraSessionPhotoOutput.nitro'
-export * from './specs/outputs/CameraSessionPreviewOutput.nitro'
+export * from './specs/outputs/CameraFrameOutput.nitro'
+export * from './specs/outputs/CameraPhotoOutput.nitro'
+export * from './specs/outputs/CameraPreviewOutput.nitro'
 
 export * from './specs/CameraDeviceController.nitro'
 export * from './specs/CameraFactory.nitro'

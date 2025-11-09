@@ -11,7 +11,7 @@ import NitroModules
 /// See ``HybridPreviewViewSpec``
 public protocol HybridPreviewViewSpec_protocol: HybridObject, HybridView {
   // Properties
-  var previewOutput: (any HybridCameraSessionPreviewOutputSpec)? { get set }
+  var previewOutput: (any HybridCameraPreviewOutputSpec)? { get set }
 
   // Methods
   

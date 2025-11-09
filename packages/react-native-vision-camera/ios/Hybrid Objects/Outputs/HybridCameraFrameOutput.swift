@@ -1,5 +1,5 @@
 ///
-/// HybridCameraSessionFrameOutput.swift
+/// HybridCameraFrameOutput.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -8,7 +8,7 @@ import Foundation
 import NitroModules
 import AVFoundation
 
-class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, NativeCameraOutput {
+class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
   private let videoOutput: AVCaptureVideoDataOutput
   private let delegate: FrameDelegate
   private let queue: DispatchQueue

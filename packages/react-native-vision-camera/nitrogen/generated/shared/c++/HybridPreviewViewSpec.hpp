@@ -13,11 +13,11 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `HybridCameraSessionPreviewOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
+// Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
 #include <memory>
-#include "HybridCameraSessionPreviewOutputSpec.hpp"
+#include "HybridCameraPreviewOutputSpec.hpp"
 #include <optional>
 
 namespace margelo::nitro::camera {
@@ -47,8 +47,8 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>> getPreviewOutput() = 0;
-      virtual void setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>& previewOutput) = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>> getPreviewOutput() = 0;
+      virtual void setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>& previewOutput) = 0;
 
     public:
       // Methods

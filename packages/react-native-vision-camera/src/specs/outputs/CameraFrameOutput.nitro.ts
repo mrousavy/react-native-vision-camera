@@ -9,9 +9,9 @@ export type FrameDroppedReason =
   | 'discontinuity'
   | 'unknown'
 
-export interface CameraSessionFrameOutput extends CameraOutput {
+export interface CameraFrameOutput extends CameraOutput {
   /**
-   * Get the {@linkcode NativeThread} that this {@linkcode CameraSessionFrameOutput}
+   * Get the {@linkcode NativeThread} that this {@linkcode CameraFrameOutput}
    * is running on.
    * This is the thread that {@linkcode onFrame} will be called on.
    */

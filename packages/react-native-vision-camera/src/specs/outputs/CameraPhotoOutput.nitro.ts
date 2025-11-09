@@ -25,7 +25,7 @@ export interface CapturePhotoSettings {
   // TODO: Add previewPhotoFormat
 }
 
-export interface CameraSessionPhotoOutput extends CameraOutput {
+export interface CameraPhotoOutput extends CameraOutput {
   // TODO: Add prepareSettings(...)
   capturePhoto(
     settings?: CapturePhotoSettings,

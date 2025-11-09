@@ -1,5 +1,5 @@
 ///
-/// HybridCameraSessionPhotoOutput.swift
+/// HybridCameraPhotoOutput.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -9,7 +9,7 @@ import NitroModules
 import AVFoundation
 import NitroImage
 
-class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, NativeCameraOutput {
+class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
   let outputType: CameraOutputType = .photo
   let mediaType: MediaType = .video
   var output: AVCaptureOutput {

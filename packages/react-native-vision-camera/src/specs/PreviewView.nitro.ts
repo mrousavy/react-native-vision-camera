@@ -3,10 +3,10 @@ import type {
   HybridViewMethods,
   HybridViewProps,
 } from 'react-native-nitro-modules'
-import type { CameraSessionPreviewOutput } from './outputs/CameraSessionPreviewOutput.nitro'
+import type { CameraPreviewOutput } from './outputs/CameraPreviewOutput.nitro'
 
 export interface PreviewViewProps extends HybridViewProps {
-  previewOutput?: CameraSessionPreviewOutput
+  previewOutput?: CameraPreviewOutput
 }
 
 export interface PreviewViewMethods extends HybridViewMethods {}

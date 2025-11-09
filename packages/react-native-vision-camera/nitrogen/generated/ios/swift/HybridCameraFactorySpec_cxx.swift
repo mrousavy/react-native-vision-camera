@@ -161,47 +161,47 @@ open class HybridCameraFactorySpec_cxx {
   }
   
   @inline(__always)
-  public final func createPhotoOutput() -> bridge.Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__ {
+  public final func createPhotoOutput() -> bridge.Result_std__shared_ptr_HybridCameraPhotoOutputSpec__ {
     do {
       let __result = try self.__implementation.createPhotoOutput()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionPhotoOutputSpec_ in
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraPhotoOutputSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
       }()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__(__resultCpp)
+      return bridge.create_Result_std__shared_ptr_HybridCameraPhotoOutputSpec__(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPhotoOutputSpec__(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_HybridCameraPhotoOutputSpec__(__exceptionPtr)
     }
   }
   
   @inline(__always)
-  public final func createFrameOutput(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__ {
+  public final func createFrameOutput(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_HybridCameraFrameOutputSpec__ {
     do {
       let __result = try self.__implementation.createFrameOutput(pixelFormat: margelo.nitro.camera.TargetPixelFormat(rawValue: pixelFormat)!)
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionFrameOutputSpec_ in
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraFrameOutputSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
       }()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__resultCpp)
+      return bridge.create_Result_std__shared_ptr_HybridCameraFrameOutputSpec__(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_HybridCameraFrameOutputSpec__(__exceptionPtr)
     }
   }
   
   @inline(__always)
-  public final func createPreviewOutput() -> bridge.Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__ {
+  public final func createPreviewOutput() -> bridge.Result_std__shared_ptr_HybridCameraPreviewOutputSpec__ {
     do {
       let __result = try self.__implementation.createPreviewOutput()
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionPreviewOutputSpec_ in
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraPreviewOutputSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
       }()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(__resultCpp)
+      return bridge.create_Result_std__shared_ptr_HybridCameraPreviewOutputSpec__(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_HybridCameraPreviewOutputSpec__(__exceptionPtr)
     }
   }
 }

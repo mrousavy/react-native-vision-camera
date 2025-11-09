@@ -12,11 +12,11 @@
 // Forward declaration of `HybridPreviewViewSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridPreviewViewSpec_cxx; }
 
-// Forward declaration of `HybridCameraSessionPreviewOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
+// Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
 #include <memory>
-#include "HybridCameraSessionPreviewOutputSpec.hpp"
+#include "HybridCameraPreviewOutputSpec.hpp"
 #include <optional>
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -59,11 +59,11 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    inline std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>> getPreviewOutput() noexcept override {
+    inline std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>> getPreviewOutput() noexcept override {
       auto __result = _swiftPart.getPreviewOutput();
       return __result;
     }
-    inline void setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>& previewOutput) noexcept override {
+    inline void setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>& previewOutput) noexcept override {
       _swiftPart.setPreviewOutput(previewOutput);
     }
 

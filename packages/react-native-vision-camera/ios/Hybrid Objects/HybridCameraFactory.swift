@@ -12,7 +12,7 @@ class HybridCameraFactory: HybridCameraFactorySpec {
   var supportsMultiCamSessions: Bool {
     return AVCaptureMultiCamSession.isMultiCamSupported
   }
-  
+
   func createDeviceFactory() -> Promise<any HybridCameraDeviceFactorySpec> {
     return Promise.async {
       return HybridCameraDeviceFactory()
@@ -23,15 +23,15 @@ class HybridCameraFactory: HybridCameraFactorySpec {
     return HybridCameraSession(enableMultiCam: enableMultiCam)
   }
 
-  func createPhotoOutput() -> any HybridCameraSessionPhotoOutputSpec {
-    return HybridCameraSessionPhotoOutput()
+  func createPhotoOutput() -> any HybridCameraPhotoOutputSpec {
+    return HybridCameraPhotoOutput()
   }
 
-  func createFrameOutput(pixelFormat: TargetPixelFormat) -> any HybridCameraSessionFrameOutputSpec {
-    return HybridCameraSessionFrameOutput(targetPixelFormat: pixelFormat)
+  func createFrameOutput(pixelFormat: TargetPixelFormat) -> any HybridCameraFrameOutputSpec {
+    return HybridCameraFrameOutput(targetPixelFormat: pixelFormat)
   }
 
-  func createPreviewOutput() -> any HybridCameraSessionPreviewOutputSpec {
-    return HybridCameraSessionPreviewOutput()
+  func createPreviewOutput() -> any HybridCameraPreviewOutputSpec {
+    return HybridCameraPreviewOutput()
   }
 }

@@ -7,13 +7,13 @@
 
 #include "JHybridPreviewViewSpec.hpp"
 
-// Forward declaration of `HybridCameraSessionPreviewOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
+// Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
 #include <memory>
-#include "HybridCameraSessionPreviewOutputSpec.hpp"
+#include "HybridCameraPreviewOutputSpec.hpp"
 #include <optional>
-#include "JHybridCameraSessionPreviewOutputSpec.hpp"
+#include "JHybridCameraPreviewOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -44,14 +44,14 @@ namespace margelo::nitro::camera {
   }
 
   // Properties
-  std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>> JHybridPreviewViewSpec::getPreviewOutput() {
-    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraSessionPreviewOutputSpec::javaobject>()>("getPreviewOutput");
+  std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>> JHybridPreviewViewSpec::getPreviewOutput() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridCameraPreviewOutputSpec::javaobject>()>("getPreviewOutput");
     auto __result = method(_javaPart);
-    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraSessionPreviewOutputSpec>()) : std::nullopt;
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridCameraPreviewOutputSpec>()) : std::nullopt;
   }
-  void JHybridPreviewViewSpec::setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>& previewOutput) {
-    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraSessionPreviewOutputSpec::javaobject> /* previewOutput */)>("setPreviewOutput");
-    method(_javaPart, previewOutput.has_value() ? std::dynamic_pointer_cast<JHybridCameraSessionPreviewOutputSpec>(previewOutput.value())->getJavaPart() : nullptr);
+  void JHybridPreviewViewSpec::setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>& previewOutput) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraPreviewOutputSpec::javaobject> /* previewOutput */)>("setPreviewOutput");
+    method(_javaPart, previewOutput.has_value() ? std::dynamic_pointer_cast<JHybridCameraPreviewOutputSpec>(previewOutput.value())->getJavaPart() : nullptr);
   }
 
   // Methods
