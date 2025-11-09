@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.margelo.nitro.camera.example-simple"
+    namespace "com.margelo.nitro.camera.example.simple"
     defaultConfig {
-        applicationId "com.margelo.nitro.camera.example-simple"
+        applicationId "com.margelo.nitro.camera.example.simple"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
