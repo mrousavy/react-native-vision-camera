@@ -40,11 +40,15 @@ class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
   // 3. Captured actual photo (or error)
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
-    if let error {
-      onError(error)
-    } else {
-      let metadata = ConnectionMetadata(output: output)
+    do {
+      if let error {
+        throw error
+      }
+      let metadata = try MediaSampleMetadata(timestamp: photo.timestamp,
+                                             orientationFromOutput: output)
       onCaptured(photo, metadata)
+    } catch {
+      onError(error)
     }
     didResolve = true
   }

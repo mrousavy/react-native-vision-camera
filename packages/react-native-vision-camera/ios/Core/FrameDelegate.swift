@@ -20,7 +20,7 @@ class FrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
   func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     if let onFrame {
-      let metadata = MediaSampleMetadata(timestamp: timestamp,
+      let metadata = MediaSampleMetadata(timestamp: sampleBuffer.presentationTimeStamp,
                                          orientationFromConnection: connection)
       onFrame(sampleBuffer, metadata)
     }
