@@ -59,7 +59,7 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
     }
   }
 
-  func addOnCameraDevicesChangedListener(listener: @escaping ([any HybridCameraDeviceSpec]) -> Void) throws -> ListenerSubscription {
+  func addOnCameraDevicesChangedListener(listener: @escaping ([any HybridCameraDeviceSpec]) -> Void) -> ListenerSubscription {
     // 1. Attach a listener and capture it's ID
     let id = UUID()
     let pair = ListenerPair(id: id,
@@ -71,6 +71,13 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
       guard let self else { return }
       self.listeners.removeAll { $0.id == id }
     })
+  }
+  
+  func getCameraForId(id: String) -> (any HybridCameraDeviceSpec)? {
+    guard let device = AVCaptureDevice(uniqueID: id) else {
+      return nil
+    }
+    return HybridCameraDevice(device: device)
   }
   
   func getDefaultCamera(deviceType: DeviceType, position: CameraPosition, mediaType: MediaType?) throws -> (any HybridCameraDeviceSpec)? {

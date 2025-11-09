@@ -58,7 +58,7 @@ function AppContent() {
   const controllers = useRef<CameraDeviceController[]>([])
   const inputs = useMemo(() => {
     const result = [
-      devices.find((d) => d.position === 'back')
+      devices.find((d) => d.constituentDevices.length > 2) ?? devices.find((d) => d.position === "back")
     ]
     if (isMulti) {
       result.push(

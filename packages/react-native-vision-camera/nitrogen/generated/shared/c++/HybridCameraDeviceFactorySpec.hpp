@@ -30,6 +30,7 @@ namespace margelo::nitro::camera { enum class MediaType; }
 #include <optional>
 #include "ListenerSubscription.hpp"
 #include <functional>
+#include <string>
 #include "DeviceType.hpp"
 #include "CameraPosition.hpp"
 #include "MediaType.hpp"
@@ -68,6 +69,7 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCameraForId(const std::string& id) = 0;
       virtual std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(DeviceType deviceType, CameraPosition position, std::optional<MediaType> mediaType) = 0;
 
     protected:

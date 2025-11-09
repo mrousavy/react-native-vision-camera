@@ -189,6 +189,27 @@ open class HybridCameraDeviceFactorySpec_cxx {
   }
   
   @inline(__always)
+  public final func getCameraForId(id: std.string) -> bridge.Result_std__optional_std__shared_ptr_HybridCameraDeviceSpec___ {
+    do {
+      let __result = try self.__implementation.getCameraForId(id: String(id))
+      let __resultCpp = { () -> bridge.std__optional_std__shared_ptr_HybridCameraDeviceSpec__ in
+        if let __unwrappedValue = __result {
+          return bridge.create_std__optional_std__shared_ptr_HybridCameraDeviceSpec__({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
+            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        } else {
+          return .init()
+        }
+      }()
+      return bridge.create_Result_std__optional_std__shared_ptr_HybridCameraDeviceSpec___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__optional_std__shared_ptr_HybridCameraDeviceSpec___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func getDefaultCamera(deviceType: Int32, position: Int32, mediaType: bridge.std__optional_MediaType_) -> bridge.Result_std__optional_std__shared_ptr_HybridCameraDeviceSpec___ {
     do {
       let __result = try self.__implementation.getDefaultCamera(deviceType: margelo.nitro.camera.DeviceType(rawValue: deviceType)!, position: margelo.nitro.camera.CameraPosition(rawValue: position)!, mediaType: mediaType.value)

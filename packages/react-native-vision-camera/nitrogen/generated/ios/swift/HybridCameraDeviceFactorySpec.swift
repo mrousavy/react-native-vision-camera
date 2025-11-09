@@ -16,6 +16,7 @@ public protocol HybridCameraDeviceFactorySpec_protocol: HybridObject {
 
   // Methods
   func addOnCameraDevicesChangedListener(listener: @escaping (_ newDevices: [(any HybridCameraDeviceSpec)]) -> Void) throws -> ListenerSubscription
+  func getCameraForId(id: String) throws -> (any HybridCameraDeviceSpec)?
   func getDefaultCamera(deviceType: DeviceType, position: CameraPosition, mediaType: MediaType?) throws -> (any HybridCameraDeviceSpec)?
 }
 

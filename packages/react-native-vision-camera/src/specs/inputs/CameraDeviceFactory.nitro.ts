@@ -21,6 +21,15 @@ export interface CameraDeviceFactory extends HybridObject<{ ios: 'swift' }> {
     listener: (newDevices: CameraDevice[]) => void
   ): ListenerSubscription
 
+  /**
+   * Get the {@linkcode CameraDevice} with the given unique
+   * {@linkcode id}.
+   *
+   * If no device with the given {@linkcode id} is found,
+   * this method returns `undefined`.
+   */
+  getCameraForId(id: string): CameraDevice | undefined
+
   getDefaultCamera(
     deviceType: DeviceType,
     position: CameraPosition,

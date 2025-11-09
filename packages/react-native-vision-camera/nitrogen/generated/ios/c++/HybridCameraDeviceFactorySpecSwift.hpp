@@ -29,6 +29,7 @@ namespace margelo::nitro::camera { enum class MediaType; }
 #include <optional>
 #include "ListenerSubscription.hpp"
 #include <functional>
+#include <string>
 #include "DeviceType.hpp"
 #include "CameraPosition.hpp"
 #include "MediaType.hpp"
@@ -89,6 +90,14 @@ namespace margelo::nitro::camera {
     // Methods
     inline ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) override {
       auto __result = _swiftPart.addOnCameraDevicesChangedListener(listener);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCameraForId(const std::string& id) override {
+      auto __result = _swiftPart.getCameraForId(id);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
