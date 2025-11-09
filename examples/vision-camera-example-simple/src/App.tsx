@@ -6,9 +6,7 @@ import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController } from 'react-native-vision-camera'
-import { CameraFormat } from 'react-native-vision-camera/lib/specs/CameraFormat.nitro';
-import { CameraOutput } from 'react-native-vision-camera/lib/specs/outputs/CameraOutput.nitro';
+import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController, CameraOutput } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -25,28 +23,28 @@ function App() {
 }
 
 function createVideoOutput(id: number): CameraOutput {
-    const output = HybridCameraFactory.createFrameOutput('native')
-    const thread = output.thread
-    const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
-    const runtime = createWorkletRuntime({
-      name: `com.margelo.camera.frame-processor-${id}`,
-      useDefaultQueue: false,
-      customQueue: queue
+  const output = HybridCameraFactory.createFrameOutput('native')
+  const thread = output.thread
+  const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
+  const runtime = createWorkletRuntime({
+    name: `com.margelo.camera.frame-processor-${id}`,
+    useDefaultQueue: false,
+    customQueue: queue
+  })
+  output.setOnFrameDroppedCallback((reason) => {
+    console.log(`Frame dropped - reason: ${reason}`)
+  })
+  const boxedOutput = NitroModules.box(output)
+  scheduleOnRuntime(runtime, () => {
+    'worklet'
+    const unboxed = boxedOutput.unbox()
+    unboxed.setOnFrameCallback((frame) => {
+      console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+      frame.dispose()
+      return true
     })
-    output.setOnFrameDroppedCallback((reason) => {
-      console.log(`Frame dropped - reason: ${reason}`)
-    })
-    const boxedOutput = NitroModules.box(output)
-    scheduleOnRuntime(runtime, () => {
-      'worklet'
-      const unboxed = boxedOutput.unbox()
-      unboxed.setOnFrameCallback((frame) => {
-        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-        frame.dispose()
-        return true
-      })
-    })
-    return output
+  })
+  return output
 }
 
 function AppContent() {
@@ -57,34 +55,49 @@ function AppContent() {
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const controllers = useRef<CameraDeviceController[]>([])
   const inputs = useMemo(() => {
-    const result = [
-      devices.find((d) => d.constituentDevices.length > 2) ?? devices.find((d) => d.position === "back")
-    ]
     if (isMulti) {
-      result.push(
-        devices.find((d) => d.position === 'front'),
-      )
+      const multiCamDevices = devices.filter((d) => d.formats.some((f) => f.supportsMultiCam))
+      const back = multiCamDevices.find((d) => d.position === "back")
+      const front = multiCamDevices.find((d) => d.position === "front")
+      if (back != null && front != null) {
+        return [back, front]
+      }
+    } else {
+      const mostDevicesCam = devices.reduce((prev, curr) => {
+        if (curr.constituentDevices.length > (prev?.constituentDevices.length ?? 0)) {
+          return curr
+        } else {
+          return prev
+        }
+      }, devices[0])
+      if (mostDevicesCam != null) {
+        return [mostDevicesCam]
+      }
     }
-    return result.filter((d) => d != null)
+    const first = devices[0]
+    if (first != null) {
+      return [first]
+    }
+    return []
   }, [devices, isMulti])
 
   useEffect(() => {
     for (const device of devices) {
-      console.log(`${device.id} ${device.formats[0].mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0].photoResolution.width} x ${device.formats[0].photoResolution.height} ("${device.localizedName}")`)
+      console.log(`${device.id} ${device.formats[0]?.mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0]?.photoResolution.width} x ${device.formats[0]?.photoResolution.height} ("${device.localizedName}")`)
     }
   }, [devices])
 
   const videoOutputFront = useMemo(() => createVideoOutput(1), [])
   const videoOutputBack = useMemo(() => createVideoOutput(2), [])
+  const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
 
   useEffect(() => {
     (async () => {
       try {
         const mark1 = performance.now()
-        const photo = HybridCameraFactory.createPhotoOutput()
         controllers.current = await session.configure(inputs.map((d) => ({
           input: d,
-          outputs: d.position === 'front' ? [previewFront, videoOutputFront] : [previewBack, videoOutputBack]
+          outputs: d.position === 'front' ? [previewFront, videoOutputFront] : [previewBack, videoOutputBack, photoOutput]
         })))
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
@@ -97,7 +110,7 @@ function AppContent() {
         console.error(e)
       }
     })()
-  }, [inputs, previewBack, previewFront, session, videoOutputBack, videoOutputFront])
+  }, [inputs, photoOutput, previewBack, previewFront, session, videoOutputBack, videoOutputFront])
 
 
   const savedScale = useSharedValue(1)
