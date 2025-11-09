@@ -10,12 +10,12 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
 namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `CameraOutputType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOutputType; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraPosition; }
-// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
-namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
-// Forward declaration of `CameraSessionOutputType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraSessionOutputType; }
+// Forward declaration of `CameraSessionConnection` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraSessionConnection; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CapturePhotoSettings` to properly resolve imports.
@@ -32,6 +32,8 @@ namespace margelo::nitro::camera { enum class FlashMode; }
 namespace margelo::nitro::camera { enum class FocusMode; }
 // Forward declaration of `FrameDroppedReason` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FrameDroppedReason; }
+// Forward declaration of `HybridCameraDeviceControllerSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceControllerSpec; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
@@ -40,12 +42,14 @@ namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 namespace margelo::nitro::camera { class HybridCameraFactorySpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `HybridCameraOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 // Forward declaration of `HybridCameraSessionFrameOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionFrameOutputSpec; }
-// Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 // Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
+// Forward declaration of `HybridCameraSessionPreviewOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 // Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
@@ -78,6 +82,8 @@ namespace margelo::nitro::camera { struct Range; }
 namespace margelo::nitro::camera { struct Rect; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
+// Forward declaration of `SetCameraDeviceConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct SetCameraDeviceConfiguration; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
 // Forward declaration of `TargetPixelFormat` to properly resolve imports.
@@ -93,9 +99,9 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 
 // Include C++ defined types
 #include "AutoFocusSystem.hpp"
+#include "CameraOutputType.hpp"
 #include "CameraPosition.hpp"
-#include "CameraSessionConfiguration.hpp"
-#include "CameraSessionOutputType.hpp"
+#include "CameraSessionConnection.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
 #include "ColorSpace.hpp"
@@ -104,13 +110,15 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "FlashMode.hpp"
 #include "FocusMode.hpp"
 #include "FrameDroppedReason.hpp"
+#include "HybridCameraDeviceControllerSpec.hpp"
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraDeviceSpec.hpp"
 #include "HybridCameraFactorySpec.hpp"
 #include "HybridCameraFormatSpec.hpp"
+#include "HybridCameraOutputSpec.hpp"
 #include "HybridCameraSessionFrameOutputSpec.hpp"
-#include "HybridCameraSessionOutputSpec.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
+#include "HybridCameraSessionPreviewOutputSpec.hpp"
 #include "HybridCameraSessionSpec.hpp"
 #include "HybridFramePlaneSpec.hpp"
 #include "HybridFrameSpec.hpp"
@@ -126,6 +134,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "Range.hpp"
 #include "Rect.hpp"
 #include "Resolution.hpp"
+#include "SetCameraDeviceConfiguration.hpp"
 #include "Size.hpp"
 #include "TargetPixelFormat.hpp"
 #include "TorchMode.hpp"
@@ -142,7 +151,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include <memory>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 // C++ helpers for Swift
@@ -155,6 +163,8 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include <NitroModules/DateToChronoDate.hpp>
 
 // Forward declarations of Swift defined types
+// Forward declaration of `HybridCameraDeviceControllerSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraDeviceControllerSpec_cxx; }
 // Forward declaration of `HybridCameraDeviceFactorySpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraDeviceFactorySpec_cxx; }
 // Forward declaration of `HybridCameraDeviceSpec_cxx` to properly resolve imports.
@@ -163,12 +173,14 @@ namespace VisionCamera { class HybridCameraDeviceSpec_cxx; }
 namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 // Forward declaration of `HybridCameraFormatSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFormatSpec_cxx; }
+// Forward declaration of `HybridCameraOutputSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraOutputSpec_cxx; }
 // Forward declaration of `HybridCameraSessionFrameOutputSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionFrameOutputSpec_cxx; }
-// Forward declaration of `HybridCameraSessionOutputSpec_cxx` to properly resolve imports.
-namespace VisionCamera { class HybridCameraSessionOutputSpec_cxx; }
 // Forward declaration of `HybridCameraSessionPhotoOutputSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionPhotoOutputSpec_cxx; }
+// Forward declaration of `HybridCameraSessionPreviewOutputSpec_cxx` to properly resolve imports.
+namespace VisionCamera { class HybridCameraSessionPreviewOutputSpec_cxx; }
 // Forward declaration of `HybridCameraSessionSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 // Forward declaration of `HybridFramePlaneSpec_cxx` to properly resolve imports.

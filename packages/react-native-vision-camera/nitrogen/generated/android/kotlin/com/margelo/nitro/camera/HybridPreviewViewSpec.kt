@@ -46,7 +46,7 @@ abstract class HybridPreviewViewSpec: HybridView() {
   @get:Keep
   @set:DoNotStrip
   @set:Keep
-  abstract var session: HybridCameraSessionSpec?
+  abstract var previewOutput: HybridCameraSessionPreviewOutputSpec?
 
   // Methods
   

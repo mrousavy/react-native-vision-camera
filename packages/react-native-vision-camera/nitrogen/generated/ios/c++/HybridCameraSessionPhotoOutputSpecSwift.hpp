@@ -22,8 +22,8 @@ namespace margelo::nitro::camera { enum class FlashMode; }
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
-// Forward declaration of `HybridCameraSessionOutputSpecSwift` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
+// Forward declaration of `HybridCameraOutputSpecSwift` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraOutputSpecSwift; }
 
 #include <memory>
 #include "HybridPhotoSpec.hpp"
@@ -34,7 +34,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpecSwift; }
 #include "QualityPrioritization.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include <functional>
-#include "HybridCameraSessionOutputSpecSwift.hpp"
+#include "HybridCameraOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -50,12 +50,12 @@ namespace margelo::nitro::camera {
    * the future, HybridCameraSessionPhotoOutputSpec_cxx can directly inherit from the C++ class HybridCameraSessionPhotoOutputSpec
    * to simplify the whole structure and memory management.
    */
-  class HybridCameraSessionPhotoOutputSpecSwift: public virtual HybridCameraSessionPhotoOutputSpec, public virtual HybridCameraSessionOutputSpecSwift {
+  class HybridCameraSessionPhotoOutputSpecSwift: public virtual HybridCameraSessionPhotoOutputSpec, public virtual HybridCameraOutputSpecSwift {
   public:
     // Constructor from a Swift instance
     explicit HybridCameraSessionPhotoOutputSpecSwift(const VisionCamera::HybridCameraSessionPhotoOutputSpec_cxx& swiftPart):
       HybridObject(HybridCameraSessionPhotoOutputSpec::TAG),
-      HybridCameraSessionOutputSpecSwift(swiftPart),
+      HybridCameraOutputSpecSwift(swiftPart),
       _swiftPart(swiftPart) { }
 
   public:

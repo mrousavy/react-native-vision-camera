@@ -8,7 +8,7 @@
 import Foundation
 import AVFoundation
 
-protocol NativeFrame {
+public protocol NativeFrame {
   var orientation: Orientation { get }
   var sampleBuffer: CMSampleBuffer? { get }
 }

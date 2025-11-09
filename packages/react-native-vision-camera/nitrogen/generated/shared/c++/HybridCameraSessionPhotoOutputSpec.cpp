@@ -12,7 +12,7 @@ namespace margelo::nitro::camera {
   void HybridCameraSessionPhotoOutputSpec::loadHybridMethods() {
     // load base methods/properties
     HybridObject::loadHybridMethods();
-    HybridCameraSessionOutputSpec::loadHybridMethods();
+    HybridCameraOutputSpec::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("capturePhoto", &HybridCameraSessionPhotoOutputSpec::capturePhoto);

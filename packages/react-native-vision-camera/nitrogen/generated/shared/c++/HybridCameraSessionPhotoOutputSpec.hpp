@@ -19,8 +19,8 @@ namespace margelo::nitro::camera { class HybridPhotoSpec; }
 namespace margelo::nitro::camera { struct CapturePhotoSettings; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
-// Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
+// Forward declaration of `HybridCameraOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 
 #include <memory>
 #include "HybridPhotoSpec.hpp"
@@ -28,7 +28,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
 #include "CapturePhotoSettings.hpp"
 #include <optional>
 #include "CapturePhotoCallbacks.hpp"
-#include "HybridCameraSessionOutputSpec.hpp"
+#include "HybridCameraOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -47,7 +47,7 @@ namespace margelo::nitro::camera {
    * };
    * ```
    */
-  class HybridCameraSessionPhotoOutputSpec: public virtual HybridObject, public virtual HybridCameraSessionOutputSpec {
+  class HybridCameraSessionPhotoOutputSpec: public virtual HybridObject, public virtual HybridCameraOutputSpec {
     public:
       // Constructor
       explicit HybridCameraSessionPhotoOutputSpec(): HybridObject(TAG) { }

@@ -7,7 +7,6 @@
 
 import Foundation
 import NitroModules
-import NitroModules
 
 /**
  * A class implementation that bridges HybridCameraDeviceSpec over to C++.
@@ -253,114 +252,10 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var activeFormat: bridge.std__shared_ptr_HybridCameraFormatSpec_ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__shared_ptr_HybridCameraFormatSpec_ in
-        let __cxxWrapped = self.__implementation.activeFormat.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.activeFormat = { () -> HybridCameraFormatSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraFormatSpec_(newValue)
-        let __instance = HybridCameraFormatSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridCameraFormatSpec()
-      }()
-    }
-  }
-  
-  public final var activeDepthFormat: bridge.std__optional_std__shared_ptr_HybridCameraFormatSpec__ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__optional_std__shared_ptr_HybridCameraFormatSpec__ in
-        if let __unwrappedValue = self.__implementation.activeDepthFormat {
-          return bridge.create_std__optional_std__shared_ptr_HybridCameraFormatSpec__({ () -> bridge.std__shared_ptr_HybridCameraFormatSpec_ in
-            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
-            return __cxxWrapped.getCxxPart()
-          }())
-        } else {
-          return .init()
-        }
-      }()
-    }
-    @inline(__always)
-    set {
-      self.__implementation.activeDepthFormat = { () -> (any HybridCameraFormatSpec)? in
-        if bridge.has_value_std__optional_std__shared_ptr_HybridCameraFormatSpec__(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridCameraFormatSpec__(newValue)
-          return { () -> HybridCameraFormatSpec in
-            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraFormatSpec_(__unwrapped)
-            let __instance = HybridCameraFormatSpec_cxx.fromUnsafe(__unsafePointer)
-            return __instance.getHybridCameraFormatSpec()
-          }()
-        } else {
-          return nil
-        }
-      }()
-    }
-  }
-  
-  public final var enableAutoFrameRate: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableAutoFrameRate
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableAutoFrameRate = newValue
-    }
-  }
-  
-  public final var fps: Range {
-    @inline(__always)
-    get {
-      return self.__implementation.fps
-    }
-    @inline(__always)
-    set {
-      self.__implementation.fps = newValue
-    }
-  }
-  
-  public final var focusMode: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.focusMode.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.focusMode = margelo.nitro.camera.FocusMode(rawValue: newValue)!
-    }
-  }
-  
   public final var supportsSmoothAutoFocus: Bool {
     @inline(__always)
     get {
       return self.__implementation.supportsSmoothAutoFocus
-    }
-  }
-  
-  public final var enableSmoothAutoFocus: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableSmoothAutoFocus
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableSmoothAutoFocus = newValue
-    }
-  }
-  
-  public final var enableFaceDrivenAutoFocus: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableFaceDrivenAutoFocus
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableFaceDrivenAutoFocus = newValue
     }
   }
   
@@ -412,17 +307,6 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var exposureMode: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.exposureMode.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.exposureMode = margelo.nitro.camera.ExposureMode(rawValue: newValue)!
-    }
-  }
-  
   public final var supportsExposurePoint: Bool {
     @inline(__always)
     get {
@@ -447,17 +331,6 @@ open class HybridCameraDeviceSpec_cxx {
           return .init()
         }
       }()
-    }
-  }
-  
-  public final var enableFaceDrivenAutoExposure: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableFaceDrivenAutoExposure
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableFaceDrivenAutoExposure = newValue
     }
   }
   
@@ -493,17 +366,6 @@ open class HybridCameraDeviceSpec_cxx {
     @inline(__always)
     get {
       return self.__implementation.lensAperture
-    }
-  }
-  
-  public final var whiteBalanceMode: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.whiteBalanceMode.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.whiteBalanceMode = margelo.nitro.camera.WhiteBalanceMode(rawValue: newValue)!
     }
   }
   
@@ -577,61 +439,6 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
-  public final var automaticallyEnableLowLightBoost: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.automaticallyEnableLowLightBoost
-    }
-    @inline(__always)
-    set {
-      self.__implementation.automaticallyEnableLowLightBoost = newValue
-    }
-  }
-  
-  public final var enableVideoHDR: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableVideoHDR
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableVideoHDR = newValue
-    }
-  }
-  
-  public final var automaticallyEnableVideoHDR: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.automaticallyEnableVideoHDR
-    }
-    @inline(__always)
-    set {
-      self.__implementation.automaticallyEnableVideoHDR = newValue
-    }
-  }
-  
-  public final var enableGlobalToneMapping: Bool {
-    @inline(__always)
-    get {
-      return self.__implementation.enableGlobalToneMapping
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableGlobalToneMapping = newValue
-    }
-  }
-  
-  public final var colorSpace: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.colorSpace.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.colorSpace = margelo.nitro.camera.ColorSpace(rawValue: newValue)!
-    }
-  }
-  
   public final var minZoom: Double {
     @inline(__always)
     get {
@@ -663,17 +470,6 @@ open class HybridCameraDeviceSpec_cxx {
     @inline(__always)
     get {
       return self.__implementation.displayVideoZoomFactorMultiplier
-    }
-  }
-  
-  public final var zoom: Double {
-    @inline(__always)
-    get {
-      return self.__implementation.zoom
-    }
-    @inline(__always)
-    set {
-      self.__implementation.zoom = newValue
     }
   }
   
@@ -724,44 +520,6 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func setFocusPoint(point: Point) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setFocusPoint(point: point)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setFocusRect(rect: Rect) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setFocusRect(rect: rect)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
   public final func getDefaultRectForFocusPoint(point: Point) -> bridge.Result_Rect_ {
     do {
       let __result = try self.__implementation.getDefaultRectForFocusPoint(point: point)
@@ -770,25 +528,6 @@ open class HybridCameraDeviceSpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_Rect_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setFocusLensPosition(lensPosition: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setFocusLensPosition(lensPosition: lensPosition)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
     }
   }
   
@@ -805,44 +544,6 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func setExposurePoint(point: Point) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setExposurePoint(point: point)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setExposureRect(rect: Rect) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setExposureRect(rect: rect)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
   public final func getDefaultRectForExposurePoint(point: Point) -> bridge.Result_Rect_ {
     do {
       let __result = try self.__implementation.getDefaultRectForExposurePoint(point: point)
@@ -851,44 +552,6 @@ open class HybridCameraDeviceSpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_Rect_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setExposureBias(exposure: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setExposureBias(exposure: exposure)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func setExposureLocked(duration: Double, iso: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setExposureLocked(duration: duration, iso: iso)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
     }
   }
   
@@ -905,25 +568,6 @@ open class HybridCameraDeviceSpec_cxx {
   }
   
   @inline(__always)
-  public final func setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.setWhiteBalanceLocked(whiteBalanceGains: whiteBalanceGains)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
   public final func supportsTorchMode(torch: Int32) -> bridge.Result_bool_ {
     do {
       let __result = try self.__implementation.supportsTorchMode(torch: margelo.nitro.camera.TorchMode(rawValue: torch)!)
@@ -932,63 +576,6 @@ open class HybridCameraDeviceSpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_bool_(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func enableTorch(level: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.enableTorch(level: level)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func startZoomAnimation(zoom: Double, rate: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.startZoomAnimation(zoom: zoom, rate: rate)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func cancelZoomAnimation() -> bridge.Result_std__shared_ptr_Promise_void___ {
-    do {
-      let __result = try self.__implementation.cancelZoomAnimation()
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
-        __result
-          .then({ __result in __promiseHolder.resolve() })
-          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
-        return __promise
-      }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
     }
   }
 }

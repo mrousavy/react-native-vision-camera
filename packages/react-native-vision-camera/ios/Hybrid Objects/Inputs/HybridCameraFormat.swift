@@ -54,8 +54,13 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.isAutoVideoFrameRateSupported
   }
   
-  var supportedFrameRateRanges: [Range] {
+  var supportedFpsRanges: [Range] {
     return format.videoSupportedFrameRateRanges.map { Range(range: $0) }
+  }
+  
+  var maxFps: Double {
+    let maxRange = format.videoSupportedFrameRateRanges.max { $0.maxFrameRate < $1.maxFrameRate }
+    return maxRange?.maxFrameRate ?? 0
   }
   
   var isVideoBinned: Bool {
@@ -85,7 +90,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.isBackgroundReplacementSupported
   }
   
-  var frameRateRangeForBackgroundReplacement: Range? {
+  var fpsRangeForBackgroundReplacement: Range? {
     guard #available(iOS 18.0, *) else {
       return nil
     }
@@ -102,7 +107,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.reactionEffectsSupported
   }
   
-  var frameRateRangeForReactionEffects: Range? {
+  var fpsRangeForReactionEffects: Range? {
     guard #available(iOS 17.0, *) else {
       return nil
     }
@@ -198,7 +203,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.isCenterStageSupported
   }
   
-  var frameRateRangeForCenterStage: Range? {
+  var fpsRangeForCenterStage: Range? {
     guard let range = format.videoFrameRateRangeForCenterStage else {
       return nil
     }
@@ -218,7 +223,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.isPortraitEffectsMatteStillImageDeliverySupported
   }
   
-  var frameRateRangeForPortraitEffect: Range? {
+  var fpsRangeForPortraitEffect: Range? {
     guard let range = format.videoFrameRateRangeForPortraitEffect else {
       return nil
     }
@@ -232,7 +237,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     return format.isStudioLightSupported
   }
   
-  var frameRateRangeForStudioLight: Range? {
+  var fpsRangeForStudioLight: Range? {
     guard #available(iOS 16.0, *) else {
       return nil
     }
@@ -272,7 +277,7 @@ class HybridCameraFormat: HybridCameraFormatSpec {
                  max: format.videoMaxZoomFactorForCinematicVideo)
   }
   
-  var frameRateRangeForCinematicVideo: Range? {
+  var fpsRangeForCinematicVideo: Range? {
     guard #available(iOS 26.0, *) else {
       return nil
     }

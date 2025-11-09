@@ -11,3 +11,6 @@ export const HybridWorkletQueueFactory =
 export * from './hooks/useCameraDevices'
 
 export * from './PreviewView'
+
+export * from './specs/CameraDeviceController.nitro'
+export * from './specs/inputs/CameraDevice.nitro'

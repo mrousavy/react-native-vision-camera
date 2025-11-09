@@ -1,11 +1,13 @@
-import { useEffect, useMemo } from 'react';
-import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NitroModules } from 'react-native-nitro-modules';
+import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController } from 'react-native-vision-camera'
+import { CameraFormat } from 'react-native-vision-camera/lib/specs/CameraFormat.nitro';
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -23,7 +25,22 @@ function App() {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
+  const [isMulti, setIsMulti] = useState(false)
+  const session = useMemo(() => HybridCameraFactory.createCameraSession(true), [])
+  const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
+  const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
+  const controllers = useRef<CameraDeviceController[]>([])
+  const inputs = useMemo(() => {
+    const result = [
+      devices.find((d) => d.position === 'back')
+    ]
+    if (isMulti) {
+      result.push(
+        devices.find((d) => d.position === 'front'),
+      )
+    }
+    return result.filter((d) => d != null)
+  }, [devices, isMulti])
 
   useEffect(() => {
     for (const device of devices) {
@@ -31,7 +48,7 @@ function AppContent() {
     }
   }, [devices])
 
-  const createVideoOutput = () => {
+  const videoOutput = useMemo(() => {
     const output = HybridCameraFactory.createFrameOutput('native')
     const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
@@ -49,53 +66,76 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-
-        const mainBuf = frame.getPixelBuffer()
-        console.log(`MAIN: ${frame.width}x${frame.height} = ${mainBuf.byteLength}`)
-        for (const plane of frame.getPlanes()) {
-          const buf = plane.getPixelBuffer()
-          console.log(`- PLANE: ${plane.width}x${plane.height} = ${buf.byteLength}`)
-        }
-
-        const view = new Uint8Array(mainBuf)
-        console.log(`[0,0] BEFORE: ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
         frame.dispose()
-        console.log(`[0,0] AFTER:  ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
-
         return true
       })
     })
     return output
-  }
+  }, [])
 
   useEffect(() => {
-    const device = devices[0]
-    if (device == null) return
-
     (async () => {
       try {
         const mark1 = performance.now()
         const photo = HybridCameraFactory.createPhotoOutput()
-        const video = createVideoOutput()
-        await session.configure([device], [photo, video], {})
+        controllers.current = await session.configure(inputs.map((d) => ({
+          input: d,
+          outputs: d.position === 'front' ? [previewFront] : [previewBack]
+        })))
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
+        controllers.current.forEach((c) => {
+          const format = c.device.formats
+            .filter((f) => f.supportsMultiCam)
+            .reduce<CameraFormat | undefined>((prev, curr) => curr.maxFps > (prev?.maxFps ?? 0) ? curr : prev, undefined)
+          const maxFps = format?.maxFps
+          console.log(format?.videoResolution, maxFps)
+          if (maxFps != null) {
+            c.configure({ activeFormat: format, fps: { min: maxFps, max: maxFps } })
+          }
+        })
 
         await session.start()
         const mark3 = performance.now()
         console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
+
       } catch (e) {
         console.error(e)
       }
     })()
-  }, [devices, session])
+  }, [inputs, previewBack, previewFront, session])
+
+
+  const savedScale = useSharedValue(1)
+  const scale = useSharedValue(1)
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      controllers.current.forEach((c) => {
+        scale.value = clamp(savedScale.value * e.scale, c.device.minZoom, c.device.maxZoom)
+        c.configure({ zoom: scale.value })
+      })
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value
+    })
+    .runOnJS(true)
 
   return (
     <View style={styles.container}>
       {devices.map((d) => (
         <Text key={d.id}>{d.id}</Text>
       ))}
-      <NativePreviewView style={styles.camera} session={session} />
+      <GestureDetector gesture={pinchGesture}>
+        <View style={styles.container}>
+          {isMulti && (
+            <NativePreviewView style={styles.camera} previewOutput={previewFront} />
+          )}
+          <NativePreviewView style={styles.camera} previewOutput={previewBack} />
+        </View>
+      </GestureDetector>
+      <Button
+        title={`Switch to ${isMulti ? 'single-cam' : 'multi-cam'}`}
+        onPress={() => setIsMulti((i) => !i)} />
     </View>
   );
 }

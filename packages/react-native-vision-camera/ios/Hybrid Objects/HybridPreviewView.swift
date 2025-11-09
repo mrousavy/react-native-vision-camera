@@ -8,35 +8,21 @@ import Foundation
 import NitroModules
 import AVFoundation
 
-class PreviewView: UIView {
-  override public static var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
-  
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    return layer as! AVCaptureVideoPreviewLayer
-  }
-}
-
 class HybridPreviewView: HybridPreviewViewSpec {
-  var view: UIView {
-    return previewView
-  }
-  let previewView: PreviewView
-  var session: (any HybridCameraSessionSpec)? = nil {
+  var view: UIView = AutoLayerResizingView()
+  var previewOutput: (any HybridCameraSessionPreviewOutputSpec)? {
     didSet {
-      updateSession()
+      updatePreviewLayer()
     }
   }
   
-  override init() {
-    self.previewView = PreviewView()
-  }
-  
-  private func updateSession() {
-    guard let hybridSession = session as? HybridCameraSession else { return }
+  private func updatePreviewLayer() {
     DispatchQueue.main.async {
-      self.previewView.videoPreviewLayer.session = hybridSession.session
+      self.view.layer.sublayers?.removeAll()
+      if let previewOutput = self.previewOutput as? HybridCameraSessionPreviewOutput {
+        self.view.layer.addSublayer(previewOutput.previewLayer)
+        previewOutput.previewLayer.frame = self.view.bounds
+      }
     }
   }
 }

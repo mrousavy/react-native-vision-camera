@@ -4,7 +4,7 @@
   "bubblingEventTypes": {},
   "directEventTypes": {},
   "validAttributes": {
-    "session": true,
+    "previewOutput": true,
     "hybridRef": true
   }
 }

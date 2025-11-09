@@ -7,7 +7,6 @@
 
 import Foundation
 import NitroModules
-import NitroModules
 
 /// See ``HybridCameraDeviceSpec``
 public protocol HybridCameraDeviceSpec_protocol: HybridObject {
@@ -27,31 +26,21 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var isContinuityCamera: Bool { get }
   var companionDeskViewCamera: (any HybridCameraDeviceSpec)? { get }
   var formats: [(any HybridCameraFormatSpec)] { get }
-  var activeFormat: (any HybridCameraFormatSpec) { get set }
-  var activeDepthFormat: (any HybridCameraFormatSpec)? { get set }
-  var enableAutoFrameRate: Bool { get set }
-  var fps: Range { get set }
-  var focusMode: FocusMode { get set }
   var supportsSmoothAutoFocus: Bool { get }
-  var enableSmoothAutoFocus: Bool { get set }
-  var enableFaceDrivenAutoFocus: Bool { get set }
   var supportsFocusingPoint: Bool { get }
   var supportsFocusingRect: Bool { get }
   var minFocusRectSize: Size? { get }
   var isAdjustingFocus: Bool { get }
   var supportsLockingFocusLensPosition: Bool { get }
   var lensPosition: Double { get }
-  var exposureMode: ExposureMode { get set }
   var supportsExposurePoint: Bool { get }
   var supportsExposureRect: Bool { get }
   var minExposureRectSize: Size? { get }
-  var enableFaceDrivenAutoExposure: Bool { get set }
   var isAdjustingExposure: Bool { get }
   var exposureDuration: Double { get }
   var activeMaxExposureDuration: Double { get }
   var iso: Double { get }
   var lensAperture: Double { get }
-  var whiteBalanceMode: WhiteBalanceMode { get set }
   var isAdjustingWhiteBalance: Bool { get }
   var supportsLockingWhiteBalanceGains: Bool { get }
   var hasFlash: Bool { get }
@@ -62,16 +51,10 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var torchMode: TorchMode { get }
   var supportsLowLightBoost: Bool { get }
   var isLowLightBoostEnabled: Bool { get }
-  var automaticallyEnableLowLightBoost: Bool { get set }
-  var enableVideoHDR: Bool { get set }
-  var automaticallyEnableVideoHDR: Bool { get set }
-  var enableGlobalToneMapping: Bool { get set }
-  var colorSpace: ColorSpace { get set }
   var minZoom: Double { get }
   var maxZoom: Double { get }
   var zoomLensSwitchFactors: [Double] { get }
   var displayVideoZoomFactorMultiplier: Double { get }
-  var zoom: Double { get set }
   var isZoomingAnimation: Bool { get }
   var supportsDistortionCorrection: Bool { get }
   var enableDistortionCorrection: Bool { get }
@@ -79,22 +62,11 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   // Methods
   func hasMediaType(mediaType: MediaType) throws -> Bool
   func supportsFocusMode(mode: FocusMode) throws -> Bool
-  func setFocusPoint(point: Point) throws -> Promise<Void>
-  func setFocusRect(rect: Rect) throws -> Promise<Void>
   func getDefaultRectForFocusPoint(point: Point) throws -> Rect
-  func setFocusLensPosition(lensPosition: Double) throws -> Promise<Void>
   func supportsExposureMode(exposureMode: ExposureMode) throws -> Bool
-  func setExposurePoint(point: Point) throws -> Promise<Void>
-  func setExposureRect(rect: Rect) throws -> Promise<Void>
   func getDefaultRectForExposurePoint(point: Point) throws -> Rect
-  func setExposureBias(exposure: Double) throws -> Promise<Void>
-  func setExposureLocked(duration: Double, iso: Double) throws -> Promise<Void>
   func supportsWhiteBalanceMode(whiteBalanceMode: WhiteBalanceMode) throws -> Bool
-  func setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains) throws -> Promise<Void>
   func supportsTorchMode(torch: TorchMode) throws -> Bool
-  func enableTorch(level: Double) throws -> Promise<Void>
-  func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
-  func cancelZoomAnimation() throws -> Promise<Void>
 }
 
 public extension HybridCameraDeviceSpec_protocol {

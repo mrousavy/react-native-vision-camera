@@ -22,6 +22,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 namespace margelo::nitro::camera { class HybridCameraSessionFrameOutputSpec; }
 // Forward declaration of `TargetPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetPixelFormat; }
+// Forward declaration of `HybridCameraSessionPreviewOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
 
 #include <memory>
 #include "HybridCameraDeviceFactorySpec.hpp"
@@ -30,6 +32,7 @@ namespace margelo::nitro::camera { enum class TargetPixelFormat; }
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionFrameOutputSpec.hpp"
 #include "TargetPixelFormat.hpp"
+#include "HybridCameraSessionPreviewOutputSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -71,7 +74,9 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    inline bool getSupportsMultiCamSessions() noexcept override {
+      return _swiftPart.getSupportsMultiCamSessions();
+    }
 
   public:
     // Methods
@@ -83,8 +88,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridCameraSessionSpec> createCameraSession() override {
-      auto __result = _swiftPart.createCameraSession();
+    inline std::shared_ptr<HybridCameraSessionSpec> createCameraSession(bool enableMultiCam) override {
+      auto __result = _swiftPart.createCameraSession(std::forward<decltype(enableMultiCam)>(enableMultiCam));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
@@ -101,6 +106,14 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<HybridCameraSessionFrameOutputSpec> createFrameOutput(TargetPixelFormat pixelFormat) override {
       auto __result = _swiftPart.createFrameOutput(static_cast<int>(pixelFormat));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<HybridCameraSessionPreviewOutputSpec> createPreviewOutput() override {
+      auto __result = _swiftPart.createPreviewOutput();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

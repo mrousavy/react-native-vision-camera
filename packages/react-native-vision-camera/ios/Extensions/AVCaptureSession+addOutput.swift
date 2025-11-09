@@ -1,5 +1,5 @@
 ///
-/// AVCaptureSession+addOutput.swift
+/// AVCaptureSession+containsOutput.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -9,14 +9,34 @@ import NitroModules
 import AVFoundation
 
 extension AVCaptureSession {
-  func addOutput(_ outputSpec: any HybridCameraSessionOutputSpec) throws {
-    guard let outputHolder = outputSpec as? CameraSessionOutput else {
-      throw RuntimeError.error(withMessage: "HybridCameraSessionOutputSpec \(outputSpec) is not of type CameraSessionOutput!")
+  func containsOutput(_ outputSpec: any HybridCameraOutputSpec) -> Bool {
+    if let hybridOutput = outputSpec as? NativeCameraOutput {
+      // It's a normal AVCaptureOutput
+      return outputs.contains(hybridOutput.output)
+    } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
+      // It's an AVVideoPreviewLayer - this is a bit different than normal outputs:
+      // We "add" it by setting it's .session property.
+      return hybridPreview.previewLayer.session == self
+    } else {
+      return false
     }
-    let output = outputHolder.output
-    guard self.canAddOutput(output) else {
-      throw RuntimeError.error(withMessage: "Cannot add output \(String(describing: output)) to CameraSession!")
+  }
+  
+  func addOutputWithNoConnections(_ outputSpec: any HybridCameraOutputSpec) throws {
+    if let hybridOutput = outputSpec as? NativeCameraOutput {
+      // It's a normal AVCaptureOutput
+      let output = hybridOutput.output
+      guard canAddOutput(output) else {
+        throw RuntimeError.error(withMessage: "Output \"\(output)\" cannot be added to Camera Session!")
+      }
+      print("Adding Output \(output)...")
+      addOutputWithNoConnections(output)
+    } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
+      // It's an AVVideoPreviewLayer - we need to set it's .session
+      print("Adding Preview \(hybridPreview.previewLayer)...")
+      hybridPreview.previewLayer.setSessionWithNoConnection(self)
+    } else {
+      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!")
     }
-    self.addOutput(output)
   }
 }

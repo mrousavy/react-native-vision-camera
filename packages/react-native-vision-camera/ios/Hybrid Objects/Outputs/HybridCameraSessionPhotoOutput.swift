@@ -9,13 +9,13 @@ import NitroModules
 import AVFoundation
 import NitroImage
 
-class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, CameraSessionOutput {
-  let type: CameraSessionOutputType = .photo
+class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, NativeCameraOutput {
+  let type: CameraOutputType = .photo
   var output: AVCaptureOutput {
     return photoOutput
   }
   private let photoOutput = AVCapturePhotoOutput()
-  
+
   func capturePhoto(settings: CapturePhotoSettings?,
                     callbacks: CapturePhotoCallbacks?) -> Promise<any HybridPhotoSpec> {
     let settings = settings ?? CapturePhotoSettings(flashMode: nil,
@@ -41,7 +41,7 @@ class HybridCameraSessionPhotoOutput: HybridCameraSessionPhotoOutputSpec, Camera
         promise.reject(withError: error)
       },
       callbacks: callbacks)
-    
+
     // 2. Prepare Photo settings
     let captureSettings = settings.toAVCapturePhotoSettings()
     // 3. Perform capture

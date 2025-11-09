@@ -131,32 +131,40 @@ open class HybridCameraSessionSpec_cxx {
       }()
     }
   }
+  
+  public final var supportsMultiCam: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsMultiCam
+    }
+  }
 
   // Methods
   @inline(__always)
-  public final func configure(inputs: bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__, outputs: bridge.std__vector_std__shared_ptr_HybridCameraSessionOutputSpec__, configuration: CameraSessionConfiguration) -> bridge.Result_std__shared_ptr_Promise_void___ {
+  public final func configure(connections: bridge.std__vector_CameraSessionConnection_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec_____ {
     do {
-      let __result = try self.__implementation.configure(inputs: inputs.map({ __item in { () -> HybridCameraDeviceSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(__item)
-        let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridCameraDeviceSpec()
-      }() }), outputs: outputs.map({ __item in { () -> HybridCameraSessionOutputSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraSessionOutputSpec_(__item)
-        let __instance = HybridCameraSessionOutputSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridCameraSessionOutputSpec()
-      }() }), configuration: configuration)
-      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
-        let __promise = bridge.create_std__shared_ptr_Promise_void__()
-        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+      let __result = try self.__implementation.configure(connections: connections.map({ __item in __item }))
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec____ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec____()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec____(__promise)
         __result
-          .then({ __result in __promiseHolder.resolve() })
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec__ in
+              var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec__(__result.count)
+              for __item in __result {
+                __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraDeviceControllerSpec_ in
+                  let __cxxWrapped = __item.getCxxWrapper()
+                  return __cxxWrapped.getCxxPart()
+                }())
+              }
+              return __vector
+            }()) })
           .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
         return __promise
       }()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec_____(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraDeviceControllerSpec_____(__exceptionPtr)
     }
   }
   

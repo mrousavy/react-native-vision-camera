@@ -20,28 +20,22 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
-// Forward declaration of `Range` to properly resolve imports.
-namespace margelo::nitro::camera { struct Range; }
-// Forward declaration of `FocusMode` to properly resolve imports.
-namespace margelo::nitro::camera { enum class FocusMode; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `TorchMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TorchMode; }
+// Forward declaration of `MediaType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class MediaType; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `Rect` to properly resolve imports.
+namespace margelo::nitro::camera { struct Rect; }
+// Forward declaration of `Point` to properly resolve imports.
+namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `ExposureMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class ExposureMode; }
 // Forward declaration of `WhiteBalanceMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
-// Forward declaration of `TorchMode` to properly resolve imports.
-namespace margelo::nitro::camera { enum class TorchMode; }
-// Forward declaration of `ColorSpace` to properly resolve imports.
-namespace margelo::nitro::camera { enum class ColorSpace; }
-// Forward declaration of `MediaType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class MediaType; }
-// Forward declaration of `Point` to properly resolve imports.
-namespace margelo::nitro::camera { struct Point; }
-// Forward declaration of `Rect` to properly resolve imports.
-namespace margelo::nitro::camera { struct Rect; }
-// Forward declaration of `WhiteBalanceGains` to properly resolve imports.
-namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <string>
 #include "DeviceType.hpp"
@@ -51,18 +45,14 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 #include <vector>
 #include <optional>
 #include "HybridCameraFormatSpec.hpp"
-#include "Range.hpp"
-#include "FocusMode.hpp"
 #include "Size.hpp"
+#include "TorchMode.hpp"
+#include "MediaType.hpp"
+#include "FocusMode.hpp"
+#include "Rect.hpp"
+#include "Point.hpp"
 #include "ExposureMode.hpp"
 #include "WhiteBalanceMode.hpp"
-#include "TorchMode.hpp"
-#include "ColorSpace.hpp"
-#include "MediaType.hpp"
-#include <NitroModules/Promise.hpp>
-#include "Point.hpp"
-#include "Rect.hpp"
-#include "WhiteBalanceGains.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -159,53 +149,8 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getFormats();
       return __result;
     }
-    inline std::shared_ptr<HybridCameraFormatSpec> getActiveFormat() noexcept override {
-      auto __result = _swiftPart.getActiveFormat();
-      return __result;
-    }
-    inline void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) noexcept override {
-      _swiftPart.setActiveFormat(activeFormat);
-    }
-    inline std::optional<std::shared_ptr<HybridCameraFormatSpec>> getActiveDepthFormat() noexcept override {
-      auto __result = _swiftPart.getActiveDepthFormat();
-      return __result;
-    }
-    inline void setActiveDepthFormat(const std::optional<std::shared_ptr<HybridCameraFormatSpec>>& activeDepthFormat) noexcept override {
-      _swiftPart.setActiveDepthFormat(activeDepthFormat);
-    }
-    inline bool getEnableAutoFrameRate() noexcept override {
-      return _swiftPart.getEnableAutoFrameRate();
-    }
-    inline void setEnableAutoFrameRate(bool enableAutoFrameRate) noexcept override {
-      _swiftPart.setEnableAutoFrameRate(std::forward<decltype(enableAutoFrameRate)>(enableAutoFrameRate));
-    }
-    inline Range getFps() noexcept override {
-      return _swiftPart.getFps();
-    }
-    inline void setFps(const Range& fps) noexcept override {
-      _swiftPart.setFps(std::forward<decltype(fps)>(fps));
-    }
-    inline FocusMode getFocusMode() noexcept override {
-      auto __result = _swiftPart.getFocusMode();
-      return static_cast<FocusMode>(__result);
-    }
-    inline void setFocusMode(FocusMode focusMode) noexcept override {
-      _swiftPart.setFocusMode(static_cast<int>(focusMode));
-    }
     inline bool getSupportsSmoothAutoFocus() noexcept override {
       return _swiftPart.getSupportsSmoothAutoFocus();
-    }
-    inline bool getEnableSmoothAutoFocus() noexcept override {
-      return _swiftPart.getEnableSmoothAutoFocus();
-    }
-    inline void setEnableSmoothAutoFocus(bool enableSmoothAutoFocus) noexcept override {
-      _swiftPart.setEnableSmoothAutoFocus(std::forward<decltype(enableSmoothAutoFocus)>(enableSmoothAutoFocus));
-    }
-    inline bool getEnableFaceDrivenAutoFocus() noexcept override {
-      return _swiftPart.getEnableFaceDrivenAutoFocus();
-    }
-    inline void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) noexcept override {
-      _swiftPart.setEnableFaceDrivenAutoFocus(std::forward<decltype(enableFaceDrivenAutoFocus)>(enableFaceDrivenAutoFocus));
     }
     inline bool getSupportsFocusingPoint() noexcept override {
       return _swiftPart.getSupportsFocusingPoint();
@@ -226,13 +171,6 @@ namespace margelo::nitro::camera {
     inline double getLensPosition() noexcept override {
       return _swiftPart.getLensPosition();
     }
-    inline ExposureMode getExposureMode() noexcept override {
-      auto __result = _swiftPart.getExposureMode();
-      return static_cast<ExposureMode>(__result);
-    }
-    inline void setExposureMode(ExposureMode exposureMode) noexcept override {
-      _swiftPart.setExposureMode(static_cast<int>(exposureMode));
-    }
     inline bool getSupportsExposurePoint() noexcept override {
       return _swiftPart.getSupportsExposurePoint();
     }
@@ -242,12 +180,6 @@ namespace margelo::nitro::camera {
     inline std::optional<Size> getMinExposureRectSize() noexcept override {
       auto __result = _swiftPart.getMinExposureRectSize();
       return __result;
-    }
-    inline bool getEnableFaceDrivenAutoExposure() noexcept override {
-      return _swiftPart.getEnableFaceDrivenAutoExposure();
-    }
-    inline void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) noexcept override {
-      _swiftPart.setEnableFaceDrivenAutoExposure(std::forward<decltype(enableFaceDrivenAutoExposure)>(enableFaceDrivenAutoExposure));
     }
     inline bool getIsAdjustingExposure() noexcept override {
       return _swiftPart.isAdjustingExposure();
@@ -263,13 +195,6 @@ namespace margelo::nitro::camera {
     }
     inline double getLensAperture() noexcept override {
       return _swiftPart.getLensAperture();
-    }
-    inline WhiteBalanceMode getWhiteBalanceMode() noexcept override {
-      auto __result = _swiftPart.getWhiteBalanceMode();
-      return static_cast<WhiteBalanceMode>(__result);
-    }
-    inline void setWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) noexcept override {
-      _swiftPart.setWhiteBalanceMode(static_cast<int>(whiteBalanceMode));
     }
     inline bool getIsAdjustingWhiteBalance() noexcept override {
       return _swiftPart.isAdjustingWhiteBalance();
@@ -302,37 +227,6 @@ namespace margelo::nitro::camera {
     inline bool getIsLowLightBoostEnabled() noexcept override {
       return _swiftPart.isLowLightBoostEnabled();
     }
-    inline bool getAutomaticallyEnableLowLightBoost() noexcept override {
-      return _swiftPart.getAutomaticallyEnableLowLightBoost();
-    }
-    inline void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) noexcept override {
-      _swiftPart.setAutomaticallyEnableLowLightBoost(std::forward<decltype(automaticallyEnableLowLightBoost)>(automaticallyEnableLowLightBoost));
-    }
-    inline bool getEnableVideoHDR() noexcept override {
-      return _swiftPart.getEnableVideoHDR();
-    }
-    inline void setEnableVideoHDR(bool enableVideoHDR) noexcept override {
-      _swiftPart.setEnableVideoHDR(std::forward<decltype(enableVideoHDR)>(enableVideoHDR));
-    }
-    inline bool getAutomaticallyEnableVideoHDR() noexcept override {
-      return _swiftPart.getAutomaticallyEnableVideoHDR();
-    }
-    inline void setAutomaticallyEnableVideoHDR(bool automaticallyEnableVideoHDR) noexcept override {
-      _swiftPart.setAutomaticallyEnableVideoHDR(std::forward<decltype(automaticallyEnableVideoHDR)>(automaticallyEnableVideoHDR));
-    }
-    inline bool getEnableGlobalToneMapping() noexcept override {
-      return _swiftPart.getEnableGlobalToneMapping();
-    }
-    inline void setEnableGlobalToneMapping(bool enableGlobalToneMapping) noexcept override {
-      _swiftPart.setEnableGlobalToneMapping(std::forward<decltype(enableGlobalToneMapping)>(enableGlobalToneMapping));
-    }
-    inline ColorSpace getColorSpace() noexcept override {
-      auto __result = _swiftPart.getColorSpace();
-      return static_cast<ColorSpace>(__result);
-    }
-    inline void setColorSpace(ColorSpace colorSpace) noexcept override {
-      _swiftPart.setColorSpace(static_cast<int>(colorSpace));
-    }
     inline double getMinZoom() noexcept override {
       return _swiftPart.getMinZoom();
     }
@@ -345,12 +239,6 @@ namespace margelo::nitro::camera {
     }
     inline double getDisplayVideoZoomFactorMultiplier() noexcept override {
       return _swiftPart.getDisplayVideoZoomFactorMultiplier();
-    }
-    inline double getZoom() noexcept override {
-      return _swiftPart.getZoom();
-    }
-    inline void setZoom(double zoom) noexcept override {
-      _swiftPart.setZoom(std::forward<decltype(zoom)>(zoom));
     }
     inline bool getIsZoomingAnimation() noexcept override {
       return _swiftPart.isZoomingAnimation();
@@ -380,32 +268,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) override {
-      auto __result = _swiftPart.setFocusPoint(std::forward<decltype(point)>(point));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) override {
-      auto __result = _swiftPart.setFocusRect(std::forward<decltype(rect)>(rect));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
     inline Rect getDefaultRectForFocusPoint(const Point& point) override {
       auto __result = _swiftPart.getDefaultRectForFocusPoint(std::forward<decltype(point)>(point));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) override {
-      auto __result = _swiftPart.setFocusLensPosition(std::forward<decltype(lensPosition)>(lensPosition));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
@@ -420,40 +284,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<void>> setExposurePoint(const Point& point) override {
-      auto __result = _swiftPart.setExposurePoint(std::forward<decltype(point)>(point));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> setExposureRect(const Rect& rect) override {
-      auto __result = _swiftPart.setExposureRect(std::forward<decltype(rect)>(rect));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
     inline Rect getDefaultRectForExposurePoint(const Point& point) override {
       auto __result = _swiftPart.getDefaultRectForExposurePoint(std::forward<decltype(point)>(point));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> setExposureBias(double exposure) override {
-      auto __result = _swiftPart.setExposureBias(std::forward<decltype(exposure)>(exposure));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> setExposureLocked(double duration, double iso) override {
-      auto __result = _swiftPart.setExposureLocked(std::forward<decltype(duration)>(duration), std::forward<decltype(iso)>(iso));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
@@ -468,40 +300,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<void>> setWhiteBalanceLocked(const WhiteBalanceGains& whiteBalanceGains) override {
-      auto __result = _swiftPart.setWhiteBalanceLocked(std::forward<decltype(whiteBalanceGains)>(whiteBalanceGains));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
     inline bool supportsTorchMode(TorchMode torch) override {
       auto __result = _swiftPart.supportsTorchMode(static_cast<int>(torch));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> enableTorch(double level) override {
-      auto __result = _swiftPart.enableTorch(std::forward<decltype(level)>(level));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) override {
-      auto __result = _swiftPart.startZoomAnimation(std::forward<decltype(zoom)>(zoom), std::forward<decltype(rate)>(rate));
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-      auto __value = std::move(__result.value());
-      return __value;
-    }
-    inline std::shared_ptr<Promise<void>> cancelZoomAnimation() override {
-      auto __result = _swiftPart.cancelZoomAnimation();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

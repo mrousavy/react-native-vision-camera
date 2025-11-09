@@ -17,7 +17,8 @@ export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
 
   // pragma MARK: FPS
   readonly supportsAutoFps: boolean
-  readonly supportedFrameRateRanges: Range[]
+  readonly supportedFpsRanges: Range[]
+  readonly maxFps: number
   readonly isVideoBinned: boolean
   readonly supportsVideoHDR: boolean
   readonly supportsMultiCam: boolean
@@ -28,11 +29,11 @@ export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
 
   // pragma MARK: Background Replacement
   readonly supportsBackgroundReplacement: boolean
-  readonly frameRateRangeForBackgroundReplacement?: Range
+  readonly fpsRangeForBackgroundReplacement?: Range
 
   // pragma MARK: Reaction Effects
   readonly supportsReactionEffects: boolean
-  readonly frameRateRangeForReactionEffects?: Range
+  readonly fpsRangeForReactionEffects?: Range
 
   // pragma MARK: Media Type
   readonly mediaType: MediaType
@@ -67,22 +68,22 @@ export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
   // pragma MARK: Smart Framing
   readonly supportsSmartFraming: boolean
   readonly supportsCenterStage: boolean
-  readonly frameRateRangeForCenterStage?: Range
+  readonly fpsRangeForCenterStage?: Range
   readonly zoomRangeForCenterStage?: Range
 
   // pragma MARK: Portrait Effect
   readonly supportsPortraitEffect: boolean
   readonly supportsPortraitEffectMatteStillImageDelivery: boolean
-  readonly frameRateRangeForPortraitEffect?: Range
+  readonly fpsRangeForPortraitEffect?: Range
 
   // pragma MARK: Studio Light
   readonly supportsStudioLight: boolean
-  readonly frameRateRangeForStudioLight?: Range
+  readonly fpsRangeForStudioLight?: Range
 
   // pragma MARK: Cinematic Video
   readonly supportsCinematicVideo: boolean
   readonly defaultSimulatedAperture?: number
   readonly simulatedApertureRange?: Range
   readonly zoomFactorForCinematicVideo?: Range
-  readonly frameRateRangeForCinematicVideo?: Range
+  readonly fpsRangeForCinematicVideo?: Range
 }

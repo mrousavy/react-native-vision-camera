@@ -9,7 +9,7 @@ import Foundation
 import NitroModules
 
 /// See ``HybridCameraSessionFrameOutputSpec``
-public protocol HybridCameraSessionFrameOutputSpec_protocol: HybridObject, HybridCameraSessionOutputSpec_protocol {
+public protocol HybridCameraSessionFrameOutputSpec_protocol: HybridObject, HybridCameraOutputSpec_protocol {
   // Properties
   var thread: (any HybridNativeThreadSpec) { get }
 
@@ -26,7 +26,7 @@ public extension HybridCameraSessionFrameOutputSpec_protocol {
 }
 
 /// See ``HybridCameraSessionFrameOutputSpec``
-open class HybridCameraSessionFrameOutputSpec_base: HybridCameraSessionOutputSpec_base {
+open class HybridCameraSessionFrameOutputSpec_base: HybridCameraOutputSpec_base {
   private weak var cxxWrapper: HybridCameraSessionFrameOutputSpec_cxx? = nil
   public override init() { super.init() }
   public override func getCxxWrapper() -> HybridCameraSessionFrameOutputSpec_cxx {

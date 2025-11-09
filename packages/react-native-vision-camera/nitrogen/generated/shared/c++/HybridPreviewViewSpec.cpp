@@ -14,8 +14,8 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("session", &HybridPreviewViewSpec::getSession);
-      prototype.registerHybridSetter("session", &HybridPreviewViewSpec::setSession);
+      prototype.registerHybridGetter("previewOutput", &HybridPreviewViewSpec::getPreviewOutput);
+      prototype.registerHybridSetter("previewOutput", &HybridPreviewViewSpec::setPreviewOutput);
     });
   }
 

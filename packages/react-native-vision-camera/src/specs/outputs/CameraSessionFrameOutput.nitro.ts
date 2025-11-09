@@ -1,4 +1,4 @@
-import type { CameraSessionOutput } from './CameraSessionOutput.nitro'
+import type { CameraOutput } from './CameraOutput.nitro'
 import type { Frame } from '../Frame.nitro'
 import type { Sync } from 'react-native-nitro-modules'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
@@ -9,7 +9,7 @@ export type FrameDroppedReason =
   | 'discontinuity'
   | 'unknown'
 
-export interface CameraSessionFrameOutput extends CameraSessionOutput {
+export interface CameraSessionFrameOutput extends CameraOutput {
   /**
    * Get the {@linkcode NativeThread} that this {@linkcode CameraSessionFrameOutput}
    * is running on.

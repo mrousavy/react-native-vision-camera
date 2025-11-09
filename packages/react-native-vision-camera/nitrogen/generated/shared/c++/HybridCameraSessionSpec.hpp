@@ -15,20 +15,17 @@
 
 // Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
-// Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
-// Forward declaration of `HybridCameraSessionOutputSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraSessionOutputSpec; }
-// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
-namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
+// Forward declaration of `HybridCameraDeviceControllerSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceControllerSpec; }
+// Forward declaration of `CameraSessionConnection` to properly resolve imports.
+namespace margelo::nitro::camera { struct CameraSessionConnection; }
 
 #include <memory>
 #include "HybridNativeThreadSpec.hpp"
-#include <NitroModules/Promise.hpp>
-#include "HybridCameraDeviceSpec.hpp"
+#include "HybridCameraDeviceControllerSpec.hpp"
 #include <vector>
-#include "HybridCameraSessionOutputSpec.hpp"
-#include "CameraSessionConfiguration.hpp"
+#include <NitroModules/Promise.hpp>
+#include "CameraSessionConnection.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -59,10 +56,11 @@ namespace margelo::nitro::camera {
       // Properties
       virtual bool getIsRunning() = 0;
       virtual std::shared_ptr<HybridNativeThreadSpec> getCameraThread() = 0;
+      virtual bool getSupportsMultiCam() = 0;
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> configure(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& inputs, const std::vector<std::shared_ptr<HybridCameraSessionOutputSpec>>& outputs, const CameraSessionConfiguration& configuration) = 0;
+      virtual std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraDeviceControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections) = 0;
       virtual std::shared_ptr<Promise<void>> start() = 0;
       virtual std::shared_ptr<Promise<void>> stop() = 0;
 

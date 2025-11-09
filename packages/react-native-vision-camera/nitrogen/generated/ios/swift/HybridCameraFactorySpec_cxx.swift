@@ -115,7 +115,12 @@ open class HybridCameraFactorySpec_cxx {
   }
 
   // Properties
-  
+  public final var supportsMultiCamSessions: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsMultiCamSessions
+    }
+  }
 
   // Methods
   @inline(__always)
@@ -141,9 +146,9 @@ open class HybridCameraFactorySpec_cxx {
   }
   
   @inline(__always)
-  public final func createCameraSession() -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
+  public final func createCameraSession(enableMultiCam: Bool) -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
     do {
-      let __result = try self.__implementation.createCameraSession()
+      let __result = try self.__implementation.createCameraSession(enableMultiCam: enableMultiCam)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
@@ -182,6 +187,21 @@ open class HybridCameraFactorySpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_std__shared_ptr_HybridCameraSessionFrameOutputSpec__(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func createPreviewOutput() -> bridge.Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__ {
+    do {
+      let __result = try self.__implementation.createPreviewOutput()
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionPreviewOutputSpec_ in
+        let __cxxWrapped = __result.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(__exceptionPtr)
     }
   }
 }
