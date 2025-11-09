@@ -156,14 +156,14 @@ open class HybridCameraDepthFrameOutputSpec_cxx : HybridCameraOutputSpec_cxx {
   }
   
   @inline(__always)
-  public final func setOnFrameDroppedCallback(onFrameDropped: bridge.std__optional_std__function_void_DepthFrameDroppedReason____reason______) -> bridge.Result_void_ {
+  public final func setOnDepthFrameDroppedCallback(onDepthFrameDropped: bridge.std__optional_std__function_void_FrameDroppedReason____reason______) -> bridge.Result_void_ {
     do {
-      try self.__implementation.setOnFrameDroppedCallback(onFrameDropped: { () -> ((_ reason: DepthFrameDroppedReason) -> Void)? in
-        if bridge.has_value_std__optional_std__function_void_DepthFrameDroppedReason____reason______(onFrameDropped) {
-          let __unwrapped = bridge.get_std__optional_std__function_void_DepthFrameDroppedReason____reason______(onFrameDropped)
-          return { () -> (DepthFrameDroppedReason) -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void_DepthFrameDroppedReason(__unwrapped)
-            return { (__reason: DepthFrameDroppedReason) -> Void in
+      try self.__implementation.setOnDepthFrameDroppedCallback(onDepthFrameDropped: { () -> ((_ reason: FrameDroppedReason) -> Void)? in
+        if bridge.has_value_std__optional_std__function_void_FrameDroppedReason____reason______(onDepthFrameDropped) {
+          let __unwrapped = bridge.get_std__optional_std__function_void_FrameDroppedReason____reason______(onDepthFrameDropped)
+          return { () -> (FrameDroppedReason) -> Void in
+            let __wrappedFunction = bridge.wrap_Func_void_FrameDroppedReason(__unwrapped)
+            return { (__reason: FrameDroppedReason) -> Void in
               __wrappedFunction.call(__reason.rawValue)
             }
           }()

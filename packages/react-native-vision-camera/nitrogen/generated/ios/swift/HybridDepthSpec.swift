@@ -13,21 +13,23 @@ import NitroImage
 /// See ``HybridDepthSpec``
 public protocol HybridDepthSpec_protocol: HybridObject {
   // Properties
-  var pixelFormat: DepthPixelFormat { get }
+  var orientation: Orientation { get }
+  var isMirrored: Bool { get }
   var timestamp: Double { get }
+  var pixelFormat: DepthPixelFormat { get }
   var isValid: Bool { get }
   var isDepthDataFiltered: Bool { get }
   var depthDataAccuracy: DepthDataAccuracy { get }
   var depthDataQuality: DepthDataQuality { get }
   var availableDepthPixelFormats: [DepthPixelFormat] { get }
   var cameraCalibrationData: (any HybridCameraCalibrationDataSpec)? { get }
-  var orientation: Orientation { get }
 
   // Methods
+  func getDepthData() throws -> ArrayBuffer
   func rotate(orientation: Orientation, isMirrored: Bool) throws -> (any HybridDepthSpec)
   func rotateAsync(orientation: Orientation, isMirrored: Bool) throws -> Promise<(any HybridDepthSpec)>
-  func convert(pixelFormat: TargetDepthPixelFormat) throws -> (any HybridDepthSpec)
-  func convertAsync(pixelFormat: TargetDepthPixelFormat) throws -> Promise<(any HybridDepthSpec)>
+  func convert(pixelFormat: DepthPixelFormat) throws -> (any HybridDepthSpec)
+  func convertAsync(pixelFormat: DepthPixelFormat) throws -> Promise<(any HybridDepthSpec)>
   func toImage() throws -> (any HybridImageSpec)
   func toImageAsync() throws -> Promise<(any HybridImageSpec)>
   func toDictionary(type: AuxilaryDepthType) throws -> AnyMap

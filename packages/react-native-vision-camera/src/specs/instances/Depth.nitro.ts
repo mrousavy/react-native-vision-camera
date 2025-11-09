@@ -9,6 +9,13 @@ export type DepthDataAccuracy = 'relative' | 'absolute' | 'unknown'
 export type DepthDataQuality = 'low' | 'high' | 'unknown'
 
 export interface Depth extends HybridObject<{ ios: 'swift' }> {
+  readonly orientation: Orientation
+  /**
+   * Gets whether this {@linkcode Depth} frame is mirrored alongside the
+   * vertical axis.
+   */
+  readonly isMirrored: boolean
+  readonly timestamp: number
   /**
    * Gets the {@linkcode DepthPixelFormat} of this {@linkcode Depth} Frame's
    * pixel data.
@@ -20,14 +27,27 @@ export interface Depth extends HybridObject<{ ios: 'swift' }> {
    * this just returns {@linkcode DepthPixelFormat | 'unknown'}.
    */
   readonly pixelFormat: DepthPixelFormat
-  readonly timestamp: number
   readonly isValid: boolean
   readonly isDepthDataFiltered: boolean
   readonly depthDataAccuracy: DepthDataAccuracy
   readonly depthDataQuality: DepthDataQuality
   readonly availableDepthPixelFormats: DepthPixelFormat[]
   readonly cameraCalibrationData?: CameraCalibrationData
-  readonly orientation: Orientation
+
+  /**
+   * Gets the {@linkcode Depth}'s depth data as a full contiguous `ArrayBuffer`.
+   *
+   * @discussion
+   * This does **not** perform a copy, but since the {@linkcode Depth}'s data is stored
+   * on the GPU, it might lazily perform a GPU -> CPU download.
+   *
+   * @discussion
+   * Once the {@linkcode Depth} frame gets invalidated ({@linkcode isValid} == false),
+   * this ArrayBuffer is no longer safe to access.
+   *
+   * @note If this Depth is invalid ({@linkcode isValid}), this method throws.
+   */
+  getDepthData(): ArrayBuffer
   /**
    * Returns a derivative {@linkcode Depth} frame by rotating
    * it to the specified {@linkcode orientation}, and potentially

@@ -10,22 +10,19 @@ import AVFoundation
 import NitroModules
 import NitroImage
 
-class HybridFrame: HybridFrameSpec, NativeFrame {
+class HybridFrame: HybridFrameSpec, NativeFrame, LazyLockableBuffer {
   var sampleBuffer: CMSampleBuffer?
-  private var isLocked: Bool
+  let metadata: MediaSampleMetadata
+  var isLocked: Bool = false
   private var planesCached: [HybridFramePlane]?
-  private var pixelBuffer: CVPixelBuffer? {
-    guard let sampleBuffer,
-          sampleBuffer.isValid else {
-      return nil
-    }
-    return sampleBuffer.imageBuffer
+  var pixelBuffer: CVPixelBuffer? {
+    return sampleBuffer?.imageBuffer
   }
 
-  init(buffer: CMSampleBuffer, orientation: Orientation) {
+  init(buffer: CMSampleBuffer,
+       metadata: MediaSampleMetadata) {
     self.sampleBuffer = buffer
-    self.orientation = orientation
-    self.isLocked = false
+    self.metadata = metadata
     self.planesCached = nil
     super.init()
   }
@@ -38,10 +35,13 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
   }
 
   var timestamp: Double {
-    guard let sampleBuffer else {
-      return 0
-    }
-    return sampleBuffer.presentationTimeStamp.seconds
+    return metadata.timestamp.seconds
+  }
+  var isMirrored: Bool {
+    return metadata.isMirrored
+  }
+  var orientation: Orientation {
+    return metadata.orientation
   }
 
   var width: Double {
@@ -84,37 +84,8 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     return Double(CVPixelBufferGetPlaneCount(pixelBuffer))
   }
 
-  let orientation: Orientation
-  
-  /**
-   * Manually lock the `CVPixelBuffer` to allow it being accessed from the CPU
-   * via the `ArrayBuffer` APIs.
-   * The buffer only stays locked as long as the Frame is valid (`isValid`).
-   * Once the Frame is invalidated (`dispose()`), the buffer will be unlocked
-   * and is no longer safe to access.
-   */
-  func lockBuffer() throws {
-    if isLocked {
-      // already locked
-      return
-    }
-    guard let pixelBuffer else {
-      throw RuntimeError.error(withMessage: "Cannot lock an already disposed Frame for CPU access!")
-    }
-    let result = CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
-    if result != kCVReturnSuccess {
-      throw RuntimeError.error(withMessage: "Failed to lock CVPixelBuffer for CPU access!")
-    }
-    isLocked = true
-  }
-
   func dispose() {
-    if isLocked, let pixelBuffer {
-      let result = CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly)
-      if result != kCVReturnSuccess {
-        print("Failed to unlock CVPixelBuffer!")
-      }
-    }
+    self.unlockBuffer()
     try? self.sampleBuffer?.invalidate()
     self.sampleBuffer = nil
     self.planesCached?.forEach { $0.dispose() }
@@ -131,7 +102,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
       // we have planes cached
       return planesCached
     }
-    try lockBuffer()
+    try ensureBufferLocked()
     let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)
     let planes = (0..<planeCount).map { index in
       HybridFramePlane(buffer: pixelBuffer, planeIndex: index)
@@ -147,7 +118,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     guard let pixelBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not contain a Pixel Buffer!")
     }
-    try lockBuffer()
+    try ensureBufferLocked()
     return try ArrayBuffer.fromPixelBuffer(pixelBuffer)
   }
 
@@ -155,7 +126,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     guard let sampleBuffer, isValid else {
       throw RuntimeError.error(withMessage: "This Frame has already been disposed!")
     }
-    let uiOrientation = orientation.toUIImageOrientation()
+    let uiOrientation = metadata.uiImageOrientation
     let uiImage = try sampleBuffer.toUIImage(orientation: uiOrientation)
     return HybridUIImage(uiImage: uiImage)
   }

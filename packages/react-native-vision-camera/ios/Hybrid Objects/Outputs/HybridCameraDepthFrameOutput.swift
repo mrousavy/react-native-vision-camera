@@ -41,10 +41,9 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
 
   func setOnDepthFrameCallback(onDepthFrame: ((any HybridDepthSpec) -> Bool)?) throws {
     if let onDepthFrame {
-      delegate.onDepthFrame = { (depth, timestamp, orientation) in
+      delegate.onDepthFrame = { (depth, metadata) in
         let depth = HybridDepth(depthData: depth,
-                                timestamp: timestamp,
-                                orientation: orientation)
+                                metadata: metadata)
         _ = onDepthFrame(depth)
       }
     } else {

@@ -2,12 +2,7 @@ import type { CameraOutput } from './CameraOutput.nitro'
 import type { Frame } from '../instances/Frame.nitro'
 import type { Sync } from 'react-native-nitro-modules'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
-
-export type FrameDroppedReason =
-  | 'frame-was-late'
-  | 'out-of-buffers'
-  | 'discontinuity'
-  | 'unknown'
+import type { FrameDroppedReason } from '../common-types/FrameDroppedReason'
 
 export interface CameraFrameOutput extends CameraOutput {
   /**

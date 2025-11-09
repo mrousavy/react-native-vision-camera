@@ -9,6 +9,6 @@ import Foundation
 import AVFoundation
 
 public protocol NativeFrame {
-  var orientation: Orientation { get }
   var sampleBuffer: CMSampleBuffer? { get }
+  var metadata: MediaSampleMetadata { get }
 }

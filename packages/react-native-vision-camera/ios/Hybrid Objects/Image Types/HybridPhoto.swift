@@ -10,11 +10,14 @@ import AVFoundation
 import NitroModules
 import NitroImage
 
-class HybridPhoto: HybridPhotoSpec {
+class HybridPhoto: HybridPhotoSpec, NativePhoto {
   let photo: AVCapturePhoto
+  let metadata: MediaSampleMetadata
 
-  init(photo: AVCapturePhoto) {
+  init(photo: AVCapturePhoto,
+       metadata: MediaSampleMetadata) {
     self.photo = photo
+    self.metadata = metadata
     super.init()
   }
 
@@ -27,12 +30,18 @@ class HybridPhoto: HybridPhotoSpec {
   var timestamp: Double {
     return photo.timestamp.seconds
   }
+  var isMirrored: Bool {
+    return metadata.isMirrored
+  }
+  var orientation: Orientation {
+    return metadata.orientation
+  }
 
   var isRawPhoto: Bool {
     return photo.isRawPhoto
   }
 
-  var metadata: AnyMap {
+  var exifMetadata: AnyMap {
     return AnyMap.fromDictionaryIgnoreIncompatible(photo.metadata)
   }
   
@@ -40,7 +49,8 @@ class HybridPhoto: HybridPhotoSpec {
     guard let depthData = photo.depthData else {
       return nil
     }
-    return HybridDepth(depthData: depthData)
+    return HybridDepth(depthData: depthData,
+                       metadata: metadata)
   }
 
   // pragma MARK: Pixel Buffer access

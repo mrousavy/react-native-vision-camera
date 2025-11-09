@@ -14,15 +14,17 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("pixelFormat", &HybridDepthSpec::getPixelFormat);
+      prototype.registerHybridGetter("orientation", &HybridDepthSpec::getOrientation);
+      prototype.registerHybridGetter("isMirrored", &HybridDepthSpec::getIsMirrored);
       prototype.registerHybridGetter("timestamp", &HybridDepthSpec::getTimestamp);
+      prototype.registerHybridGetter("pixelFormat", &HybridDepthSpec::getPixelFormat);
       prototype.registerHybridGetter("isValid", &HybridDepthSpec::getIsValid);
       prototype.registerHybridGetter("isDepthDataFiltered", &HybridDepthSpec::getIsDepthDataFiltered);
       prototype.registerHybridGetter("depthDataAccuracy", &HybridDepthSpec::getDepthDataAccuracy);
       prototype.registerHybridGetter("depthDataQuality", &HybridDepthSpec::getDepthDataQuality);
       prototype.registerHybridGetter("availableDepthPixelFormats", &HybridDepthSpec::getAvailableDepthPixelFormats);
       prototype.registerHybridGetter("cameraCalibrationData", &HybridDepthSpec::getCameraCalibrationData);
-      prototype.registerHybridGetter("orientation", &HybridDepthSpec::getOrientation);
+      prototype.registerHybridMethod("getDepthData", &HybridDepthSpec::getDepthData);
       prototype.registerHybridMethod("rotate", &HybridDepthSpec::rotate);
       prototype.registerHybridMethod("rotateAsync", &HybridDepthSpec::rotateAsync);
       prototype.registerHybridMethod("convert", &HybridDepthSpec::convert);

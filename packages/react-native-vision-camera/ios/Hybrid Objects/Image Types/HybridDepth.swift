@@ -8,20 +8,25 @@
 import Foundation
 import AVFoundation
 import NitroModules
+import NitroImage
 
-class HybridDepth: HybridDepthSpec, NativeDepth {
+class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
   var depthData: AVDepthData?
-  let depthTimestamp: CMTime
-  let orientation: Orientation
+  let metadata: MediaSampleMetadata
+  var isLocked: Bool = false
+  var pixelBuffer: CVPixelBuffer? {
+    return depthData?.depthDataMap
+  }
   
-  init(depthData: AVDepthData, timestamp: CMTime, orientation: Orientation) {
+  init(depthData: AVDepthData,
+       metadata: MediaSampleMetadata) {
     self.depthData = depthData
-    self.depthTimestamp = timestamp
-    self.orientation = orientation
+    self.metadata = metadata
     super.init()
   }
   
   func dispose() {
+    unlockBuffer()
     depthData = nil
   }
   
@@ -30,7 +35,13 @@ class HybridDepth: HybridDepthSpec, NativeDepth {
   }
   
   var timestamp: Double {
-    return depthTimestamp.seconds
+    return metadata.timestamp.seconds
+  }
+  var orientation: Orientation {
+    return metadata.orientation
+  }
+  var isMirrored: Bool {
+    return metadata.isMirrored
   }
   
   var pixelFormat: DepthPixelFormat {
@@ -80,8 +91,7 @@ class HybridDepth: HybridDepthSpec, NativeDepth {
     let cgOrientation = orientation.toCGOrientation(isMirrored: isMirrored)
     let rotated = depthData.applyingExifOrientation(cgOrientation)
     return HybridDepth(depthData: rotated,
-                       timestamp: self.depthTimestamp,
-                       orientation: self.orientation)
+                       metadata: metadata)
   }
   
   func rotateAsync(orientation: Orientation, isMirrored: Bool) throws -> Promise<any HybridDepthSpec> {
@@ -97,8 +107,7 @@ class HybridDepth: HybridDepthSpec, NativeDepth {
     let osFormat = try pixelFormat.toOSType()
     let converted = depthData.converting(toDepthDataType: osFormat)
     return HybridDepth(depthData: converted,
-                       timestamp: self.depthTimestamp,
-                       orientation: self.orientation)
+                       metadata: metadata)
   }
   
   func convertAsync(pixelFormat: DepthPixelFormat) throws -> Promise<any HybridDepthSpec> {
@@ -107,19 +116,53 @@ class HybridDepth: HybridDepthSpec, NativeDepth {
     }
   }
   
+  func getDepthData() throws -> ArrayBuffer {
+    guard let depthData else {
+      throw RuntimeError.error(withMessage: "Cannot get an already disposed Depth Frame's data!")
+    }
+    try ensureBufferLocked()
+    return try ArrayBuffer.fromPixelBuffer(depthData.depthDataMap)
+  }
+  
+  
   func toImage() throws -> any HybridImageSpec {
-    <#code#>
+    guard let depthData else {
+      throw RuntimeError.error(withMessage: "Cannot convert an already disposed Depth to an Image!")
+    }
+    let uiOrientation = orientation.toUIImageOrientation(isMirrored: isMirrored)
+    let uiImage = try depthData.toUIImage(orientation: uiOrientation)
+    return HybridUIImage(uiImage: uiImage)
   }
   
   func toImageAsync() throws -> Promise<any HybridImageSpec> {
-    <#code#>
+    return Promise.async {
+      return try self.toImage()
+    }
   }
   
   func toDictionary(type: AuxilaryDepthType) throws -> AnyMap {
-    <#code#>
+    guard let depthData else {
+      throw RuntimeError.error(withMessage: "Cannot convert already disposed Depth Frame to Dictionary!")
+    }
+    guard let dictionary = depthData.dictionaryRepresentation(forAuxiliaryDataType: nil) else {
+      throw RuntimeError.error(withMessage: "Failed to convert Depth Frame to Dictionary!")
+    }
+    // [AnyHashable: Any] -> [String: Any] (drop all unsupported)
+    var stringDictionary: [String: Any] = [:]
+    for (key, value) in dictionary {
+      if let stringKey = key as? String {
+        stringDictionary[stringKey] = value
+      } else {
+        print("Depth Key \"\(key)\" cannot be converted to JS!")
+      }
+    }
+    // [String: Any] -> AnyMap
+    return AnyMap.fromDictionaryIgnoreIncompatible(stringDictionary)
   }
   
   func toDictionaryAsync(type: AuxilaryDepthType) throws -> Promise<AnyMap> {
-    <#code#>
+    return Promise.async {
+      return try self.toDictionary(type: type)
+    }
   }
 }

@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("thread", &HybridCameraDepthFrameOutputSpec::getThread);
       prototype.registerHybridMethod("setOnDepthFrameCallback", &HybridCameraDepthFrameOutputSpec::setOnDepthFrameCallback);
-      prototype.registerHybridMethod("setOnFrameDroppedCallback", &HybridCameraDepthFrameOutputSpec::setOnFrameDroppedCallback);
+      prototype.registerHybridMethod("setOnDepthFrameDroppedCallback", &HybridCameraDepthFrameOutputSpec::setOnDepthFrameDroppedCallback);
     });
   }
 

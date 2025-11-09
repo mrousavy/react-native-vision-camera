@@ -12,6 +12,8 @@
 // Forward declaration of `HybridPhotoSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridPhotoSpec_cxx; }
 
+// Forward declaration of `Orientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
@@ -19,6 +21,7 @@ namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
+#include "Orientation.hpp"
 #include <NitroModules/AnyMap.hpp>
 #include <memory>
 #include "HybridDepthSpec.hpp"
@@ -69,14 +72,21 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
+    inline bool getIsMirrored() noexcept override {
+      return _swiftPart.isMirrored();
+    }
+    inline Orientation getOrientation() noexcept override {
+      auto __result = _swiftPart.getOrientation();
+      return static_cast<Orientation>(__result);
+    }
     inline double getTimestamp() noexcept override {
       return _swiftPart.getTimestamp();
     }
     inline bool getIsRawPhoto() noexcept override {
       return _swiftPart.isRawPhoto();
     }
-    inline std::shared_ptr<AnyMap> getMetadata() noexcept override {
-      auto __result = _swiftPart.getMetadata();
+    inline std::shared_ptr<AnyMap> getExifMetadata() noexcept override {
+      auto __result = _swiftPart.getExifMetadata();
       return __result;
     }
     inline bool getHasPixelBuffer() noexcept override {

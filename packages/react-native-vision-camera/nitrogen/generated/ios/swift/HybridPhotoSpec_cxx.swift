@@ -116,6 +116,20 @@ open class HybridPhotoSpec_cxx {
   }
 
   // Properties
+  public final var isMirrored: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isMirrored
+    }
+  }
+  
+  public final var orientation: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.orientation.rawValue
+    }
+  }
+  
   public final var timestamp: Double {
     @inline(__always)
     get {
@@ -130,10 +144,10 @@ open class HybridPhotoSpec_cxx {
     }
   }
   
-  public final var metadata: margelo.nitro.SharedAnyMap {
+  public final var exifMetadata: margelo.nitro.SharedAnyMap {
     @inline(__always)
     get {
-      return self.__implementation.metadata.cppPart
+      return self.__implementation.exifMetadata.cppPart
     }
   }
   

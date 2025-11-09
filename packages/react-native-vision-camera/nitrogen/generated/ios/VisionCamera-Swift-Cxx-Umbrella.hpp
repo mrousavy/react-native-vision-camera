@@ -28,8 +28,6 @@ namespace margelo::nitro::camera { enum class ColorSpace; }
 namespace margelo::nitro::camera { enum class DepthDataAccuracy; }
 // Forward declaration of `DepthDataQuality` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthDataQuality; }
-// Forward declaration of `DepthFrameDroppedReason` to properly resolve imports.
-namespace margelo::nitro::camera { enum class DepthFrameDroppedReason; }
 // Forward declaration of `DepthPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthPixelFormat; }
 // Forward declaration of `DeviceType` to properly resolve imports.
@@ -126,7 +124,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "ColorSpace.hpp"
 #include "DepthDataAccuracy.hpp"
 #include "DepthDataQuality.hpp"
-#include "DepthFrameDroppedReason.hpp"
 #include "DepthPixelFormat.hpp"
 #include "DeviceType.hpp"
 #include "ExposureMode.hpp"

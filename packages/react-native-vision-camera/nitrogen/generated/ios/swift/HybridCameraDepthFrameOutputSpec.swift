@@ -15,7 +15,7 @@ public protocol HybridCameraDepthFrameOutputSpec_protocol: HybridObject, HybridC
 
   // Methods
   func setOnDepthFrameCallback(onDepthFrame: ((_ depth: (any HybridDepthSpec)) -> Bool)?) throws -> Void
-  func setOnFrameDroppedCallback(onFrameDropped: ((_ reason: DepthFrameDroppedReason) -> Void)?) throws -> Void
+  func setOnDepthFrameDroppedCallback(onDepthFrameDropped: ((_ reason: FrameDroppedReason) -> Void)?) throws -> Void
 }
 
 public extension HybridCameraDepthFrameOutputSpec_protocol {

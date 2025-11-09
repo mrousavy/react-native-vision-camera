@@ -16,4 +16,18 @@ class HybridCameraCalibrationData: HybridCameraCalibrationDataSpec {
     self.calibrationData = calibrationData
     super.init()
   }
+  
+  var pixelSize: Double {
+    return Double(calibrationData.pixelSize)
+  }
+  
+  var intrinsicMatrixReferenceDimensions: Size {
+    let cgSize = calibrationData.intrinsicMatrixReferenceDimensions
+    return Size(cgSize)
+  }
+  
+  var lensDistortionCenter: Point {
+    let cgPoint = calibrationData.lensDistortionCenter
+    return Point(cgPoint)
+  }
 }

@@ -14,7 +14,6 @@ struct ListenerPair {
 }
 
 class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
-  
   let discoverySession: AVCaptureDevice.DiscoverySession
   var cameraDevices: [any HybridCameraDeviceSpec]
 

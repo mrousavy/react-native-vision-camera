@@ -14,9 +14,11 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("isMirrored", &HybridPhotoSpec::getIsMirrored);
+      prototype.registerHybridGetter("orientation", &HybridPhotoSpec::getOrientation);
       prototype.registerHybridGetter("timestamp", &HybridPhotoSpec::getTimestamp);
       prototype.registerHybridGetter("isRawPhoto", &HybridPhotoSpec::getIsRawPhoto);
-      prototype.registerHybridGetter("metadata", &HybridPhotoSpec::getMetadata);
+      prototype.registerHybridGetter("exifMetadata", &HybridPhotoSpec::getExifMetadata);
       prototype.registerHybridGetter("hasPixelBuffer", &HybridPhotoSpec::getHasPixelBuffer);
       prototype.registerHybridGetter("hasPreviewPixelBuffer", &HybridPhotoSpec::getHasPreviewPixelBuffer);
       prototype.registerHybridGetter("depth", &HybridPhotoSpec::getDepth);

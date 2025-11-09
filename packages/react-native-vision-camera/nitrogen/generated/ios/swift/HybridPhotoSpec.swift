@@ -13,9 +13,11 @@ import NitroImage
 /// See ``HybridPhotoSpec``
 public protocol HybridPhotoSpec_protocol: HybridObject {
   // Properties
+  var isMirrored: Bool { get }
+  var orientation: Orientation { get }
   var timestamp: Double { get }
   var isRawPhoto: Bool { get }
-  var metadata: AnyMap { get }
+  var exifMetadata: AnyMap { get }
   var hasPixelBuffer: Bool { get }
   var hasPreviewPixelBuffer: Bool { get }
   var depth: (any HybridDepthSpec)? { get }

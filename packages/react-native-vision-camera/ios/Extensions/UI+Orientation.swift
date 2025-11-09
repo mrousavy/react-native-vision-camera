@@ -9,16 +9,17 @@ import AVFoundation
 import Foundation
 
 extension Orientation {
-  func toUIImageOrientation() -> UIImage.Orientation {
+  func toUIImageOrientation(isMirrored: Bool) -> UIImage.Orientation {
     switch self {
     case .up:
-      return .up
+      return isMirrored ? .upMirrored : .up
     case .down:
+      return isMirrored ? .downMirrored : .down
       return .down
     case .left:
-      return .left
+      return isMirrored ? .leftMirrored : .left
     case .right:
-      return .right
+      return isMirrored ? .rightMirrored : .right
     }
   }
 }

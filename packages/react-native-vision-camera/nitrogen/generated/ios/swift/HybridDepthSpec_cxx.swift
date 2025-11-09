@@ -116,10 +116,17 @@ open class HybridDepthSpec_cxx {
   }
 
   // Properties
-  public final var pixelFormat: Int32 {
+  public final var orientation: Int32 {
     @inline(__always)
     get {
-      return self.__implementation.pixelFormat.rawValue
+      return self.__implementation.orientation.rawValue
+    }
+  }
+  
+  public final var isMirrored: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isMirrored
     }
   }
   
@@ -127,6 +134,13 @@ open class HybridDepthSpec_cxx {
     @inline(__always)
     get {
       return self.__implementation.timestamp
+    }
+  }
+  
+  public final var pixelFormat: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.pixelFormat.rawValue
     }
   }
   
@@ -186,15 +200,20 @@ open class HybridDepthSpec_cxx {
       }()
     }
   }
-  
-  public final var orientation: Int32 {
-    @inline(__always)
-    get {
-      return self.__implementation.orientation.rawValue
-    }
-  }
 
   // Methods
+  @inline(__always)
+  public final func getDepthData() -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
+    do {
+      let __result = try self.__implementation.getDepthData()
+      let __resultCpp = __result.getArrayBuffer()
+      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
+    }
+  }
+  
   @inline(__always)
   public final func rotate(orientation: Int32, isMirrored: Bool) -> bridge.Result_std__shared_ptr_HybridDepthSpec__ {
     do {
@@ -235,7 +254,7 @@ open class HybridDepthSpec_cxx {
   @inline(__always)
   public final func convert(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_HybridDepthSpec__ {
     do {
-      let __result = try self.__implementation.convert(pixelFormat: margelo.nitro.camera.TargetDepthPixelFormat(rawValue: pixelFormat)!)
+      let __result = try self.__implementation.convert(pixelFormat: margelo.nitro.camera.DepthPixelFormat(rawValue: pixelFormat)!)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridDepthSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
@@ -250,7 +269,7 @@ open class HybridDepthSpec_cxx {
   @inline(__always)
   public final func convertAsync(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec____ {
     do {
-      let __result = try self.__implementation.convertAsync(pixelFormat: margelo.nitro.camera.TargetDepthPixelFormat(rawValue: pixelFormat)!)
+      let __result = try self.__implementation.convertAsync(pixelFormat: margelo.nitro.camera.DepthPixelFormat(rawValue: pixelFormat)!)
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___(__promise)

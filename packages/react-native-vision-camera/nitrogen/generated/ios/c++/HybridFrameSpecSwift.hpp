@@ -93,6 +93,9 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getOrientation();
       return static_cast<Orientation>(__result);
     }
+    inline bool getIsMirrored() noexcept override {
+      return _swiftPart.isMirrored();
+    }
     inline bool getIsPlanar() noexcept override {
       return _swiftPart.isPlanar();
     }

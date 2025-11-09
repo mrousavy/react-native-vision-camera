@@ -418,10 +418,10 @@ namespace margelo::nitro::camera::bridge::swift {
     };
   }
   
-  // pragma MARK: std::function<void(DepthFrameDroppedReason /* reason */)>
-  Func_void_DepthFrameDroppedReason create_Func_void_DepthFrameDroppedReason(void* NON_NULL swiftClosureWrapper) noexcept {
-    auto swiftClosure = VisionCamera::Func_void_DepthFrameDroppedReason::fromUnsafe(swiftClosureWrapper);
-    return [swiftClosure = std::move(swiftClosure)](DepthFrameDroppedReason reason) mutable -> void {
+  // pragma MARK: std::function<void(FrameDroppedReason /* reason */)>
+  Func_void_FrameDroppedReason create_Func_void_FrameDroppedReason(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_FrameDroppedReason::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](FrameDroppedReason reason) mutable -> void {
       swiftClosure.call(static_cast<int>(reason));
     };
   }
@@ -432,14 +432,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<HybridFrameSpec>& frame) mutable -> bool {
       auto __result = swiftClosure.call(frame);
       return __result;
-    };
-  }
-  
-  // pragma MARK: std::function<void(FrameDroppedReason /* reason */)>
-  Func_void_FrameDroppedReason create_Func_void_FrameDroppedReason(void* NON_NULL swiftClosureWrapper) noexcept {
-    auto swiftClosure = VisionCamera::Func_void_FrameDroppedReason::fromUnsafe(swiftClosureWrapper);
-    return [swiftClosure = std::move(swiftClosure)](FrameDroppedReason reason) mutable -> void {
-      swiftClosure.call(static_cast<int>(reason));
     };
   }
   

@@ -149,6 +149,11 @@ export interface Frame extends HybridObject<{ ios: 'swift' }> {
    */
   readonly orientation: Orientation
   /**
+   * Gets whether this {@linkcode Frame} is mirrored alongside the
+   * vertical axis.
+   */
+  readonly isMirrored: boolean
+  /**
    * Returns whether this {@linkcode Frame} is **planar** or **non-planar**.
    * - If a Frame is **planar** (e.g. YUV), you should only access it's pixel buffer
    * via {@linkcode getPlanes()} instead of {@linkcode getPixelBuffer()}.

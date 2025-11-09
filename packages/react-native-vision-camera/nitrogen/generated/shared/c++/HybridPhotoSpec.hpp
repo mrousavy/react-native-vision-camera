@@ -13,11 +13,14 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `Orientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
+#include "Orientation.hpp"
 #include <NitroModules/AnyMap.hpp>
 #include <memory>
 #include "HybridDepthSpec.hpp"
@@ -54,9 +57,11 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
+      virtual bool getIsMirrored() = 0;
+      virtual Orientation getOrientation() = 0;
       virtual double getTimestamp() = 0;
       virtual bool getIsRawPhoto() = 0;
-      virtual std::shared_ptr<AnyMap> getMetadata() = 0;
+      virtual std::shared_ptr<AnyMap> getExifMetadata() = 0;
       virtual bool getHasPixelBuffer() = 0;
       virtual bool getHasPreviewPixelBuffer() = 0;
       virtual std::optional<std::shared_ptr<HybridDepthSpec>> getDepth() = 0;

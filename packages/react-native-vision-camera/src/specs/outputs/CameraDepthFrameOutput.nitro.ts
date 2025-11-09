@@ -2,12 +2,7 @@ import type { CameraOutput } from './CameraOutput.nitro'
 import type { Sync } from 'react-native-nitro-modules'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
 import type { Depth } from '../instances/Depth.nitro'
-
-export type DepthFrameDroppedReason =
-  | 'frame-was-late'
-  | 'out-of-buffers'
-  | 'discontinuity'
-  | 'unknown'
+import type { FrameDroppedReason } from '../common-types/FrameDroppedReason'
 
 export interface CameraDepthFrameOutput extends CameraOutput {
   /**
@@ -32,7 +27,7 @@ export interface CameraDepthFrameOutput extends CameraOutput {
    * This often happens if your Depth Frame Callback is taking longer
    * than a frame interval.
    */
-  setOnFrameDroppedCallback(
-    onFrameDropped: ((reason: DepthFrameDroppedReason) => void) | undefined
+  setOnDepthFrameDroppedCallback(
+    onDepthFrameDropped: ((reason: FrameDroppedReason) => void) | undefined
   ): void
 }

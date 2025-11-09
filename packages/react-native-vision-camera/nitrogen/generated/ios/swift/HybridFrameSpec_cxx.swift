@@ -158,6 +158,13 @@ open class HybridFrameSpec_cxx {
     }
   }
   
+  public final var isMirrored: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.isMirrored
+    }
+  }
+  
   public final var isPlanar: Bool {
     @inline(__always)
     get {

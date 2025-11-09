@@ -13,6 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `Orientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `DepthPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthPixelFormat; }
 // Forward declaration of `DepthDataAccuracy` to properly resolve imports.
@@ -21,17 +23,14 @@ namespace margelo::nitro::camera { enum class DepthDataAccuracy; }
 namespace margelo::nitro::camera { enum class DepthDataQuality; }
 // Forward declaration of `HybridCameraCalibrationDataSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraCalibrationDataSpec; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
-// Forward declaration of `TargetDepthPixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `AuxilaryDepthType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class AuxilaryDepthType; }
 
+#include "Orientation.hpp"
 #include "DepthPixelFormat.hpp"
 #include "DepthDataAccuracy.hpp"
 #include "DepthDataQuality.hpp"
@@ -39,10 +38,9 @@ namespace margelo::nitro::camera { enum class AuxilaryDepthType; }
 #include <memory>
 #include "HybridCameraCalibrationDataSpec.hpp"
 #include <optional>
-#include "Orientation.hpp"
+#include <NitroModules/ArrayBuffer.hpp>
 #include "HybridDepthSpec.hpp"
 #include <NitroModules/Promise.hpp>
-#include "TargetDepthPixelFormat.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include "AuxilaryDepthType.hpp"
@@ -74,22 +72,24 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual DepthPixelFormat getPixelFormat() = 0;
+      virtual Orientation getOrientation() = 0;
+      virtual bool getIsMirrored() = 0;
       virtual double getTimestamp() = 0;
+      virtual DepthPixelFormat getPixelFormat() = 0;
       virtual bool getIsValid() = 0;
       virtual bool getIsDepthDataFiltered() = 0;
       virtual DepthDataAccuracy getDepthDataAccuracy() = 0;
       virtual DepthDataQuality getDepthDataQuality() = 0;
       virtual std::vector<DepthPixelFormat> getAvailableDepthPixelFormats() = 0;
       virtual std::optional<std::shared_ptr<HybridCameraCalibrationDataSpec>> getCameraCalibrationData() = 0;
-      virtual Orientation getOrientation() = 0;
 
     public:
       // Methods
+      virtual std::shared_ptr<ArrayBuffer> getDepthData() = 0;
       virtual std::shared_ptr<HybridDepthSpec> rotate(Orientation orientation, bool isMirrored) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(Orientation orientation, bool isMirrored) = 0;
-      virtual std::shared_ptr<HybridDepthSpec> convert(TargetDepthPixelFormat pixelFormat) = 0;
-      virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(TargetDepthPixelFormat pixelFormat) = 0;
+      virtual std::shared_ptr<HybridDepthSpec> convert(DepthPixelFormat pixelFormat) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> toImageAsync() = 0;
       virtual std::shared_ptr<AnyMap> toDictionary(AuxilaryDepthType type) = 0;

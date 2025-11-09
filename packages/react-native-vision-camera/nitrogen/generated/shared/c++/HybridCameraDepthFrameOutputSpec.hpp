@@ -17,8 +17,8 @@
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
-// Forward declaration of `DepthFrameDroppedReason` to properly resolve imports.
-namespace margelo::nitro::camera { enum class DepthFrameDroppedReason; }
+// Forward declaration of `FrameDroppedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 
@@ -27,7 +27,7 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 #include "HybridDepthSpec.hpp"
 #include <functional>
 #include <optional>
-#include "DepthFrameDroppedReason.hpp"
+#include "FrameDroppedReason.hpp"
 #include "HybridCameraOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
@@ -62,7 +62,7 @@ namespace margelo::nitro::camera {
     public:
       // Methods
       virtual void setOnDepthFrameCallback(const std::optional<std::function<bool(const std::shared_ptr<HybridDepthSpec>& /* depth */)>>& onDepthFrame) = 0;
-      virtual void setOnFrameDroppedCallback(const std::optional<std::function<void(DepthFrameDroppedReason /* reason */)>>& onFrameDropped) = 0;
+      virtual void setOnDepthFrameDroppedCallback(const std::optional<std::function<void(FrameDroppedReason /* reason */)>>& onDepthFrameDropped) = 0;
 
     protected:
       // Hybrid Setup

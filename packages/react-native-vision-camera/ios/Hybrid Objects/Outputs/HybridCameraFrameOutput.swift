@@ -61,9 +61,9 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
 
   func setOnFrameCallback(onFrame: ((any HybridFrameSpec) -> Bool)?) throws {
     if let onFrame {
-      delegate.onFrame = { (sampleBuffer, orientation) in
+      delegate.onFrame = { (sampleBuffer, metadata) in
         let frame = HybridFrame(buffer: sampleBuffer,
-                                orientation: orientation)
+                                metadata: metadata)
         _ = onFrame(frame)
       }
     } else {

@@ -34,8 +34,9 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
     // 1. Prepare delegate that will resolve/reject Promise
     let promise = Promise<any HybridPhotoSpec>()
     let delegate = CapturePhotoDelegate(
-      onCaptured: { photo in
-        let image = HybridPhoto(photo: photo)
+      onCaptured: { photo, metadata in
+        let image = HybridPhoto(photo: photo,
+                                metadata: metadata)
         promise.resolve(withResult: image)
       },
       onError: { error in
