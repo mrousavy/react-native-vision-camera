@@ -23,7 +23,7 @@ function App() {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const session = useMemo(() => HybridCameraFactory.createCameraSession('multi-cam'), [])
+  const session = useMemo(() => HybridCameraFactory.createCameraSession('single-cam'), [])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
 
@@ -51,6 +51,7 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+        frame.dispose()
         return true
       })
     })
@@ -70,9 +71,6 @@ function AppContent() {
         const video = createVideoOutput()
         const controller = await session.configure([
           {
-            input: deviceFront,
-            outputs: [previewFront]
-          },{
             input: deviceBack,
             outputs: [previewBack, video]
           },

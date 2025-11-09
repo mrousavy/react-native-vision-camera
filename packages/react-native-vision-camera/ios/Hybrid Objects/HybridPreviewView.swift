@@ -9,7 +9,7 @@ import NitroModules
 import AVFoundation
 
 class HybridPreviewView: HybridPreviewViewSpec {
-  var view: UIView = UIView()
+  var view: UIView = AutoLayerResizingView()
   var previewOutput: (any HybridCameraSessionPreviewOutputSpec)? {
     didSet {
       updatePreviewLayer()
