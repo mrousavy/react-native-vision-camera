@@ -14,8 +14,6 @@ namespace VisionCamera { class HybridCameraSessionSpec_cxx; }
 
 // Forward declaration of `HybridNativeThreadSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridNativeThreadSpec; }
-// Forward declaration of `CameraSessionType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraSessionType; }
 // Forward declaration of `HybridCameraDeviceControllerSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceControllerSpec; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
@@ -27,7 +25,6 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 
 #include <memory>
 #include "HybridNativeThreadSpec.hpp"
-#include "CameraSessionType.hpp"
 #include "HybridCameraDeviceControllerSpec.hpp"
 #include <vector>
 #include <NitroModules/Promise.hpp>
@@ -82,9 +79,8 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getCameraThread();
       return __result;
     }
-    inline CameraSessionType getSessionType() noexcept override {
-      auto __result = _swiftPart.getSessionType();
-      return static_cast<CameraSessionType>(__result);
+    inline bool getSupportsMultiCam() noexcept override {
+      return _swiftPart.getSupportsMultiCam();
     }
 
   public:

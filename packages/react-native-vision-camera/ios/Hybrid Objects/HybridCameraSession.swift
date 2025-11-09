@@ -10,18 +10,15 @@ import AVFoundation
 
 class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
-  let sessionType: CameraSessionType
   private let queue: DispatchQueue
 
-  init(sessionType: CameraSessionType) {
-    switch sessionType {
-    case .singleCam:
-      self.session = AVCaptureSession()
-    case .multiCam:
+  init(enableMultiCam: Bool) {
+    if enableMultiCam {
       self.session = AVCaptureMultiCamSession()
+    } else {
+      self.session = AVCaptureSession()
     }
-    self.sessionType = sessionType
-    self.queue = DispatchQueue(label: "com.margelo.camera.session-\(sessionType.stringValue)",
+    self.queue = DispatchQueue(label: "com.margelo.camera.session-\(self.session)",
                                qos: .userInteractive,
                                attributes: [],
                                autoreleaseFrequency: .inherit,
@@ -34,6 +31,9 @@ class HybridCameraSession: HybridCameraSessionSpec {
   }
   var isRunning: Bool {
     return session.isRunning
+  }
+  var supportsMultiCam: Bool {
+    return session is AVCaptureMultiCamSession
   }
 
   func configure(connections: [CameraSessionConnection]) -> Promise<[any HybridCameraDeviceControllerSpec]> {
@@ -50,8 +50,8 @@ class HybridCameraSession: HybridCameraSessionSpec {
       let allInputs = connections.map { $0.input }.withoutDuplicates { left, right in left === right }
       // Ensure multi-cam is enabled if we have multiple inputs
       if allInputs.count > 1 {
-        guard self.sessionType == .multiCam else {
-          throw RuntimeError.error(withMessage: "Cannot add multiple inputs (\(allInputs)) to a single-cam CameraSession! " + "Create your CameraSession as a \"multi-cam\" to add multiple camera inputs.")
+        guard self.supportsMultiCam else {
+          throw RuntimeError.error(withMessage: "Cannot add multiple inputs (\(allInputs)) to a single-cam CameraSession! " + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
         }
       }
 

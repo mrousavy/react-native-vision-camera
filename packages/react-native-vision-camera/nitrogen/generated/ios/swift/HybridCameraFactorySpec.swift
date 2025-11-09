@@ -12,11 +12,11 @@ import NitroModules
 /// See ``HybridCameraFactorySpec``
 public protocol HybridCameraFactorySpec_protocol: HybridObject {
   // Properties
-  
+  var supportsMultiCamSessions: Bool { get }
 
   // Methods
   func createDeviceFactory() throws -> Promise<(any HybridCameraDeviceFactorySpec)>
-  func createCameraSession(sessionType: CameraSessionType) throws -> (any HybridCameraSessionSpec)
+  func createCameraSession(enableMultiCam: Bool) throws -> (any HybridCameraSessionSpec)
   func createPhotoOutput() throws -> (any HybridCameraSessionPhotoOutputSpec)
   func createFrameOutput(pixelFormat: TargetPixelFormat) throws -> (any HybridCameraSessionFrameOutputSpec)
   func createPreviewOutput() throws -> (any HybridCameraSessionPreviewOutputSpec)

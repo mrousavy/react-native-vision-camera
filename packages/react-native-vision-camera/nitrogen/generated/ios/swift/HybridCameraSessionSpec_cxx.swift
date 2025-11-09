@@ -132,10 +132,10 @@ open class HybridCameraSessionSpec_cxx {
     }
   }
   
-  public final var sessionType: Int32 {
+  public final var supportsMultiCam: Bool {
     @inline(__always)
     get {
-      return self.__implementation.sessionType.rawValue
+      return self.__implementation.supportsMultiCam
     }
   }
 

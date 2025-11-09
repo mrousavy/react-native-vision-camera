@@ -27,12 +27,10 @@ export interface CameraSessionConnection {
   outputs: CameraOutput[]
 }
 
-export type CameraSessionType = 'single-cam' | 'multi-cam'
-
 export interface CameraSession extends HybridObject<{ ios: 'swift' }> {
   readonly isRunning: boolean
   readonly cameraThread: NativeThread
-  readonly sessionType: CameraSessionType
+  readonly supportsMultiCam: boolean
   configure(
     connections: CameraSessionConnection[]
   ): Promise<CameraDeviceController[]>

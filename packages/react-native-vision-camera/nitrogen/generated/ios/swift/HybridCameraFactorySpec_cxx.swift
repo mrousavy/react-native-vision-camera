@@ -115,7 +115,12 @@ open class HybridCameraFactorySpec_cxx {
   }
 
   // Properties
-  
+  public final var supportsMultiCamSessions: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.supportsMultiCamSessions
+    }
+  }
 
   // Methods
   @inline(__always)
@@ -141,9 +146,9 @@ open class HybridCameraFactorySpec_cxx {
   }
   
   @inline(__always)
-  public final func createCameraSession(sessionType: Int32) -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
+  public final func createCameraSession(enableMultiCam: Bool) -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
     do {
-      let __result = try self.__implementation.createCameraSession(sessionType: margelo.nitro.camera.CameraSessionType(rawValue: sessionType)!)
+      let __result = try self.__implementation.createCameraSession(enableMultiCam: enableMultiCam)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()

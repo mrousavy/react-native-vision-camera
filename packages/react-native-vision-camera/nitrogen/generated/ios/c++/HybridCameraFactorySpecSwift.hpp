@@ -16,8 +16,6 @@ namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
-// Forward declaration of `CameraSessionType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraSessionType; }
 // Forward declaration of `HybridCameraSessionPhotoOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionPhotoOutputSpec; }
 // Forward declaration of `HybridCameraSessionFrameOutputSpec` to properly resolve imports.
@@ -31,7 +29,6 @@ namespace margelo::nitro::camera { class HybridCameraSessionPreviewOutputSpec; }
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include <NitroModules/Promise.hpp>
 #include "HybridCameraSessionSpec.hpp"
-#include "CameraSessionType.hpp"
 #include "HybridCameraSessionPhotoOutputSpec.hpp"
 #include "HybridCameraSessionFrameOutputSpec.hpp"
 #include "TargetPixelFormat.hpp"
@@ -77,7 +74,9 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    inline bool getSupportsMultiCamSessions() noexcept override {
+      return _swiftPart.getSupportsMultiCamSessions();
+    }
 
   public:
     // Methods
@@ -89,8 +88,8 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridCameraSessionSpec> createCameraSession(CameraSessionType sessionType) override {
-      auto __result = _swiftPart.createCameraSession(static_cast<int>(sessionType));
+    inline std::shared_ptr<HybridCameraSessionSpec> createCameraSession(bool enableMultiCam) override {
+      auto __result = _swiftPart.createCameraSession(std::forward<decltype(enableMultiCam)>(enableMultiCam));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

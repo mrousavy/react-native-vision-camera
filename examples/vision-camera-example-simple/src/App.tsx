@@ -23,7 +23,7 @@ function App() {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const session = useMemo(() => HybridCameraFactory.createCameraSession('single-cam'), [])
+  const session = useMemo(() => HybridCameraFactory.createCameraSession(false), [])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
 

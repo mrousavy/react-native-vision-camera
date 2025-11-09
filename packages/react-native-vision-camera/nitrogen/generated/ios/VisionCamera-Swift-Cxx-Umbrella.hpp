@@ -16,8 +16,6 @@ namespace margelo::nitro::camera { enum class CameraOutputType; }
 namespace margelo::nitro::camera { enum class CameraPosition; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConnection; }
-// Forward declaration of `CameraSessionType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraSessionType; }
 // Forward declaration of `CapturePhotoCallbacks` to properly resolve imports.
 namespace margelo::nitro::camera { struct CapturePhotoCallbacks; }
 // Forward declaration of `CapturePhotoSettings` to properly resolve imports.
@@ -102,7 +100,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "CameraOutputType.hpp"
 #include "CameraPosition.hpp"
 #include "CameraSessionConnection.hpp"
-#include "CameraSessionType.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include "CapturePhotoSettings.hpp"
 #include "ColorSpace.hpp"

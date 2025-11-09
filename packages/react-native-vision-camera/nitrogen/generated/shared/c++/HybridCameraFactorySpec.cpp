@@ -14,6 +14,7 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
+      prototype.registerHybridGetter("supportsMultiCamSessions", &HybridCameraFactorySpec::getSupportsMultiCamSessions);
       prototype.registerHybridMethod("createDeviceFactory", &HybridCameraFactorySpec::createDeviceFactory);
       prototype.registerHybridMethod("createCameraSession", &HybridCameraFactorySpec::createCameraSession);
       prototype.registerHybridMethod("createPhotoOutput", &HybridCameraFactorySpec::createPhotoOutput);
