@@ -14,6 +14,9 @@ extension AVCaptureConnection {
       // a) It's a normal AVCaptureSessionOutput - connect it to all it's desired ports
       let mediaType = output.mediaType.toAVMediaType()
       let ports = input.ports(for: mediaType, sourceDeviceType: nil, sourceDevicePosition: .unspecified)
+      guard !ports.isEmpty else {
+        throw RuntimeError.error(withMessage: "Connection input \"\(input)\" does not have any ports with the requested media type \"\(output.mediaType.stringValue)\"!")
+      }
       self.init(inputPorts: ports, output: hybridOutput.output)
     } else if let hybridPreview = output as? NativePreviewViewOutput {
       // b) It's a preview AVCapturePreviewLayer
