@@ -117,10 +117,10 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
         device.activeFormat = hybridFormat.format
       }
       if let fps = config.fps {
-        device.activeVideoMaxFrameDuration = CMTime(seconds: 1.0 / fps.min,
-                                                    preferredTimescale: device.activeVideoMaxFrameDuration.timescale)
-        device.activeVideoMinFrameDuration = CMTime(seconds: 1.0 / fps.max,
-                                                    preferredTimescale: device.activeVideoMaxFrameDuration.timescale)
+        print("Now: \(device.activeVideoMaxFrameDuration.seconds)...\(device.activeVideoMinFrameDuration.seconds)")
+        device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: Int32(fps.min))
+        device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: Int32(fps.max))
+        print("After: \(device.activeVideoMaxFrameDuration.seconds)...\(device.activeVideoMinFrameDuration.seconds)")
       }
       if let zoom = config.zoom, device.videoZoomFactor != zoom {
         // .zoom changed!

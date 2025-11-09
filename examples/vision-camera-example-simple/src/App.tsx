@@ -83,6 +83,12 @@ function AppContent() {
         })))
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
+        controllers.current.forEach((c) => {
+          const format = c.device.formats.find((f) => f.supportsMultiCam && f.supportedFrameRateRanges.some((r) => r.max >= 120))
+          const maxFps = format != null ? 120 : 30
+          console.log(format?.videoResolution, maxFps)
+          c.configure({ activeFormat : format, fps: { min: maxFps, max: maxFps } })
+        })
 
         await session.start()
         const mark3 = performance.now()
