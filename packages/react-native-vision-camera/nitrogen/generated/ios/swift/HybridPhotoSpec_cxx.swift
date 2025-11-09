@@ -150,6 +150,22 @@ open class HybridPhotoSpec_cxx {
       return self.__implementation.hasPreviewPixelBuffer
     }
   }
+  
+  public final var depth: bridge.std__optional_std__shared_ptr_HybridDepthSpec__ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_std__shared_ptr_HybridDepthSpec__ in
+        if let __unwrappedValue = self.__implementation.depth {
+          return bridge.create_std__optional_std__shared_ptr_HybridDepthSpec__({ () -> bridge.std__shared_ptr_HybridDepthSpec_ in
+            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
 
   // Methods
   @inline(__always)

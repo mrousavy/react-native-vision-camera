@@ -1,5 +1,6 @@
 import type { Image } from 'react-native-nitro-image'
 import type { AnyMap, HybridObject } from 'react-native-nitro-modules'
+import type { Depth } from './Depth.nitro'
 
 export interface Photo extends HybridObject<{ ios: 'swift' }> {
   readonly timestamp: number
@@ -13,6 +14,8 @@ export interface Photo extends HybridObject<{ ios: 'swift' }> {
   getPreviewPixelBuffer(): ArrayBuffer
   toPreviewImage(): Image
   toPreviewImageAsync(): Promise<Image>
+
+  readonly depth?: Depth
 
   saveToFileAsync(path: string, quality: number): Promise<void>
   saveToTemporaryFileAsync(quality: number): Promise<string>

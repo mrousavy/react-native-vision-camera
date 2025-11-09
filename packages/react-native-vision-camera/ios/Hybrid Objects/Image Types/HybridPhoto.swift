@@ -35,6 +35,13 @@ class HybridPhoto: HybridPhotoSpec {
   var metadata: AnyMap {
     return AnyMap.fromDictionaryIgnoreIncompatible(photo.metadata)
   }
+  
+  var depth: (any HybridDepthSpec)? {
+    guard let depthData = photo.depthData else {
+      return nil
+    }
+    return HybridDepth(depthData: depthData)
+  }
 
   // pragma MARK: Pixel Buffer access
 

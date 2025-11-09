@@ -20,8 +20,12 @@ namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
 namespace margelo::nitro::camera { class HybridCameraPhotoOutputSpec; }
 // Forward declaration of `HybridCameraFrameOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFrameOutputSpec; }
-// Forward declaration of `TargetPixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class TargetPixelFormat; }
+// Forward declaration of `TargetVideoPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetVideoPixelFormat; }
+// Forward declaration of `HybridCameraDepthFrameOutputSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDepthFrameOutputSpec; }
+// Forward declaration of `TargetDepthPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 // Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
@@ -31,7 +35,9 @@ namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 #include "HybridCameraSessionSpec.hpp"
 #include "HybridCameraPhotoOutputSpec.hpp"
 #include "HybridCameraFrameOutputSpec.hpp"
-#include "TargetPixelFormat.hpp"
+#include "TargetVideoPixelFormat.hpp"
+#include "HybridCameraDepthFrameOutputSpec.hpp"
+#include "TargetDepthPixelFormat.hpp"
 #include "HybridCameraPreviewOutputSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -104,8 +110,16 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridCameraFrameOutputSpec> createFrameOutput(TargetPixelFormat pixelFormat) override {
+    inline std::shared_ptr<HybridCameraFrameOutputSpec> createFrameOutput(TargetVideoPixelFormat pixelFormat) override {
       auto __result = _swiftPart.createFrameOutput(static_cast<int>(pixelFormat));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<HybridCameraDepthFrameOutputSpec> createDepthFrameOutput(TargetDepthPixelFormat pixelFormat) override {
+      auto __result = _swiftPart.createDepthFrameOutput(static_cast<int>(pixelFormat));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

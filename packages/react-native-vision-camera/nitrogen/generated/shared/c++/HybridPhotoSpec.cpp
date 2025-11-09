@@ -19,6 +19,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("metadata", &HybridPhotoSpec::getMetadata);
       prototype.registerHybridGetter("hasPixelBuffer", &HybridPhotoSpec::getHasPixelBuffer);
       prototype.registerHybridGetter("hasPreviewPixelBuffer", &HybridPhotoSpec::getHasPreviewPixelBuffer);
+      prototype.registerHybridGetter("depth", &HybridPhotoSpec::getDepth);
       prototype.registerHybridMethod("getPixelBuffer", &HybridPhotoSpec::getPixelBuffer);
       prototype.registerHybridMethod("getPreviewPixelBuffer", &HybridPhotoSpec::getPreviewPixelBuffer);
       prototype.registerHybridMethod("toPreviewImage", &HybridPhotoSpec::toPreviewImage);

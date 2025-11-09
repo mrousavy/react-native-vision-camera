@@ -69,12 +69,12 @@ class HybridFrame: HybridFrameSpec, NativeFrame {
     return CVPixelBufferIsPlanar(pixelBuffer)
   }
 
-  var pixelFormat: PixelFormat {
+  var pixelFormat: VideoPixelFormat {
     guard let pixelBuffer else {
       return .unknown
     }
     let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
-    return PixelFormat(osType: format)
+    return VideoPixelFormat(osType: format)
   }
 
   var planesCount: Double {

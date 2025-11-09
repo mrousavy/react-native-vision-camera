@@ -37,15 +37,18 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridFramePlaneSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridFrameSpec.cpp
-  ../nitrogen/generated/shared/c++/HybridPhotoSpec.cpp
   ../nitrogen/generated/shared/c++/HybridPreviewViewSpec.cpp
   ../nitrogen/generated/shared/c++/views/HybridPreviewViewComponent.cpp
   ../nitrogen/generated/shared/c++/HybridNativeThreadSpec.cpp
   ../nitrogen/generated/shared/c++/HybridWorkletQueueFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraDeviceFactorySpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraCalibrationDataSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridDepthSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFramePlaneSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFrameSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridPhotoSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridCameraDepthFrameOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFrameOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraOutputSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraPhotoOutputSpec.cpp

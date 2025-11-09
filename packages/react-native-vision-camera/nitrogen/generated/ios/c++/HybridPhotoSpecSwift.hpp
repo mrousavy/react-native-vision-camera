@@ -12,15 +12,19 @@
 // Forward declaration of `HybridPhotoSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridPhotoSpec_cxx; }
 
+// Forward declaration of `HybridDepthSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridDepthSpec; }
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
 namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include <NitroModules/AnyMap.hpp>
+#include <memory>
+#include "HybridDepthSpec.hpp"
+#include <optional>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
-#include <memory>
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 #include <string>
@@ -80,6 +84,10 @@ namespace margelo::nitro::camera {
     }
     inline bool getHasPreviewPixelBuffer() noexcept override {
       return _swiftPart.hasPreviewPixelBuffer();
+    }
+    inline std::optional<std::shared_ptr<HybridDepthSpec>> getDepth() noexcept override {
+      auto __result = _swiftPart.getDepth();
+      return __result;
     }
 
   public:

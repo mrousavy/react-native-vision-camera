@@ -1,5 +1,5 @@
 import type { CameraOutput } from './CameraOutput.nitro'
-import type { Frame } from '../Frame.nitro'
+import type { Frame } from '../instances/Frame.nitro'
 import type { Sync } from 'react-native-nitro-modules'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
 

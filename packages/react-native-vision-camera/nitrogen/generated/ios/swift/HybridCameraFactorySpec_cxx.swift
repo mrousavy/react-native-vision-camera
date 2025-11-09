@@ -178,7 +178,7 @@ open class HybridCameraFactorySpec_cxx {
   @inline(__always)
   public final func createFrameOutput(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_HybridCameraFrameOutputSpec__ {
     do {
-      let __result = try self.__implementation.createFrameOutput(pixelFormat: margelo.nitro.camera.TargetPixelFormat(rawValue: pixelFormat)!)
+      let __result = try self.__implementation.createFrameOutput(pixelFormat: margelo.nitro.camera.TargetVideoPixelFormat(rawValue: pixelFormat)!)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraFrameOutputSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
@@ -187,6 +187,21 @@ open class HybridCameraFactorySpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_std__shared_ptr_HybridCameraFrameOutputSpec__(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func createDepthFrameOutput(pixelFormat: Int32) -> bridge.Result_std__shared_ptr_HybridCameraDepthFrameOutputSpec__ {
+    do {
+      let __result = try self.__implementation.createDepthFrameOutput(pixelFormat: margelo.nitro.camera.TargetDepthPixelFormat(rawValue: pixelFormat)!)
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraDepthFrameOutputSpec_ in
+        let __cxxWrapped = __result.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+      return bridge.create_Result_std__shared_ptr_HybridCameraDepthFrameOutputSpec__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_HybridCameraDepthFrameOutputSpec__(__exceptionPtr)
     }
   }
   

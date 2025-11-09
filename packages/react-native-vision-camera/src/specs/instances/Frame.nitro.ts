@@ -1,7 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { PixelFormat } from './common-types/PixelFormat'
 import type { Image } from 'react-native-nitro-image'
-import type { Orientation } from './common-types/Orientation'
+import type { Orientation } from '../common-types/Orientation'
+import type { VideoPixelFormat } from '../common-types/VideoPixelFormat'
 
 /**
  * Represents a single Plane of a **planar** {@linkcode Frame}.
@@ -111,15 +111,15 @@ export interface Frame extends HybridObject<{ ios: 'swift' }> {
    */
   readonly height: number
   /**
-   * Gets the {@linkcode PixelFormat} of this Frame's pixel data.
-   * Common formats are {@linkcode PixelFormat | 'yuv-420-8-bit-video'}
-   * for native YUV Frames, or {@linkcode PixelFormat | 'rgb-bgra-32-bit'}
+   * Gets the {@linkcode VideoPixelFormat} of this Frame's pixel data.
+   * Common formats are {@linkcode VideoPixelFormat | 'yuv-420-8-bit-video'}
+   * for native YUV Frames, or {@linkcode VideoPixelFormat | 'rgb-bgra-32-bit'}
    * for processed RGB Frames.
    *
    * @note If this Frame is invalid ({@linkcode isValid}), this just returns
    * {@linkcode PixelFormat | 'unknown'}.
    */
-  readonly pixelFormat: PixelFormat
+  readonly pixelFormat: VideoPixelFormat
   /**
    * Gets the orientation this {@linkcode Frame} is rotated in
    * respective to the Camera's desired orientation.

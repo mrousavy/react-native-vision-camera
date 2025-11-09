@@ -13,12 +13,16 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `HybridDepthSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridDepthSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include <NitroModules/AnyMap.hpp>
-#include <NitroModules/ArrayBuffer.hpp>
 #include <memory>
+#include "HybridDepthSpec.hpp"
+#include <optional>
+#include <NitroModules/ArrayBuffer.hpp>
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/Promise.hpp>
 #include <string>
@@ -55,6 +59,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<AnyMap> getMetadata() = 0;
       virtual bool getHasPixelBuffer() = 0;
       virtual bool getHasPreviewPixelBuffer() = 0;
+      virtual std::optional<std::shared_ptr<HybridDepthSpec>> getDepth() = 0;
 
     public:
       // Methods

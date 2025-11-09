@@ -39,7 +39,7 @@ function createVideoOutput(id: number): CameraOutput {
     'worklet'
     const unboxed = boxedOutput.unbox()
     unboxed.setOnFrameCallback((frame) => {
-      console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+      // console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
       frame.dispose()
       return true
     })

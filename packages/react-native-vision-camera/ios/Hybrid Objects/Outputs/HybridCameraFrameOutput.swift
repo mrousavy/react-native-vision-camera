@@ -18,7 +18,7 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
     return videoOutput
   }
 
-  init(targetPixelFormat: TargetPixelFormat) {
+  init(targetPixelFormat: TargetVideoPixelFormat) {
     self.videoOutput = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
     self.queue = DispatchQueue(label: "com.margelo.camera.frame",
@@ -42,7 +42,7 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
     }
   }
 
-  private func videoSettingsForPixelFormat(_ targetPixelFormat: TargetPixelFormat) -> [String: Any] {
+  private func videoSettingsForPixelFormat(_ targetPixelFormat: TargetVideoPixelFormat) -> [String: Any] {
     let pixelFormat = targetPixelFormat.toCVPixelFormatType()
     if case let .specific(format) = pixelFormat {
       // Use a specific format (e.g. 32 BGRA)

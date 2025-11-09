@@ -1,5 +1,5 @@
 import type { CameraOutput } from './CameraOutput.nitro'
-import type { Photo } from '../Photo.nitro'
+import type { Photo } from '../instances/Photo.nitro'
 
 export interface CapturePhotoCallbacks {
   onWillBeginCapture?: () => void

@@ -18,6 +18,7 @@ public protocol HybridPhotoSpec_protocol: HybridObject {
   var metadata: AnyMap { get }
   var hasPixelBuffer: Bool { get }
   var hasPreviewPixelBuffer: Bool { get }
+  var depth: (any HybridDepthSpec)? { get }
 
   // Methods
   func getPixelBuffer() throws -> ArrayBuffer

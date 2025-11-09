@@ -13,8 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `PixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `VideoPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoPixelFormat; }
 // Forward declaration of `Orientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
@@ -22,7 +22,7 @@ namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
-#include "PixelFormat.hpp"
+#include "VideoPixelFormat.hpp"
 #include "Orientation.hpp"
 #include <memory>
 #include "HybridFramePlaneSpec.hpp"
@@ -62,7 +62,7 @@ namespace margelo::nitro::camera {
       virtual bool getIsValid() = 0;
       virtual double getWidth() = 0;
       virtual double getHeight() = 0;
-      virtual PixelFormat getPixelFormat() = 0;
+      virtual VideoPixelFormat getPixelFormat() = 0;
       virtual Orientation getOrientation() = 0;
       virtual bool getIsPlanar() = 0;
 
