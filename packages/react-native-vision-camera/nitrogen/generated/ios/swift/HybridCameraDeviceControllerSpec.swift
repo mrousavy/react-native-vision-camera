@@ -13,22 +13,22 @@ import NitroModules
 public protocol HybridCameraDeviceControllerSpec_protocol: HybridObject {
   // Properties
   var device: (any HybridCameraDeviceSpec) { get }
-  var activeFormat: (any HybridCameraFormatSpec) { get set }
-  var activeDepthFormat: (any HybridCameraFormatSpec)? { get set }
-  var enableAutoFrameRate: Bool { get set }
-  var fps: Range { get set }
-  var focusMode: FocusMode { get set }
-  var enableSmoothAutoFocus: Bool { get set }
-  var enableFaceDrivenAutoFocus: Bool { get set }
-  var exposureMode: ExposureMode { get set }
-  var enableFaceDrivenAutoExposure: Bool { get set }
-  var whiteBalanceMode: WhiteBalanceMode { get set }
-  var automaticallyEnableLowLightBoost: Bool { get set }
-  var enableVideoHDR: Bool { get set }
-  var automaticallyEnableVideoHDR: Bool { get set }
-  var enableGlobalToneMapping: Bool { get set }
-  var colorSpace: ColorSpace { get set }
-  var zoom: Double { get set }
+  var activeFormat: (any HybridCameraFormatSpec) { get }
+  var activeDepthFormat: (any HybridCameraFormatSpec)? { get }
+  var enableAutoFrameRate: Bool { get }
+  var fps: Range { get }
+  var focusMode: FocusMode { get }
+  var enableSmoothAutoFocus: Bool { get }
+  var enableFaceDrivenAutoFocus: Bool { get }
+  var exposureMode: ExposureMode { get }
+  var enableFaceDrivenAutoExposure: Bool { get }
+  var whiteBalanceMode: WhiteBalanceMode { get }
+  var automaticallyEnableLowLightBoost: Bool { get }
+  var enableVideoHDR: Bool { get }
+  var automaticallyEnableVideoHDR: Bool { get }
+  var enableGlobalToneMapping: Bool { get }
+  var colorSpace: ColorSpace { get }
+  var zoom: Double { get }
 
   // Methods
   func configure(config: SetCameraDeviceConfiguration) throws -> Promise<Void>

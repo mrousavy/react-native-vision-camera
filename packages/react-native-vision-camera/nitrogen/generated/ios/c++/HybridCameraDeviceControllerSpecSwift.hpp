@@ -98,103 +98,55 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getActiveFormat();
       return __result;
     }
-    inline void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) noexcept override {
-      _swiftPart.setActiveFormat(activeFormat);
-    }
     inline std::optional<std::shared_ptr<HybridCameraFormatSpec>> getActiveDepthFormat() noexcept override {
       auto __result = _swiftPart.getActiveDepthFormat();
       return __result;
     }
-    inline void setActiveDepthFormat(const std::optional<std::shared_ptr<HybridCameraFormatSpec>>& activeDepthFormat) noexcept override {
-      _swiftPart.setActiveDepthFormat(activeDepthFormat);
-    }
     inline bool getEnableAutoFrameRate() noexcept override {
       return _swiftPart.getEnableAutoFrameRate();
     }
-    inline void setEnableAutoFrameRate(bool enableAutoFrameRate) noexcept override {
-      _swiftPart.setEnableAutoFrameRate(std::forward<decltype(enableAutoFrameRate)>(enableAutoFrameRate));
-    }
     inline Range getFps() noexcept override {
       return _swiftPart.getFps();
-    }
-    inline void setFps(const Range& fps) noexcept override {
-      _swiftPart.setFps(std::forward<decltype(fps)>(fps));
     }
     inline FocusMode getFocusMode() noexcept override {
       auto __result = _swiftPart.getFocusMode();
       return static_cast<FocusMode>(__result);
     }
-    inline void setFocusMode(FocusMode focusMode) noexcept override {
-      _swiftPart.setFocusMode(static_cast<int>(focusMode));
-    }
     inline bool getEnableSmoothAutoFocus() noexcept override {
       return _swiftPart.getEnableSmoothAutoFocus();
     }
-    inline void setEnableSmoothAutoFocus(bool enableSmoothAutoFocus) noexcept override {
-      _swiftPart.setEnableSmoothAutoFocus(std::forward<decltype(enableSmoothAutoFocus)>(enableSmoothAutoFocus));
-    }
     inline bool getEnableFaceDrivenAutoFocus() noexcept override {
       return _swiftPart.getEnableFaceDrivenAutoFocus();
-    }
-    inline void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) noexcept override {
-      _swiftPart.setEnableFaceDrivenAutoFocus(std::forward<decltype(enableFaceDrivenAutoFocus)>(enableFaceDrivenAutoFocus));
     }
     inline ExposureMode getExposureMode() noexcept override {
       auto __result = _swiftPart.getExposureMode();
       return static_cast<ExposureMode>(__result);
     }
-    inline void setExposureMode(ExposureMode exposureMode) noexcept override {
-      _swiftPart.setExposureMode(static_cast<int>(exposureMode));
-    }
     inline bool getEnableFaceDrivenAutoExposure() noexcept override {
       return _swiftPart.getEnableFaceDrivenAutoExposure();
-    }
-    inline void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) noexcept override {
-      _swiftPart.setEnableFaceDrivenAutoExposure(std::forward<decltype(enableFaceDrivenAutoExposure)>(enableFaceDrivenAutoExposure));
     }
     inline WhiteBalanceMode getWhiteBalanceMode() noexcept override {
       auto __result = _swiftPart.getWhiteBalanceMode();
       return static_cast<WhiteBalanceMode>(__result);
     }
-    inline void setWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) noexcept override {
-      _swiftPart.setWhiteBalanceMode(static_cast<int>(whiteBalanceMode));
-    }
     inline bool getAutomaticallyEnableLowLightBoost() noexcept override {
       return _swiftPart.getAutomaticallyEnableLowLightBoost();
-    }
-    inline void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) noexcept override {
-      _swiftPart.setAutomaticallyEnableLowLightBoost(std::forward<decltype(automaticallyEnableLowLightBoost)>(automaticallyEnableLowLightBoost));
     }
     inline bool getEnableVideoHDR() noexcept override {
       return _swiftPart.getEnableVideoHDR();
     }
-    inline void setEnableVideoHDR(bool enableVideoHDR) noexcept override {
-      _swiftPart.setEnableVideoHDR(std::forward<decltype(enableVideoHDR)>(enableVideoHDR));
-    }
     inline bool getAutomaticallyEnableVideoHDR() noexcept override {
       return _swiftPart.getAutomaticallyEnableVideoHDR();
     }
-    inline void setAutomaticallyEnableVideoHDR(bool automaticallyEnableVideoHDR) noexcept override {
-      _swiftPart.setAutomaticallyEnableVideoHDR(std::forward<decltype(automaticallyEnableVideoHDR)>(automaticallyEnableVideoHDR));
-    }
     inline bool getEnableGlobalToneMapping() noexcept override {
       return _swiftPart.getEnableGlobalToneMapping();
-    }
-    inline void setEnableGlobalToneMapping(bool enableGlobalToneMapping) noexcept override {
-      _swiftPart.setEnableGlobalToneMapping(std::forward<decltype(enableGlobalToneMapping)>(enableGlobalToneMapping));
     }
     inline ColorSpace getColorSpace() noexcept override {
       auto __result = _swiftPart.getColorSpace();
       return static_cast<ColorSpace>(__result);
     }
-    inline void setColorSpace(ColorSpace colorSpace) noexcept override {
-      _swiftPart.setColorSpace(static_cast<int>(colorSpace));
-    }
     inline double getZoom() noexcept override {
       return _swiftPart.getZoom();
-    }
-    inline void setZoom(double zoom) noexcept override {
-      _swiftPart.setZoom(std::forward<decltype(zoom)>(zoom));
     }
 
   public:

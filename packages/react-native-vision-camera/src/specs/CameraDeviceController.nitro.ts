@@ -12,41 +12,37 @@ import type { ColorSpace } from './common-types/ColorSpace'
 
 interface CameraDeviceConfiguration {
   // pragma MARK: Formats
-  activeFormat: CameraFormat
-  activeDepthFormat?: CameraFormat
+  readonly activeFormat: CameraFormat
+  readonly activeDepthFormat?: CameraFormat
 
   // pragma MARK: FPS
-  enableAutoFrameRate: boolean
-  fps: Range
+  readonly enableAutoFrameRate: boolean
+  readonly fps: Range
 
   // pragma MARK: Focus
-  focusMode: FocusMode
-  enableSmoothAutoFocus: boolean
-  enableFaceDrivenAutoFocus: boolean
+  readonly focusMode: FocusMode
+  readonly enableSmoothAutoFocus: boolean
+  readonly enableFaceDrivenAutoFocus: boolean
 
   // pragma MARK: Exposure
-  exposureMode: ExposureMode
-  enableFaceDrivenAutoExposure: boolean
+  readonly exposureMode: ExposureMode
+  readonly enableFaceDrivenAutoExposure: boolean
 
   // pragma MARK: White Balance
-  whiteBalanceMode: WhiteBalanceMode
+  readonly whiteBalanceMode: WhiteBalanceMode
 
   // pragma MARK: Low Light Boost
-  automaticallyEnableLowLightBoost: boolean
+  readonly automaticallyEnableLowLightBoost: boolean
 
   // pragma MARK: Colors
-  enableVideoHDR: boolean
-  automaticallyEnableVideoHDR: boolean
-  enableGlobalToneMapping: boolean
-  colorSpace: ColorSpace
+  readonly enableVideoHDR: boolean
+  readonly automaticallyEnableVideoHDR: boolean
+  readonly enableGlobalToneMapping: boolean
+  readonly colorSpace: ColorSpace
 
   // pragma MARK: Zoom
-  zoom: number
+  readonly zoom: number
 }
-
-// get only
-interface GetCameraDeviceConfiguration
-  extends Readonly<CameraDeviceConfiguration> {}
 
 // set only
 interface SetCameraDeviceConfiguration
@@ -54,7 +50,7 @@ interface SetCameraDeviceConfiguration
 
 export interface CameraDeviceController
   extends HybridObject<{ ios: 'swift' }>,
-    GetCameraDeviceConfiguration {
+    CameraDeviceConfiguration {
   readonly device: CameraDevice
 
   configure(config: SetCameraDeviceConfiguration): Promise<void>

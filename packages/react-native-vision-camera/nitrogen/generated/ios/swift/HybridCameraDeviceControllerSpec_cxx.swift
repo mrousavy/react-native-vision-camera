@@ -133,14 +133,6 @@ open class HybridCameraDeviceControllerSpec_cxx {
         return __cxxWrapped.getCxxPart()
       }()
     }
-    @inline(__always)
-    set {
-      self.__implementation.activeFormat = { () -> HybridCameraFormatSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraFormatSpec_(newValue)
-        let __instance = HybridCameraFormatSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridCameraFormatSpec()
-      }()
-    }
   }
   
   public final var activeDepthFormat: bridge.std__optional_std__shared_ptr_HybridCameraFormatSpec__ {
@@ -157,31 +149,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
         }
       }()
     }
-    @inline(__always)
-    set {
-      self.__implementation.activeDepthFormat = { () -> (any HybridCameraFormatSpec)? in
-        if bridge.has_value_std__optional_std__shared_ptr_HybridCameraFormatSpec__(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridCameraFormatSpec__(newValue)
-          return { () -> HybridCameraFormatSpec in
-            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraFormatSpec_(__unwrapped)
-            let __instance = HybridCameraFormatSpec_cxx.fromUnsafe(__unsafePointer)
-            return __instance.getHybridCameraFormatSpec()
-          }()
-        } else {
-          return nil
-        }
-      }()
-    }
   }
   
   public final var enableAutoFrameRate: Bool {
     @inline(__always)
     get {
       return self.__implementation.enableAutoFrameRate
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableAutoFrameRate = newValue
     }
   }
   
@@ -190,20 +163,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.fps
     }
-    @inline(__always)
-    set {
-      self.__implementation.fps = newValue
-    }
   }
   
   public final var focusMode: Int32 {
     @inline(__always)
     get {
       return self.__implementation.focusMode.rawValue
-    }
-    @inline(__always)
-    set {
-      self.__implementation.focusMode = margelo.nitro.camera.FocusMode(rawValue: newValue)!
     }
   }
   
@@ -212,20 +177,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.enableSmoothAutoFocus
     }
-    @inline(__always)
-    set {
-      self.__implementation.enableSmoothAutoFocus = newValue
-    }
   }
   
   public final var enableFaceDrivenAutoFocus: Bool {
     @inline(__always)
     get {
       return self.__implementation.enableFaceDrivenAutoFocus
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableFaceDrivenAutoFocus = newValue
     }
   }
   
@@ -234,20 +191,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.exposureMode.rawValue
     }
-    @inline(__always)
-    set {
-      self.__implementation.exposureMode = margelo.nitro.camera.ExposureMode(rawValue: newValue)!
-    }
   }
   
   public final var enableFaceDrivenAutoExposure: Bool {
     @inline(__always)
     get {
       return self.__implementation.enableFaceDrivenAutoExposure
-    }
-    @inline(__always)
-    set {
-      self.__implementation.enableFaceDrivenAutoExposure = newValue
     }
   }
   
@@ -256,20 +205,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.whiteBalanceMode.rawValue
     }
-    @inline(__always)
-    set {
-      self.__implementation.whiteBalanceMode = margelo.nitro.camera.WhiteBalanceMode(rawValue: newValue)!
-    }
   }
   
   public final var automaticallyEnableLowLightBoost: Bool {
     @inline(__always)
     get {
       return self.__implementation.automaticallyEnableLowLightBoost
-    }
-    @inline(__always)
-    set {
-      self.__implementation.automaticallyEnableLowLightBoost = newValue
     }
   }
   
@@ -278,20 +219,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.enableVideoHDR
     }
-    @inline(__always)
-    set {
-      self.__implementation.enableVideoHDR = newValue
-    }
   }
   
   public final var automaticallyEnableVideoHDR: Bool {
     @inline(__always)
     get {
       return self.__implementation.automaticallyEnableVideoHDR
-    }
-    @inline(__always)
-    set {
-      self.__implementation.automaticallyEnableVideoHDR = newValue
     }
   }
   
@@ -300,10 +233,6 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.enableGlobalToneMapping
     }
-    @inline(__always)
-    set {
-      self.__implementation.enableGlobalToneMapping = newValue
-    }
   }
   
   public final var colorSpace: Int32 {
@@ -311,20 +240,12 @@ open class HybridCameraDeviceControllerSpec_cxx {
     get {
       return self.__implementation.colorSpace.rawValue
     }
-    @inline(__always)
-    set {
-      self.__implementation.colorSpace = margelo.nitro.camera.ColorSpace(rawValue: newValue)!
-    }
   }
   
   public final var zoom: Double {
     @inline(__always)
     get {
       return self.__implementation.zoom
-    }
-    @inline(__always)
-    set {
-      self.__implementation.zoom = newValue
     }
   }
 

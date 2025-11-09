@@ -27,35 +27,78 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
     return HybridCameraFormat(format: captureDevice.activeFormat)
   }
   
-  var activeDepthFormat: (any HybridCameraFormatSpec)?
+  var activeDepthFormat: (any HybridCameraFormatSpec)? {
+    guard let depthFormat = captureDevice.activeDepthDataFormat else {
+      return nil
+    }
+    return HybridCameraFormat(format: depthFormat)
+  }
   
-  var enableAutoFrameRate: Bool
+  var enableAutoFrameRate: Bool {
+    guard #available(iOS 18.0, *) else {
+      return false
+    }
+    return captureDevice.isAutoVideoFrameRateEnabled
+  }
   
-  var fps: Range
+  var fps: Range {
+    return Range(min: captureDevice.activeVideoMinFrameDuration.seconds,
+                 max: captureDevice.activeVideoMaxFrameDuration.seconds)
+  }
   
-  var focusMode: FocusMode
+  var focusMode: FocusMode {
+    return FocusMode(mode: captureDevice.focusMode)
+  }
   
-  var enableSmoothAutoFocus: Bool
+  var enableSmoothAutoFocus: Bool {
+    return captureDevice.isSmoothAutoFocusEnabled
+  }
   
-  var enableFaceDrivenAutoFocus: Bool
+  var enableFaceDrivenAutoFocus: Bool {
+    guard #available(iOS 15.4, *) else {
+      return false
+    }
+    return captureDevice.isFaceDrivenAutoFocusEnabled
+  }
   
-  var exposureMode: ExposureMode
+  var exposureMode: ExposureMode {
+    return ExposureMode(mode: captureDevice.exposureMode)
+  }
   
-  var enableFaceDrivenAutoExposure: Bool
+  var enableFaceDrivenAutoExposure: Bool {
+    guard #available(iOS 15.4, *) else {
+      return false
+    }
+    return captureDevice.isFaceDrivenAutoExposureEnabled
+  }
   
-  var whiteBalanceMode: WhiteBalanceMode
+  var whiteBalanceMode: WhiteBalanceMode {
+    return WhiteBalanceMode(mode: captureDevice.whiteBalanceMode)
+  }
   
-  var automaticallyEnableLowLightBoost: Bool
+  var automaticallyEnableLowLightBoost: Bool {
+    return captureDevice.automaticallyEnablesLowLightBoostWhenAvailable
+  }
   
-  var enableVideoHDR: Bool
+  var enableVideoHDR: Bool {
+    return captureDevice.isVideoHDREnabled
+  }
   
-  var automaticallyEnableVideoHDR: Bool
+  var automaticallyEnableVideoHDR: Bool {
+    return captureDevice.automaticallyAdjustsVideoHDREnabled
+  }
   
-  var enableGlobalToneMapping: Bool
+  var enableGlobalToneMapping: Bool {
+    return captureDevice.isGlobalToneMappingEnabled
+  }
   
-  var colorSpace: ColorSpace
+  var colorSpace: ColorSpace {
+    return ColorSpace(color: captureDevice.activeColorSpace)
+  }
   
-  var zoom: Double
+  var zoom: Double {
+    return captureDevice.videoZoomFactor
+  }
 
   func configure(config: SetCameraDeviceConfiguration) throws -> Promise<Void> {
     return Promise.parallel(self.queue) {
