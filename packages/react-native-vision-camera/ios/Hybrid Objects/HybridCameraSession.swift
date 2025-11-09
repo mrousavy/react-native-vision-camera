@@ -42,25 +42,13 @@ class HybridCameraSession: HybridCameraSessionSpec {
       self.session.beginConfiguration()
       defer { self.session.commitConfiguration() }
       
-      // TODO: Remove only inputs/outputs/connections that we don't use
-      self.session.connections.forEach {
-        print("Removing Connection \($0)")
-        self.session.removeConnection($0)
-      }
-      self.session.inputs.forEach {
-        print("Removing Input \($0)")
-        self.session.removeInput($0)
-      }
-      self.session.outputs.forEach {
-        print("Removing Output \($0)")
-        self.session.removeOutput($0)
-      }
+      // Remove all connections/inputs/outputs that we don't need
+      self.removeAllUnwantedConnections(targetConnections: connections)
       
-      let allInputs = connections.map { $0.input }.withoutDuplicates { left, right in left === right }
       // Ensure multi-cam is enabled if we have multiple inputs
-      if allInputs.count > 1 {
+      if connections.count > 1 {
         guard self.supportsMultiCam else {
-          throw RuntimeError.error(withMessage: "Cannot add multiple inputs (\(allInputs)) to a single-cam CameraSession! " + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
+          throw RuntimeError.error(withMessage: "Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! " + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
         }
       }
 
@@ -70,12 +58,12 @@ class HybridCameraSession: HybridCameraSessionSpec {
         guard let input = connection.input as? HybridCameraDevice else {
           throw RuntimeError.error(withMessage: "Input \"\(connection.input)\" does not conform to `HybridCameraDevice`!")
         }
-        let deviceInput = try AVCaptureDeviceInput(device: input.device)
+        let deviceInput = try self.session.input(forDevice: input.device)
         if !self.session.inputs.contains(deviceInput) {
           guard self.session.canAddInput(deviceInput) else {
             throw RuntimeError.error(withMessage: "Input (\(deviceInput)) cannot be added to CameraSession!")
           }
-          print("Adding Input \"\(input)\"...")
+          print("Adding Input \"\(deviceInput)\"...")
           self.session.addInputWithNoConnections(deviceInput)
         }
 
@@ -83,17 +71,13 @@ class HybridCameraSession: HybridCameraSessionSpec {
         for output in connection.outputs {
           // 3.1. Maybe add output (preview is not a real output so that's the exception)
           if !self.session.containsOutput(output) {
-            print("Adding Output \"\(output)\"...")
             try self.session.addOutputWithNoConnections(output)
           }
 
           // 3.3. Create connection
-          let connection = try AVCaptureConnection(input: deviceInput, output: output)
-          guard self.session.canAddConnection(connection) else {
-            throw RuntimeError.error(withMessage: "Connection \"\(connection)\" cannot be added to Camera Session!")
+          if !self.session.containsConnection(deviceInput: deviceInput, output: output) {
+            try self.session.addConnection(deviceInput: deviceInput, output: output)
           }
-          print("Adding Connection \"\(connection)\"...")
-          self.session.addConnection(connection)
         }
       }
       
@@ -113,6 +97,49 @@ class HybridCameraSession: HybridCameraSessionSpec {
   func stop() -> Promise<Void> {
     return Promise.parallel(queue) {
       self.session.stopRunning()
+    }
+  }
+  
+  private func removeAllUnwantedConnections(targetConnections: [CameraSessionConnection]) {
+    // Flat map all inputs & outputs
+    let allInputs = targetConnections
+      .compactMap { $0.input as? HybridCameraDevice }
+      .withoutDuplicates { left, right in left === right }
+    let flatOutputs = targetConnections
+      .flatMap { $0.outputs }
+      .withoutDuplicates { left, right in left === right }
+    let allOutputs = flatOutputs.compactMap { $0 as? NativeCameraOutput }
+    let allPreviews = flatOutputs.compactMap { $0 as? NativePreviewViewOutput }
+    
+    // Remove any old inputs that we don't need anymore
+    for input in self.session.inputs {
+      guard let deviceInput = input as? AVCaptureDeviceInput else {
+        continue
+      }
+      let containsInput = allInputs.contains { $0.device == deviceInput.device }
+      if !containsInput {
+        print("Removing Input \(input)...")
+        self.session.removeInput(input)
+      }
+    }
+    // Remove any old outputs that we don't need anymore
+    for output in self.session.outputs {
+      let containsOutput = allOutputs.contains { $0.output == output }
+      if !containsOutput {
+        print("Removing Output \(output)...")
+        self.session.removeOutput(output)
+      }
+    }
+    // Remove any old preview connections that we don't need anymore
+    for connection in self.session.connections {
+      if let previewLayer = connection.videoPreviewLayer {
+        let containsPreviewLayer = allPreviews.contains { $0.previewLayer == previewLayer }
+        if !containsPreviewLayer {
+          print("Removing Preview \(previewLayer)")
+          self.session.removeConnection(connection)
+          previewLayer.session = nil
+        }
+      }
     }
   }
 }

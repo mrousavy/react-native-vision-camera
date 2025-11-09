@@ -25,21 +25,20 @@ function App() {
 function AppContent() {
   const devices = useCameraDevices()
   const [isMulti, setIsMulti] = useState(false)
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(true), [isMulti])
+  const session = useMemo(() => HybridCameraFactory.createCameraSession(true), [])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const controllers = useRef<CameraDeviceController[]>([])
   const inputs = useMemo(() => {
+    const result = [
+      devices.find((d) => d.position === 'back')
+    ]
     if (isMulti) {
-      return [
+      result.push(
         devices.find((d) => d.position === 'front'),
-        devices.find((d) => d.position === 'back')
-      ].filter((d) => d != null)
-    } else {
-      return [
-        devices[0]
-      ].filter((d) => d != null)
+      )
     }
+    return result.filter((d) => d != null)
   }, [devices, isMulti])
 
   useEffect(() => {

@@ -29,9 +29,11 @@ extension AVCaptureSession {
       guard canAddOutput(output) else {
         throw RuntimeError.error(withMessage: "Output \"\(output)\" cannot be added to Camera Session!")
       }
+      print("Adding Output \(output)...")
       addOutputWithNoConnections(output)
     } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
       // It's an AVVideoPreviewLayer - we need to set it's .session
+      print("Adding Preview \(hybridPreview.previewLayer)...")
       hybridPreview.previewLayer.setSessionWithNoConnection(self)
     } else {
       throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!")
