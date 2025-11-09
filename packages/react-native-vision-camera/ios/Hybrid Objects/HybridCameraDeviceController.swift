@@ -42,8 +42,9 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
   }
   
   var fps: Range {
-    return Range(min: captureDevice.activeVideoMinFrameDuration.seconds,
-                 max: captureDevice.activeVideoMaxFrameDuration.seconds)
+    let minFps = 1.0 / captureDevice.activeVideoMaxFrameDuration.seconds
+    let maxFps = 1.0 / captureDevice.activeVideoMinFrameDuration.seconds
+    return Range(min: minFps, max: maxFps)
   }
   
   var focusMode: FocusMode {
@@ -108,8 +109,21 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
       defer { device.unlockForConfiguration() }
 
       // 2. Change all configs
+      if let activeFormat = config.activeFormat {
+        // .activeFormat changed!
+        guard let hybridFormat = activeFormat as? HybridCameraFormat else {
+          throw RuntimeError.error(withMessage: ".activeFormat is not of type `HybridCameraFormat`!")
+        }
+        device.activeFormat = hybridFormat.format
+      }
+      if let fps = config.fps {
+        device.activeVideoMaxFrameDuration = CMTime(seconds: 1.0 / fps.min,
+                                                    preferredTimescale: device.activeVideoMaxFrameDuration.timescale)
+        device.activeVideoMinFrameDuration = CMTime(seconds: 1.0 / fps.max,
+                                                    preferredTimescale: device.activeVideoMaxFrameDuration.timescale)
+      }
       if let zoom = config.zoom, device.videoZoomFactor != zoom {
-        // Zoom changed!
+        // .zoom changed!
         guard zoom >= device.minAvailableVideoZoomFactor,
               zoom <= device.maxAvailableVideoZoomFactor else {
           throw RuntimeError.error(withMessage: "Zoom is out of range! " +
