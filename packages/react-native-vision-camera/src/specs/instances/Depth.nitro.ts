@@ -5,8 +5,8 @@ import type { CameraCalibrationData } from './CameraCalibrationData.nitro'
 import type { DepthPixelFormat } from '../common-types/DepthPixelFormat'
 
 export type AuxilaryDepthType = 'depth' | 'disparity'
-export type DepthDataAccuracy = 'relative' | 'accurate'
-export type DepthDataQuality = 'low' | 'high'
+export type DepthDataAccuracy = 'relative' | 'absolute' | 'unknown'
+export type DepthDataQuality = 'low' | 'high' | 'unknown'
 
 export interface Depth extends HybridObject<{ ios: 'swift' }> {
   /**

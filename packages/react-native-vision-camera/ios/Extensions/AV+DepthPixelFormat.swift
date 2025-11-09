@@ -23,4 +23,19 @@ extension DepthPixelFormat {
       self = .unknown
     }
   }
+  
+  func toOSType() throws -> OSType {
+    switch self {
+    case .unknown:
+      throw RuntimeError.error(withMessage: "Cannot convert DepthPixelFormat \"unknown\" to native OSType!")
+    case .depth16Bit:
+      return kCVPixelFormatType_DepthFloat16
+    case .depth32Bit:
+      return kCVPixelFormatType_DepthFloat32
+    case .disparity16Bit:
+      return kCVPixelFormatType_DisparityFloat16
+    case .disparity32Bit:
+      return kCVPixelFormatType_DisparityFloat32
+    }
+  }
 }

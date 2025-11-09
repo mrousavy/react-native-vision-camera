@@ -17,6 +17,8 @@ public extension DepthDataQuality {
    */
   init?(fromString string: String) {
     switch string {
+      case "unknown":
+        self = .unknown
       case "low":
         self = .low
       case "high":
@@ -31,6 +33,8 @@ public extension DepthDataQuality {
    */
   var stringValue: String {
     switch self {
+      case .unknown:
+        return "unknown"
       case .low:
         return "low"
       case .high:

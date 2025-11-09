@@ -26,8 +26,8 @@ public protocol HybridDepthSpec_protocol: HybridObject {
   // Methods
   func rotate(orientation: Orientation, isMirrored: Bool) throws -> (any HybridDepthSpec)
   func rotateAsync(orientation: Orientation, isMirrored: Bool) throws -> Promise<(any HybridDepthSpec)>
-  func convert(pixelFormat: DepthPixelFormat) throws -> (any HybridDepthSpec)
-  func convertAsync(pixelFormat: DepthPixelFormat) throws -> Promise<(any HybridDepthSpec)>
+  func convert(pixelFormat: TargetDepthPixelFormat) throws -> (any HybridDepthSpec)
+  func convertAsync(pixelFormat: TargetDepthPixelFormat) throws -> Promise<(any HybridDepthSpec)>
   func toImage() throws -> (any HybridImageSpec)
   func toImageAsync() throws -> Promise<(any HybridImageSpec)>
   func toDictionary(type: AuxilaryDepthType) throws -> AnyMap

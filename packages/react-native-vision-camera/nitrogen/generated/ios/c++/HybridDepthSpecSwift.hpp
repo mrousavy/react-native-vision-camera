@@ -24,6 +24,8 @@ namespace margelo::nitro::camera { class HybridCameraCalibrationDataSpec; }
 namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
+// Forward declaration of `TargetDepthPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `AuxilaryDepthType` to properly resolve imports.
@@ -39,6 +41,7 @@ namespace margelo::nitro::camera { enum class AuxilaryDepthType; }
 #include "Orientation.hpp"
 #include "HybridDepthSpec.hpp"
 #include <NitroModules/Promise.hpp>
+#include "TargetDepthPixelFormat.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include "AuxilaryDepthType.hpp"
@@ -135,7 +138,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridDepthSpec> convert(DepthPixelFormat pixelFormat) override {
+    inline std::shared_ptr<HybridDepthSpec> convert(TargetDepthPixelFormat pixelFormat) override {
       auto __result = _swiftPart.convert(static_cast<int>(pixelFormat));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
@@ -143,7 +146,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) override {
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(TargetDepthPixelFormat pixelFormat) override {
       auto __result = _swiftPart.convertAsync(static_cast<int>(pixelFormat));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

@@ -17,10 +17,12 @@ public extension DepthDataAccuracy {
    */
   init?(fromString string: String) {
     switch string {
+      case "unknown":
+        self = .unknown
       case "relative":
         self = .relative
-      case "accurate":
-        self = .accurate
+      case "absolute":
+        self = .absolute
       default:
         return nil
     }
@@ -31,10 +33,12 @@ public extension DepthDataAccuracy {
    */
   var stringValue: String {
     switch self {
+      case .unknown:
+        return "unknown"
       case .relative:
         return "relative"
-      case .accurate:
-        return "accurate"
+      case .absolute:
+        return "absolute"
     }
   }
 }

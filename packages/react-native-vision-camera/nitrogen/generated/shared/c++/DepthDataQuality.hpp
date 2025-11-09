@@ -29,8 +29,9 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (DepthDataQuality).
    */
   enum class DepthDataQuality {
-    LOW      SWIFT_NAME(low) = 0,
-    HIGH      SWIFT_NAME(high) = 1,
+    UNKNOWN      SWIFT_NAME(unknown) = 0,
+    LOW      SWIFT_NAME(low) = 1,
+    HIGH      SWIFT_NAME(high) = 2,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -43,6 +44,7 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::DepthDataQuality fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"): return margelo::nitro::camera::DepthDataQuality::UNKNOWN;
         case hashString("low"): return margelo::nitro::camera::DepthDataQuality::LOW;
         case hashString("high"): return margelo::nitro::camera::DepthDataQuality::HIGH;
         default: [[unlikely]]
@@ -51,6 +53,7 @@ namespace margelo::nitro {
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::DepthDataQuality arg) {
       switch (arg) {
+        case margelo::nitro::camera::DepthDataQuality::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
         case margelo::nitro::camera::DepthDataQuality::LOW: return JSIConverter<std::string>::toJSI(runtime, "low");
         case margelo::nitro::camera::DepthDataQuality::HIGH: return JSIConverter<std::string>::toJSI(runtime, "high");
         default: [[unlikely]]
@@ -64,6 +67,7 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"):
         case hashString("low"):
         case hashString("high"):
           return true;

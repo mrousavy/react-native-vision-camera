@@ -29,8 +29,9 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (DepthDataAccuracy).
    */
   enum class DepthDataAccuracy {
-    RELATIVE      SWIFT_NAME(relative) = 0,
-    ACCURATE      SWIFT_NAME(accurate) = 1,
+    UNKNOWN      SWIFT_NAME(unknown) = 0,
+    RELATIVE      SWIFT_NAME(relative) = 1,
+    ABSOLUTE      SWIFT_NAME(absolute) = 2,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -43,16 +44,18 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::DepthDataAccuracy fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"): return margelo::nitro::camera::DepthDataAccuracy::UNKNOWN;
         case hashString("relative"): return margelo::nitro::camera::DepthDataAccuracy::RELATIVE;
-        case hashString("accurate"): return margelo::nitro::camera::DepthDataAccuracy::ACCURATE;
+        case hashString("absolute"): return margelo::nitro::camera::DepthDataAccuracy::ABSOLUTE;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum DepthDataAccuracy - invalid value!");
       }
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::DepthDataAccuracy arg) {
       switch (arg) {
+        case margelo::nitro::camera::DepthDataAccuracy::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
         case margelo::nitro::camera::DepthDataAccuracy::RELATIVE: return JSIConverter<std::string>::toJSI(runtime, "relative");
-        case margelo::nitro::camera::DepthDataAccuracy::ACCURATE: return JSIConverter<std::string>::toJSI(runtime, "accurate");
+        case margelo::nitro::camera::DepthDataAccuracy::ABSOLUTE: return JSIConverter<std::string>::toJSI(runtime, "absolute");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert DepthDataAccuracy to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -64,8 +67,9 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("unknown"):
         case hashString("relative"):
-        case hashString("accurate"):
+        case hashString("absolute"):
           return true;
         default:
           return false;

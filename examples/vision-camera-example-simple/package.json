@@ -5,7 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "pods": "bundle install && cd ios && bundle exec pod install",
+    "pods": "cd ios && bundle exec pod install",
     "lint": "eslint .",
     "start": "react-native start --client-logs"
   },
