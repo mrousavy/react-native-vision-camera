@@ -1,11 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 import { NitroModules } from 'react-native-nitro-modules';
+import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
+import { CameraDeviceController } from 'react-native-vision-camera/lib/specs/CameraDeviceController.nitro';
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -26,6 +29,7 @@ function AppContent() {
   const session = useMemo(() => HybridCameraFactory.createCameraSession(false), [])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
+  const controller = useRef<CameraDeviceController>(undefined)
 
   useEffect(() => {
     for (const device of devices) {
@@ -58,23 +62,23 @@ function AppContent() {
     return output
   }
 
+  const device = devices.find((d) => d.position === "back")
+
   useEffect(() => {
-    const deviceFront = devices.find((d) => d.position === 'front')
-    const deviceBack = devices.find((d) => d.position === 'back')
-    if (deviceFront == null) return
-    if (deviceBack == null) return
+    if (device == null) return
 
     (async () => {
       try {
         const mark1 = performance.now()
-        const _photo = HybridCameraFactory.createPhotoOutput()
+        const photo = HybridCameraFactory.createPhotoOutput()
         const video = createVideoOutput()
-        const controller = await session.configure([
+        const [c] = await session.configure([
           {
-            input: deviceBack,
-            outputs: [previewBack, video]
+            input: device,
+            outputs: [previewBack, photo, video]
           },
         ])
+        controller.current = c
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
         console.log(controller)
@@ -82,19 +86,36 @@ function AppContent() {
         await session.start()
         const mark3 = performance.now()
         console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
+
       } catch (e) {
         console.error(e)
       }
     })()
-  }, [devices, previewBack, previewFront, session])
+  }, [device, previewBack, previewFront, session])
+
+
+  const savedScale = useSharedValue(1)
+  const scale = useSharedValue(1)
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      if (device == null) return
+      scale.value = clamp(savedScale.value * e.scale, device.minZoom, device.maxZoom)
+      controller.current?.configure(scale.value)
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value
+    })
+    .runOnJS(true)
 
   return (
     <View style={styles.container}>
       {devices.map((d) => (
         <Text key={d.id}>{d.id}</Text>
       ))}
-      <NativePreviewView style={styles.camera} previewOutput={previewFront} />
-      <NativePreviewView style={styles.camera} previewOutput={previewBack} />
+      {/* <NativePreviewView style={styles.camera} previewOutput={previewFront} /> */}
+      <GestureDetector gesture={pinchGesture}>
+        <NativePreviewView style={styles.camera} previewOutput={previewBack} />
+      </GestureDetector>
     </View>
   );
 }

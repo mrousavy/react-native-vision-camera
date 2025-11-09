@@ -82,8 +82,10 @@ class HybridCameraSession: HybridCameraSessionSpec {
         }
       }
       
-      // TODO: Return controller to set focus etc
-      return []
+      // 4. Return CameraDeviceControllers per connection to adjust camera settings (focus, etc)
+      return try connections.map { connection in
+        return try HybridCameraDeviceController(device: connection.input, queue: self.queue)
+      }
     }
   }
 
