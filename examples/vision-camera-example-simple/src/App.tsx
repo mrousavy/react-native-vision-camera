@@ -8,6 +8,7 @@ import {
 } from 'react-native-safe-area-context';
 import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController } from 'react-native-vision-camera'
 import { CameraFormat } from 'react-native-vision-camera/lib/specs/CameraFormat.nitro';
+import { CameraOutput } from 'react-native-vision-camera/lib/specs/outputs/CameraOutput.nitro';
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -21,6 +22,31 @@ function App() {
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
+}
+
+function createVideoOutput(id: number): CameraOutput {
+    const output = HybridCameraFactory.createFrameOutput('native')
+    const thread = output.thread
+    const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
+    const runtime = createWorkletRuntime({
+      name: `com.margelo.camera.frame-processor-${id}`,
+      useDefaultQueue: false,
+      customQueue: queue
+    })
+    output.setOnFrameDroppedCallback((reason) => {
+      console.log(`Frame dropped - reason: ${reason}`)
+    })
+    const boxedOutput = NitroModules.box(output)
+    scheduleOnRuntime(runtime, () => {
+      'worklet'
+      const unboxed = boxedOutput.unbox()
+      unboxed.setOnFrameCallback((frame) => {
+        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+        frame.dispose()
+        return true
+      })
+    })
+    return output
 }
 
 function AppContent() {
@@ -48,30 +74,8 @@ function AppContent() {
     }
   }, [devices])
 
-  const videoOutput = useMemo(() => {
-    const output = HybridCameraFactory.createFrameOutput('native')
-    const thread = output.thread
-    const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
-    const runtime = createWorkletRuntime({
-      name: 'com.margelo.camera.frame-processor',
-      useDefaultQueue: false,
-      customQueue: queue
-    })
-    output.setOnFrameDroppedCallback((reason) => {
-      console.log(`Frame dropped - reason: ${reason}`)
-    })
-    const boxedOutput = NitroModules.box(output)
-    scheduleOnRuntime(runtime, () => {
-      'worklet'
-      const unboxed = boxedOutput.unbox()
-      unboxed.setOnFrameCallback((frame) => {
-        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-        frame.dispose()
-        return true
-      })
-    })
-    return output
-  }, [])
+  const videoOutputFront = useMemo(() => createVideoOutput(1), [])
+  const videoOutputBack = useMemo(() => createVideoOutput(2), [])
 
   useEffect(() => {
     (async () => {
@@ -80,20 +84,10 @@ function AppContent() {
         const photo = HybridCameraFactory.createPhotoOutput()
         controllers.current = await session.configure(inputs.map((d) => ({
           input: d,
-          outputs: d.position === 'front' ? [previewFront] : [previewBack]
+          outputs: d.position === 'front' ? [previewFront, videoOutputFront] : [previewBack, videoOutputBack]
         })))
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
-        controllers.current.forEach((c) => {
-          const format = c.device.formats
-            .filter((f) => f.supportsMultiCam)
-            .reduce<CameraFormat | undefined>((prev, curr) => curr.maxFps > (prev?.maxFps ?? 0) ? curr : prev, undefined)
-          const maxFps = format?.maxFps
-          console.log(format?.videoResolution, maxFps)
-          if (maxFps != null) {
-            c.configure({ activeFormat: format, fps: { min: maxFps, max: maxFps } })
-          }
-        })
 
         await session.start()
         const mark3 = performance.now()
@@ -103,7 +97,7 @@ function AppContent() {
         console.error(e)
       }
     })()
-  }, [inputs, previewBack, previewFront, session])
+  }, [inputs, previewBack, previewFront, session, videoOutputBack, videoOutputFront])
 
 
   const savedScale = useSharedValue(1)
