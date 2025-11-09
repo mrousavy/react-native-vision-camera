@@ -13,9 +13,25 @@ import NitroModules
 public protocol HybridCameraDeviceControllerSpec_protocol: HybridObject {
   // Properties
   var device: (any HybridCameraDeviceSpec) { get }
+  var activeFormat: (any HybridCameraFormatSpec) { get set }
+  var activeDepthFormat: (any HybridCameraFormatSpec)? { get set }
+  var enableAutoFrameRate: Bool { get set }
+  var fps: Range { get set }
+  var focusMode: FocusMode { get set }
+  var enableSmoothAutoFocus: Bool { get set }
+  var enableFaceDrivenAutoFocus: Bool { get set }
+  var exposureMode: ExposureMode { get set }
+  var enableFaceDrivenAutoExposure: Bool { get set }
+  var whiteBalanceMode: WhiteBalanceMode { get set }
+  var automaticallyEnableLowLightBoost: Bool { get set }
+  var enableVideoHDR: Bool { get set }
+  var automaticallyEnableVideoHDR: Bool { get set }
+  var enableGlobalToneMapping: Bool { get set }
+  var colorSpace: ColorSpace { get set }
+  var zoom: Double { get set }
 
   // Methods
-  func configure(config: CameraDeviceConfiguration) throws -> Promise<Void>
+  func configure(config: SetCameraDeviceConfiguration) throws -> Promise<Void>
   func setFocusPoint(point: Point) throws -> Promise<Void>
   func setFocusRect(rect: Rect) throws -> Promise<Void>
   func setFocusLensPosition(lensPosition: Double) throws -> Promise<Void>

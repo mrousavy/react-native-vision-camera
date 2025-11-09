@@ -9,8 +9,7 @@ import NitroModules
 import AVFoundation
 
 class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
-
-  var device: any HybridCameraDeviceSpec
+  let device: any HybridCameraDeviceSpec
   private let captureDevice: AVCaptureDevice
   private let queue: DispatchQueue
 
@@ -23,8 +22,42 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
     // TODO: Use our own queue here?
     self.queue = queue
   }
+  
+  var activeFormat: any HybridCameraFormatSpec {
+    return HybridCameraFormat(format: captureDevice.activeFormat)
+  }
+  
+  var activeDepthFormat: (any HybridCameraFormatSpec)?
+  
+  var enableAutoFrameRate: Bool
+  
+  var fps: Range
+  
+  var focusMode: FocusMode
+  
+  var enableSmoothAutoFocus: Bool
+  
+  var enableFaceDrivenAutoFocus: Bool
+  
+  var exposureMode: ExposureMode
+  
+  var enableFaceDrivenAutoExposure: Bool
+  
+  var whiteBalanceMode: WhiteBalanceMode
+  
+  var automaticallyEnableLowLightBoost: Bool
+  
+  var enableVideoHDR: Bool
+  
+  var automaticallyEnableVideoHDR: Bool
+  
+  var enableGlobalToneMapping: Bool
+  
+  var colorSpace: ColorSpace
+  
+  var zoom: Double
 
-  func configure(config: CameraDeviceConfiguration) throws -> Promise<Void> {
+  func configure(config: SetCameraDeviceConfiguration) throws -> Promise<Void> {
     return Promise.parallel(self.queue) {
       // 1. Lock device for change
       let device = self.captureDevice

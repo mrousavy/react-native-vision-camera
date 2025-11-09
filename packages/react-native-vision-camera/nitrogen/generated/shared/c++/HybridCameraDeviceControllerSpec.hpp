@@ -15,8 +15,20 @@
 
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
-// Forward declaration of `CameraDeviceConfiguration` to properly resolve imports.
-namespace margelo::nitro::camera { struct CameraDeviceConfiguration; }
+// Forward declaration of `HybridCameraFormatSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
+// Forward declaration of `Range` to properly resolve imports.
+namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `FocusMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `ExposureMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ExposureMode; }
+// Forward declaration of `WhiteBalanceMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
+// Forward declaration of `ColorSpace` to properly resolve imports.
+namespace margelo::nitro::camera { enum class ColorSpace; }
+// Forward declaration of `SetCameraDeviceConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct SetCameraDeviceConfiguration; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `Rect` to properly resolve imports.
@@ -26,8 +38,15 @@ namespace margelo::nitro::camera { struct WhiteBalanceGains; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
+#include "HybridCameraFormatSpec.hpp"
+#include <optional>
+#include "Range.hpp"
+#include "FocusMode.hpp"
+#include "ExposureMode.hpp"
+#include "WhiteBalanceMode.hpp"
+#include "ColorSpace.hpp"
 #include <NitroModules/Promise.hpp>
-#include "CameraDeviceConfiguration.hpp"
+#include "SetCameraDeviceConfiguration.hpp"
 #include "Point.hpp"
 #include "Rect.hpp"
 #include "WhiteBalanceGains.hpp"
@@ -60,10 +79,42 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual std::shared_ptr<HybridCameraDeviceSpec> getDevice() = 0;
+      virtual std::shared_ptr<HybridCameraFormatSpec> getActiveFormat() = 0;
+      virtual void setActiveFormat(const std::shared_ptr<HybridCameraFormatSpec>& activeFormat) = 0;
+      virtual std::optional<std::shared_ptr<HybridCameraFormatSpec>> getActiveDepthFormat() = 0;
+      virtual void setActiveDepthFormat(const std::optional<std::shared_ptr<HybridCameraFormatSpec>>& activeDepthFormat) = 0;
+      virtual bool getEnableAutoFrameRate() = 0;
+      virtual void setEnableAutoFrameRate(bool enableAutoFrameRate) = 0;
+      virtual Range getFps() = 0;
+      virtual void setFps(const Range& fps) = 0;
+      virtual FocusMode getFocusMode() = 0;
+      virtual void setFocusMode(FocusMode focusMode) = 0;
+      virtual bool getEnableSmoothAutoFocus() = 0;
+      virtual void setEnableSmoothAutoFocus(bool enableSmoothAutoFocus) = 0;
+      virtual bool getEnableFaceDrivenAutoFocus() = 0;
+      virtual void setEnableFaceDrivenAutoFocus(bool enableFaceDrivenAutoFocus) = 0;
+      virtual ExposureMode getExposureMode() = 0;
+      virtual void setExposureMode(ExposureMode exposureMode) = 0;
+      virtual bool getEnableFaceDrivenAutoExposure() = 0;
+      virtual void setEnableFaceDrivenAutoExposure(bool enableFaceDrivenAutoExposure) = 0;
+      virtual WhiteBalanceMode getWhiteBalanceMode() = 0;
+      virtual void setWhiteBalanceMode(WhiteBalanceMode whiteBalanceMode) = 0;
+      virtual bool getAutomaticallyEnableLowLightBoost() = 0;
+      virtual void setAutomaticallyEnableLowLightBoost(bool automaticallyEnableLowLightBoost) = 0;
+      virtual bool getEnableVideoHDR() = 0;
+      virtual void setEnableVideoHDR(bool enableVideoHDR) = 0;
+      virtual bool getAutomaticallyEnableVideoHDR() = 0;
+      virtual void setAutomaticallyEnableVideoHDR(bool automaticallyEnableVideoHDR) = 0;
+      virtual bool getEnableGlobalToneMapping() = 0;
+      virtual void setEnableGlobalToneMapping(bool enableGlobalToneMapping) = 0;
+      virtual ColorSpace getColorSpace() = 0;
+      virtual void setColorSpace(ColorSpace colorSpace) = 0;
+      virtual double getZoom() = 0;
+      virtual void setZoom(double zoom) = 0;
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> configure(const CameraDeviceConfiguration& config) = 0;
+      virtual std::shared_ptr<Promise<void>> configure(const SetCameraDeviceConfiguration& config) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusPoint(const Point& point) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusRect(const Rect& rect) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusLensPosition(double lensPosition) = 0;

@@ -15,6 +15,38 @@ namespace margelo::nitro::camera {
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridGetter("device", &HybridCameraDeviceControllerSpec::getDevice);
+      prototype.registerHybridGetter("activeFormat", &HybridCameraDeviceControllerSpec::getActiveFormat);
+      prototype.registerHybridSetter("activeFormat", &HybridCameraDeviceControllerSpec::setActiveFormat);
+      prototype.registerHybridGetter("activeDepthFormat", &HybridCameraDeviceControllerSpec::getActiveDepthFormat);
+      prototype.registerHybridSetter("activeDepthFormat", &HybridCameraDeviceControllerSpec::setActiveDepthFormat);
+      prototype.registerHybridGetter("enableAutoFrameRate", &HybridCameraDeviceControllerSpec::getEnableAutoFrameRate);
+      prototype.registerHybridSetter("enableAutoFrameRate", &HybridCameraDeviceControllerSpec::setEnableAutoFrameRate);
+      prototype.registerHybridGetter("fps", &HybridCameraDeviceControllerSpec::getFps);
+      prototype.registerHybridSetter("fps", &HybridCameraDeviceControllerSpec::setFps);
+      prototype.registerHybridGetter("focusMode", &HybridCameraDeviceControllerSpec::getFocusMode);
+      prototype.registerHybridSetter("focusMode", &HybridCameraDeviceControllerSpec::setFocusMode);
+      prototype.registerHybridGetter("enableSmoothAutoFocus", &HybridCameraDeviceControllerSpec::getEnableSmoothAutoFocus);
+      prototype.registerHybridSetter("enableSmoothAutoFocus", &HybridCameraDeviceControllerSpec::setEnableSmoothAutoFocus);
+      prototype.registerHybridGetter("enableFaceDrivenAutoFocus", &HybridCameraDeviceControllerSpec::getEnableFaceDrivenAutoFocus);
+      prototype.registerHybridSetter("enableFaceDrivenAutoFocus", &HybridCameraDeviceControllerSpec::setEnableFaceDrivenAutoFocus);
+      prototype.registerHybridGetter("exposureMode", &HybridCameraDeviceControllerSpec::getExposureMode);
+      prototype.registerHybridSetter("exposureMode", &HybridCameraDeviceControllerSpec::setExposureMode);
+      prototype.registerHybridGetter("enableFaceDrivenAutoExposure", &HybridCameraDeviceControllerSpec::getEnableFaceDrivenAutoExposure);
+      prototype.registerHybridSetter("enableFaceDrivenAutoExposure", &HybridCameraDeviceControllerSpec::setEnableFaceDrivenAutoExposure);
+      prototype.registerHybridGetter("whiteBalanceMode", &HybridCameraDeviceControllerSpec::getWhiteBalanceMode);
+      prototype.registerHybridSetter("whiteBalanceMode", &HybridCameraDeviceControllerSpec::setWhiteBalanceMode);
+      prototype.registerHybridGetter("automaticallyEnableLowLightBoost", &HybridCameraDeviceControllerSpec::getAutomaticallyEnableLowLightBoost);
+      prototype.registerHybridSetter("automaticallyEnableLowLightBoost", &HybridCameraDeviceControllerSpec::setAutomaticallyEnableLowLightBoost);
+      prototype.registerHybridGetter("enableVideoHDR", &HybridCameraDeviceControllerSpec::getEnableVideoHDR);
+      prototype.registerHybridSetter("enableVideoHDR", &HybridCameraDeviceControllerSpec::setEnableVideoHDR);
+      prototype.registerHybridGetter("automaticallyEnableVideoHDR", &HybridCameraDeviceControllerSpec::getAutomaticallyEnableVideoHDR);
+      prototype.registerHybridSetter("automaticallyEnableVideoHDR", &HybridCameraDeviceControllerSpec::setAutomaticallyEnableVideoHDR);
+      prototype.registerHybridGetter("enableGlobalToneMapping", &HybridCameraDeviceControllerSpec::getEnableGlobalToneMapping);
+      prototype.registerHybridSetter("enableGlobalToneMapping", &HybridCameraDeviceControllerSpec::setEnableGlobalToneMapping);
+      prototype.registerHybridGetter("colorSpace", &HybridCameraDeviceControllerSpec::getColorSpace);
+      prototype.registerHybridSetter("colorSpace", &HybridCameraDeviceControllerSpec::setColorSpace);
+      prototype.registerHybridGetter("zoom", &HybridCameraDeviceControllerSpec::getZoom);
+      prototype.registerHybridSetter("zoom", &HybridCameraDeviceControllerSpec::setZoom);
       prototype.registerHybridMethod("configure", &HybridCameraDeviceControllerSpec::configure);
       prototype.registerHybridMethod("setFocusPoint", &HybridCameraDeviceControllerSpec::setFocusPoint);
       prototype.registerHybridMethod("setFocusRect", &HybridCameraDeviceControllerSpec::setFocusRect);
