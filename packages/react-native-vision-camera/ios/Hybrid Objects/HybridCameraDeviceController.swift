@@ -22,7 +22,6 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
     self.queue = queue
   }
   
-  
   func configure(zoom: Double) throws -> Promise<Void> {
     return Promise.parallel(self.queue) {
       // 1. Lock device for change

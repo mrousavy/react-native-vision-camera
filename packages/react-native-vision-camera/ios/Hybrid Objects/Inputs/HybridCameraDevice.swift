@@ -11,7 +11,6 @@ import AVFoundation
 class HybridCameraDevice: HybridCameraDeviceSpec {
   let device: AVCaptureDevice
   let formats: [any HybridCameraFormatSpec]
-  private var input: AVCaptureDeviceInput? = nil
   
   init(device: AVCaptureDevice) {
     self.device = device
@@ -520,14 +519,5 @@ class HybridCameraDevice: HybridCameraDeviceSpec {
     return Promise.async {
       self.device.cancelVideoZoomRamp()
     }
-  }
-  
-  func getInput() throws -> AVCaptureDeviceInput {
-    if let input = self.input {
-      return input
-    }
-    let input = try AVCaptureDeviceInput(device: device)
-    self.input = input
-    return input
   }
 }

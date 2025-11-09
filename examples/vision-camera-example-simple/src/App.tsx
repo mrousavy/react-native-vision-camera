@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 import { NitroModules } from 'react-native-nitro-modules';
 import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices } from 'react-native-vision-camera'
-import { CameraDeviceController } from 'react-native-vision-camera/lib/specs/CameraDeviceController.nitro';
+import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -26,10 +24,23 @@ function App() {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(false), [])
+  const [isMulti, setIsMulti] = useState(false)
+  const session = useMemo(() => HybridCameraFactory.createCameraSession(true), [isMulti])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
-  const controller = useRef<CameraDeviceController>(undefined)
+  const controllers = useRef<CameraDeviceController[]>([])
+  const inputs = useMemo(() => {
+    if (isMulti) {
+      return [
+        devices.find((d) => d.position === 'front'),
+        devices.find((d) => d.position === 'back')
+      ].filter((d) => d != null)
+    } else {
+      return [
+        devices[0]
+      ].filter((d) => d != null)
+    }
+  }, [devices, isMulti])
 
   useEffect(() => {
     for (const device of devices) {
@@ -37,7 +48,7 @@ function AppContent() {
     }
   }, [devices])
 
-  const createVideoOutput = () => {
+  const videoOutput = useMemo(() => {
     const output = HybridCameraFactory.createFrameOutput('native')
     const thread = output.thread
     const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
@@ -60,28 +71,19 @@ function AppContent() {
       })
     })
     return output
-  }
-
-  const device = devices.find((d) => d.position === "back")
+  }, [])
 
   useEffect(() => {
-    if (device == null) return
-
     (async () => {
       try {
         const mark1 = performance.now()
         const photo = HybridCameraFactory.createPhotoOutput()
-        const video = createVideoOutput()
-        const [c] = await session.configure([
-          {
-            input: device,
-            outputs: [previewBack, photo, video]
-          },
-        ])
-        controller.current = c
+        controllers.current = await session.configure(inputs.map((d) => ({
+          input: d,
+          outputs: d.position === 'front' ? [previewFront] : [previewBack]
+        })))
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
-        console.log(controller)
 
         await session.start()
         const mark3 = performance.now()
@@ -91,16 +93,17 @@ function AppContent() {
         console.error(e)
       }
     })()
-  }, [device, previewBack, previewFront, session])
+  }, [inputs, previewBack, previewFront, session])
 
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
-      if (device == null) return
-      scale.value = clamp(savedScale.value * e.scale, device.minZoom, device.maxZoom)
-      controller.current?.configure(scale.value)
+      controllers.current.forEach((c) => {
+        scale.value = clamp(savedScale.value * e.scale, c.device.minZoom, c.device.maxZoom)
+        c.configure(scale.value)
+      })
     })
     .onEnd(() => {
       savedScale.value = scale.value
@@ -112,10 +115,17 @@ function AppContent() {
       {devices.map((d) => (
         <Text key={d.id}>{d.id}</Text>
       ))}
-      {/* <NativePreviewView style={styles.camera} previewOutput={previewFront} /> */}
       <GestureDetector gesture={pinchGesture}>
-        <NativePreviewView style={styles.camera} previewOutput={previewBack} />
+        <View style={styles.container}>
+          {isMulti && (
+            <NativePreviewView style={styles.camera} previewOutput={previewFront} />
+          )}
+          <NativePreviewView style={styles.camera} previewOutput={previewBack} />
+        </View>
       </GestureDetector>
+      <Button
+        title={`Switch to ${isMulti ? 'single-cam' : 'multi-cam'}`}
+        onPress={() => setIsMulti((i) => !i)} />
     </View>
   );
 }

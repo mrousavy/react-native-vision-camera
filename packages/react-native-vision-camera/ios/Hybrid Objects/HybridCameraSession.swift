@@ -43,9 +43,18 @@ class HybridCameraSession: HybridCameraSessionSpec {
       defer { self.session.commitConfiguration() }
       
       // TODO: Remove only inputs/outputs/connections that we don't use
-      self.session.connections.forEach { self.session.removeConnection($0) }
-      self.session.inputs.forEach { self.session.removeInput($0) }
-      self.session.outputs.forEach { self.session.removeOutput($0) }
+      self.session.connections.forEach {
+        print("Removing Connection \($0)")
+        self.session.removeConnection($0)
+      }
+      self.session.inputs.forEach {
+        print("Removing Input \($0)")
+        self.session.removeInput($0)
+      }
+      self.session.outputs.forEach {
+        print("Removing Output \($0)")
+        self.session.removeOutput($0)
+      }
       
       let allInputs = connections.map { $0.input }.withoutDuplicates { left, right in left === right }
       // Ensure multi-cam is enabled if we have multiple inputs
@@ -58,10 +67,16 @@ class HybridCameraSession: HybridCameraSessionSpec {
       // Connect inputs and outputs
       for connection in connections {
         // 2. Maybe add input
-        let input = connection.input
-        if !self.session.containsInput(input) {
+        guard let input = connection.input as? HybridCameraDevice else {
+          throw RuntimeError.error(withMessage: "Input \"\(connection.input)\" does not conform to `HybridCameraDevice`!")
+        }
+        let deviceInput = try AVCaptureDeviceInput(device: input.device)
+        if !self.session.inputs.contains(deviceInput) {
+          guard self.session.canAddInput(deviceInput) else {
+            throw RuntimeError.error(withMessage: "Input (\(deviceInput)) cannot be added to CameraSession!")
+          }
           print("Adding Input \"\(input)\"...")
-          try self.session.addInputWithNoConnections(input)
+          self.session.addInputWithNoConnections(deviceInput)
         }
 
         // 3. Loop through all outputs of this connection
@@ -73,9 +88,9 @@ class HybridCameraSession: HybridCameraSessionSpec {
           }
 
           // 3.3. Create connection
-          let connection = try AVCaptureConnection(input: input, output: output)
+          let connection = try AVCaptureConnection(input: deviceInput, output: output)
           guard self.session.canAddConnection(connection) else {
-            throw RuntimeError.error(withMessage: "Connection from \"\(input)\" -> \"\(output)\" cannot be added to Camera Session!")
+            throw RuntimeError.error(withMessage: "Connection \"\(connection)\" cannot be added to Camera Session!")
           }
           print("Adding Connection \"\(connection)\"...")
           self.session.addConnection(connection)
@@ -99,18 +114,5 @@ class HybridCameraSession: HybridCameraSessionSpec {
     return Promise.parallel(queue) {
       self.session.stopRunning()
     }
-  }
-
-  private func areInputsTheSame(_ inputs:  [any HybridCameraDeviceSpec]) -> Bool {
-    guard session.inputs.count == inputs.count else {
-      return false
-    }
-    return inputs.allSatisfy { input in session.containsInput(input) }
-  }
-  private func areOutputsTheSame(_ outputs:  [any HybridCameraOutputSpec]) -> Bool {
-    guard session.outputs.count == outputs.count else {
-      return false
-    }
-    return outputs.allSatisfy { output in session.containsOutput(output) }
   }
 }

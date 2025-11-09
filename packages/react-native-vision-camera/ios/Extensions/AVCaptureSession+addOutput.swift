@@ -27,7 +27,7 @@ extension AVCaptureSession {
       // It's a normal AVCaptureOutput
       let output = hybridOutput.output
       guard canAddOutput(output) else {
-        throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" cannot be added to Camera Session!")
+        throw RuntimeError.error(withMessage: "Output \"\(output)\" cannot be added to Camera Session!")
       }
       addOutputWithNoConnections(output)
     } else if let hybridPreview = outputSpec as? NativePreviewViewOutput {
