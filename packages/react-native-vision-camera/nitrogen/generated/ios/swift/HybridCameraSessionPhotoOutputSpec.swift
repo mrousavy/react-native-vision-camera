@@ -10,7 +10,7 @@ import NitroModules
 import NitroModules
 
 /// See ``HybridCameraSessionPhotoOutputSpec``
-public protocol HybridCameraSessionPhotoOutputSpec_protocol: HybridObject, HybridCameraSessionOutputSpec_protocol {
+public protocol HybridCameraSessionPhotoOutputSpec_protocol: HybridObject, HybridCameraOutputSpec_protocol {
   // Properties
   
 
@@ -26,7 +26,7 @@ public extension HybridCameraSessionPhotoOutputSpec_protocol {
 }
 
 /// See ``HybridCameraSessionPhotoOutputSpec``
-open class HybridCameraSessionPhotoOutputSpec_base: HybridCameraSessionOutputSpec_base {
+open class HybridCameraSessionPhotoOutputSpec_base: HybridCameraOutputSpec_base {
   private weak var cxxWrapper: HybridCameraSessionPhotoOutputSpec_cxx? = nil
   public override init() { super.init() }
   public override func getCxxWrapper() -> HybridCameraSessionPhotoOutputSpec_cxx {

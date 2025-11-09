@@ -1,5 +1,5 @@
 ///
-/// AVCaptureSession+addInput.swift
+/// AVCaptureSession+containsInput.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -9,15 +9,32 @@ import NitroModules
 import AVFoundation
 
 extension AVCaptureSession {
-  func addInput(_ inputSpec: any HybridCameraDeviceSpec) throws {
-    guard let hybridDevice = inputSpec as? HybridCameraDevice else {
-      throw RuntimeError.error(withMessage: "HybridCameraDeviceSpec \(inputSpec) is not of type HybridCameraDevice!")
+  func containsInput(_ inputSpec: any HybridCameraDeviceSpec) -> Bool {
+    // 1. Downcast
+    guard let hybridInput = inputSpec as? HybridCameraDevice else {
+      return false
     }
-    let device = hybridDevice.device
-    let input = try AVCaptureDeviceInput(device: device)
-    guard self.canAddInput(input) else {
-      throw RuntimeError.error(withMessage: "Cannot add input device \(device.uniqueID) to CameraSession!")
+    // 2. Check if out inputs contains this device
+    return containsInputDevice(hybridInput.device)
+  }
+  
+  func containsInputDevice(_ device: AVCaptureDevice) -> Bool {
+    return inputs.contains { input in
+      guard let input = input as? AVCaptureDeviceInput else {
+        return false
+      }
+      return device == input.device
     }
-    self.addInput(input)
+  }
+  
+  func addInputWithNoConnections(_ inputSpec: any HybridCameraDeviceSpec) throws {
+    guard let hybridInput = inputSpec as? HybridCameraDevice else {
+      throw RuntimeError.error(withMessage: "Input \"\(inputSpec)\" does not conform to `HybridCameraDevice`!")
+    }
+    let input = try hybridInput.getInput()
+    guard canAddInput(input) else {
+      throw RuntimeError.error(withMessage: "Input \"\(inputSpec)\" cannot be added to Camera Session!")
+    }
+    addInputWithNoConnections(input)
   }
 }

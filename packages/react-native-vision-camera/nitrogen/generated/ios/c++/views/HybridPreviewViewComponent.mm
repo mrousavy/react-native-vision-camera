@@ -71,10 +71,10 @@ using namespace margelo::nitro::camera::views;
   // 2. Update each prop individually
   swiftPart.beforeUpdate();
 
-  // session: optional
-  if (newViewProps.session.isDirty) {
-    swiftPart.setSession(newViewProps.session.value);
-    newViewProps.session.isDirty = false;
+  // previewOutput: optional
+  if (newViewProps.previewOutput.isDirty) {
+    swiftPart.setPreviewOutput(newViewProps.previewOutput.value);
+    newViewProps.previewOutput.isDirty = false;
   }
 
   swiftPart.afterUpdate();

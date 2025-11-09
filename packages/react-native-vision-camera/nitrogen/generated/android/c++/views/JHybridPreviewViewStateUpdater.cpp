@@ -36,8 +36,8 @@ void JHybridPreviewViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass>
     throw std::runtime_error("HybridPreviewViewState's data doesn't contain any props!");
   }
   const HybridPreviewViewProps& props = maybeProps.value();
-  if (props.session.isDirty) {
-    view->setSession(props.session.value);
+  if (props.previewOutput.isDirty) {
+    view->setPreviewOutput(props.previewOutput.value);
     // TODO: Set isDirty = false
   }
 

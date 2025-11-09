@@ -18,7 +18,7 @@ import NitroModules
  * - Other HybridObjects need to be wrapped/unwrapped from the Swift TCxx wrapper
  * - Throwing methods need to be wrapped with a Result<T, Error> type, as exceptions cannot be propagated to C++
  */
-open class HybridCameraSessionPhotoOutputSpec_cxx : HybridCameraSessionOutputSpec_cxx {
+open class HybridCameraSessionPhotoOutputSpec_cxx : HybridCameraOutputSpec_cxx {
   /**
    * The Swift <> C++ bridge's namespace (`margelo::nitro::camera::bridge::swift`)
    * from `VisionCamera-Swift-Cxx-Bridge.hpp`.
@@ -86,9 +86,9 @@ open class HybridCameraSessionPhotoOutputSpec_cxx : HybridCameraSessionOutputSpe
     }
   }
 
-  public override func getCxxPart() -> bridge.std__shared_ptr_HybridCameraSessionOutputSpec_ {
+  public override func getCxxPart() -> bridge.std__shared_ptr_HybridCameraOutputSpec_ {
     let ownCxxPart: bridge.std__shared_ptr_HybridCameraSessionPhotoOutputSpec_ = getCxxPart()
-    return bridge.upcast_CameraSessionPhotoOutput_to_CameraSessionOutput(ownCxxPart)
+    return bridge.upcast_CameraSessionPhotoOutput_to_CameraOutput(ownCxxPart)
   }
 
   /**

@@ -8,15 +8,15 @@ import Foundation
 import NitroModules
 import AVFoundation
 
-class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, CameraSessionOutput {
+class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, NativeCameraOutput {
   private let videoOutput: AVCaptureVideoDataOutput
   private let delegate: FrameDelegate
   private let queue: DispatchQueue
-  let type: CameraSessionOutputType = .stream
+  let type: CameraOutputType = .stream
   var output: AVCaptureOutput {
     return videoOutput
   }
-  
+
   init(targetPixelFormat: TargetPixelFormat) {
     self.videoOutput = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
@@ -26,7 +26,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
                                autoreleaseFrequency: .inherit,
                                target: nil)
     super.init()
-    
+
     // Set up our `delegate`
     videoOutput.setSampleBufferDelegate(delegate, queue: queue)
     // Configure `videoSettings`
@@ -40,7 +40,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
       videoOutput.preservesDynamicHDRMetadata = true
     }
   }
-  
+
   private func videoSettingsForPixelFormat(_ targetPixelFormat: TargetPixelFormat) -> [String: Any] {
     let pixelFormat = targetPixelFormat.toCVPixelFormatType()
     if case let .specific(format) = pixelFormat {
@@ -53,11 +53,11 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
       return [:]
     }
   }
-  
+
   var thread: any HybridNativeThreadSpec {
     return HybridNativeThread(queue: queue)
   }
-  
+
   func setOnFrameCallback(onFrame: ((any HybridFrameSpec) -> Bool)?) throws {
     if let onFrame {
       delegate.onFrame = { (sampleBuffer, orientation) in
@@ -69,7 +69,7 @@ class HybridCameraSessionFrameOutput: HybridCameraSessionFrameOutputSpec, Camera
       delegate.onFrame = nil
     }
   }
-  
+
   func setOnFrameDroppedCallback(onFrameDropped: ((FrameDroppedReason) -> Void)?) throws {
     if let onFrameDropped {
       delegate.onFrameDropped = { sampleBuffer in

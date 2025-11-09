@@ -1,5 +1,5 @@
 ///
-/// AVCaptureSession+addOutput.swift
+/// AVCaptureSession+containsOutput.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -9,14 +9,23 @@ import NitroModules
 import AVFoundation
 
 extension AVCaptureSession {
-  func addOutput(_ outputSpec: any HybridCameraSessionOutputSpec) throws {
-    guard let outputHolder = outputSpec as? CameraSessionOutput else {
-      throw RuntimeError.error(withMessage: "HybridCameraSessionOutputSpec \(outputSpec) is not of type CameraSessionOutput!")
+  func containsOutput(_ outputSpec: any HybridCameraOutputSpec) -> Bool {
+    // 1. Downcast
+    guard let hybridOutput = outputSpec as? NativeCameraOutput else {
+      return false
     }
-    let output = outputHolder.output
-    guard self.canAddOutput(output) else {
-      throw RuntimeError.error(withMessage: "Cannot add output \(String(describing: output)) to CameraSession!")
+    // 2. Find if it is contained
+    return outputs.contains(hybridOutput.output)
+  }
+  
+  func addOutputWithNoConnections(_ outputSpec: any HybridCameraOutputSpec) throws {
+    guard let hybridOutput = outputSpec as? NativeCameraOutput else {
+      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" does not conform to `NativeCameraOutput`!")
     }
-    self.addOutput(output)
+    let output = hybridOutput.output
+    guard canAddOutput(output) else {
+      throw RuntimeError.error(withMessage: "Output \"\(outputSpec)\" cannot be added to Camera Session!")
+    }
+    addOutputWithNoConnections(output)
   }
 }

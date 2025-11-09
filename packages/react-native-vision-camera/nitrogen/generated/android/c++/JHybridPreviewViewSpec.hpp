@@ -50,8 +50,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    std::optional<std::shared_ptr<HybridCameraSessionSpec>> getSession() override;
-    void setSession(const std::optional<std::shared_ptr<HybridCameraSessionSpec>>& session) override;
+    std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>> getPreviewOutput() override;
+    void setPreviewOutput(const std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>& previewOutput) override;
 
   public:
     // Methods

@@ -1,4 +1,4 @@
-import type { CameraSessionOutput } from './CameraSessionOutput.nitro'
+import type { CameraOutput } from './CameraOutput.nitro'
 import type { Photo } from '../Photo.nitro'
 
 export interface CapturePhotoCallbacks {
@@ -25,7 +25,7 @@ export interface CapturePhotoSettings {
   // TODO: Add previewPhotoFormat
 }
 
-export interface CameraSessionPhotoOutput extends CameraSessionOutput {
+export interface CameraSessionPhotoOutput extends CameraOutput {
   // TODO: Add prepareSettings(...)
   capturePhoto(
     settings?: CapturePhotoSettings,

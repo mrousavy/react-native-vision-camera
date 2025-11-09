@@ -11,9 +11,8 @@ import AVFoundation
 class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
   private let queue: DispatchQueue
-  private var configuration: CameraSessionConfiguration? = nil
   private static var counter = 0
-  
+
   override init() {
     self.session = AVCaptureSession()
     Self.counter += 1
@@ -25,64 +24,75 @@ class HybridCameraSession: HybridCameraSessionSpec {
                                target: nil)
     super.init()
   }
-  
+
   var cameraThread: any HybridNativeThreadSpec {
     return HybridNativeThread(queue: queue)
   }
   var isRunning: Bool {
     return session.isRunning
   }
-  
-  func configure(inputs: [any HybridCameraDeviceSpec],
-                 outputs: [any HybridCameraSessionOutputSpec],
-                 configuration: CameraSessionConfiguration) -> Promise<Void> {
+
+  func configure(connections: [CameraSessionConnection]) -> Promise<[any HybridCameraDeviceControllerSpec]> {
     return Promise.parallel(queue) {
-      // 1. Check if we need to do an actual session configuration batch
-      let isSessionTheSame = self.areInputsTheSame(inputs) && self.areOutputsTheSame(outputs)
-      if !isSessionTheSame {
-        // 1.1. Wrap the configuration in a batch
-        self.session.beginConfiguration()
-        defer { self.session.commitConfiguration() }
-        
-        // 1.2. Remove all inputs that are not part of our target inputs array
-        try self.session.removeOtherInputs(except: inputs)
-        // 1.3. Add all inputs from our target array that are not part of the session yet
-        try self.session.addNewInputs(from: inputs)
-        
-        // 1.4. Remove all outputs that are not part of our target outputs array
-        try self.session.removeOtherOutputs(except: outputs)
-        // 1.5. Add all outputs from our target array that are not part of the session yet
-        try self.session.addNewOutputs(from: outputs)
+      // Wrap the configuration in a batch
+      self.session.beginConfiguration()
+      defer { self.session.commitConfiguration() }
+      
+      // TODO: Remove only inputs/outputs/connections that we don't use
+      self.session.connections.forEach { self.session.removeConnection($0) }
+      self.session.inputs.forEach { self.session.removeInput($0) }
+      self.session.outputs.forEach { self.session.removeOutput($0) }
+
+      // Connect inputs and outputs
+      for connection in connections {
+        // 2. Maybe add input
+        let input = connection.input
+        if !self.session.containsInput(input) {
+          try self.session.addInputWithNoConnections(input)
+        }
+
+        // 3. Loop through all outputs of this connection
+        for output in connection.outputs {
+          // 3.1. Maybe add output (preview is not a real output so that's the exception)
+          if output.type != .preview {
+            if !self.session.containsOutput(output) {
+              try self.session.addOutputWithNoConnections(output)
+            }
+          }
+
+          // 3.3. Create connection
+          let connection = try AVCaptureConnection(input: input, output: output)
+          guard self.session.canAddConnection(connection) else {
+            throw RuntimeError.error(withMessage: "Connection from \"\(input)\" -> \"\(output)\" cannot be added to Camera Session!")
+          }
+          self.session.addConnection(connection)
+        }
       }
       
-      // 2. Check if the configuration itself changed - we need to batch that in device locks
-      // TODO: Detect if configuration changed.. somehow.
-      let isConfigTheSame = false
-      if !isConfigTheSame {
-        
-      }
+      // TODO: Return controller to set focus etc
+      return []
     }
   }
-  
+
   func start() -> Promise<Void> {
     return Promise.parallel(queue) {
       self.session.startRunning()
     }
   }
-  
+
   func stop() -> Promise<Void> {
     return Promise.parallel(queue) {
       self.session.stopRunning()
     }
   }
-  
+
   private func areInputsTheSame(_ inputs:  [any HybridCameraDeviceSpec]) -> Bool {
     guard session.inputs.count == inputs.count else {
       return false
     }
     return inputs.allSatisfy { input in session.containsInput(input) }
   }
-  private func areOutputsTheSame(_ outputs:  [any HybridCameraSessionOutputSpec]) -> Bool {
+  private func areOutputsTheSame(_ outputs:  [any HybridCameraOutputSpec]) -> Bool {
     guard session.outputs.count == outputs.count else {
       return false
     }

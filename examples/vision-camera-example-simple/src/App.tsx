@@ -24,6 +24,7 @@ function App() {
 function AppContent() {
   const devices = useCameraDevices()
   const session = useMemo(() => HybridCameraFactory.createCameraSession(), [])
+  const preview = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
 
   useEffect(() => {
     for (const device of devices) {
@@ -49,19 +50,6 @@ function AppContent() {
       const unboxed = boxedOutput.unbox()
       unboxed.setOnFrameCallback((frame) => {
         console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-
-        const mainBuf = frame.getPixelBuffer()
-        console.log(`MAIN: ${frame.width}x${frame.height} = ${mainBuf.byteLength}`)
-        for (const plane of frame.getPlanes()) {
-          const buf = plane.getPixelBuffer()
-          console.log(`- PLANE: ${plane.width}x${plane.height} = ${buf.byteLength}`)
-        }
-
-        const view = new Uint8Array(mainBuf)
-        console.log(`[0,0] BEFORE: ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
-        frame.dispose()
-        console.log(`[0,0] AFTER:  ${view[0]}, ${view[1]}, ${view[2]}, ${view[3]}`)
-
         return true
       })
     })
@@ -77,9 +65,15 @@ function AppContent() {
         const mark1 = performance.now()
         const photo = HybridCameraFactory.createPhotoOutput()
         const video = createVideoOutput()
-        await session.configure([device], [photo, video], {})
+        const controller = await session.configure([
+          {
+            input: device,
+            outputs: [photo, video]
+          }
+        ])
         const mark2 = performance.now()
         console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
+        console.log(controller)
 
         await session.start()
         const mark3 = performance.now()
@@ -95,7 +89,7 @@ function AppContent() {
       {devices.map((d) => (
         <Text key={d.id}>{d.id}</Text>
       ))}
-      <NativePreviewView style={styles.camera} session={session} />
+      <NativePreviewView style={styles.camera} previewOutput={preview} />
     </View>
   );
 }

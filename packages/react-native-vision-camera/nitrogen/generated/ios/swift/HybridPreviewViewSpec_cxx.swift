@@ -114,12 +114,12 @@ open class HybridPreviewViewSpec_cxx {
   }
 
   // Properties
-  public final var session: bridge.std__optional_std__shared_ptr_HybridCameraSessionSpec__ {
+  public final var previewOutput: bridge.std__optional_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__ {
     @inline(__always)
     get {
-      return { () -> bridge.std__optional_std__shared_ptr_HybridCameraSessionSpec__ in
-        if let __unwrappedValue = self.__implementation.session {
-          return bridge.create_std__optional_std__shared_ptr_HybridCameraSessionSpec__({ () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
+      return { () -> bridge.std__optional_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__ in
+        if let __unwrappedValue = self.__implementation.previewOutput {
+          return bridge.create_std__optional_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__({ () -> bridge.std__shared_ptr_HybridCameraSessionPreviewOutputSpec_ in
             let __cxxWrapped = __unwrappedValue.getCxxWrapper()
             return __cxxWrapped.getCxxPart()
           }())
@@ -130,13 +130,13 @@ open class HybridPreviewViewSpec_cxx {
     }
     @inline(__always)
     set {
-      self.__implementation.session = { () -> (any HybridCameraSessionSpec)? in
-        if bridge.has_value_std__optional_std__shared_ptr_HybridCameraSessionSpec__(newValue) {
-          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridCameraSessionSpec__(newValue)
-          return { () -> HybridCameraSessionSpec in
-            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraSessionSpec_(__unwrapped)
-            let __instance = HybridCameraSessionSpec_cxx.fromUnsafe(__unsafePointer)
-            return __instance.getHybridCameraSessionSpec()
+      self.__implementation.previewOutput = { () -> (any HybridCameraSessionPreviewOutputSpec)? in
+        if bridge.has_value_std__optional_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(newValue) {
+          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridCameraSessionPreviewOutputSpec__(newValue)
+          return { () -> HybridCameraSessionPreviewOutputSpec in
+            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraSessionPreviewOutputSpec_(__unwrapped)
+            let __instance = HybridCameraSessionPreviewOutputSpec_cxx.fromUnsafe(__unsafePointer)
+            return __instance.getHybridCameraSessionPreviewOutputSpec()
           }()
         } else {
           return nil

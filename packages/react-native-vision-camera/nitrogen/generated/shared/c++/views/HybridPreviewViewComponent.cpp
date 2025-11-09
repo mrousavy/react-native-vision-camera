@@ -25,14 +25,14 @@ namespace margelo::nitro::camera::views {
                                                  const HybridPreviewViewProps& sourceProps,
                                                  const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    session([&]() -> CachedProp<std::optional<std::shared_ptr<HybridCameraSessionSpec>>> {
+    previewOutput([&]() -> CachedProp<std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>> {
       try {
-        const react::RawValue* rawValue = rawProps.at("session", nullptr, nullptr);
-        if (rawValue == nullptr) return sourceProps.session;
+        const react::RawValue* rawValue = rawProps.at("previewOutput", nullptr, nullptr);
+        if (rawValue == nullptr) return sourceProps.previewOutput;
         const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
-        return CachedProp<std::optional<std::shared_ptr<HybridCameraSessionSpec>>>::fromRawValue(*runtime, value, sourceProps.session);
+        return CachedProp<std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>>::fromRawValue(*runtime, value, sourceProps.previewOutput);
       } catch (const std::exception& exc) {
-        throw std::runtime_error(std::string("PreviewView.session: ") + exc.what());
+        throw std::runtime_error(std::string("PreviewView.previewOutput: ") + exc.what());
       }
     }()),
     hybridRef([&]() -> CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> {
@@ -48,12 +48,12 @@ namespace margelo::nitro::camera::views {
 
   HybridPreviewViewProps::HybridPreviewViewProps(const HybridPreviewViewProps& other):
     react::ViewProps(),
-    session(other.session),
+    previewOutput(other.previewOutput),
     hybridRef(other.hybridRef) { }
 
   bool HybridPreviewViewProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
-      case hashString("session"): return true;
+      case hashString("previewOutput"): return true;
       case hashString("hybridRef"): return true;
       default: return false;
     }

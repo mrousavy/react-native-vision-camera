@@ -17,7 +17,7 @@
 #include <react/renderer/components/view/ViewProps.h>
 
 #include <memory>
-#include "HybridCameraSessionSpec.hpp"
+#include "HybridCameraSessionPreviewOutputSpec.hpp"
 #include <optional>
 #include "HybridPreviewViewSpec.hpp"
 #include <functional>
@@ -43,7 +43,7 @@ namespace margelo::nitro::camera::views {
                            const react::RawProps& rawProps);
 
   public:
-    CachedProp<std::optional<std::shared_ptr<HybridCameraSessionSpec>>> session;
+    CachedProp<std::optional<std::shared_ptr<HybridCameraSessionPreviewOutputSpec>>> previewOutput;
     CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> hybridRef;
 
   private:
