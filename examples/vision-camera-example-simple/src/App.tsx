@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NitroModules } from 'react-native-nitro-modules';
@@ -6,7 +6,7 @@ import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController, CameraOutput, Camera } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -118,6 +118,9 @@ function AppContent() {
               style={styles.camera}
               input={device}
               outputs={outputs}
+              configuration={{
+                zoom: zoom
+              }}
             />
           )}
         </View>
