@@ -4,10 +4,16 @@ import type { VideoStabilizationMode } from './common-types/VideoStabilizationMo
 import type { Range } from './common-types/Range'
 import type { ColorSpace } from './common-types/ColorSpace'
 import type { AutoFocusSystem } from './common-types/AutoFocusSystem'
+import type { VideoPixelFormat } from './common-types/VideoPixelFormat'
+import type { DepthPixelFormat } from './common-types/DepthPixelFormat'
 
 export type MediaType = 'video' | 'depth' | 'other'
+export type FormatPixelFormat = VideoPixelFormat | DepthPixelFormat
 
 export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
+  // pragma MARK: Pixel Format
+  readonly pixelFormat: FormatPixelFormat
+
   // pragma MARK: Resolutions
   readonly photoResolution: Resolution
   readonly videoResolution: Resolution

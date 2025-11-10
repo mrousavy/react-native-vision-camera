@@ -13,6 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `FormatPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FormatPixelFormat; }
 // Forward declaration of `Resolution` to properly resolve imports.
 namespace margelo::nitro::camera { struct Resolution; }
 // Forward declaration of `Range` to properly resolve imports.
@@ -28,6 +30,7 @@ namespace margelo::nitro::camera { class HybridCameraFormatSpec; }
 // Forward declaration of `VideoStabilizationMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 
+#include "FormatPixelFormat.hpp"
 #include "Resolution.hpp"
 #include <vector>
 #include "Range.hpp"
@@ -66,6 +69,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
+      virtual FormatPixelFormat getPixelFormat() = 0;
       virtual Resolution getPhotoResolution() = 0;
       virtual Resolution getVideoResolution() = 0;
       virtual std::vector<Resolution> getSupportedPhotoResolutions() = 0;

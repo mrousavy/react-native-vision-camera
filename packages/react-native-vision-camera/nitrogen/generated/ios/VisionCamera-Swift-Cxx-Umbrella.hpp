@@ -38,6 +38,8 @@ namespace margelo::nitro::camera { enum class ExposureMode; }
 namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `FocusMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FocusMode; }
+// Forward declaration of `FormatPixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class FormatPixelFormat; }
 // Forward declaration of `FrameDroppedReason` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraCalibrationDataSpec` to properly resolve imports.
@@ -129,6 +131,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "ExposureMode.hpp"
 #include "FlashMode.hpp"
 #include "FocusMode.hpp"
+#include "FormatPixelFormat.hpp"
 #include "FrameDroppedReason.hpp"
 #include "HybridCameraCalibrationDataSpec.hpp"
 #include "HybridCameraDepthFrameOutputSpec.hpp"

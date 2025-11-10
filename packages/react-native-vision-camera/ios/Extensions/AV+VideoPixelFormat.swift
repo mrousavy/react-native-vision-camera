@@ -1,5 +1,5 @@
 ///
-/// AutoFocusSystem+VideoPixelFormat.swift
+/// AV+VideoPixelFormat.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///

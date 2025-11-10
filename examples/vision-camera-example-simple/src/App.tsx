@@ -52,7 +52,7 @@ function createVideoOutput(): CameraOutput {
   return output
 }
 function createDepthOutput(): CameraOutput {
-  const output = HybridCameraFactory.createDepthFrameOutput('native')
+  const output = HybridCameraFactory.createDepthFrameOutput('depth-16-bit')
   const thread = output.thread
   const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
   const runtime = createWorkletRuntime({
@@ -121,13 +121,19 @@ function AppContent() {
   useEffect(() => {
     for (const d of devices) {
       console.log(`${d.id} ${d.formats[0]?.mediaType} ${d.formats[0]!.supportedColorSpaces[0]} ${d.formats[0]?.photoResolution.width} x ${d.formats[0]?.photoResolution.height} ("${d.localizedName}")`)
+      for (const f of d.formats) {
+        for (const df of f.depthDataFormats) {
+          console.log(`    DEPTH-FORMAT: ${df.pixelFormat}`)
+        }
+        console.log(`FORMAT: ${f.pixelFormat}`)
+      }
     }
   }, [devices])
 
   const videoOutput = useMemo(() => createVideoOutput(), [])
   const depthOutput = useMemo(() => createDepthOutput(), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
-  const outputs = useMemo(() => [videoOutput, photoOutput, depthOutput], [photoOutput, videoOutput, depthOutput])
+  const outputs = useMemo(() => [photoOutput, depthOutput], [photoOutput, depthOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
@@ -157,9 +163,6 @@ function AppContent() {
               style={styles.camera}
               input={device}
               outputs={outputs}
-              configuration={{
-                zoom: zoom
-              }}
             />
           )}
         </View>

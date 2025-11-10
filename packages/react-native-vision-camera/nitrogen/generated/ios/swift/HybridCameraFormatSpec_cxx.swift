@@ -114,6 +114,13 @@ open class HybridCameraFormatSpec_cxx {
   }
 
   // Properties
+  public final var pixelFormat: Int32 {
+    @inline(__always)
+    get {
+      return self.__implementation.pixelFormat.rawValue
+    }
+  }
+  
   public final var photoResolution: Resolution {
     @inline(__always)
     get {
