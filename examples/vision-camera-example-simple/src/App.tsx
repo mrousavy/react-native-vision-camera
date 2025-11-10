@@ -73,13 +73,18 @@ function AppContent() {
     console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
 
     const sourceBuffer = depth.getDepthData()
-    const rgbBuffer = new ArrayBuffer(sourceBuffer.byteLength * 4)
+    const stride = 4
+    const rgbBuffer = new ArrayBuffer(sourceBuffer.byteLength * stride)
     console.log(`New Buf: ${sourceBuffer.byteLength} -> ${rgbBuffer.byteLength}`)
     if (depth.pixelFormat === "depth-32-bit") {
       const fromView = new Float32Array(sourceBuffer)
-      const toView = new Float32Array(rgbBuffer)
-      for (let i = 0; i < fromView.length; i++) {
-        toView[i] = fromView[i]!
+      const toView = new Uint8ClampedArray(rgbBuffer)
+      for (let i = 0; i < toView.length; i += stride) {
+        const d = fromView[i / stride] ?? 0
+        toView[i + 0] = d * 255
+        toView[i + 1] = d * 255
+        toView[i + 2] = d * 255
+        toView[i + 3] = 255
       }
     } else {
       const fromView = new Uint8Array(sourceBuffer)
@@ -96,7 +101,7 @@ function AppContent() {
     const i = images.loadFromRawPixelData({
       width: depth.width,
       height: depth.height,
-      pixelFormat: 'ARGB',
+      pixelFormat: 'BGRA',
       buffer: rgbBuffer
     }, false)
     const boxed = globalBox(i)
@@ -160,7 +165,7 @@ function AppContent() {
             />
           )}
           {image != null && (
-            <NitroImage style={styles.camera} image={image} />
+            <NitroImage resizeMode='contain' style={styles.camera} image={image} />
           )}
         </View>
       </GestureDetector>
