@@ -19,6 +19,14 @@ extension VideoPixelFormat {
       self = .yuv42010BitVideo
     case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
       self = .yuv42010BitFull
+    case kCVPixelFormatType_422YpCbCr8BiPlanarVideoRange:
+      self = .yuv4228BitVideo
+    case kCVPixelFormatType_422YpCbCr8BiPlanarFullRange:
+      self = .yuv4228BitFull
+    case kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange:
+      self = .yuv42210BitVideo
+    case kCVPixelFormatType_422YpCbCr10BiPlanarFullRange:
+      self = .yuv42210BitFull
     case kCVPixelFormatType_32BGRA:
       self = .rgbBgra32Bit
     default:
@@ -38,6 +46,10 @@ extension VideoPixelFormat {
       return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
     case .yuv42210BitVideo:
       return kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange
+    case .yuv4228BitFull:
+      return kCVPixelFormatType_422YpCbCr8BiPlanarFullRange
+    case .yuv4228BitVideo:
+      return kCVPixelFormatType_422YpCbCr8BiPlanarVideoRange
     case .yuv42210BitFull:
       return kCVPixelFormatType_422YpCbCr10BiPlanarFullRange
     case .rgbBgra32Bit:

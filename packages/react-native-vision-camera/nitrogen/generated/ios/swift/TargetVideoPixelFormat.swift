@@ -27,6 +27,10 @@ public extension TargetVideoPixelFormat {
         self = .yuv42010BitVideo
       case "yuv-420-10-bit-full":
         self = .yuv42010BitFull
+      case "yuv-422-8-bit-video":
+        self = .yuv4228BitVideo
+      case "yuv-422-8-bit-full":
+        self = .yuv4228BitFull
       case "yuv-422-10-bit-video":
         self = .yuv42210BitVideo
       case "yuv-422-10-bit-full":
@@ -53,6 +57,10 @@ public extension TargetVideoPixelFormat {
         return "yuv-420-10-bit-video"
       case .yuv42010BitFull:
         return "yuv-420-10-bit-full"
+      case .yuv4228BitVideo:
+        return "yuv-422-8-bit-video"
+      case .yuv4228BitFull:
+        return "yuv-422-8-bit-full"
       case .yuv42210BitVideo:
         return "yuv-422-10-bit-video"
       case .yuv42210BitFull:
