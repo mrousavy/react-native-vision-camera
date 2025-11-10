@@ -123,9 +123,9 @@ function AppContent() {
       console.log(`${d.id} ${d.formats[0]?.mediaType} ${d.formats[0]!.supportedColorSpaces[0]} ${d.formats[0]?.photoResolution.width} x ${d.formats[0]?.photoResolution.height} ("${d.localizedName}")`)
       for (const f of d.formats) {
         for (const df of f.depthDataFormats) {
-          console.log(`    DEPTH-FORMAT: ${df.pixelFormat}`)
+          console.log(`    DEPTH-FORMAT: ${df.nativePixelFormat}`)
         }
-        console.log(`FORMAT: ${f.pixelFormat}`)
+        console.log(`FORMAT: ${f.nativePixelFormat}`)
       }
     }
   }, [devices])
