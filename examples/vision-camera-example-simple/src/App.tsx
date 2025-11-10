@@ -110,12 +110,12 @@ function AppContent() {
 
   const outputs = useMemo(() => {
     console.log('rebuilding outputs')
-    const result: CameraOutput[] = [photoOutput, frameOutput]
+    const result: CameraOutput[] = []
     if (supportsDepth) {
       result.push(depthOutput)
     }
     return result
-  }, [depthOutput, photoOutput, supportsDepth, frameOutput])
+  }, [depthOutput, supportsDepth])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
@@ -133,7 +133,7 @@ function AppContent() {
     })
     .runOnJS(true)
 
-  const holdGesture = Gesture.LongPress()
+  const holdGesture = Gesture.Tap()
     .onEnd(() => {
       setEnableNightVision((e) => !e)
     })
@@ -193,9 +193,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   camera: {
-    borderWidth: 1,
-    borderColor: 'red',
-    margin: 25,
     flex: 1
   }
 });
