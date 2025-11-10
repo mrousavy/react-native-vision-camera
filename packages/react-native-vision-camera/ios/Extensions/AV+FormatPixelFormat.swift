@@ -27,6 +27,14 @@ extension FormatPixelFormat {
       self = .yuv42010BitVideo
     case .yuv42010BitFull:
       self = .yuv42010BitFull
+    case .yuv4228BitVideo:
+      self = .yuv4228BitVideo
+    case .yuv4228BitFull:
+      self = .yuv4228BitFull
+    case .yuv42210BitVideo:
+      self = .yuv42210BitVideo
+    case .yuv42210BitFull:
+      self = .yuv42210BitFull
     case .rgbBgra32Bit:
       self = .rgbBgra32Bit
     default:
