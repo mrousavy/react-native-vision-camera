@@ -2789,7 +2789,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../../../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
-  - RNWorklets (from `../node_modules/react-native-worklets`)
+  - RNWorklets (from `../../../node_modules/react-native-worklets`)
   - SocketRocket (~> 0.7.1)
   - VisionCamera (from `../../../node_modules/react-native-vision-camera`)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
@@ -2955,7 +2955,7 @@ EXTERNAL SOURCES:
   RNReanimated:
     :path: "../../../node_modules/react-native-reanimated"
   RNWorklets:
-    :path: "../node_modules/react-native-worklets"
+    :path: "../../../node_modules/react-native-worklets"
   VisionCamera:
     :path: "../../../node_modules/react-native-vision-camera"
   Yoga:
@@ -2971,7 +2971,7 @@ SPEC CHECKSUMS:
   hermes-engine: 273e30e7fb618279934b0b95ffab60ecedb7acf5
   NitroImage: 63ae5ae4b7735545e6370387a7fe8c7b5f0e20f3
   NitroModules: 6f5aa593242555d54bf130802eba066a0bb87814
-  RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
+  RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: f17e2ebc07876ca9ab8eb6e4b0a4e4647497ae3a
   RCTRequired: e2c574c1b45231f7efb0834936bd609d75072b63
   RCTTypeSafety: c693294e3993056955c3010eb1ebc574f1fcded6
@@ -3038,8 +3038,8 @@ SPEC CHECKSUMS:
   ReactCodegen: 12f53f620c0244a5f35f0adf6cf2daea65818d3e
   ReactCommon: c5803af00bd3737dc1631749b1f1da5beba5b049
   RNGestureHandler: 927ba2c590c8973f24624f1c1279be08a22ec58d
-  RNReanimated: f0f9ed05f9b6616f001d77d0ea843eb375dad924
-  RNWorklets: f6f5aacbcf7b86d2ebc45f705ed803925cb4bb94
+  RNReanimated: 451f6574c6913b15ea3e3a33f2d0a95f68f83081
+  RNWorklets: 089683f4a4564f30393d32352d41d9e92c3e5a55
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   VisionCamera: 6a75c441c9ca8db59305557d88a17a1efb82754f
   Yoga: 8e01cef9947ca77f0477a098f0b32848a8e448c6
