@@ -34,7 +34,9 @@ namespace margelo::nitro::camera {
     YUV_420_8_BIT_FULL      SWIFT_NAME(yuv4208BitFull) = 2,
     YUV_420_10_BIT_VIDEO      SWIFT_NAME(yuv42010BitVideo) = 3,
     YUV_420_10_BIT_FULL      SWIFT_NAME(yuv42010BitFull) = 4,
-    RGB_BGRA_32_BIT      SWIFT_NAME(rgbBgra32Bit) = 5,
+    YUV_422_10_BIT_VIDEO      SWIFT_NAME(yuv42210BitVideo) = 5,
+    YUV_422_10_BIT_FULL      SWIFT_NAME(yuv42210BitFull) = 6,
+    RGB_BGRA_32_BIT      SWIFT_NAME(rgbBgra32Bit) = 7,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -52,6 +54,8 @@ namespace margelo::nitro {
         case hashString("yuv-420-8-bit-full"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_FULL;
         case hashString("yuv-420-10-bit-video"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_10_BIT_VIDEO;
         case hashString("yuv-420-10-bit-full"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_10_BIT_FULL;
+        case hashString("yuv-422-10-bit-video"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_422_10_BIT_VIDEO;
+        case hashString("yuv-422-10-bit-full"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_422_10_BIT_FULL;
         case hashString("rgb-bgra-32-bit"): return margelo::nitro::camera::TargetVideoPixelFormat::RGB_BGRA_32_BIT;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum TargetVideoPixelFormat - invalid value!");
@@ -64,6 +68,8 @@ namespace margelo::nitro {
         case margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-full");
         case margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-video");
         case margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-full");
+        case margelo::nitro::camera::TargetVideoPixelFormat::YUV_422_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-video");
+        case margelo::nitro::camera::TargetVideoPixelFormat::YUV_422_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-full");
         case margelo::nitro::camera::TargetVideoPixelFormat::RGB_BGRA_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "rgb-bgra-32-bit");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert TargetVideoPixelFormat to JS - invalid value: "
@@ -81,6 +87,8 @@ namespace margelo::nitro {
         case hashString("yuv-420-8-bit-full"):
         case hashString("yuv-420-10-bit-video"):
         case hashString("yuv-420-10-bit-full"):
+        case hashString("yuv-422-10-bit-video"):
+        case hashString("yuv-422-10-bit-full"):
         case hashString("rgb-bgra-32-bit"):
           return true;
         default:

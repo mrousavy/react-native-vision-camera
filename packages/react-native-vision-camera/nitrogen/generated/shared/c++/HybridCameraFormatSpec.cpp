@@ -14,7 +14,7 @@ namespace margelo::nitro::camera {
     HybridObject::loadHybridMethods();
     // load custom methods/properties
     registerHybrids(this, [](Prototype& prototype) {
-      prototype.registerHybridGetter("pixelFormat", &HybridCameraFormatSpec::getPixelFormat);
+      prototype.registerHybridGetter("nativePixelFormat", &HybridCameraFormatSpec::getNativePixelFormat);
       prototype.registerHybridGetter("photoResolution", &HybridCameraFormatSpec::getPhotoResolution);
       prototype.registerHybridGetter("videoResolution", &HybridCameraFormatSpec::getVideoResolution);
       prototype.registerHybridGetter("supportedPhotoResolutions", &HybridCameraFormatSpec::getSupportedPhotoResolutions);

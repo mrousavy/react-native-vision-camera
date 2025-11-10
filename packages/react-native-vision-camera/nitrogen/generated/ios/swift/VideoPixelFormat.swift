@@ -25,6 +25,10 @@ public extension VideoPixelFormat {
         self = .yuv42010BitVideo
       case "yuv-420-10-bit-full":
         self = .yuv42010BitFull
+      case "yuv-422-10-bit-video":
+        self = .yuv42210BitVideo
+      case "yuv-422-10-bit-full":
+        self = .yuv42210BitFull
       case "rgb-bgra-32-bit":
         self = .rgbBgra32Bit
       case "unknown":
@@ -47,6 +51,10 @@ public extension VideoPixelFormat {
         return "yuv-420-10-bit-video"
       case .yuv42010BitFull:
         return "yuv-420-10-bit-full"
+      case .yuv42210BitVideo:
+        return "yuv-422-10-bit-video"
+      case .yuv42210BitFull:
+        return "yuv-422-10-bit-full"
       case .rgbBgra32Bit:
         return "rgb-bgra-32-bit"
       case .unknown:

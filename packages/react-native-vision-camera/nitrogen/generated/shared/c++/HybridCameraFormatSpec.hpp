@@ -69,7 +69,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual FormatPixelFormat getPixelFormat() = 0;
+      virtual FormatPixelFormat getNativePixelFormat() = 0;
       virtual Resolution getPhotoResolution() = 0;
       virtual Resolution getVideoResolution() = 0;
       virtual std::vector<Resolution> getSupportedPhotoResolutions() = 0;

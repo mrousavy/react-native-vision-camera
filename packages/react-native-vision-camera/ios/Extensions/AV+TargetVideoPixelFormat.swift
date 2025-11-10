@@ -21,6 +21,10 @@ extension TargetVideoPixelFormat {
       return .specific(kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange)
     case .yuv42010BitFull:
       return .specific(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange)
+    case .yuv42210BitVideo:
+      return .specific(kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange)
+    case .yuv42210BitFull:
+      return .specific(kCVPixelFormatType_422YpCbCr10BiPlanarFullRange)
     case .rgbBgra32Bit:
       return .specific(kCVPixelFormatType_32BGRA)
     }

@@ -114,10 +114,10 @@ open class HybridCameraFormatSpec_cxx {
   }
 
   // Properties
-  public final var pixelFormat: Int32 {
+  public final var nativePixelFormat: Int32 {
     @inline(__always)
     get {
-      return self.__implementation.pixelFormat.rawValue
+      return self.__implementation.nativePixelFormat.rawValue
     }
   }
   

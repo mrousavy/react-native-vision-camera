@@ -33,12 +33,14 @@ namespace margelo::nitro::camera {
     YUV_420_8_BIT_FULL      SWIFT_NAME(yuv4208BitFull) = 1,
     YUV_420_10_BIT_VIDEO      SWIFT_NAME(yuv42010BitVideo) = 2,
     YUV_420_10_BIT_FULL      SWIFT_NAME(yuv42010BitFull) = 3,
-    RGB_BGRA_32_BIT      SWIFT_NAME(rgbBgra32Bit) = 4,
-    UNKNOWN      SWIFT_NAME(unknown) = 5,
-    DEPTH_32_BIT      SWIFT_NAME(depth32Bit) = 6,
-    DEPTH_16_BIT      SWIFT_NAME(depth16Bit) = 7,
-    DISPARITY_16_BIT      SWIFT_NAME(disparity16Bit) = 8,
-    DISPARITY_32_BIT      SWIFT_NAME(disparity32Bit) = 9,
+    YUV_422_10_BIT_VIDEO      SWIFT_NAME(yuv42210BitVideo) = 4,
+    YUV_422_10_BIT_FULL      SWIFT_NAME(yuv42210BitFull) = 5,
+    RGB_BGRA_32_BIT      SWIFT_NAME(rgbBgra32Bit) = 6,
+    UNKNOWN      SWIFT_NAME(unknown) = 7,
+    DEPTH_32_BIT      SWIFT_NAME(depth32Bit) = 8,
+    DEPTH_16_BIT      SWIFT_NAME(depth16Bit) = 9,
+    DISPARITY_16_BIT      SWIFT_NAME(disparity16Bit) = 10,
+    DISPARITY_32_BIT      SWIFT_NAME(disparity32Bit) = 11,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -55,6 +57,8 @@ namespace margelo::nitro {
         case hashString("yuv-420-8-bit-full"): return margelo::nitro::camera::FormatPixelFormat::YUV_420_8_BIT_FULL;
         case hashString("yuv-420-10-bit-video"): return margelo::nitro::camera::FormatPixelFormat::YUV_420_10_BIT_VIDEO;
         case hashString("yuv-420-10-bit-full"): return margelo::nitro::camera::FormatPixelFormat::YUV_420_10_BIT_FULL;
+        case hashString("yuv-422-10-bit-video"): return margelo::nitro::camera::FormatPixelFormat::YUV_422_10_BIT_VIDEO;
+        case hashString("yuv-422-10-bit-full"): return margelo::nitro::camera::FormatPixelFormat::YUV_422_10_BIT_FULL;
         case hashString("rgb-bgra-32-bit"): return margelo::nitro::camera::FormatPixelFormat::RGB_BGRA_32_BIT;
         case hashString("unknown"): return margelo::nitro::camera::FormatPixelFormat::UNKNOWN;
         case hashString("depth-32-bit"): return margelo::nitro::camera::FormatPixelFormat::DEPTH_32_BIT;
@@ -71,6 +75,8 @@ namespace margelo::nitro {
         case margelo::nitro::camera::FormatPixelFormat::YUV_420_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-full");
         case margelo::nitro::camera::FormatPixelFormat::YUV_420_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-video");
         case margelo::nitro::camera::FormatPixelFormat::YUV_420_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-full");
+        case margelo::nitro::camera::FormatPixelFormat::YUV_422_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-video");
+        case margelo::nitro::camera::FormatPixelFormat::YUV_422_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-full");
         case margelo::nitro::camera::FormatPixelFormat::RGB_BGRA_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "rgb-bgra-32-bit");
         case margelo::nitro::camera::FormatPixelFormat::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
         case margelo::nitro::camera::FormatPixelFormat::DEPTH_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "depth-32-bit");
@@ -92,6 +98,8 @@ namespace margelo::nitro {
         case hashString("yuv-420-8-bit-full"):
         case hashString("yuv-420-10-bit-video"):
         case hashString("yuv-420-10-bit-full"):
+        case hashString("yuv-422-10-bit-video"):
+        case hashString("yuv-422-10-bit-full"):
         case hashString("rgb-bgra-32-bit"):
         case hashString("unknown"):
         case hashString("depth-32-bit"):

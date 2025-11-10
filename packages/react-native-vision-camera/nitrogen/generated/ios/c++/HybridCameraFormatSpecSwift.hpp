@@ -81,8 +81,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    inline FormatPixelFormat getPixelFormat() noexcept override {
-      auto __result = _swiftPart.getPixelFormat();
+    inline FormatPixelFormat getNativePixelFormat() noexcept override {
+      auto __result = _swiftPart.getNativePixelFormat();
       return static_cast<FormatPixelFormat>(__result);
     }
     inline Resolution getPhotoResolution() noexcept override {

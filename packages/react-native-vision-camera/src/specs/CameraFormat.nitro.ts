@@ -12,7 +12,14 @@ export type FormatPixelFormat = VideoPixelFormat | DepthPixelFormat
 
 export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
   // pragma MARK: Pixel Format
-  readonly pixelFormat: FormatPixelFormat
+  /**
+   * Get the {@linkcode CameraFormat}'s native {@linkcode FormatPixelFormat}.
+   *
+   * Choosing to record or stream in any other format (e.g. in
+   * a `CameraFrameOutput`) might involve conversion overhead,
+   * so it is most efficient to stream in this format here.
+   */
+  readonly nativePixelFormat: FormatPixelFormat
 
   // pragma MARK: Resolutions
   readonly photoResolution: Resolution

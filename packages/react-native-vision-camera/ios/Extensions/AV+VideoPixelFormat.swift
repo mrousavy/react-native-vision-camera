@@ -36,6 +36,10 @@ extension VideoPixelFormat {
       return kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
     case .yuv42010BitFull:
       return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+    case .yuv42210BitVideo:
+      return kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange
+    case .yuv42210BitFull:
+      return kCVPixelFormatType_422YpCbCr10BiPlanarFullRange
     case .rgbBgra32Bit:
       return kCVPixelFormatType_32BGRA
     case .unknown:
