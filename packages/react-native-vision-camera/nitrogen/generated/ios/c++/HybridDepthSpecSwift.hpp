@@ -26,6 +26,8 @@ namespace margelo::nitro::camera { class HybridCameraCalibrationDataSpec; }
 namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
+// Forward declaration of `HybridFrameSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `AuxilaryDepthType` to properly resolve imports.
@@ -43,6 +45,7 @@ namespace margelo::nitro::camera { enum class AuxilaryDepthType; }
 #include <NitroModules/ArrayBufferHolder.hpp>
 #include "HybridDepthSpec.hpp"
 #include <NitroModules/Promise.hpp>
+#include "HybridFrameSpec.hpp"
 #include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/AnyMap.hpp>
 #include "AuxilaryDepthType.hpp"
@@ -166,6 +169,14 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) override {
       auto __result = _swiftPart.convertAsync(static_cast<int>(pixelFormat));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<HybridFrameSpec> toFrame() override {
+      auto __result = _swiftPart.toFrame();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

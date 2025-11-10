@@ -15,6 +15,8 @@
 #include <fbjni/fbjni.h>
 #include <NitroModules/HybridObjectRegistry.hpp>
 
+#include "JHybridFrameRendererViewSpec.hpp"
+#include "views/JHybridFrameRendererViewStateUpdater.hpp"
 #include "JHybridPreviewViewSpec.hpp"
 #include "views/JHybridPreviewViewStateUpdater.hpp"
 #include "JHybridCameraFactorySpec.hpp"
@@ -30,6 +32,8 @@ int initialize(JavaVM* vm) {
 
   return facebook::jni::initialize(vm, [] {
     // Register native JNI methods
+    margelo::nitro::camera::JHybridFrameRendererViewSpec::registerNatives();
+    margelo::nitro::camera::views::JHybridFrameRendererViewStateUpdater::registerNatives();
     margelo::nitro::camera::JHybridPreviewViewSpec::registerNatives();
     margelo::nitro::camera::views::JHybridPreviewViewStateUpdater::registerNatives();
 
@@ -46,6 +50,14 @@ int initialize(JavaVM* vm) {
       "PreviewView",
       []() -> std::shared_ptr<HybridObject> {
         static DefaultConstructableObject<JHybridPreviewViewSpec::javaobject> object("com/margelo/nitro/camera/HybridPreviewView");
+        auto instance = object.create();
+        return instance->cthis()->shared();
+      }
+    );
+    HybridObjectRegistry::registerHybridObjectConstructor(
+      "FrameRendererView",
+      []() -> std::shared_ptr<HybridObject> {
+        static DefaultConstructableObject<JHybridFrameRendererViewSpec::javaobject> object("com/margelo/nitro/camera/HybridFrameRendererView");
         auto instance = object.create();
         return instance->cthis()->shared();
       }

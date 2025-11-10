@@ -46,10 +46,14 @@ export * from './specs/CameraSession.nitro'
 export * from './specs/instances/Depth.nitro'
 export * from './specs/instances/Frame.nitro'
 export * from './specs/instances/Photo.nitro'
-export * from './specs/PreviewView.nitro'
+
+export * from './specs/views/PreviewView.nitro'
+export * from './specs/views/FrameRendererView.nitro'
 
 export * from './hooks/useCameraDevices'
 export * from './hooks/useCameraSession'
+export * from './hooks/useFrameOutput'
 
 export * from './views/Camera'
 export * from './PreviewView'
+export * from './FrameRendererView'

@@ -1,0 +1,9 @@
+{
+  "uiViewClassName": "FrameRendererView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "hybridRef": true
+  }
+}

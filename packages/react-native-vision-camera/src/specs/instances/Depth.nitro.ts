@@ -3,6 +3,7 @@ import type { Orientation } from '../common-types/Orientation'
 import type { Image } from 'react-native-nitro-image'
 import type { CameraCalibrationData } from './CameraCalibrationData.nitro'
 import type { DepthPixelFormat } from '../common-types/DepthPixelFormat'
+import type { Frame } from './Frame.nitro'
 
 export type AuxilaryDepthType = 'depth' | 'disparity'
 export type DepthDataAccuracy = 'relative' | 'absolute' | 'unknown'
@@ -65,6 +66,8 @@ export interface Depth extends HybridObject<{ ios: 'swift' }> {
    */
   convert(pixelFormat: DepthPixelFormat): Depth
   convertAsync(pixelFormat: DepthPixelFormat): Promise<Depth>
+
+  toFrame(): Frame
   /**
    * Converts this {@linkcode Depth} frame to an {@linkcode Image}.
    *

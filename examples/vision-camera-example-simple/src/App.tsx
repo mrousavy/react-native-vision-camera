@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { NitroModules } from 'react-native-nitro-modules';
+import { callback, HybridRef, NitroModules } from 'react-native-nitro-modules';
+import { BoxedHybridObject } from 'react-native-nitro-modules/lib/typescript/BoxedHybridObject';
 import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera, CameraDevice } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera, NativeFrameRendererView, FrameRendererViewProps, FrameRendererViewMethods,  useFrameOutput, Frame } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -22,35 +23,6 @@ function App() {
   );
 }
 
-
-function createVideoOutput(): CameraOutput {
-  const output = HybridCameraFactory.createFrameOutput('native')
-  const thread = output.thread
-  const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
-  const runtime = createWorkletRuntime({
-    name: `com.margelo.camera.frame-processor`,
-    useDefaultQueue: false,
-    customQueue: queue
-  })
-  output.setOnFrameDroppedCallback((reason) => {
-    console.log(`Frame dropped - reason: ${reason}`)
-  })
-  const boxedOutput = NitroModules.box(output)
-  scheduleOnRuntime(runtime, () => {
-    'worklet'
-    const unboxed = boxedOutput.unbox()
-    let didLog = false
-    unboxed.setOnFrameCallback((frame) => {
-      if (!didLog) {
-        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
-        didLog = true
-      }
-      frame.dispose()
-      return true
-    })
-  })
-  return output
-}
 function createDepthOutput(): CameraOutput {
   const output = HybridCameraFactory.createDepthFrameOutput('depth-16-bit')
   const thread = output.thread
@@ -80,9 +52,12 @@ function createDepthOutput(): CameraOutput {
   return output
 }
 
+type RefType = HybridRef<FrameRendererViewProps, FrameRendererViewMethods>
+
 function AppContent() {
   const devices = useCameraDevices()
   const [deviceIndex, setDeviceIndex] = useState(0)
+  const [rendererBoxed, setRendererBoxed] = useState<BoxedHybridObject<RefType> | undefined>(undefined)
   let nextDeviceIndex = deviceIndex + 1
   if (nextDeviceIndex >= devices.length) {
     nextDeviceIndex = 0
@@ -100,16 +75,22 @@ function AppContent() {
   useEffect(() => {
     for (const d of devices) {
       console.log(`${d.id} ${d.formats[0]?.mediaType} ${d.formats[0]!.supportedColorSpaces[0]} ${d.formats[0]?.photoResolution.width} x ${d.formats[0]?.photoResolution.height} ("${d.localizedName}")`)
-      for (const f of d.formats) {
-        for (const df of f.depthDataFormats) {
-          console.log(`    DEPTH-FORMAT: ${df.nativePixelFormat}`)
-        }
-        console.log(`FORMAT: ${f.nativePixelFormat}`)
-      }
     }
   }, [devices])
 
-  const videoOutput = useMemo(() => createVideoOutput(), [])
+  const onFrame = useCallback((frame: Frame) => {
+    'worklet'
+      console.log(`Running on ${frame.width}x${frame.height} Frame!`)
+      const renderer = rendererBoxed?.unbox()
+      if (renderer != null) {
+        renderer.renderFrame(frame)
+      }
+      frame.dispose()
+  }, [rendererBoxed])
+
+  const frameOutput = useFrameOutput({
+    onFrame: onFrame
+  })
   const depthOutput = useMemo(() => createDepthOutput(), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
   const supportsDepth = useMemo(() => {
@@ -118,12 +99,12 @@ function AppContent() {
   }, [device])
 
   const outputs = useMemo(() => {
-    const result = [photoOutput, videoOutput]
+    const result: CameraOutput[] = [photoOutput, frameOutput]
     if (supportsDepth) {
       result.push(depthOutput)
     }
     return result
-  }, [depthOutput, photoOutput, supportsDepth, videoOutput])
+  }, [depthOutput, photoOutput, supportsDepth, frameOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
@@ -148,6 +129,14 @@ function AppContent() {
       ))}
       <GestureDetector gesture={pinchGesture}>
         <View style={styles.container}>
+          <NativeFrameRendererView
+            style={styles.camera}
+            hybridRef={callback((ref) => {
+              console.log(`Ref initialized! ${ref}`)
+              const boxed = NitroModules.box(ref)
+              setRendererBoxed(boxed)
+            })}
+          />
           {device != null && (
             <Camera
               style={styles.camera}

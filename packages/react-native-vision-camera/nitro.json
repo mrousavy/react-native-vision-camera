@@ -21,6 +21,10 @@
       "swift": "HybridPreviewView",
       "kotlin": "HybridPreviewView"
     },
+    "FrameRendererView": {
+      "swift": "HybridFrameRendererView",
+      "kotlin": "HybridFrameRendererView"
+    },
     "WorkletQueueFactory": {
       "cpp": "HybridWorkletQueueFactory"
     }

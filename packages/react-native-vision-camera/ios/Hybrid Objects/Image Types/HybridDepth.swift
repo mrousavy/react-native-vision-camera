@@ -137,6 +137,21 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     return try ArrayBuffer.fromPixelBuffer(depthData.depthDataMap)
   }
   
+  func toFrame() throws -> any HybridFrameSpec {
+    guard let depthData else {
+      throw RuntimeError.error(withMessage: "Cannot convert an already disposed Depth to a Frame!")
+    }
+    let format = try CMFormatDescription(imageBuffer: depthData.depthDataMap)
+    // TODO: What value do I set CMSampleTimingInfo.duration to???
+    let timing = CMSampleTimingInfo(duration: CMTime(seconds: 0.1, preferredTimescale: 1000),
+                                    presentationTimeStamp: metadata.timestamp,
+                                    decodeTimeStamp: metadata.timestamp)
+    let sampleBuffer = try CMSampleBuffer(imageBuffer: depthData.depthDataMap,
+                                          formatDescription: format,
+                                          sampleTiming: timing)
+    return HybridFrame(buffer: sampleBuffer,
+                       metadata: metadata)
+  }
   
   func toImage() throws -> any HybridImageSpec {
     guard let depthData else {

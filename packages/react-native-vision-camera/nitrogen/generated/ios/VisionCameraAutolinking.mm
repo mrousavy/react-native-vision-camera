@@ -12,6 +12,7 @@
 
 #include "HybridCameraFactorySpecSwift.hpp"
 #include "HybridPreviewViewSpecSwift.hpp"
+#include "HybridFrameRendererViewSpecSwift.hpp"
 #include "HybridWorkletQueueFactory.hpp"
 
 @interface VisionCameraAutolinking : NSObject
@@ -34,6 +35,13 @@
     "PreviewView",
     []() -> std::shared_ptr<HybridObject> {
       std::shared_ptr<HybridPreviewViewSpec> hybridObject = VisionCamera::VisionCameraAutolinking::createPreviewView();
+      return hybridObject;
+    }
+  );
+  HybridObjectRegistry::registerHybridObjectConstructor(
+    "FrameRendererView",
+    []() -> std::shared_ptr<HybridObject> {
+      std::shared_ptr<HybridFrameRendererViewSpec> hybridObject = VisionCamera::VisionCameraAutolinking::createFrameRendererView();
       return hybridObject;
     }
   );
