@@ -119,13 +119,13 @@ function AppContent() {
 
 
   useEffect(() => {
-    for (const device of devices) {
-      console.log(`${device.id} ${device.formats[0]?.mediaType} ${device.formats[0]!.supportedColorSpaces[0]} ${device.formats[0]?.photoResolution.width} x ${device.formats[0]?.photoResolution.height} ("${device.localizedName}")`)
+    for (const d of devices) {
+      console.log(`${d.id} ${d.formats[0]?.mediaType} ${d.formats[0]!.supportedColorSpaces[0]} ${d.formats[0]?.photoResolution.width} x ${d.formats[0]?.photoResolution.height} ("${d.localizedName}")`)
     }
   }, [devices])
 
   const videoOutput = useMemo(() => createVideoOutput(), [])
-  const depthOutput = useMemo(() => createVideoOutput(), [])
+  const depthOutput = useMemo(() => createDepthOutput(), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
   const outputs = useMemo(() => [videoOutput, photoOutput, depthOutput], [photoOutput, videoOutput, depthOutput])
 
