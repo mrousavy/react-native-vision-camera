@@ -133,7 +133,18 @@ function AppContent() {
   const videoOutput = useMemo(() => createVideoOutput(), [])
   const depthOutput = useMemo(() => createDepthOutput(), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
-  const outputs = useMemo(() => [photoOutput, depthOutput], [photoOutput, depthOutput])
+  const supportsDepth = useMemo(() => {
+    if (device == null) return false
+    return device.formats.some((f) => f.depthDataFormats.length > 0)
+  }, [device])
+
+  const outputs = useMemo(() => {
+    const result = [photoOutput, videoOutput]
+    if (supportsDepth) {
+      result.push(depthOutput)
+    }
+    return result
+  }, [depthOutput, photoOutput, supportsDepth, videoOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
