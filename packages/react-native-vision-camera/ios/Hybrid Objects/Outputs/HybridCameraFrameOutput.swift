@@ -41,6 +41,10 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       videoOutput.preservesDynamicHDRMetadata = true
     }
   }
+  
+  lazy var thread: any HybridNativeThreadSpec = {
+    return HybridNativeThread(queue: queue)
+  }()
 
   private func videoSettingsForPixelFormat(_ targetPixelFormat: TargetVideoPixelFormat) -> [String: Any] {
     let pixelFormat = targetPixelFormat.toCVPixelFormatType()
@@ -53,10 +57,6 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       // Empty dictionary means "choose device-native format" (most efficient)
       return [:]
     }
-  }
-
-  var thread: any HybridNativeThreadSpec {
-    return HybridNativeThread(queue: queue)
   }
 
   func setOnFrameCallback(onFrame: ((any HybridFrameSpec) -> Bool)?) throws {

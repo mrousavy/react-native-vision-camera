@@ -116,6 +116,13 @@ class HybridCameraDeviceController: HybridCameraDeviceControllerSpec {
         }
         device.activeFormat = hybridFormat.format
       }
+      if let activeDepthFormat = config.activeDepthFormat {
+        // .activeDepthFormat changed!
+        guard let hybridDepthFormat = activeDepthFormat as? HybridCameraFormat else {
+          throw RuntimeError.error(withMessage: ".activeFormat is not of type `HybridCameraFormat`!")
+        }
+        device.activeDepthDataFormat = hybridDepthFormat.format
+      }
       if let fps = config.fps {
         print("Now: \(device.activeVideoMaxFrameDuration.seconds)...\(device.activeVideoMinFrameDuration.seconds)")
         device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: Int32(fps.min))

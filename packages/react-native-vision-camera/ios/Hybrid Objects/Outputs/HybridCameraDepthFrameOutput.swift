@@ -35,9 +35,9 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
     depthOutput.isFilteringEnabled = true
   }
 
-  var thread: any HybridNativeThreadSpec {
+  lazy var thread: any HybridNativeThreadSpec = {
     return HybridNativeThread(queue: queue)
-  }
+  }()
 
   func setOnDepthFrameCallback(onDepthFrame: ((any HybridDepthSpec) -> Bool)?) throws {
     if let onDepthFrame {

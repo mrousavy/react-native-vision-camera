@@ -115,7 +115,7 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
   
   func convert(pixelFormat: DepthPixelFormat) throws -> any HybridDepthSpec {
     guard let depthData else {
-      throw RuntimeError.error(withMessage: "Tried to rotate an already disposed Depth!")
+      throw RuntimeError.error(withMessage: "Tried to convert an already disposed Depth!")
     }
     let osFormat = try pixelFormat.toCVPixelFormatType()
     let converted = depthData.converting(toDepthDataType: osFormat)
