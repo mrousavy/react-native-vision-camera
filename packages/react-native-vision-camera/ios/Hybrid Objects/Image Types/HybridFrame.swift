@@ -28,10 +28,7 @@ class HybridFrame: HybridFrameSpec, NativeFrame, LazyLockableBuffer {
   }
 
   var memorySize: Int {
-    guard let sampleBuffer else {
-      return 0
-    }
-    return sampleBuffer.memorySize
+    return pixelBuffer?.memorySize ?? 0
   }
 
   var timestamp: Double {

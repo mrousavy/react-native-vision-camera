@@ -21,10 +21,7 @@ class HybridFramePlane: HybridFramePlaneSpec {
   }
 
   var memorySize: Int {
-    guard let pixelBuffer else {
-      return 0
-    }
-    return CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, planeIndex) * CVPixelBufferGetHeightOfPlane(pixelBuffer, planeIndex)
+    return pixelBuffer?.memorySize(ofPlaneIndex: planeIndex) ?? 0
   }
 
   var width: Double {

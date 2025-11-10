@@ -30,6 +30,10 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     depthData = nil
   }
   
+  var memorySize: Int {
+    return pixelBuffer?.memorySize ?? 0
+  }
+  
   var isValid: Bool {
     return depthData != nil
   }

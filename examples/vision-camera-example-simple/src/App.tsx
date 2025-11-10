@@ -31,6 +31,7 @@ const imageFactoryBoxed = NitroModules.box(Images)
 
 function AppContent() {
   const devices = useCameraDevices()
+  const [enableNightVision, setEnableNightVision] = useState(false)
   const [deviceIndex, setDeviceIndex] = useState(0)
   let nextDeviceIndex = deviceIndex + 1
   if (nextDeviceIndex >= devices.length) {
@@ -38,9 +39,7 @@ function AppContent() {
   }
   const [image, setImage] = useState<Image>()
   const updateImage = useCallback((boxed: BoxedHybridObject<Image>) => {
-    setImage((curr) => {
-      return boxed.unbox()
-    })
+    setImage(boxed.unbox())
   }, [])
 
   const device = devices.find((d) => d.localizedName.includes('LiDAR')) ?? devices[deviceIndex]
@@ -70,31 +69,22 @@ function AppContent() {
   }, [])
   const onDepth = useCallback((depth: Depth) => {
     'worklet'
-    console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
+    console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth! (Quality: ${depth.depthDataQuality} | Accuracy: ${depth.depthDataAccuracy})`)
 
     const sourceBuffer = depth.getDepthData()
     const stride = 4
     const rgbBuffer = new ArrayBuffer(sourceBuffer.byteLength * stride)
     console.log(`New Buf: ${sourceBuffer.byteLength} -> ${rgbBuffer.byteLength}`)
-    if (depth.pixelFormat === "depth-32-bit") {
-      const fromView = new Float32Array(sourceBuffer)
-      const toView = new Uint8ClampedArray(rgbBuffer)
-      for (let i = 0; i < toView.length; i += stride) {
-        const d = fromView[i / stride] ?? 0
-        toView[i + 0] = d * 255
-        toView[i + 1] = d * 255
-        toView[i + 2] = d * 255
-        toView[i + 3] = 255
-      }
-    } else {
-      const fromView = new Uint8Array(sourceBuffer)
-      const toView = new Uint8Array(rgbBuffer)
-      for (let i = 0; i < fromView.length; i++) {
-        toView[i + 0] = fromView[i]!
-        toView[i + 1] = fromView[i]!
-        toView[i + 2] = fromView[i]!
-        toView[i + 3] = fromView[i]!
-      }
+    const fromView = depth.pixelFormat === "depth-32-bit"
+      ? new Float32Array(sourceBuffer)
+      : new Uint8Array(sourceBuffer)
+    const toView = new Uint8Array(rgbBuffer)
+    for (let i = 0; i < toView.length; i += stride) {
+      const d = fromView[i / stride] ?? 0
+      toView[i + 0] = d * 255
+      toView[i + 1] = d * 255
+      toView[i + 2] = d * 255
+      toView[i + 3] = 255
     }
 
     const images = imageFactoryBoxed.unbox()
@@ -120,12 +110,12 @@ function AppContent() {
 
   const outputs = useMemo(() => {
     console.log('rebuilding outputs')
-    const result: CameraOutput[] = [photoOutput]
+    const result: CameraOutput[] = [photoOutput, frameOutput]
     if (supportsDepth) {
       result.push(depthOutput)
     }
     return result
-  }, [depthOutput, photoOutput, supportsDepth])
+  }, [depthOutput, photoOutput, supportsDepth, frameOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
@@ -143,37 +133,58 @@ function AppContent() {
     })
     .runOnJS(true)
 
+  const holdGesture = Gesture.LongPress()
+    .onEnd(() => {
+      setEnableNightVision((e) => !e)
+    })
+    .runOnJS(true)
+
+  const allGestures = Gesture.Race(
+    holdGesture,
+    pinchGesture
+  )
+
   const format = useMemo(() => device?.formats.find((f) => f.depthDataFormats.length > 0), [device])
-  const depthFormat = useMemo(() => format?.depthDataFormats.find((f) => f.nativePixelFormat === 'depth-32-bit'), [format])
+  const depthFormat = useMemo(() => {
+    if (format == null) return undefined
+    return format.depthDataFormats.reduce((prev, curr) => {
+      let currPoints = 0
+      let prevPoints = 0
+      if (curr.nativePixelFormat === "depth-32-bit") currPoints += 2
+      if (prev?.nativePixelFormat === "depth-32-bit") prevPoints += 2
+
+      const prevRes = (prev?.videoResolution.width ?? 0) * (prev?.videoResolution.height ?? 0)
+      const currRes = curr.videoResolution.width * curr.videoResolution.height
+      if (currRes > prevRes) currPoints += 3
+      if (prevRes > currRes) prevPoints += 3
+
+      if (currPoints > prevPoints) {
+        return curr
+      } else {
+        return prev
+      }
+    }, format.depthDataFormats[0])
+  }, [format])
 
   return (
-    <View style={styles.container}>
-      {devices.map((d) => (
-        <Text key={d.id}>{d.id}</Text>
-      ))}
-      <GestureDetector gesture={pinchGesture}>
-        <View style={styles.container}>
-          {device != null && (
-            <Camera
-              style={styles.camera}
-              input={device}
-              outputs={outputs}
-              configuration={{
-                activeFormat: format,
-                activeDepthFormat: depthFormat,
-              }}
-            />
-          )}
-          {image != null && (
-            <NitroImage resizeMode='contain' style={styles.camera} image={image} />
-          )}
-        </View>
-      </GestureDetector>
-      <Button
-        disabled={nextDeviceIndex === deviceIndex}
-        title={`Switch to Device #${nextDeviceIndex}`}
-        onPress={() => setDeviceIndex(nextDeviceIndex)} />
-    </View>
+    <GestureDetector gesture={allGestures}>
+      <View style={styles.container}>
+        {device != null && (
+          <Camera
+            style={styles.camera}
+            input={device}
+            outputs={outputs}
+            configuration={{
+              activeFormat: format,
+              activeDepthFormat: depthFormat,
+            }}
+          />
+        )}
+        {enableNightVision && image != null && (
+          <NitroImage resizeMode='contain' style={StyleSheet.absoluteFill} image={image} />
+        )}
+      </View>
+    </GestureDetector>
   );
 }
 
