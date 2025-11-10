@@ -24,8 +24,7 @@ function App() {
   );
 }
 
-NitroModules.isHybridObject({})
-const globalBox = globalThis.__box__ as typeof NitroModules["box"]
+const boxedNitro = NitroModules.box(NitroModules)
 
 const imageFactoryBoxed = NitroModules.box(Images)
 
@@ -94,7 +93,8 @@ function AppContent() {
       pixelFormat: 'BGRA',
       buffer: rgbBuffer
     }, false)
-    const boxed = globalBox(i)
+    const nitro = boxedNitro.unbox()
+    const boxed = nitro.box(i)
     scheduleOnRN(updateImage, boxed)
 
     depth.dispose()
