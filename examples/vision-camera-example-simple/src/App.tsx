@@ -72,39 +72,24 @@ function AppContent() {
     'worklet'
     console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
 
-    // Copy 16-bit float data into a 32-bit RGBA buffer (greyscale)
-    function toDepth() {
-      switch (depth.pixelFormat) {
-        case 'depth-16-bit':
-        case 'depth-32-bit':
-          return depth
-        case 'disparity-16-bit':
-          return depth.convert('depth-16-bit')
-        case 'disparity-32-bit':
-          return depth.convert('depth-32-bit')
-        default:
-          return depth
-      }
-    }
-    const depthBuffer = toDepth()
 
-    const data = depthBuffer.getDepthData()
-    const view = new Uint8Array(data)
-    const rgbaView = new Uint8Array(new ArrayBuffer(data.byteLength * 4))
-    for (let i = 0; i < view.length; i++) {
-      rgbaView[i] = view[i]!
-      rgbaView[i + 1] = view[i]!
-      rgbaView[i + 2] = view[i]!
-      rgbaView[i + 3] = view[i]!
+    const buffer = depth.getDepthData()
+    const rgbBuffer = new ArrayBuffer(buffer.byteLength * 4)
+    console.log(`New Buf: ${buffer.byteLength} -> ${rgbBuffer.byteLength}`)
+    const fromView = new Uint8Array(buffer)
+    const toView = new Uint32Array(rgbBuffer)
+    for (let i = 0; i < buffer.byteLength; i++) {
+      toView[i] = fromView[i]!
     }
+
     const images = imageFactoryBoxed.unbox()
-    const greyscaleImage = images.loadFromRawPixelData({
-      buffer: rgbaView.buffer,
-      height: depth.height,
+    const i = images.loadFromRawPixelData({
       width: depth.width,
-      pixelFormat: 'BGRA'
-    })
-    const boxed = globalBox(greyscaleImage)
+      height: depth.height,
+      pixelFormat: 'ARGB',
+      buffer: rgbBuffer
+    }, false)
+    const boxed = globalBox(i)
     scheduleOnRN(updateImage, boxed)
 
     depth.dispose()
