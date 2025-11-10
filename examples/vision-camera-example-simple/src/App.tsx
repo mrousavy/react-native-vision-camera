@@ -82,41 +82,20 @@ function createDepthOutput(): CameraOutput {
 
 function AppContent() {
   const devices = useCameraDevices()
-  const [position, setPosition] = useState<CameraDevice["position"]>("back")
+  const [deviceIndex, setDeviceIndex] = useState(0)
+  let nextDeviceIndex = deviceIndex + 1
+  if (nextDeviceIndex >= devices.length) {
+    nextDeviceIndex = 0
+  }
+
+  const device = devices[deviceIndex]
   const [zoom, setZoom] = useState(1)
-
-  const device = useMemo(() => {
-    const filtered = devices.filter((d) => d.position === position)
-    const bestDevice = filtered.reduce((prev, curr) => {
-      let pointsVsPrev = 0
-
-      // more devices = better
-      pointsVsPrev += curr.constituentDevices.length - (prev?.constituentDevices.length ?? 0)
-
-      // more depth data formats = better
-      const totalDepthFormatsPrev = (prev?.formats ?? []).reduce((p, c) => {
-        return Math.max(p, c.depthDataFormats.length)
-      }, 0)
-      const totalDepthFormatsCurr = curr.formats.reduce((p, c) => {
-        return Math.max(p, c.depthDataFormats.length)
-      }, 0)
-      pointsVsPrev += totalDepthFormatsCurr - totalDepthFormatsPrev
-
-      if (pointsVsPrev > 0) {
-        return curr
-      } else {
-        return prev
-      }
-    }, devices[0])
-    return bestDevice
-  }, [devices, position])
 
   if (device != null) {
     console.log(`Device: ${device.id} (${device.localizedName})`)
   } else {
-    console.log(`No device at ${position}!`)
+    console.log(`No device!`)
   }
-
 
   useEffect(() => {
     for (const d of devices) {
@@ -179,8 +158,9 @@ function AppContent() {
         </View>
       </GestureDetector>
       <Button
-        title={`Flip to ${device?.position === 'front' ? 'back' : 'front'}`}
-        onPress={() => setPosition((p) => p === "front" ? 'back' : 'front')} />
+        disabled={nextDeviceIndex === deviceIndex}
+        title={`Switch to Device #${nextDeviceIndex}`}
+        onPress={() => setDeviceIndex(nextDeviceIndex)} />
     </View>
   );
 }
