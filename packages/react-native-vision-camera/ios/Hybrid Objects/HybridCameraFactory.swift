@@ -19,7 +19,12 @@ class HybridCameraFactory: HybridCameraFactorySpec {
     }
   }
 
-  func createCameraSession(enableMultiCam: Bool) -> any HybridCameraSessionSpec {
+  func createCameraSession(enableMultiCam: Bool) throws -> any HybridCameraSessionSpec {
+    if enableMultiCam {
+      guard supportsMultiCamSessions else {
+        throw RuntimeError.error(withMessage: "Failed to create CameraSession - this device does not support multi-cam session! (See .supportsMultiCamSession)")
+      }
+    }
     return HybridCameraSession(enableMultiCam: enableMultiCam)
   }
 
