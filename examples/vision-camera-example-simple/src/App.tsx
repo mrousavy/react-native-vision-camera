@@ -47,15 +47,17 @@ function createVideoOutput(id: number): CameraOutput {
   return output
 }
 
+const supportsMulti = HybridCameraFactory.supportsMultiCamSessions
+
 function AppContent() {
   const devices = useCameraDevices()
   const [isMulti, setIsMulti] = useState(false)
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(true), [])
+  const session = useMemo(() => HybridCameraFactory.createCameraSession(supportsMulti), [])
   const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
   const controllers = useRef<CameraDeviceController[]>([])
   const inputs = useMemo(() => {
-    if (isMulti) {
+    if (isMulti && supportsMulti) {
       const multiCamDevices = devices.filter((d) => d.formats.some((f) => f.supportsMultiCam))
       const back = multiCamDevices.find((d) => d.position === "back")
       const front = multiCamDevices.find((d) => d.position === "front")
@@ -134,15 +136,17 @@ function AppContent() {
       ))}
       <GestureDetector gesture={pinchGesture}>
         <View style={styles.container}>
-          {isMulti && (
+          {(isMulti && supportsMulti) && (
             <NativePreviewView style={styles.camera} previewOutput={previewFront} />
           )}
           <NativePreviewView style={styles.camera} previewOutput={previewBack} />
         </View>
       </GestureDetector>
-      <Button
-        title={`Switch to ${isMulti ? 'single-cam' : 'multi-cam'}`}
-        onPress={() => setIsMulti((i) => !i)} />
+      {supportsMulti && (
+        <Button
+          title={`Switch to ${isMulti ? 'single-cam' : 'multi-cam'}`}
+          onPress={() => setIsMulti((i) => !i)} />
+      )}
     </View>
   );
 }
