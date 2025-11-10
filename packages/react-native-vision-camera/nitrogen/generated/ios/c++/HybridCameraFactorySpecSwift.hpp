@@ -12,10 +12,10 @@
 // Forward declaration of `HybridCameraFactorySpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridCameraFactorySpec_cxx; }
 
-// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraPhotoOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraPhotoOutputSpec; }
 // Forward declaration of `HybridCameraFrameOutputSpec` to properly resolve imports.
@@ -30,9 +30,9 @@ namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
 #include <memory>
-#include "HybridCameraDeviceFactorySpec.hpp"
-#include <NitroModules/Promise.hpp>
 #include "HybridCameraSessionSpec.hpp"
+#include <NitroModules/Promise.hpp>
+#include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraPhotoOutputSpec.hpp"
 #include "HybridCameraFrameOutputSpec.hpp"
 #include "TargetVideoPixelFormat.hpp"
@@ -86,16 +86,16 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() override {
-      auto __result = _swiftPart.createDeviceFactory();
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionSpec>>> createCameraSession(bool enableMultiCam) override {
+      auto __result = _swiftPart.createCameraSession(std::forward<decltype(enableMultiCam)>(enableMultiCam));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridCameraSessionSpec> createCameraSession(bool enableMultiCam) override {
-      auto __result = _swiftPart.createCameraSession(std::forward<decltype(enableMultiCam)>(enableMultiCam));
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() override {
+      auto __result = _swiftPart.createDeviceFactory();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

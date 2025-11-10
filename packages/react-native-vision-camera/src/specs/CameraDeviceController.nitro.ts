@@ -10,7 +10,7 @@ import type { WhiteBalanceMode } from './common-types/WhiteBalanceMode'
 import type { WhiteBalanceGains } from './common-types/WhiteBalanceGains'
 import type { ColorSpace } from './common-types/ColorSpace'
 
-interface CameraDeviceConfiguration {
+export interface CameraDeviceConfiguration {
   // pragma MARK: Formats
   readonly activeFormat: CameraFormat
   readonly activeDepthFormat?: CameraFormat
@@ -45,7 +45,7 @@ interface CameraDeviceConfiguration {
 }
 
 // set only
-interface SetCameraDeviceConfiguration
+export interface SetCameraDeviceConfiguration
   extends Partial<CameraDeviceConfiguration> {}
 
 export interface CameraDeviceController

@@ -124,6 +124,28 @@ open class HybridCameraFactorySpec_cxx {
 
   // Methods
   @inline(__always)
+  public final func createCameraSession(enableMultiCam: Bool) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec____ {
+    do {
+      let __result = try self.__implementation.createCameraSession(enableMultiCam: enableMultiCam)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
+              let __cxxWrapped = __result.getCxxWrapper()
+              return __cxxWrapped.getCxxPart()
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionSpec____(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func createDeviceFactory() -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec____ {
     do {
       let __result = try self.__implementation.createDeviceFactory()
@@ -142,21 +164,6 @@ open class HybridCameraFactorySpec_cxx {
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
       return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraDeviceFactorySpec____(__exceptionPtr)
-    }
-  }
-  
-  @inline(__always)
-  public final func createCameraSession(enableMultiCam: Bool) -> bridge.Result_std__shared_ptr_HybridCameraSessionSpec__ {
-    do {
-      let __result = try self.__implementation.createCameraSession(enableMultiCam: enableMultiCam)
-      let __resultCpp = { () -> bridge.std__shared_ptr_HybridCameraSessionSpec_ in
-        let __cxxWrapped = __result.getCxxWrapper()
-        return __cxxWrapped.getCxxPart()
-      }()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionSpec__(__resultCpp)
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_std__shared_ptr_HybridCameraSessionSpec__(__exceptionPtr)
     }
   }
   

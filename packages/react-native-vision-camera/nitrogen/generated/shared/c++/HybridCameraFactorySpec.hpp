@@ -13,10 +13,10 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraSessionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionSpec; }
+// Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraPhotoOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraPhotoOutputSpec; }
 // Forward declaration of `HybridCameraFrameOutputSpec` to properly resolve imports.
@@ -31,9 +31,9 @@ namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 
 #include <memory>
-#include "HybridCameraDeviceFactorySpec.hpp"
-#include <NitroModules/Promise.hpp>
 #include "HybridCameraSessionSpec.hpp"
+#include <NitroModules/Promise.hpp>
+#include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraPhotoOutputSpec.hpp"
 #include "HybridCameraFrameOutputSpec.hpp"
 #include "TargetVideoPixelFormat.hpp"
@@ -72,8 +72,8 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionSpec>>> createCameraSession(bool enableMultiCam) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() = 0;
-      virtual std::shared_ptr<HybridCameraSessionSpec> createCameraSession(bool enableMultiCam) = 0;
       virtual std::shared_ptr<HybridCameraPhotoOutputSpec> createPhotoOutput() = 0;
       virtual std::shared_ptr<HybridCameraFrameOutputSpec> createFrameOutput(TargetVideoPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<HybridCameraDepthFrameOutputSpec> createDepthFrameOutput(TargetDepthPixelFormat pixelFormat) = 0;

@@ -11,8 +11,11 @@ import type { CameraDepthFrameOutput } from './outputs/CameraDepthFrameOutput.ni
 export interface CameraFactory extends HybridObject<{ ios: 'swift' }> {
   readonly supportsMultiCamSessions: boolean
 
+  // Session
+  createCameraSession(enableMultiCam: boolean): Promise<CameraSession>
+  // Inputs
   createDeviceFactory(): Promise<CameraDeviceFactory>
-  createCameraSession(enableMultiCam: boolean): CameraSession
+  // Outputs
   createPhotoOutput(): CameraPhotoOutput
   createFrameOutput(pixelFormat: TargetVideoPixelFormat): CameraFrameOutput
   createDepthFrameOutput(

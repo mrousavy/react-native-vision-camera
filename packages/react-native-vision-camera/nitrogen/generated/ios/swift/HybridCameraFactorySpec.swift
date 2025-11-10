@@ -15,8 +15,8 @@ public protocol HybridCameraFactorySpec_protocol: HybridObject {
   var supportsMultiCamSessions: Bool { get }
 
   // Methods
+  func createCameraSession(enableMultiCam: Bool) throws -> Promise<(any HybridCameraSessionSpec)>
   func createDeviceFactory() throws -> Promise<(any HybridCameraDeviceFactorySpec)>
-  func createCameraSession(enableMultiCam: Bool) throws -> (any HybridCameraSessionSpec)
   func createPhotoOutput() throws -> (any HybridCameraPhotoOutputSpec)
   func createFrameOutput(pixelFormat: TargetVideoPixelFormat) throws -> (any HybridCameraFrameOutputSpec)
   func createDepthFrameOutput(pixelFormat: TargetDepthPixelFormat) throws -> (any HybridCameraDepthFrameOutputSpec)

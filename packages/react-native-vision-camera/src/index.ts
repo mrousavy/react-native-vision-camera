@@ -8,10 +8,6 @@ export const HybridCameraFactory =
 export const HybridWorkletQueueFactory =
   NitroModules.createHybridObject<WorkletQueueFactory>('WorkletQueueFactory')
 
-export * from './hooks/useCameraDevices'
-
-export * from './PreviewView'
-
 export * from './specs/common-types/AutoFocusSystem'
 export * from './specs/common-types/CameraPosition'
 export * from './specs/common-types/ColorSpace'
@@ -51,3 +47,9 @@ export * from './specs/instances/Depth.nitro'
 export * from './specs/instances/Frame.nitro'
 export * from './specs/instances/Photo.nitro'
 export * from './specs/PreviewView.nitro'
+
+export * from './hooks/useCameraDevices'
+export * from './hooks/useCameraSession'
+
+export * from './views/Camera'
+export * from './PreviewView'

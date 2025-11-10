@@ -6,7 +6,7 @@ import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController, CameraOutput } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, NativePreviewView, useCameraDevices, CameraDeviceController, CameraOutput, Camera } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -52,36 +52,33 @@ const supportsMulti = HybridCameraFactory.supportsMultiCamSessions
 function AppContent() {
   const devices = useCameraDevices()
   const [isMulti, setIsMulti] = useState(false)
-  const session = useMemo(() => HybridCameraFactory.createCameraSession(supportsMulti), [])
-  const previewFront = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
-  const previewBack = useMemo(() => HybridCameraFactory.createPreviewOutput(), [])
-  const controllers = useRef<CameraDeviceController[]>([])
-  const inputs = useMemo(() => {
-    if (isMulti && supportsMulti) {
-      const multiCamDevices = devices.filter((d) => d.formats.some((f) => f.supportsMultiCam))
-      const back = multiCamDevices.find((d) => d.position === "back")
-      const front = multiCamDevices.find((d) => d.position === "front")
-      if (back != null && front != null) {
-        return [back, front]
+  const [zoom, setZoom] = useState(1)
+
+  const device = useMemo(() => {
+    const bestDevice = devices.reduce((prev, curr) => {
+      let pointsVsPrev = 0
+
+      // more devices = better
+      pointsVsPrev += curr.constituentDevices.length - (prev?.constituentDevices.length ?? 0)
+
+      // more depth data formats = better
+      const totalDepthFormatsPrev = (prev?.formats ?? []).reduce((p, c) => {
+        return Math.max(p, c.depthDataFormats.length)
+      }, 0)
+      const totalDepthFormatsCurr = curr.formats.reduce((p, c) => {
+        return Math.max(p, c.depthDataFormats.length)
+      }, 0)
+      pointsVsPrev = totalDepthFormatsPrev - totalDepthFormatsCurr
+
+      if (pointsVsPrev > 0) {
+        return curr
+      } else {
+        return prev
       }
-    } else {
-      const mostDevicesCam = devices.reduce((prev, curr) => {
-        if (curr.constituentDevices.length > (prev?.constituentDevices.length ?? 0)) {
-          return curr
-        } else {
-          return prev
-        }
-      }, devices[0])
-      if (mostDevicesCam != null) {
-        return [mostDevicesCam]
-      }
-    }
-    const first = devices[0]
-    if (first != null) {
-      return [first]
-    }
-    return []
-  }, [devices, isMulti])
+    }, devices[0])
+    return bestDevice
+  }, [devices])
+
 
   useEffect(() => {
     for (const device of devices) {
@@ -89,40 +86,20 @@ function AppContent() {
     }
   }, [devices])
 
-  const videoOutputFront = useMemo(() => createVideoOutput(1), [])
-  const videoOutputBack = useMemo(() => createVideoOutput(2), [])
+  const videoOutput = useMemo(() => createVideoOutput(1), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const mark1 = performance.now()
-        controllers.current = await session.configure(inputs.map((d) => ({
-          input: d,
-          outputs: d.position === 'front' ? [previewFront, videoOutputFront] : [previewBack, videoOutputBack, photoOutput]
-        })))
-        const mark2 = performance.now()
-        console.log(`Configure took ${(mark2 - mark1).toFixed(0)}ms!`)
-
-        await session.start()
-        const mark3 = performance.now()
-        console.log(`Start took ${(mark3 - mark2).toFixed(0)}ms!`)
-
-      } catch (e) {
-        console.error(e)
-      }
-    })()
-  }, [inputs, photoOutput, previewBack, previewFront, session, videoOutputBack, videoOutputFront])
-
+  const outputs = useMemo(() => [videoOutput, photoOutput], [photoOutput, videoOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
-      controllers.current.forEach((c) => {
-        scale.value = clamp(savedScale.value * e.scale, c.device.minZoom, c.device.maxZoom)
-        c.configure({ zoom: scale.value })
-      })
+      scale.value = clamp(
+        savedScale.value * e.scale,
+        device?.minZoom ?? 1,
+        device?.maxZoom ?? 1
+      )
+      setZoom(scale.value)
     })
     .onEnd(() => {
       savedScale.value = scale.value
@@ -136,10 +113,13 @@ function AppContent() {
       ))}
       <GestureDetector gesture={pinchGesture}>
         <View style={styles.container}>
-          {(isMulti && supportsMulti) && (
-            <NativePreviewView style={styles.camera} previewOutput={previewFront} />
+          {device != null && (
+            <Camera
+              style={styles.camera}
+              input={device}
+              outputs={outputs}
+            />
           )}
-          <NativePreviewView style={styles.camera} previewOutput={previewBack} />
         </View>
       </GestureDetector>
       {supportsMulti && (
