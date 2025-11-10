@@ -15,6 +15,7 @@ class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewVie
 
   override init() {
     self.previewLayer = AVCaptureVideoPreviewLayer()
+    self.previewLayer.videoGravity = .resizeAspectFill
     super.init()
   }
 }

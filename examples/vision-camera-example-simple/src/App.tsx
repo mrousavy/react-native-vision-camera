@@ -181,7 +181,7 @@ function AppContent() {
           />
         )}
         {enableNightVision && image != null && (
-          <NitroImage resizeMode='contain' style={StyleSheet.absoluteFill} image={image} />
+          <NitroImage resizeMode='cover' style={StyleSheet.absoluteFill} image={image} />
         )}
       </View>
     </GestureDetector>
