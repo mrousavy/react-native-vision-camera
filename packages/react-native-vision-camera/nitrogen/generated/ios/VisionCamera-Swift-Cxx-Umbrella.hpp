@@ -38,8 +38,6 @@ namespace margelo::nitro::camera { enum class ExposureMode; }
 namespace margelo::nitro::camera { enum class FlashMode; }
 // Forward declaration of `FocusMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FocusMode; }
-// Forward declaration of `FormatPixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class FormatPixelFormat; }
 // Forward declaration of `FrameDroppedReason` to properly resolve imports.
 namespace margelo::nitro::camera { enum class FrameDroppedReason; }
 // Forward declaration of `HybridCameraCalibrationDataSpec` to properly resolve imports.
@@ -88,6 +86,8 @@ namespace margelo::nitro::camera { struct ListenerSubscription; }
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `Orientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `PixelFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `QualityPrioritization` to properly resolve imports.
@@ -108,8 +108,6 @@ namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 namespace margelo::nitro::camera { enum class TargetVideoPixelFormat; }
 // Forward declaration of `TorchMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TorchMode; }
-// Forward declaration of `VideoPixelFormat` to properly resolve imports.
-namespace margelo::nitro::camera { enum class VideoPixelFormat; }
 // Forward declaration of `VideoStabilizationMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class VideoStabilizationMode; }
 // Forward declaration of `WhiteBalanceGains` to properly resolve imports.
@@ -133,7 +131,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "ExposureMode.hpp"
 #include "FlashMode.hpp"
 #include "FocusMode.hpp"
-#include "FormatPixelFormat.hpp"
 #include "FrameDroppedReason.hpp"
 #include "HybridCameraCalibrationDataSpec.hpp"
 #include "HybridCameraDepthFrameOutputSpec.hpp"
@@ -157,6 +154,7 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "ListenerSubscription.hpp"
 #include "MediaType.hpp"
 #include "Orientation.hpp"
+#include "PixelFormat.hpp"
 #include "Point.hpp"
 #include "QualityPrioritization.hpp"
 #include "Range.hpp"
@@ -167,7 +165,6 @@ namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 #include "TargetDepthPixelFormat.hpp"
 #include "TargetVideoPixelFormat.hpp"
 #include "TorchMode.hpp"
-#include "VideoPixelFormat.hpp"
 #include "VideoStabilizationMode.hpp"
 #include "WhiteBalanceGains.hpp"
 #include "WhiteBalanceMode.hpp"

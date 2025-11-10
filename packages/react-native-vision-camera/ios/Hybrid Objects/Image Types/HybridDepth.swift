@@ -151,6 +151,11 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     return HybridFrame(buffer: sampleBuffer,
                        metadata: metadata)
   }
+  func toFrameAsync() -> Promise<any HybridFrameSpec> {
+    return Promise.async {
+      return try self.toFrame()
+    }
+  }
   
   func toImage() throws -> any HybridImageSpec {
     guard let depthData else {

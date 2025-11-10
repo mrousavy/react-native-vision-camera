@@ -66,8 +66,17 @@ export interface Depth extends HybridObject<{ ios: 'swift' }> {
    */
   convert(pixelFormat: DepthPixelFormat): Depth
   convertAsync(pixelFormat: DepthPixelFormat): Promise<Depth>
-
+  /**
+   * Converts this {@linkcode Depth} frame to a {@linkcode Frame}.
+   *
+   * The resulting {@linkcode Frame} will contain the depth/disparity
+   * data in the current depth/disparity Format.
+   *
+   * You must release the resulting {@linkcode Frame} again manually
+   * using {@linkcode Frame.dispose | Frame.dispose()}.
+   */
   toFrame(): Frame
+  toFrameAsync(): Promise<Frame>
   /**
    * Converts this {@linkcode Depth} frame to an {@linkcode Image}.
    *

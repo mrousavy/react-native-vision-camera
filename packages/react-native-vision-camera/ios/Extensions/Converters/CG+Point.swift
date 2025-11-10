@@ -1,5 +1,5 @@
 ///
-/// CGPoint+Point.swift
+/// CG+Point.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///

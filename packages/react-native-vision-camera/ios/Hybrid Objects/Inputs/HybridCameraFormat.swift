@@ -15,9 +15,9 @@ class HybridCameraFormat: HybridCameraFormatSpec {
     self.format = format
   }
   
-  var nativePixelFormat: FormatPixelFormat {
+  var nativePixelFormat: PixelFormat {
     let description = format.formatDescription.mediaSubType
-    return FormatPixelFormat(mediaSubType: description)
+    return PixelFormat(mediaSubType: description)
   }
   
   var photoResolution: Resolution {

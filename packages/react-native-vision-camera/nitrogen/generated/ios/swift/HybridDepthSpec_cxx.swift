@@ -318,6 +318,28 @@ open class HybridDepthSpec_cxx {
   }
   
   @inline(__always)
+  public final func toFrameAsync() -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____ {
+    do {
+      let __result = try self.__implementation.toFrameAsync()
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__shared_ptr_HybridFrameSpec_ in
+              let __cxxWrapped = __result.getCxxWrapper()
+              return __cxxWrapped.getCxxPart()
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func toImage() -> bridge.Result_std__shared_ptr_margelo__nitro__image__HybridImageSpec__ {
     do {
       let __result = try self.__implementation.toImage()

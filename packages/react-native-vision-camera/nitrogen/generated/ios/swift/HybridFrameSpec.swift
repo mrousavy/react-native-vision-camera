@@ -17,7 +17,7 @@ public protocol HybridFrameSpec_protocol: HybridObject {
   var isValid: Bool { get }
   var width: Double { get }
   var height: Double { get }
-  var pixelFormat: VideoPixelFormat { get }
+  var pixelFormat: PixelFormat { get }
   var orientation: Orientation { get }
   var isMirrored: Bool { get }
   var isPlanar: Bool { get }

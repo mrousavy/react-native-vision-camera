@@ -69,12 +69,12 @@ class HybridFrame: HybridFrameSpec, NativeFrame, LazyLockableBuffer {
     return CVPixelBufferIsPlanar(pixelBuffer)
   }
 
-  var pixelFormat: VideoPixelFormat {
+  var pixelFormat: PixelFormat {
     guard let pixelBuffer else {
       return .unknown
     }
-    let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
-    return VideoPixelFormat(osType: format)
+    let osType = CVPixelBufferGetPixelFormatType(pixelBuffer)
+    return PixelFormat(osType: osType)
   }
 
   var planesCount: Double {

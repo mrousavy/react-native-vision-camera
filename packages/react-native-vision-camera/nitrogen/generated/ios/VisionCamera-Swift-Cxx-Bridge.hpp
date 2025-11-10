@@ -997,6 +997,40 @@ namespace margelo::nitro::camera::bridge::swift {
   using std__weak_ptr_HybridFrameSpec_ = std::weak_ptr<HybridFrameSpec>;
   inline std__weak_ptr_HybridFrameSpec_ weakify_std__shared_ptr_HybridFrameSpec_(const std::shared_ptr<HybridFrameSpec>& strong) noexcept { return strong; }
   
+  // pragma MARK: std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>
+  /**
+   * Specialized version of `std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>`.
+   */
+  using std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___ = std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>;
+  inline std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> create_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___() noexcept {
+    return Promise<std::shared_ptr<HybridFrameSpec>>::create();
+  }
+  inline PromiseHolder<std::shared_ptr<HybridFrameSpec>> wrap_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec___(std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> promise) noexcept {
+    return PromiseHolder<std::shared_ptr<HybridFrameSpec>>(std::move(promise));
+  }
+  
+  // pragma MARK: std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>
+  /**
+   * Specialized version of `std::function<void(const std::shared_ptr<HybridFrameSpec>&)>`.
+   */
+  using Func_void_std__shared_ptr_HybridFrameSpec_ = std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::shared_ptr<HybridFrameSpec>& / * result * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__shared_ptr_HybridFrameSpec__Wrapper final {
+  public:
+    explicit Func_void_std__shared_ptr_HybridFrameSpec__Wrapper(std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>&& func): _function(std::make_unique<std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>>(std::move(func))) {}
+    inline void call(std::shared_ptr<HybridFrameSpec> result) const noexcept {
+      _function->operator()(result);
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__shared_ptr_HybridFrameSpec_ create_Func_void_std__shared_ptr_HybridFrameSpec_(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__shared_ptr_HybridFrameSpec__Wrapper wrap_Func_void_std__shared_ptr_HybridFrameSpec_(Func_void_std__shared_ptr_HybridFrameSpec_ value) noexcept {
+    return Func_void_std__shared_ptr_HybridFrameSpec__Wrapper(std::move(value));
+  }
+  
   // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
   /**
    * Specialized version of `std::shared_ptr<margelo::nitro::image::HybridImageSpec>`.
@@ -1111,6 +1145,15 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_std__shared_ptr_HybridFrameSpec__ create_Result_std__shared_ptr_HybridFrameSpec__(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<HybridFrameSpec>>::withError(error);
+  }
+  
+  // pragma MARK: Result<std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>>
+  using Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____ = Result<std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>>;
+  inline Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____ create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____(const std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>& value) noexcept {
+    return Result<std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>>::withValue(value);
+  }
+  inline Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____ create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridFrameSpec____(const std::exception_ptr& error) noexcept {
+    return Result<std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>>>::withError(error);
   }
   
   // pragma MARK: Result<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>

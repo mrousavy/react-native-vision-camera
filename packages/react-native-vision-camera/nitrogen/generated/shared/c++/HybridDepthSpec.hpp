@@ -96,6 +96,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<HybridDepthSpec> convert(DepthPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<HybridFrameSpec> toFrame() = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> toFrameAsync() = 0;
       virtual std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> toImageAsync() = 0;
       virtual std::shared_ptr<AnyMap> toDictionary(AuxilaryDepthType type) = 0;

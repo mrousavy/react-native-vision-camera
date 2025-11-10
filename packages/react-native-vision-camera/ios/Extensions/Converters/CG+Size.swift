@@ -1,5 +1,5 @@
 ///
-/// CGSize+Size.swift
+/// CG+Size.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///

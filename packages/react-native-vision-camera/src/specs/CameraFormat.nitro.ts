@@ -4,22 +4,20 @@ import type { VideoStabilizationMode } from './common-types/VideoStabilizationMo
 import type { Range } from './common-types/Range'
 import type { ColorSpace } from './common-types/ColorSpace'
 import type { AutoFocusSystem } from './common-types/AutoFocusSystem'
-import type { VideoPixelFormat } from './common-types/VideoPixelFormat'
-import type { DepthPixelFormat } from './common-types/DepthPixelFormat'
+import type { PixelFormat } from './common-types/PixelFormat'
 
 export type MediaType = 'video' | 'depth' | 'other'
-export type FormatPixelFormat = VideoPixelFormat | DepthPixelFormat
 
 export interface CameraFormat extends HybridObject<{ ios: 'swift' }> {
   // pragma MARK: Pixel Format
   /**
-   * Get the {@linkcode CameraFormat}'s native {@linkcode FormatPixelFormat}.
+   * Get the {@linkcode CameraFormat}'s native {@linkcode PixelFormat}.
    *
    * Choosing to record or stream in any other format (e.g. in
    * a `CameraFrameOutput`) might involve conversion overhead,
    * so it is most efficient to stream in this format here.
    */
-  readonly nativePixelFormat: FormatPixelFormat
+  readonly nativePixelFormat: PixelFormat
 
   // pragma MARK: Resolutions
   readonly photoResolution: Resolution

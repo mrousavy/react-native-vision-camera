@@ -1,5 +1,5 @@
 ///
-/// AV+FormatPixelFormat.swift
+/// AV+PixelFormat.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -8,7 +8,12 @@ import NitroModules
 import AVFoundation
 import Foundation
 
-extension FormatPixelFormat {
+extension PixelFormat {
+  init(osType: OSType) {
+    let mediaSubType = CMFormatDescription.MediaSubType(rawValue: osType)
+    self.init(mediaSubType: mediaSubType)
+  }
+  
   init(mediaSubType: CMFormatDescription.MediaSubType) {
     switch mediaSubType {
     case .depth16Bit:

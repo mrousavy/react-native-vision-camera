@@ -183,6 +183,14 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> toFrameAsync() override {
+      auto __result = _swiftPart.toFrameAsync();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
     inline std::shared_ptr<margelo::nitro::image::HybridImageSpec> toImage() override {
       auto __result = _swiftPart.toImage();
       if (__result.hasError()) [[unlikely]] {

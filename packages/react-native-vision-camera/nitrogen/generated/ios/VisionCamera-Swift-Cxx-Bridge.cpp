@@ -328,6 +328,14 @@ namespace margelo::nitro::camera::bridge::swift {
     return swiftPart.toUnsafe();
   }
   
+  // pragma MARK: std::function<void(const std::shared_ptr<HybridFrameSpec>& /* result */)>
+  Func_void_std__shared_ptr_HybridFrameSpec_ create_Func_void_std__shared_ptr_HybridFrameSpec_(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_std__shared_ptr_HybridFrameSpec_::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](const std::shared_ptr<HybridFrameSpec>& result) mutable -> void {
+      swiftClosure.call(result);
+    };
+  }
+  
   // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
   std::shared_ptr<margelo::nitro::image::HybridImageSpec> create_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     // Implemented in NitroImage
