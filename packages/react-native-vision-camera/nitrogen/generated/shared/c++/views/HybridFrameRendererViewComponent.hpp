@@ -17,9 +17,10 @@
 #include <react/renderer/components/view/ViewProps.h>
 
 #include <memory>
+#include "HybridFrameRendererSpec.hpp"
+#include <optional>
 #include "HybridFrameRendererViewSpec.hpp"
 #include <functional>
-#include <optional>
 
 namespace margelo::nitro::camera::views {
 
@@ -42,6 +43,7 @@ namespace margelo::nitro::camera::views {
                                  const react::RawProps& rawProps);
 
   public:
+    CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>> renderer;
     CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>> hybridRef;
 
   private:

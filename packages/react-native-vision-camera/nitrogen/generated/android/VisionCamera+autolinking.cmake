@@ -37,6 +37,7 @@ target_sources(
   ../nitrogen/generated/shared/c++/HybridCameraFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraFormatSpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraSessionSpec.cpp
+  ../nitrogen/generated/shared/c++/HybridFrameRendererSpec.cpp
   ../nitrogen/generated/shared/c++/HybridNativeThreadSpec.cpp
   ../nitrogen/generated/shared/c++/HybridWorkletQueueFactorySpec.cpp
   ../nitrogen/generated/shared/c++/HybridCameraDeviceSpec.cpp

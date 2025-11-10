@@ -226,4 +226,19 @@ open class HybridCameraFactorySpec_cxx {
       return bridge.create_Result_std__shared_ptr_HybridCameraPreviewOutputSpec__(__exceptionPtr)
     }
   }
+  
+  @inline(__always)
+  public final func createFrameRenderer() -> bridge.Result_std__shared_ptr_HybridFrameRendererSpec__ {
+    do {
+      let __result = try self.__implementation.createFrameRenderer()
+      let __resultCpp = { () -> bridge.std__shared_ptr_HybridFrameRendererSpec_ in
+        let __cxxWrapped = __result.getCxxWrapper()
+        return __cxxWrapped.getCxxPart()
+      }()
+      return bridge.create_Result_std__shared_ptr_HybridFrameRendererSpec__(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_HybridFrameRendererSpec__(__exceptionPtr)
+    }
+  }
 }

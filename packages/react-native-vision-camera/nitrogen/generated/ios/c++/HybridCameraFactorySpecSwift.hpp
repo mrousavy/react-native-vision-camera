@@ -28,6 +28,8 @@ namespace margelo::nitro::camera { class HybridCameraDepthFrameOutputSpec; }
 namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 // Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
+// Forward declaration of `HybridFrameRendererSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameRendererSpec; }
 
 #include <memory>
 #include "HybridCameraSessionSpec.hpp"
@@ -39,6 +41,7 @@ namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 #include "HybridCameraDepthFrameOutputSpec.hpp"
 #include "TargetDepthPixelFormat.hpp"
 #include "HybridCameraPreviewOutputSpec.hpp"
+#include "HybridFrameRendererSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -128,6 +131,14 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<HybridCameraPreviewOutputSpec> createPreviewOutput() override {
       auto __result = _swiftPart.createPreviewOutput();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<HybridFrameRendererSpec> createFrameRenderer() override {
+      auto __result = _swiftPart.createFrameRenderer();
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

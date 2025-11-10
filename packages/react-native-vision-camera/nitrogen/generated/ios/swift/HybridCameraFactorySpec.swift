@@ -21,6 +21,7 @@ public protocol HybridCameraFactorySpec_protocol: HybridObject {
   func createFrameOutput(pixelFormat: TargetVideoPixelFormat) throws -> (any HybridCameraFrameOutputSpec)
   func createDepthFrameOutput(pixelFormat: TargetDepthPixelFormat) throws -> (any HybridCameraDepthFrameOutputSpec)
   func createPreviewOutput() throws -> (any HybridCameraPreviewOutputSpec)
+  func createFrameRenderer() throws -> (any HybridFrameRendererSpec)
 }
 
 public extension HybridCameraFactorySpec_protocol {

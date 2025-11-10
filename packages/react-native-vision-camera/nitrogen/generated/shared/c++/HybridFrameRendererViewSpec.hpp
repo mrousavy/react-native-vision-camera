@@ -13,11 +13,12 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `HybridFrameSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridFrameRendererSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameRendererSpec; }
 
 #include <memory>
-#include "HybridFrameSpec.hpp"
+#include "HybridFrameRendererSpec.hpp"
+#include <optional>
 
 namespace margelo::nitro::camera {
 
@@ -46,11 +47,12 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      
+      virtual std::optional<std::shared_ptr<HybridFrameRendererSpec>> getRenderer() = 0;
+      virtual void setRenderer(const std::optional<std::shared_ptr<HybridFrameRendererSpec>>& renderer) = 0;
 
     public:
       // Methods
-      virtual void renderFrame(const std::shared_ptr<HybridFrameSpec>& frame) = 0;
+      
 
     protected:
       // Hybrid Setup

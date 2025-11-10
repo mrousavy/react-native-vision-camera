@@ -3,13 +3,13 @@ import type {
   HybridViewMethods,
   HybridViewProps,
 } from 'react-native-nitro-modules'
-import type { Frame } from '../instances/Frame.nitro'
+import type { FrameRenderer } from '../FrameRenderer.nitro'
 
-export interface FrameRendererViewProps extends HybridViewProps {}
-
-export interface FrameRendererViewMethods extends HybridViewMethods {
-  renderFrame(frame: Frame): void
+export interface FrameRendererViewProps extends HybridViewProps {
+  renderer?: FrameRenderer
 }
+
+export interface FrameRendererViewMethods extends HybridViewMethods {}
 
 export type FrameRendererView = HybridView<
   FrameRendererViewProps,

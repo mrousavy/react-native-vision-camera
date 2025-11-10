@@ -42,12 +42,14 @@ abstract class HybridFrameRendererViewSpec: HybridView() {
   }
 
   // Properties
-  
+  @get:DoNotStrip
+  @get:Keep
+  @set:DoNotStrip
+  @set:Keep
+  abstract var renderer: HybridFrameRendererSpec?
 
   // Methods
-  @DoNotStrip
-  @Keep
-  abstract fun renderFrame(frame: HybridFrameSpec): Unit
+  
 
   private external fun initHybrid(): HybridData
 

@@ -9,34 +9,20 @@ import NitroModules
 import AVFoundation
 
 class HybridFrameRendererView: HybridFrameRendererViewSpec {
-  var view: UIView {
-    return sampleBufferDisplayView
-  }
-  private let sampleBufferDisplayView = SampleBufferDisplayView()
-  private let renderer: AVSampleBufferDisplayLayer
-  
-  override init() {
-    self.renderer = sampleBufferDisplayView.sampleBufferDisplayLayer
-    super.init()
+  var view: UIView = AutoLayerResizingView()
+  var renderer: (any HybridFrameRendererSpec)? {
+    didSet {
+      updateRendererLayer()
+    }
   }
   
-  private class SampleBufferDisplayView: UIView {
-    override class var layerClass: AnyClass {
-      return AVSampleBufferDisplayLayer.self
+  private func updateRendererLayer() {
+    DispatchQueue.main.async {
+      self.view.layer.sublayers?.removeAll()
+      if let renderer = self.renderer as? NativeFrameRenderer {
+        self.view.layer.addSublayer(renderer.layer)
+        renderer.layer.frame = self.view.bounds
+      }
     }
-    var sampleBufferDisplayLayer: AVSampleBufferDisplayLayer {
-      return self.layer as! AVSampleBufferDisplayLayer
-    }
-  }
-
-  func renderFrame(frame: any HybridFrameSpec) throws {
-    guard let hybridFrame = frame as? NativeFrame else {
-      throw RuntimeError.error(withMessage: "Frame \(frame) is not of type `NativeFrame`!")
-    }
-    guard let sampleBuffer = hybridFrame.sampleBuffer else {
-      throw RuntimeError.error(withMessage: "Frame \(hybridFrame) does not have a valid `.sampleBuffer`!")
-    }
-    
-    self.renderer.enqueue(sampleBuffer)
   }
 }

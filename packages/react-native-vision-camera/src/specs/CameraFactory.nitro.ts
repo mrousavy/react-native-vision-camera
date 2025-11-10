@@ -7,6 +7,7 @@ import type { CameraPreviewOutput } from './outputs/CameraPreviewOutput.nitro'
 import type { TargetVideoPixelFormat } from './common-types/VideoPixelFormat'
 import type { TargetDepthPixelFormat } from './common-types/DepthPixelFormat'
 import type { CameraDepthFrameOutput } from './outputs/CameraDepthFrameOutput.nitro'
+import type { FrameRenderer } from './FrameRenderer.nitro'
 
 export interface CameraFactory extends HybridObject<{ ios: 'swift' }> {
   readonly supportsMultiCamSessions: boolean
@@ -22,4 +23,7 @@ export interface CameraFactory extends HybridObject<{ ios: 'swift' }> {
     pixelFormat: TargetDepthPixelFormat
   ): CameraDepthFrameOutput
   createPreviewOutput(): CameraPreviewOutput
+
+  // Utils
+  createFrameRenderer(): FrameRenderer
 }

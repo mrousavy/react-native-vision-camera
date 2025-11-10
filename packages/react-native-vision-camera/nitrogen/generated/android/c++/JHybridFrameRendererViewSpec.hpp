@@ -50,11 +50,12 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    std::optional<std::shared_ptr<HybridFrameRendererSpec>> getRenderer() override;
+    void setRenderer(const std::optional<std::shared_ptr<HybridFrameRendererSpec>>& renderer) override;
 
   public:
     // Methods
-    void renderFrame(const std::shared_ptr<HybridFrameSpec>& frame) override;
+    
 
   private:
     friend HybridBase;

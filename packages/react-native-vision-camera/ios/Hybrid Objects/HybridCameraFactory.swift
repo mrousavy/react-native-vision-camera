@@ -45,4 +45,8 @@ class HybridCameraFactory: HybridCameraFactorySpec {
   func createPreviewOutput() -> any HybridCameraPreviewOutputSpec {
     return HybridCameraPreviewOutput()
   }
+  
+  func createFrameRenderer() throws -> any HybridFrameRendererSpec {
+    return HybridFrameRenderer()
+  }
 }

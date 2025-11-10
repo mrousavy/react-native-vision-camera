@@ -114,24 +114,38 @@ open class HybridFrameRendererViewSpec_cxx {
   }
 
   // Properties
-  
-
-  // Methods
-  @inline(__always)
-  public final func renderFrame(frame: bridge.std__shared_ptr_HybridFrameSpec_) -> bridge.Result_void_ {
-    do {
-      try self.__implementation.renderFrame(frame: { () -> HybridFrameSpec in
-        let __unsafePointer = bridge.get_std__shared_ptr_HybridFrameSpec_(frame)
-        let __instance = HybridFrameSpec_cxx.fromUnsafe(__unsafePointer)
-        return __instance.getHybridFrameSpec()
-      }())
-      return bridge.create_Result_void_()
-    } catch (let __error) {
-      let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+  public final var renderer: bridge.std__optional_std__shared_ptr_HybridFrameRendererSpec__ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_std__shared_ptr_HybridFrameRendererSpec__ in
+        if let __unwrappedValue = self.__implementation.renderer {
+          return bridge.create_std__optional_std__shared_ptr_HybridFrameRendererSpec__({ () -> bridge.std__shared_ptr_HybridFrameRendererSpec_ in
+            let __cxxWrapped = __unwrappedValue.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        } else {
+          return .init()
+        }
+      }()
+    }
+    @inline(__always)
+    set {
+      self.__implementation.renderer = { () -> (any HybridFrameRendererSpec)? in
+        if bridge.has_value_std__optional_std__shared_ptr_HybridFrameRendererSpec__(newValue) {
+          let __unwrapped = bridge.get_std__optional_std__shared_ptr_HybridFrameRendererSpec__(newValue)
+          return { () -> HybridFrameRendererSpec in
+            let __unsafePointer = bridge.get_std__shared_ptr_HybridFrameRendererSpec_(__unwrapped)
+            let __instance = HybridFrameRendererSpec_cxx.fromUnsafe(__unsafePointer)
+            return __instance.getHybridFrameRendererSpec()
+          }()
+        } else {
+          return nil
+        }
+      }()
     }
   }
-  
+
+  // Methods
   public final func getView() -> UnsafeMutableRawPointer {
     return Unmanaged.passRetained(__implementation.view).toOpaque()
   }

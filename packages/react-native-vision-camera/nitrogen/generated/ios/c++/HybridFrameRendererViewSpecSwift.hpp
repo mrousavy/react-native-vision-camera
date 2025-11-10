@@ -12,11 +12,12 @@
 // Forward declaration of `HybridFrameRendererViewSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridFrameRendererViewSpec_cxx; }
 
-// Forward declaration of `HybridFrameSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridFrameRendererSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameRendererSpec; }
 
 #include <memory>
-#include "HybridFrameSpec.hpp"
+#include "HybridFrameRendererSpec.hpp"
+#include <optional>
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -58,16 +59,17 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    
+    inline std::optional<std::shared_ptr<HybridFrameRendererSpec>> getRenderer() noexcept override {
+      auto __result = _swiftPart.getRenderer();
+      return __result;
+    }
+    inline void setRenderer(const std::optional<std::shared_ptr<HybridFrameRendererSpec>>& renderer) noexcept override {
+      _swiftPart.setRenderer(renderer);
+    }
 
   public:
     // Methods
-    inline void renderFrame(const std::shared_ptr<HybridFrameSpec>& frame) override {
-      auto __result = _swiftPart.renderFrame(frame);
-      if (__result.hasError()) [[unlikely]] {
-        std::rethrow_exception(__result.error());
-      }
-    }
+    
 
   private:
     VisionCamera::HybridFrameRendererViewSpec_cxx _swiftPart;

@@ -29,6 +29,8 @@ namespace margelo::nitro::camera { class HybridCameraDepthFrameOutputSpec; }
 namespace margelo::nitro::camera { enum class TargetDepthPixelFormat; }
 // Forward declaration of `HybridCameraPreviewOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
+// Forward declaration of `HybridFrameRendererSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameRendererSpec; }
 
 #include <memory>
 #include "HybridCameraSessionSpec.hpp"
@@ -40,6 +42,7 @@ namespace margelo::nitro::camera { class HybridCameraPreviewOutputSpec; }
 #include "HybridCameraDepthFrameOutputSpec.hpp"
 #include "TargetDepthPixelFormat.hpp"
 #include "HybridCameraPreviewOutputSpec.hpp"
+#include "HybridFrameRendererSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -78,6 +81,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<HybridCameraFrameOutputSpec> createFrameOutput(TargetVideoPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<HybridCameraDepthFrameOutputSpec> createDepthFrameOutput(TargetDepthPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<HybridCameraPreviewOutputSpec> createPreviewOutput() = 0;
+      virtual std::shared_ptr<HybridFrameRendererSpec> createFrameRenderer() = 0;
 
     protected:
       // Hybrid Setup

@@ -11,10 +11,10 @@ import NitroModules
 /// See ``HybridFrameRendererViewSpec``
 public protocol HybridFrameRendererViewSpec_protocol: HybridObject, HybridView {
   // Properties
-  
+  var renderer: (any HybridFrameRendererSpec)? { get set }
 
   // Methods
-  func renderFrame(frame: (any HybridFrameSpec)) throws -> Void
+  
 }
 
 public extension HybridFrameRendererViewSpec_protocol {

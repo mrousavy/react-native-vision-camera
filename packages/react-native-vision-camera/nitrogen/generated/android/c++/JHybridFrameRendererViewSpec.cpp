@@ -7,12 +7,13 @@
 
 #include "JHybridFrameRendererViewSpec.hpp"
 
-// Forward declaration of `HybridFrameSpec` to properly resolve imports.
-namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridFrameRendererSpec` to properly resolve imports.
+namespace margelo::nitro::camera { class HybridFrameRendererSpec; }
 
 #include <memory>
-#include "HybridFrameSpec.hpp"
-#include "JHybridFrameSpec.hpp"
+#include "HybridFrameRendererSpec.hpp"
+#include <optional>
+#include "JHybridFrameRendererSpec.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -43,12 +44,17 @@ namespace margelo::nitro::camera {
   }
 
   // Properties
-  
+  std::optional<std::shared_ptr<HybridFrameRendererSpec>> JHybridFrameRendererViewSpec::getRenderer() {
+    static const auto method = javaClassStatic()->getMethod<jni::local_ref<JHybridFrameRendererSpec::javaobject>()>("getRenderer");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->cthis()->shared_cast<JHybridFrameRendererSpec>()) : std::nullopt;
+  }
+  void JHybridFrameRendererViewSpec::setRenderer(const std::optional<std::shared_ptr<HybridFrameRendererSpec>>& renderer) {
+    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridFrameRendererSpec::javaobject> /* renderer */)>("setRenderer");
+    method(_javaPart, renderer.has_value() ? std::dynamic_pointer_cast<JHybridFrameRendererSpec>(renderer.value())->getJavaPart() : nullptr);
+  }
 
   // Methods
-  void JHybridFrameRendererViewSpec::renderFrame(const std::shared_ptr<HybridFrameSpec>& frame) {
-    static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<JHybridFrameSpec::javaobject> /* frame */)>("renderFrame");
-    method(_javaPart, std::dynamic_pointer_cast<JHybridFrameSpec>(frame)->getJavaPart());
-  }
+  
 
 } // namespace margelo::nitro::camera

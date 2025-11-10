@@ -25,6 +25,16 @@ namespace margelo::nitro::camera::views {
                                                              const HybridFrameRendererViewProps& sourceProps,
                                                              const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
+    renderer([&]() -> CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>> {
+      try {
+        const react::RawValue* rawValue = rawProps.at("renderer", nullptr, nullptr);
+        if (rawValue == nullptr) return sourceProps.renderer;
+        const auto& [runtime, value] = (std::pair<jsi::Runtime*, jsi::Value>)*rawValue;
+        return CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>>::fromRawValue(*runtime, value, sourceProps.renderer);
+      } catch (const std::exception& exc) {
+        throw std::runtime_error(std::string("FrameRendererView.renderer: ") + exc.what());
+      }
+    }()),
     hybridRef([&]() -> CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>> {
       try {
         const react::RawValue* rawValue = rawProps.at("hybridRef", nullptr, nullptr);
@@ -38,10 +48,12 @@ namespace margelo::nitro::camera::views {
 
   HybridFrameRendererViewProps::HybridFrameRendererViewProps(const HybridFrameRendererViewProps& other):
     react::ViewProps(),
+    renderer(other.renderer),
     hybridRef(other.hybridRef) { }
 
   bool HybridFrameRendererViewProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
+      case hashString("renderer"): return true;
       case hashString("hybridRef"): return true;
       default: return false;
     }

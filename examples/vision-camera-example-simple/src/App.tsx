@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { callback, HybridRef, NitroModules } from 'react-native-nitro-modules';
-import { BoxedHybridObject } from 'react-native-nitro-modules/lib/typescript/BoxedHybridObject';
+import { NitroModules } from 'react-native-nitro-modules';
 import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, useCameraDevices, CameraOutput, Camera, NativeFrameRendererView, FrameRendererViewProps, FrameRendererViewMethods,  useFrameOutput, Frame, Depth, useDepthOutput } from 'react-native-vision-camera'
+import { HybridCameraFactory, useCameraDevices, CameraOutput, Camera, NativeFrameRendererView, useFrameOutput, Frame, Depth, useDepthOutput } from 'react-native-vision-camera'
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -22,12 +21,11 @@ function App() {
   );
 }
 
-type RefType = HybridRef<FrameRendererViewProps, FrameRendererViewMethods>
-
 function AppContent() {
   const devices = useCameraDevices()
   const [deviceIndex, setDeviceIndex] = useState(0)
-  const [rendererBoxed, setRendererBoxed] = useState<BoxedHybridObject<RefType> | undefined>(undefined)
+  const frameRenderer = useMemo(() => HybridCameraFactory.createFrameRenderer(), [])
+  const rendererBoxed = useMemo(() => NitroModules.box(frameRenderer), [frameRenderer])
   let nextDeviceIndex = deviceIndex + 1
   if (nextDeviceIndex >= devices.length) {
     nextDeviceIndex = 0
@@ -51,8 +49,12 @@ function AppContent() {
   const onFrame = useCallback((frame: Frame) => {
     'worklet'
       console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
+      const renderer = rendererBoxed?.unbox()
+      if (renderer != null) {
+        renderer.renderFrame(frame)
+      }
       frame.dispose()
-  }, [])
+  }, [rendererBoxed])
   const onDepth = useCallback((depth: Depth) => {
     'worklet'
       console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
@@ -110,11 +112,7 @@ function AppContent() {
         <View style={styles.container}>
           <NativeFrameRendererView
             style={styles.camera}
-            hybridRef={useMemo(() => callback((ref) => {
-              console.log(`Ref initialized! ${ref}`)
-              const boxed = NitroModules.box(ref)
-              setRendererBoxed(boxed)
-            }), [])}
+            renderer={frameRenderer}
           />
           {device != null && (
             <Camera

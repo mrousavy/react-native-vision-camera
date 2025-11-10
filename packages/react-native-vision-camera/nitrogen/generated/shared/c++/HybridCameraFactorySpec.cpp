@@ -21,6 +21,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridMethod("createFrameOutput", &HybridCameraFactorySpec::createFrameOutput);
       prototype.registerHybridMethod("createDepthFrameOutput", &HybridCameraFactorySpec::createDepthFrameOutput);
       prototype.registerHybridMethod("createPreviewOutput", &HybridCameraFactorySpec::createPreviewOutput);
+      prototype.registerHybridMethod("createFrameRenderer", &HybridCameraFactorySpec::createFrameRenderer);
     });
   }
 

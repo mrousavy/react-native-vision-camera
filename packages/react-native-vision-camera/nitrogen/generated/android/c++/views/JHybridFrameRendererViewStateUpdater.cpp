@@ -36,7 +36,10 @@ void JHybridFrameRendererViewStateUpdater::updateViewProps(jni::alias_ref<jni::J
     throw std::runtime_error("HybridFrameRendererViewState's data doesn't contain any props!");
   }
   const HybridFrameRendererViewProps& props = maybeProps.value();
-  
+  if (props.renderer.isDirty) {
+    view->setRenderer(props.renderer.value);
+    // TODO: Set isDirty = false
+  }
 
   // Update hybridRef if it changed
   if (props.hybridRef.isDirty) {
