@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
-import { HybridCameraFactory, HybridWorkletQueueFactory, type Depth } from '..'
-import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets'
-import { NitroModules } from 'react-native-nitro-modules'
+import { HybridCameraFactory, type Depth } from '..'
 import type { CameraDepthFrameOutput } from '../specs/outputs/CameraDepthFrameOutput.nitro'
+import { useNativeThreadWorkletRuntime } from './useNativeThreadWorkletRuntime'
+import { runOnCameraOutputThread } from '../utils/runOnOutputThread'
 
 interface Props {
   /**
@@ -12,36 +12,33 @@ interface Props {
 }
 
 export function useDepthOutput({ onDepth }: Props): CameraDepthFrameOutput {
-  const output = useMemo(
+  // 1. Create depth output
+  const depthOutput = useMemo(
     () => HybridCameraFactory.createDepthFrameOutput('native'),
     []
   )
-  const workletRuntime = useMemo(() => {
-    const workletQueue = HybridWorkletQueueFactory.wrapThreadInQueue(
-      output.thread
-    )
-    return createWorkletRuntime({
-      name: `com.margelo.camera.frame`,
-      customQueue: workletQueue,
-      useDefaultQueue: false,
-    })
-  }, [output])
+  // 2. Create Worklet Runtime for NativeThread
+  const workletRuntime = useNativeThreadWorkletRuntime(depthOutput.thread)
 
+  // 3. Update onDepth() callback if it changed
   useEffect(() => {
     if (onDepth != null) {
-      const boxed = NitroModules.box(output)
-      scheduleOnRuntime(workletRuntime, () => {
+      runOnCameraOutputThread(depthOutput, workletRuntime, (output) => {
         'worklet'
-        const unboxed = boxed.unbox()
-        unboxed.setOnDepthFrameCallback((depth) => {
-          onDepth(depth)
+        output.setOnDepthFrameCallback((depth) => {
+          try {
+            onDepth(depth)
+          } catch (e) {
+            console.error(e)
+          }
           return true
         })
       })
     } else {
-      output.setOnDepthFrameCallback(undefined)
+      depthOutput.setOnDepthFrameCallback(undefined)
     }
-  }, [onDepth, output, workletRuntime])
+  }, [onDepth, depthOutput, workletRuntime])
 
-  return output
+  // 4. Return :)
+  return depthOutput
 }

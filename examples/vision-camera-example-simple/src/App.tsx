@@ -55,10 +55,8 @@ function AppContent() {
     'worklet'
     console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
     if (!supportsDepth) {
-      const renderer = rendererBoxed?.unbox()
-      if (renderer != null) {
-        renderer.renderFrame(frame)
-      }
+      const renderer = rendererBoxed.unbox()
+      renderer.renderFrame(frame)
     }
     frame.dispose()
   }, [rendererBoxed, supportsDepth])
@@ -66,12 +64,9 @@ function AppContent() {
     'worklet'
     console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
     if (supportsDepth) {
-      const renderer = rendererBoxed?.unbox()
-      if (renderer != null) {
-        const frame = depth.toFrame()
-        renderer.renderFrame(frame)
-        frame.dispose()
-      }
+      const renderer = rendererBoxed.unbox()
+      const frame = depth.toFrame()
+      renderer.renderFrame(frame)
     }
     depth.dispose()
   }, [rendererBoxed, supportsDepth])

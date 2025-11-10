@@ -1,13 +1,12 @@
 import { useEffect, useMemo } from 'react'
 import {
   HybridCameraFactory,
-  HybridWorkletQueueFactory,
   type CameraFrameOutput,
   type Frame,
   type TargetVideoPixelFormat,
 } from '..'
-import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets'
-import { NitroModules } from 'react-native-nitro-modules'
+import { useNativeThreadWorkletRuntime } from './useNativeThreadWorkletRuntime'
+import { runOnCameraOutputThread } from '../utils/runOnOutputThread'
 
 interface Props {
   pixelFormat?: TargetVideoPixelFormat
@@ -21,36 +20,33 @@ export function useFrameOutput({
   pixelFormat = 'native',
   onFrame,
 }: Props): CameraFrameOutput {
-  const output = useMemo(
+  // 1. Create frame output
+  const frameOutput = useMemo(
     () => HybridCameraFactory.createFrameOutput(pixelFormat),
     [pixelFormat]
   )
-  const workletRuntime = useMemo(() => {
-    const workletQueue = HybridWorkletQueueFactory.wrapThreadInQueue(
-      output.thread
-    )
-    return createWorkletRuntime({
-      name: `com.margelo.camera.frame`,
-      customQueue: workletQueue,
-      useDefaultQueue: false,
-    })
-  }, [output])
+  // 2. Create Worklet Runtime for NativeThread
+  const workletRuntime = useNativeThreadWorkletRuntime(frameOutput.thread)
 
+  // 3. Update onFrame() callback if it changed
   useEffect(() => {
     if (onFrame != null) {
-      const boxed = NitroModules.box(output)
-      scheduleOnRuntime(workletRuntime, () => {
+      runOnCameraOutputThread(frameOutput, workletRuntime, (output) => {
         'worklet'
-        const unboxed = boxed.unbox()
-        unboxed.setOnFrameCallback((frame) => {
-          onFrame(frame)
+        output.setOnFrameCallback((frame) => {
+          try {
+            onFrame(frame)
+          } catch (e) {
+            console.error(e)
+          }
           return true
         })
       })
     } else {
-      output.setOnFrameCallback(undefined)
+      frameOutput.setOnFrameCallback(undefined)
     }
-  }, [onFrame, output, workletRuntime])
+  }, [frameOutput, onFrame, workletRuntime])
 
-  return output
+  // 4. Return :)
+  return frameOutput
 }
