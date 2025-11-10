@@ -23,5 +23,11 @@ class HybridFrameRenderer: HybridFrameRendererSpec, NativeFrameRenderer {
     }
     
     self.sampleBufferDisplayLayer.enqueue(sampleBuffer)
+    if self.sampleBufferDisplayLayer.requiresFlushToResumeDecoding {
+      self.sampleBufferDisplayLayer.flush()
+    }
+    if self.sampleBufferDisplayLayer.status == .failed {
+      throw RuntimeError.error(withMessage: "Failed to render Frame!")
+    }
   }
 }

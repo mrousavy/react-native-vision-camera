@@ -34,6 +34,11 @@ function AppContent() {
   const device = devices[deviceIndex]
   const [zoom, setZoom] = useState(1)
 
+  const supportsDepth = useMemo(() => {
+    if (device == null) return false
+    return device.formats.some((f) => f.depthDataFormats.length > 0)
+  }, [device])
+
   if (device != null) {
     console.log(`Device: ${device.id} (${device.localizedName})`)
   } else {
@@ -48,24 +53,28 @@ function AppContent() {
 
   const onFrame = useCallback((frame: Frame) => {
     'worklet'
-      console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
+    console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
+    if (!supportsDepth) {
       const renderer = rendererBoxed?.unbox()
       if (renderer != null) {
         renderer.renderFrame(frame)
       }
-      frame.dispose()
-  }, [rendererBoxed])
+    }
+    frame.dispose()
+  }, [rendererBoxed, supportsDepth])
   const onDepth = useCallback((depth: Depth) => {
     'worklet'
-      console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
+    console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
+    if (supportsDepth) {
       const renderer = rendererBoxed?.unbox()
       if (renderer != null) {
         const frame = depth.toFrame()
         renderer.renderFrame(frame)
         frame.dispose()
       }
-      depth.dispose()
-  }, [rendererBoxed])
+    }
+    depth.dispose()
+  }, [rendererBoxed, supportsDepth])
 
   const frameOutput = useFrameOutput({
     onFrame: onFrame
@@ -74,10 +83,6 @@ function AppContent() {
     onDepth: onDepth
   })
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
-  const supportsDepth = useMemo(() => {
-    if (device == null) return false
-    return device.formats.some((f) => f.depthDataFormats.length > 0)
-  }, [device])
 
   const outputs = useMemo(() => {
     const result: CameraOutput[] = [photoOutput, frameOutput]
