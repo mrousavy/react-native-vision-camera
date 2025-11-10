@@ -52,6 +52,7 @@ export * from './specs/views/FrameRendererView.nitro'
 
 export * from './hooks/useCameraDevices'
 export * from './hooks/useCameraSession'
+export * from './hooks/useDepthOutput'
 export * from './hooks/useFrameOutput'
 
 export * from './views/Camera'

@@ -13,6 +13,12 @@ class HybridFrameRendererView: HybridFrameRendererViewSpec {
     return sampleBufferDisplayView
   }
   private let sampleBufferDisplayView = SampleBufferDisplayView()
+  private let renderer: AVSampleBufferDisplayLayer
+  
+  override init() {
+    self.renderer = sampleBufferDisplayView.sampleBufferDisplayLayer
+    super.init()
+  }
   
   private class SampleBufferDisplayView: UIView {
     override class var layerClass: AnyClass {
@@ -31,10 +37,6 @@ class HybridFrameRendererView: HybridFrameRendererViewSpec {
       throw RuntimeError.error(withMessage: "Frame \(hybridFrame) does not have a valid `.sampleBuffer`!")
     }
     
-    let layer = sampleBufferDisplayView.sampleBufferDisplayLayer
-    layer.enqueue(sampleBuffer)
-    if layer.requiresFlushToResumeDecoding {
-      layer.flush()
-    }
+    self.renderer.enqueue(sampleBuffer)
   }
 }

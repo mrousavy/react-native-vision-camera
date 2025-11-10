@@ -7,8 +7,7 @@ import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera, NativeFrameRendererView, FrameRendererViewProps, FrameRendererViewMethods,  useFrameOutput, Frame } from 'react-native-vision-camera'
-import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
+import { HybridCameraFactory, useCameraDevices, CameraOutput, Camera, NativeFrameRendererView, FrameRendererViewProps, FrameRendererViewMethods,  useFrameOutput, Frame, Depth, useDepthOutput } from 'react-native-vision-camera'
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -21,35 +20,6 @@ function App() {
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
-}
-
-function createDepthOutput(): CameraOutput {
-  const output = HybridCameraFactory.createDepthFrameOutput('depth-16-bit')
-  const thread = output.thread
-  const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
-  const runtime = createWorkletRuntime({
-    name: `com.margelo.camera.frame-processor`,
-    useDefaultQueue: false,
-    customQueue: queue
-  })
-  output.setOnDepthFrameDroppedCallback((reason) => {
-    console.log(`Frame dropped - reason: ${reason}`)
-  })
-  const boxedOutput = NitroModules.box(output)
-  scheduleOnRuntime(runtime, () => {
-    'worklet'
-    const unboxed = boxedOutput.unbox()
-    let didLog = false
-    unboxed.setOnDepthFrameCallback((depth) => {
-      if (!didLog) {
-        console.log(`New ${depth.width}x${depth.height} ${depth.pixelFormat} Depth arrived! (${depth.orientation})`)
-        didLog = true
-      }
-      depth.dispose()
-      return true
-    })
-  })
-  return output
 }
 
 type RefType = HybridRef<FrameRendererViewProps, FrameRendererViewMethods>
@@ -80,18 +50,26 @@ function AppContent() {
 
   const onFrame = useCallback((frame: Frame) => {
     'worklet'
-      console.log(`Running on ${frame.width}x${frame.height} Frame!`)
+      console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
+      frame.dispose()
+  }, [rendererBoxed])
+  const onDepth = useCallback((depth: Depth) => {
+    'worklet'
+      console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
       const renderer = rendererBoxed?.unbox()
       if (renderer != null) {
+        const frame = depth.toFrame()
         renderer.renderFrame(frame)
       }
-      frame.dispose()
+      depth.dispose()
   }, [rendererBoxed])
 
   const frameOutput = useFrameOutput({
     onFrame: onFrame
   })
-  const depthOutput = useMemo(() => createDepthOutput(), [])
+  const depthOutput = useDepthOutput({
+    onDepth: onDepth
+  })
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
   const supportsDepth = useMemo(() => {
     if (device == null) return false
