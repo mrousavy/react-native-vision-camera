@@ -24,7 +24,7 @@ extension DepthPixelFormat {
     }
   }
   
-  func toOSType() throws -> OSType {
+  func toCVPixelFormatType() throws -> OSType {
     switch self {
     case .unknown:
       throw RuntimeError.error(withMessage: "Cannot convert DepthPixelFormat \"unknown\" to native OSType!")
@@ -37,5 +37,10 @@ extension DepthPixelFormat {
     case .disparity32Bit:
       return kCVPixelFormatType_DisparityFloat32
     }
+  }
+  
+  func toCMMediaSubType() throws -> CMFormatDescription.MediaSubType {
+    let cvPixelFormat = try toCVPixelFormatType()
+    return CMFormatDescription.MediaSubType(rawValue: cvPixelFormat)
   }
 }

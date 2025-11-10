@@ -25,4 +25,26 @@ extension VideoPixelFormat {
       self = .unknown
     }
   }
+  
+  func toCVPixelFormatType() throws -> OSType {
+    switch self {
+    case .yuv4208BitVideo:
+      return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+    case .yuv4208BitFull:
+      return kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+    case .yuv42010BitVideo:
+      return kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+    case .yuv42010BitFull:
+      return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+    case .rgbBgra32Bit:
+      return kCVPixelFormatType_32BGRA
+    case .unknown:
+      throw RuntimeError.error(withMessage: "Cannot convert \"unknown\" VideoPixelFormat to CVPixelFormat!")
+    }
+  }
+  
+  func toCMMediaSubType() throws -> CMFormatDescription.MediaSubType {
+    let cvPixelFormat = try toCVPixelFormatType()
+    return CMFormatDescription.MediaSubType(rawValue: cvPixelFormat)
+  }
 }

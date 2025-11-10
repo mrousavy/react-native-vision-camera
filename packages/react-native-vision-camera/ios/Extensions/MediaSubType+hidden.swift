@@ -9,9 +9,14 @@ import AVFoundation
 import Foundation
 
 extension CMFormatDescription.MediaSubType {
-  static let hdis = CMFormatDescription.MediaSubType(string: "hdis")
-  static let fdis = CMFormatDescription.MediaSubType(string: "fdis")
+  static let depth16Bit = try! DepthPixelFormat.depth16Bit.toCMMediaSubType()
+  static let depth32Bit = try! DepthPixelFormat.depth32Bit.toCMMediaSubType()
+  static let disparity16Bit = try! DepthPixelFormat.disparity16Bit.toCMMediaSubType()
+  static let disparity32Bit = try! DepthPixelFormat.disparity32Bit.toCMMediaSubType()
   
-  static let hdep = CMFormatDescription.MediaSubType(string: "hdep")
-  static let fdep = CMFormatDescription.MediaSubType(string: "fdep")
+  static let yuv4208BitVideo = try! VideoPixelFormat.yuv4208BitVideo.toCMMediaSubType()
+  static let yuv4208BitFull = try! VideoPixelFormat.yuv4208BitFull.toCMMediaSubType()
+  static let yuv42010BitVideo = try! VideoPixelFormat.yuv42010BitVideo.toCMMediaSubType()
+  static let yuv42010BitFull = try! VideoPixelFormat.yuv42010BitFull.toCMMediaSubType()
+  static let rgbBgra32Bit = try! VideoPixelFormat.rgbBgra32Bit.toCMMediaSubType()
 }

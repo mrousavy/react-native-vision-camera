@@ -117,7 +117,7 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     guard let depthData else {
       throw RuntimeError.error(withMessage: "Tried to rotate an already disposed Depth!")
     }
-    let osFormat = try pixelFormat.toOSType()
+    let osFormat = try pixelFormat.toCVPixelFormatType()
     let converted = depthData.converting(toDepthDataType: osFormat)
     return HybridDepth(depthData: converted,
                        metadata: metadata)
