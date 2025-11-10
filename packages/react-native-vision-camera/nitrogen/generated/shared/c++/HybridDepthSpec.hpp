@@ -75,6 +75,8 @@ namespace margelo::nitro::camera {
       virtual Orientation getOrientation() = 0;
       virtual bool getIsMirrored() = 0;
       virtual double getTimestamp() = 0;
+      virtual double getWidth() = 0;
+      virtual double getHeight() = 0;
       virtual DepthPixelFormat getPixelFormat() = 0;
       virtual bool getIsValid() = 0;
       virtual bool getIsDepthDataFiltered() = 0;

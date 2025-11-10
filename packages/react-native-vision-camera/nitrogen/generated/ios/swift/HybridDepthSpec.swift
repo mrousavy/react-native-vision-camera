@@ -16,6 +16,8 @@ public protocol HybridDepthSpec_protocol: HybridObject {
   var orientation: Orientation { get }
   var isMirrored: Bool { get }
   var timestamp: Double { get }
+  var width: Double { get }
+  var height: Double { get }
   var pixelFormat: DepthPixelFormat { get }
   var isValid: Bool { get }
   var isDepthDataFiltered: Bool { get }

@@ -6,7 +6,7 @@ import { clamp, useSharedValue } from 'react-native-reanimated';
 import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera } from 'react-native-vision-camera'
+import { HybridCameraFactory, HybridWorkletQueueFactory, useCameraDevices, CameraOutput, Camera, CameraDevice } from 'react-native-vision-camera'
 import { createWorkletRuntime, scheduleOnRuntime } from 'react-native-worklets';
 
 function App() {
@@ -22,12 +22,13 @@ function App() {
   );
 }
 
-function createVideoOutput(id: number): CameraOutput {
+
+function createVideoOutput(): CameraOutput {
   const output = HybridCameraFactory.createFrameOutput('native')
   const thread = output.thread
   const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
   const runtime = createWorkletRuntime({
-    name: `com.margelo.camera.frame-processor-${id}`,
+    name: `com.margelo.camera.frame-processor`,
     useDefaultQueue: false,
     customQueue: queue
   })
@@ -38,24 +39,55 @@ function createVideoOutput(id: number): CameraOutput {
   scheduleOnRuntime(runtime, () => {
     'worklet'
     const unboxed = boxedOutput.unbox()
+    let didLog = false
     unboxed.setOnFrameCallback((frame) => {
-      // console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+      if (!didLog) {
+        console.log(`New ${frame.width}x${frame.height} ${frame.pixelFormat} Frame arrived! (${frame.orientation})`)
+        didLog = true
+      }
       frame.dispose()
       return true
     })
   })
   return output
 }
-
-const supportsMulti = HybridCameraFactory.supportsMultiCamSessions
+function createDepthOutput(): CameraOutput {
+  const output = HybridCameraFactory.createDepthFrameOutput('native')
+  const thread = output.thread
+  const queue = HybridWorkletQueueFactory.wrapThreadInQueue(thread)
+  const runtime = createWorkletRuntime({
+    name: `com.margelo.camera.frame-processor`,
+    useDefaultQueue: false,
+    customQueue: queue
+  })
+  output.setOnDepthFrameDroppedCallback((reason) => {
+    console.log(`Frame dropped - reason: ${reason}`)
+  })
+  const boxedOutput = NitroModules.box(output)
+  scheduleOnRuntime(runtime, () => {
+    'worklet'
+    const unboxed = boxedOutput.unbox()
+    let didLog = false
+    unboxed.setOnDepthFrameCallback((depth) => {
+      if (!didLog) {
+        console.log(`New ${depth.width}x${depth.height} ${depth.pixelFormat} Depth arrived! (${depth.orientation})`)
+        didLog = true
+      }
+      depth.dispose()
+      return true
+    })
+  })
+  return output
+}
 
 function AppContent() {
   const devices = useCameraDevices()
-  const [isMulti, setIsMulti] = useState(false)
+  const [position, setPosition] = useState<CameraDevice["position"]>("back")
   const [zoom, setZoom] = useState(1)
 
   const device = useMemo(() => {
-    const bestDevice = devices.reduce((prev, curr) => {
+    const filtered = devices.filter((d) => d.position === position)
+    const bestDevice = filtered.reduce((prev, curr) => {
       let pointsVsPrev = 0
 
       // more devices = better
@@ -68,7 +100,7 @@ function AppContent() {
       const totalDepthFormatsCurr = curr.formats.reduce((p, c) => {
         return Math.max(p, c.depthDataFormats.length)
       }, 0)
-      pointsVsPrev = totalDepthFormatsPrev - totalDepthFormatsCurr
+      pointsVsPrev += totalDepthFormatsCurr - totalDepthFormatsPrev
 
       if (pointsVsPrev > 0) {
         return curr
@@ -77,7 +109,13 @@ function AppContent() {
       }
     }, devices[0])
     return bestDevice
-  }, [devices])
+  }, [devices, position])
+
+  if (device != null) {
+    console.log(`Device: ${device.id} (${device.localizedName})`)
+  } else {
+    console.log(`No device at ${position}!`)
+  }
 
 
   useEffect(() => {
@@ -86,9 +124,10 @@ function AppContent() {
     }
   }, [devices])
 
-  const videoOutput = useMemo(() => createVideoOutput(1), [])
+  const videoOutput = useMemo(() => createVideoOutput(), [])
+  const depthOutput = useMemo(() => createVideoOutput(), [])
   const photoOutput = useMemo(() => HybridCameraFactory.createPhotoOutput(), [])
-  const outputs = useMemo(() => [videoOutput, photoOutput], [photoOutput, videoOutput])
+  const outputs = useMemo(() => [videoOutput, photoOutput, depthOutput], [photoOutput, videoOutput, depthOutput])
 
   const savedScale = useSharedValue(1)
   const scale = useSharedValue(1)
@@ -125,11 +164,9 @@ function AppContent() {
           )}
         </View>
       </GestureDetector>
-      {supportsMulti && (
-        <Button
-          title={`Switch to ${isMulti ? 'single-cam' : 'multi-cam'}`}
-          onPress={() => setIsMulti((i) => !i)} />
-      )}
+      <Button
+        title={`Flip to ${device?.position === 'front' ? 'back' : 'front'}`}
+        onPress={() => setPosition((p) => p === "front" ? 'back' : 'front')} />
     </View>
   );
 }

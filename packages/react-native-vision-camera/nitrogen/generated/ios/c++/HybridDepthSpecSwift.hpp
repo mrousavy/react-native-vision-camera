@@ -97,6 +97,12 @@ namespace margelo::nitro::camera {
     inline double getTimestamp() noexcept override {
       return _swiftPart.getTimestamp();
     }
+    inline double getWidth() noexcept override {
+      return _swiftPart.getWidth();
+    }
+    inline double getHeight() noexcept override {
+      return _swiftPart.getHeight();
+    }
     inline DepthPixelFormat getPixelFormat() noexcept override {
       auto __result = _swiftPart.getPixelFormat();
       return static_cast<DepthPixelFormat>(__result);

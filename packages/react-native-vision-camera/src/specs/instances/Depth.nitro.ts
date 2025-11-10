@@ -16,6 +16,8 @@ export interface Depth extends HybridObject<{ ios: 'swift' }> {
    */
   readonly isMirrored: boolean
   readonly timestamp: number
+  readonly width: number
+  readonly height: number
   /**
    * Gets the {@linkcode DepthPixelFormat} of this {@linkcode Depth} Frame's
    * pixel data.

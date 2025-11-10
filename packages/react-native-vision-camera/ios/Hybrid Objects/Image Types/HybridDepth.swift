@@ -34,6 +34,19 @@ class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     return depthData != nil
   }
   
+  var width: Double {
+    guard let pixelBuffer else {
+      return 0
+    }
+    return Double(CVPixelBufferGetWidth(pixelBuffer))
+  }
+  var height: Double {
+    guard let pixelBuffer else {
+      return 0
+    }
+    return Double(CVPixelBufferGetHeight(pixelBuffer))
+  }
+  
   var timestamp: Double {
     return metadata.timestamp.seconds
   }

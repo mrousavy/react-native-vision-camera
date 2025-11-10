@@ -17,6 +17,8 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("orientation", &HybridDepthSpec::getOrientation);
       prototype.registerHybridGetter("isMirrored", &HybridDepthSpec::getIsMirrored);
       prototype.registerHybridGetter("timestamp", &HybridDepthSpec::getTimestamp);
+      prototype.registerHybridGetter("width", &HybridDepthSpec::getWidth);
+      prototype.registerHybridGetter("height", &HybridDepthSpec::getHeight);
       prototype.registerHybridGetter("pixelFormat", &HybridDepthSpec::getPixelFormat);
       prototype.registerHybridGetter("isValid", &HybridDepthSpec::getIsValid);
       prototype.registerHybridGetter("isDepthDataFiltered", &HybridDepthSpec::getIsDepthDataFiltered);

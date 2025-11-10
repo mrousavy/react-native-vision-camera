@@ -137,6 +137,20 @@ open class HybridDepthSpec_cxx {
     }
   }
   
+  public final var width: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.width
+    }
+  }
+  
+  public final var height: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.height
+    }
+  }
+  
   public final var pixelFormat: Int32 {
     @inline(__always)
     get {
