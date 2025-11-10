@@ -72,14 +72,24 @@ function AppContent() {
     'worklet'
     console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
 
-
-    const buffer = depth.getDepthData()
-    const rgbBuffer = new ArrayBuffer(buffer.byteLength * 4)
-    console.log(`New Buf: ${buffer.byteLength} -> ${rgbBuffer.byteLength}`)
-    const fromView = new Uint8Array(buffer)
-    const toView = new Uint32Array(rgbBuffer)
-    for (let i = 0; i < buffer.byteLength; i++) {
-      toView[i] = fromView[i]!
+    const sourceBuffer = depth.getDepthData()
+    const rgbBuffer = new ArrayBuffer(sourceBuffer.byteLength * 4)
+    console.log(`New Buf: ${sourceBuffer.byteLength} -> ${rgbBuffer.byteLength}`)
+    if (depth.pixelFormat === "depth-32-bit") {
+      const fromView = new Float32Array(sourceBuffer)
+      const toView = new Float32Array(rgbBuffer)
+      for (let i = 0; i < fromView.length; i++) {
+        toView[i] = fromView[i]!
+      }
+    } else {
+      const fromView = new Uint8Array(sourceBuffer)
+      const toView = new Uint8Array(rgbBuffer)
+      for (let i = 0; i < fromView.length; i++) {
+        toView[i + 0] = fromView[i]!
+        toView[i + 1] = fromView[i]!
+        toView[i + 2] = fromView[i]!
+        toView[i + 3] = fromView[i]!
+      }
     }
 
     const images = imageFactoryBoxed.unbox()
@@ -128,6 +138,9 @@ function AppContent() {
     })
     .runOnJS(true)
 
+  const format = useMemo(() => device?.formats.find((f) => f.depthDataFormats.length > 0), [device])
+  const depthFormat = useMemo(() => format?.depthDataFormats.find((f) => f.nativePixelFormat === 'depth-32-bit'), [format])
+
   return (
     <View style={styles.container}>
       {devices.map((d) => (
@@ -140,6 +153,10 @@ function AppContent() {
               style={styles.camera}
               input={device}
               outputs={outputs}
+              configuration={{
+                activeFormat: format,
+                activeDepthFormat: depthFormat,
+              }}
             />
           )}
           {image != null && (
