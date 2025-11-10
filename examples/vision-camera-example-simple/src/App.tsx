@@ -52,7 +52,7 @@ function AppContent() {
     'worklet'
       console.log(`Running on ${frame.width}x${frame.height} ${frame.pixelFormat} Frame!`)
       frame.dispose()
-  }, [rendererBoxed])
+  }, [])
   const onDepth = useCallback((depth: Depth) => {
     'worklet'
       console.log(`Running on ${depth.width}x${depth.height} ${depth.pixelFormat} Depth!`)
@@ -60,6 +60,7 @@ function AppContent() {
       if (renderer != null) {
         const frame = depth.toFrame()
         renderer.renderFrame(frame)
+        frame.dispose()
       }
       depth.dispose()
   }, [rendererBoxed])
@@ -109,11 +110,11 @@ function AppContent() {
         <View style={styles.container}>
           <NativeFrameRendererView
             style={styles.camera}
-            hybridRef={callback((ref) => {
+            hybridRef={useMemo(() => callback((ref) => {
               console.log(`Ref initialized! ${ref}`)
               const boxed = NitroModules.box(ref)
               setRendererBoxed(boxed)
-            })}
+            }), [])}
           />
           {device != null && (
             <Camera
