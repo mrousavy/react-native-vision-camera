@@ -61,6 +61,15 @@ extension CameraSession {
 
     // Remove all outputs
     for output in captureSession.outputs {
+      // The following delegates are weak references
+      // so cleaning them up is not strictly necessary
+      // from a safety standpoint.
+      // It is good to mark that between this point
+      // and logic further down configureOutput()
+      // messages to delegate would be in an undefined
+      // state and with delegate == self the weak 
+      // references wouldn't be cleared during that 
+      // window.
       if let metadataOutput = output as? AVCaptureMetadataOutput {
         metadataOutput.setMetadataObjectsDelegate(nil, queue: nil)
       }
