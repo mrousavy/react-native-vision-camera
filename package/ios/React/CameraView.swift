@@ -141,7 +141,10 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   }
 
   deinit {
-    deactivateCameraSession()
+    // Allow phone to sleep
+    UIApplication.shared.isIdleTimerDisabled = false
+    // Bail on any in flight configure calls
+    currentConfigureCall.increment()
   }
 
   override public func layoutSubviews() {
