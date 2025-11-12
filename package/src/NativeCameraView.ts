@@ -23,6 +23,11 @@ export interface OutputOrientationChangedEvent {
 export interface PreviewOrientationChangedEvent {
   previewOrientation: Orientation
 }
+export interface OnThumbnailReadyEvent {
+  path: string
+  width: number
+  height: number
+}
 export type NativeCameraViewProps = Omit<
   CameraProps,
   | 'device'
@@ -58,6 +63,7 @@ export type NativeCameraViewProps = Omit<
   onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
   onOutputOrientationChanged?: (event: NativeSyntheticEvent<OutputOrientationChangedEvent>) => void
   onPreviewOrientationChanged?: (event: NativeSyntheticEvent<PreviewOrientationChangedEvent>) => void
+  onThumbnailReady?: (event: NativeSyntheticEvent<OnThumbnailReadyEvent>) => void
 }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'

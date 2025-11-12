@@ -1,6 +1,36 @@
 import type { Orientation } from './Orientation'
 import type { TemporaryFile } from './TemporaryFile'
 
+/**
+ * Represents a thumbnail image generated from a photo
+ */
+export interface ThumbnailFile {
+  /**
+   * The path to the thumbnail file on the local filesystem.
+   */
+  path: string
+  /**
+   * The width of the thumbnail, in pixels.
+   */
+  width: number
+  /**
+   * The height of the thumbnail, in pixels.
+   */
+  height: number
+}
+
+/**
+ * Configuration for thumbnail generation
+ */
+export interface ThumbnailOptions {
+  /**
+   * The size of the thumbnail to generate.
+   * If not specified, a default size will be used.
+   */
+  width: number
+  height: number
+}
+
 export interface TakePhotoOptions {
   /**
    * Whether the Flash should be enabled or disabled
@@ -38,6 +68,27 @@ export interface TakePhotoOptions {
    * @default true
    */
   enableShutterSound?: boolean
+  /**
+   * The size of the thumbnail to generate alongside the photo.
+   * If specified, a thumbnail will be generated and the `onThumbnailReady` callback will be invoked.
+   *
+   * **Platform implementations:**
+   * - **iOS**: Uses the embedded thumbnail from the camera capture if available for maximum performance
+   * - **Android**: Uses memory-efficient downsampling with hardware-accelerated decoding
+   *
+   * Both implementations generate thumbnails asynchronously without blocking the main photo capture.
+   */
+  thumbnailSize?: ThumbnailOptions
+  /**
+   * A callback that gets called when the thumbnail is ready, before the full photo is saved to disk.
+   * This allows showing a quick preview to the user while the full-resolution photo is still being processed.
+   *
+   * The thumbnail is generated asynchronously and this callback is typically invoked before `takePhoto()` resolves.
+   *
+   * **Note:** On iOS, if the device doesn't support embedded thumbnails, this callback may not be invoked.
+   * This is rare and only affects very old devices. Android always invokes the callback.
+   */
+  onThumbnailReady?: (thumbnail: ThumbnailFile) => void
 }
 
 /**

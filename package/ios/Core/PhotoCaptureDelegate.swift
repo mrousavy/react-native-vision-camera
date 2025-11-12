@@ -16,16 +16,22 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
   private let cameraSessionDelegate: CameraSessionDelegate?
   private let metadataProvider: MetadataProvider
   private let path: URL
+  private let thumbnailSize: CGSize?
+  private let onThumbnailReadyEvent: RCTDirectEventBlock?
 
   required init(promise: Promise,
                 enableShutterSound: Bool,
                 metadataProvider: MetadataProvider,
                 path: URL,
+                thumbnailSize: CGSize?,
+                onThumbnailReadyEvent: RCTDirectEventBlock?,
                 cameraSessionDelegate: CameraSessionDelegate?) {
     self.promise = promise
     self.enableShutterSound = enableShutterSound
     self.metadataProvider = metadataProvider
     self.path = path
+    self.thumbnailSize = thumbnailSize
+    self.onThumbnailReadyEvent = onThumbnailReadyEvent
     self.cameraSessionDelegate = cameraSessionDelegate
     super.init()
     makeGlobal()
@@ -45,10 +51,13 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
     defer {
       removeGlobal()
     }
+
     if let error = error as NSError? {
       promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
       return
     }
+
+    generateThumbnail(from: photo)
 
     do {
       try FileUtils.writePhotoToFile(photo: photo,
@@ -115,6 +124,43 @@ class PhotoCaptureDelegate: GlobalReferenceHolder, AVCapturePhotoCaptureDelegate
       return true
     default:
       return false
+    }
+  }
+
+  private func generateThumbnail(from photo: AVCapturePhoto) {
+    guard let onThumbnailReadyEvent = onThumbnailReadyEvent else {
+      VisionLogger.log(level: .warning, message: "generateThumbnail: onThumbnailReadyEvent not set")
+      return
+    }
+    // Safely get embedded thumbnail data
+    guard let embeddedImageData = photo.fileDataRepresentation(),
+          let src = CGImageSourceCreateWithData(embeddedImageData as CFData, nil),
+          let cgThumb = CGImageSourceCreateThumbnailAtIndex(
+            src,
+            0,
+            [
+              kCGImageSourceCreateThumbnailFromImageIfAbsent: false,
+              kCGImageSourceCreateThumbnailWithTransform: true,
+              kCGImageSourceThumbnailMaxPixelSize: 320,
+            ] as CFDictionary
+          )
+    else {
+      VisionLogger.log(level: .warning, message: "generateThumbnail: No embedded thumbnail data available")
+      return
+    }
+    // Create UIImage from the data with error handling
+    let thumbnailImage = UIImage(cgImage: cgThumb)
+    do {
+      let thumbnailPath = try FileUtils.getFilePath(fileExtension: "jpg")
+      try FileUtils.writeUIImageToFile(image: thumbnailImage, file: thumbnailPath, compressionQuality: 0.8)
+      // Call the thumbnail callback
+      onThumbnailReadyEvent([
+        "path": thumbnailPath.absoluteString,
+        "width": Int(thumbnailImage.size.width),
+        "height": Int(thumbnailImage.size.height),
+      ])
+    } catch {
+      VisionLogger.log(level: .error, message: "generateThumbnail: Failed to generate thumbnail: \(error.localizedDescription)")
     }
   }
 }

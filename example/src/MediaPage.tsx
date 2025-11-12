@@ -33,7 +33,7 @@ const isVideoOnLoadEvent = (event: OnLoadData | OnLoadImage): event is OnLoadDat
 
 type Props = NativeStackScreenProps<Routes, 'MediaPage'>
 export function MediaPage({ navigation, route }: Props): React.ReactElement {
-  const { path, type } = route.params
+  const { path, type, thumbnail } = route.params
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false)
   const isForeground = useIsForeground()
   const isScreenFocused = useIsFocused()
@@ -85,7 +85,10 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   return (
     <View style={[styles.container, screenStyle]}>
       {type === 'photo' && (
-        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+        <>
+          <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+          {thumbnail !== null && <Image source={{ uri: `file://${thumbnail.path}` }} style={styles.thumbnail} resizeMode="contain" />}
+        </>
       )}
       {type === 'video' && (
         <Video
@@ -151,5 +154,15 @@ const styles = StyleSheet.create({
       width: 0,
     },
     textShadowRadius: 1,
+  },
+  thumbnail: {
+    position: 'absolute',
+    right: SAFE_AREA_PADDING.paddingLeft,
+    bottom: SAFE_AREA_PADDING.paddingBottom,
+    width: 75,
+    height: 120,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'white',
   },
 })
