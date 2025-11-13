@@ -130,11 +130,13 @@ android {
 
     externalNativeBuild {
       cmake {
-        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all", "-Wl,-z,max-page-size=16384", "-Wl,-z,common-page-size=16384"
+        cFlags "-Wl,-z,max-page-size=16384", "-Wl,-z,common-page-size=16384"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
                 "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}",
-                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
+                "-DANDROID_MAX_PAGE_SIZE_SUPPORTED=16384"
         abiFilters (*reactNativeArchitectures())
       }
     }
