@@ -55,6 +55,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.cameraId = cameraId
   }
 
+  @ReactProp(name = "audioInputDeviceUid")
+  fun setAudioInputDeviceUid(view: CameraView, audioInputDeviceUid: String) {
+    view.audioInputDeviceUid = audioInputDeviceUid
+  }
+
   @ReactProp(name = "isMirrored")
   fun setIsMirrored(view: CameraView, isMirrored: Boolean) {
     view.isMirrored = isMirrored

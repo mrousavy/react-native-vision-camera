@@ -1,6 +1,7 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import androidx.annotation.OptIn
@@ -33,10 +34,19 @@ fun CameraSession.startRecording(
 
   // TODO: Move this to JS so users can prepare recordings earlier
   // Prepare recording
+  videoOutput.output.streamInfo
   var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
+  recordingWithExternalAudio = enableAudio
   if (enableAudio) {
-    checkMicrophonePermission()
-    pendingRecording = pendingRecording.withAudioEnabled()
+    try {
+      startAudioRecording(true, onError)
+    } catch (e: Throwable) {
+      onError(EncoderError(e))
+      return
+    }
+  }
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    pendingRecording.withAudioEnabled(true)
   }
   pendingRecording = pendingRecording.asPersistentRecording()
 
@@ -74,14 +84,44 @@ fun CameraSession.startRecording(
             return@start
           }
         }
-
-        // Prepare output result
-        val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
-        Log.i(CameraSession.TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
-        val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
+        val rawVideoPath = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
         val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
-        val video = Video(path, durationMs, size)
+        val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
+
+        val finalFile = options.file.file
+        val audioFile = audioOutputFile
+        val canMux = recordingWithExternalAudio && audioFile != null && audioFile.exists() && audioFile.length() > 0L
+
+        if (canMux) {
+          try {
+            val tmpMux = java.io.File(finalFile.parentFile, finalFile.nameWithoutExtension + "-muxed.mp4")
+            com.mrousavy.camera.core.utils.MediaMuxerUtils.muxMp4(
+              videoPath = rawVideoPath,
+              audioPath = audioFile!!.absolutePath,
+              outputPath = tmpMux.absolutePath
+            )
+            finalFile.delete()
+            tmpMux.renameTo(finalFile)
+          } catch (e: Throwable) {
+            Log.e(CameraSession.TAG, "Muxing failed!", e)
+            onError(EncoderError(e))
+            return@start
+          } finally {
+            recordingWithExternalAudio = false
+            try { audioFile?.delete() } catch (_: Throwable) {}
+            audioOutputFile = null
+          }
+        } else {
+          // No audio or empty audio — just return the raw video
+          recordingWithExternalAudio = false
+          try { audioFile?.delete() } catch (_: Throwable) {}
+          audioOutputFile = null
+        }
+
+        val finalPath = finalFile.absolutePath
+        val video = Video(finalPath, durationMs, size)
         callback(video)
+
       }
     }
   }
@@ -89,7 +129,7 @@ fun CameraSession.startRecording(
 
 fun CameraSession.stopRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
-
+  stopAudioRecording()
   recording.stop()
   this.recording = null
 }
@@ -97,14 +137,17 @@ fun CameraSession.stopRecording() {
 fun CameraSession.cancelRecording() {
   isRecordingCanceled = true
   stopRecording()
+  cancelAudioRecording()
 }
 
 fun CameraSession.pauseRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
   recording.pause()
+  pauseAudioRecording()
 }
 
 fun CameraSession.resumeRecording() {
   val recording = recording ?: throw NoRecordingInProgressError()
   recording.resume()
+  resumeAudioRecording()
 }

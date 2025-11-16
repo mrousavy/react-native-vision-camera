@@ -365,6 +365,7 @@ extension CameraSession {
     // Audio Input (Microphone)
     if enableAudio {
       VisionLogger.log(level: .info, message: "Adding Audio input...")
+        
       guard let microphone = AVCaptureDevice.default(for: .audio) else {
         throw CameraError.device(.microphoneUnavailable)
       }

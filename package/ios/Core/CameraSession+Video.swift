@@ -107,7 +107,7 @@ extension CameraSession {
           // Activate Audio Session asynchronously
           CameraQueues.audioQueue.async {
             do {
-              try self.activateAudioSession()
+                try self.activateAudioSession()
             } catch {
               self.onConfigureError(error)
             }
