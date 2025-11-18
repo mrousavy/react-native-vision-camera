@@ -65,7 +65,16 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
 
   // Camera2 specific props
   private val camera2Details = cameraInfo as? Camera2CameraInfoImpl
-  private val physicalDeviceIds = camera2Details?.cameraCharacteristicsMap?.keys ?: emptySet()
+  private val physicalDeviceIds = camera2Details?.cameraCharacteristicsMap?.keys?.filter { key ->
+    try {
+        camera2Details.cameraCharacteristicsMap[key] != null
+    } catch (e: Exception) {
+        // Log warning and exclude invalid device ID
+        Log.w(TAG, "Invalid camera physical device ID: $key", e)
+        false
+    }
+  }?.toSet() ?: emptySet()
+
   private val isMultiCam = physicalDeviceIds.size > 1
   private val cameraHardwareLevel = camera2Details?.cameraCharacteristicsCompat?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
   private val hardwareLevel = HardwareLevel.fromCameraHardwareLevel(
