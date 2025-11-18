@@ -205,6 +205,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 ref={camera}
                 onInitialized={onInitialized}
                 onError={onError}
+                onBytesWrittenVideo={(bytes) => console.log(`Bytes written: ${bytes / 1024 / 1024} MB!`)}
                 onStarted={() => console.log('Camera started!')}
                 onStopped={() => console.log('Camera stopped!')}
                 onPreviewStarted={() => console.log('Preview started!')}
