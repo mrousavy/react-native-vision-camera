@@ -81,6 +81,40 @@ const photo = await camera.current.takePhoto({
 
 Note that flash is only available on camera devices where [`hasFlash`](/docs/api/interfaces/CameraDevice#hasflash) is `true`; for example most front cameras don't have a flash.
 
+### Thumbnail Generation
+
+For a better user experience, you can generate a low-resolution thumbnail that loads while the full photo is being processed and saved. This is especially useful for displaying a preview in your UI without waiting for the full-resolution image.
+
+To generate a thumbnail, provide the [`thumbnailSize`](/docs/api/interfaces/TakePhotoOptions#thumbnailsize) and [`onThumbnailReady`](/docs/api/interfaces/TakePhotoOptions#onthumbnailready) options:
+
+```tsx
+const photo = await camera.current.takePhoto({
+  thumbnailSize: { width: 200, height: 200 },
+  onThumbnailReady: (thumbnail) => {
+    // Thumbnail is ready! Display it immediately
+    setThumbnailUri(`file://${thumbnail.path}`)
+  }
+})
+
+// Full photo is now ready
+setPhotoUri(`file://${photo.path}`)
+```
+
+The `onThumbnailReady` callback is invoked as soon as the thumbnail is generated, which typically happens before the full photo is saved. This allows you to:
+- Display a preview to the user immediately
+- Show a loading state with the thumbnail while uploading the full image
+- Reduce memory usage by rendering thumbnails in lists instead of full photos
+
+**Platform implementations:**
+- **iOS**: Uses the embedded thumbnail from the camera capture if available for maximum performance
+- **Android**: Uses memory-efficient downsampling with hardware-accelerated decoding (never loads the full image into memory)
+
+Both implementations are optimized for their respective platforms and generate thumbnails asynchronously without blocking photo capture.
+
+:::tip
+The thumbnail is stored in a temporary directory just like the main photo. Remember to clean up temporary files when you're done with them.
+:::
+
 ### Photo Quality Balance
 
 The photo capture pipeline can be configured to prioritize speed over quality, quality over speed or balance both quality and speed using the [`photoQualityBalance`](/docs/api/interfaces/CameraProps#photoQualityBalance) prop.

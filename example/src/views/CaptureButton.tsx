@@ -15,7 +15,7 @@ import Reanimated, {
   useSharedValue,
   withRepeat,
 } from 'react-native-reanimated'
-import type { Camera, PhotoFile, VideoFile } from 'react-native-vision-camera'
+import type { Camera, PhotoFile, ThumbnailFile, VideoFile } from 'react-native-vision-camera'
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants'
 
 const START_RECORDING_DELAY = 200
@@ -24,7 +24,7 @@ const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1
 interface Props extends ViewProps {
   camera: React.RefObject<Camera>
   onMediaCaptured: (media: PhotoFile | VideoFile, type: 'photo' | 'video') => void
-
+  onThumbnailReady: (thumbnail: ThumbnailFile) => void
   minZoom: number
   maxZoom: number
   cameraZoom: Reanimated.SharedValue<number>
@@ -46,6 +46,7 @@ const _CaptureButton: React.FC<Props> = ({
   enabled,
   setIsPressingButton,
   style,
+  onThumbnailReady,
   ...props
 }): React.ReactElement => {
   const pressDownDate = useRef<Date | undefined>(undefined)
@@ -59,15 +60,21 @@ const _CaptureButton: React.FC<Props> = ({
       if (camera.current == null) throw new Error('Camera ref is null!')
 
       console.log('Taking photo...')
+      console.log(new Date());
       const photo = await camera.current.takePhoto({
         flash: flash,
         enableShutterSound: false,
+        thumbnailSize: {
+          width: 300,
+          height: 300,
+        },
+        onThumbnailReady,
       })
       onMediaCaptured(photo, 'photo')
     } catch (e) {
       console.error('Failed to take photo!', e)
     }
-  }, [camera, flash, onMediaCaptured])
+  }, [camera, flash, onMediaCaptured, onThumbnailReady])
 
   const onStoppedRecording = useCallback(() => {
     isRecording.current = false

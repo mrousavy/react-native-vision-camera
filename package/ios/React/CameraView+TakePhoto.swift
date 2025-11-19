@@ -12,7 +12,13 @@ extension CameraView {
   func takePhoto(options: NSDictionary, promise: Promise) {
     do {
       // Parse options & take a photo
-      let photoOptions = try TakePhotoOptions(fromJSValue: options)
+      var photoOptions = try TakePhotoOptions(fromJSValue: options)
+
+      // Pass the thumbnail event callback if thumbnails are requested
+      if photoOptions.thumbnailSize != nil {
+        photoOptions.onThumbnailReadyEvent = onThumbnailReadyEvent
+      }
+
       cameraSession.takePhoto(options: photoOptions, promise: promise)
     } catch let error as CameraError {
       promise.reject(error: error)
