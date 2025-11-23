@@ -142,10 +142,6 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     }
   }
 
-  deinit {
-    shutdownCameraSession()
-  }
-
   override public func layoutSubviews() {
     if let previewView {
       previewView.frame = frame

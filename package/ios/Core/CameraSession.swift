@@ -130,18 +130,20 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
+      defer {
+        completionBlock?()
+      }
+
       // Let caller configure a new configuration for the Camera.
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
         try lambda(config)
       } catch CameraConfiguration.AbortThrow.abort {
         // call has been aborted and changes shall be discarded
-        completionBlock?()
         return
       } catch {
         // another error occured, possibly while trying to parse enums
         self.onConfigureError(error)
-        completionBlock?()
         return
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
@@ -261,7 +263,6 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
           }
         }
       }
-      completionBlock?()
     }
   }
 
