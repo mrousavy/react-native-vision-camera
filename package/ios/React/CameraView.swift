@@ -302,13 +302,13 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
       frameProcessor = nil
     #endif
 
-    let slowShutdownWarning = DispatchWorkItem {
+    let logSlowShutdownWarning = DispatchWorkItem {
       VisionLogger.log(level: .warning, message: "CameraSession shutdown is still running after 2 seconds.")
     }
-    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + .seconds(2), execute: slowShutdownWarning)
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + .seconds(2), execute: logSlowShutdownWarning)
 
     cameraSession.shutdown { [weak self] in
-      slowShutdownWarning.cancel()
+      logSlowShutdownWarning.cancel()
       DispatchQueue.main.async {
         self?.didScheduleShutdown = false
       }
