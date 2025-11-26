@@ -187,6 +187,10 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
+          // 10. Configure white balance
+          if difference.whiteBalanceChanged {
+            self.configureWhiteBalance(configuration: config, device: device)
+          }
         }
 
         if difference.isSessionConfigurationDirty {
@@ -195,7 +199,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
           self.captureSession.commitConfiguration()
         }
 
-        // 10. Start or stop the session if needed
+        // 11. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
         // 11. Enable or disable the Torch if needed (requires session to be running)
@@ -265,7 +269,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
   }
 
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+  final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
     switch captureOutput {
     case is AVCaptureVideoDataOutput:
       onVideoFrame(sampleBuffer: sampleBuffer, orientation: connection.orientation, isMirrored: connection.isVideoMirrored)

@@ -53,6 +53,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoBitRateMultiplier, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(exposure, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(whiteBalance, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(outputOrientation, NSString);
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
