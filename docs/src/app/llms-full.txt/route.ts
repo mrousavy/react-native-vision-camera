@@ -1,5 +1,7 @@
-import { getLLMText, source } from '@/lib/source';
+import { source } from '@/lib/source';
+import { getLLMText } from '@/lib/get-llm-text';
 
+// cached forever
 export const revalidate = false;
 
 export async function GET() {
