@@ -1,5 +1,5 @@
 {
-  "name": "react-native-vision-camera",
+  "name": "tekiflo/react-native-vision-camera",
   "version": "4.7.3",
   "description": "A powerful, high-performance React Native Camera library.",
   "main": "lib/commonjs/index",
@@ -73,11 +73,11 @@
     "processing",
     "realtime"
   ],
-  "repository": "https://github.com/mrousavy/react-native-vision-camera",
-  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "repository": "https://github.com/tekiflo/react-native-vision-camera",
+  "author": "Florian Inchingolo <tekiflo@gmail.com> (https://github.com/tekiflo)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
+    "url": "https://github.com/tekiflo/react-native-vision-camera/issues"
   },
   "homepage": "https://react-native-vision-camera.com/",
   "publishConfig": {
