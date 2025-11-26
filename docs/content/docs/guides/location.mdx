@@ -1,0 +1,162 @@
+---
+title: GPS Location Tags
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+<div class="image-container">
+  <img width="283" src="/img/location.png" />
+</div>
+
+## What are GPS Location Tags?
+
+GPS Location Tags are location properties stored in image files (via EXIF tags) or video files (via QuickTime/MP4 tags).
+
+VisionCamera provides an API to easily add such location tags to captured photos or videos.
+
+### Configure Location Permissions
+
+First, you need to add the required permissions to access the user's location:
+
+<Tabs items={['React Native', 'Expo']}>
+<Tab value="React Native">
+
+### iOS
+
+Open your project's `Info.plist` and add the following lines inside the outermost `<dict>` tag:
+
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to your location.</string>
+```
+
+### Android
+
+Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+
+</Tab>
+
+<Tab value="Expo">
+
+### Managed Expo
+
+Enable the `enableLocation` property inside your app's Expo config (`app.json`, `app.config.json` or `app.config.js`):
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        // ...
+        "enableLocation": true,
+        "locationPermissionText": "[my app] needs your location."
+      }
+    ]
+  ]
+}
+```
+
+Finally, compile the mods:
+
+```bash
+npx expo prebuild
+```
+
+To apply the changes, build a new binary with EAS:
+
+```bash
+eas build
+```
+
+</Tab>
+</Tabs>
+
+### Request Location Permissions
+
+After adding the required permissions to your app's manifests, prompt the user to grant location permission at runtime:
+
+<Tabs items={['Hooks API', 'Imperative API']}>
+<Tab value="Hooks API">
+
+Get or request permissions using the [`useLocationPermission`](/docs/api/#uselocationpermission) hook:
+
+```tsx
+const { hasPermission, requestPermission } = useLocationPermission()
+```
+
+</Tab>
+<Tab value="Imperative API">
+
+Get the current permission status:
+
+```ts
+const permissionStatus = Camera.getLocationPermissionStatus()
+```
+
+And if it is not `granted`, request permission:
+
+```ts
+const newPermissionStatus = await Camera.requestLocationPermission()
+```
+
+</Tab>
+</Tabs>
+
+### Enable GPS Location Tags
+
+Use the [`enableLocation`](/docs/api/interfaces/CameraProps#enablelocation) property to start streaming location updates and automatically add GPS Location Tags to images (EXIF tags) and videos:
+
+```tsx
+<Camera {...props} enableLocation={true} />
+```
+
+Once enabled, all captured photos (see ["Taking Photos"](taking-photos)) and videos (see ["Recording Videos"](recording-videos)) will contain location tags.
+
+### Enable or disable Location APIs
+
+Location APIs are considered privacy-sensitive APIs by Apple.
+When you are not using privacy-sensitive APIs (like location) but still include them in your app's code, the Apple review team might reject your app.
+
+To avoid that, you can disable the location APIs and VisionCamera will not compile those privacy-sensitive APIs into your app.
+Simply set the required flag before building your app:
+
+<Tabs items={['React Native', 'Expo']}>
+<Tab value="React Native">
+
+Inside your `Podfile`, add the `VCEnableLocation` flag and set it to `false`:
+
+```ruby
+$VCEnableLocation = false
+```
+
+</Tab>
+
+<Tab value="Expo">
+
+Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `enableLocation` flag to the `react-native-vision-camera` plugin and set it to `false`:
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        // ...
+        "enableLocation": false
+      }
+    ]
+  ]
+}
+```
+
+</Tab>
+</Tabs>
+
+Then rebuild your app and any location-related APIs will be excluded from the build.

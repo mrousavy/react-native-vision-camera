@@ -1,31 +1,45 @@
-# Website
+# docs
 
-This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
+This is a Next.js application generated with
+[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
 
-## Installation
+Run development server:
 
-In the root directory of the repository, run:
-
-```sh
-bun install
+```bash
+npm run dev
+# or
+pnpm dev
+# or
+yarn dev
 ```
 
-## Local Development
+Open http://localhost:3000 with your browser to see the result.
 
-```sh
-bun start
-```
+## Explore
 
-This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
+In the project, you can see:
 
-## Build
+- `lib/source.ts`: Code for content source adapter, [`loader()`](https://fumadocs.dev/docs/headless/source-api) provides the interface to access your content.
+- `lib/layout.shared.tsx`: Shared options for layouts, optional but preferred to keep.
 
-```sh
-bun run build
-```
+| Route                     | Description                                            |
+| ------------------------- | ------------------------------------------------------ |
+| `app/(home)`              | The route group for your landing page and other pages. |
+| `app/docs`                | The documentation layout and pages.                    |
+| `app/api/search/route.ts` | The Route Handler for search.                          |
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+### Fumadocs MDX
 
-## Deployment
+A `source.config.ts` config file has been included, you can customise different options like frontmatter schema.
 
-Docs are deployed to https://react-native-vision-camera.com using Next.js/Vercel.
+Read the [Introduction](https://fumadocs.dev/docs/mdx) for further details.
+
+## Learn More
+
+To learn more about Next.js and Fumadocs, take a look at the following
+resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
+  features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
