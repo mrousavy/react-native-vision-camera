@@ -2,7 +2,7 @@
 title: Mocking
 ---
 
-<div class="image-container">
+<div className="image-container">
   <img width="283" src="/img/11_back.png" />
 </div>
 
@@ -17,6 +17,7 @@ In order to override React Native modules, allow bundler to use the flag `RN_SRC
 `resolver.sourceExts`, and then prioritize any given source extension over the default one.
 
 Add to your [Metro Config](https://facebook.github.io/metro/docs/configuration/):
+
 ```js
 const { getDefaultConfig } = require("metro-config")
 const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues()
@@ -38,7 +39,7 @@ module.exports = {
 1. Create a new folder `vision-camera` anywhere in your project.
 2. Inside that folder, create `vision-camera.js` and `vision-camera.e2e.js`.
 3. Inside `vision-camera.js`, export the original react native modules you need to mock, and
-inside `vision-camera.e2e.js` export the mocked modules.
+   inside `vision-camera.e2e.js` export the mocked modules.
 
 In this example, several functions of the modules `Camera` and `sortDevices` are mocked.
 Define your mocks following the [original definitions](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/src).
@@ -61,13 +62,11 @@ console.log('[DETOX] Using mocked react-native-vision-camera')
 
 export class VisionCamera extends React.PureComponent {
   static getAvailableCameraDevices() {
-    return (
-      [
-        {
-          position: 'back',
-        },
-      ]
-    )
+    return [
+      {
+        position: 'back',
+      },
+    ]
   }
 
   static async getCameraPermissionStatus() {
@@ -122,7 +121,6 @@ RN_SRC_EXT=e2e.js ./gradlew assembleRelease
 
 On your simulator, with debug mode enabled, you should see
 `"[DETOX] Using mocked react-native-vision-camera"`
-
 
 ## Issues
 

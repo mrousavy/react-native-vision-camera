@@ -1,5 +1,5 @@
 ---
-title: Creating Frame Processor Plugins
+title: iOS
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
@@ -25,7 +25,12 @@ npx vision-camera-plugin-builder@latest ios
 
 ### Manual setup
 
-<Tabs items={['Objective-C', 'Swift']}>
+<Tabs
+  defaultValue="objc"
+  values={[
+    {label: 'Objective-C', value: 'objc'},
+    {label: 'Swift', value: 'swift'}
+  ]}>
 <Tab value="objc">
 
 1. Open your Project in Xcode

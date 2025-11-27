@@ -8,7 +8,7 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl'
 
-<div class="image-container">
+<div className="image-container">
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
     <image href={useBaseUrl('img/demo.gif')} x="18" y="33" width="247" height="469" />
     <image href={useBaseUrl('img/frame.png')} width="283" height="535" />
@@ -154,7 +154,7 @@ const device = getCameraDevice(devices, 'back', {
 This will try to find a [`CameraDevice`](/docs/api/interfaces/CameraDevice) that consists of all three physical Camera Devices, or the next best match (e.g. "Dual-Camera", or just a single wide-angle-camera) if not found. With the "Triple-Camera", we can now zoom out to a wider field of view:
 
 <div align="center">
-  <img class="doc-image" src="/img/multi-camera.gif" />
+  <img className="doc-image" src="/img/multi-camera.gif" />
 </div>
 
 If you want to do the filtering/sorting fully yourself, you can also just get all devices, then implement your own filter:

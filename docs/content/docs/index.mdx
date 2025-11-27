@@ -1,13 +1,87 @@
 ---
-title: Hello World
-description: Your first document
+title: Introduction
+description: What is Vision Camera
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+import { AdjustmentsHorizontalIcon, CursorArrowRaysIcon, BookOpenIcon, CpuChipIcon } from '@heroicons/react/16/solid'
 
-## What is Next?
+**VisionCamera** is the go-to camera library for React Native, providing a fully native camera experience with extensive customization options. Take photos, record videos, scan barcodes, and process frames in realtime.
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card
+    icon={<AdjustmentsHorizontalIcon className="text-violet-500" />}
+    title="Powerful"
+    description="Full control over device selection, frame rate, colorspace, HDR, and more. Built for professional camera apps."
+  />
+  <Card
+    icon={<CursorArrowRaysIcon className="text-sky-500" />}
+    title="Easy to Use"
+    description="Simple hooks and functions to get started fast. Full control when you need it."
+  />
+  <Card
+    icon={<BookOpenIcon className="text-emerald-500" />}
+    title="Great DX"
+    description="Every feature is thoroughly documented. Full TypeScript support with typed errors."
+  />
+  <Card
+    icon={<CpuChipIcon className="text-amber-500" />}
+    title="Frame Processors"
+    description="Process camera frames in realtime using JavaScript or native code. Build QR scanners, face detection, and more."
+  />
+</Cards>
+
+## FAQ
+
+Common questions you may encounter:
+
+<Accordions>
+  <Accordion title="Why is the camera preview black?">
+    Make sure you have granted camera permissions to your app. On iOS, check `Info.plist` for `NSCameraUsageDescription`. On Android, ensure
+    you've requested `CAMERA` permission at runtime.
+  </Accordion>
+  <Accordion title="How do I fix 'Camera session could not be started'?">
+    This usually happens when another app is using the camera. Close other camera apps and try again. Also ensure you're not mounting
+    multiple Camera components simultaneously.
+  </Accordion>
+  <Accordion title="Can I use VisionCamera in Expo?">
+    Yes! VisionCamera supports Expo with a config plugin. Add it to your `app.json` plugins array and run `expo prebuild`.
+  </Accordion>
+</Accordions>
+
+## Core Features
+
+Get started with the essential camera functionality:
+
+<Cards>
+  <Card
+    title="Taking Photos"
+    href="/docs/taking-photos"
+    description="Capture high-quality photos with full control over flash, HDR, and more."
+  />
+  <Card
+    title="Recording Videos"
+    href="/docs/recording-videos"
+    description="Record videos with custom codecs, bitrates, and audio settings."
+  />
+  <Card
+    title="QR/Barcode Scanning"
+    href="/docs/code-scanning"
+    description="Scan QR codes and barcodes in realtime using the built-in code scanner."
+  />
+  <Card title="Camera Devices" href="/docs/devices" description="Select front, back, ultra-wide, telephoto, or external cameras." />
+</Cards>
+
+## Advanced
+
+Take your camera app to the next level:
+
+<Cards>
+  <Card
+    title="Frame Processors"
+    href="/docs/frame-processors"
+    description="Process every frame in realtime using JavaScript or native code."
+  />
+  <Card title="Skia Frame Processors" href="/docs/skia-frame-processors" description="Draw on camera frames using React Native Skia." />
+  <Card title="HDR" href="/docs/hdr" description="Capture stunning HDR photos and videos with extended dynamic range." />
+  <Card title="Creating Plugins" href="/docs/plugins" description="Build your own Frame Processor plugins in Swift or Kotlin." />
 </Cards>

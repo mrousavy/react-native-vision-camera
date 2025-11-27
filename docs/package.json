@@ -12,6 +12,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "fumadocs-core": "16.1.0",
     "fumadocs-mdx": "14.0.3",
     "fumadocs-ui": "16.1.0",

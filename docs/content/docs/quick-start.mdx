@@ -1,73 +1,56 @@
 ---
-title: Getting Started
+title: Quick Start
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
-<div class="image-container">
+<div className="image-container">
   <img width="283" src="/img/example_intro.png" />
 </div>
 
+<Tabs items={['Expo', 'React Native']} groupId="platform" persist>
+<Tab value="Expo">
+
 ## Installing the library
 
-Install [react-native-vision-camera](https://www.npmjs.com/package/react-native-vision-camera) through npm:
+Install [react-native-vision-camera](https://www.npmjs.com/package/react-native-vision-camera) through your preferred package manager:
 
-<Tabs items={['React Native', 'Expo']}>
-<Tab value="React Native">
-
-```bash
-npm i react-native-vision-camera
-cd ios && pod install
-```
-
-</Tab>
-
-<Tab value="Expo">
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']} groupId="package-manager" persist>
+<Tab value="npm">
 
 ```bash
 npx expo install react-native-vision-camera
 ```
 
 </Tab>
+<Tab value="yarn">
+
+```bash
+npx expo install react-native-vision-camera
+```
+
+</Tab>
+<Tab value="pnpm">
+
+```bash
+pnpm dlx expo install react-native-vision-camera
+```
+
+</Tab>
+<Tab value="bun">
+
+```bash
+bunx expo install react-native-vision-camera
+```
+
+</Tab>
 </Tabs>
 
-VisionCamera requires **iOS 12 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/guides/troubleshooting) if you're having installation issues.
+VisionCamera requires **iOS 12 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/troubleshooting) if you're having installation issues.
 
 ## Updating manifests
 
 To use the Camera or Microphone you must first specify that your app requires camera and microphone permissions.
-
-<Tabs items={['React Native', 'Expo']}>
-<Tab value="React Native">
-
-### iOS
-
-Open your project's `Info.plist` and add the following lines inside the outermost `<dict>` tag:
-
-```xml
-<key>NSCameraUsageDescription</key>
-<string>$(PRODUCT_NAME) needs access to your Camera.</string>
-
-<!-- optionally, if you want to record audio: -->
-<key>NSMicrophoneUsageDescription</key>
-<string>$(PRODUCT_NAME) needs access to your Microphone.</string>
-```
-
-### Android
-
-Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
-
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-
-<!-- optionally, if you want to record audio: -->
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-```
-
-</Tab>
-<Tab value="Expo">
-
-### Managed Expo
 
 Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
 
@@ -91,14 +74,140 @@ Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` o
 
 Finally, compile the mods:
 
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']} groupId="package-manager" persist>
+<Tab value="npm">
+
 ```bash
 npx expo prebuild
 ```
 
-To apply the changes, build a new binary with EAS:
+</Tab>
+<Tab value="yarn">
 
 ```bash
-eas build
+npx expo prebuild
+```
+
+</Tab>
+<Tab value="pnpm">
+
+```bash
+pnpm dlx expo prebuild
+```
+
+</Tab>
+<Tab value="bun">
+
+```bash
+bunx expo prebuild
+```
+
+</Tab>
+</Tabs>
+
+To apply the changes, build a new binary with EAS:
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']} groupId="package-manager" persist>
+<Tab value="npm">
+
+```bash
+npx eas build
+```
+
+</Tab>
+<Tab value="yarn">
+
+```bash
+npx eas build
+```
+
+</Tab>
+<Tab value="pnpm">
+
+```bash
+pnpm dlx eas build
+```
+
+</Tab>
+<Tab value="bun">
+
+```bash
+bunx eas build
+```
+
+</Tab>
+</Tabs>
+
+</Tab>
+<Tab value="React Native">
+
+## Installing the library
+
+Install [react-native-vision-camera](https://www.npmjs.com/package/react-native-vision-camera) through your preferred package manager:
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']} groupId="package-manager" persist>
+<Tab value="npm">
+
+```bash
+npm install react-native-vision-camera
+cd ios && pod install
+```
+
+</Tab>
+<Tab value="yarn">
+
+```bash
+yarn add react-native-vision-camera
+cd ios && pod install
+```
+
+</Tab>
+<Tab value="pnpm">
+
+```bash
+pnpm add react-native-vision-camera
+cd ios && pod install
+```
+
+</Tab>
+<Tab value="bun">
+
+```bash
+bun add react-native-vision-camera
+cd ios && pod install
+```
+
+</Tab>
+</Tabs>
+
+VisionCamera requires **iOS 12 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/troubleshooting) if you're having installation issues.
+
+## Updating manifests
+
+To use the Camera or Microphone you must first specify that your app requires camera and microphone permissions.
+
+### iOS
+
+Open your project's `Info.plist` and add the following lines inside the outermost `<dict>` tag:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to your Camera.</string>
+
+<!-- optionally, if you want to record audio: -->
+<key>NSMicrophoneUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to your Microphone.</string>
+```
+
+### Android
+
+Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
+
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+
+<!-- optionally, if you want to record audio: -->
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
 </Tab>
@@ -171,7 +280,7 @@ The permission request status can have the following values:
 
 ## Use the `<Camera>` view
 
-If your app has permission to use the Camera and Microphone, simply use the [`useCameraDevice(...)`](/docs/api#usecameradevice) hook to get a Camera device (see [Camera Devices](/docs/guides/devices)) and mount the `<Camera>` view:
+If your app has permission to use the Camera and Microphone, simply use the [`useCameraDevice(...)`](/docs/api#usecameradevice) hook to get a Camera device (see [Camera Devices](/docs/devices)) and mount the `<Camera>` view:
 
 ```tsx
 function App() {
@@ -183,7 +292,3 @@ function App() {
   return <Camera style={StyleSheet.absoluteFill} device={device} isActive={true} />
 }
 ```
-
-<br />
-
-#### 🎉 Hooray! You're ready to learn about [Camera Devices](/docs/guides/devices)!
