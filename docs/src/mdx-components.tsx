@@ -6,6 +6,7 @@ import type { MDXComponents } from 'mdx/types';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import { AutoTypeTable } from 'fumadocs-typescript/ui';
 import { createGenerator } from 'fumadocs-typescript';
+import { Callout, CalloutTitle,CalloutDescription, CalloutContainer } from 'fumadocs-ui/components/callout';
 
 const generator = createGenerator();
 
@@ -16,6 +17,9 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...FilesComponents,
     Accordion,
     Accordions,
+    "callout-root": CalloutContainer,
+    "callout-title": CalloutTitle,
+    "callout-body": CalloutDescription,
     AutoTypeTable: (props) => (
       <AutoTypeTable {...props} generator={generator} />
     ),
