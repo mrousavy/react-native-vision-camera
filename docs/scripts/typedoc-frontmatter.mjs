@@ -14,8 +14,9 @@ export function load(app) {
   app.renderer.on(MarkdownPageEvent.END, (page) => {
     if (page.contents) {
       page.contents = page.contents
-        .replace(/\.mdx\)/g, ")")
-        .replace(/\]\((?!http|\/)/g, "](/api-reference/");
+        .replace(/\.mdx(?=[)#])/g, "")
+        .replace(/\]\(\.\.\/([^)]+)\)/g, "](/api-reference/$1)")
+        .replace(/\]\((?!http|\/|#)([^)]+)\)/g, "](/api-reference/$1)");
     }
   });
 }
