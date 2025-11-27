@@ -10,5 +10,13 @@ export function load(app) {
       ...page.frontmatter,
     };
   });
+
+  app.renderer.on(MarkdownPageEvent.END, (page) => {
+    if (page.contents) {
+      page.contents = page.contents
+        .replace(/\.mdx\)/g, ")")
+        .replace(/\]\((?!http|\/)/g, "](/api-reference/");
+    }
+  });
 }
 
