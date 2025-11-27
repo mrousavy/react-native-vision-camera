@@ -3,6 +3,11 @@ import * as FilesComponents from 'fumadocs-ui/components/files';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import type { MDXComponents } from 'mdx/types';
+import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
+import { AutoTypeTable } from 'fumadocs-typescript/ui';
+import { createGenerator } from 'fumadocs-typescript';
+
+const generator = createGenerator();
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -11,6 +16,10 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...FilesComponents,
     Accordion,
     Accordions,
+    AutoTypeTable: (props) => (
+      <AutoTypeTable {...props} generator={generator} />
+    ),
+    img: (props) => <ImageZoom {...(props as any)} />,
     ...components,
   } satisfies MDXComponents;
 }

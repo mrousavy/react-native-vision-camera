@@ -1,4 +1,7 @@
 {
+  "title": "Vision Camera",
+  "description": "The Vision Camera documentation",
+  "root": true,
   "pages": [
     "---Getting Started---",
     "index",
@@ -37,4 +40,3 @@
     "shadow-lens"
   ]
 }
-
