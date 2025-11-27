@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "fumadocs-mdx && next build",
-    "dev": "next dev",
+    "docs": "typedoc",
+    "build": "bun run docs && fumadocs-mdx && next build",
+    "dev": "bun run docs && next dev",
     "start": "next start",
-    "clean": "rm -rf .next .source",
+    "clean": "rm -rf .next .source content/api-reference",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "lint": "biome check",
@@ -27,6 +28,7 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/mdx": "^2.0.13",
     "@types/node": "^24.10.0",
@@ -34,7 +36,10 @@
     "@types/react-dom": "^19.2.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.16",
-    "typescript": "^5.9.3",
-    "@biomejs/biome": "^2.3.5"
+    "ts-morph": "^27.0.2",
+    "typedoc": "^0.28.14",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typedoc-plugin-frontmatter": "^1.1.0",
+    "typescript": "^5.9.3"
   }
 }

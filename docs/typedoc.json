@@ -1,0 +1,19 @@
+{
+  "name": "VisionCamera",
+  "entryPoints": ["../package/src"],
+  "exclude": ["**/index.ts", "**/skia/**"],
+  "tsconfig": "./tsconfig.typedoc.json",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./scripts/typedoc-frontmatter.mjs"],
+  "out": "./content/api-reference",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "readme": "none",
+  "skipErrorChecking": true,
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "hidePageHeader": true,
+  "hidePageTitle": true,
+  "hideBreadcrumbs": true
+}

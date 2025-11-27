@@ -1,0 +1,9 @@
+{
+  "extends": "../package/tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "include": ["../package/src"],
+  "exclude": ["../package/node_modules", "../package/lib", "../package/src/skia"]
+}
+

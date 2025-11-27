@@ -2,8 +2,6 @@ import { defineConfig, defineDocs, frontmatterSchema, metaSchema } from 'fumadoc
 import { remarkNpm } from 'fumadocs-core/mdx-plugins'
 import remarkCallout from '@r4ai/remark-callout'
 
-// You can customise Zod schemas for frontmatter and `meta.json` here
-// see https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
@@ -11,6 +9,16 @@ export const docs = defineDocs({
     postprocess: {
       includeProcessedMarkdown: true,
     },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+})
+
+export const apiReference = defineDocs({
+  dir: 'content/api-reference',
+  docs: {
+    schema: frontmatterSchema,
   },
   meta: {
     schema: metaSchema,
