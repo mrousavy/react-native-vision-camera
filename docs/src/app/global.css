@@ -4,3 +4,21 @@
 
 @source "../lib/**/*.tsx";
 @source "../components/**/*.tsx";
+
+
+@theme inline {
+    --default-mono-font-family: var(--font-mono);
+}
+
+@theme {
+    --color-fd-primary:#007A55;
+  }
+  
+  .dark {
+    --color-fd-primary: #5EE9B5;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+    background-color: var(--color-fd-background);
+  }
