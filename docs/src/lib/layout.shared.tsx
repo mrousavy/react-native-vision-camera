@@ -18,10 +18,12 @@ export function homeOptions(): HomeLayoutProps {
       {
         text: 'Docs',
         url: '/docs',
+        active: 'nested-url',
       },
       {
         text: 'API Reference',
-        url: '/docs/api',
+        url: '/api-reference',
+        active: 'nested-url',
       },
     ],
     githubUrl: 'https://github.com/mrousavy/react-native-vision-camera',
