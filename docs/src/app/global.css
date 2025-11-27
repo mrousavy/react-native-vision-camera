@@ -5,20 +5,32 @@
 @source "../lib/**/*.tsx";
 @source "../components/**/*.tsx";
 
+:root {
+  --fd-nav-height: 57px;
+}
 
+button[data-search-full] {
+    @apply mx-auto! rounded-xl! max-w-lg!;
+}
+
+article {
+    @apply pt-8;
+}
 @theme inline {
-    --default-mono-font-family: var(--font-mono);
+  --default-mono-font-family: var(--font-mono);
 }
 
 @theme {
-    --color-fd-primary:#007A55;
-  }
-  
-  .dark {
-    --color-fd-primary: #5EE9B5;
-  }
+  --spacing-fd-container: 1400px;
+  --fd-layout-width: 1400px;
+  --color-fd-primary: #007a55;
+}
 
-  body {
-    overscroll-behavior-y: none;
-    background-color: var(--color-fd-background);
-  }
+.dark {
+  --color-fd-primary: #5ee9b5;
+}
+
+body {
+  overscroll-behavior-y: none;
+  background-color: var(--color-fd-background);
+}
