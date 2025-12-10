@@ -26,6 +26,7 @@ module.exports = {
               'guides/frame-processors-plugins-overview',
               'guides/frame-processors-plugins-ios',
               'guides/frame-processors-plugins-android',
+              'guides/frame-processors-plugins-expo',
               'guides/frame-processors-plugins-cpp',
               'guides/frame-processors-plugins-final',
             ]
