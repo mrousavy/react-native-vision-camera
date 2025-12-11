@@ -417,7 +417,8 @@ export interface CameraProps extends ViewProps {
    */
   codeScanner?: CodeScanner
   /**
-   * Used to get the bytes written to the video file on real time while it is being recorded
+   * Fires every few hundred milliseconds to notify how many
+   * total bytes are currently written to the video file.
    * @example
    * ```tsx
    * const onBytesWrittenVideo = (bytes: number) => {

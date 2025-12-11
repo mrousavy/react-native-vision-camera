@@ -143,10 +143,7 @@ extension CameraSession {
           let path = session.url.path
           if let size = try? FileManager.default.attributesOfItem(atPath: path)[.size] as? NSNumber {
             let bytes = size.doubleValue
-
-            DispatchQueue.main.async {
-              onBytesWritten(bytes)
-            }
+            onBytesWritten(bytes)
           }
         }
         self.recordingSizeTimer = timer
