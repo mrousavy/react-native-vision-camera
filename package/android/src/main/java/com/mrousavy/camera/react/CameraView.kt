@@ -51,6 +51,7 @@ class CameraView(context: Context) :
   // react properties
   // props that require reconfiguring
   var cameraId: String? = null
+  var audioInputDeviceUid: String? = null
   var enableDepthData = false
   var enablePortraitEffectsMatteDelivery = false
   var isMirrored = false
@@ -235,6 +236,9 @@ class CameraView(context: Context) :
 
         // isActive
         config.isActive = this@CameraView.isActive
+
+        // Input Audio Device
+        config.audioInputDeviceUid = audioInputDeviceUid
       }
     }
   }

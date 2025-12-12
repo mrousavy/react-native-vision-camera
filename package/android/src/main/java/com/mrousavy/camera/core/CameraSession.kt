@@ -3,7 +3,13 @@ package com.mrousavy.camera.core
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.media.AudioRecord
+import android.media.MediaCodec
+import android.media.MediaMuxer
+import android.media.MediaRecorder
+import android.os.Build
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.camera.core.Camera
@@ -43,7 +49,7 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal var configuration: CameraConfiguration? = null
   internal val cameraProvider = ProcessCameraProvider.getInstance(context)
   internal var camera: Camera? = null
-
+  internal var audioDevice: AudioDeviceInfo? = null
   // Camera Outputs
   internal var previewOutput: Preview? = null
   internal var photoOutput: ImageCapture? = null
@@ -62,8 +68,13 @@ class CameraSession(internal val context: Context, internal val callback: Callba
   internal var isDestroyed = false
   internal val lifecycleRegistry = LifecycleRegistry(this)
   internal var recording: Recording? = null
+
+  internal var audioRecorder: MediaRecorder? = null
   internal var isRecordingCanceled = false
   internal val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  internal var recordingWithExternalAudio: Boolean = false
+  internal var audioOutputFile: java.io.File? = null
 
   // Threading
   internal val mainExecutor = ContextCompat.getMainExecutor(context)
@@ -163,6 +174,10 @@ class CameraSession(internal val context: Context, internal val callback: Callba
         if (diff.locationChanged) {
           // 6. start or stop location update streaming
           metadataProvider.enableLocationUpdates(config.enableLocation)
+        }
+
+        if(diff.audioDeviceChanged) {
+          configureAudioDevice(config,context)
         }
 
         Log.i(

@@ -7,6 +7,7 @@ import type { ISharedValue } from 'react-native-worklets-core'
 import type { SkImage } from '@shopify/react-native-skia'
 import type { OutputOrientation } from './OutputOrientation'
 import type { Orientation } from './Orientation'
+import type { AudioInputDevice } from './AudioInputDevice'
 
 export interface ReadonlyFrameProcessor {
   frameProcessor: (frame: Frame) => void
@@ -51,6 +52,12 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   device: CameraDevice
+
+  /**
+   * Audio Input device to be used as the microphone.
+   */
+  audioInputDevice?: AudioInputDevice
+
   /**
    * Whether the Camera should actively stream video frames, or not. See the [documentation about the `isActive` prop](https://react-native-vision-camera.com/docs/guides/lifecycle#the-isactive-prop) for more information.
    *
