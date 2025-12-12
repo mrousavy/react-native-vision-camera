@@ -167,6 +167,19 @@ fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>, scannerFrame: CodeSc
   this.sendEvent(event)
 }
 
+fun CameraView.invokeOnThumbnailReady(path: String, width: Int, height: Int) {
+  Log.i(CameraView.TAG, "invokeOnThumbnailReady($path)")
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val data = Arguments.createMap()
+  data.putString("path", path)
+  data.putInt("width", width)
+  data.putInt("height", height)
+
+  val event = CameraThumbnailReadyEvent(surfaceId, id, data)
+  this.sendEvent(event)
+}
+
 private fun CameraView.sendEvent(event: Event<*>) {
   val reactContext = context as ReactContext
   val dispatcher =

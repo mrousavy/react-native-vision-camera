@@ -350,4 +350,8 @@ class CameraView(context: Context) :
   override fun onAverageFpsChanged(averageFps: Double) {
     invokeOnAverageFpsChanged(averageFps)
   }
+
+  override fun onThumbnailReady(path: String, width: Int, height: Int) {
+    invokeOnThumbnailReady(path, width, height)
+  }
 }

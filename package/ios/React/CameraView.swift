@@ -81,6 +81,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var onViewReadyEvent: RCTDirectEventBlock?
   @objc var onAverageFpsChangedEvent: RCTDirectEventBlock?
   @objc var onCodeScannedEvent: RCTDirectEventBlock?
+  @objc var onThumbnailReadyEvent: RCTDirectEventBlock?
 
   // zoom
   @objc var enableZoomGesture = false {

@@ -79,11 +79,29 @@ extension CameraSession {
         photoSettings.flashMode = options.flash.toFlashMode()
       }
 
+      // embedded thumbnail for fast thumbnail generation
+      if options.onThumbnailReadyEvent != nil {
+        // Request an embedded thumbnail to be included with the photo
+        // This is much faster than generating our own thumbnail from the full image
+        let thumbnailFormat: [String: Any] = [
+          AVVideoCodecKey: AVVideoCodecType.jpeg,
+          AVVideoWidthKey as String: min(320, Int(options.thumbnailSize?.width ?? 320)),
+          AVVideoHeightKey as String: min(320, Int(options.thumbnailSize?.height ?? 320)),
+        ]
+
+        // Check if embedded thumbnails are supported
+        if !photoSettings.availableEmbeddedThumbnailPhotoCodecTypes.isEmpty {
+          photoSettings.embeddedThumbnailPhotoFormat = thumbnailFormat
+        }
+      }
+
       // Actually do the capture!
       let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
                                                       enableShutterSound: options.enableShutterSound,
                                                       metadataProvider: self.metadataProvider,
                                                       path: options.path,
+                                                      thumbnailSize: options.thumbnailSize,
+                                                      onThumbnailReadyEvent: options.onThumbnailReadyEvent,
                                                       cameraSessionDelegate: self.delegate)
       photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 

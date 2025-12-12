@@ -14,6 +14,8 @@ struct TakePhotoOptions {
   var enableAutoRedEyeReduction = false
   var enableAutoDistortionCorrection = false
   var enableShutterSound = true
+  var thumbnailSize: CGSize?
+  var onThumbnailReadyEvent: RCTDirectEventBlock?
 
   init(fromJSValue dictionary: NSDictionary) throws {
     // Flash
@@ -37,6 +39,12 @@ struct TakePhotoOptions {
       path = try FileUtils.getFilePath(customDirectory: customPath, fileExtension: "jpg")
     } else {
       path = try FileUtils.getFilePath(fileExtension: "jpg")
+    }
+    // Thumbnail size
+    if let thumbnailSizeDict = dictionary["thumbnailSize"] as? NSDictionary,
+       let width = thumbnailSizeDict["width"] as? NSNumber,
+       let height = thumbnailSizeDict["height"] as? NSNumber {
+      thumbnailSize = CGSize(width: width.doubleValue, height: height.doubleValue)
     }
   }
 }
