@@ -94,13 +94,24 @@ extension CameraSession {
         // Orientation is relative to our current output orientation
         let orientation = self.outputOrientation.relativeTo(orientation: videoOutput.orientation)
 
+        // Create crop rect if needed
+        var cropRect: CGRect?
+        if let crop = options.crop {
+          cropRect = CGRect(x: crop.x,
+                          y: crop.y,
+                          width: crop.width,
+                          height: crop.height)
+          VisionLogger.log(level: .info, message: "Creating recording with crop rect: \(cropRect!)")
+        }
+        
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: options.path,
-                                                    fileType: options.fileType,
-                                                    metadataProvider: self.metadataProvider,
-                                                    clock: self.captureSession.clock,
-                                                    orientation: orientation,
-                                                    completion: onFinish)
+                                                  fileType: options.fileType,
+                                                  metadataProvider: self.metadataProvider,
+                                                  clock: self.captureSession.clock,
+                                                  orientation: orientation,
+                                                  cropRect: cropRect,
+                                                  completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
         if enableAudio,
