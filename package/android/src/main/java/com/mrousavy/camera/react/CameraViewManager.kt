@@ -41,6 +41,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       .put(CameraOutputOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onOutputOrientationChanged"))
       .put(CameraPreviewOrientationChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onPreviewOrientationChanged"))
       .put(AverageFpsChangedEvent.EVENT_NAME, MapBuilder.of("registrationName", "onAverageFpsChanged"))
+      .put(BytesWrittenVideoEvent.EVENT_NAME, MapBuilder.of("registrationName", "onBytesWrittenVideo"))
       .build()
 
   override fun getName(): String = TAG

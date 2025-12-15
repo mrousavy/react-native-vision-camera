@@ -68,6 +68,7 @@ RCT_REMAP_VIEW_PROPERTY(onOutputOrientationChanged, onOutputOrientationChangedEv
 RCT_REMAP_VIEW_PROPERTY(onPreviewOrientationChanged, onPreviewOrientationChangedEvent, RCTDirectEventBlock);
 RCT_REMAP_VIEW_PROPERTY(onViewReady, onViewReadyEvent, RCTDirectEventBlock);
 RCT_REMAP_VIEW_PROPERTY(onAverageFpsChanged, onAverageFpsChangedEvent, RCTDirectEventBlock);
+RCT_REMAP_VIEW_PROPERTY(onBytesWrittenVideo, onBytesWrittenVideoEvent, RCTDirectEventBlock);
 // Code Scanner
 RCT_EXPORT_VIEW_PROPERTY(codeScannerOptions, NSDictionary);
 RCT_REMAP_VIEW_PROPERTY(onCodeScanned, onCodeScannedEvent, RCTDirectEventBlock);

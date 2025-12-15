@@ -54,3 +54,10 @@ export interface VideoFile extends TemporaryFile {
    */
   height: number
 }
+
+export interface OnBytesWrittenVideoEvent {
+  /**
+   * Represents the amount of total bytes written to the video file.
+   */
+  bytesWritten: number
+}

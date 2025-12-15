@@ -4,6 +4,7 @@ import type { ErrorWithCause } from './CameraError'
 import type { CameraProps, OnShutterEvent } from './types/CameraProps'
 import type { Code, CodeScanner, CodeScannerFrame } from './types/CodeScanner'
 import type { Orientation } from './types/Orientation'
+import type { OnBytesWrittenVideoEvent } from './types/VideoFile'
 
 export interface OnCodeScannedEvent {
   codes: Code[]
@@ -35,6 +36,7 @@ export type NativeCameraViewProps = Omit<
   | 'codeScanner'
   | 'fps'
   | 'videoBitRate'
+  | 'onBytesWrittenVideo'
 > & {
   // private intermediate props
   cameraId: string
@@ -58,6 +60,7 @@ export type NativeCameraViewProps = Omit<
   onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
   onOutputOrientationChanged?: (event: NativeSyntheticEvent<OutputOrientationChangedEvent>) => void
   onPreviewOrientationChanged?: (event: NativeSyntheticEvent<PreviewOrientationChangedEvent>) => void
+  onBytesWrittenVideo?: (event: NativeSyntheticEvent<OnBytesWrittenVideoEvent>) => void
 }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'

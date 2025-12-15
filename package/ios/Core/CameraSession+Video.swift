@@ -18,7 +18,8 @@ extension CameraSession {
    */
   func startRecording(options: RecordVideoOptions,
                       onVideoRecorded: @escaping (_ video: Video) -> Void,
-                      onError: @escaping (_ error: CameraError) -> Void) {
+                      onError: @escaping (_ error: CameraError) -> Void,
+                      onBytesWritten: @escaping (_ bytes: Double) -> Void) {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
       let start = DispatchTime.now()
@@ -48,6 +49,8 @@ extension CameraSession {
         }
 
         self.recordingSession = nil
+        self.recordingSizeTimer?.cancel()
+        self.recordingSizeTimer = nil
 
         if self.didCancelRecording {
           VisionLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
@@ -128,6 +131,23 @@ extension CameraSession {
         self.didCancelRecording = false
         self.recordingSession = recordingSession
 
+        let timer = DispatchSource.makeTimerSource(queue: CameraQueues.cameraQueue)
+        timer.schedule(deadline: .now(), repeating: 0.4)
+
+        timer.setEventHandler {
+          guard let session = self.recordingSession else {
+            timer.cancel()
+            return
+          }
+
+          let path = session.url.path
+          if let size = try? FileManager.default.attributesOfItem(atPath: path)[.size] as? NSNumber {
+            let bytes = size.doubleValue
+            onBytesWritten(bytes)
+          }
+        }
+        self.recordingSizeTimer = timer
+        self.recordingSizeTimer?.resume()
         let end = DispatchTime.now()
         VisionLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as CameraError {

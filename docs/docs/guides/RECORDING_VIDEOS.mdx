@@ -42,6 +42,7 @@ To start a video recording you first have to enable video capture:
   {...props}
   video={true}
   audio={true} // <-- optional
+  onBytesWrittenVideo={(bytes) => {/*Whatever you need with bytes in realtime while it is recording*/}} // <-- optional
 />
 ```
 
