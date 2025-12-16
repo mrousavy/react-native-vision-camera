@@ -8,7 +8,7 @@
 import Foundation
 
 @frozen
-enum HardwareLevel: String, JSUnionValue {
+public enum HardwareLevel: String, JSUnionValue {
   case full
 
   init(jsValue: String) throws {
