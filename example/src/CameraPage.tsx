@@ -222,6 +222,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}
+                whiteBalance={5000}
                 enableFpsGraph={true}
                 outputOrientation="device"
                 photo={true}

@@ -336,6 +336,47 @@ extension CameraSession {
     device.setExposureTargetBias(clamped)
   }
 
+  // pragma MARK: White Balance
+
+  /**
+   Configures white balance (`whiteBalance`) as a temperature value in Kelvin.
+   */
+  func configureWhiteBalance(configuration: CameraConfiguration, device: AVCaptureDevice) {
+    guard let whiteBalance = configuration.whiteBalance else {
+      return
+    }
+
+    guard device.isLockingWhiteBalanceWithCustomDeviceGainsSupported else {
+      VisionLogger.log(level: .warning, message: "White balance lock mode with gains is not supported on this device!")
+      return
+    }
+
+    // Clamp temperature to valid range (typically 3000K to 8000K)
+    let clampedTemperature = min(max(whiteBalance, 3000), 8000)
+
+    // Convert temperature to white balance gains
+    let tempAndTint = AVCaptureDevice.WhiteBalanceTemperatureAndTintValues(
+      temperature: clampedTemperature,
+      tint: 0
+    )
+    let gains = device.deviceWhiteBalanceGains(for: tempAndTint)
+
+    // Clamp gains to valid range
+    let clampedGains = AVCaptureDevice.WhiteBalanceGains(
+      redGain: min(max(gains.redGain, 1.0), device.maxWhiteBalanceGain),
+      greenGain: min(max(gains.greenGain, 1.0), device.maxWhiteBalanceGain),
+      blueGain: min(max(gains.blueGain, 1.0), device.maxWhiteBalanceGain)
+    )
+
+    // Set the white balance mode to locked with the specified gains
+    device.setWhiteBalanceModeLocked(with: clampedGains, completionHandler: nil)
+
+    VisionLogger.log(
+      level: .info,
+      message: "White balance set to \(clampedTemperature)K (R:\(clampedGains.redGain), G:\(clampedGains.greenGain), B:\(clampedGains.blueGain))"
+    )
+  }
+
   // pragma MARK: Audio
 
   /**
