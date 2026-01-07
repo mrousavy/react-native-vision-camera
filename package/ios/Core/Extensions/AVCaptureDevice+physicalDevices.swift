@@ -14,7 +14,7 @@ extension AVCaptureDevice {
    */
   var physicalDevices: [AVCaptureDevice] {
     if #available(iOS 13.0, *), isVirtualDevice {
-      return self.constituentDevices
+      return constituentDevices
     } else {
       return [self]
     }

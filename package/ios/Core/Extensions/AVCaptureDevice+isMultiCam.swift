@@ -14,7 +14,7 @@ extension AVCaptureDevice {
    */
   var isMultiCam: Bool {
     if #available(iOS 13.0, *) {
-      return self.isVirtualDevice
+      return isVirtualDevice
     } else {
       return false
     }

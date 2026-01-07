@@ -17,8 +17,8 @@ extension AVCaptureDevice {
    */
   var neutralZoomFactor: CGFloat {
     if #available(iOS 13.0, *) {
-      if let indexOfWideAngle = self.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
-        if let zoomFactor = self.virtualDeviceSwitchOverVideoZoomFactors[safe: indexOfWideAngle - 1] {
+      if let indexOfWideAngle = constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
+        if let zoomFactor = virtualDeviceSwitchOverVideoZoomFactors[safe: indexOfWideAngle - 1] {
           return CGFloat(zoomFactor.doubleValue)
         }
       }
