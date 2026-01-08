@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CameraDevice } from '../types/CameraDevice'
 import { CameraDevices } from '../CameraDevices'
 
@@ -11,12 +11,26 @@ import { CameraDevices } from '../CameraDevices'
  */
 export function useCameraDevices(): CameraDevice[] {
   const [devices, setDevices] = useState(() => CameraDevices.getAvailableCameraDevices())
+  const numberOfDevicesRef = useRef(devices.length)
 
   useEffect(() => {
+    let isMounted = true
     const listener = CameraDevices.addCameraDevicesChangedListener((newDevices) => {
       setDevices(newDevices)
     })
-    return () => listener.remove()
+    // Only update if we got new devices and the component is still mounted
+    // This happens with Android only
+    if (numberOfDevicesRef.current === 0) {
+      CameraDevices.getAvailableCameraDevicesManually().then((newDevices) => {
+        if (isMounted && newDevices.length > 0) {
+          setDevices(newDevices)
+        }
+      })
+    }
+    return () => {
+      isMounted = false
+      listener.remove()
+    }
   }, [])
 
   return devices
