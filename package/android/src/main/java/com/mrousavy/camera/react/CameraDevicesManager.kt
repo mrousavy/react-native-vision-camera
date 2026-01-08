@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -122,4 +123,36 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
   @Suppress("unused", "UNUSED_PARAMETER")
   @ReactMethod
   fun removeListeners(count: Int) {}
+
+  private suspend fun ensureInitialized() {
+    if (cameraProvider != null && extensionsManager != null) return
+
+    // Try init again (idempotent enough for this use-case)
+    if (cameraProvider == null) {
+      cameraProvider = ProcessCameraProvider.getInstance(reactContext).await(executor)
+    }
+    if (extensionsManager == null && cameraProvider != null) {
+      extensionsManager =
+        ExtensionsManager.getInstanceAsync(reactContext, cameraProvider!!).await(executor)
+    }
+  }
+
+  /**
+   * Exposed to JS: returns current available camera devices at call time.
+   * JS usage:
+   *   const devices = await NativeModules.CameraDevices.getAvailableDeviceManually()
+   */
+  @ReactMethod
+  fun getAvailableDeviceManually(promise: Promise) {
+    coroutineScope.launch {
+      try {
+        ensureInitialized()
+        val devices = getDevicesJson()
+        promise.resolve(devices)
+      } catch (t: Throwable) {
+        promise.resolve(Arguments.createArray())
+      }
+    }
+  }
 }
+
