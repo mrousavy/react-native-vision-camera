@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import { View } from 'react-native'
 import type { LayoutChangeEvent, ViewProps } from 'react-native'
 import type { CameraProps } from '../types/CameraProps'
 import type { ISharedValue } from 'react-native-worklets-core'
@@ -47,10 +48,12 @@ function SkiaCameraCanvasImpl({ offscreenTextures, resizeMode = 'cover', childre
   }, [])
 
   return (
-    <SkiaProxy.Canvas {...props} onLayout={onLayout} pointerEvents="none">
-      {children}
-      <SkiaProxy.Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
-    </SkiaProxy.Canvas>
+    <View {...props} onLayout={onLayout} style={[props.style, { flex: 1 }]}>
+      <SkiaProxy.Canvas style={{ width, height }} pointerEvents="none">
+        {children}
+        <SkiaProxy.Image x={0} y={0} width={width} height={height} fit={resizeMode} image={texture} />
+      </SkiaProxy.Canvas>
+    </View>
   )
 }
 
