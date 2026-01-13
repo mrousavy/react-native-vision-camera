@@ -34,6 +34,7 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
   var recordingSizeTimer: DispatchSourceTimer?
   var didCancelRecording = false
   var orientationManager = OrientationManager()
+  var isMultitaskingInterrupted = false
 
   // Callbacks
   weak var delegate: CameraSessionDelegate?
@@ -64,6 +65,46 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
+    // Observe capture session interruptions (e.g., iPad Split View with other apps)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionWasInterrupted),
+                                           name: .AVCaptureSessionWasInterrupted,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionEnded),
+                                           name: .AVCaptureSessionInterruptionEnded,
+                                           object: captureSession)
+  }
+
+  @objc func sessionWasInterrupted(notification: Notification) {
+    guard let userInfo = notification.userInfo,
+          let reasonValue = userInfo[AVCaptureSessionInterruptionReasonKey] as? Int,
+          let reason = AVCaptureSession.InterruptionReason(rawValue: reasonValue) else {
+      VisionLogger.log(level: .warning, message: "Capture session was interrupted (unknown reason)")
+      return
+    }
+    VisionLogger.log(level: .warning, message: "Capture session was interrupted: \(reason)")
+
+    // Notify JS side about multitasking interruption (only once per interruption)
+    if reason == .videoDeviceNotAvailableWithMultipleForegroundApps && !isMultitaskingInterrupted {
+      isMultitaskingInterrupted = true
+      delegate?.onError(.session(.multitaskingCameraNotSupported))
+    }
+  }
+
+  @objc func sessionInterruptionEnded(notification: Notification) {
+    VisionLogger.log(level: .info, message: "Capture session interruption ended, resuming...")
+    isMultitaskingInterrupted = false
+    // Restart the session if needed, and notify JS
+    CameraQueues.cameraQueue.async {
+      if !self.captureSession.isRunning {
+        self.captureSession.startRunning()
+        VisionLogger.log(level: .info, message: "Capture session restarted after interruption")
+      }
+      // Always notify JS that interruption ended so UI can update
+      VisionLogger.log(level: .info, message: "Notifying JS that camera has resumed")
+      self.delegate?.onCameraStarted()
+    }
   }
 
   private func initialize() {
@@ -72,6 +113,19 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     }
     orientationManager.delegate = self
     isInitialized = true
+
+    // Enable multitasking camera access for iPad Split View / Slide Over (iOS 16+)
+    if #available(iOS 16.0, *) {
+      VisionLogger.log(level: .info, message: "Checking multitasking camera support...")
+      if captureSession.isMultitaskingCameraAccessSupported {
+        captureSession.isMultitaskingCameraAccessEnabled = true
+        VisionLogger.log(level: .info, message: "Multitasking camera access ENABLED")
+      } else {
+        VisionLogger.log(level: .warning, message: "Multitasking camera access NOT SUPPORTED on this device")
+      }
+    } else {
+      VisionLogger.log(level: .info, message: "iOS version < 16, multitasking camera not available")
+    }
   }
 
   deinit {
@@ -84,6 +138,12 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionWasInterrupted,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionInterruptionEnded,
+                                              object: captureSession)
   }
 
   /**
