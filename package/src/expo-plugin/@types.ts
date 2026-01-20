@@ -47,4 +47,26 @@ export type ConfigProps = {
    * @default false
    */
   enableCodeScanner?: boolean
+  /**
+   * Android Only
+   * Whether to require the camera through Androids uses-feature flag.
+   *
+   * When set to `true`, the app will only be available in Play Store for phones with a camera.
+   * When set to `false`, the feature will not be required, and the app will be discoverable for devices without a camera.
+   * If it is `undefined` or `null`, the uses-feature flag will not be added to the AndroidManifest.
+   *
+   * @default undefined
+   */
+  requiresCamera?: boolean | null
+  /**
+   * Android Only
+   * Whether to require the microphone through Androids uses-feature flag.
+   *
+   * When set to `true`, the app will only be available in Play Store for phones with a microphone.
+   * When set to `false`, the feature will not be required, and the app will be discoverable for devices without a microphone.
+   * If it is `undefined` or `null`, the uses-feature flag will not be added to the AndroidManifest.
+   *
+   * @default undefined
+   */
+  requiresMicrophone?: boolean | null
 }
