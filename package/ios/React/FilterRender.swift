@@ -26,7 +26,8 @@ protocol FilterRenderer: AnyObject {
     var inputFormatDescription: CMFormatDescription? { get }
     
     // Render the pixel buffer.
-    func render(pixelBuffer: CVPixelBuffer,fisheye: Bool) -> CVPixelBuffer?
+    func render(pixelBuffer: CVPixelBuffer,fisheyeW: Bool,fisheyeF: Bool) -> CVPixelBuffer?
+
 }
 
 func allocateOutputBufferPool(with inputFormatDescription: CMFormatDescription, outputRetainedBufferCountHint: Int) ->(

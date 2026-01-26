@@ -18,9 +18,13 @@ class PreviewMetalView: MTKView {
         case rotate270Degrees
     }
     
-    var fisheye = false
+    var fisheyeW = false
     
-    private var internalFisheye: Bool = false
+    private var internalFisheyeW: Bool = false
+    
+    var fisheyeF = false
+    
+    private var internalFisheyeF: Bool = false
     
     
     var mirroring = false {
@@ -116,7 +120,7 @@ class PreviewMetalView: MTKView {
         textureCache = nil
     }
     
-    private func setupTransform(width: Int, height: Int, mirroring: Bool, rotation: Rotation,fisheye: Bool) {
+    private func setupTransform(width: Int, height: Int, mirroring: Bool, rotation: Rotation,fisheyeF: Bool) {
         var scaleX: Float = 1.0
         var scaleY: Float = 1.0
         var resizeAspect: Float = 1.0
@@ -124,8 +128,8 @@ class PreviewMetalView: MTKView {
         let smallerSide = min(width,height)
         
         internalBounds = self.bounds
-        textureWidth = fisheye ?  smallerSide : width
-        textureHeight = fisheye ? smallerSide : height
+        textureWidth = fisheyeF ?  smallerSide : width
+        textureHeight = fisheyeF ? smallerSide : height
         textureMirroring = mirroring
         textureRotation = rotation
         
@@ -144,7 +148,7 @@ class PreviewMetalView: MTKView {
         // Resize aspect ratio: use max to emulate "cover" (fills view, cropping the texture if necessary)
         resizeAspect = max(scaleX, scaleY)
         
-        if(fisheye){
+        if(fisheyeF){
             if scaleX < scaleY {
                 scaleY = scaleX / scaleY
                 scaleX = 1
@@ -352,11 +356,13 @@ class PreviewMetalView: MTKView {
             self.bounds != internalBounds ||
             mirroring != textureMirroring ||
             rotation != textureRotation ||
-            fisheye != internalFisheye
+            fisheyeW != internalFisheyeW ||
+            fisheyeF != internalFisheyeF
         {
-            internalFisheye = fisheye
+            internalFisheyeW = fisheyeW
+            internalFisheyeF = fisheyeF
             print("Calling setuptransform function")
-            setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation,fisheye: fisheye)
+            setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation,fisheyeF: fisheyeF)
         }
         
         

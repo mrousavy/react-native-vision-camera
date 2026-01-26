@@ -74,9 +74,13 @@ class LutMetalRenderer: FilterRenderer {
     }
     
     /// - Tag: FilterMetalRosy
-    func render(pixelBuffer: CVPixelBuffer,fisheye: Bool) -> CVPixelBuffer? {
+    func render(pixelBuffer: CVPixelBuffer,fisheyeW: Bool,fisheyeF: Bool) -> CVPixelBuffer? {
         if !isPrepared {
             assertionFailure("Invalid state: Not prepared.")
+            return nil
+        }
+        
+        if(outputPixelBufferPool == nil){
             return nil
         }
         
@@ -114,8 +118,13 @@ class LutMetalRenderer: FilterRenderer {
         commandEncoder.setTexture(lutTexture, index: 1)
         commandEncoder.setTexture(outputTexture, index: 2)
         // ✅ Pass isFisheye to the shader
-        var fisheyeValue = fisheye ? 1 : 0
-        commandEncoder.setBytes(&fisheyeValue, length: MemoryLayout<Int>.size, index: 0)
+        var fisheyeWValue = fisheyeW ? 1 : 0
+        var fisheyeFValue = fisheyeF ? 1 : 0
+        
+//        print(fisheyeWValue,fisheyeFValue)
+        
+        commandEncoder.setBytes(&fisheyeWValue, length: MemoryLayout<Int>.size, index: 0)
+        commandEncoder.setBytes(&fisheyeFValue, length: MemoryLayout<Int>.size, index: 1)
         
         // Set up the thread groups.
         let width = computePipelineState!.threadExecutionWidth
