@@ -68,6 +68,9 @@ Pod::Spec.new do |s|
     core.pod_target_xcconfig = {
       "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{enableLocation ? "VISION_CAMERA_ENABLE_LOCATION" : ""}",
     }
+
+    # ML Kit Barcode Scanning dependency
+    core.dependency "GoogleMLKit/BarcodeScanning"
   end
 
   s.subspec 'React' do |core|

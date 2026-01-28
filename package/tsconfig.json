@@ -20,7 +20,7 @@
     "strict": true,
     "target": "esnext",
     "outDir": "lib",
-    "declaration": true
+    "declaration": false
   },
   "include": ["src", ".eslintrc.js", "babel.config.js", "react-native.config.js"],
   "exclude": ["node_modules", "lib", "docs", "example"]

@@ -84,6 +84,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
+
+    // Clean up ML Kit scanner
+    closeCodeScannerMLKit()
   }
 
   /**
@@ -288,7 +291,12 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
         delegate?.onError(.capture(.unknown(message: error.localizedDescription)))
       }
     }
-
+    
+    // Process Code Scanner with ML Kit if enabled
+    if case .enabled = configuration?.codeScanner {
+      processFrameForCodeScannerMLKit(sampleBuffer: sampleBuffer, orientation: orientation)
+    }
+    
     if let delegate {
       // Call Frame Processor (delegate) for every Video Frame
       delegate.onFrame(sampleBuffer: sampleBuffer, orientation: orientation, isMirrored: isMirrored)
