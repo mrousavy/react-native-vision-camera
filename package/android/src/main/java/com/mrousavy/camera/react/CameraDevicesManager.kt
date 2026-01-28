@@ -13,20 +13,26 @@ import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.CameraQueues
-import com.mrousavy.camera.core.extensions.await
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
+import java.util.concurrent.Callable
+import java.util.concurrent.Future
 
 class CameraDevicesManager(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     private const val TAG = "CameraDevices"
   }
   private val executor = CameraQueues.cameraExecutor
-  private val coroutineScope = CoroutineScope(executor.asCoroutineDispatcher())
+
+  // Because getConstants() and initialize() are only called once for the entire life of the app process by react native.
+  // We have to make sure that everything is initialized, otherwise no devices are going to be retrieved ever.
+  // Either because getConstants() returns empty, or that the sendAvailableDevicesChangedEvent inside initialize() sends empty as well.
+  // We still give the opportunity for device to be initialized between init call and react initialization.
+  private val cameraInitializationFuture: Future<CameraInitialization>
   private val cameraManager = reactContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-  private var cameraProvider: ProcessCameraProvider? = null
-  private var extensionsManager: ExtensionsManager? = null
+
+  private class CameraInitialization {
+    var cameraProvider: ProcessCameraProvider? = null
+    var extensionsManager: ExtensionsManager? = null
+  }
 
   private val callback = object : CameraManager.AvailabilityCallback() {
     private var deviceIds = cameraManager.cameraIdList.toMutableList()
@@ -61,17 +67,19 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
   // Init cameraProvider + manager as early as possible
   init {
-    coroutineScope.launch {
+    cameraInitializationFuture = executor.submit(Callable {
+      val cameraInitialization = CameraInitialization()
       try {
         Log.i(TAG, "Initializing ProcessCameraProvider...")
-        cameraProvider = ProcessCameraProvider.getInstance(reactContext).await(executor)
+        cameraInitialization.cameraProvider = ProcessCameraProvider.getInstance(reactContext).get()
         Log.i(TAG, "Initializing ExtensionsManager...")
-        extensionsManager = ExtensionsManager.getInstanceAsync(reactContext, cameraProvider!!).await(executor)
+        cameraInitialization.extensionsManager = ExtensionsManager.getInstanceAsync(reactContext, cameraInitialization.cameraProvider!!).get()
         Log.i(TAG, "Successfully initialized!")
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to initialize ProcessCameraProvider/ExtensionsManager! Error: ${error.message}", error)
       }
-    }
+      return@Callable cameraInitialization
+    })
   }
 
   // Note: initialize() will be called after getConstants on new arch!
@@ -88,8 +96,9 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
   private fun getDevicesJson(): ReadableArray {
     val devices = Arguments.createArray()
-    val cameraProvider = cameraProvider ?: return devices
-    val extensionsManager = extensionsManager ?: return devices
+
+    val cameraProvider = cameraInitializationFuture.get().cameraProvider ?: return devices
+    val extensionsManager = cameraInitializationFuture.get().extensionsManager ?: return devices
 
     cameraProvider.availableCameraInfos.forEach { cameraInfo ->
       val device = CameraDeviceDetails(cameraInfo, extensionsManager)
@@ -98,12 +107,14 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     return devices
   }
 
+  // Called by CameraManager.AvailabilityCallback registered after initialize()
   fun sendAvailableDevicesChangedEvent() {
     val eventEmitter = reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
     val devices = getDevicesJson()
     eventEmitter.emit("CameraDevicesChanged", devices)
   }
 
+  // Called by react native only once
   override fun getConstants(): MutableMap<String, Any?> {
     val devices = getDevicesJson()
     val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null
