@@ -12,6 +12,15 @@ import UIKit
 
 private let INSUFFICIENT_STORAGE_ERROR_CODE = -11807
 
+// Bayer/ProRes RAW formats that cannot be encoded directly
+private let kBayerFormats: Set<OSType> = [
+  0x6274_7032, // btp2 - Bayer To ProRes 2
+  0x6274_7033, // btp3 - Bayer To ProRes 3
+  0x6270_3136, // bp16 - 16-bit Bayer
+  0x6270_3234, // bp24 - 24-bit Bayer
+  0x6270_3332, // bp32 - 32-bit Bayer
+]
+
 extension CameraSession {
   /**
    Starts a video + audio recording with a custom Asset Writer.
@@ -39,51 +48,49 @@ extension CameraSession {
 
       // Callback for when the recording ends
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
-        defer {
-          // Disable Audio Session again
-          if enableAudio {
-            CameraQueues.audioQueue.async {
-              self.deactivateAudioSession()
+        CameraQueues.cameraQueue.async {
+          defer {
+            if enableAudio {
+              CameraQueues.audioQueue.async {
+                self.deactivateAudioSession()
+              }
             }
           }
-        }
 
-        self.recordingSession = nil
-        self.recordingSizeTimer?.cancel()
-        self.recordingSizeTimer = nil
+          self.recordingSession = nil
+          self.recordingSizeTimer?.cancel()
+          self.recordingSizeTimer = nil
 
-        if self.didCancelRecording {
-          VisionLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
-          onError(.capture(.recordingCanceled))
-          do {
-            VisionLogger.log(level: .info, message: "Deleting temporary video file...")
-            try FileManager.default.removeItem(at: recordingSession.url)
-          } catch {
-            self.delegate?.onError(.capture(.fileError(cause: error)))
+          if self.didCancelRecording {
+            VisionLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
+            onError(.capture(.recordingCanceled))
+            do {
+              VisionLogger.log(level: .info, message: "Deleting temporary video file...")
+              try FileManager.default.removeItem(at: recordingSession.url)
+            } catch {
+              self.delegate?.onError(.capture(.fileError(cause: error)))
+            }
+            return
           }
-          return
-        }
 
-        VisionLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+          VisionLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
-        if let error = error as NSError? {
-          VisionLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
-          // Something went wrong, we have an error
-          if error.code == INSUFFICIENT_STORAGE_ERROR_CODE {
-            onError(.capture(.insufficientStorage))
+          if let error = error as NSError? {
+            VisionLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
+            if error.code == INSUFFICIENT_STORAGE_ERROR_CODE {
+              onError(.capture(.insufficientStorage))
+            } else {
+              onError(.capture(.unknown(message: "An unknown recording error occured! \(error.code) \(error.description)")))
+            }
           } else {
-            onError(.capture(.unknown(message: "An unknown recording error occured! \(error.code) \(error.description)")))
-          }
-        } else {
-          if status == .completed {
-            // Recording was successfully saved
-            let video = Video(path: recordingSession.url.absoluteString,
-                              duration: recordingSession.duration,
-                              size: recordingSession.size)
-            onVideoRecorded(video)
-          } else {
-            // Recording wasn't saved and we don't have an error either.
-            onError(.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
+            if status == .completed {
+              let video = Video(path: recordingSession.url.absoluteString,
+                                duration: recordingSession.duration,
+                                size: recordingSession.size)
+              onVideoRecorded(video)
+            } else {
+              onError(.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
+            }
           }
         }
       }
@@ -102,12 +109,11 @@ extension CameraSession {
                                                     orientation: orientation,
                                                     completion: onFinish)
 
-        // Init Audio + Activate Audio Session (optional)
+        // Init Audio
         if enableAudio,
            let audioOutput = self.audioOutput,
            let audioInput = self.audioDeviceInput {
           VisionLogger.log(level: .info, message: "Enabling Audio for Recording...")
-          // Activate Audio Session asynchronously
           CameraQueues.audioQueue.async {
             do {
               try self.activateAudioSession()
@@ -116,17 +122,74 @@ extension CameraSession {
             }
           }
 
-          // Initialize audio asset writer
           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
           try recordingSession.initializeAudioTrack(withSettings: audioSettings,
                                                     format: audioInput.device.activeFormat.formatDescription)
         }
 
-        // Init Video
-        let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
+        // Get device's native pixel format to detect Bayer formats
+        let devicePixelFormat: OSType? = self.videoDeviceInput.map { input in
+          CMFormatDescriptionGetMediaSubType(input.device.activeFormat.formatDescription)
+        }
+
+        // Check if device format is a Bayer/ProRes RAW format
+        let isBayerFormat = devicePixelFormat.map { kBayerFormats.contains($0) } ?? false
+
+        // Get available output formats
+        let availableFormats = videoOutput.availableVideoPixelFormatTypes
+
+        // Check what standard formats are available
+        let has420f = availableFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
+        let has420v = availableFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange)
+        let hasBGRA = availableFormats.contains(kCVPixelFormatType_32BGRA)
+
+        // Select compatible output format - always force a compatible format for recording
+        var selectedFormat: OSType?
+        var forceH264 = false
+
+        // Priority: 420f > 420v > BGRA (for best compatibility)
+        if has420f {
+          selectedFormat = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+        } else if has420v {
+          selectedFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        } else if hasBGRA {
+          selectedFormat = kCVPixelFormatType_32BGRA
+          forceH264 = true // BGRA works better with H.264
+        } else if let firstFormat = availableFormats.first {
+          selectedFormat = firstFormat
+        }
+
+        // Apply the selected format to video output
+        if let format = selectedFormat {
+          videoOutput.videoSettings = [
+            String(kCVPixelBufferPixelFormatTypeKey): format,
+          ]
+          VisionLogger.log(level: .info,
+                           message: "Set output format to: \(format.fourCCString) " +
+                             "(deviceFormat: \(devicePixelFormat?.fourCCString ?? "nil"), isBayer: \(isBayerFormat))")
+        }
+
+        // Get the actual pixel format that will be used
+        var actualPixelFormat: OSType?
+        if let pixelFormatValue = videoOutput.videoSettings[String(kCVPixelBufferPixelFormatTypeKey)] {
+          if let numberValue = pixelFormatValue as? NSNumber {
+            actualPixelFormat = OSType(numberValue.uint32Value)
+          } else if let osTypeValue = pixelFormatValue as? OSType {
+            actualPixelFormat = osTypeValue
+          }
+        }
+
+        // Get video settings with proper codec selection
+        let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options,
+                                                                     devicePixelFormat: actualPixelFormat,
+                                                                     forceH264: forceH264)
+
+        VisionLogger.log(level: .info, message: "Video encoder settings: \(videoSettings)")
+
+        // Initialize video track
         try recordingSession.initializeVideoTrack(withSettings: videoSettings)
 
-        // start recording session with or without audio.
+        // Start recording
         try recordingSession.start()
         self.didCancelRecording = false
         self.recordingSession = recordingSession
@@ -149,7 +212,8 @@ extension CameraSession {
         self.recordingSizeTimer = timer
         self.recordingSizeTimer?.resume()
         let end = DispatchTime.now()
-        VisionLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
+        VisionLogger.log(level: .info,
+                         message: "Recording started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as CameraError {
         onError(error)
       } catch let error as NSError {
@@ -165,7 +229,8 @@ extension CameraSession {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
-          throw CameraError.capture(.noRecordingInProgress)
+          VisionLogger.log(level: .warning, message: "stopRecording() was called but there is no active recording session.")
+          return nil
         }
         recordingSession.stop()
         return nil
