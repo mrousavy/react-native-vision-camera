@@ -76,7 +76,6 @@ enum DeviceError {
   case microphoneUnavailable
   case lowLightBoostNotSupported
   case focusNotSupported
-  case notAvailableOnSimulator
   case pixelFormatNotSupported(targetFormats: [FourCharCode], availableFormats: [FourCharCode])
 
   var code: String {
@@ -95,8 +94,6 @@ enum DeviceError {
       return "low-light-boost-not-supported"
     case .focusNotSupported:
       return "focus-not-supported"
-    case .notAvailableOnSimulator:
-      return "camera-not-available-on-simulator"
     case .pixelFormatNotSupported:
       return "pixel-format-not-supported"
     }
@@ -118,8 +115,6 @@ enum DeviceError {
       return "The currently selected camera device does not support focusing!"
     case .microphoneUnavailable:
       return "The microphone was unavailable."
-    case .notAvailableOnSimulator:
-      return "The Camera is not available on the iOS Simulator!"
     case let .pixelFormatNotSupported(targetFormats: targetFormats, availableFormats: availableFormats):
       let tried = targetFormats.map { $0.toString() }
       let found = availableFormats.map { $0.toString() }
