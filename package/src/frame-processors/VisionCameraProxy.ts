@@ -36,8 +36,8 @@ interface TVisionCameraProxy {
    * @param options (optional) Options, as a native dictionary, passed to the constructor/init-function of the native plugin.
    * @example
    * ```ts
-   * const plugin = VisionCameraProxy.initFrameProcessorPlugin('scanFaces', { model: 'fast' })
-   * if (plugin == null) throw new Error("Failed to load scanFaces plugin!")
+   * const plugin = VisionCameraProxy.initFrameProcessorPlugin('detectFaces', { model: 'fast' })
+   * if (plugin == null) throw new Error("Failed to load detectFaces plugin!")
    * ```
    */
   initFrameProcessorPlugin(name: string, options: Record<string, ParameterType>): FrameProcessorPlugin | undefined

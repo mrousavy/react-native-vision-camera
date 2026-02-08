@@ -34,7 +34,7 @@ export function createFrameProcessor(frameProcessor: (frame: Frame) => void): Re
  * ```ts
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
- *   const faces = scanFaces(frame)
+ *   const faces = detectFaces(frame)
  *   console.log(`Faces: ${faces}`)
  * }, [])
  * ```
