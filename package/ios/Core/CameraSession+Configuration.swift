@@ -24,11 +24,6 @@ extension CameraSession {
     }
     videoDeviceInput = nil
 
-    #if targetEnvironment(simulator)
-      // iOS Simulators don't have Cameras
-      throw CameraError.device(.notAvailableOnSimulator)
-    #endif
-
     guard let cameraId = configuration.cameraId else {
       throw CameraError.device(.noDevice)
     }
