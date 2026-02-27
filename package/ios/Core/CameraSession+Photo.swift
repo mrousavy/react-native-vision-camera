@@ -17,6 +17,46 @@ extension CameraSession {
   func takePhoto(options: TakePhotoOptions, promise: Promise) {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
+      // Ensure AVCaptureSession is running
+      if !self.captureSession.isRunning {
+        VisionLogger.log(level: .error, message: "Capture session is not running. Attempting to start...")
+        self.captureSession.startRunning()
+        usleep(200_000) // 200ms
+        if !self.captureSession.isRunning {
+          promise.reject(error: .session(.cameraNotReady))
+          return
+        }
+      }
+
+      // Check video connection readiness
+      if let photoOutput = self.photoOutput,
+         let videoConnection = photoOutput.connection(with: .video),
+         !(videoConnection.isEnabled && videoConnection.isActive) {
+        VisionLogger.log(level: .error, message: "No active/enabled video connection. Attempting auto-repair...")
+        self.captureSession.beginConfiguration()
+        self.captureSession.removeOutput(photoOutput)
+        let newPhotoOutput = AVCapturePhotoOutput()
+        self.captureSession.addOutput(newPhotoOutput)
+        self.photoOutput = newPhotoOutput
+        if self.captureSession.canSetSessionPreset(.photo) {
+          self.captureSession.sessionPreset = .photo
+        }
+        self.captureSession.commitConfiguration()
+        self.captureSession.startRunning()
+        // Poll for video connection readiness (max 0.5s)
+        var ready = false
+        for _ in 0..<10 {
+          if let conn = newPhotoOutput.connection(with: .video), conn.isEnabled, conn.isActive {
+            ready = true
+            break
+          }
+          usleep(50_000) // 50ms
+        }
+        if !ready {
+          promise.reject(error: .session(.cameraNotReady))
+          return
+        }
+      }
       // Get Photo Output configuration
       guard let configuration = self.configuration else {
         promise.reject(error: .session(.cameraNotReady))
