@@ -1,0 +1,29 @@
+---
+id: vision-camera-v5
+title: VisionCamera V5
+sidebar_label: VisionCamera V5
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+VisionCamera V5 is the next major milestone for react-native-vision-camera.
+It is rewritten from the ground up using [Nitro Modules](https://nitro.margelo.com), and offers both a declarative API as well as an imperative API for maximum control.
+
+Some new features;
+
+- ⚡️ **Faster performance** (thanks to Nitro!)
+  - An in-memory Photo type for even faster capture (convertable **entirely in-memory** to a [react-native-nitro-image](https://github.com/mrousavy/react-native-nitro-image) type)
+- 📐 Native support for Coordinate System conversions (e.g. `Frame` -> Preview coordinates, or `Barcode` -> Preview - **including Skia Preview!**)
+- 🏗️ **Improved Frame Processor architecture**
+  - Native Frame Processor Plugins are now just [Nitro Modules](https://nitro.margelo.com), as those work on every Worklet Runtime out-of-the-box
+  - Native Frame Processor Plugins are now more powerful, allowing extra _typed_ parameters, return values, and can even return a `Frame` again
+- 🎨 **New Skia Frame Processors** (with react-native-worklets and Reanimated SharedValue support)
+  - Focus support thanks to new coordinate system foundation
+- ⚙️ **Full manual Focus/Exposure/White-Balance controls**
+- 🎞️ **Multi-Camera sessions** (front and back Camera at the same time)
+- 🌊 **Depth Data Streaming** (and Frame + Depth Output Synchronization!)
+- 🧪 **Barcode Scanner is now unified** - Android uses MLKit, iOS uses either native Object Output **or MLKit too** (new!)
+  - It can scan using a declarative output, or the imperative Frame Processor Plugin
+
+V5 is currently sponsor-only, meaning **if [you 💖 sponsor me on GitHub ($20+) 💖](https://github.com/sponsors/mrousavy) you get access to the private repo.**
+You'll be able to test it early, and provide feedback or feature requests via GitHub issues in the new private repository.

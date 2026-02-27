@@ -44,6 +44,7 @@ module.exports = {
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',
+      'guides/vision-camera-v5',
       'guides/shadowlens',
     ],
     API: [

@@ -37,6 +37,10 @@ cd ios && pod install
 
 ..and get started by [setting up permissions](https://react-native-vision-camera.com/docs/guides)!
 
+### VisionCamera V5
+
+VisionCamera V5 is in active development. Learn more about V5 here: [**VisionCamera V5**](https://react-native-vision-camera.com/docs/guides/vision-camera-v5)
+
 ### Documentation
 
 * [Guides](https://react-native-vision-camera.com/docs/guides)

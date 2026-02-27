@@ -15,7 +15,7 @@ module.exports = {
   },
   themes: ['@docusaurus/theme-mermaid'],
   plugins: [
-    ['vercel-analytics', { }],
+    ['vercel-analytics', {}],
   ],
   themeConfig: {
     /**
@@ -75,8 +75,8 @@ module.exports = {
     },
     announcementBar: {
       id: 'shadowlens',
-      content: '<b>ShadowLens is out!!! 🥳🥳</b> See VisionCamera in action: <a target="_blank" rel="noopener noreferrer" href="https://apps.apple.com/app/shadowlens/id6471849004">Download ShadowLens for iOS</a> or <a target="_blank" rel="noopener noreferrer" href="https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens">Download ShadowLens for Android</a>',
-      backgroundColor: '#e39600',
+      content: '<b>VisionCamera V5 is in active development! 👀</b> Learn more: <a href="/docs/guides/vision-camera-v5">VisionCamera V5</a>',
+      backgroundColor: '#f5413e',
       textColor: '#ffffff',
       isCloseable: false,
     },
