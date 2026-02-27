@@ -47,6 +47,9 @@ final class CameraConfiguration {
   // Exposure
   var exposure: Float?
 
+  // White Balance
+  var whiteBalance: Float?
+
   // isActive (Start/Stop)
   var isActive = false
 
@@ -71,6 +74,7 @@ final class CameraConfiguration {
       torch = other.torch
       zoom = other.zoom
       exposure = other.exposure
+      whiteBalance = other.whiteBalance
       isActive = other.isActive
       audio = other.audio
     } else {
@@ -98,6 +102,7 @@ final class CameraConfiguration {
     let torchChanged: Bool
     let zoomChanged: Bool
     let exposureChanged: Bool
+    let whiteBalanceChanged: Bool
 
     let audioSessionChanged: Bool
     let locationChanged: Bool
@@ -112,10 +117,10 @@ final class CameraConfiguration {
 
     /**
      Returns `true` when props that affect the AVCaptureDevice configuration (i.e. props that require lockForConfiguration()) have changed.
-     [`formatChanged`, `sidePropsChanged`, `zoomChanged`, `exposureChanged`]
+     [`formatChanged`, `sidePropsChanged`, `zoomChanged`, `exposureChanged`, `whiteBalanceChanged`]
      */
     var isDeviceConfigurationDirty: Bool {
-      return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged || exposureChanged
+      return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged || exposureChanged || whiteBalanceChanged
     }
 
     init(between left: CameraConfiguration?, and right: CameraConfiguration) {
@@ -139,6 +144,8 @@ final class CameraConfiguration {
       zoomChanged = formatChanged || left?.zoom != right.zoom
       // exposure (depends on device)
       exposureChanged = inputChanged || left?.exposure != right.exposure
+      // white balance (depends on device)
+      whiteBalanceChanged = inputChanged || left?.whiteBalance != right.whiteBalance
 
       // audio session
       audioSessionChanged = left?.audio != right.audio
