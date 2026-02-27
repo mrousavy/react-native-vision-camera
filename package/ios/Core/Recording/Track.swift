@@ -84,6 +84,18 @@ final class Track {
     timeline.resume()
   }
 
+  /**
+   Force-marks the track input as finished if it hasn't already been naturally finished
+   through the timeline. This is needed on devices (e.g. iPhone 14 Pro+, iPhone 16/17) where
+   the camera hardware stops delivering frames immediately after stop(), so no "late" frame
+   arrives to trigger the natural finish flow via TrackTimeline.
+   */
+  func ensureFinished() {
+    guard !timeline.isFinished else { return }
+    VisionLogger.log(level: .info, message: "Force-finishing \(type) track input (no late frames arrived after stop).")
+    assetWriterInput.markAsFinished()
+  }
+
   func append(buffer originalBuffer: CMSampleBuffer) throws {
     // 1. If the track is already finished (from a previous call), don't write anything.
     if timeline.isFinished {

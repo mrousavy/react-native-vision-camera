@@ -308,6 +308,15 @@ final class RecordingSession {
     // If there are audio frames after this timestamp, they will be cut off.
     assetWriter.endSession(atSourceTime: lastVideoTimestamp)
     VisionLogger.log(level: .info, message: "Asset Writer session stopped at \(lastVideoTimestamp.seconds).")
+
+    // Ensure all track inputs are marked as finished before calling finishWriting.
+    // On some devices (e.g. iPhone 14 Pro+, iPhone 16/17), the camera hardware stops
+    // delivering frames immediately after stop(), so no "late" frame arrives to trigger
+    // Track's natural markAsFinished() flow via the timeline. Without this,
+    // finishWriting() would hang indefinitely waiting for inputs to be marked as finished.
+    videoTrack.ensureFinished()
+    audioTrack?.ensureFinished()
+
     assetWriter.finishWriting {
       VisionLogger.log(level: .info, message: "Asset Writer finished writing!")
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
