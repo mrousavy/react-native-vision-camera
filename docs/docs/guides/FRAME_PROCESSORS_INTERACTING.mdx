@@ -72,7 +72,7 @@ const onFaceDetected = Worklets.createRunOnJS((face: Face) => {
 
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const faces = scanFaces(frame)
+  const faces = detectFaces(frame)
   if (faces.length > 0) {
     onFaceDetected(faces[0])
   }
