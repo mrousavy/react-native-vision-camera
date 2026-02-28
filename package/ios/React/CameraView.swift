@@ -104,6 +104,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   var isMounted = false
   private var currentConfigureCall: DispatchTime?
   private let fpsSampleCollector = FpsSampleCollector()
+  private var didScheduleShutdown = false
 
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -130,12 +131,14 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     super.willMove(toSuperview: newSuperview)
 
     if newSuperview != nil {
+      didScheduleShutdown = false
       fpsSampleCollector.start()
       if !isMounted {
         isMounted = true
         onViewReadyEvent?(nil)
       }
     } else {
+      shutdownCameraSession()
       fpsSampleCollector.stop()
     }
   }
@@ -282,6 +285,31 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
     // Prevent phone from going to sleep
     UIApplication.shared.isIdleTimerDisabled = isActive
+  }
+
+  private func shutdownCameraSession() {
+    if didScheduleShutdown {
+      return
+    }
+    didScheduleShutdown = true
+
+    UIApplication.shared.isIdleTimerDisabled = false
+
+    #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+      frameProcessor = nil
+    #endif
+
+    let logSlowShutdownWarning = DispatchWorkItem {
+      VisionLogger.log(level: .warning, message: "CameraSession shutdown is still running after 2 seconds.")
+    }
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + .seconds(2), execute: logSlowShutdownWarning)
+
+    cameraSession.shutdown { [weak self] in
+      logSlowShutdownWarning.cancel()
+      DispatchQueue.main.async {
+        self?.didScheduleShutdown = false
+      }
+    }
   }
 
   func updatePreview() {
