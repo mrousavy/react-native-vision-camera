@@ -12,7 +12,7 @@ import Foundation
 // MARK: - TrackType
 
 @frozen
-enum TrackType {
+public enum TrackType {
   case audio
   case video
 }

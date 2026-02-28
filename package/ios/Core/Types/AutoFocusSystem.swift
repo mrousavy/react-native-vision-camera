@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 
 @frozen
-enum AutoFocusSystem: String, JSUnionValue {
+public enum AutoFocusSystem: String, JSUnionValue {
   case contrastDetection = "contrast-detection"
   case phaseDetection = "phase-detection"
   case none
