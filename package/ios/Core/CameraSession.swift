@@ -114,8 +114,22 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
     VisionLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
 
+    let slowConfigurationWarning = DispatchWorkItem {
+      VisionLogger.log(level: .warning, message: "configure { ... }: is still running after 2 seconds.")
+    }
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + .seconds(2), execute: slowConfigurationWarning)
+
+    let completionGroup = DispatchGroup()
+
+    completionGroup.enter()
+    completionGroup.notify(queue: CameraQueues.cameraQueue) {
+      slowConfigurationWarning.cancel()
+      VisionLogger.log(level: .info, message: "configure { ... }: completed.")
+    }
+
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
+      defer { completionGroup.leave() }
       // Let caller configure a new configuration for the Camera.
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
@@ -216,7 +230,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
       // Set up Audio Capture Session (on audio queue)
       if difference.audioSessionChanged {
+        completionGroup.enter()
         CameraQueues.audioQueue.async {
+          defer { completionGroup.leave() }
           do {
             // Lock Capture Session for configuration
             VisionLogger.log(level: .info, message: "Beginning AudioSession configuration...")
@@ -235,7 +251,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
 
       // Set up Location streaming (on location queue)
       if difference.locationChanged {
+        completionGroup.enter()
         CameraQueues.locationQueue.async {
+          defer { completionGroup.leave() }
           do {
             VisionLogger.log(level: .info, message: "Beginning Location Output configuration...")
             try self.configureLocationOutput(configuration: config)

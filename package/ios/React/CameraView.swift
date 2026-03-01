@@ -102,7 +102,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   var cameraSession = CameraSession()
   var previewView: PreviewView?
   var isMounted = false
-  private var currentConfigureCall: DispatchTime?
+  private let currentConfigureCall: Counter = .init()
   private let fpsSampleCollector = FpsSampleCollector()
 
   // CameraView+Zoom
@@ -136,8 +136,16 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         onViewReadyEvent?(nil)
       }
     } else {
+      deactivateCameraSession()
       fpsSampleCollector.stop()
     }
+  }
+
+  deinit {
+    // Allow phone to sleep
+    UIApplication.shared.isIdleTimerDisabled = false
+    // Bail on any in flight configure calls
+    currentConfigureCall.increment()
   }
 
   override public func layoutSubviews() {
@@ -182,17 +190,18 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     VisionLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
-    let now = DispatchTime.now()
-    currentConfigureCall = now
+    let currentConfigureCall = self.currentConfigureCall
+    let now = currentConfigureCall.increment()
 
     cameraSession.configure { [self] config in
       // Check if we're still the latest call to configure { ... }
-      guard currentConfigureCall == now else {
+      guard currentConfigureCall.check(now) else {
         // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
         // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
-        VisionLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
+        VisionLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one [\(now)]…")
         throw CameraConfiguration.AbortThrow.abort
       }
+      VisionLogger.log(level: .info, message: "configure { ... } [\(now)]")
 
       // Input Camera Device
       config.cameraId = cameraId as? String
@@ -282,6 +291,36 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
     // Prevent phone from going to sleep
     UIApplication.shared.isIdleTimerDisabled = isActive
+  }
+
+  private func deactivateCameraSession() {
+    // Allow phone to sleep
+    UIApplication.shared.isIdleTimerDisabled = false
+
+    #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+      frameProcessor = nil
+    #endif
+
+    let currentConfigureCall = self.currentConfigureCall
+    let now = currentConfigureCall.increment()
+
+    cameraSession.configure { config in
+      // Check if we're still the latest call to configure { ... }
+      guard currentConfigureCall.check(now) else {
+        // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
+        // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
+        VisionLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one [\(now)]…")
+        throw CameraConfiguration.AbortThrow.abort
+      }
+      VisionLogger.log(level: .info, message: "configure { ... } [\(now)]")
+      config.photo = .disabled
+      config.video = .disabled
+      config.audio = .disabled
+      config.codeScanner = .disabled
+      config.enableLocation = false
+      config.torch = .off
+      config.isActive = false
+    }
   }
 
   func updatePreview() {
