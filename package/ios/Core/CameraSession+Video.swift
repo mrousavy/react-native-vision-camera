@@ -107,8 +107,8 @@ extension CameraSession {
            let audioOutput = self.audioOutput,
            let audioInput = self.audioDeviceInput {
           VisionLogger.log(level: .info, message: "Enabling Audio for Recording...")
-          // Activate Audio Session asynchronously
-          CameraQueues.audioQueue.async {
+          // Activate Audio Session synchronously to ensure mic is ready before recording starts
+          CameraQueues.audioQueue.sync {
             do {
               try self.activateAudioSession()
             } catch {
