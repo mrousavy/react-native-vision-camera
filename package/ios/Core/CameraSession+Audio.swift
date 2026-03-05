@@ -25,9 +25,25 @@ extension CameraSession {
       try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
                                       mode: .videoRecording,
                                       options: [.mixWithOthers,
+                                                .allowBluetooth,
                                                 .allowBluetoothA2DP,
                                                 .defaultToSpeaker,
                                                 .allowAirPlay])
+
+      try audioSession.setPreferredSampleRate(48000)
+
+      // Prefer external microphone if available (USB/Lightning > Bluetooth > built-in)
+      if let availableInputs = audioSession.availableInputs {
+        let preferredInput = availableInputs.first(where: { input in
+          [.usbAudio, .externalLine, .thunderbolt].contains(input.portType)
+        }) ?? availableInputs.first(where: { input in
+          [.bluetoothHFP, .bluetoothLE].contains(input.portType)
+        })
+        if let preferredInput = preferredInput {
+          VisionLogger.log(level: .info, message: "Preferring external audio input: \(preferredInput.portName) (\(preferredInput.portType.rawValue))")
+          try audioSession.setPreferredInput(preferredInput)
+        }
+      }
 
       if #available(iOS 14.5, *) {
         // prevents the audio session from being interrupted by a phone call
