@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(243, 74, 77)',
   },
   centerContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
   },
