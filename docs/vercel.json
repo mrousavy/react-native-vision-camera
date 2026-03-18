@@ -14,6 +14,11 @@
       "source": "/docs/guides/capturing",
       "destination": "/docs/guides/recording-videos",
       "permanent": true
+    },
+    {
+      "source": "/docs",
+      "destination": "/docs/guides",
+      "permanent": false
     }
   ]
 }
