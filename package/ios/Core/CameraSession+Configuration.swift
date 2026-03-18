@@ -176,6 +176,29 @@ extension CameraSession {
 
   // pragma MARK: Format
 
+  // Bayer/ProRes RAW formats that cannot be encoded with standard codecs.
+  // These formats require ProRes RAW and SMPTE RDD18 metadata.
+  private static let bayerFormats: Set<OSType> = [
+    0x6274_7032, // btp2 - Bayer To ProRes 2
+    0x6274_7033, // btp3 - Bayer To ProRes 3
+    0x6270_3136, // bp16 - 16-bit Bayer
+    0x6270_3234, // bp24 - 24-bit Bayer
+    0x6270_3332, // bp32 - 32-bit Bayer
+  ]
+
+  // Standard 8-bit formats (most compatible for HEVC/H.264 recording)
+  private static let standard8BitFormats: Set<OSType> = [
+    kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange, // 420v
+    kCVPixelFormatType_420YpCbCr8BiPlanarFullRange, // 420f
+    kCVPixelFormatType_32BGRA, // BGRA
+  ]
+
+  // Standard 10-bit formats (require HEVC Main10 profile)
+  private static let standard10BitFormats: Set<OSType> = [
+    kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange, // x420
+    kCVPixelFormatType_420YpCbCr10BiPlanarFullRange, // xf20
+  ]
+
   /**
    Configures the active format (`format`)
    */
@@ -193,16 +216,102 @@ extension CameraSession {
       return
     }
 
-    // Find matching format (JS Dictionary -> strongly typed Swift class)
-    let format = device.formats.first { targetFormat.isEqualTo(format: $0) }
-    guard let format else {
+    // Find all matching formats (JS Dictionary -> strongly typed Swift class)
+    let matchingFormats = device.formats.filter { targetFormat.isEqualTo(format: $0) }
+    guard !matchingFormats.isEmpty else {
+      throw CameraError.format(.invalidFormat)
+    }
+
+    // Helper to get pixel format type from format description
+    func getPixelFormatType(_ fmt: AVCaptureDevice.Format) -> OSType {
+      return CMFormatDescriptionGetMediaSubType(fmt.formatDescription)
+    }
+
+    // Filter out Bayer-only formats (like iPhone 16/17's special formats)
+    // These formats cannot be used for standard video recording
+    let recordableFormats = matchingFormats.filter { fmt in
+      let pixelFormat = getPixelFormatType(fmt)
+      let isBayer = CameraSession.bayerFormats.contains(pixelFormat)
+      if isBayer {
+        VisionLogger.log(level: .warning,
+                         message: "Filtering out Bayer format: \(pixelFormat.fourCCString) " +
+                           "(\(fmt.videoDimensions.width)x\(fmt.videoDimensions.height))")
+      }
+      return !isBayer
+    }
+
+    VisionLogger.log(level: .info,
+                     message: "Found \(matchingFormats.count) matching formats, " +
+                       "\(recordableFormats.count) are recordable (non-Bayer)")
+
+    // Prefer 8-bit formats first (most compatible), then 10-bit, then others.
+    let format: AVCaptureDevice.Format
+    if let format8Bit = recordableFormats.first(where: {
+      CameraSession.standard8BitFormats.contains(getPixelFormatType($0))
+    }) {
+      format = format8Bit
+      VisionLogger.log(level: .info,
+                       message: "Selected 8-bit format: \(getPixelFormatType(format).fourCCString) " +
+                         "(\(format.videoDimensions.width)x\(format.videoDimensions.height))")
+    } else if let format10Bit = recordableFormats.first(where: {
+      CameraSession.standard10BitFormats.contains(getPixelFormatType($0))
+    }) {
+      format = format10Bit
+      VisionLogger.log(level: .info,
+                       message: "Selected 10-bit format: \(getPixelFormatType(format).fourCCString) " +
+                         "(\(format.videoDimensions.width)x\(format.videoDimensions.height))")
+    } else if !recordableFormats.isEmpty {
+      // No standard format found among recordable formats, use first recordable
+      format = recordableFormats[0]
+      VisionLogger.log(level: .warning,
+                       message: "No standard pixel format found. Using first recordable: " +
+                         "\(getPixelFormatType(format).fourCCString)")
+    } else if !matchingFormats.isEmpty {
+      // FALLBACK: All matching formats are Bayer - find alternative at similar resolution
+      VisionLogger.log(level: .error,
+                       message: "All \(matchingFormats.count) matching formats are Bayer! " +
+                         "Looking for alternative resolution...")
+
+      let targetWidth = matchingFormats[0].videoDimensions.width
+      let targetHeight = matchingFormats[0].videoDimensions.height
+
+      let alternativeFormats = device.formats.filter { fmt in
+        let pixelFormat = getPixelFormatType(fmt)
+        return !CameraSession.bayerFormats.contains(pixelFormat) &&
+          (CameraSession.standard8BitFormats.contains(pixelFormat) ||
+            CameraSession.standard10BitFormats.contains(pixelFormat))
+      }.sorted { a, b in
+        // Sort by how close they are to the target resolution
+        let aArea = Int(a.videoDimensions.width) * Int(a.videoDimensions.height)
+        let bArea = Int(b.videoDimensions.width) * Int(b.videoDimensions.height)
+        let targetArea = Int(targetWidth) * Int(targetHeight)
+        return abs(aArea - targetArea) < abs(bArea - targetArea)
+      }
+
+      if let alternative = alternativeFormats.first {
+        format = alternative
+        VisionLogger.log(level: .warning,
+                         message: "Using alternative format: \(getPixelFormatType(format).fourCCString) " +
+                           "(\(format.videoDimensions.width)x\(format.videoDimensions.height)) " +
+                           "instead of Bayer \(targetWidth)x\(targetHeight)")
+      } else {
+        // Last resort: use the Bayer format and hope for the best
+        format = matchingFormats[0]
+        VisionLogger.log(level: .error,
+                         message: "No alternative found! Using Bayer format: " +
+                           "\(getPixelFormatType(format).fourCCString) - recording will likely fail")
+      }
+    } else {
       throw CameraError.format(.invalidFormat)
     }
 
     // Set new device Format
     device.activeFormat = format
 
-    VisionLogger.log(level: .info, message: "Successfully configured Format!")
+    VisionLogger.log(level: .info,
+                     message: "Successfully configured Format (mediaSubType: " +
+                       "\(getPixelFormatType(format).fourCCString), " +
+                       "dimensions: \(format.videoDimensions.width)x\(format.videoDimensions.height))")
   }
 
   func configureVideoOutputFormat(configuration: CameraConfiguration) {
