@@ -76,7 +76,7 @@
     },
     "package": {
       "name": "react-native-vision-camera",
-      "version": "4.7.2",
+      "version": "4.7.3",
       "devDependencies": {
         "@expo/config-plugins": "^8.0.5",
         "@jamesacarr/eslint-formatter-github-actions": "^0.2.0",

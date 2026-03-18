@@ -1,0 +1,19 @@
+{
+  "redirects": [
+    {
+      "source": "/docs/guides/frame-processor-plugin-list",
+      "destination": "/docs/guides/frame-processor-plugins-community",
+      "permanent": true
+    },
+    {
+      "source": "/docs/guides/capturing/:path*",
+      "destination": "/docs/guides/recording-videos",
+      "permanent": true
+    },
+    {
+      "source": "/docs/guides/capturing",
+      "destination": "/docs/guides/recording-videos",
+      "permanent": true
+    }
+  ]
+}
