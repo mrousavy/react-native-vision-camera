@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+@available(iOS 13.0, *)
 extension UIApplication {
   private var windowScene: UIWindowScene? {
     // Get all active scenes
