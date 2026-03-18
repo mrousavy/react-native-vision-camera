@@ -172,6 +172,7 @@ enum SessionError {
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
   case hardwareCostTooHigh(cost: Float)
+  case multitaskingCameraNotSupported
 
   var code: String {
     switch self {
@@ -183,6 +184,8 @@ enum SessionError {
       return "audio-session-failed-to-activate"
     case .hardwareCostTooHigh:
       return "hardware-cost-too-high"
+    case .multitaskingCameraNotSupported:
+      return "multitasking-camera-not-supported"
     }
   }
 
@@ -198,6 +201,10 @@ enum SessionError {
       return "The session's hardware-cost is too high! (Expected: <=1.0, Received: \(cost)) " +
         "See https://developer.apple.com/documentation/avfoundation/avcapturesession/3950869-hardwarecost " +
         "for more information."
+    case .multitaskingCameraNotSupported:
+      return "The camera cannot be used while multitasking with other apps. " +
+        "This device does not support `isMultitaskingCameraAccessSupported`. " +
+        "Close other apps or use the app in full-screen mode."
     }
   }
 }
