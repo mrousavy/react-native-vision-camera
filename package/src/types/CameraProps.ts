@@ -149,6 +149,23 @@ export interface CameraProps extends ViewProps {
    * The value between min- and max supported exposure is considered the default, neutral value.
    */
   exposure?: number
+  /**
+   * Specifies the White Balance of the current camera as a color temperature in Kelvin.
+   *
+   * This locks the white balance to a specific temperature value in Kelvin (e.g. 5000 for daylight, 3000 for warm indoor lighting).
+   *
+   * When set, the camera will use a fixed white balance instead of auto white balance.
+   *
+   * Common values:
+   * - `3000` - Warm indoor lighting
+   * - `4000` - Fluorescent lighting
+   * - `5000` - Daylight
+   * - `6000` - Cloudy daylight
+   * - `7000` - Shade
+   *
+   * @platform iOS
+   */
+  whiteBalance?: number
   //#endregion
 
   //#region Format/Preset selection

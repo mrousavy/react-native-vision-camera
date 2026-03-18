@@ -61,6 +61,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var exposure: NSNumber = 0.0
+  @objc var whiteBalance: NSNumber? // in Kelvin
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
@@ -270,6 +271,9 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
 
       // Exposure
       config.exposure = exposure.floatValue
+
+      // White Balance
+      config.whiteBalance = whiteBalance?.floatValue
 
       // isActive
       config.isActive = isActive
