@@ -156,7 +156,7 @@ function getSurfaceSize(frame: Frame): Size {
  * const offscreenTextures = Worklets.createSharedValue<SkImage[]>([])
  * const frameProcessor = createSkiaFrameProcessor((frame) => {
  *   'worklet'
- *   const faces = scanFaces(frame)
+ *   const faces = detectFaces(frame)
  *
  *   frame.render()
  *   for (const face of faces) {
@@ -317,7 +317,7 @@ export function createSkiaFrameProcessor(
  * ```ts
  * const frameProcessor = useSkiaFrameProcessor((frame) => {
  *   'worklet'
- *   const faces = scanFaces(frame)
+ *   const faces = detectFaces(frame)
  *
  *   frame.render()
  *   for (const face of faces) {

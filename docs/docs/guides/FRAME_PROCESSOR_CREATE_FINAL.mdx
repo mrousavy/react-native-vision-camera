@@ -11,14 +11,14 @@ To make the Frame Processor Plugin available to the Frame Processor Worklet Runt
 ```ts
 import { VisionCameraProxy, Frame } from 'react-native-vision-camera'
 
-const plugin = VisionCameraProxy.initFrameProcessorPlugin('scanFaces')
+const plugin = VisionCameraProxy.initFrameProcessorPlugin('detectFaces')
 
 /**
  * Scans faces.
  */
-export function scanFaces(frame: Frame): object {
+export function detectFaces(frame: Frame): object {
   'worklet'
-  if (plugin == null) throw new Error('Failed to load Frame Processor Plugin "scanFaces"!')
+  if (plugin == null) throw new Error('Failed to load Frame Processor Plugin "detectFaces"!')
   return plugin.call(frame)
 }
 ```
@@ -32,7 +32,7 @@ function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     // highlight-next-line
-    const faces = scanFaces(frame)
+    const faces = detectFaces(frame)
     console.log(`Faces in Frame: ${faces}`)
   }, [])
 
