@@ -25,6 +25,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     // pragma MARK: React Properties
     
     var lutTexture: MTLTexture?
+    var lensLutTexture: MTLTexture?
     
     // props that require reconfiguring
     @objc var cameraId: NSString?
@@ -32,6 +33,38 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     @objc var enablePortraitEffectsMatteDelivery = false
     @objc var enableBufferCompression = false
     @objc var isMirrored = false
+    @objc var lensLUTAsset: NSDictionary? {
+        didSet {
+            if lensLUTAsset == nil {
+                lensLutTexture  = nil
+                updatePreview()
+                return
+            }
+            
+            guard let lensLutUIImage = RCTConvert.uiImage(lensLUTAsset) else {
+                return
+            }
+            
+            guard let cgImage = lensLutUIImage.cgImage else {
+                return
+            }
+            
+            let textureLoader = MTKTextureLoader(device: MTLCreateSystemDefaultDevice()!)
+            
+            lensLutTexture = try? textureLoader.newTexture(cgImage: cgImage, options: [
+                MTKTextureLoader.Option.SRGB : false
+            ])
+            
+            if lensLutTexture == nil {
+                print("Failed to create lens LUT texture")
+            }
+            else {
+                print("Lens LUT Loaded")
+            }
+            
+            updatePreview()
+        }
+    }
     @objc var lutAsset: NSDictionary? {
         didSet{
             // If lutAsset is nil, clear the LUT texture
@@ -348,7 +381,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
             
             // Only add LUT filter and Metal view if LUT texture is available
             if let lutTexture = lutTexture {
-                videoFilter = LutMetalRenderer(lutTexture: lutTexture)
+                videoFilter = LutMetalRenderer(lutTexture: lutTexture,lensLutTexture: lensLutTexture!)
                 previewMetalView = PreviewMetalView(frame: frame)
                 addSubview(previewMetalView!)
                 bringSubviewToFront(previewMetalView!)
@@ -375,7 +408,7 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
             if let lutTexture = lutTexture {
                 // LUT is available, recreate filter with new texture (in case texture changed)
                 videoFilter?.reset()
-                videoFilter = LutMetalRenderer(lutTexture: lutTexture)
+                videoFilter = LutMetalRenderer(lutTexture: lutTexture,lensLutTexture: lensLutTexture)
                 if previewMetalView == nil {
                     previewMetalView = PreviewMetalView(frame: frame)
                     addSubview(previewMetalView!)

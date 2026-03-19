@@ -14,6 +14,7 @@ class LutMetalRenderer: FilterRenderer {
     var description: String = "Lut (Metal)"
   
     var _lutTexture: MTLTexture!
+    var _lensLutTexture: MTLTexture!
     
     var isPrepared = false
     
@@ -34,7 +35,7 @@ class LutMetalRenderer: FilterRenderer {
         return self.metalDevice.makeCommandQueue()
     }()
     
-    required init(lutTexture: MTLTexture) {
+    required init(lutTexture: MTLTexture,lensLutTexture: MTLTexture?) {
         let defaultLibrary = metalDevice.makeDefaultLibrary()!
         let kernelFunction = defaultLibrary.makeFunction(name: "lutEffect")
         do {
@@ -42,7 +43,8 @@ class LutMetalRenderer: FilterRenderer {
         } catch {
             print("Could not create pipeline state: \(error)")
         }
-      _lutTexture = lutTexture
+        _lutTexture = lutTexture
+        _lensLutTexture = lensLutTexture
     }
     
     func prepare(with formatDescription: CMFormatDescription, outputRetainedBufferCountHint: Int) {
@@ -116,15 +118,21 @@ class LutMetalRenderer: FilterRenderer {
          }
       
         commandEncoder.setTexture(lutTexture, index: 1)
-        commandEncoder.setTexture(outputTexture, index: 2)
+        commandEncoder.setTexture(_lensLutTexture, index: 2)
+        commandEncoder.setTexture(outputTexture, index: 3)
+
         // ✅ Pass isFisheye to the shader
         var fisheyeWValue = fisheyeW ? 1 : 0
         var fisheyeFValue = fisheyeF ? 1 : 0
+        var hasLens = _lensLutTexture != nil ?  1 : 0
+        
         
 //        print(fisheyeWValue,fisheyeFValue)
         
         commandEncoder.setBytes(&fisheyeWValue, length: MemoryLayout<Int>.size, index: 0)
         commandEncoder.setBytes(&fisheyeFValue, length: MemoryLayout<Int>.size, index: 1)
+        commandEncoder.setBytes(&hasLens, length: MemoryLayout<Int>.size, index: 2)
+        
         
         // Set up the thread groups.
         let width = computePipelineState!.threadExecutionWidth
