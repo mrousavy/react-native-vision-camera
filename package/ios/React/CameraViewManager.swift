@@ -111,7 +111,7 @@ final class CameraViewManager: RCTViewManager {
   @objc
   final func getLocationPermissionStatus() -> String {
     #if VISION_CAMERA_ENABLE_LOCATION
-      let status = CLLocationManager.authorizationStatus()
+      let status = CLLocationManager().authorizationStatus
       return status.descriptor
     #else
       return CLAuthorizationStatus.restricted.descriptor

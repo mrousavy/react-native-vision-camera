@@ -9,7 +9,6 @@
 import AVFoundation
 import Foundation
 
-@frozen
 enum PixelFormat: String, JSUnionValue {
   case yuv
   case rgb

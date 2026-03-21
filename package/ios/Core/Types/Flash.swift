@@ -11,7 +11,6 @@ import Foundation
 /**
  A Flash for Photo capture.
  */
-@frozen
 enum Flash: String, JSUnionValue {
   /**
    Flash never fires.
