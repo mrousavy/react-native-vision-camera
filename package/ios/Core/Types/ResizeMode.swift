@@ -12,7 +12,6 @@ import Foundation
 /**
  A ResizeMode used for the PreviewView.
  */
-@frozen
 enum ResizeMode: String, JSUnionValue {
   /**
    Keep aspect ratio, but fill entire parent view (centered).

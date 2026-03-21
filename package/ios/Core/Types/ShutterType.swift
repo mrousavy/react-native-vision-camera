@@ -11,7 +11,6 @@ import Foundation
 /**
  Represents the type of media that was captured in a `onShutter` event
  */
-@frozen
 enum ShutterType: String, JSUnionValue {
   /**
    A photo was captured on this `onShutter` event

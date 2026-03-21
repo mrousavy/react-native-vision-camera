@@ -9,7 +9,6 @@
 import AVFoundation
 import Foundation
 
-@frozen
 enum VideoStabilizationMode: String, JSUnionValue {
   case off
   case standard

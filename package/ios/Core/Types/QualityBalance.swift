@@ -9,7 +9,6 @@
 import AVFoundation
 import Foundation
 
-@frozen
 enum QualityBalance: String, JSUnionValue {
   case speed
   case balanced
