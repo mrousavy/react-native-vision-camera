@@ -189,7 +189,9 @@ final class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
                     }
                     
                     if difference.temperatureChanged || difference.tintChanged {
-                        self.configureTemperatureAndTint(configuration: config, device: device)
+                        if device.isLockingWhiteBalanceWithCustomDeviceGainsSupported {
+                            self.configureTemperatureAndTint(configuration: config, device: device)
+                        }
                     }
                 }
                 
