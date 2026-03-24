@@ -136,6 +136,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
     @objc var torch = "off"
     @objc var zoom: NSNumber = 1.0 // in "factor"
     @objc var exposure: NSNumber = 0.0
+    @objc var temperature: NSNumber = 5800.0
+    @objc var tint: NSNumber = 0.0
     @objc var videoStabilizationMode: NSString?
     @objc var resizeMode: NSString = "cover" {
         didSet {
@@ -351,6 +353,12 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
             // Exposure
             config.exposure = exposure.floatValue
             
+            // Temperature
+            config.temperature = temperature.floatValue
+            
+            // Tint
+            config.tint = tint.floatValue
+            
             // isActive
             config.isActive = isActive
         }
@@ -500,6 +508,8 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         
         // Notify FPS Collector that we just had a Frame
         fpsSampleCollector.onTick()
+        
+        
         
         // Only update Metal view if it exists (i.e., when using LUT)
         if let previewMetalView = previewMetalView {
