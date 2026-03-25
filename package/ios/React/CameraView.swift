@@ -513,37 +513,60 @@ public final class CameraView: UIView, CameraSessionDelegate, PreviewViewDelegat
         
         // Only update Metal view if it exists (i.e., when using LUT)
         if let previewMetalView = previewMetalView {
+            
             DispatchQueue.main.async {
-                let interfaceOrientation = UIApplication.shared.connectedScenes.compactMap {$0 as? UIWindowScene}.first?.interfaceOrientation
-                if let unwrappedVideoDataOutputConnection = self.cameraSession.videoOutput!.connection(with: .video) {
-                    let videoDevicePosition = self.cameraSession.videoDeviceInput!.device.position
-                    let rotation = PreviewMetalView.Rotation(with: interfaceOrientation!,
-                                                             videoOrientation: unwrappedVideoDataOutputConnection.videoOrientation,
-                                                             cameraPosition: videoDevicePosition)
-                    previewMetalView.mirroring = (videoDevicePosition == .front)
-                    if let rotation = rotation {
-                        previewMetalView.rotation = rotation
-                    }
+                
+                guard
+                    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                    let interfaceOrientation = Optional(windowScene.interfaceOrientation),
+                    let videoOutput = self.cameraSession.videoOutput,
+                    let connection = videoOutput.connection(with: .video),
+                    let videoDeviceInput = self.cameraSession.videoDeviceInput
+                else {
+                    return
+                }
+                
+                let videoDevicePosition = videoDeviceInput.device.position
+                
+                let rotation = PreviewMetalView.Rotation(
+                    with: interfaceOrientation,
+                    videoOrientation: connection.videoOrientation,
+                    cameraPosition: videoDevicePosition
+                )
+                
+                previewMetalView.mirroring = (videoDevicePosition == .front)
+                
+                if let rotation = rotation {
+                    previewMetalView.rotation = rotation
                 }
             }
             
-            guard let videoPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
-                  let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) else {
+            guard
+                let videoPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
+                let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)
+            else {
                 return
             }
             
             var finalVideoPixelBuffer = videoPixelBuffer
+            
             if let filter = videoFilter {
+                
                 if !filter.isPrepared {
                     /*
-                     outputRetainedBufferCountHint is the number of pixel buffers the renderer retains. This value informs the renderer
-                     how to size its buffer pool and how many pixel buffers to preallocate. Allow 3 frames of latency to cover the dispatch_async call.
+                     outputRetainedBufferCountHint is the number of pixel buffers the renderer retains.
+                     This value informs the renderer how to size its buffer pool and how many pixel buffers to preallocate.
+                     Allow 3 frames of latency to cover the dispatch_async call.
                      */
                     filter.prepare(with: formatDescription, outputRetainedBufferCountHint: 3)
                 }
                 
                 // Send the pixel buffer through the filter
-                guard let filteredBuffer = filter.render(pixelBuffer: finalVideoPixelBuffer,fisheyeW: self.fisheyeW,fisheyeF: self.fisheyeF) else {
+                guard let filteredBuffer = filter.render(
+                    pixelBuffer: finalVideoPixelBuffer,
+                    fisheyeW: self.fisheyeW,
+                    fisheyeF: self.fisheyeF
+                ) else {
                     print("Unable to filter video buffer")
                     return
                 }
