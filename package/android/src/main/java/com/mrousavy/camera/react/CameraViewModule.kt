@@ -33,6 +33,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import android.annotation.SuppressLint
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
@@ -69,6 +70,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       Log.d(TAG, "Finding view $viewId...")
       val context = reactApplicationContext ?: throw Error("React Context was null!")
 
+      @SuppressLint("WrongConstant")
       val uiManagerType = if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) UIManagerType.FABRIC else UIManagerType.DEFAULT
       val uiManager = UIManagerHelper.getUIManager(context, uiManagerType) ?: throw Error("UIManager not found!")
 
