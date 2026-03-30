@@ -42,7 +42,7 @@ cd ios && pod install
 VisionCamera V5 is in active development. Learn more about V5 here: [**VisionCamera V5**](https://react-native-vision-camera.com/docs/guides/vision-camera-v5)
 
 ### Documentation
-
+  IMPORTANT: Minimum react-native version supported is 0.71, for <0.71 use V2
 * [Guides](https://react-native-vision-camera.com/docs/guides)
 * [API](https://react-native-vision-camera.com/docs/api)
 * [Example](./example/)
