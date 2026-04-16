@@ -42,7 +42,13 @@ cd ios && pod install
 - [Documentation Website](https://visioncamera.margelo.com)
 - [Documentation LLMs.txt](https://visioncamera.margelo.com/llms.txt)
 - [Community Discord](https://margelo.com/discord)
-* [Example App](./apps/simple-camera/)
+- [Example App](./apps/simple-camera/)
+
+### VisionCamera V4
+
+As VisionCamera V5 is released, VisionCamera V4 is no longer actively maintained.
+
+The VisionCamera V4 code has been cut at [`b1d5a62`](https://github.com/mrousavy/react-native-vision-camera/tree/b1d5a62def410bad56df2773ce994311e16cc21c), and the old docs are archived at https://react-native-vision-camera.vercel.app.
 
 ### ShadowLens
 
