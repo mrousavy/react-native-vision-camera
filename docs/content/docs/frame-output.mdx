@@ -1,0 +1,148 @@
+---
+title: The Frame Output
+description: Streaming Frames using the Frame Output
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) allows streaming [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s in realtime, making them accessible via a JS worklet function.
+
+### Creating a Frame Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:8]
+  const frameOutput = useFrameOutput({
+    // ...options
+    onFrame(frame) {
+      'worklet'
+      console.log(`Received ${frame.width}x${frame.height} Frame!`)
+      frame.dispose()
+    }
+  })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      outputs={[frameOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:8]
+  const frameOutput = useFrameOutput({
+    // ...options
+    onFrame(frame) {
+      'worklet'
+      console.log(`Received ${frame.width}x${frame.height} Frame!`)
+      frame.dispose()
+    }
+  })
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [frameOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++:9]
+const frameOutput = VisionCamera.createFrameOutput({ /* options */ })
+const workletRuntime = createWorkletRuntimeForThread(frameOutput.thread)
+scheduleOnRuntime(workletRuntime, () => {
+  'worklet'
+  frameOutput.setOnFrameCallback((frame) => {
+    console.log(`Received ${frame.width}x${frame.height} Frame!`)
+    frame.dispose()
+  })
+})
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: frameOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+See [`FrameOutputOptions`](/api/react-native-vision-camera/interfaces/FrameOutputOptions) for a full list of configuration options for the Frame Output.
+
+> [!DEPENDENCY]
+> The [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) requires [react-native-vision-camera-worklets](/api/react-native-vision-camera-worklets) (and [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/)) to be installed to synchronously run the [`onFrame(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput#setonframecallback) function on a parallel JS Worklet Runtime.
+
+### Disposing a Frame
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is a GPU-backed buffer, streamed at full resolution and frame rate.
+The Camera pipeline keeps a small pool to re-use buffers, and if that pool is full, the pipeline stalls and subsequent frames will be dropped.
+To prevent frame drops, you need to dispose a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) once you are done using it via [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects):
+
+```ts
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    try {
+      // processing...
+    } finally {
+      // [!code ++]
+      frame.dispose()
+    }
+  }
+})
+```
+
+### Choosing a Pixel Format
+
+Choosing an appropriate [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat) depends on your Frame Processor's usage.
+While the most commonly used format in visual recognition models is [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat), it is by far not the most efficient format for a Camera pipeline as it requires an additional conversion and uses ~2.6x more bandwidth than [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat).
+
+If you render to native Surfaces (e.g. via GPU pipelines or Media Encoders), you may also be able to use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat), which chooses whatever the [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig)'s [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) is, and requires zero conversions.
+Use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) with caution, as the negotiated [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) might also be a RAW format like [`'raw-bayer-packed96-12-bit'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat), or a vendor-specific private format ([`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat)).
+
+Examples:
+- [OpenCV](https://opencv.org) natively supports YUV, so streaming in [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is most efficient.
+- [LiteRT](https://ai.google.dev/edge/litert/overview) supports YUV, **but converts to RGB internally** - so streaming in [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) directly is more efficient as conversion is handled in the Camera pipeline.
+- [react-native-skia](https://shopify.github.io/react-native-skia/) supports importing external textures (PRIVATE), as well as YUV and RGB Frames, so streaming in so [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is most efficient, with [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) as a next-best alternative.
+
+After selecting a [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat), inspect your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) for the actual pixel format you receive via [`Frame.pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat):
+
+```ts
+const frameOutput = useFrameOutput({
+  // [!code ++]
+  pixelFormat: 'yuv',
+  onFrame(frame) {
+    'worklet'
+    // [!code ++]
+    console.log(frame.pixelFormat) // 'yuv-420-8-bit-full'
+    frame.dispose()
+  }
+})
+```
+
+### Using the `Frame`
+
+> [!TIP]
+> See ["A Frame"](a-frame) to understand how the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) type works, and how to use it.

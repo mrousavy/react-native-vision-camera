@@ -1,0 +1,65 @@
+---
+title: Capturing RAW Photos
+description: Capturing RAW Photos using Adobe DNG containers
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A typical Photo pipeline consists of multiple processing stages in the [ISP](https://en.wikipedia.org/wiki/Image_processor) - white balancing, color interpolation and correction, colorspace conversions, and finally JPEG/HEIF compression.
+Many modern phones support skipping the processing stages entirely, allowing applications to capture true RAW photos.
+RAW photos are typically captured in [DNG](https://en.wikipedia.org/wiki/Digital_Negative) format (see the [`'dng'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)).
+
+### Prepare the pipeline for RAW
+
+To capture RAW, configure your [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput) to capture in RAW/DNG photos by setting the [`containerFormat`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#containerformat) to [`'dng'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const photoOutput = usePhotoOutput({
+  containerFormat: 'dng'
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const photoOutput = VisionCamera.createPhotoOutput({
+  containerFormat: 'dng'
+})
+```
+</Tab>
+</Tabs>
+
+The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) internally negotiates your [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s and outputs to find a configuration that supports RAW capture. If RAW is not available on the device, the session configuration will fail - you can check support upfront via [`isSessionConfigSupported(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#issessionconfigsupported).
+
+#### Use a Preview Image
+
+Since RAW capture uses much higher bandwidth, it is also slower to capture a single [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo).
+To provide instant user-feedback, it is recommended to request a Preview Image to display as a thumbnail - see ["Photo Output Callbacks: Preview Image"](photo-output-callbacks#preview-image) for more information.
+
+### Capture RAW
+
+Then, capture a RAW photo using [`capturePhoto(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephoto):
+
+```ts
+const photoOutput = ...
+const photo = await photoOutput.capturePhoto(
+  { /* options */ },
+  { /* callbacks */ }
+)
+```
+
+The captured [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)'s RAW pixel data can be accessed via [`getPixelBuffer()`](/api/react-native-vision-camera/hybrid-objects/Photo#getpixelbuffer):
+
+```ts
+const photo = ...
+if (photo.hasPixelBuffer) {
+  const buffer = photo.getPixelBuffer()
+}
+```
+
+When a RAW photo is saved via [`saveToTemporaryFileAsync(...)`](/api/react-native-vision-camera/hybrid-objects/Photo#savetotemporaryfileasync) it is saved to a `.dng` file.
+
+#### Apple ProRAW
+
+If available, Apple devices may automatically capture in Apple ProRAW instead of regular DNG RAW. This provides better multi-Frame fuse details and supports quality prioritization.

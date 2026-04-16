@@ -1,0 +1,61 @@
+---
+title: Photo Output Callbacks
+description: Understanding the Photo Output's callbacks and receiving Preview Images
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The Photo Capture Pipeline (see ["The Photo Output"](photo-output)) has multiple stages for [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) capture.
+Each stage invokes the respective callback - see [`CapturePhotoCallbacks`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks).
+
+### Capture Events
+
+A Photo capture has 3 stages:
+
+1. [`onWillBeginCapture()`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks#onwillbegincapture)
+2. [`onWillCapturePhoto()`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks#onwillcapturephoto)
+3. [`onDidCapturePhoto()`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks#ondidcapturephoto)
+
+To receive callbacks for each stage, pass [`CapturePhotoCallbacks`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks) to [`capturePhoto(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephoto):
+
+```ts
+const photoOutput = ...
+const photo = await photoOutput.capturePhoto(
+  { /* options */ },
+  {
+    onWillBeginCapture: () => console.log('will begin capture'),
+    onWillCapturePhoto: () => console.log('about to capture'),
+    onDidCapturePhoto: () => console.log('did capture'),
+  }
+)
+```
+
+### Preview Image
+
+A [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput) can be configured to deliver a preview-sized Image before the final [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) is ready, to display optimistic UIs or thumbnails - assuming the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports it.
+Preview Images are useful in long capture pipelines (e.g. [`'quality'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) prioritization, or RAW capture) to provide a useful thumbnail upfront.
+
+First, specify your [`previewImageTargetSize`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#previewimagetargetsize):
+
+```ts
+const photoOutput = usePhotoOutput({
+  previewImageTargetSize: { width: 100, height: 150 }
+})
+```
+
+Then, in [`capturePhoto(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephoto), pass an [`onPreviewImageAvailable(...)`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks#onpreviewimageavailable) callback:
+
+```ts
+const photoOutput = ...
+const photo = await photoOutput.capturePhoto(
+  { /* options */ },
+  {
+    onPreviewImageAvailable: (image) => {
+      console.log(`Received ${image.width}x${image.height} Image thumbnail!`)
+    }
+  }
+)
+```
+
+> [!WARNING]
+> If your [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)'s [`supportsPreviewImage`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportspreviewimage) is `false`, the [`onPreviewImageAvailable(...)`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks#onpreviewimageavailable) callback will never be called.

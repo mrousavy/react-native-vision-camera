@@ -1,12 +1,131 @@
 {
-  "name": "monorepo",
+  "name": "react-native-vision-camera-monorepo",
+  "packageManager": "bun@1.3.9",
+  "type": "module",
   "private": true,
+  "description": "Monorepo for react-native-vision-camera packages, documentation, and example apps.",
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "workspaces": [
-    "package",
-    "example",
+    "packages/react-native-vision-camera",
+    "packages/react-native-vision-camera-barcode-scanner",
+    "packages/react-native-vision-camera-location",
+    "packages/react-native-vision-camera-resizer",
+    "packages/react-native-vision-camera-skia",
+    "packages/react-native-vision-camera-worklets",
+    "apps/simple-camera",
     "docs"
   ],
-  "trustedDependencies": [
-    "react-native-vision-camera"
-  ]
+  "scripts": {
+    "bootstrap": "bun i && bun run build && bun example bundle-install && bun example pods",
+    "specs": "bun camera specs && bun location specs && bun scanner specs && bun resizer specs && bun worklets specs",
+    "build": "bun camera build && bun location build && bun scanner build && bun resizer build && bun worklets build && bun skia build",
+    "example": "bun --cwd apps/simple-camera",
+    "docs": "bun --cwd docs",
+    "camera": "bun --cwd packages/react-native-vision-camera",
+    "scanner": "bun --cwd packages/react-native-vision-camera-barcode-scanner",
+    "location": "bun --cwd packages/react-native-vision-camera-location",
+    "resizer": "bun --cwd packages/react-native-vision-camera-resizer",
+    "skia": "bun --cwd packages/react-native-vision-camera-skia",
+    "worklets": "bun --cwd packages/react-native-vision-camera-worklets",
+    "release": "./scripts/release.sh",
+    "lint-js": "biome check --write",
+    "lint-cpp": "./scripts/clang-format.sh",
+    "lint-swift": "./scripts/swift-format.sh",
+    "lint-kotlin": "./scripts/kotlin-format.sh",
+    "lint-all": "bun lint-cpp && bun lint-swift && bun lint-kotlin && bun lint-js"
+  },
+  "devDependencies": {
+    "jest-junit": "^16.0.0",
+    "@biomejs/biome": "^2.4.4",
+    "@tsconfig/react-native": "^3.0.9",
+    "@types/bun": "^1.3.9",
+    "@release-it-plugins/workspaces": "^5.0.3",
+    "@release-it/bumper": "^7.0.5",
+    "@release-it/conventional-changelog": "^10.0.5",
+    "release-it": "^19.2.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "release-it": {
+    "npm": {
+      "publish": false
+    },
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": false
+    },
+    "github": {
+      "release": true
+    },
+    "hooks": {
+      "before:release": "bun i && bun run build && bun specs",
+      "after:bump": "scripts/try-install-lockfiles.sh"
+    },
+    "plugins": {
+      "@release-it/bumper": {
+        "out": [
+          {
+            "file": "packages/react-native-vision-camera/package.json",
+            "path": "version"
+          },
+          {
+            "file": "packages/react-native-vision-camera-barcode-scanner/package.json",
+            "path": "version"
+          },
+          {
+            "file": "packages/react-native-vision-camera-location/package.json",
+            "path": "version"
+          },
+          {
+            "file": "packages/react-native-vision-camera-resizer/package.json",
+            "path": "version"
+          },
+          {
+            "file": "packages/react-native-vision-camera-skia/package.json",
+            "path": "version"
+          },
+          {
+            "file": "packages/react-native-vision-camera-worklets/package.json",
+            "path": "version"
+          },
+          {
+            "file": "apps/simple-camera/package.json",
+            "path": "version"
+          }
+        ]
+      },
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "✨ Features"
+            },
+            {
+              "type": "perf",
+              "section": "💨 Performance Improvements"
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Bug Fixes"
+            },
+            {
+              "type": "chore(deps)",
+              "section": "🛠️ Dependency Upgrades"
+            },
+            {
+              "type": "docs",
+              "section": "📚 Documentation"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "patchedDependencies": {
+    "react-native@0.84.0": "patches/react-native@0.84.0.patch"
+  }
 }

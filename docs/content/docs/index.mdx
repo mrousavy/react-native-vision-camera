@@ -1,0 +1,221 @@
+---
+title: Getting Started
+description: Learn how to install VisionCamera, configure and request Camera permission, and render a Camera View in your app
+icon: Rocket
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+### Introduction
+
+VisionCamera is the fastest and most powerful Camera for [react-native](https://reactnative.dev).
+It's built with [Nitro Modules](https://nitro.margelo.com) and uses [AVFoundation](https://developer.apple.com/documentation/avfoundation/) on iOS, and [CameraX](https://developer.android.com/media/camera/camerax) on Android.
+VisionCamera features an extensible API, allowing you to plug in native code at any point.
+
+### Installation
+
+#### 1. Install library
+
+Install [react-native-vision-camera](https://www.npmjs.com/package/react-native-vision-camera) from npm:
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]} groupId="package-manager" persist>
+<Tab value="npm">
+```bash
+npm install react-native-vision-camera
+```
+</Tab>
+<Tab value="pnpm">
+```bash
+pnpm add react-native-vision-camera
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add react-native-vision-camera
+```
+</Tab>
+<Tab value="bun">
+```bash
+bun add react-native-vision-camera
+```
+</Tab>
+</Tabs>
+
+VisionCamera is built on-top of [react-native-nitro-modules](https://www.npmjs.com/package/react-native-nitro-modules) and uses [react-native-nitro-image](https://www.npmjs.com/package/react-native-nitro-image)'s Image type for photos - install those dependencies:
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]} groupId="package-manager" persist>
+<Tab value="npm">
+```bash
+npm install react-native-nitro-modules react-native-nitro-image
+```
+</Tab>
+<Tab value="pnpm">
+```bash
+pnpm add react-native-nitro-modules react-native-nitro-image
+```
+</Tab>
+<Tab value="yarn">
+```bash
+yarn add react-native-nitro-modules react-native-nitro-image
+```
+</Tab>
+<Tab value="bun">
+```bash
+bun add react-native-nitro-modules react-native-nitro-image
+```
+</Tab>
+</Tabs>
+
+#### 2. Add permissions
+
+After installing the library from npm, you must add Camera (and optionally Microphone) usage permissions to your app's manifest:
+
+<Tabs items={["Expo", "React Native"]} groupId="framework" persist>
+<Tab value="Expo">
+Add Camera (and optionally Microphone) permissions to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
+
+```json
+{
+  // [!code ++:6]
+  "ios": {
+    "infoPlist": {
+      "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera to capture photos and videos.",
+      "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone to record audio for video recordings.",
+    }
+  },
+  // [!code ++:3]
+  "android": {
+    "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
+  }
+}
+```
+</Tab>
+<Tab value="React Native">
+##### iOS
+
+Add `NSCameraUsageDescription` (and optionally `NSMicrophoneUsageDescription`) permissions to your app's `Info.plist`:
+
+```xml
+<dict>
+  <!-- ... -->
+  // [!code ++]
+  <key>NSCameraUsageDescription</key>
+  // [!code ++]
+  <string>$(PRODUCT_NAME) needs access to your Camera to capture photos and videos.</string>
+  // [!code ++]
+  <key>NSMicrophoneUsageDescription</key>
+  // [!code ++]
+  <string>$(PRODUCT_NAME) needs access to your Microphone to record audio for video recordings.</string>
+</dict>
+```
+
+##### Android
+
+Add `CAMERA` (and optionally `RECORD_AUDIO`) permissions to your app's main `AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- ... -->
+  // [!code ++]
+  <uses-permission android:name="android.permission.CAMERA" />
+  // [!code ++]
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
+</manifest>
+```
+</Tab>
+</Tabs>
+
+#### 3. Rebuild native
+
+<Tabs items={["Expo", "React Native"]} groupId="framework" persist>
+<Tab value="Expo">
+Then, compile the mods:
+
+```bash
+npx expo prebuild
+```
+
+And lastly, to apply the native changes build a new binary:
+
+```bash tab="iOS"
+npx expo run:ios
+```
+```bash tab="Android"
+npx expo run:android
+```
+</Tab>
+<Tab value="React Native">
+
+Then, rebuild Pods:
+
+```bash
+npx pod-install
+```
+
+And lastly, to apply the native changes build a new binary:
+
+```bash tab="iOS"
+npm run ios
+```
+```bash tab="Android"
+npm run android
+```
+
+</Tab>
+</Tabs>
+
+#### 4. Render the `<Camera />`
+
+In your app's code, you can now request permissions and render [the `<Camera />` view](/api/react-native-vision-camera/views/Camera):
+
+```tsx
+import React, { useEffect } from 'react'
+import { Camera, useCameraPermission } from 'react-native-vision-camera'
+
+function App() {
+  const { hasPermission, requestPermission } = useCameraPermission()
+
+  useEffect(() => {
+    if (!hasPermission) requestPermission()
+  }, [hasPermission, requestPermission])
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+    />
+  )
+}
+```
+
+#### 5. Add outputs
+
+The Camera can output to a variety of Camera Outputs - for example, to capture Photos, use the [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput):
+
+```tsx
+import React, { useEffect } from 'react'
+import { Camera, useCameraPermission, usePhotoOutput } from 'react-native-vision-camera'
+
+function App() {
+  const { hasPermission, requestPermission } = useCameraPermission()
+  // [!code ++]
+  const photoOutput = usePhotoOutput()
+
+  useEffect(() => {
+    if (!hasPermission) requestPermission()
+  }, [hasPermission, requestPermission])
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      outputs={[photoOutput]}
+    />
+  )
+}
+```
+
+See ["Camera Outputs"](/docs/camera-outputs) to learn more about outputs.

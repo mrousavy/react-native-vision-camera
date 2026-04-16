@@ -1,0 +1,81 @@
+---
+title: Location
+description: Adding Location tags to captured photos (EXIF) and videos (metadata)
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Captured Photos (see ["A Photo"](a-photo)) and Videos (see ["The Recorder"](recorder)) can contain Location tags in their EXIF flags or video metadata.
+
+> [!DEPENDENCY]
+> Location requires [react-native-vision-camera-location](/api/react-native-vision-camera-location) to be installed.
+
+### Get a Location
+
+To get a [`Location`](/api/react-native-vision-camera/hybrid-objects/Location), use a [`LocationManager`](/api/react-native-vision-camera-location/hybrid-objects/LocationManager) from [react-native-vision-camera-location](/api/react-native-vision-camera-location):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```tsx
+const location = useLocation({ /* options */ })
+
+useEffect(() => {
+  if (!location.hasPermission) {
+    location.requestPermission()
+  }
+}, [location.hasPermission])
+
+if (location.hasPermission) {
+  console.log(location.location)
+}
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const locationManager = createLocationManager({ /* options */ })
+
+if (locationManager.locationPermissionStatus !== 'authorized') {
+  const hasPermission = await locationManager.requestLocationPermission()
+  if (!hasPermission) return
+}
+
+await locationManager.startUpdating()
+locationManager.addOnLocationChangedListener((location) => {
+  console.log(location)
+})
+```
+</Tab>
+</Tabs>
+
+#### Manually creating a Location
+
+Alternatively, you can create a custom [`Location`](/api/react-native-vision-camera/hybrid-objects/Location) using [`createLocation(...)`](/api/react-native-vision-camera-location/functions/createLocation), which can be useful for testing or spoofing location:
+
+```ts
+const location = createLocation(48.2084, 16.3735)
+```
+
+### Adding Location tags to Photos
+
+To add a [`Location`](/api/react-native-vision-camera/hybrid-objects/Location) to a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo), pass a custom [`location`](/api/react-native-vision-camera/interfaces/CapturePhotoSettings#location) to [`capturePhoto(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephoto):
+
+```ts
+const photoOutput = ...
+const location = ...
+const photo = await photoOutput.capturePhoto(
+  { location: location },
+  { /* callbacks */ }
+)
+```
+
+### Adding Location tags to Videos
+
+To add a [`Location`](/api/react-native-vision-camera/hybrid-objects/Location) to a captured Video, pass a custom [`location`](/api/react-native-vision-camera/interfaces/RecorderSettings#location) to [`createRecorder(...)`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput#createrecorder):
+
+```ts
+const videoOutput = ...
+const location = ...
+const recorder = await videoOutput.createRecorder({
+  location: location
+})
+```

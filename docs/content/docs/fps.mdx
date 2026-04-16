@@ -1,0 +1,80 @@
+---
+title: FPS
+description: Adjusting Frame Rate (FPS) for Preview, Video and Frame outputs
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A Camera's Frame Rate can be configured per [`CameraSessionConnection`](/api/react-native-vision-camera/interfaces/CameraSessionConnection) and affects Preview- (see ["The Preview Output"](preview-output)), Video- (see ["The Video Output"](video-output)) and Frame- (see ["The Frame Output"](frame-output)) outputs.
+
+### Get available FPS ranges
+
+Each [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) lists the FPS ranges it supports individually via [`supportedFPSRanges`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportedfpsranges).
+Additionally, you can check if a specific fixed FPS value is individually supported via [`supportsFPS(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportsfps):
+
+```ts
+const device = ...
+const allRanges = device.supportedFPSRanges
+const supports60 = device.supportsFPS(60)
+```
+
+> [!TIP]
+> While a device may support a given FPS individually, it is not guaranteed to be supported with all possible feature and output combinations. The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) internally negotiates constraints together, and may downgrade FPS if needed.
+> To check if a specific combination is supported upfront, use [`isSessionConfigSupported(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#issessionconfigsupported).
+
+### Set FPS
+
+To set the target FPS, pass an [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint in your constraints:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      constraints={[
+        // [!code ++]
+        { fps: 60 }
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    constraints: [
+      // [!code ++]
+      { fps: 60 }
+    ]
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+await session.configure([
+  {
+    input: device,
+    constraints: [
+      // [!code ++]
+      { fps: 60 }
+    ]
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>

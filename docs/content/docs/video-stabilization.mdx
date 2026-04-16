@@ -1,0 +1,67 @@
+---
+title: Video Stabilization
+description: Understanding Video Stabilization and recording stabilized Videos
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Video Stabilization applies software- and sometimes hardware-processing to stabilize Frames in the Camera.
+
+### Enable Video Stabilization
+
+To enable Video Stabilization, pass a [`{ videoStabilizationMode: ... }`](/api/react-native-vision-camera/interfaces/VideoStabilizationModeConstraint) constraint using your desired [`StabilizationMode`](/api/react-native-vision-camera/type-aliases/StabilizationMode):
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      constraints={[
+        // [!code ++]
+        { videoStabilizationMode: 'cinematic' }
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+    constraints: [
+      // [!code ++]
+      { videoStabilizationMode: 'cinematic' }
+    ]
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const device = ...
+const session = ...
+
+const controllers = await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: [
+      // [!code ++]
+      { videoStabilizationMode: 'cinematic' }
+    ]
+  }
+], {})
+```
+</Tab>
+</Tabs>
+
+### Latency
+
+Software-based [`StabilizationMode`](/api/react-native-vision-camera/type-aliases/StabilizationMode)s keep a queue of Frames in-memory to adjust stabilization, which introduces latency in the Camera pipeline. The side-effect of this is that [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s arrive a few milliseconds/seconds later than when they were captured.

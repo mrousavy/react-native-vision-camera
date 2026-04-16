@@ -1,0 +1,28 @@
+version: 0.1
+
+android_test_host: amazon_linux_2
+
+phases:
+  install:
+    commands:
+      - devicefarm-cli use node 20
+      - node -v
+      - curl -fsSL https://bun.com/install | bash
+      - ~/.bun/bin/bun install
+
+      - adb reverse tcp:8081 tcp:8081
+      - adb wait-for-device
+      - adb devices -l
+
+  test:
+    commands:
+      - MANUFACTURER="$(adb shell getprop ro.product.manufacturer | tr -d '\r')"
+      - MODEL="$(adb shell getprop ro.product.model | tr -d '\r')"
+      - 'echo "Resolved Device Farm device for harness: ${MANUFACTURER} ${MODEL}"'
+      - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
+      - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
+      - cd apps/simple-camera
+      - set -o pipefail; HARNESS_ANDROID_DEVICE_MANUFACTURER="$MANUFACTURER" HARNESS_ANDROID_DEVICE_MODEL="$MODEL" CI=true JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness:android -- --reporters=default --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
+
+artifacts:
+  - $WORKING_DIRECTORY

@@ -1,0 +1,135 @@
+---
+title: Camera Session
+description: Understanding what a Camera Session is and how to add stream from inputs to outputs
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) connects inputs (see ["Camera Devices"](devices)) to outputs (see ["Camera Outputs"](camera-outputs)) and orchestrates lifecycle.
+
+### Creating a CameraSession
+
+To create a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), either use the [`<Camera />`](/api/react-native-vision-camera/views/Camera) view, the [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) hook, or create a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) manually:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  return (
+    // [!code ++:5]
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  // [!code ++:4]
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const device = ...
+
+const isMultiCam = false
+// [!code ++:8]
+const session = await VisionCamera.createCameraSession(isMultiCam)
+await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+> [!TIP]
+> See ["Multi-Camera"](multi-camera) for more information about multi-camera sessions.
+
+### CameraSession Configuration
+
+While the [`<Camera />`](/api/react-native-vision-camera/views/Camera) view and [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) hook automatically manage session configuration and lifecycle for you (see ["Lifecycle"](lifecycle)), manually using a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) requires you to explicitly configure, start and stop the session yourself.
+
+> [!TIP]
+> If you use manually use a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), ensure that most configuration (see [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure)) is handled before you start the session (see [`start(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#start)), as any configuration while the session is running can be expensive and cause stutters.
+
+There's three stages to Camera configuration:
+
+1. Session-wide configuration: (see [`CameraSessionConfiguration`](/api/react-native-vision-camera/interfaces/CameraSessionConfiguration))
+2. Connection-wide configuration (see [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint))
+3. Output-specific configuration (see [`CameraOutputConfiguration`](/api/react-native-vision-camera/interfaces/CameraOutputConfiguration))
+
+> [!NOTE]
+> Properties like [zoom](zooming), [exposure](exposure-bias) or [focus](tap-to-focus) can be adjusted without Session re-configuration - see ["Camera Controller"](camera-controller)
+
+### Interruptions
+
+A [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) can be interrupted, for example due to an incoming FaceTime call or device thermal throttling (see [`InterruptionReason`](/api/react-native-vision-camera/type-aliases/InterruptionReason)).
+You can listen to interruptions:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++:2]
+      onInterruptionStarted={(reason) => console.log(`Interrupted: ${reason}`)}
+      onInterruptionEnded={() => console.log(`Interruption ended`)}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+    // [!code ++:6]
+    onInterruptionStarted(reason) {
+      console.log(`Interrupted: ${reason}`)
+    },
+    onInterruptionEnded() {
+      console.log(`Interruption ended`)
+    }
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = ...
+
+// [!code ++:6]
+session.addOnInterruptionStartedListener((reason) => {
+  console.log(`Interrupted: ${reason}`)
+})
+session.addOnInterruptionEndedListener(() => {
+  console.log(`Interruption ended`)
+})
+```
+</Tab>
+</Tabs>
+
+### Stopping a CameraSession
+
+To stop a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), use [`stop()`](/api/react-native-vision-camera/hybrid-objects/CameraSession#stop).
+To fully dispose all resources it holds, use [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects) after it has been stopped.

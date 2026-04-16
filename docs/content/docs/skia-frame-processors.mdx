@@ -1,0 +1,84 @@
+---
+title: Skia Frame Processors
+description: Using the Skia Frame Processor integration to render Frames on the GPU
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Skia Frame Processors allow using [@Shopify/react-native-skia](https://github.com/Shopify/react-native-skia) to draw on a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) in realtime.
+
+> [!DEPENDENCY]
+> Skia Frame Processors require [react-native-vision-camera-skia](/api/react-native-vision-camera-skia) to be installed.
+
+### Using Skia with VisionCamera
+
+After installing [@Shopify/react-native-skia](https://github.com/Shopify/react-native-skia) and [react-native-vision-camera-skia](/api/react-native-vision-camera-skia), you can use the [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) view to quickly render a Camera feed using Skia:
+
+```tsx
+import { SkiaCamera } from 'react-native-vision-camera-skia'
+
+function App() {
+  return (
+    <SkiaCamera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      onFrame={(frame, render) => {
+        'worklet'
+        // ... custom Frame processing logic
+        render(({ frameTexture, canvas }) => {
+          // ... custom drawing operations
+          canvas.drawImage(frameTexture, 0, 0)
+        })
+        frame.dispose()
+      }}
+    />
+  )
+}
+```
+
+In the [`onFrame(...)`](/api/react-native-vision-camera-skia/interfaces/SkiaCameraProps#onframe) callback you receive two parameters:
+- The `frame` (a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)), which you can use for any kind of Frame Processing, like Face Detection.
+- A `render(...)` function, which allows you to render the Frame (as an `SkImage`) to a Skia `SkCanvas`. The `SkCanvas` will be in the Frame's [coordinate system](coordinate-systems), and will ultimately be rendered to the screen via the preview Skia [`<Canvas />`](https://shopify.github.io/react-native-skia/docs/canvas/overview/).
+
+#### Pixel Formats
+
+Just like in a regular [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput), you can configure the [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera)'s pixel format via [`pixelFormat`](/api/react-native-vision-camera-skia/interfaces/SkiaCameraProps#pixelformat).
+The pixel format affects your Skia Camera's performance, as well as the pixel format of the `frame`.
+
+- Choose [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) as a good default - Skia supports rendering 8-bit and 10-bit YUV buffers, and most native Frame Processing libraries support YUV.
+- Choose [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) as a fallback if [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is not supported by your native Frame Processor libraries, as [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) requires conversion overhead.
+- Choose [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) only if you ensure the negotiated [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig)'s [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) is renderable by Skia. As of today, Skia supports 8-bit and 10-bit YUV formats, RGB formats, as well as [`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat) on Android.
+
+> [!TIP]
+> See ["The Frame Output: Choosing a Pixel Format"](frame-output#choosing-a-pixel-format) for more information.
+
+### Differences to a regular `<Camera />`
+
+The [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) is different than the [`<Camera />`](/api/react-native-vision-camera/views/Camera) in two important ways:
+
+- A [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) does not render to a [`PreviewView`](/api/react-native-vision-camera/type-aliases/PreviewView) - instead it renders a Skia [`<Canvas />`](https://shopify.github.io/react-native-skia/docs/canvas/overview/) and draws [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s manually, which you can control via `render(...)`.
+- A [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) always has a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) attached.
+
+### Rendering yourself
+
+If you want to render Frames yourself, without [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera), use the [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer) APIs and Skia's `MakeImageFromNativeBuffer(...)` API:
+
+```ts
+const frameOutput = useFrameOutput({
+  pixelFormat: 'native',
+  onFrame(frame) {
+    'worklet'
+    const surface = // create a Skia.Surface & cache it across onFrame(...)
+    const nativeBuffer = frame.getNativeBuffer()
+    const frameTexture = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
+    // render `frameTexture` to `surface`/canvas
+    frameTexture.dispose()
+    nativeBuffer.release()
+    frame.dispose()
+  }
+})
+```
+
+> [!TIP]
+> See ["A Frame's NativeBuffer"](a-frames-nativebuffer) for more information about the [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer) API.

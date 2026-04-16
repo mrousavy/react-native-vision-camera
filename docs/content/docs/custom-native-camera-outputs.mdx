@@ -1,0 +1,81 @@
+---
+title: Implementing a custom native CameraOutput
+description: Custom Swift/Kotlin CameraOutputs can be implemented in third-party code, and added to a CameraSession like any other output
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Third-party libraries can implement the [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) class in native code to build a custom camera output that can be connected to the Camera just like any other output. This is achieved using [Nitro Modules](https://github.com/mrousavy/nitro) Hybrid Object inheritance - simply implement the native `HybridCameraOutputSpec`, and conform to the `NativeCameraOutput` interface/protocol:
+
+<Tabs items={["Swift (iOS)", "Kotlin (Android)"]} groupId="native-language">
+<Tab value="Swift (iOS)">
+```swift
+import AVFoundation
+import VisionCamera
+
+class MyCustomOutput: HybridCameraOutputSpec, NativeCameraOutput {
+  // ...
+}
+```
+</Tab>
+<Tab value="Kotlin (Android)">
+```kotlin
+import com.margelo.nitro.camera.HybridOutputSpec
+import com.margelo.nitro.camera.public.NativeCameraOutput
+
+class MyCustomOutput: HybridCameraOutputSpec(), NativeCameraOutput {
+  // ...
+}
+```
+</Tab>
+</Tabs>
+
+> [!NOTE]
+> The `NativeCameraOutput` interface/protocol requires you to implement methods and properties that expose the actual native `AVCaptureOutput`/`UseCase`, which will get used by the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession).
+> Additionally, you can participate in resolution negotiations, and input/format requirements via these.
+
+Then, create a [Nitro Modules](https://github.com/mrousavy/nitro) `HybridObject` that returns a [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput):
+
+```ts
+import type { CameraOutput } from 'react-native-vision-camera'
+
+export interface MyCustomOutputFactory {
+  createMyCustomOutput(): CameraOutput
+}
+```
+
+And finally, implement the `createMyCustomOutput()` method:
+
+<Tabs items={["Swift (iOS)", "Kotlin (Android)"]} groupId="native-language">
+<Tab value="Swift (iOS)">
+```swift
+import AVFoundation
+import VisionCamera
+
+class MyCustomOutputFactory: HybridMyCustomOutputFactorySpec {
+  func createMyCustomOutput() -> any HybridCameraOutputSpec {
+    return MyCustomOutput()
+  }
+}
+```
+</Tab>
+<Tab value="Kotlin (Android)">
+```kotlin
+import com.margelo.nitro.camera.HybridOutputSpec
+import com.margelo.nitro.camera.public.NativeCameraOutput
+
+class MyCustomOutputFactory: HybridMyCustomOutputFactorySpec() {
+  fun createMyCustomOutput(): HybridCameraOutputSpec {
+    return MyCustomOutput()
+  }
+}
+```
+</Tab>
+</Tabs>
+
+Now, if you create an instance of this output in JS, you can attach it to the Camera Session.
+
+> [!NOTE]
+> This is how the VisionCamera Barcode Scanner ([react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner)) output is implemented - see: [`createBarcodeScannerOutput(...)`](/api/react-native-vision-camera-barcode-scanner/functions/createBarcodeScannerOutput).
+
+

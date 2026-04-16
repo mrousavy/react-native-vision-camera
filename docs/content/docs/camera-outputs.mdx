@@ -1,0 +1,174 @@
+---
+title: Camera Outputs
+description: Understanding what Camera Outputs are, how to configure their resolutions, and how to add them to a Camera Session
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) is the base-class for all outputs a [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) can stream to using a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession).
+VisionCamera provides 5 core outputs:
+
+- [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput): See ["The Photo Output"](photo-output)
+- [`CameraVideoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput): See ["The Video Output"](video-output)
+- [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput): See ["The Frame Output"](frame-output)
+- [`CameraDepthFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput): See ["The Depth Output"](depth-output)
+- [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput): See ["The Preview Output"](preview-output)
+
+### Connecting a CameraOutput to a CameraSession
+
+To connect a [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) to a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), simply add it in the output connections array:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const photoOutput = ...
+  const videoOutput = ...
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      outputs={[photoOutput, videoOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const photoOutput = ...
+  const videoOutput = ...
+
+  const camera = useCamera({
+    isActive: true,
+    device: "back",
+    // [!code ++]
+    outputs: [photoOutput, videoOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+const photoOutput = ...
+const videoOutput = ...
+
+await session.configure([
+  {
+    input: device,
+    // [!code ++]
+    outputs: [
+      { output: photoOutput, mirrorMode: 'auto' },
+      { output: videoOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+#### Resolutions
+
+A Camera hardware provides a single stream, which is configured at a specific resolution.
+Each [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) specifies its own target resolution (either specified by the user, or internally configured by VisionCamera), so VisionCamera internally configures the Camera hardware to most closely match the [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)'s target resolution.
+For example, to configure both Video and Photo outputs to stream in 4k, set your [`targetResolution`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#targetresolution) to [`CommonResolutions.UHD_16_9`](/api/react-native-vision-camera/variables/CommonResolutions#uhd_16_9):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const photoOutput = usePhotoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+const videoOutput = usePhotoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const photoOutput = createPhotoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+const videoOutput = createPhotoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+```
+</Tab>
+</Tabs>
+
+When multiple [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)s are connected to a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), output resolutions are negotiated across outputs to find the closest matching Camera stream format.
+
+> [!TIP]
+> See ["Constraints API"](constraints) for more information.
+
+#### Output readiness
+
+Often a [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) only becomes usable after it has been connected to the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) - in this case, use the [`onConfigured={...}`](/api/react-native-vision-camera/interfaces/CameraProps#onconfigured) callback:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const output = ...
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      outputs={[output]}
+      // [!code ++:3]
+      onConfigured={() => {
+        output.doSomething()
+      }}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const output = ...
+
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+    outputs: [output],
+    // [!code ++:3]
+    onConfigured() {
+      output.doSomething()
+    }
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+const output = ...
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      { output: output, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+// [!code ++]
+output.doSomething()
+```
+</Tab>
+</Tabs>

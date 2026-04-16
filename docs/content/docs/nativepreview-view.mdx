@@ -1,0 +1,70 @@
+---
+title: <NativePreviewView />
+description: Using the <NativePreviewView /> View
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView) is a native [Nitro View](https://nitro.margelo.com/docs/hybrid-views) that allows rendering the contents of a [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) (see ["Preview Output"](preview-output)):
+
+```tsx
+function App() {
+  const previewOutput = usePreviewOutput()
+
+  return (
+    <NativePreviewView
+      style={StyleSheet.absoluteFill}
+      previewOutput={previewOutput}
+    />
+  )
+}
+```
+
+See [`PreviewViewProps`](/api/react-native-vision-camera/interfaces/PreviewViewProps) for a full list of available props.
+
+### Accessing methods on the View
+
+The [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView) provides methods for coordinate system conversions, and snapshot functionality under its ref:
+
+```tsx
+function App() {
+  const previewView = useRef<PreviewView>(null)
+
+  return (
+    <NativePreviewView
+      style={StyleSheet.absoluteFill}
+      previewOutput={previewOutput}
+      // [!code ++:3]
+      hybridRef={callback((r) => {
+        previewView.current = r
+      })}
+    />
+  )
+}
+```
+
+For example, to convert a View point to Camera coordinates, you can use [`convertViewPointToCameraPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertviewpointtocamerapoint):
+
+```tsx
+function App() {
+  const previewView = useRef<PreviewView>(null)
+
+  // [!code ++:3]
+  const onTap = ({ nativeEvent: { x, y } }) => {
+    const cameraPoint = previewView.current.convertViewPointToCameraPoint({ x, y })
+  }
+
+  return (
+    <NativePreviewView
+      style={StyleSheet.absoluteFill}
+      previewOutput={previewOutput}
+      hybridRef={callback((r) => {
+        previewView.current = r
+      })}
+    />
+  )
+}
+```
+
+See [`PreviewViewMethods`](/api/react-native-vision-camera/interfaces/PreviewViewMethods) for a full list of available methods.
+

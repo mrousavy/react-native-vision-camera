@@ -1,0 +1,55 @@
+diff --git a/React/DevSupport/RCTInspectorDevServerHelper.mm b/React/DevSupport/RCTInspectorDevServerHelper.mm
+index 9230dd3b33223e7048f2a22bef286355f4beed84..bcc1d971e2ce7e9c7d6be87f4593b78e1966502d 100644
+--- a/React/DevSupport/RCTInspectorDevServerHelper.mm
++++ b/React/DevSupport/RCTInspectorDevServerHelper.mm
+@@ -34,6 +34,10 @@
+   if (host == nullptr) {
+     host = @"localhost";
+   }
++  // NSURL.host strips IPv6 brackets, but URL authority requires them.
++  if ([host containsString:@":"] && ![host hasPrefix:@"["] && ![host hasSuffix:@"]"]) {
++    host = [NSString stringWithFormat:@"[%@]", host];
++  }
+ 
+   // this is consistent with the Android implementation, where http:// is the
+   // hardcoded implicit scheme for the debug server. Note, packagerURL
+diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
+index 1c17945855dc32c0b3b8fea5bb766c1d9637a244..aac492a4f30714720128866a16766f50141fdeb3 100644
+--- a/React/DevSupport/RCTPackagerConnection.mm
++++ b/React/DevSupport/RCTPackagerConnection.mm
+@@ -64,22 +64,24 @@ - (instancetype)init
+ 
+ static RCTReconnectingWebSocket *socketForLocation(NSString *const serverHostPort, NSString *scheme)
+ {
+-  NSString *serverHost;
+-  NSString *serverPort;
+-  NSArray *locationComponents = [serverHostPort componentsSeparatedByString:@":"];
+-  if ([locationComponents count] > 0) {
+-    serverHost = locationComponents[0];
+-  }
+-  if ([locationComponents count] > 1) {
+-    serverPort = locationComponents[1];
+-  }
+   if (![scheme length]) {
+     scheme = @"http";
+   }
++
++  NSString *location = serverHostPort;
++  if (![location length]) {
++    location = @"localhost";
++  }
++
++  NSString *locationURLString = [location rangeOfString:@"://"].location == NSNotFound
++      ? [NSString stringWithFormat:@"%@://%@/", scheme, location]
++      : location;
++  NSURLComponents *locationURL = [NSURLComponents componentsWithString:locationURLString];
++
+   NSURLComponents *const components = [NSURLComponents new];
+-  components.host = serverHost ?: @"localhost";
++  components.host = locationURL.host ?: @"localhost";
+   components.scheme = scheme;
+-  components.port = serverPort ? @(serverPort.integerValue) : @(kRCTBundleURLProviderDefaultPort);
++  components.port = locationURL.port ?: @(kRCTBundleURLProviderDefaultPort);
+   components.path = @"/message";
+   components.queryItems = @[ [NSURLQueryItem queryItemWithName:@"role" value:RCTPlatformName] ];
+   static dispatch_queue_t queue;

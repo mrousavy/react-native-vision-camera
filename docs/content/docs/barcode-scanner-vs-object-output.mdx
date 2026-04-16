@@ -1,0 +1,36 @@
+---
+title: Barcode Scanner vs Object Output
+description: Understanding the differences between the Barcode Scanner (cross-platform, MLKit) and the Object Output (iOS only, native)
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Both [the Barcode Scanner](barcode-scanner) and [the Object Output](object-output) allow scanning codes in the Camera.
+While they are similar, there are a few subtle differences between the two.
+
+### Implementation detail
+
+[The Object Output](object-output) is a native Camera feature built into iOS via [`AVCaptureMetadataOutput`](https://developer.apple.com/documentation/avfoundation/avcapturemetadataoutput), which has very little overhead and is used throughout the OS - even in the stock Camera app.
+Since Android does not have a native Object Output, [the Object Output](object-output) is **iOS only**.
+
+[The Barcode Scanner](barcode-scanner) on the other hand is a custom Frame Processing pipeline using [MLKit](https://developers.google.com/ml-kit), which is a third-party dependency and contains the ~2.4MB ML Model - see [MLKit: Barcode scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) for more information.
+It works on both iOS and Android.
+
+#### Platform Agnostic
+
+Since [the Barcode Scanner](barcode-scanner) uses the same MLKit implementation on iOS and Android, the scanned codes are platform-agnostic.
+In previous versions of VisionCamera, there were some codes readable on iOS but not on Android (like `'upc-a'` vs `'ean-13'`) - this is solved by using [the Barcode Scanner](barcode-scanner) on iOS too.
+
+### Different Object/Code Types
+
+[The Object Output](object-output) supports scanning more than just Barcodes - it allows detecting Faces ([`'face'`](/api/react-native-vision-camera/type-aliases/ScannedObjectType)), Bodies ([`'human-body'`](/api/react-native-vision-camera/type-aliases/ScannedObjectType), [`'dog-body'`](/api/react-native-vision-camera/type-aliases/ScannedObjectType) or [`'cat-body'`](/api/react-native-vision-camera/type-aliases/ScannedObjectType)) and more.
+
+[The Barcode Scanner](barcode-scanner) is optimized for machine-readable codes like [`'qr-code'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) or [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat).
+
+### Custom Decoding
+
+[The Barcode Scanner](barcode-scanner) allows reading the code's value both as a raw string as well as a raw `ArrayBuffer`. Additionally, it provides a human-friendly display value, useful for codes that are not human-friendly like [`'wifi'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat).
+
+### Usage in a Frame Processor
+
+[The Barcode Scanner](barcode-scanner) can be imperatively called inside a Frame Processor (see ["The Frame Output"](frame-output)), which offers more flexibility for customization.

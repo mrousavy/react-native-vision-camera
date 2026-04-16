@@ -1,0 +1,170 @@
+---
+title: Tap To Focus
+description: Starting a Focus Metering Action (AE/AF/AWB) to a specific point
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A "Focus Metering Action" adjusts Auto-Exposure (AE), Auto-Focus (AF) and Auto-White-Balance (AWB) to bring a specific point in the Camera "into focus".
+This operation is also often called "3A Metering".
+
+### Start a Focus Metering Action
+
+To start a Focus Metering Action, call [`CameraController.focusTo(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#focusto):
+
+<Tabs items={["<Camera /> (view)", "CameraController (imperative)"]} groupId="view-or-controller" persist>
+<Tab value="<Camera /> (view)">
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view automatically converts View Points to Camera Coordinates and performs a Focus Metering Action via [`CameraRef.focusTo(...)`](/api/react-native-vision-camera/interfaces/CameraRef#focusto):
+```tsx
+function App() {
+  const camera = useRef<CameraRef>(null)
+
+  const onTap = async ({ viewX, viewY }) => {
+    // [!code ++]
+    await camera.current.focusTo({ x: viewX, y: viewY })
+  }
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      ref={camera}
+    />
+  )
+}
+```
+
+Alternatively, you can enable the native Tap-To-Focus Gesture by setting [`enableNativeTapToFocusGesture`](/api/react-native-vision-camera/interfaces/CameraViewProps#enablenativetaptofocusgesture) to `true`:
+```tsx
+function App() {
+  return (
+    <Camera
+      {...props}
+      // [!code ++]
+      enableNativeTapToFocusGesture={true}
+    />
+  )
+}
+```
+See [`TapToFocusGestureController`](/api/react-native-vision-camera/hybrid-objects/TapToFocusGestureController) for more information.
+</Tab>
+<Tab value="CameraController (imperative)">
+If you have a [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController), you must first create a [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint).
+
+You can create a [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) from View Coordinates via a [`PreviewView`](/api/react-native-vision-camera/type-aliases/PreviewView) ([`createMeteringPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#createmeteringpoint)):
+```ts
+const preview = ...
+const meteringPoint = preview.createMeteringPoint(viewX, viewY)
+```
+
+..or from normalized Camera Coordinates (`0.0` to `1.0`) via [`createNormalizedMeteringPoint(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#createnormalizedmeteringpoint):
+```ts
+const meteringPoint = VisionCamera.createMeteringPoint(0.5, 0.5)
+```
+
+Then, start a Focus Metering Action to the specific [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) via [`CameraController.focusTo(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#focusto)):
+```ts
+const controller = ...
+const meteringPoint = ...
+// [!code ++]
+await controller.focusTo(meteringPoint)
+```
+</Tab>
+</Tabs>
+
+### Focus Metering Options
+
+The Focus Metering Action focuses Exposure ([`'AE'`](/api/react-native-vision-camera/type-aliases/MeteringMode)), Focus ([`'AF'`](/api/react-native-vision-camera/type-aliases/MeteringMode)) and White-Balance ([`'AWB'`](/api/react-native-vision-camera/type-aliases/MeteringMode)) to a specific point as fast as possible ([`'snappy'`](/api/react-native-vision-camera/type-aliases/FocusResponsiveness)), and then keeps that point continuously focused even if the scene changes ([`'continuous'`](/api/react-native-vision-camera/type-aliases/SceneAdaptiveness)). After 5 seconds, focus will be automatically reset to the center again.
+
+To adjust this behaviour, use [`FocusOptions`](/api/react-native-vision-camera/interfaces/FocusOptions).
+
+#### Metering Modes
+
+By default, all [`MeteringMode`](/api/react-native-vision-camera/type-aliases/MeteringMode)s that are supported on the current [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) will be used. You can adjust this behaviour to - for example - only adjust Exposure ([`'AE'`](/api/react-native-vision-camera/type-aliases/MeteringMode)):
+
+```ts
+const controller = ...
+const meteringPoint = ...
+// [!code ++]
+if (controller.device.supportsExposureMetering) {
+  await controller.focusTo(meteringPoint, {
+    // [!code ++]
+    modes: ['AE']
+  })
+}
+```
+
+Now, only Exposure will be metered to the given `meteringPoint`, while Focus and White Balance remain at their current positions (possibly the center of the Camera).
+
+> [!WARNING]
+> If you pass a custom [`MeteringMode`](/api/react-native-vision-camera/type-aliases/MeteringMode)s array, you must ensure that all given [`MeteringMode`](/api/react-native-vision-camera/type-aliases/MeteringMode)s are supported on the current [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice).
+> For [`'AE'`](/api/react-native-vision-camera/type-aliases/MeteringMode), that's [`CameraDevice.supportsExposureMetering`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportsexposuremetering).
+
+#### Focus Responsiveness
+
+By default, the Metering Action focuses as quickly as possible ([`'snappy'`](/api/react-native-vision-camera/type-aliases/FocusResponsiveness)).
+This is suitable for photo capture (see ["The Photo Output"](photo-output)), as users want to quickly bring a scene into focus.
+When recording videos, this may feel disruptive - in that case use [`'steady'`](/api/react-native-vision-camera/type-aliases/FocusResponsiveness) instead, which might focus slower, but doesn't disrupt a video recording as much:
+
+```ts
+const controller = ...
+const meteringPoint = ...
+await controller.focusTo(meteringPoint, {
+  // [!code ++]
+  responsiveness: 'steady'
+})
+```
+
+#### Scene Adaptiveness
+
+By default, the Metering Action continuously keeps the given [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) in focus - even as the scene changes ([`'continuous'`](/api/react-native-vision-camera/type-aliases/SceneAdaptiveness)).
+
+For example, when focusing the football field at a football game, the Camera will adjust AE/AF/AWB to bring the football field "into focus".
+Once a person walks through the Camera (to grab a nice cold beer), the Camera might adjust AE/AF/AWB briefly onto the person, which causes the football field to lose focus.
+To prevent this, you can lock the AE/AF/AWB values at the given [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) instead by using [`'locked'`](/api/react-native-vision-camera/type-aliases/SceneAdaptiveness):
+
+```ts
+const controller = ...
+const meteringPoint = ...
+await controller.focusTo(meteringPoint, {
+  // [!code ++]
+  adaptiveness: 'locked'
+})
+```
+
+
+#### Auto Reset
+
+By default, AE/AF/AWB will automatically be reset to the center of the Camera after 5 seconds. To change the auto reset duration, pass a custom number:
+
+```ts
+const controller = ...
+const meteringPoint = ...
+await controller.focusTo(meteringPoint, {
+  // [!code ++]
+  autoResetAfter: 10
+})
+```
+
+If you want to disable auto reset entirely, pass `null`:
+
+```ts
+const controller = ...
+const meteringPoint = ...
+await controller.focusTo(meteringPoint, {
+  // [!code ++]
+  autoResetAfter: null
+})
+```
+
+### Resetting Focus
+
+To reset AE/AF/AWB back to the center of the Camera, use [`CameraController.resetFocus(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#resetfocus):
+
+```ts
+const controller = ...
+await controller.resetFocus()
+```
+
+Resetting Focus also resets any locked states and ensures the Camera will continuously update AE/AF/AWB again.

@@ -1,0 +1,153 @@
+---
+title: Performance
+description: Understanding what configurations affect Performance, and how to improve it
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+VisionCamera's modern architecture, super-fast native bindings via [Nitro Modules](https://github.com/mrousavy/nitro), and best practices in-place allows it to be highly optimized for every Camera situation.
+As with all advanced tools, there are still ways to mis-use it. This guide covers common tips to improve Camera performance in VisionCamera.
+
+### Simpler Camera Device
+
+Selecting a "simpler" [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) (i.e. a Camera Device with _less [`physicalDevices`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#physicaldevices)_) allows the Camera to initialize faster as it does not have to start multiple devices at once.
+You can prefer a simple [`'wide-angle'`](/api/react-native-vision-camera/type-aliases/DeviceType) Camera over something like a [`'triple-camera'`](/api/react-native-vision-camera/type-aliases/DeviceType) to significantly speed up initialization time.
+
+<Tabs items={['Hooks API', 'Imperative API']}>
+<Tab value="Hooks API">
+
+```ts
+const fasterDevice = useCameraDevice('back', {
+  physicalDevices: ['wide-angle-camera'],
+})
+const slowerDevice = useCameraDevice('back', {
+  physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
+})
+```
+
+</Tab>
+<Tab value="Imperative API">
+
+```ts
+const devices = getAllCameraDevices()
+const fasterDevice = getCameraDevice(devices, 'back', {
+  physicalDevices: ['wide-angle-camera'],
+})
+const slowerDevice = getCameraDevice(devices, 'back', {
+  physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
+})
+```
+
+</Tab>
+</Tabs>
+
+> [!TIP]
+> See ["Camera Devices"](devices) for more information.
+
+### No Video HDR
+
+Video HDR uses 10-bit formats and/or additional processing steps that come with additional computation overhead. Disable Video HDR for higher efficiency.
+
+> [!TIP]
+> See ["Video HDR"](video-hdr) for more information.
+
+### Video Stabilization
+
+Video Stabilization requires additional overhead to start the algorithm and introduces capture latency. Disabling Video Stabilization can significantly speed up the Camera initialization time.
+
+> [!TIP]
+> See ["Video Stabilization"](video-stabilization) for more information.
+
+### Pixel Format
+
+The Camera's native [`PixelFormat`](/api/react-native-vision-camera/type-aliases/PixelFormat) is a YUV-like format.
+If you set a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput)'s [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat) to [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat), the pipeline will need to convert the YUV buffers to RGB, which introduces additional overhead and consumes more memory.
+
+If you are using any Frame Processor Plugins that work with RGB, try to replace them with YUV-based plugins instead and set your [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat) to [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat).
+
+> [!TIP]
+> See ["Pixel Formats Map"](pixel-formats-map) for more information.
+
+### Barcode Scanner vs Object Output
+
+[The Barcode Scanner](barcode-scanner) is a custom processing pipeline using MLKit for barcode detection.
+On iOS, [the Object Output](object-output) is a native Camera pipeline, which also allows barcode detection and is much more lightweight and efficient.
+
+Consider using [the Object Output](object-output) instead of [the Barcode Scanner](barcode-scanner) on iOS for better performance if it suits your needs, and only fall back to [the Barcode Scanner](barcode-scanner) otherwise (e.g. on Android).
+
+> [!TIP]
+> See ["The Barcode Scanner"](barcode-scanner) or ["The Object Output"](object-output) for more information.
+
+### Code Scanning Formats
+
+When using [the Barcode Scanner](barcode-scanner) or [the Object Output](object-output), only enable the code formats you actually need to scan to improve performance.
+
+### No physical Buffer rotation
+
+Instead of physically rotating buffers, your Frame Processor Pipeline should be able to work with orientation and mirroring via flags.
+Ensure your [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) is not configured with [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#enablephysicalbufferrotation), as this causes latency and requires conversion overhead.
+
+> [!TIP]
+> See ["Orientation"](orientation) for more information.
+
+### Disable unneeded Outputs
+
+Only attach [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)s that are actually needed. The more outputs you add to a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), the more processing power is required.
+
+### No Skia Frame Processor
+
+If you are not using Skia, use the regular [`<Camera />`](/api/react-native-vision-camera/views/Camera) view instead of the [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) view, as the [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) view requires much more processing power.
+
+### Using `isActive`
+
+The [`isActive`](/api/react-native-vision-camera/interfaces/CameraProps#isactive) property controls whether the Camera should actively stream frames. Instead of fully unmounting the [`<Camera />`](/api/react-native-vision-camera/views/Camera) component and remounting it again, keep it mounted and just switch [`isActive`](/api/react-native-vision-camera/interfaces/CameraProps#isactive) on or off. This allows the Camera to resume much faster as it internally keeps the session warmed up.
+
+> [!TIP]
+> See ["Lifecycle"](lifecycle) for more information.
+
+### Fast Photos
+
+If you need to take photos as fast as possible, use a [`qualityPrioritization`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#qualityprioritization) of [`'speed'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) to speed up the photo pipeline:
+
+```tsx
+const photoOutput = usePhotoOutput({
+  qualityPrioritization: 'speed'
+})
+```
+
+### Snapshot Capture
+
+If photo capture is still too slow for your use-case, consider capturing a Snapshot via [`takeSnapshot()`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#takesnapshot) instead:
+
+```ts
+const preview = ...
+const snapshot = await preview.takeSnapshot()
+```
+
+> [!TIP]
+> See ["Snapshot Capture"](snapshot-capture) for more information.
+
+### Appropriate Resolution
+
+Choose resolutions efficiently. If your backend can only handle 1080p videos, don't use a 4k resolution if you have to downsize it later anyways - instead configure the Camera for 1080p already via a [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) constraint, or by setting a matching [`targetResolution`](/api/react-native-vision-camera/interfaces/VideoOutputOptions#targetresolution) on your outputs.
+
+### Binned Formats
+
+Binned formats combine multiple neighboring sensor pixels into one larger effective pixel.
+This usually improves low-light sensitivity and reduces noise.
+Additionally, binned formats are more performant as they use significantly less bandwidth.
+The tradeoff is that binned formats can reduce fine detail compared to a full-resolution non-binned readout.
+
+If performance is more important than maximum spatial detail, prefer a binned format with a [`{ binned: true }`](/api/react-native-vision-camera/interfaces/BinnedConstraint) constraint.
+If fine detail is more important, prefer a non-binned format with a [`{ binned: false }`](/api/react-native-vision-camera/interfaces/BinnedConstraint) constraint.
+
+> [!TIP]
+> See ["Constraints API"](constraints) for more information.
+
+### Appropriate FPS
+
+Same as with resolutions, also record at the frame rate you expect. Setting higher frame rate uses more memory and could heat up the battery.
+If your backend can only handle 30 FPS, there is no need to record at 60 FPS, instead set the Camera's FPS to 30 via an [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint.
+
+> [!TIP]
+> See ["FPS"](fps) for more information.

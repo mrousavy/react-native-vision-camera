@@ -1,0 +1,88 @@
+name: Collect Device Farm Results
+description: Find, print, and publish Harness Device Farm test results
+
+inputs:
+  artifact-folder:
+    description: Device Farm artifact folder produced by the test action
+    required: true
+  platform:
+    description: Platform label used in filenames and log output
+    required: true
+  test-step-outcome:
+    description: Outcome of the upstream Device Farm execution step
+    required: false
+
+outputs:
+  junit-file:
+    description: Copied JUnit file path
+    value: ${{ steps.find-harness-junit.outputs.junit_file }}
+  log-file:
+    description: Copied harness log file path
+    value: ${{ steps.find-harness-log.outputs.log_file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find Harness JUnit result
+      id: find-harness-junit
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARTIFACT_DIR="${{ inputs.artifact-folder }}"
+        PLATFORM="${{ inputs.platform }}"
+        WORKSPACE_JUNIT=".github/test-results/harness-results-${PLATFORM}.junit.xml"
+        bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+          "$ARTIFACT_DIR" \
+          'harness-results.junit.xml' \
+          "$WORKSPACE_JUNIT"
+        echo "junit_file=$WORKSPACE_JUNIT" >> "$GITHUB_OUTPUT"
+
+    - name: Find Harness output log
+      id: find-harness-log
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARTIFACT_DIR="${{ inputs.artifact-folder }}"
+        PLATFORM="${{ inputs.platform }}"
+        WORKSPACE_LOG=".github/test-results/harness-output-${PLATFORM}.log"
+        bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+          "$ARTIFACT_DIR" \
+          'harness-output.log' \
+          "$WORKSPACE_LOG"
+        echo "log_file=$WORKSPACE_LOG" >> "$GITHUB_OUTPUT"
+
+    - name: Publish Harness test results
+      id: publish-harness-results
+      if: steps.find-harness-junit.outputs.junit_file != ''
+      continue-on-error: true
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        files: ${{ steps.find-harness-junit.outputs.junit_file }}
+        comment_mode: off
+        job_summary: true
+        check_run: false
+        action_fail: true
+        action_fail_on_inconclusive: true
+        fail_on: test failures
+
+    - name: Print Harness output log
+      shell: bash
+      run: |
+        set -euo pipefail
+        LOG_FILE="${{ steps.find-harness-log.outputs.log_file }}"
+        PLATFORM="${{ inputs.platform }}"
+        PUBLISH_OUTCOME="${{ steps.publish-harness-results.outcome }}"
+        TEST_STEP_OUTCOME="${{ inputs.test-step-outcome }}"
+        echo "===== Harness ${PLATFORM} output log ====="
+        cat "$LOG_FILE"
+        echo "===== End Harness ${PLATFORM} output log ====="
+
+        if [[ "$PUBLISH_OUTCOME" == "failure" ]]; then
+          echo "Harness test result publication reported failures." >&2
+          exit 1
+        fi
+
+        if [[ "$TEST_STEP_OUTCOME" == "failure" ]]; then
+          echo "Device Farm test step reported failure." >&2
+          exit 1
+        fi

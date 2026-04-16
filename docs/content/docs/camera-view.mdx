@@ -1,0 +1,82 @@
+---
+title: <Camera />
+description: Using the <Camera /> View
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) is a convenience wrapper around [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) that adds a [`PreviewView`](/api/react-native-vision-camera/type-aliases/PreviewView), wraps methods in a [`CameraRef`](/api/react-native-vision-camera/interfaces/CameraRef), and supports updating [`zoom`](/api/react-native-vision-camera/interfaces/CameraViewProps#zoom) and [`exposure`](/api/react-native-vision-camera/interfaces/CameraViewProps#exposure) via Reanimated `SharedValue`s.
+
+In most apps, [`<Camera />`](/api/react-native-vision-camera/views/Camera) provides enough flexibility for all use-cases. If you need full control over the individual connections and preview outputs (for example to build a multi-camera session), you should use the [`<NativePreviewView />`](nativepreview-view) directly.
+
+### Using the `<Camera />`
+
+To display a Camera, grab a [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) and render the [`<Camera />`](/api/react-native-vision-camera/views/Camera) view:
+
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      isActive={true}
+    />
+  )
+}
+```
+
+> [!TIP]
+> See ["Camera Devices"](devices) for more information about [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) and [`useCameraDevice(...)`](/api/react-native-vision-camera/functions/useCameraDevice).
+
+### The `isActive` prop
+
+[`isActive`](/api/react-native-vision-camera/interfaces/CameraViewProps#isactive) controls the Camera's lifecycle. When it is `true`, the Camera will start as soon as possible (see [`CameraSession.start()`](/api/react-native-vision-camera/hybrid-objects/CameraSession#start)) and keeps running until it is unmounted.
+
+It is recommended to set [`isActive`](/api/react-native-vision-camera/interfaces/CameraViewProps#isactive) to `false` as soon as your scene/page/screen goes out of focus, which will stop the Camera (see [`CameraSession.stop()`](/api/react-native-vision-camera/hybrid-objects/CameraSession#stop)) while keeping it configured and prepared in-memory.
+For example, in [react-navigation](https://github.com/react-navigation/react-navigation) you would use [`useIsFocused()`](https://reactnavigation.org/docs/use-is-focused/):
+
+```tsx
+import { useIsFocused } from '@react-navigation/native'
+
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const isFocused = useIsFocused()
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      // [!code ++]
+      isActive={isFocused}
+    />
+  )
+}
+```
+
+> [!NOTE]
+> See ["Lifecycle"](lifecycle) for more information about the Camera's lifecycle.
+
+### Native Gesture Controllers
+
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view has built-in support for various native gestures - such as the [`ZoomGestureController`](/api/react-native-vision-camera/hybrid-objects/ZoomGestureController) (which enables pinch to zoom) or the [`TapToFocusGestureController`](/api/react-native-vision-camera/hybrid-objects/TapToFocusGestureController) (which enables tap to focus).
+
+To enable those gestures, simply set [`enableNativeZoomGesture`](/api/react-native-vision-camera/interfaces/CameraViewProps#enablenativezoomgesture) or [`enableNativeTapToFocusGesture`](/api/react-native-vision-camera/interfaces/CameraViewProps#enablenativetaptofocusgesture):
+
+```tsx
+function App() {
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device="back"
+      isActive={true}
+      // [!code ++]
+      enableNativeZoomGesture={true}
+      // [!code ++]
+      enableNativeTapToFocusGesture={true}
+    />
+  )
+}
+```

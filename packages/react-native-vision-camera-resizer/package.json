@@ -1,0 +1,113 @@
+{
+  "name": "react-native-vision-camera-resizer",
+  "version": "5.0.0-beta.12",
+  "description": "High-performance image and frame resizing plugin using Metal/Vulkan for react-native-vision-camera.",
+  "main": "lib/index",
+  "module": "lib/index",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "react-native.config.js",
+    "lib",
+    "nitrogen",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/fix-prefab.gradle",
+    "android/CMakeLists.txt",
+    "android/src",
+    "cpp",
+    "ios/**/*.h",
+    "ios/**/*.m",
+    "ios/**/*.mm",
+    "ios/**/*.cpp",
+    "ios/**/*.swift",
+    "ios/**/*.metal",
+    "app.plugin.js",
+    "nitro.json",
+    "*.podspec",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf android/build node_modules/**/android/build lib",
+    "build": "tsc",
+    "typescript": "tsc",
+    "specs": "tsc --noEmit false && nitrogen",
+    "release": "release-it"
+  },
+  "keywords": [
+    "react-native",
+    "camera",
+    "react-native-camera",
+    "vision-camera",
+    "image-resize",
+    "resize",
+    "frame-resize",
+    "frame-processor",
+    "pixel-format",
+    "gpu",
+    "metal",
+    "vulkan",
+    "ml",
+    "image-processing",
+    "ios",
+    "android"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrousavy/react-native-vision-camera.git"
+  },
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
+  },
+  "homepage": "https://visioncamera.margelo.com/api/react-native-vision-camera-resizer",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "nitrogen": "0.35.4",
+    "react": "19.2.3",
+    "react-native": "0.84.0",
+    "react-native-nitro-modules": "0.35.4",
+    "react-native-vision-camera": "*",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-nitro-modules": "*",
+    "react-native-vision-camera": "*"
+  },
+  "release-it": {
+    "npm": {
+      "publish": true
+    },
+    "git": false,
+    "github": {
+      "release": false
+    },
+    "hooks": {
+      "before:init": "bun typecheck",
+      "after:bump": "bun run build"
+    }
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  }
+}

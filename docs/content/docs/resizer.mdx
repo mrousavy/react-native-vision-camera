@@ -1,0 +1,200 @@
+---
+title: Resizing/Converting Frames
+description: Efficiently resizing Frames and converting to RGB-based pixel formats, layouts and data types on the GPU.
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Most ML models are trained on RGB frames at a very small resolution, which is not something the Camera natively produces.
+To use these models, you must convert your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to RGB, and resize it to match the input tensor's resolution first.
+
+For example, the BlazeFace ML model declares its input tensor size as following:
+
+```
+Input: [1, 3, 128, 128] (float32)
+```
+
+This often refers to NCHW;
+
+- `N`: Number of batches = 1
+- `C`: Number of channels per pixel = 3 (implying RGB)
+- `H`: Height of the image = 128 pixels
+- `W`: Width of the image = 128 pixels
+- `float32`: The data-type of each scalar pixel = `float32`
+
+No Camera natively produces 128x128 RGB Images, especially not in `float32` (as `uint8` is much more compact), so we have to convert Frames manually.
+
+VisionCamera includes a GPU-accelerated resizing and pixel-format conversion pipeline in the [react-native-vision-camera-resizer](/api/react-native-vision-camera-resizer) package.
+
+> [!DEPENDENCY]
+> The [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) requires [react-native-vision-camera-resizer](/api/react-native-vision-camera-resizer) to be installed.
+
+### Using the resizer
+
+To create a [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) use [`useResizer(...)`](/api/react-native-vision-camera-resizer/functions/useResizer) and configure its [`width`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#width), [`height`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#height), [`channelOrder`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#channelorder), [`dataType`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#datatype) and [`pixelLayout`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#pixellayout):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+import { useResizer } from 'react-native-vision-camera-resizer'
+
+function App() {
+  // [!code ++:7]
+  const { resizer } = useResizer({
+    width: 128,
+    height: 128,
+    channelOrder: 'rgb',
+    dataType: 'float32',
+    pixelLayout: 'planar',
+  })
+}
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+import { createResizer } from 'react-native-vision-camera-resizer'
+
+// [!code ++:7]
+const resizer = await createResizer({
+  width: 128,
+  height: 128,
+  channelOrder: 'rgb',
+  dataType: 'float32',
+  pixelLayout: 'planar',
+})
+```
+</Tab>
+</Tabs>
+
+Then, in your Frame Processor, call [`resize(...)`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer#resize):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const { resizer } = ...
+const frameOutput = useFrameOutput({
+  pixelFormat: 'yuv',
+  onFrame(frame) {
+    'worklet'
+    // [!code ++:2]
+    const resized = resizer.resize(frame)
+    const pixels = resized.getPixelBuffer()
+    // call BlazeFace with `pixels` now
+    resized.dispose()
+    frame.dispose()
+  }
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const resizer = ...
+const frameOutput = VisionCamera.createFrameOutput({
+  // ...options
+  pixelFormat: 'yuv',
+  onFrame(frame) {
+    'worklet'
+    // [!code ++:2]
+    const resized = resizer.resize(frame)
+    const pixels = resized.getPixelBuffer()
+    // call BlazeFace with `pixels` now
+    resized.dispose()
+    frame.dispose()
+  }
+})
+```
+</Tab>
+</Tabs>
+
+The returned [`GPUFrame`](/api/react-native-vision-camera-resizer/hybrid-objects/GPUFrame) holds the resized buffer (see [`getPixelBuffer()`](/api/react-native-vision-camera-resizer/hybrid-objects/GPUFrame#getpixelbuffer)) in the target width/height, channel order, pixel layout and data type - which you can then pass to your ML model - for example to an ONNX Runtime, TFLite, or other.
+Make sure to [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects) the [`GPUFrame`](/api/react-native-vision-camera-resizer/hybrid-objects/GPUFrame) once you are done using it, otherwise the pipeline stalls.
+
+#### Availability and Fallbacks
+
+The Resizer pipeline is GPU-accelerated using Metal on iOS, and Vulkan on Android.
+On Android, the Resizer pipeline requires Vulkan extensions such as [`VK_ANDROID_external_memory_android_hardware_buffer`](https://docs.vulkan.org/refpages/latest/refpages/source/VK_ANDROID_external_memory_android_hardware_buffer.html) or [`VK_EXT_queue_family_foreign`](https://docs.vulkan.org/refpages/latest/refpages/source/VK_EXT_queue_family_foreign.html), which are often only available on Android 8.0+.
+
+To check if the current device supports the GPU-accelerated [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) pipeline, use [`isResizerAvailable()`](/api/react-native-vision-camera-resizer/functions/isResizerAvailable) and fall back to a custom CPU implementation otherwise:
+
+```ts
+import { isResizerAvailable, createResizer } from 'react-native-vision-camera-resizer'
+
+function getResizer(options: ResizerOptions): Resizer | CPUFallbackResizer {
+  if (isResizerAvailable()) {
+    // GPU accelerated Resizer pipeline is available!
+    return createResizer(options)
+  } else {
+    // GPU accelerated Resizer pipeline is not available on this device,
+    // fall back to a CPU implementation.
+    return ...
+  }
+}
+```
+
+### Input Frame Constraints
+
+#### Input Frame Pixel Formats
+
+The [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) expects the input [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to be a GPU-backed buffer, so it's recommended to configure the [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) to stream Frames in [`pixelFormat='yuv'`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat).
+
+For maximum performance, you can set [`pixelFormat='native'`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat), but only if the [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig)'s [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) is either [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) or [`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat), otherwise the input [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) might use a pixel format not supported by the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) (like [`'raw-bayer-packed96-12-bit'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)).
+
+> [!WARNING]
+> Do not set the [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput)'s [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat) to [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat), as this performs an unnecessary conversion in the Camera pipeline.
+> The [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) already converts to RGB, which is faster because it's GPU accelerated.
+
+#### Input Frame Size
+
+The bigger the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is, the more work the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) has to do.
+It is recommended to configure your [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) with a [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution) that is as small as possible. The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) negotiates all constraints and output resolutions together to find the best match.
+
+### Output Configurations
+
+#### Float vs Int
+
+Most ML models are trained on `float32` data types, which means each value in a pixel is a 32-bit Float ranging from `0.0` to `1.0`.
+While GPUs (and NPUs) are optimized on floating point datatypes, it may be worth to quantize the model to use `uint8` instead, as this is much more compact in memory (4x smaller), which could improve performance and overall device thermals.
+
+> [!TIP]
+> See [`ChannelOrder`](/api/react-native-vision-camera-resizer/type-aliases/ChannelOrder) and [`DataType`](/api/react-native-vision-camera-resizer/type-aliases/DataType) for the supported output formats the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) can convert to.
+
+#### Pixel Layout
+
+The [`pixelLayout`](/api/react-native-vision-camera-resizer/interfaces/ResizerOptions#pixellayout) specifies how the individual channels per pixel are arranged in memory.
+
+- [`'interleaved'`](/api/react-native-vision-camera-resizer/type-aliases/PixelLayout) stores complete pixels next to each other, which corresponds to (N)HWC:
+    ```text
+    RGBRGBRGBRGB
+    RGBRGBRGBRGB
+    RGBRGBRGBRGB
+    ```
+    Use [`'interleaved'`](/api/react-native-vision-camera-resizer/type-aliases/PixelLayout) if your ML model input tensor is (N)HWC shaped - e.g.: `[1, H, W, 3]`.
+
+- [`'planar'`](/api/react-native-vision-camera-resizer/type-aliases/PixelLayout) stores one full channel plane after the other, which corresponds to (N)CHW:
+    ```text
+    RRRRRRRRRRRR
+    GGGGGGGGGGGG
+    BBBBBBBBBBBB
+    ```
+    Use [`'planar'`](/api/react-native-vision-camera-resizer/type-aliases/PixelLayout) if your ML model input tensor is (N)CHW shaped - e.g.: `[1, 3, H, W]`.
+
+> [!TIP]
+> See [`PixelLayout`](/api/react-native-vision-camera-resizer/type-aliases/PixelLayout) for a list of all memory pixel layouts.
+
+#### Scale Mode
+
+When the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s aspect ratio doesn't match the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer)'s output aspect ratio, the Resizer either has to scale the Frame to [`'cover'`](/api/react-native-vision-camera-resizer/type-aliases/ScaleMode) the output (which crops out any overflow), or [`'contain'`](/api/react-native-vision-camera-resizer/type-aliases/ScaleMode) the Frame inside the output (which adds black bars around underflowing areas).
+
+> [!TIP]
+> See [`ScaleMode`](/api/react-native-vision-camera-resizer/type-aliases/ScaleMode) for more information.
+
+### Orientation and Mirroring
+
+The [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) automatically counter-rotates and possibly counter-mirrors the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to be in its intended up-right and non-mirrored presentation.
+
+It is recommended to set [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#enablephysicalbufferrotation) to `false` to prevent the Camera from performing this on it's own, as the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) is GPU-accelerated and typically much faster.
+
+### Multiple Resizers
+
+It is fine to run multiple [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) instances if you have multiple different ML models, although it is recommended to convert ML models to the same common type to avoid duplicating conversion overhead.
+You may even run the [`Resizer`](/api/react-native-vision-camera-resizer/hybrid-objects/Resizer) in parallel - see ["Async Frame Processing"](async-frame-processing) for more information.

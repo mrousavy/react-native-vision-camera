@@ -1,0 +1,270 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../lib/**/*.tsx";
+@source "../components/**/*.tsx";
+
+@keyframes focus-reticle-pulse {
+  0% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.focus-reticle-pulse {
+  animation: focus-reticle-pulse 375ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vc-landing-parallax-layer {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+button[data-search-full] {
+  @apply mx-auto! rounded-xl! max-w-lg!;
+}
+
+article {
+  @apply pt-8;
+}
+
+article h2 {
+  @apply text-3xl md:text-4xl;
+}
+
+article > .prose.flex-1 > h2#properties {
+  @apply border-t border-fd-border/60 pt-8 mt-6;
+}
+
+/* Wrap long inline code/API symbols on narrow screens without overflowing. */
+article .prose :not(pre) > code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Let fenced code examples wrap on mobile instead of forcing horizontal scroll. */
+@media (max-width: 767px) {
+  article .prose pre,
+  article .prose pre code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+/* Center markdown images rendered through Fumadocs ImageZoom */
+article .prose [data-rmiz] {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Prevent mobile page overflow from long API symbols (e.g. function names) */
+.api-reference-layout #nd-page,
+.api-reference-layout #nd-page > article,
+.api-reference-layout #nd-page > article > .prose {
+  min-width: 0;
+}
+
+.api-reference-layout #nd-page > article :is(h1, h2, h3, h4, h5, h6) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.api-code-link {
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: text-decoration-color 120ms ease;
+}
+
+.api-code-link:hover {
+  text-decoration-color: var(--color-fd-primary);
+}
+
+.dependency-callout {
+  --dependency-callout-accent: rgba(255, 255, 255, 0.82);
+  @apply border-zinc-600/35 bg-zinc-900 text-zinc-100;
+  box-shadow: none;
+}
+
+.dark .dependency-callout {
+  --dependency-callout-accent: rgba(24, 24, 27, 0.78);
+  @apply border-zinc-900/20 bg-zinc-100 text-zinc-900;
+}
+
+.dependency-callout-icon {
+  @apply size-5 -me-0.5 text-white;
+}
+
+.dark .dependency-callout-icon {
+  @apply text-zinc-900;
+}
+
+.dependency-callout-title {
+  @apply text-white;
+}
+
+.dark .dependency-callout-title {
+  @apply text-zinc-900;
+}
+
+.dependency-callout .text-fd-muted-foreground {
+  @apply text-zinc-200;
+}
+
+.dark .dependency-callout .text-fd-muted-foreground {
+  @apply text-zinc-800;
+}
+
+.dependency-callout a,
+.dependency-callout .api-code-link {
+  @apply text-zinc-100;
+  text-decoration-color: rgba(244, 244, 245, 0.75);
+}
+
+.dependency-callout a:hover,
+.dependency-callout .api-code-link:hover {
+  @apply text-white;
+  text-decoration-color: rgba(255, 255, 255, 0.95);
+}
+
+.dark .dependency-callout a,
+.dark .dependency-callout .api-code-link {
+  @apply text-zinc-900;
+  text-decoration-color: rgba(24, 24, 27, 0.55);
+}
+
+.dark .dependency-callout a:hover,
+.dark .dependency-callout .api-code-link:hover {
+  @apply text-black;
+  text-decoration-color: rgba(24, 24, 27, 0.8);
+}
+
+.dependency-callout code {
+  @apply border border-white/20 bg-white/10 text-zinc-100;
+}
+
+.dark .dependency-callout code {
+  @apply border-zinc-900/20 bg-zinc-900/10 text-zinc-900;
+}
+
+.api-platform-inline-pill {
+  @apply ms-2 inline-flex items-center rounded-full border border-fd-border/70 px-2 py-0.5 align-middle text-[10px] font-medium text-fd-muted-foreground;
+}
+
+.api-sidebar-platform-pill {
+  @apply inline-flex shrink-0 items-center rounded-full border border-fd-border/70 px-1.5 py-0.5 text-[10px] font-medium text-fd-muted-foreground;
+}
+
+.api-sidebar-item-content {
+  @apply min-w-0 flex w-full items-center justify-between gap-2 overflow-hidden;
+}
+
+.api-sidebar-item-label {
+  @apply min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap;
+  overflow-wrap: normal;
+}
+
+.api-toc-item-title {
+  @apply inline-flex items-center gap-1.5;
+}
+
+.api-toc-platform-pill {
+  @apply inline-flex shrink-0 items-center rounded-full border border-fd-border/70 px-1.5 py-0.5 text-[10px] leading-none font-medium text-fd-muted-foreground;
+}
+
+.api-member-platform-pill-row {
+  @apply mt-1.5 mb-3 flex flex-wrap gap-1.5;
+}
+
+.api-member-platform-pill {
+  @apply inline-flex items-center rounded-full border border-fd-border/70 px-2 py-0.5 text-[10px] leading-none font-medium text-fd-muted-foreground;
+}
+
+a[data-active="true"] .api-sidebar-platform-pill {
+  @apply border-fd-primary/50 text-fd-primary;
+}
+
+a[data-active="true"] .api-toc-platform-pill {
+  @apply border-fd-primary/50 text-fd-primary;
+}
+
+/* API parameter blocks: Apple-docs-like compact indentation */
+.api-reference-layout article h5 {
+  @apply ms-5 mt-3 mb-1;
+}
+
+.api-reference-layout article h5 + p,
+.api-reference-layout article h5 + ul,
+.api-reference-layout article h5 + ol {
+  @apply ms-9 mt-1 mb-3;
+}
+
+.api-reference-layout article h5 + p + p {
+  @apply ms-9 mt-1 mb-3;
+}
+
+@media (min-width: 768px) {
+  /* Make the HomeLayout wrapper transparent so its sticky #nd-nav child
+     becomes a direct layout participant of .vc-docs-shell. */
+  .vc-docs-shell > #nd-home-layout {
+    display: contents;
+  }
+
+  /* Nav bar height (h-14 = 3.5rem). Fumadocs uses this to offset
+     sticky sidebar/ToC below the nav. */
+  .vc-docs-shell {
+    --fd-banner-height: 3.5rem;
+  }
+
+  /* Short pages fill the viewport (nav + grid = 100dvh). */
+  .vc-docs-shell > #nd-docs-layout {
+    min-height: calc(100dvh - var(--fd-banner-height));
+  }
+
+  #nd-sidebar > div:has(.vc-mobile-sidebar-logo) {
+    display: none;
+  }
+}
+
+@theme inline {
+  --default-mono-font-family: var(--font-mono);
+}
+
+@theme {
+  --spacing-fd-container: 1400px;
+  --fd-layout-width: 1400px;
+  --color-fd-primary: #007a55;
+}
+
+.dark {
+  --color-fd-primary: #5ee9b5;
+}
+
+body {
+  overscroll-behavior-y: none;
+  background-color: var(--color-fd-background);
+}
+
+.landing-shell {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.landing-shell :is(input, textarea) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+:root:not(.dark) .shiki {
+  box-shadow: none;
+}

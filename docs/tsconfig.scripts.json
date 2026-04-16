@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["es2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "config/**/*.ts",
+    "typedoc.config.mts",
+    "scripts/**/*.mts",
+    "src/lib/shared/platforms-core.ts"
+  ],
+  "exclude": [".next", ".source", "content/api", "node_modules", "test-results"]
+}

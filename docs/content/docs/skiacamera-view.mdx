@@ -1,0 +1,42 @@
+---
+title: <SkiaCamera />
+description: Using the <SkiaCamera /> View
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) is a view component that allows rendering Frames with [@Shopify/react-native-skia](https://github.com/Shopify/react-native-skia).
+This allows fully custom GPU-based processing like effects, shaders, shapes and boxes, and more.
+
+> [!DEPENDENCY]
+> The [`<SkiaCamera />`](/api/react-native-vision-camera-skia/views/SkiaCamera) requires [react-native-vision-camera-worklets](/api/react-native-vision-camera-worklets) (and [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/)) and [react-native-vision-camera-skia](/api/react-native-vision-camera-skia) to be installed.
+
+### Using the `<SkiaCamera />`
+
+To display a Skia Camera, mount the view and implement the [`onFrame(...)`](/api/react-native-vision-camera-skia/interfaces/SkiaCameraProps#onframe) function to simply render the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame):
+
+```tsx
+function App() {
+  return (
+    <SkiaCamera
+      style={StyleSheet.absoluteFill}
+      device="back"
+      isActive={true}
+      onFrame={(frame, render) => {
+        'worklet'
+        // ... custom Frame processing logic
+        render(({ frameTexture, canvas }) => {
+          // ... custom drawing operations
+          canvas.drawImage(frameTexture, 0, 0)
+        })
+        frame.dispose()
+      }}
+    />
+  )
+}
+```
+
+Since you are in full control over rendering, you can run frame-by-frame analysis and conditionally render contents or overlays such as accurate bounding boxes over QR codes or faces, or custom shaders for visual effects.
+
+> [!TIP]
+> See ["Skia Frame Processors"](skia-frame-processors) for more information.

@@ -1,0 +1,68 @@
+---
+title: Exposure Bias
+description: Adjusting Exposure in a Camera using Exposure Bias Compensation
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Exposure Bias allows adjusting the Camera's exposure, where negative values result in darker, under-exposed images, and positive values result in brighter, over-exposed images.
+A value of `0` indicates no exposure bias compensation, which is the default.
+
+### Setting Exposure Bias
+
+To adjust a Camera's exposure via Exposure Bias Compensation:
+
+<Tabs items={["<Camera /> (view)", "CameraController (imperative)"]} groupId="view-or-controller" persist>
+<Tab value="<Camera /> (view)">
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view allows adjusting [`exposure`](/api/react-native-vision-camera/interfaces/CameraViewProps#exposure) via React state (a `number`), or a [Reanimated `SharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/core/useSharedValue/) - which is the recommended approach for smoothly adjusting exposure.
+```tsx
+function App() {
+  // [!code ++]
+  const exposure = useSharedValue(0)
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      exposure={exposure}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="CameraController (imperative)">
+To adjust the Exposure Bias on a [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController), use [`setExposureBias(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#setexposurebias):
+
+```ts
+const controller = ...
+// [!code ++]
+await controller.setExposureBias(0)
+```
+</Tab>
+</Tabs>
+
+> [!WARNING]
+> Make sure your [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports exposure ([`supportsExposureBias`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportsexposurebias)), and your exposure value always stays within the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)'s supported exposure bias ranges: [`minExposureBias`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#minexposurebias) and [`maxExposureBias`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#maxexposurebias):
+>
+> ```ts
+> const controller = ...
+> const exposure = ...
+> const device = controller.device
+> if (device.supportsExposureBias) {
+>   const min = device.minExposureBias
+>   const max = device.maxExposureBias
+>   const clampedExposure = clamp(exposure, min, max)
+> }
+> ```
+
+### Getting Exposure Bias
+
+To get the current Exposure value on a [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController), use [`exposureBias`](/api/react-native-vision-camera/hybrid-objects/CameraController#exposurebias):
+
+```ts
+const controller = ...
+// [!code ++]
+console.log(controller.exposureBias) // 0
+```

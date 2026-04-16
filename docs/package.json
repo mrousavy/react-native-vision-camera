@@ -1,52 +1,52 @@
 {
-  "name": "vision-camera",
+  "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "description": "Documentation website for react-native-vision-camera.",
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
   "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "TYPEDOC_WATCH=true docusaurus start",
-    "build": "docusaurus build",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "serve": "docusaurus serve",
-    "clear": "docusaurus clear"
+    "docs": "bun run docs:typedoc && bun ./scripts/verify-api-output.mts",
+    "docs:typedoc": "bunx --bun typedoc --options typedoc.config.mts --json .source/typedoc.json",
+    "check:links": "bun run docs && fumadocs-mdx && bun ./scripts/verify-links.mts",
+    "build": "bun run check:links && next build",
+    "dev": "bun run docs && fumadocs-mdx && next dev",
+    "start": "next start",
+    "clean": "rm -rf .next .source content/api",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "postinstall": "fumadocs-mdx",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "test:logic": "bun test ./src",
+    "test:screenshots": "playwright test"
   },
   "dependencies": {
-    "@docusaurus/core": "3.6.2",
-    "@docusaurus/plugin-google-gtag": "3.6.2",
-    "@docusaurus/plugin-sitemap": "3.6.2",
-    "@docusaurus/plugin-vercel-analytics": "3.6.2",
-    "@docusaurus/preset-classic": "3.6.2",
-    "@docusaurus/theme-mermaid": "3.6.2",
-    "@mdx-js/react": "^3.1.0",
-    "clsx": "^2.1.1",
-    "prism-react-renderer": "^2.4.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@heroicons/react": "^2.2.0",
+    "@r4ai/remark-callout": "^0.6.2",
+    "fumadocs-core": "16.6.17",
+    "fumadocs-docgen": "^3.0.4",
+    "fumadocs-mdx": "14.2.10",
+    "fumadocs-typescript": "5.1.5",
+    "fumadocs-ui": "16.6.17",
+    "lucide-react": "0.575.0",
+    "motion": "^12.36.0",
+    "next": "16.1.6",
+    "picocolors": "^1.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.6.2",
-    "@docusaurus/tsconfig": "3.6.2",
-    "@docusaurus/types": "3.6.2",
-    "@types/react": "^18.3.12",
-    "docusaurus-plugin-typedoc": "^1.0.5",
-    "typedoc": "^0.26.11",
-    "typedoc-plugin-markdown": "^4.2.10",
-    "typescript": "^5.4.5"
-  },
-  "engines": {
-    "node": ">=18.0"
-  },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "@playwright/test": "1.58.2",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "25.3.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "postcss": "^8.5.6",
+    "tailwindcss": "4.2.1",
+    "ts-morph": "^27.0.2",
+    "typedoc": "0.28.17",
+    "typedoc-plugin-frontmatter": "1.3.1",
+    "typedoc-plugin-markdown": "4.10.0",
+    "typescript": "5.9.3"
   }
 }

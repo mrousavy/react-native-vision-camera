@@ -1,0 +1,20 @@
+{
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
+  "cxxNamespace": ["camera", "worklets"],
+  "ios": {
+    "iosModuleName": "VisionCameraWorklets"
+  },
+  "android": {
+    "androidNamespace": ["camera", "worklets"],
+    "androidCxxLibName": "VisionCameraWorklets"
+  },
+  "autolinking": {
+    "WorkletQueueFactory": {
+      "all": {
+        "language": "c++",
+        "implementationClassName": "HybridWorkletQueueFactory"
+      }
+    }
+  },
+  "ignorePaths": ["**/node_modules"]
+}

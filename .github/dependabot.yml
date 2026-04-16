@@ -1,53 +1,31 @@
 version: 2
 
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    labels:
-      - "🛠 dependencies"
-
   - package-ecosystem: "gradle"
-    directory: "/package/android/"
-    schedule:
-      interval: "daily"
-    labels:
-      - "🛠 dependencies"
-      - "🤖 android"
-
-  - package-ecosystem: "bun"
     directories:
-      - "/docs/"
+      - "/apps/simple-camera/android/"
+      - "/packages/react-native-vision-camera/android/"
+      - "/packages/react-native-vision-camera-barcode-scanner/android/"
+      - "/packages/react-native-vision-camera-location/android/"
+      - "/packages/react-native-vision-camera-resizer/android/"
     schedule:
       interval: "daily"
-    labels:
-      - "🛠 dependencies"
     groups:
-      docusaurus:
+      camera-libs:
         patterns:
-          - "@docusaurus/*"
-
-  # - package-ecosystem: "bun"
-  #   directory: "/package/"
-  #   schedule:
-  #     interval: "monthly"
-  #   labels:
-  #     - "🛠 dependencies"
-  #     - "☕️ js"
-  # - package-ecosystem: "bun"
-  #   directory: "/example/"
-  #   schedule:
-  #     interval: "monthly"
-  #   labels:
-  #     - "🛠 dependencies"
-  #     - "🛸 example"
-  #     - "☕️ js"
-  # - package-ecosystem: "bun"
-  #   directory: "/docs/"
-  #   schedule:
-  #     interval: "monthly"
-  #   labels:
-  #     - "🛠 dependencies"
-  #     - "📚 documentation"
-  #     - "☕️ js"
+          - "androidx.camera:*"
+      gms-location:
+        patterns:
+          - "com.google.android.gms:play-services-location"
+      mlkit:
+        patterns:
+          - "com.google.mlkit:*"
+          - "com.google.android.gms:play-services-mlkit-*"
+      gradle-build-and-plugins:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "androidx.camera:*"
+          - "com.google.android.gms:play-services-location"
+          - "com.google.mlkit:*"
+          - "com.google.android.gms:play-services-mlkit-*"

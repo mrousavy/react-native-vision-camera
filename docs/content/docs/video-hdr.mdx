@@ -1,0 +1,117 @@
+---
+title: Video HDR
+description: Capturing Videos in High-Dynamic-Range (HDR) with HLG/HDR encodings and 10-bit
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Video HDR captures Frames in a higher dynamic range, which allows much brighter highlights and deeper shadows.
+
+### Enable Video HDR
+
+To enable Video HDR, pass a [`{ videoDynamicRange: ... }`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint) constraint in your constraints:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = ...
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      constraints={[
+        // [!code ++:7]
+        {
+          videoDynamicRange: {
+            bitDepth: 'hdr-10-bit',
+            colorRange: 'full',
+            colorSpace: 'hlg-bt2020'
+          }
+        }
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = ...
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    constraints: [
+      // [!code ++:7]
+      {
+        videoDynamicRange: {
+          bitDepth: 'hdr-10-bit',
+          colorRange: 'full',
+          colorSpace: 'hlg-bt2020'
+        }
+      }
+    ]
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = ...
+const device = ...
+
+const controllers = await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: [
+      // [!code ++:7]
+      {
+        videoDynamicRange: {
+          bitDepth: 'hdr-10-bit',
+          colorRange: 'full',
+          colorSpace: 'hlg-bt2020'
+        }
+      }
+    ]
+  }
+], {})
+```
+</Tab>
+</Tabs>
+
+The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) internally negotiates the [`{ videoDynamicRange: ... }`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint) constraint with other enabled constraints and all connected [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)s to find a best-matching supported combination on this device.
+
+> [!TIP]
+> To check if Video HDR is supported with your specific combination of constraints and outputs upfront, use [`isSessionConfigSupported(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#issessionconfigsupported).
+
+### Implementation details
+
+Video HDR is implemented in four different ways, possibly combined.
+
+#### Higher Bit-Depth
+
+Some Video HDR pipelines capture Frames with a higher bit-depth (10-bit instead of 8-bit) allowing for a wider color-spectrum.
+
+| Bit Depth | Different Colors | Maximum Brightness |
+|-----------|------------------|--------------------|
+|     8-bit |              256 |          ~100 nits |
+|    10-bit |             1024 |    ~1000-4000 nits |
+
+#### Different Transfer Function
+
+Video SDR (standard dynamic range) uses a _simple gamma curve_ for color mapping (e.g. BT.1886), which is limited in brightness range.
+
+Video HDR often use a different transfer functions - often PQ (HDR10/Dolby) or HLG, which fundamentally changes how brightness is encoded.
+
+#### Different Color Spaces
+
+The transfer functions often also affect color-spaces - while Video SDR typically uses [`'srgb'`](/api/react-native-vision-camera/type-aliases/ColorSpace), an HDR pipeline uses a wider color-space like [`'hlg-bt2020'`](/api/react-native-vision-camera/type-aliases/ColorSpace).
+
+#### Extended Dynamic Range
+
+Many Apple devices support capturing video using ["Extended Dynamic Range"](https://developer.apple.com/documentation/avfoundation/avcapturedevice/isvideohdrenabled), which internally doubles Video Frame Rate (see ["FPS"](fps)) to capture an under-exposed, an over-exposed and a regularly-exposed Frame in one go and fuses them together to create a more widely-exposed Frame - this is similar to how ["Photo HDR"](photo-hdr) works.

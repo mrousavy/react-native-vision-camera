@@ -1,0 +1,12 @@
+[*.{kt,kts}]
+ktlint_standard_filename = disabled
+ktlint_standard_function-expression-body = disabled
+ktlint_standard_when-entry = disabled
+ktlint_standard_blank-line-between-when-conditions = disabled
+ktlint_standard_when-entry-bracing = disabled
+ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than = 4
+
+[*]
+indent_style = space
+indent_size = 2
+max_line_length = 160

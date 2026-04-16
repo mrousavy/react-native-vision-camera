@@ -1,0 +1,118 @@
+---
+title: The Object Output
+description: Scanning Objects using the Object Output
+platforms: [iOS]
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraObjectOutput`](/api/react-native-vision-camera/hybrid-objects/CameraObjectOutput) allows scanning objects (as [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject)s) using the platform-native object outputs. This is more efficient than the Barcode Scanner (see ["The Barcode Scanner"](barcode-scanner)), but offers less flexibility.
+
+### Creating an Object Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:6]
+  const objectOutput = useObjectOutput({
+    types: ['qr'],
+    onObjectsScanned(objects) {
+      console.log(`Scanned ${objects.length} objects!`)
+    }
+  })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      outputs={[objectOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:6]
+  const objectOutput = useObjectOutput({
+    types: ['qr'],
+    onObjectsScanned(objects) {
+      console.log(`Scanned ${objects.length} objects!`)
+    }
+  })
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [objectOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++:6]
+const objectOutput = VisionCamera.createObjectOutput({
+  enabledObjectTypes: ['qr']
+})
+objectOutput.setOnObjectsScannedCallback((objects) => {
+  console.log(`Scanned ${objects.length} objects!`)
+})
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: objectOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+See [`ObjectOutputOptions`](/api/react-native-vision-camera/interfaces/ObjectOutputOptions) for a full list of configuration options for the Object Output.
+
+> [!WARNING]
+> The [`CameraObjectOutput`](/api/react-native-vision-camera/hybrid-objects/CameraObjectOutput) is iOS only, since Android does not have a native object output.
+>
+> Use ["The Barcode Scanner"](barcode-scanner) (which uses MLKit) on Android instead.
+
+### ScannedObject subclasses
+
+[`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject) is the base-class of all objects scanned by the [`CameraObjectOutput`](/api/react-native-vision-camera/hybrid-objects/CameraObjectOutput).
+
+There are multiple subclasses of [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject), such as [`ScannedCode`](/api/react-native-vision-camera/hybrid-objects/ScannedCode) (e.g. for QR codes or barcodes) or [`ScannedFace`](/api/react-native-vision-camera/hybrid-objects/ScannedFace):
+
+```tsx
+const objectOutput = useObjectOutput({
+  types: ['qr'],
+  onObjectsScanned(objects) {
+    for (const object of objects) {
+      // [!code ++:7]
+      if (isScannedCode(object)) {
+        console.log(`Code: ${object.value}`)
+      } else if (isScannedFace(object)) {
+        console.log(`Face: ${object.faceID}`)
+      } else {
+        console.log(`Unknown Object: ${object.type}`)
+      }
+    }
+  }
+})
+```
+
+> [!TIP]
+> See ["A ScannedObject"](a-scannedobject) for more information about Scanned Objects.

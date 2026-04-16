@@ -1,0 +1,102 @@
+{
+  "name": "react-native-vision-camera-skia",
+  "version": "5.0.0-beta.12",
+  "description": "Skia rendering plugin for react-native-vision-camera for drawing camera frames in React Native.",
+  "main": "lib/index",
+  "module": "lib/index",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "react-native.config.js",
+    "lib",
+    "*.podspec",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf lib",
+    "build": "tsc",
+    "typescript": "tsc",
+    "specs": "tsc --noEmit false",
+    "release": "release-it"
+  },
+  "keywords": [
+    "react-native",
+    "camera",
+    "react-native-camera",
+    "vision-camera",
+    "react-native-vision-camera",
+    "skia",
+    "react-native-skia",
+    "frame-rendering",
+    "frame-processor",
+    "camera-preview",
+    "graphics",
+    "canvas",
+    "ios",
+    "android"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrousavy/react-native-vision-camera.git"
+  },
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
+  },
+  "homepage": "https://visioncamera.margelo.com/api/react-native-vision-camera-skia",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@shopify/react-native-skia": "2.4.21",
+    "@types/react": "19.2.14",
+    "react": "19.2.3",
+    "react-native": "0.84.0",
+    "react-native-nitro-modules": "0.35.4",
+    "react-native-reanimated": "4.3.0",
+    "react-native-worklets": "0.8.1",
+    "react-native-vision-camera": "*",
+    "react-native-vision-camera-worklets": "*",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-vision-camera": "*",
+    "react-native-vision-camera-worklets": "*",
+    "@shopify/react-native-skia": "*",
+    "react-native-worklets": "*",
+    "react-native-reanimated": "*"
+  },
+  "release-it": {
+    "npm": {
+      "publish": true
+    },
+    "git": false,
+    "github": {
+      "release": false
+    },
+    "hooks": {
+      "before:init": "bun typecheck",
+      "after:bump": "bun run build"
+    }
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  }
+}

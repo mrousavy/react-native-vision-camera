@@ -1,0 +1,56 @@
+---
+title: Async Frame Processing
+description: Processing Frames asynchronously, freeing up work from the main Camera pipeline
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Frame Processors run fully synchronously, on the Camera Thread.
+If your Frame Processor cannot keep up with the Camera's frame rate, you can move your processing logic to an asynchronous runner instead.
+
+### The Async Runner
+
+To create an [`AsyncRunner`](/api/react-native-vision-camera/interfaces/AsyncRunner) use [`useAsyncRunner()`](/api/react-native-vision-camera/functions/useAsyncRunner):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const asyncRunner = useAsyncRunner()
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const asyncRunner = createAsyncRunner()
+```
+</Tab>
+</Tabs>
+
+> [!DEPENDENCY]
+> The [`AsyncRunner`](/api/react-native-vision-camera/interfaces/AsyncRunner) requires [react-native-vision-camera-worklets](/api/react-native-vision-camera-worklets) (and [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/)) to be installed.
+
+Then, schedule work on the [`AsyncRunner`](/api/react-native-vision-camera/interfaces/AsyncRunner)'s Thread:
+
+```ts
+const asyncRunner = useAsyncRunner()
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    // [!code ++:6]
+    const wasHandled = asyncRunner.runAsync(() => {
+      'worklet'
+      doSomeHeavyProcessing(frame)
+      // Async task finished - dispose the Frame now.
+      frame.dispose()
+    })
+    if (!wasHandled) {
+      // `asyncRunner` is busy - drop this Frame!
+      frame.dispose()
+    }
+  }
+})
+```
+
+If the [`AsyncRunner`](/api/react-native-vision-camera/interfaces/AsyncRunner) is currently busy, it will immediately return `false` and not schedule the work.
+In this case, you must drop the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) inside your [`onFrame(...)`](/api/react-native-vision-camera/interfaces/UseFrameOutputProps#onframe) callback via `dispose()`.
+
+If the [`AsyncRunner`](/api/react-native-vision-camera/interfaces/AsyncRunner) can pick up the work, it will return `true` and you can dispose the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) later, inside the async method's body.

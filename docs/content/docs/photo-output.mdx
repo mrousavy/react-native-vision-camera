@@ -1,0 +1,99 @@
+---
+title: The Photo Output
+description: Capturing Photos using the Photo Output
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput) allows capturing processed- and RAW-[`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s.
+
+### Creating a Photo Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const photoOutput = usePhotoOutput({ /* options */ })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      outputs={[photoOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const photoOutput = usePhotoOutput({ /* options */ })
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [photoOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++]
+const photoOutput = VisionCamera.createPhotoOutput({ /* options */ })
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: photoOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+See [`PhotoOutputOptions`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions) for a full list of configuration options for the Photo Output.
+
+### Capturing Photos
+
+#### Capturing Photos in-memory
+
+To capture a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) in-memory, use [`capturePhoto(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephoto):
+
+```ts
+const photo = await photoOutput.capturePhoto(
+  { /*  options  */ },
+  { /* callbacks */ }
+)
+```
+
+#### Capturing Photos to a file
+
+To capture a photo and directly save it to a temporary file, use [`capturePhotoToFile(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#capturephototofile):
+
+```ts
+const { filePath } = await photoOutput.capturePhotoToFile(
+  { /*  options  */ },
+  { /* callbacks */ }
+)
+```
+
+See [`CapturePhotoSettings`](/api/react-native-vision-camera/interfaces/CapturePhotoSettings) for a full list of configuration options, and [`CapturePhotoCallbacks`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks) for a full list of callbacks for the capture method.
+
+> [!TIP]
+> See ["A Photo"](a-photo) to understand how the [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) type works, and how to use it.

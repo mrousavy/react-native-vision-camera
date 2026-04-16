@@ -1,0 +1,162 @@
+---
+title: Low Light Boost
+description: Improving exposure in dark scenes using Low Light Boost, Camera Extensions, lower FPS and binned formats
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Low Light Boost allows the Camera pipeline to automatically extend exposure times (and effectively drop frame rate) to receive more light, if necessary.
+This is useful in dark scenes where the image would otherwise look too dark.
+
+### Check support
+
+Each [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) exposes whether it supports low light boost via [`supportsLowLightBoost`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportslowlightboost):
+
+```ts
+const device = ...
+console.log(device.supportsLowLightBoost)
+```
+
+### Enable Low Light Boost
+
+To enable low light boost, set [`enableLowLightBoost`](/api/react-native-vision-camera/interfaces/CameraViewProps#enablelowlightboost) to `true`:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraController (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      enableLowLightBoost={device.supportsLowLightBoost}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    enableLowLightBoost: device.supportsLowLightBoost
+  })
+}
+```
+</Tab>
+<Tab value="CameraController (imperative)">
+```ts
+const controller = ...
+if (controller.device.supportsLowLightBoost) {
+  // [!code ++:3]
+  await controller.configure({
+    enableLowLightBoost: true
+  })
+}
+```
+</Tab>
+</Tabs>
+
+> [!WARNING]
+> Make sure your [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports low light boost via [`supportsLowLightBoost`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportslowlightboost).
+> Enabling low light boost on an unsupported device will throw.
+
+### The `night` Camera Extension
+
+Some Android Phones have vendor-specific [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s.
+If the phone has a [`'night'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType) extension, you can enable it to get the best still images under low-light situations.
+This is a vendor-defined processing mode at ISP level, and can also improve exposure in dark scenes.
+
+To enable it, first query available extensions and then select the [`'night'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType) extension:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="extension-api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = ...
+  const extensions = useCameraDeviceExtensions(device)
+  const extension = extensions.find((e) => e.type === 'night')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      cameraExtension={extension}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = ...
+  const extensions = useCameraDeviceExtensions(device)
+  const extension = extensions.find((e) => e.type === 'night')
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    cameraExtension: extension
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const device = ...
+const session = ...
+const extensions = await getSupportedExtensions(device)
+const extension = extensions.find((e) => e.type === 'night')
+
+const controllers = await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: [],
+    // [!code ++]
+    cameraExtension: extension
+  }
+], {})
+```
+</Tab>
+</Tabs>
+
+As with all [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s, this mode comes with the usual Camera Extension limitations around [Video HDR](video-hdr), RAW capture and Frame Streaming.
+
+> [!TIP]
+> See ["Camera Extensions"](camera-extensions) for more information.
+
+### Other ways to improve low-light exposure
+
+#### Binned Formats
+
+Binned formats combine multiple neighboring sensor pixels into one larger effective pixel.
+This often improves low-light exposure too, so if low-light performance is more important than maximum spatial detail, prefer a [`{ binned: true }`](/api/react-native-vision-camera/interfaces/BinnedConstraint) constraint.
+
+#### Lower FPS
+
+Lower FPS gives the Camera more time to expose each Frame, which can improve low-light exposure.
+If you don't need 60 FPS, use a lower [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint like 30 FPS or 24 FPS instead.
+
+> [!TIP]
+> See ["FPS"](fps) for more information.
+
+#### Exposure Bias
+
+Increasing [Exposure Bias](exposure-bias) can also make the image brighter, but it may introduce more noise.
+If possible, prefer actually receiving more light through low light boost, binned formats or lower FPS instead.
+
+> [!TIP]
+> See ["Exposure Bias"](exposure-bias) for more information.

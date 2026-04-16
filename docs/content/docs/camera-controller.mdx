@@ -1,0 +1,82 @@
+---
+title: Camera Controller
+description: Creating a Camera Controller and using it to adjust the Camera's zoom, exposure, focus, and more
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) controls an active [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession)'s properties, like [zoom](zooming), [exposure](exposure-bias) or [focus](tap-to-focus).
+
+### Get a CameraController
+
+The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession)'s [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure) method returns one [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) per configured [`CameraSessionConnection`](/api/react-native-vision-camera/interfaces/CameraSessionConnection) - which, in single-camera Sessions is always one or zero.
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view exposes its [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) under its [`CameraRef`](/api/react-native-vision-camera/interfaces/CameraRef):
+```tsx
+function App() {
+  // [!code ++]
+  const camera = useRef<CameraRef>(null)
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++:5]
+      ref={camera}
+      onConfigured={() => {
+        // Now the `controller` is set on the ref
+        const controller = camera.current.controller
+      }}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+The [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) hook returns a [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController):
+```tsx
+function App() {
+  // [!code ++:4]
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) returns all [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController)s in [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure):
+```tsx
+const device = ...
+const session = ...
+
+// [!code ++:8]
+const controllers = await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: []
+  }
+], {})
+```
+</Tab>
+</Tabs>
+
+### Probe for feature availability
+
+Since Camera hardware varies between vendors, always make sure to probe for available features - for example, to use exposure bias (see ["Exposure Bias"](exposure-bias)) make sure the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports it:
+
+```ts
+const controller = ...
+if (controller.device.supportsExposureBias) {
+  const targetExposure = 5
+  const clampedExposure = Math.min(targetExposure, controller.device.maxExposureBias)
+  await controller.setExposureBias(clampedExposure)
+}
+```
+
+> [!NOTE]
+> See [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) for a full list of available features.

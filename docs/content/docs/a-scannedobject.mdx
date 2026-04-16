@@ -1,0 +1,90 @@
+---
+title: A ScannedObject
+description: Understanding the ScannedObject type
+platforms: [iOS]
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject) is any kind of object (like a machine readable code or a human face) scanned by a [`CameraObjectOutput`](/api/react-native-vision-camera/hybrid-objects/CameraObjectOutput).
+
+### ScannedObject subclasses
+
+[`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject) is the base-class of all objects scanned by the [`CameraObjectOutput`](/api/react-native-vision-camera/hybrid-objects/CameraObjectOutput).
+
+There are multiple subclasses of [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject), such as [`ScannedCode`](/api/react-native-vision-camera/hybrid-objects/ScannedCode) (e.g. for QR codes or barcodes) or [`ScannedFace`](/api/react-native-vision-camera/hybrid-objects/ScannedFace):
+
+```ts
+const scannedObject = ...
+// [!code ++]
+if (isScannedCode(scannedObject)) {
+  console.log(`Code: ${scannedObject.value}`)
+// [!code ++]
+} else if (isScannedFace(scannedObject)) {
+  console.log(`Face: ${scannedObject.faceID}`)
+} else {
+  console.log(`Any Object: ${scannedObject.type}`)
+}
+```
+
+### Coordinate System Conversions
+
+A [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject)'s [`boundingBox`](/api/react-native-vision-camera/hybrid-objects/ScannedObject#boundingbox) describes its location in the Camera's coordinate system - which ranges from `0.0` to `1.0`.
+Additionally, a [`ScannedCode`](/api/react-native-vision-camera/hybrid-objects/ScannedCode) exposes [`cornerPoints`](/api/react-native-vision-camera/hybrid-objects/ScannedCode#cornerpoints), and a [`ScannedFace`](/api/react-native-vision-camera/hybrid-objects/ScannedFace) exposes [`rollAngle`](/api/react-native-vision-camera/hybrid-objects/ScannedFace#rollangle) and [`yawAngle`](/api/react-native-vision-camera/hybrid-objects/ScannedFace#yawangle), which are also relative to the Camera's coordinate system.
+
+You can convert all [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject)'s coordinates to a Preview View coordinate system using [`convertScannedObjectCoordinatesToViewCoordinates(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertscannedobjectcoordinatestoviewcoordinates):
+
+<Tabs items={["<Camera />", "<NativePreviewView />"]}>
+<Tab value="<Camera />">
+```tsx
+function App() {
+  const camera = useRef<CameraRef>(null)
+
+  const objectOutput = useObjectOutput({
+    types: ['all'],
+    onObjectsScanned(objects) {
+      for (const object of objects) {
+        // [!code ++:2]
+        const converted = camera.current
+          .convertScannedObjectCoordinatesToViewCoordinates(object)
+      }
+    }
+  })
+
+  return (
+    <Camera
+      ref={camera}
+      {...props}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="<NativePreviewView />">
+```tsx
+function App() {
+  const preview = useRef<PreviewView>(null)
+
+  const objectOutput = useObjectOutput({
+    types: ['all'],
+    onObjectsScanned(objects) {
+      for (const object of objects) {
+        // [!code ++:2]
+        const converted = preview.current
+          .convertScannedObjectCoordinatesToViewCoordinates(object)
+      }
+    }
+  })
+
+  return (
+    <NativePreviewView
+      hybridRef={callback((r) => {
+        preview.current = r
+      })}
+      {...props}
+    />
+  )
+}
+```
+</Tab>
+</Tabs>
