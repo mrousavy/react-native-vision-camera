@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera-location",
-  "version": "5.0.0-beta.12",
+  "version": "5.0.0",
   "description": "Location tagging plugin for react-native-vision-camera for photo EXIF and video metadata.",
   "main": "lib/index",
   "module": "lib/index",

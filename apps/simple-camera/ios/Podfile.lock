@@ -2320,7 +2320,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCamera (5.0.0-beta.12):
+  - VisionCamera (5.0.0):
     - hermes-engine
     - NitroImage
     - NitroModules
@@ -2345,7 +2345,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCameraBarcodeScanner (5.0.0-beta.12):
+  - VisionCameraBarcodeScanner (5.0.0):
     - GoogleMLKit/BarcodeScanning (= 8.0.0)
     - hermes-engine
     - NitroModules
@@ -2371,7 +2371,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraLocation (5.0.0-beta.12):
+  - VisionCameraLocation (5.0.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2396,7 +2396,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraResizer (5.0.0-beta.12):
+  - VisionCameraResizer (5.0.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2421,7 +2421,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraWorklets (5.0.0-beta.12):
+  - VisionCameraWorklets (5.0.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2749,7 +2749,7 @@ SPEC CHECKSUMS:
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  hermes-engine: 419d17efa9cfbd1cecb80eea69151e19f478debb
+  hermes-engine: 338e680ddbc265eedeca6897afcdeab60e0af645
   MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
   MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
   MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
@@ -2766,7 +2766,7 @@ SPEC CHECKSUMS:
   React: 7ef36630d07638043a134a7dd2ec17e0be10fc3c
   React-callinvoker: af4e8fe1d60ab63dd8d74c2a68988064c2848954
   React-Core: c0fb1df65eb0ed7a8633841831f05f93c3eb3aff
-  React-Core-prebuilt: 201309c9b83038847fafead33a980ef2808200e3
+  React-Core-prebuilt: 4978df8b63170d68b35f64f5e070d67e24e67184
   React-CoreModules: 7dfe7962360355f1547c85ab52e1fc4b57f17127
   React-cxxreact: 9e9c7f1710bc58abebf924813b5e825b99adb8e5
   React-debug: 38389b86e3570558ec73dd4cbc0cd2f2eec47a51
@@ -2833,18 +2833,18 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 625d2f6d9d5ef01acc9dfe2b5385504bbffd2ad0
   ReactCodegen: e6f176b40e56d6fa6d441baf3bc2e351172a41a6
   ReactCommon: cc0e38600f82487c5fe5d29150abb6fa9d981986
-  ReactNativeDependencies: 46fb76cb2cfe3b182c24709f96932867a27c8f59
+  ReactNativeDependencies: 15a6a8ab2c09e708aea8edc0a7f90a8a112aef63
   RNGestureHandler: 6d378fd1aa991c7ab62a4215ee6cc417895a6954
   RNReanimated: 9c65860a356274f39a796983d10ff58ce828ac9c
   RNScreens: 088d923c4327c63c9f8c942cae17a9d038f47d97
   RNVectorIcons: af977c18ed27deba54ed038b439fca2911a08cfc
   RNWorklets: e72cc4f0a1ffc40ca93479b191f0f33191d0dd97
-  VisionCamera: d7bb3bd99846eba7029ac2184da16af8b5ffebce
-  VisionCameraBarcodeScanner: 521e1f6bee2274a599ac7ec1e3ebd1dbde00562e
-  VisionCameraLocation: 73ac325ee7a99476a97422c4f3227ad9708cf171
-  VisionCameraResizer: b35f7886dd0de2648d18d78e0d894e6a1384ec6c
-  VisionCameraWorklets: 057c18512a302908dbd47d18ae061157e3772b52
-  Yoga: 772166513f9cd2d61a6251d0dacbbfaa5b537479
+  VisionCamera: 63ed12fb35614d7ed290f1b0ae6b8c3f68348de7
+  VisionCameraBarcodeScanner: 8c95ff750ae826697b28ee7173323b2fc2dd9c76
+  VisionCameraLocation: 2e9c09a8c484da36ee2b81825995d2e591f0445b
+  VisionCameraResizer: e49b277e33e6fdfc45ec0215eccc98b70bf64e91
+  VisionCameraWorklets: 3660ea372511033be188c26560e13334476459a9
+  Yoga: 0a3b1e85da3524bdc3e0161818c8881ad363f97b
 
 PODFILE CHECKSUM: 225e4ff5bb6719c47fa66724251c4ad2098c76da
 
