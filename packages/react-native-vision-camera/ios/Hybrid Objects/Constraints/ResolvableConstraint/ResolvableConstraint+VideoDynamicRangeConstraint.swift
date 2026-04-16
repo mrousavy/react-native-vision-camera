@@ -132,41 +132,36 @@ extension ColorRange {
 
 // MARK: - Bit Depth
 
-enum BitDepth {
-  case `10`
-  case `8`
-  case unknown
-}
 extension CMFormatDescription.MediaSubType {
-  var bitDepth: BitDepth {
+  var bitDepth: DynamicRangeBitDepth {
     switch self {
     case .yuv4208BitVideo, .yuv4208BitFull, .yuv4228BitVideo, .yuv4228BitFull:
-      return .`8`
+      return .sdr8Bit
     case .yuv42010BitVideo, .yuv42010BitFull, .yuv42210BitVideo, .yuv42210BitFull:
-      return .`10`
+      return .hdr10Bit
     default:
       return .unknown
     }
   }
 }
 extension TargetDynamicRangeBitDepth {
-  fileprivate func toBitDepth() -> BitDepth {
+  fileprivate func toBitDepth() -> DynamicRangeBitDepth {
     switch self {
     case .sdr8Bit:
-      return .`8`
+      return .sdr8Bit
     case .hdr10Bit:
-      return .`10`
+      return .hdr10Bit
     }
   }
 }
-extension BitDepth {
-  fileprivate func penalty(to target: BitDepth) -> Int {
+extension DynamicRangeBitDepth {
+  fileprivate func penalty(to target: DynamicRangeBitDepth) -> Int {
     switch (self, target) {
-    case (.`8`, .`8`), (.`10`, .`10`):
+    case (.sdr8Bit, .sdr8Bit), (.hdr10Bit, .hdr10Bit):
       return 0
-    case (.`8`, .`10`):
+    case (.sdr8Bit, .hdr10Bit):
       return 1
-    case (.`10`, .`8`):
+    case (.hdr10Bit, .sdr8Bit):
       return 2
     case (_, .unknown), (.unknown, _):
       return 3
@@ -175,9 +170,9 @@ extension BitDepth {
 
   fileprivate func toTargetBitDepth() -> TargetDynamicRangeBitDepth {
     switch self {
-    case .`10`:
+    case .hdr10Bit:
       return .hdr10Bit
-    case .`8`, .unknown:
+    case .sdr8Bit, .unknown:
       return .sdr8Bit
     }
   }
