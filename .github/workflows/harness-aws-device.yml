@@ -72,7 +72,7 @@ env:
 jobs:
   detect-changes:
     name: Detect Changes
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     outputs:
       run_android: ${{ steps.set_dispatch.outputs.run_android || steps.set_filter.outputs.run_android }}
       run_ios: ${{ steps.set_dispatch.outputs.run_ios || steps.set_filter.outputs.run_ios }}
@@ -124,7 +124,7 @@ jobs:
 
   prepare-devicefarm-assets:
     name: Prepare Device Farm Assets
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     needs:
       - detect-changes
     if: ${{ needs.detect-changes.outputs.run_android == 'true' || needs.detect-changes.outputs.run_ios == 'true' }}
@@ -188,7 +188,7 @@ jobs:
 
   test-android:
     name: Test Android
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     needs:
       - detect-changes
@@ -291,7 +291,7 @@ jobs:
 
   build-ios:
     name: Build iOS
-    runs-on: blacksmith-6vcpu-macos-26
+    runs-on: macos-latest
     timeout-minutes: 45
     needs:
       - detect-changes
@@ -394,7 +394,7 @@ jobs:
 
   test-ios:
     name: Test iOS
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     needs:
       - detect-changes
