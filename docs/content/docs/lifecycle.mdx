@@ -1,0 +1,84 @@
+---
+title: Lifecycle
+description: Understanding a Camera Session's lifecycle, `isActive` and shutdown
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) has three lifecycle stages:
+
+- Idle (no connections, and not running)
+- Ready (connections configured, but not yet started)
+- Active (connections configured and started)
+
+### Switching between lifecycle stages
+
+It is recommended to move an active Camera Session to the "Ready" state when it goes out of view, to prevent the Camera from running in the background.
+This will stop the Camera (see [`CameraSession.stop()`](/api/react-native-vision-camera/hybrid-objects/CameraSession#stop)) while keeping it configured and prepared in-memory.
+For example, in [react-navigation](https://github.com/react-navigation/react-navigation) you would use [`useIsFocused()`](https://reactnavigation.org/docs/use-is-focused/):
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+// [!code ++]
+import { useIsFocused } from '@react-navigation/native'
+
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const isFocused = useIsFocused()
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      // [!code ++]
+      isActive={isFocused}
+      device={device}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+// [!code ++]
+import { useIsFocused } from '@react-navigation/native'
+
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const isFocused = useIsFocused()
+  const camera = useCamera({
+    // [!code ++]
+    isActive: isFocused,
+    device: device,
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = ...
+
+// [!code ++:6]
+const focusListener = navigation.addListener('focus', async () => {
+  await session.start()
+})
+const blurListener = navigation.addListener('blur', async () => {
+  await session.stop()
+})
+```
+</Tab>
+</Tabs>
+
+#### Unmounting vs `isActive={false}`
+
+When [`isActive`](/api/react-native-vision-camera/interfaces/CameraProps#isactive) is set to `false`, the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) remains fully configured in memory ("Ready" state), causing subsequent calls to [`isActive`](/api/react-native-vision-camera/interfaces/CameraProps#isactive) = `true` to be much faster.
+
+If the [`<Camera />`](/api/react-native-vision-camera/views/Camera) is instead fully unmounted, the entire [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) will be torn down and all connections will be removed.
+
+#### Reconfiguring
+
+When the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) is reconfigured (e.g. when attaching or removing [`outputs={...}`](/api/react-native-vision-camera/interfaces/CameraProps#outputs), changing the input [`device={...}`](/api/react-native-vision-camera/interfaces/CameraProps#device) or adjusting [`constraints={...}`](/api/react-native-vision-camera/interfaces/CameraProps#constraints)), it will be paused for a brief moment to submit the new configuration to the hardware.
+
+As a general tip, avoid reconfigurations as much as possible.

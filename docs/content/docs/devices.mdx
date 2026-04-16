@@ -1,0 +1,197 @@
+---
+title: Camera Devices
+description: Understanding what Camera Devices are, what capabilities they have, and how to connect them to a Camera Session
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) is a camera lens on your phone that can be used as an input for a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession).
+The [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) type reports supported Camera features such as zoom ranges, available resolutions, supported FPS ranges, device-specific metadata and more.
+
+In most cases, the default [`'back'`](/api/react-native-vision-camera/type-aliases/CameraPosition) Camera Device is the most fitting:
+<Tabs items={["Hooks", "Imperative"]} groupId="api-style" persist>
+<Tab value="Hooks">
+```tsx
+const device = useCameraDevice("back")
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const device = await getDefaultCameraDevice("back")
+```
+</Tab>
+</Tabs>
+
+### Camera Device Types
+
+#### Physical Device Types
+
+There are effectively three different physical Device Types (see [`DeviceType`](/api/react-native-vision-camera/type-aliases/DeviceType)):
+
+- [`'ultra-wide-angle'`](/api/react-native-vision-camera/type-aliases/DeviceType): A physical Camera with an ultra-wide field of view, like a fish-eye view. Often referred to as "the 0.5x Camera".
+- [`'wide-angle'`](/api/react-native-vision-camera/type-aliases/DeviceType): A physical Camera with a wide field of view suitable for everyday mobile photography. Often referred to as "the 1x Camera", or "the default Camera".
+- [`'telephoto'`](/api/react-native-vision-camera/type-aliases/DeviceType): A physical Camera with a narrow field of view suitable for large zooms. Often referred to as "the 3x Camera" or "the 5x Camera".
+
+#### Virtual Devices
+
+Some [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)s consist of two or more physical devices to make up a single "virtual" device, like the [`triple`](/api/react-native-vision-camera/type-aliases/DeviceType) camera - which consists of the `ultra-wide-angle`, the `wide-angle` and the `telephoto` Camera.
+Virtual [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)s support automatically switching over between physical devices to provide a "zoom-out" experience like in this Google Pixel Ad:
+
+![Example of swapping cameras for zoom level use-case (from Pixel 3 Ad)](/img/multi-camera-zoom-out.gif)
+
+### Individual Capabilities (Constraints)
+
+A [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) exposes its individually supported capabilities such as Resolutions, Photo HDR, Video HDR, FPS Ranges, Video Stabilization Modes and more.
+
+```ts
+const device = ...
+console.log(device.getSupportedResolutions('video'))
+console.log(device.getSupportedResolutions('photo'))
+console.log(device.supportedPixelFormats)
+console.log(device.supportedFPSRanges)
+console.log(device.supportsPhotoHDR)
+console.log(device.supportsVideoStabilizationMode('cinematic'))
+```
+
+As mentioned in the ["Constraints API"](constraints), these features are _individually_ supported, but not guaranteed to be supported when combined with other features.
+VisionCamera requires you to use [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s to safely combine features, and finds a best matching Camera configuration automatically.
+
+> [!TIP]
+> See ["Constraints API"](constraints) for more information.
+
+### Selecting a custom Camera Device
+
+The Camera Device used for your Camera Session affects available features and resolutions, where more powerful devices tend to have a bigger starting time performance impact.
+
+For simple Camera use-cases, it's often a good idea to just select a single physical Camera - which loads faster than a bigger virtual Camera, and supports most available resolutions.
+
+#### Select a specific Camera Device by criteria
+
+You can also select a specific Camera Device that matches your criteria (e.g. Triple-Camera):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="api-style" persist>
+<Tab value="Hooks">
+```tsx
+const device = useCameraDevice("back", {
+  physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto']
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const devices = getAllCameraDevices()
+const device = getCameraDevice(devices, "back", {
+  physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto']
+})
+```
+</Tab>
+</Tabs>
+
+The Triple-Camera then lists all of its constituent physical devices;
+
+```ts
+for (const physicalDevice of device.physicalDevices) {
+  console.log(physicalDevice.type)
+}
+// Output:
+//   'wide-angle'
+//   'ultra-wide-angle'
+//   'triple'
+```
+
+#### Getting all Camera Devices
+
+If you want to filter out Camera Devices yourself, you can get all available Camera devices on the system:
+
+<Tabs items={["Hooks", "Imperative"]} groupId="api-style" persist>
+<Tab value="Hooks">
+```tsx
+const devices = useCameraDevices()
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+let devices = getAllCameraDevices()
+addOnCameraDevicesChangedListener((d) => {
+  devices = d
+})
+```
+</Tab>
+</Tabs>
+
+#### External Devices
+
+VisionCamera allows using external Cameras, as long as they implement the platform's Camera API - most USB Cameras that implement the [UVC](https://en.wikipedia.org/wiki/USB_video_device_class) protocol do this.
+On iPad, Mac, and Android this often works seamlessly:
+
+<Tabs items={["Hooks", "Imperative"]} groupId="api-style" persist>
+<Tab value="Hooks">
+```tsx
+const device = useCameraDevice("external")
+```
+
+As an external Camera is plugged in or plugged out from the device, the [`useCameraDevice(...)`](/api/react-native-vision-camera/functions/useCameraDevice) hook automatically updates.
+</Tab>
+<Tab value="Imperative">
+```ts
+const devices = getAllCameraDevices()
+let device = getCameraDevice(devices, "external")
+addOnCameraDevicesChangedListener((d) => {
+  device = getCameraDevice(d, "external")
+})
+```
+
+As an external Camera is plugged in or plugged out from the device, the [`addOnCameraDevicesChangedListener(...)`](/api/react-native-vision-camera/functions/addOnCameraDevicesChangedListener) listener fires and you can call [`getCameraDevice(...)`](/api/react-native-vision-camera/functions/getCameraDevice) again to possibly detect new devices, or avoid using removed devices.
+</Tab>
+</Tabs>
+
+
+### Using the Camera Device
+
+To use your [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice), pass it to your Camera's Configuration:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      // [!code ++]
+      device={device}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+      // [!code ++]
+    device: device,
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+await session.configure([
+  {
+    // [!code ++]
+    input: device,
+    outputs: [],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>

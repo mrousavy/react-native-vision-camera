@@ -1,0 +1,127 @@
+---
+title: Zooming
+description: Zooming in and out in the Camera and understanding virtual device switchover
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Zooming allows you to adjust the crop-area of a Camera:
+
+<Tabs items={["<Camera /> (view)", "CameraController (imperative)"]} groupId="view-or-controller" persist>
+<Tab value="<Camera /> (view)">
+The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view allows adjusting [`zoom`](/api/react-native-vision-camera/interfaces/CameraViewProps#zoom) via React state (a `number`), or a [Reanimated `SharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/core/useSharedValue/) - which is the recommended approach for smoothly adjusting zoom.
+```tsx
+function App() {
+  // [!code ++]
+  const zoom = useSharedValue(device.minZoom)
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      zoom={zoom}
+    />
+  )
+}
+```
+
+Alternatively, you can enable the native Zoom Gesture by setting [`enableNativeZoomGesture`](/api/react-native-vision-camera/interfaces/CameraViewProps#enablenativezoomgesture) to `true`:
+```tsx
+function App() {
+  return (
+    <Camera
+      {...props}
+      // [!code ++]
+      enableNativeZoomGesture={true}
+    />
+  )
+}
+```
+See [`ZoomGestureController`](/api/react-native-vision-camera/hybrid-objects/ZoomGestureController) for more information.
+</Tab>
+<Tab value="CameraController (imperative)">
+To zoom on a [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController), use [`setZoom(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#setzoom):
+
+```ts
+const device = ...
+const controller = ...
+// [!code ++]
+await controller.setZoom(device.minZoom)
+```
+</Tab>
+</Tabs>
+
+> [!WARNING]
+> Make sure your Zoom value always stays within the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)'s supported zoom ranges: [`minZoom`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#minzoom) and [`maxZoom`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#maxzoom):
+>
+> ```ts
+> const device = ...
+> const zoom = ...
+> const clampedZoom = Math.min(Math.max(zoom, device.minZoom), device.maxZoom)
+> ```
+
+### Zoom Animations
+
+Zoom animations can be started using [`CameraController.startZoomAnimation(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#startzoomanimation):
+
+```ts
+const controller = ...
+const zoom = ...
+await controller.startZoomAnimation(zoom, 2)
+```
+
+To cancel a zoom animation, use [`CameraController.cancelZoomAnimation(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#cancelzoomanimation):
+
+```ts
+const controller = ...
+await controller.cancelZoomAnimation()
+```
+
+### Virtual Device Zoom switchover
+
+Virtual Camera Devices (see [`CameraDevice.isVirtualDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#isvirtualdevice)) contain multiple constituent physical devices, and automatically switchover between devices, depending on the zoom ratio.
+
+![Example of swapping cameras for zoom level use-case (from Pixel 3 Ad)](/img/multi-camera-zoom-out.gif)
+
+To find out at which zoom ranges a virtual device may switch over to a different physical device, use [`CameraDevice.zoomLensSwitchFactors`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#zoomlensswitchfactors):
+
+```ts
+const device = ...
+const controller = ...
+for (const switchOverFactor of device.zoomLensSwitchFactors) {
+  await controller.setZoom(switchOverFactor)
+}
+```
+
+#### Default Zoom
+
+To provide a natural user experience, always start at zoom `1`.
+If a virtual Camera contains an [`'ultra-wide-angle'`](/api/react-native-vision-camera/type-aliases/DeviceType) Camera (the "0.5x Camera"), the user may zoom out to less than `1` (here `0.5`) instead.
+
+- [`minZoom`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#minzoom) &lt;= `1` (e.g. 0.5x)
+- natural zoom = `1`
+- [`maxZoom`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#maxzoom) &gt;= `1` (e.g. 3x)
+
+### Getting current zoom values
+
+A [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) exposes its current [`zoom`](/api/react-native-vision-camera/hybrid-objects/CameraController#zoom) value:
+
+```ts
+const controller = ...
+console.log(controller.zoom) // 1
+await controller.setZoom(5)
+console.log(controller.zoom) // 5
+```
+
+#### Getting a user-displayable zoom factor
+
+A [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) also exposes a user-displayable zoom factor via [`displayableZoomFactor`](/api/react-native-vision-camera/hybrid-objects/CameraController#displayablezoomfactor):
+
+```ts
+const controller = ...
+console.log(controller.displayableZoomFactor) // 0.5
+await controller.setZoom(2)
+console.log(controller.displayableZoomFactor) // 1
+```

@@ -1,0 +1,112 @@
+---
+title: The Barcode Scanner
+description: Using the Barcode Scanner view, output or plugin to detect Barcodes and QR codes
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The Barcode Scanner allows detecting machine readable codes (like Barcodes or QR codes) using [MLKit](https://developers.google.com/ml-kit).
+It ships a simple [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view, a Barcode Scanner Frame Processor Plugin, and a Barcode Scanner [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) via the [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner) library.
+
+Unlike [the Object Output](object-output) (which is iOS-only), the Barcode Scanner works on both iOS and Android.
+
+> [!DEPENDENCY]
+> The Barcode Scanner requires [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner) to be installed.
+
+### Using the Barcode Scanner
+
+<Tabs items={["<CodeScanner /> (view)", "CameraOutput", "Frame Processor Plugin"]} groupId="barcode-api-style" persist>
+<Tab value="<CodeScanner /> (view)">
+The [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view is a simple view component to scan Barcodes:
+
+```tsx
+function App() {
+  const isFocused = useIsFocused()
+
+  return (
+    <CodeScanner
+      isActive={isFocused}
+      barcodeFormats={['all-formats']}
+      onBarcodeScanned={(barcodes) => {
+        console.log(`Scanned ${barcodes.length} barcodes!`)
+      }}
+      onError={(error) => {
+        console.error(`Error scanning barcodes:`, error)
+      }}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="CameraOutput">
+For more control around the [`<Camera />`](/api/react-native-vision-camera/views/Camera) or [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), you can also create a Barcode Scanner [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) via [`useBarcodeScannerOutput(...)`](/api/react-native-vision-camera-barcode-scanner/functions/useBarcodeScannerOutput), which can then be attached to a session:
+
+```tsx
+function App() {
+  // [!code ++:9]
+  const barcodeOutput = useBarcodeScannerOutput({
+    barcodeFormats: ['all-formats'],
+    onBarcodeScanned(barcodes) {
+      console.log(`Scanned ${barcodes.length} barcodes!`)
+    },
+    onError(error) {
+      console.error(`Failed to scan barcodes!`, error)
+    }
+  })
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      outputs={[barcodeOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="Frame Processor Plugin">
+For full control over scanning and coordinate system conversions, create a [`BarcodeScanner`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner) directly via [`useBarcodeScanner(...)`](/api/react-native-vision-camera-barcode-scanner/functions/useBarcodeScanner), which can then be used inside a Frame Processor (see ["The Frame Output"](frame-output)) to scan Barcodes in a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame):
+```tsx
+function App() {
+  // [!code ++:3]
+  const barcodeScanner = useBarcodeScanner({
+    barcodeFormats: ['all-formats'],
+  })
+  const frameOutput = useFrameOutput({
+    onFrame(frame) {
+      'worklet'
+      // [!code ++]
+      const barcodes = barcodeScanner.scanCodes(frame)
+      console.log(`Detected ${barcodes.length} barcodes!`)
+      frame.dispose()
+    }
+  })
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+      outputs={[frameOutput]}
+    />
+  )
+}
+```
+</Tab>
+</Tabs>
+
+### Configuring Barcode Formats
+
+The code example above are configured to detect **all** [`BarcodeFormat`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat)s.
+To improve performance, you should narrow [`barcodeFormats`](/api/react-native-vision-camera-barcode-scanner/interfaces/BarcodeScannerOptions#barcodeformats) down to only the formats you need - for example [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) - which is a common Barcode Format, or [`'qr-code'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) for square QR codes.
+
+### Test it
+
+To verify your [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) works, try scanning this example [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) Barcode:
+
+![An example Barcode 128](/img/barcode-example.png)
+
+> [!TIP]
+> See ["A Barcode"](a-barcode) for more information about a [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode).

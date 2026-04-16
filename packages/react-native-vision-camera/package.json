@@ -1,0 +1,114 @@
+{
+  "name": "react-native-vision-camera",
+  "version": "5.0.0-beta.12",
+  "description": "VisionCamera is the fastest and most powerful Camera for react-native.",
+  "main": "lib/index",
+  "module": "lib/index",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index",
+  "source": "src/index",
+  "files": [
+    "src",
+    "react-native.config.js",
+    "lib",
+    "nitrogen",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/fix-prefab.gradle",
+    "android/CMakeLists.txt",
+    "android/src",
+    "ios/**/*.h",
+    "ios/**/*.m",
+    "ios/**/*.mm",
+    "ios/**/*.cpp",
+    "ios/**/*.swift",
+    "cpp/**/*.h",
+    "cpp/**/*.hpp",
+    "cpp/**/*.cpp",
+    "nitro.json",
+    "*.podspec",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "tsc || exit 0;",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf android/build node_modules/**/android/build lib",
+    "build": "tsc",
+    "specs": "tsc --noEmit false && nitrogen",
+    "release": "release-it"
+  },
+  "keywords": [
+    "react-native",
+    "camera",
+    "react-native-camera",
+    "vision-camera",
+    "photo",
+    "video",
+    "frame-processor",
+    "frame-processing",
+    "barcode",
+    "qr-code",
+    "scanner",
+    "jsi",
+    "worklet",
+    "ios",
+    "android",
+    "realtime",
+    "high-performance"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrousavy/react-native-vision-camera.git"
+  },
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
+  },
+  "homepage": "https://visioncamera.margelo.com",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "nitrogen": "0.35.4",
+    "react": "19.2.3",
+    "react-native": "0.84.0",
+    "react-native-nitro-image": "0.13.1",
+    "react-native-nitro-modules": "0.35.4",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-nitro-modules": "*",
+    "react-native-nitro-image": "*"
+  },
+  "release-it": {
+    "npm": {
+      "publish": true
+    },
+    "git": false,
+    "github": {
+      "release": false
+    },
+    "hooks": {
+      "before:init": "bun typecheck",
+      "after:bump": "bun run build"
+    }
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      "commonjs",
+      "module",
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  }
+}

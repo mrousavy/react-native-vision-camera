@@ -1,0 +1,40 @@
+---
+title: A Frame's NativeBuffer
+description: Understanding a Frame's NativeBuffer and using it with third-party APIs
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is an in-memory instance, wrapping the native GPU-backed buffer.
+To allow better interop with third party libraries without adding native dependencies, a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) exposes it's underlying [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer).
+
+### What is a NativeBuffer
+
+A [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer) is a simple JS-object holding a [`pointer`](/api/react-native-vision-camera/interfaces/NativeBuffer#pointer) with a +1 retain count, and a [`release()`](/api/react-native-vision-camera/interfaces/NativeBuffer#release) function.
+After you are done using the [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer), **you must release it again** via [`release()`](/api/react-native-vision-camera/interfaces/NativeBuffer#release), otherwise you'll leak memory and stall the Camera pipeline.
+
+### How to implement NativeBuffer
+
+A native library can implement the "NativeBuffer contract" simply by agreeing to the same standard; a `pointer` is a `bigint` pointing to a native C++ instance, and `release()` is a function you must call to release your reference of the NativeBuffer again.
+
+The native C++ instance is assumed to have a ref-count of +1, meaning lifetime is guaranteed.
+
+[`pointer`](/api/react-native-vision-camera/interfaces/NativeBuffer#pointer) is a `bigint` (`uint64_t`/`uintptr`), which corresponds to the following platform types:
+
+| iOS                                                                                     | Android                                                                                   |
+|-----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [`CVPixelBufferRef`](https://developer.apple.com/documentation/corevideo/cvpixelbuffer) | [`AHardwareBuffer*`](https://developer.android.com/ndk/reference/group/a-hardware-buffer) |
+
+See [@Shopify/react-native-skia](https://github.com/Shopify/react-native-skia)'s implementation of `NativeBuffer` for reference: [`JsiSkImageFactory.h`](https://github.com/Shopify/react-native-skia/blob/2552fc7edcb0a37b4ad1b9734a2c82bf97f06352/packages/skia/cpp/api/JsiSkImageFactory.h#L44-L56)
+
+### Getting a Frame's NativeBuffer
+
+To get a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s underlying [`NativeBuffer`](/api/react-native-vision-camera/interfaces/NativeBuffer), use [`getNativeBuffer()`](/api/react-native-vision-camera/hybrid-objects/Frame#getnativebuffer):
+
+```ts
+const frame = ...
+const nativeBuffer = frame.getNativeBuffer()
+// ...processing...
+nativeBuffer.release()
+frame.dispose()
+```

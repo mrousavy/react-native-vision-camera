@@ -1,0 +1,252 @@
+#version 450
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+layout(set = 0, binding = 0) uniform sampler2D inputImage;
+
+// 0u == DataType::INT8, 1u == DataType::UINT8, 2u == DataType::FLOAT16, 3u == DataType::FLOAT32
+layout(constant_id = 0) const uint kDataType = 0u;
+// 0u == ChannelOrder::RGB, 1u == ChannelOrder::BGR
+layout(constant_id = 1) const uint kChannelOrder = 0u;
+// 0u == PixelLayout::INTERLEAVED == HWC / NHWC, 1u == PixelLayout::PLANAR == CHW / NCHW
+layout(constant_id = 2) const uint kPixelLayout = 0u;
+// Number of channels per pixel. e.g. for RGB/BGR, this is 3u.
+layout(constant_id = 3) const uint kChannelCount = 0u;
+// 0u == ScaleMode::COVER, 1u == ScaleMode::CONTAIN
+layout(constant_id = 4) const uint kScaleMode = 0u;
+
+// The output buffer is addressed as 32-bit words. It must be pre-zeroed before dispatch
+// so that sub-word atomicOr writes from adjacent pixels combine correctly.
+layout(set = 0, binding = 1, std430) buffer OutputBuffer {
+  uint outputWords[];
+};
+
+layout(push_constant) uniform PushConstants {
+  uint outputWidth;
+  uint outputHeight;
+  int rotationDegrees;
+  uint isMirrored; // 0u == false, 1u == true
+} pushConstants;
+
+// Write a packed value (up to 32 bits wide) starting at the given byte offset.
+// The output buffer must be pre-zeroed so atomicOr produces correct results.
+void writePacked(uint byteOffset, uint bitWidth, uint packed) {
+  uint wordIndex = byteOffset >> 2u;
+  uint bitShift = (byteOffset & 3u) * 8u;
+
+  if (bitShift == 0u && bitWidth == 32u) {
+    // Word-aligned full-word write: no other thread touches this word.
+    outputWords[wordIndex] = packed;
+  } else if (bitShift + bitWidth <= 32u) {
+    // Fits within a single word.
+    atomicOr(outputWords[wordIndex], packed << bitShift);
+  } else {
+    // Straddles two words.
+    atomicOr(outputWords[wordIndex], packed << bitShift);
+    atomicOr(outputWords[wordIndex + 1u], packed >> (32u - bitShift));
+  }
+}
+
+// Map each output pixel back into source texture space after mirroring and undoing the frame rotation.
+vec2 outputToInputCoordinate(uvec2 gid) {
+  vec2 outputSize = vec2(float(pushConstants.outputWidth), float(pushConstants.outputHeight));
+  vec2 sourceSize = vec2(textureSize(inputImage, 0));
+  vec2 outputCoordinate = (vec2(gid) + vec2(0.5)) / outputSize;
+
+  float scale = 0.0;
+  switch (kScaleMode) {
+    case 0u: // 0u == ScaleMode::COVER
+      scale = max(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      break;
+    case 1u: // 1u == ScaleMode::CONTAIN
+      scale = min(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      break;
+    default:
+      // Unsupported ScaleMode specialization. Force out-of-bounds so the caller gets black.
+      return vec2(-1.0);
+  }
+
+  vec2 renderedSourceSizeInOutput = sourceSize * scale;
+  vec2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5;
+  vec2 coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
+
+  if (kScaleMode == 1u) {
+    // Contain mode pads outside the rendered source with black bars.
+    bool isOutsideSource = coordinate.x < 0.0 || coordinate.x > 1.0 || coordinate.y < 0.0 || coordinate.y > 1.0;
+    if (isOutsideSource) {
+      return vec2(-1.0);
+    }
+  }
+
+  if (pushConstants.isMirrored == 1u) {
+    coordinate.x = 1.0 - coordinate.x;
+  }
+
+  int normalizedRotation = pushConstants.rotationDegrees % 360;
+  if (normalizedRotation < 0) {
+    normalizedRotation += 360;
+  }
+  int inverseRotation = (360 - normalizedRotation) % 360;
+
+  switch (inverseRotation) {
+    case 90:
+      coordinate = vec2(1.0 - coordinate.y, coordinate.x);
+      break;
+    case 180:
+      coordinate = vec2(1.0 - coordinate.x, 1.0 - coordinate.y);
+      break;
+    case 270:
+      coordinate = vec2(coordinate.y, 1.0 - coordinate.x);
+      break;
+    default:
+      break;
+  }
+
+  return coordinate;
+}
+
+vec3 orderedColor(vec3 rgb) {
+  switch (kChannelOrder) {
+    case 0u: // 0u == ChannelOrder::RGB
+      return rgb;
+    case 1u: // 1u == ChannelOrder::BGR
+      return rgb.bgr;
+    default:
+      // Unsupported ChannelOrder ordinal. Fall back to black so broken channel orders fail visibly at runtime.
+      return vec3(0.0);
+  }
+}
+
+uint quantizeUInt8(float value) {
+  return uint(clamp(roundEven(value * 255.0), 0.0, 255.0));
+}
+
+uint quantizeInt8(float value) {
+  int quantized = int(roundEven(value * 255.0)) - 128;
+  return uint(quantized & 0xFF);
+}
+
+void write8BitColor(uvec2 gid, uint packed) {
+  uint pixelIndex = (gid.y * pushConstants.outputWidth) + gid.x;
+  uint pixelCount = pushConstants.outputWidth * pushConstants.outputHeight;
+
+  switch (kPixelLayout) {
+    case 0u: // 0u == PixelLayout::INTERLEAVED == HWC / NHWC
+      // Interleaved: all channel bytes are consecutive.
+      writePacked(pixelIndex * kChannelCount, kChannelCount * 8u, packed);
+      return;
+    case 1u: // 1u == PixelLayout::PLANAR == CHW / NCHW
+      // Planar: each channel byte is in a separate plane.
+      for (uint c = 0u; c < kChannelCount; c++) {
+        writePacked((c * pixelCount) + pixelIndex, 8u, (packed >> (c * 8u)) & 0xFFu);
+      }
+      return;
+    default:
+      // Unsupported PixelLayout specialization. Return without writing so broken layouts stay visibly wrong.
+      return;
+  }
+}
+
+void writeFloat16Color(uvec2 gid, vec3 ordered) {
+  uint pixelIndex = (gid.y * pushConstants.outputWidth) + gid.x;
+  uint pixelCount = pushConstants.outputWidth * pushConstants.outputHeight;
+
+  switch (kPixelLayout) {
+    case 0u: { // 0u == PixelLayout::INTERLEAVED == HWC / NHWC
+      // Interleaved: write channel halfs in pairs (two halfs fill one 32-bit word).
+      uint byteOffset = pixelIndex * kChannelCount * 2u;
+      for (uint c = 0u; c < kChannelCount; c += 2u) {
+        uint h0 = packHalf2x16(vec2(ordered[c], 0.0)) & 0xFFFFu;
+        if (c + 1u < kChannelCount) {
+          uint h1 = packHalf2x16(vec2(ordered[c + 1u], 0.0)) & 0xFFFFu;
+          writePacked(byteOffset + c * 2u, 32u, h0 | (h1 << 16u));
+        } else {
+          writePacked(byteOffset + c * 2u, 16u, h0);
+        }
+      }
+      return;
+    }
+    case 1u: // 1u == PixelLayout::PLANAR == CHW / NCHW
+      // Planar: each channel half is in a separate plane.
+      for (uint c = 0u; c < kChannelCount; c++) {
+        uint halfBits = packHalf2x16(vec2(ordered[c], 0.0)) & 0xFFFFu;
+        writePacked(((c * pixelCount) + pixelIndex) * 2u, 16u, halfBits);
+      }
+      return;
+    default:
+      // Unsupported PixelLayout specialization. Return without writing so broken layouts stay visibly wrong.
+      return;
+  }
+}
+
+void writeFloat32Color(uvec2 gid, vec3 ordered) {
+  uint pixelIndex = (gid.y * pushConstants.outputWidth) + gid.x;
+  uint pixelCount = pushConstants.outputWidth * pushConstants.outputHeight;
+
+  switch (kPixelLayout) {
+    case 0u: // 0u == PixelLayout::INTERLEAVED == HWC / NHWC
+      // Interleaved
+      for (uint c = 0u; c < kChannelCount; c++) {
+        outputWords[(pixelIndex * kChannelCount) + c] = floatBitsToUint(ordered[c]);
+      }
+      return;
+    case 1u: // 1u == PixelLayout::PLANAR == CHW / NCHW
+      // Planar
+      for (uint c = 0u; c < kChannelCount; c++) {
+        outputWords[(c * pixelCount) + pixelIndex] = floatBitsToUint(ordered[c]);
+      }
+      return;
+    default:
+      // Unsupported PixelLayout specialization. Return without writing so broken layouts stay visibly wrong.
+      return;
+  }
+}
+
+void writeOutputColor(uvec2 gid, vec3 ordered) {
+  switch (kDataType) {
+    case 0u: { // 0u == DataType::INT8
+      // Pack all signed channel bytes into a single value.
+      uint packed = 0u;
+      for (uint c = 0u; c < kChannelCount; c++) {
+        packed |= quantizeInt8(ordered[c]) << (c * 8u);
+      }
+      write8BitColor(gid, packed);
+      return;
+    }
+    case 1u: { // 1u == DataType::UINT8
+      // Pack all unsigned channel bytes into a single value.
+      uint packed = 0u;
+      for (uint c = 0u; c < kChannelCount; c++) {
+        packed |= quantizeUInt8(ordered[c]) << (c * 8u);
+      }
+      write8BitColor(gid, packed);
+      return;
+    }
+    case 2u: // 2u == DataType::FLOAT16
+      writeFloat16Color(gid, ordered);
+      return;
+    case 3u: // 3u == DataType::FLOAT32
+      writeFloat32Color(gid, ordered);
+      return;
+    default:
+      // Unsupported DataType specialization. Return without writing so the valid path stays simple.
+      return;
+  }
+}
+
+void main() {
+  uvec2 gid = gl_GlobalInvocationID.xy;
+  if (gid.x >= pushConstants.outputWidth || gid.y >= pushConstants.outputHeight) {
+    return;
+  }
+
+  vec2 inputCoordinate = outputToInputCoordinate(gid);
+  if (inputCoordinate.x < 0.0 || inputCoordinate.y < 0.0) {
+    writeOutputColor(gid, orderedColor(vec3(0.0)));
+    return;
+  }
+
+  vec3 rgb = clamp(texture(inputImage, inputCoordinate).rgb, 0.0, 1.0);
+  vec3 ordered = orderedColor(rgb);
+  writeOutputColor(gid, ordered);
+}

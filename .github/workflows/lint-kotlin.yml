@@ -1,0 +1,34 @@
+name: Lint Kotlin
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/lint-kotlin.yml'
+      - '**/*.kt'
+  pull_request:
+    paths:
+      - '.github/workflows/lint-kotlin.yml'
+      - '**/*.kt'
+
+jobs:
+  lint:
+    name: Format Kotlin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/latest/download/ktlint
+          chmod a+x ktlint
+          sudo mv ktlint /usr/local/bin/
+
+      - name: Run ktlint
+        run: bun run lint-kotlin
+
+      - name: Verify no files have changed after format
+        run: git diff --exit-code HEAD -- . ':(exclude)bun.lock'
+

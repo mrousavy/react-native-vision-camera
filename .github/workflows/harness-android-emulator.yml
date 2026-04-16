@@ -1,0 +1,158 @@
+name: Harness Android Emulator
+
+concurrency:
+  group: harness-android-emulator-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_level:
+        description: 'Android API level for the emulator'
+        required: false
+        default: '35'
+        type: string
+      device_arch:
+        description: 'Device architecture (x86_64, arm64-v8a)'
+        required: false
+        default: 'x86_64'
+        type: choice
+        options:
+          - x86_64
+          - arm64-v8a
+      device_profile:
+        description: 'Android emulator profile'
+        required: false
+        default: 'pixel'
+        type: string
+      emulator_name:
+        description: 'Android emulator (AVD) name from rn-harness config'
+        required: false
+        default: 'Pixel_API_35'
+        type: string
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/harness-android-emulator.yml'
+      - 'apps/simple-camera/**'
+      - 'packages/react-native-vision-camera/**'
+      - 'packages/react-native-vision-camera-barcode-scanner/**'
+      - 'packages/react-native-vision-camera-location/**'
+      - 'packages/react-native-vision-camera-resizer/**'
+      - 'packages/react-native-vision-camera-skia/**'
+      - 'bun.lock'
+      - 'package.json'
+  pull_request:
+    paths:
+      - '.github/workflows/harness-android-emulator.yml'
+      - 'apps/simple-camera/**'
+      - 'packages/react-native-vision-camera/**'
+      - 'packages/react-native-vision-camera-barcode-scanner/**'
+      - 'packages/react-native-vision-camera-location/**'
+      - 'packages/react-native-vision-camera-resizer/**'
+      - 'packages/react-native-vision-camera-skia/**'
+      - 'bun.lock'
+      - 'package.json'
+
+env:
+  HARNESS_PROJECT_ROOT: apps/simple-camera
+  HARNESS_ANDROID_APP_BUILD_OUTPUT: apps/simple-camera/android/app/build/outputs/apk/debug/app-debug.apk
+  HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
+  HARNESS_ANDROID_DEVICE_MODE: emulator
+  HARNESS_ANDROID_API_LEVEL: ${{ github.event.inputs.api_level || '35' }}
+  HARNESS_ANDROID_DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'x86_64' }}
+  HARNESS_ANDROID_DEVICE_PROFILE: ${{ github.event.inputs.device_profile || 'pixel' }}
+  HARNESS_ANDROID_DISK_SIZE: 1G
+  HARNESS_ANDROID_HEAP_SIZE: 1G
+  HARNESS_ANDROID_EMULATOR: ${{ github.event.inputs.emulator_name || 'Pixel_API_35' }}
+  HARNESS_ANDROID_EMULATOR_OPTIONS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
+  HARNESS_ANDROID_EMULATOR_BOOT_TIMEOUT_SECONDS: 240
+  HARNESS_ANDROID_STARTUP_TIMEOUT_SECONDS: 60
+  HARNESS_ANDROID_TEST_TIMEOUT_SECONDS: 600
+
+jobs:
+  test-android:
+    name: Test Android
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Restore Gradle cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Restore Android app from cache
+        id: cache-apk-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+
+      - name: Build Android app
+        if: steps.cache-apk-restore.outputs.cache-hit != 'true'
+        working-directory: apps/simple-camera/android
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --console=plain
+
+      - name: Save Android app to cache
+        if: steps.cache-apk-restore.outputs.cache-hit != 'true' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+
+      - name: Verify Android app artifact
+        run: test -f ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls /dev/kvm
+
+      - name: Run Harness tests on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          working-directory: ${{ env.HARNESS_PROJECT_ROOT }}
+          api-level: ${{ env.HARNESS_ANDROID_API_LEVEL }}
+          arch: ${{ env.HARNESS_ANDROID_DEVICE_ARCH }}
+          profile: ${{ env.HARNESS_ANDROID_DEVICE_PROFILE }}
+          disk-size: ${{ env.HARNESS_ANDROID_DISK_SIZE }}
+          heap-size: ${{ env.HARNESS_ANDROID_HEAP_SIZE }}
+          force-avd-creation: true
+          avd-name: ${{ env.HARNESS_ANDROID_EMULATOR }}
+          emulator-boot-timeout: ${{ env.HARNESS_ANDROID_EMULATOR_BOOT_TIMEOUT_SECONDS }}
+          disable-animations: true
+          emulator-options: ${{ env.HARNESS_ANDROID_EMULATOR_OPTIONS }}
+          script: bash ./scripts/run-harness-android-ci.sh
+
+      - name: Stop Gradle Daemon
+        if: always()
+        working-directory: apps/simple-camera/android
+        run: ./gradlew --stop

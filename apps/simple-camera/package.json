@@ -1,0 +1,65 @@
+{
+  "name": "simple-camera",
+  "private": true,
+  "description": "Example app for developing and testing react-native-vision-camera.",
+  "author": "Marc Rousavy <me@mrousavy.com> (https://github.com/mrousavy)",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "bundle-install": "bundle install",
+    "pods": "cd ios && bundle exec pod install",
+    "start": "react-native start --client-logs",
+    "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain",
+    "test:harness": "react-native-harness",
+    "test:harness:android": "react-native-harness --harnessRunner android",
+    "test:harness:ios": "HARNESS_METRO_BIND_HOST=:: react-native-harness --harnessRunner ios"
+  },
+  "dependencies": {
+    "@react-native-community/blur": "^4.4.1",
+    "@react-native-harness/platform-apple": "^1.1.0-rc.4",
+    "@react-native-menu/menu": "^2.0.0",
+    "@react-native-vector-icons/ionicons": "12.4.1",
+    "@react-navigation/native": "^7.1.31",
+    "@react-navigation/native-stack": "^7.14.2",
+    "@shopify/react-native-skia": "2.4.21",
+    "@types/jest": "^30.0.0",
+    "react": "19.2.3",
+    "react-native": "0.84.0",
+    "react-native-gesture-handler": "^2.30.0",
+    "react-native-nitro-image": "0.13.1",
+    "react-native-nitro-modules": "0.35.4",
+    "react-native-reanimated": "4.3.0",
+    "react-native-safe-area-context": "^5.7.0",
+    "react-native-screens": "^4.24.0",
+    "react-native-vector-icons": "^10.3.0",
+    "react-native-video": "6.19.1",
+    "react-native-vision-camera": "../../packages/react-native-vision-camera",
+    "react-native-vision-camera-barcode-scanner": "../../packages/react-native-vision-camera-barcode-scanner",
+    "react-native-vision-camera-location": "../../packages/react-native-vision-camera-location",
+    "react-native-vision-camera-resizer": "../../packages/react-native-vision-camera-resizer",
+    "react-native-vision-camera-skia": "../../packages/react-native-vision-camera-skia",
+    "react-native-vision-camera-worklets": "../../packages/react-native-vision-camera-worklets",
+    "react-native-worklets": "0.8.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "20.1.2",
+    "@react-native-community/cli-platform-android": "20.1.2",
+    "@react-native-community/cli-platform-ios": "20.1.2",
+    "@react-native-harness/platform-android": "1.1.0-rc.4",
+    "@react-native/babel-preset": "0.84.0",
+    "@react-native/metro-config": "0.84.0",
+    "@react-native/typescript-config": "0.84.0",
+    "@types/react": "19.2.14",
+    "react-native-harness": "1.1.0-rc.4",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "trustedDependencies": [
+    "@shopify/react-native-skia"
+  ]
+}

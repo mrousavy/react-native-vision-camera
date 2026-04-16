@@ -1,0 +1,89 @@
+---
+title: Coordinate Systems
+description: Understanding Camera Coordinate Systems and converting between Preview/Frame/Camera space
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The Camera operates in a custom coordinate system, which is often normalized from `0.0` to `1.0`.
+It does not have a concept of orientation, scaling or mirroring - which is why coordinate system conversions are required.
+
+### Preview Coordinate System
+
+In most apps, the Camera operates with a Preview View - which provides methods to convert from- and to- the Camera coordinate system.
+
+For example, [`convertViewPointToCameraPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertviewpointtocamerapoint) allows converting a [`Point`](/api/react-native-vision-camera/interfaces/Point) inside the View coordinate system to Camera coordinates:
+
+```ts
+const preview = ...
+const viewPoint = { x: 196, y: 379.5 }
+const cameraPoint = preview.convertViewPointToCameraPoint(viewPoint)
+console.log(viewPoint) // { x: 0.5, y: 0.5 }
+```
+
+To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) to View coordinates, use [`convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
+
+```ts
+const preview = ...
+const cameraPoint = { x: 0.5, y: 0.5 }
+const viewPoint = previewView.convertCameraPointToViewPoint(cameraPoint)
+console.log(viewPoint) // { x: 196, y: 379.5 }
+```
+
+#### ScannedObject coordinates
+
+To convert all coordinates in a [`ScannedObject`](/api/react-native-vision-camera/hybrid-objects/ScannedObject) to Preview View coordinates, use [`convertScannedObjectCoordinatesToViewCoordinates(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertscannedobjectcoordinatestoviewcoordinates):
+
+```ts
+const preview = ...
+const scannedObject = ...
+const viewScannedObject = previewView.convertScannedObjectCoordinatesToViewCoordinates(scannedObject)
+```
+
+#### MeteringPoint
+
+A [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) is essentially a convenience wrapper around [`convertViewPointToCameraPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertviewpointtocamerapoint), allowing you to easily convert "Tap" coordinates in a Preview View to Camera coordinates.
+
+```ts
+const preview = ...
+const viewPoint = { x: 196, y: 379.5 }
+const meteringPoint = preview.createMeteringPoint(viewPoint.x, viewPoint.y)
+console.log(meteringPoint.normalizedX, meteringPoint.normalizedY) // 0.5, 0.5
+```
+
+### Frame Coordinate System
+
+[`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s are typically streamed in the Camera's native [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) and mirroring modes.
+
+To convert from a [`Point`](/api/react-native-vision-camera/interfaces/Point) in a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to Camera coordinates, use [`convertFramePointToCameraPoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertframepointtocamerapoint):
+
+```ts
+const frame = ...
+const framePoint = { x: frame.width / 2, y: frame.height / 2 }
+const cameraPoint = frame.convertFramePointToCameraPoint(framePoint)
+console.log(viewPoint) // { x: 0.5, y: 0.5 }
+```
+
+To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) to [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) coordinates, use [`convertCameraPointToFramePoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertcamerapointtoframepoint):
+
+```ts
+const frame = ...
+const cameraPoint = { x: 0.5, y: 0.5 }
+const framePoint = frame.convertCameraPointToFramePoint(cameraPoint)
+console.log(viewPoint) // { x: 360, y: 640 }
+```
+
+#### Convert from Frame coordinates to Preview View coordinates
+
+Putting all pieces together, you can convert a [`Point`](/api/react-native-vision-camera/interfaces/Point) in [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) coordinates to Preview View coordinates:
+
+```ts
+const frame = ...
+const preview = ...
+const framePoint = { x: frame.width / 2, y: frame.height / 2 }
+const cameraPoint = frame.convertFramePointToCameraPoint(framePoint)
+const viewPoint = previewView.convertCameraPointToViewPoint(cameraPoint)
+console.log(viewPoint) // { x: 196, y: 379.5 }
+```
+
+This is useful if your Frame Processor detects an object in a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) and you want to display a visual indicator or bounding box in the Preview View.

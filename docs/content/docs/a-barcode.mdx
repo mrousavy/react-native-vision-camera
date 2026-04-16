@@ -1,0 +1,91 @@
+---
+title: A Barcode
+description: Understanding a Barcode object and decoding its value and position
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode) is a machine-readable code, like a [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) Barcode, or a [`'qr-code'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) scanned by [the Barcode Scanner](barcode-scanner) - either via the [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view, the Barcode Scanner [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput), or the [`BarcodeScanner`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner) directly from a Frame Processor.
+
+### Barcode Formats
+
+There are different standardized Barcode Formats, which are represented as [`BarcodeFormat`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat).
+Typically, you should configure your Barcode Scanner pipeline to only detect the [`BarcodeFormat`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat)s that are relevant to your use-case, not [`'all'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat).
+
+Access a [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s format via [`format`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#format):
+
+```ts
+const barcode = ...
+console.log(barcode.format) // "qr-code"
+```
+
+### Barcode Value
+
+#### Value Type
+
+A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode) can contain different types of values, like [`'url'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeValueType), [`'text'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeValueType), [`'wifi'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeValueType), or more (see [`BarcodeValueType`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeValueType)).
+To get a [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s value type, use [`valueType`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#valuetype):
+
+```ts
+const barcode = ...
+console.log(barcode.valueType) // "url"
+```
+
+#### Raw Value
+
+If a [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s value can be decoded to a string, it can be accessed via [`rawValue`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#rawvalue):
+
+```ts
+const barcode = ...
+console.log(barcode.rawValue) // "https://margelo.com"
+```
+
+#### Raw Bytes
+
+You can also get the [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s value as a raw `ArrayBuffer`:
+
+```ts
+const barcode = ...
+const buffer = barcode.rawBytes
+const data = new Uint8Array(buffer)
+console.log(data) // [104, 116, 116, 112, ...]
+```
+
+#### Display Value
+
+Some [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)s are encoded with non-human-friendly values, like [`'wifi'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeValueType). In this case you can use [`displayValue`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#displayvalue) to get a human-friendly representation of the code:
+
+```ts
+const barcode = ...
+console.log(barcode.rawValue) // "WIFI:T:WPA;S:MyNetwork;P:password;;"
+console.log(barcode.displayValue) // "MyNetwork"
+```
+
+#### Corner Points and Bounding Box
+
+A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s precise location in the Camera can be accessed via [`boundingBox`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#boundingbox) (a rectangle covering the barcode), or [`cornerPoints`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#cornerpoints) (points for each corner):
+
+```ts
+const barcode = ...
+console.log(barcode.boundingBox) // { left: 0.421, right: 0.278, top: 0.345, bottom: 0.597 }
+console.log(barcode.cornerPoints) // [{ x: 0.421, y: 0.345 }, ...]
+```
+
+#### Converting Barcode coordinates to View coordinates
+
+These coordinates are always relative to the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) this code was detected in.
+To convert the coordinates to Preview View coordinates, first convert them to Camera coordinates using [`Frame.convertFramePointToCameraPoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertframepointtocamerapoint), and then [`PreviewView.convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
+
+```ts
+const barcode = ...
+const frame = ...
+const preview = ...
+for (const barcodePoint of barcode.cornerPoints) {
+  const cameraPoint = frame.convertFramePointToCameraPoint(barcodePoint)
+  const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
+  console.log(viewPoint)
+}
+```
+
+> [!TIP]
+> See ["Coordinate Systems"](coordinate-systems) for more information about Camera and Preview coordinate systems.

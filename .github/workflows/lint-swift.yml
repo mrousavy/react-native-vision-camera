@@ -1,0 +1,28 @@
+name: Lint Swift
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/lint-swift.yml'
+      - '**/*.swift'
+  pull_request:
+    paths:
+      - '.github/workflows/lint-swift.yml'
+      - '**/*.swift'
+
+jobs:
+  lint:
+    name: Format Swift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Run swift format
+        run: bun run lint-swift
+
+      - name: Verify no files have changed after format
+        run: git diff --exit-code HEAD -- . ':(exclude)bun.lock'
+

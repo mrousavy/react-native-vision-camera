@@ -1,0 +1,167 @@
+---
+title: A Frame
+description: Understanding the Frame type
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is an in-memory buffer allowing GPU- and CPU-access to individual pixels. It is typically streamed in realtime by a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput).
+
+See ["The Frame Output"](frame-output) for more information about streaming [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s.
+
+### Native Plugins
+
+Typically, you pass a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to ["Native Frame Processor Plugins"](native-frame-processor-plugins) to avoid touching pixels from JS.
+
+A ["Native Frame Processor Plugin"](native-frame-processor-plugins) is simply a [Nitro Module](https://nitro.margelo.com) that uses the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) type from [`react-native-vision-camera`](/api/react-native-vision-camera) to run some kind of processing using native Swift/Kotlin/C++ code.
+For example, the [`BarcodeScanner`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner) (from [`react-native-vision-camera-barcode-scanner`](/api/react-native-vision-camera-barcode-scanner)) is a native plugin to scan barcodes in a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame).
+
+See ["Native Frame Processor Plugins"](native-frame-processor-plugins) for more information.
+
+```ts
+const codeScanner = useBarcodeScanner({
+  barcodeFormats: ['all-formats']
+})
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    // [!code ++]
+    const barcodes = codeScanner.scanCodes(frame)
+    console.log(`Scanned ${barcodes.length} barcodes!`)
+    frame.dispose()
+  }
+})
+```
+
+### `orientation` and `isMirrored`
+
+The [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) describes its orientation relative to the output's [`outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput#outputorientation).
+Similarly, [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) describes if the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is considered to be mirrored, relative to the output's [`mirrorMode`](/api/react-native-vision-camera/interfaces/CameraOutputConfiguration#mirrormode).
+
+Consider both [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) as a "recipe" to get the Frame's intended presentation.
+
+#### Why a Frame isn't rotated/mirrored automatically
+
+The Camera pipeline does not physically rotate or mirror buffers automatically, as this is computationally expensive.
+Instead, it is much more efficient to pass [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) along as metadata so consumers can apply rotation/mirroring logic themselves - for example, [react-native-vision-camera-skia](/api/react-native-vision-camera-skia) transforms a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) using matrix rotations and mirroring - this runs on the GPU at rendering-level, avoiding expensive buffer modifications entirely.
+
+> [!TIP]
+> If you need your buffers to be correctly rotated and mirrored already, enable [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#enablephysicalbufferrotation), which results in [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) always being [`'up'`](/api/react-native-vision-camera/type-aliases/Orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) always being `false`, indicating no rotation or mirroring is necessary to get the Frame's intended presentation.
+
+Most Frame Processing libraries allow setting orientation and mirror settings as flags, for example, [MLKit](https://developers.google.com/ml-kit) uses `UIImageOrientation`:
+
+```swift
+let frame = ...
+let mlImage = MLImage(sampleBuffer: frame.sampleBuffer)
+switch frame.orientation {
+case .up:
+  // [!code ++]
+  mlImage.orientation = frame.isMirrored ? .portrait : .portraitMirrored
+case .down:
+  // ...
+}
+```
+
+> [!TIP]
+> See ["Orientation"](orientation) for more information about orientation.
+
+### Understanding Pixel Formats
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) has a GPU-backed buffer that contains its pixels - their layout is described by the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat).
+
+```ts
+const frame = ...
+console.log(frame.pixelFormat) // 'yuv-420-8-bit-full'
+```
+
+While the most commonly known [`PixelFormat`](/api/react-native-vision-camera/type-aliases/PixelFormat) is RGB (often [`'rgb-bgra-8-bit'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)), it is not natively produced by the Camera, which means it requires expensive conversion causing higher latency, more bandwidth, and overall slower performance.
+The Camera's native pixel format is typically YUV (often [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)) or a vendor-specific variation of it ([`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat)), which uses ~50% less memory than RGB and requires little to no conversion overhead.
+
+> [!NOTE]
+> See ["Frame Output: Choosing a Pixel Format"](frame-output#choosing-a-pixel-format) for more information about configuring the Pixel Format a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) streams in.
+
+> [!NOTE]
+> See ["Pixel Formats Map: Inspecting a Pixel Format"](pixel-formats-map#inspecting-a-pixel-format) for more information about Pixel Formats and their native counterparts.
+
+### Accessing Pixels in JS
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) exposes its native, GPU-backed pixel buffer via [`getPixelBuffer()`](/api/react-native-vision-camera/hybrid-objects/Frame#getpixelbuffer), which provides zero-copy access into the Frame's actual buffer:
+
+```ts
+const frame = ...
+// [!code ++]
+const buffer = frame.getPixelBuffer()
+```
+
+> [!WARNING]
+> The `buffer` is only valid as long as the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is valid (see [`Frame.isValid`](/api/react-native-vision-camera/hybrid-objects/Frame#isvalid)).
+> Once the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is disposed (see [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects)), the `buffer` must no longer be used.
+
+#### Interpreting Pixels
+
+The Pixel Buffer's layout depends on the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat). For example, in [`'rgb-bgra-8-bit'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat), pixels are laid out in 8-bit Uints, in the order of [B, G, R, A].
+
+```ts
+const frame = ...
+const buffer = frame.getPixelBuffer()
+const pixels = new Uint8Array(buffer)
+if (frame.pixelFormat === 'rgb-bgra-8-bit') {
+  // [!code ++]
+  const firstPixel = { r: pixels[2], g: pixels[1], b: pixels[0] }
+  console.log(`First Pixel:`, firstPixel)
+}
+```
+
+#### Planar Frames
+
+Some [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s are **planar**, which means they don't have a contiguous buffer of pixel data but instead use two or more separate buffers for their pixel data.
+- On iOS, YUV Frames are often stored as two planar buffers in memory, one buffer for the `Y` plane, and one buffer for the interleaved `UV` plane.
+- On Android, YUV Frames are often three planar buffers - one `Y`, one `U` and one `V` plane.
+
+To get the individual [`FramePlane`](/api/react-native-vision-camera/hybrid-objects/FramePlane)s, use [`Frame.getPlanes()`](/api/react-native-vision-camera/hybrid-objects/Frame#getplanes):
+
+```ts
+const frame = ...
+// [!code ++]
+if (frame.isPlanar) {
+  // [!code ++]
+  const planes = frame.getPlanes()
+  if (planes.length === 2) {
+    // Y + UV
+    const yBuffer = planes[0].getPixelBuffer()
+    const uvBuffer = planes[1].getPixelBuffer()
+    const yPixels = new Uint8Array(yBuffer)
+    const uvPixels = new Uint8Array(uvBuffer)
+    const firstPixel = { y: yPixels[0], u: uvPixels[0], v: uvPixels[0] }
+  }
+} else {
+  // regular pixel buffer access
+}
+```
+
+> [!NOTE]
+> If [`Frame.isPlanar`](/api/react-native-vision-camera/hybrid-objects/Frame#isplanar) is `false`, [`Frame.getPlanes()`](/api/react-native-vision-camera/hybrid-objects/Frame#getplanes) may return an empty array.
+
+### Is a Frame still valid?
+
+A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is a large GPU-buffer of raw pixel data. A 4k RGB Frame is roughly ~34MB in memory, so if a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) streams at 60 FPS, it uses over 2GB/s of bandwidth.
+
+Typically the pipeline uses ring-buffers and avoids any copies to ensure it can run in realtime.
+To let the pipeline know that a buffer can be re-used, you need to dispose a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) once you are done with it, ideally as quickly as possible:
+
+```ts
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    try {
+      // ..any processing
+    } finally {
+      // [!code ++]
+      frame.dispose()
+    }
+  }
+})
+```
+
+After a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) has been disposed, it is no longer valid ([`Frame.isValid`](/api/react-native-vision-camera/hybrid-objects/Frame#isvalid) == `false`).
+Any Pixel Buffers or [`FramePlane`](/api/react-native-vision-camera/hybrid-objects/FramePlane)s are also no longer valid and must not be used anymore.

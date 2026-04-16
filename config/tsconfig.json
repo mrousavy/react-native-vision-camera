@@ -1,0 +1,35 @@
+{
+  "exclude": [
+    "**/node_modules",
+    "**/lib",
+    "**/.eslintrc.js",
+    "**/.prettierrc.js",
+    "**/jest.config.js",
+    "**/babel.config.js",
+    "**/metro.config.js",
+    "**/tsconfig.json"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "noEmit": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noStrictGenericChecks": false,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "verbatimModuleSyntax": true
+  }
+}

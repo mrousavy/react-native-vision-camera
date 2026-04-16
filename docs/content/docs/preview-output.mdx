@@ -1,0 +1,73 @@
+---
+title: The Preview Output
+description: Streaming a Camera feed into a Preview
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) allows streaming a Camera feed into a Preview, which may be connected to a Preview View to display a Camera feed to the user.
+
+### Creating a Preview Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+> [!NOTE]
+> The [`<Camera />`](/api/react-native-vision-camera/views/Camera) view already creates a [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) (+ [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView)) for you, automatically.
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const previewOutput = usePreviewOutput()
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [previewOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++]
+const previewOutput = VisionCamera.createPreviewOutput()
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: previewOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+### Connecting the Preview Output to a View
+
+To display the Camera feed to the user, you must connect the [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) to a [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView):
+
+```tsx
+function App() {
+  const previewOutput = usePreviewOutput()
+
+  return (
+    // [!code ++:4]
+    <NativePreviewView
+      style={StyleSheet.absoluteFill}
+      previewOutput={previewOutput}
+    />
+  )
+}
+```
+
+See ["Views: &lt;NativePreviewView /&gt;"](nativepreview-view) for more information about `<NativePreviewView />`.

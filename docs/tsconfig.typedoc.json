@@ -1,0 +1,11 @@
+{
+  "extends": "../packages/react-native-vision-camera/tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "include": ["../packages/react-native-vision-camera/src"],
+  "exclude": [
+    "../packages/react-native-vision-camera/node_modules",
+    "../packages/react-native-vision-camera/lib"
+  ]
+}

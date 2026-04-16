@@ -1,0 +1,14 @@
+---
+title: Snapshot Capture
+description: Capturing Snapshots in a Preview with zero-latency
+platforms: [Android]
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+To capture a snapshot of the current Preview View's contents, use [`takeSnapshot()`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#takesnapshot):
+
+```ts
+const preview = ...
+const snapshot = await preview.takeSnapshot()
+```

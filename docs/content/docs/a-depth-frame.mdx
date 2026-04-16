@@ -1,0 +1,92 @@
+---
+title: A Depth Frame
+description: Understanding the Depth type
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame is an in-memory buffer allowing GPU- and CPU-access to individual depth points. It is typically streamed in realtime by a [`CameraDepthFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput), or attached to a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) (see [`Photo.depth`](/api/react-native-vision-camera/hybrid-objects/Photo#depth)) if enabled on the [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput).
+
+See ["The Depth Output"](depth-output) for more information about streaming [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frames.
+
+### Native Plugins
+
+Similarly to ["A Frame"](a-frame), you would typically process [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frames in ["Native Frame Processor Plugins"](native-frame-processor-plugins) to avoid touching depth data in JS.
+
+### `orientation` and `isMirrored`
+
+The [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth)'s [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) describes its orientation relative to the output's [`outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput#outputorientation).
+Similarly, [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) describes if the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) is considered to be mirrored, relative to the output's [`mirrorMode`](/api/react-native-vision-camera/interfaces/CameraOutputConfiguration#mirrormode).
+
+Consider both [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) as a "recipe" to get the Depth's intended presentation.
+
+#### Why a Frame isn't rotated/mirrored automatically
+
+The Camera pipeline does not physically rotate or mirror buffers automatically, as this is computationally expensive.
+Instead, it is much more efficient to pass [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) along as metadata so consumers can apply rotation/mirroring logic themselves.
+
+> [!TIP]
+> If you need your buffers to be correctly rotated and mirrored already, enable [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/DepthFrameOutputOptions#enablephysicalbufferrotation), which results in [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) always being [`'up'`](/api/react-native-vision-camera/type-aliases/Orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) always being `false`, indicating no rotation or mirroring is necessary to get the Depth's intended presentation.
+
+### Understanding Depth Formats
+
+A [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame has a GPU-backed buffer that contains its depth data. Its data layout is described by the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Depth#pixelformat).
+
+```ts
+const depth = ...
+console.log(depth.pixelFormat) // 'depth-16-bit'
+```
+
+#### Disparity vs Depth
+
+Some [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frames are not computed via time-of-flight (true distance measuring), but instead via disparity - which computes distance by triangulating pixel shift using multiple physical Camera devices.
+
+Those [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frames should be considered less accurate, but can still be used just like true depth frames.
+
+### Accessing Depth Data in JS
+
+A [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame exposes its native, GPU-backed depth data buffer via [`getDepthData()`](/api/react-native-vision-camera/hybrid-objects/Depth#getdepthdata), which provides zero-copy access into the Depth's actual buffer:
+
+```ts
+const depth = ...
+// [!code ++]
+const buffer = depth.getDepthData()
+```
+
+> [!WARNING]
+> The `buffer` is only valid as long as the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame is valid (see [`Depth.isValid`](/api/react-native-vision-camera/hybrid-objects/Depth#isvalid)).
+> Once the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame is disposed (see [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects)), the `buffer` must no longer be used.
+
+#### Interpreting Depth Data
+
+The Depth Data's layout depends on the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Depth#pixelformat). For example, in [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat), pixels are laid out in 16-bit floats - one float per "pixel".
+
+```ts
+const depth = ...
+const buffer = depth.getDepthData()
+if (depth.pixelFormat === 'depth-16') {
+  const pixels = new Float16Array(buffer)
+  // [!code ++]
+  const distanceToFirstPixel = pixels[0]
+  console.log(`Distance to first pixel:`, distanceToFirstPixel)
+}
+```
+
+> [!TIP]
+> Typically, a single 16-bit float in [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) data represents a distance in meters.
+
+#### Converting between Depth Formats
+
+You can convert [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) to a different [`DepthPixelFormat`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) by using [`Depth.convert(...)`](/api/react-native-vision-camera/hybrid-objects/Depth#convert). For example, if we need [`'depth-32-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat), we can convert to it (if available):
+
+```ts
+let depth = ...
+if (depth.pixelFormat !== 'depth-32-bit') {
+  if (!depth.availableDepthPixelFormats.includes('depth-32-bit')) {
+    throw new Error(`Depth frame does not support converting to depth-32-bit!`)
+  }
+  // [!code ++]
+  depth = depth.convert('depth-32-bit')
+}
+console.log(depth.pixelFormat) // 'depth-32-bit'
+```

@@ -1,2 +1,0 @@
-# Mark the docs/ directory as documentation only, so it doesn't show up as JS code.
-**/* linguist-documentation

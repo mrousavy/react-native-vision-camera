@@ -1,0 +1,169 @@
+name: Upload File to AWS Device Farm
+description: Create and upload a file to AWS Device Farm and wait until processing finishes.
+
+inputs:
+  project-arn:
+    description: Device Farm project ARN.
+    required: true
+  file-path:
+    description: Path to the file to upload.
+    required: true
+  upload-type:
+    description: Device Farm upload type (for example ANDROID_APP, APPIUM_NODE_TEST_SPEC).
+    required: false
+    default: ANDROID_APP
+  upload-name:
+    description: Optional upload name shown in Device Farm. Defaults to filename.
+    required: false
+    default: ''
+  content-type:
+    description: MIME type for the upload.
+    required: false
+    default: application/vnd.android.package-archive
+  aws-region:
+    description: AWS region where the Device Farm project exists.
+    required: false
+    default: us-west-2
+  poll-interval-seconds:
+    description: Poll interval in seconds while waiting for processing to complete.
+    required: false
+    default: '5'
+  max-wait-seconds:
+    description: Maximum wait time in seconds before timing out.
+    required: false
+    default: '600'
+
+outputs:
+  file-arn:
+    description: ARN for the uploaded file.
+    value: ${{ steps.upload.outputs.upload_arn }}
+  upload-arn:
+    description: Device Farm upload ARN.
+    value: ${{ steps.upload.outputs.upload_arn }}
+  upload-name:
+    description: Effective upload name in Device Farm.
+    value: ${{ steps.upload.outputs.upload_name }}
+  upload-status:
+    description: Final upload processing status.
+    value: ${{ steps.upload.outputs.upload_status }}
+
+runs:
+  using: composite
+  steps:
+    - id: upload
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        PROJECT_ARN="${{ inputs.project-arn }}"
+        FILE_PATH="${{ inputs.file-path }}"
+        UPLOAD_TYPE="${{ inputs.upload-type }}"
+        UPLOAD_NAME_INPUT="${{ inputs.upload-name }}"
+        CONTENT_TYPE="${{ inputs.content-type }}"
+        AWS_REGION="${{ inputs.aws-region }}"
+        POLL_INTERVAL="${{ inputs.poll-interval-seconds }}"
+        MAX_WAIT="${{ inputs.max-wait-seconds }}"
+
+        if [[ -z "$FILE_PATH" ]]; then
+          echo "No input file provided. Set file-path." >&2
+          exit 1
+        fi
+
+        if [[ ! -f "$FILE_PATH" ]]; then
+          echo "Upload file not found: $FILE_PATH" >&2
+          exit 1
+        fi
+
+        REQUIRE_ZIP="false"
+        if [[ "$UPLOAD_TYPE" == "ANDROID_APP" || "$UPLOAD_TYPE" == "IOS_APP" || "$UPLOAD_TYPE" == *_TEST_PACKAGE ]]; then
+          REQUIRE_ZIP="true"
+        fi
+
+        if [[ "$REQUIRE_ZIP" == "true" ]] && ! unzip -tq "$FILE_PATH" >/dev/null 2>&1; then
+          echo "File is not a valid ZIP archive (required for upload type $UPLOAD_TYPE): $FILE_PATH" >&2
+          exit 1
+        fi
+
+        if ! [[ "$POLL_INTERVAL" =~ ^[0-9]+$ ]] || ! [[ "$MAX_WAIT" =~ ^[0-9]+$ ]]; then
+          echo "poll-interval-seconds and max-wait-seconds must be positive integers." >&2
+          exit 1
+        fi
+        if (( POLL_INTERVAL <= 0 || MAX_WAIT <= 0 )); then
+          echo "poll-interval-seconds and max-wait-seconds must be greater than 0." >&2
+          exit 1
+        fi
+
+        if [[ -n "$UPLOAD_NAME_INPUT" ]]; then
+          UPLOAD_NAME="$UPLOAD_NAME_INPUT"
+        else
+          UPLOAD_NAME="$(basename "$FILE_PATH")"
+        fi
+
+        IFS=$'\t' read -r UPLOAD_ARN UPLOAD_URL CREATED_UPLOAD_NAME INITIAL_STATUS < <(
+          aws devicefarm create-upload \
+            --region "$AWS_REGION" \
+            --project-arn "$PROJECT_ARN" \
+            --name "$UPLOAD_NAME" \
+            --type "$UPLOAD_TYPE" \
+            --content-type "$CONTENT_TYPE" \
+            --query 'upload.[arn,url,name,status]' \
+            --output text
+        )
+
+        if [[ -z "$UPLOAD_ARN" || -z "$UPLOAD_URL" ]]; then
+          echo "Failed to create Device Farm upload." >&2
+          exit 1
+        fi
+
+        SIGNED_HEADERS="$(sed -n 's/.*[?&]X-Amz-SignedHeaders=\([^&]*\).*/\1/p' <<< "$UPLOAD_URL")"
+        echo "Created upload '$CREATED_UPLOAD_NAME' with initial status '$INITIAL_STATUS'."
+        echo "Signed headers for upload URL: ${SIGNED_HEADERS:-unknown}"
+
+        curl --fail --silent --show-error \
+          --request PUT \
+          --header "content-type: $CONTENT_TYPE" \
+          --upload-file "$FILE_PATH" \
+          "$UPLOAD_URL"
+
+        elapsed=0
+        STATUS="PROCESSING"
+        MESSAGE=""
+        while true; do
+          IFS=$'\t' read -r STATUS MESSAGE < <(
+            aws devicefarm get-upload \
+              --region "$AWS_REGION" \
+              --arn "$UPLOAD_ARN" \
+              --query 'upload.[status,message]' \
+              --output text
+          )
+
+          case "$STATUS" in
+            SUCCEEDED)
+              break
+              ;;
+            FAILED | ERRORED)
+              echo "Device Farm upload failed: ${MESSAGE:-<no-message>}" >&2
+              aws devicefarm get-upload \
+                --region "$AWS_REGION" \
+                --arn "$UPLOAD_ARN" \
+                --query 'upload.{status:status,message:message,metadata:metadata,name:name,type:type,contentType:contentType}' \
+                --output json >&2 || true
+              exit 1
+              ;;
+            *)
+              ;;
+          esac
+
+          if (( elapsed >= MAX_WAIT )); then
+            echo "Timed out waiting for upload to finish. Last status: $STATUS" >&2
+            exit 1
+          fi
+
+          sleep "$POLL_INTERVAL"
+          elapsed=$((elapsed + POLL_INTERVAL))
+        done
+
+        echo "file_arn=$UPLOAD_ARN" >> "$GITHUB_OUTPUT"
+        echo "upload_arn=$UPLOAD_ARN" >> "$GITHUB_OUTPUT"
+        echo "upload_name=$CREATED_UPLOAD_NAME" >> "$GITHUB_OUTPUT"
+        echo "upload_status=$STATUS" >> "$GITHUB_OUTPUT"

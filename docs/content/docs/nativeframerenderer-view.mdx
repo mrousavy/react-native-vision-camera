@@ -1,0 +1,54 @@
+---
+title: <NativeFrameRendererView />
+description: Using the <NativeFrameRendererView /> View
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`<NativeFrameRendererView />`](/api/react-native-vision-camera/views/NativeFrameRendererView) is a native [Nitro View](https://nitro.margelo.com/docs/hybrid-views) that allows rendering [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s using a [`FrameRenderer`](/api/react-native-vision-camera/hybrid-objects/FrameRenderer):
+
+```tsx
+function App() {
+  const frameRenderer = useFrameRenderer()
+
+  return (
+    <NativeFrameRendererView
+      style={StyleSheet.absoluteFill}
+      frameRenderer={frameRenderer}
+    />
+  )
+}
+```
+
+### Rendering a `Frame`
+
+For example, you could simply render the output of a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput):
+
+```tsx
+function App() {
+  const frameRenderer = useFrameRenderer()
+  const frameOutput = useFrameOutput({
+    onFrame(frame) {
+      'worklet'
+      // [!code ++]
+      frameRenderer.render(frame)
+      frame.dispose()
+    }
+  })
+  const camera = useCamera({
+    isActive: true,
+    device: 'back',
+    outputs: [frameOutput]
+  })
+
+  return (
+    <NativeFrameRendererView
+      style={StyleSheet.absoluteFill}
+      frameRenderer={frameRenderer}
+    />
+  )
+}
+```
+
+> [!TIP]
+> See ["The Frame Output"](frame-output) for more information about streaming [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s.

@@ -1,0 +1,36 @@
+name: Lint C++
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/lint-cpp.yml'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.mm'
+  pull_request:
+    paths:
+      - '.github/workflows/lint-cpp.yml'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.mm'
+
+jobs:
+  lint:
+    name: Format C++
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Run clang-format
+        run: bun run lint-cpp
+
+      - name: Verify no files have changed after format
+        run: git diff --exit-code HEAD -- . ':(exclude)bun.lock'
+

@@ -1,0 +1,33 @@
+---
+title: <CodeScanner />
+description: Using the <CodeScanner /> View
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) is a view component that allows quickly scanning Barcodes/QR-Codes using [MLKit](https://developers.google.com/ml-kit).
+
+> [!DEPENDENCY]
+> The [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) requires [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner) to be installed.
+
+### Using the `<CodeScanner />`
+
+To display the Code Scanner view, simply configure your desired [`BarcodeFormat`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat)s, and handle scanned [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode) results:
+
+```tsx
+function App() {
+  return (
+    <CodeScanner
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      barcodeFormats={['all-formats']}
+      onBarcodeScanned={(barcodes) => {
+        console.log(`Scanned ${barcodes.length} barcodes!`)
+      }}
+    />
+  )
+}
+```
+
+> [!TIP]
+> See ["The Barcode Scanner"](barcode-scanner) for more information.

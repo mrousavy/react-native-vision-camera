@@ -1,0 +1,90 @@
+---
+title: Locking AE/AF/AWB
+description: Manually locking Focus, Exposure and White-Balance
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Exposure, Focus and White-Balance are typically automatically adjusted as the scene changes.
+For pro-Camera apps, you can manually adjust Exposure Duration/ISO, Focus Lens Position and White-Balance Temperature and Tint Value and lock them in-place, if the device supports it.
+
+### Setting specific values
+
+#### Setting custom Exposure Duration/ISO
+
+If the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports Exposure Locking (see [`supportsExposureLocking`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportsexposurelocking)) you can set a custom Exposure Duration/ISO via [`setExposureLocked(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#setexposurelocked):
+
+```ts
+const controller = ...
+const format = ...
+if (controller.device.supportsExposureLocking) {
+  const exposureDuration = 1 / 60
+  const iso = 200
+  await controller.setExposureLocked(exposureDuration, iso)
+}
+```
+
+> [!WARNING]
+> Make sure the given `exposureDuration` value is inside the current [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController)'s [`minExposureDuration`](/api/react-native-vision-camera/hybrid-objects/CameraController#minexposureduration) and [`maxExposureDuration`](/api/react-native-vision-camera/hybrid-objects/CameraController#maxexposureduration) bounds.
+>
+> Make sure the given `iso` value is inside the currently selected [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController)'s [`minISO`](/api/react-native-vision-camera/hybrid-objects/CameraController#miniso) and [`maxISO`](/api/react-native-vision-camera/hybrid-objects/CameraController#maxiso) bounds.
+
+#### Setting custom Focus Lens Position
+
+If the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports Focus Locking (see [`supportsFocusLocking`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportsfocuslocking)) you can set a custom Focus Lens Position via [`setFocusLocked(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#setfocuslocked):
+
+```ts
+const controller = ...
+if (controller.device.supportsFocusLocking) {
+  const lensPosition = 0.5
+  await controller.setFocusLocked(lensPosition)
+}
+```
+
+> [!WARNING]
+> Make sure the given `lensPosition` value is between `0.0` and `1.0`.
+
+#### Setting custom White Balance Temperature and Tint
+
+If the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) supports White-Balance Locking (see [`supportsWhiteBalanceLocking`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#supportswhitebalancelocking)) you can set custom White Balance Temperature and Tint values via [`setWhiteBalanceLocked(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#setwhitebalancelocked):
+
+```ts
+const controller = ...
+if (controller.device.supportsWhiteBalanceLocking) {
+  const temperature = 4500
+  const tint = 20
+  await controller.setWhiteBalanceLocked(temperature, tint)
+}
+```
+
+> [!WARNING]
+> A good range for `temperature` is between 2500K and 8000K, and a good value for `tint` is usually between -150 and 150.
+
+### Locking current values
+
+To lock the current Exposure/Focus/White-Balance values at their current value (for example, after a [tap to focus](tap-to-focus) action), use [`lockCurrentExposure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentexposure), [`lockCurrentFocus(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentfocus) or [`lockCurrentWhiteBalance(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentwhitebalance):
+
+```ts
+const controller = ...
+const meteringPoint = ...
+await controller.focusTo(meteringPoint, {
+  autoReset: null
+})
+
+if (controller.device.supportsExposureLocking) {
+  await controller.lockCurrentExposure()
+}
+if (controller.device.supportsFocusLocking) {
+  await controller.lockCurrentFocus()
+}
+if (controller.device.supportsWhiteBalanceLocking) {
+  await controller.lockCurrentWhiteBalance()
+}
+```
+
+To reset Exposure/Focus/White-Balance back to auto, use [`resetFocus(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#resetfocus):
+
+```ts
+const controller = ...
+await controller.resetFocus()
+```

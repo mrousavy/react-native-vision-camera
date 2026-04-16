@@ -1,0 +1,383 @@
+---
+title: Constraints API
+description: Understanding the VisionCamera Constraints API to enable Camera features like FPS, HDR and more
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) can capture in different resolutions, frame-rates (FPS), dynamic ranges (HDR), output formats (JPEG vs RAW), and more.
+Often, such features have certain limitations - for example, while 4k and 60 FPS might be supported on the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) _individually_, they may not be supported _together_ due to bandwidth limitations.
+
+To avoid exposing a huge compatibility matrix to the user, VisionCamera internally negotiates given [constraints](constraints) automatically - allowing you to express _intent_ - and VisionCamera ensures the closest compatible solution is found:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      outputs={[videoOutput]}
+      // [!code ++:4]
+      constraints={[
+        { resolutionBias: videoOutput },
+        { fps: 60 }
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    outputs: [videoOutput],
+    // [!code ++:4]
+    constraints: [
+      { resolutionBias: videoOutput },
+      { fps: 60 }
+    ]
+  })
+
+  return ...
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const videoOutput = createVideoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+const device = await getDefaultCameraDevice('back')
+
+await session.configure([
+  {
+    input: device,
+    outputs: [videoOutput],
+    // [!code ++:4]
+    constraints: [
+      { resolutionBias: videoOutput },
+      { fps: 60 }
+    ]
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+### Array order = Constraint Priority
+
+The order of the array passed to [`constraints={...}`](/api/react-native-vision-camera/interfaces/CameraProps#constraints) specifies the individual [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)'s priority - a [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint) listed "higher up" (start of array) has higher priority than a [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint) listed "further down" (end of the array).
+
+For example, if you prefer a closer frame rate match over a closer resolution match, list an [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint above the [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) constraint:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      outputs={[videoOutput]}
+      // [!code ++:4]
+      constraints={[
+        { fps: 60 },
+        { resolutionBias: videoOutput }
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    outputs: [videoOutput],
+    // [!code ++:4]
+    constraints: [
+      { fps: 60 },
+      { resolutionBias: videoOutput }
+    ]
+  })
+
+  return ...
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const videoOutput = createVideoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+const device = await getDefaultCameraDevice('back')
+
+await session.configure([
+  {
+    input: device,
+    outputs: [videoOutput],
+    // [!code ++:4]
+    constraints: [
+      { fps: 60 },
+      { resolutionBias: videoOutput }
+    ]
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+For example, the Constraints API may internally negotiate these given device capabilities:
+
+```
+- 4k    @  30FPS  <-- resolution matches, but FPS doesn't - and FPS is more important
+- 1080p @  60FPS  <-- will be selected; matches 60 FPS and has best resolution match
+- 720p  @  60FPS  <-- FPS matches, but we can get better resolution
+- 480p  @ 120FPS  <-- FPS matches, but we can get better resolution
+```
+
+### Constraints are safe
+
+In contrast to the old Formats API (or other Camera libraries) constraints make VisionCamera _safe_, meaning a working Camera configuration is always found.
+For example, if you pass a [`{ fps: 99999 }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint, the Camera always starts - the Constraints API internally finds the closest matching FPS range, which is effectively just the highest available FPS range on the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice):
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      outputs={[videoOutput]}
+      // [!code ++:3]
+      constraints={[
+        { fps: 99999 },
+      ]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const videoOutput = useVideoOutput({
+    targetResolution: CommonResolutions.UHD_16_9
+  })
+  const device = useCameraDevice('back')
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    outputs: [videoOutput],
+    // [!code ++:3]
+    constraints: [
+      { fps: 99999 }
+    ]
+  })
+
+  return ...
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const videoOutput = createVideoOutput({
+  targetResolution: CommonResolutions.UHD_16_9
+})
+const device = await getDefaultCameraDevice('back')
+
+await session.configure([
+  {
+    input: device,
+    outputs: [videoOutput],
+    // [!code ++:3]
+    constraints: [
+      { fps: 99999 }
+    ]
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+### Get enabled Constraints
+
+The [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s passed to [`constraints={...}`](/api/react-native-vision-camera/interfaces/CameraProps#constraints) are _negotiated_ (based on the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)'s capabilities to find a matching combination most closely matching your intent) when configuring the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession).
+
+Once a compatible Camera configuration has been found, the [`onSessionConfigSelected={...}`](/api/react-native-vision-camera/interfaces/CameraSessionConnection#onsessionconfigselected) callback will be called with a populated [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig):
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device="back"
+      // [!code ++:3]
+      onSessionConfigSelected={(config) => {
+        console.log(`Config selected: ${config.toString()}`)
+      }}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const camera = useCamera({
+    isActive: true,
+    device: ...,
+    outputs: [...],
+    constraints: [...],
+    // [!code ++:3]
+    onSessionConfigSelected: (config) => {
+      console.log(`Config selected: ${config.toString()}`)
+    }
+  })
+  return ...
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const device = ...
+await session.configure([
+  {
+    input: device,
+    outputs: [...],
+    constraints: [...],
+    // [!code ++:3]
+    onSessionConfigSelected: (config) => {
+      console.log(`Config selected: ${config.toString()}`)
+    }
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+### Manually resolve Constraints
+
+To manually resolve given [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s to a populated [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig) without starting a Camera session, use [`CameraFactory.resolveConstraints(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#resolveconstraints):
+
+```ts
+const device = ...
+const videoOutput = ...
+const config = await resolveConstraints(
+  device,
+  [
+    { output: videoOutput, mirrorMode: 'auto' }
+  ],
+  [
+    { resolutionBias: videoOutput },
+    { fps: 60 }
+  ]
+)
+console.log(`Config resolved: ${config.toString()}`)
+```
+
+### Common Examples
+
+#### Photo > Video
+
+If Photo capture is more important than Video capture, list your [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) and potentially also a [`{ photoHDR: ... }`](/api/react-native-vision-camera/interfaces/PhotoHDRConstraint) above your video constraints:
+
+```ts
+const contraints = [
+  { resolutionBias: photoOutput },
+  { photoHDR: true },
+  { resolutionBias: videoOutput }
+] satisfies Constraint[]
+```
+
+#### Low resolution Frame output
+
+Constraints find the _closest match_ to your described intent, which goes both ways - to stream Frames in a low resolution, configure your [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput)'s [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution) to a low resolution, like [`CommonResolutions.VGA_16_9`](/api/react-native-vision-camera/variables/CommonResolutions#vga_16_9), and use a [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) for it:
+
+```ts
+const frameOutput = useFrameOutput({
+  targetResolution: CommonResolutions.VGA_16_9
+})
+const contraints = [
+  { resolutionBias: frameOutput },
+] satisfies Constraint[]
+```
+
+#### Video HDR
+
+[Video HDR](video-hdr) has to be negotiated across output resolutions, frame rates, and device specific capabilities - you can configure the Camera to stream in a High Dynamic Range (HDR) using a [`{ videoDynamicRange: ... }`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint):
+
+```ts
+const contraints = [
+  {
+    videoDynamicRange: {
+      bitDepth: 'hdr-10-bit',
+      colorSpace: 'hlg-bt2020',
+      colorRange: 'full'
+    }
+  },
+] satisfies Constraint[]
+```
+
+#### Stabilization Mode
+
+To prefer a specific [Video Stabilization Mode](video-stabilization), use a [`{ videoStabilizationMode: ... }`](/api/react-native-vision-camera/interfaces/VideoStabilizationModeConstraint):
+
+```ts
+const contraints = [
+  { videoStabilizationMode: 'cinematic-extended' },
+] satisfies Constraint[]
+```
+
+#### Binned preference
+
+Binned formats combine multiple neighboring sensor pixels into one larger effective pixel.
+This usually improves low-light sensitivity and reduces noise, but can trade away fine detail compared to a full-resolution non-binned readout.
+Additionally, binned formats are more performant as they use significantly less bandwidth.
+
+To prefer a binned format over a non-binned format, use a [`{ binned: true }`](/api/react-native-vision-camera/interfaces/BinnedConstraint) constraint, and to prefer a non-binned format over a binned format use a [`{ binned: false }`](/api/react-native-vision-camera/interfaces/BinnedConstraint) constraint.
+As with other formats, not specifying the constraint means "no preference", so binned and non-binned formats are ranked equally.
+
+```ts
+const contraints = [
+  { binned: true },
+] satisfies Constraint[]
+```

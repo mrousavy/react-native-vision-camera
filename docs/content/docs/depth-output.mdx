@@ -1,0 +1,115 @@
+---
+title: The Depth Output
+description: Streaming Depth frames using the Depth Frame Output
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraDepthFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput) allows streaming [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frames in realtime, making them accessible via a JS worklet function.
+
+### Creating a Depth Frame Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:8]
+  const depthOutput = useDepthOutput({
+    // ...options
+    onDepth(depth) {
+      'worklet'
+      console.log(`Received ${depth.width}x${depth.height} Depth!`)
+      depth.dispose()
+    }
+  })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      outputs={[depthOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++:8]
+  const depthOutput = useDepthOutput({
+    // ...options
+    onDepth(depth) {
+      'worklet'
+      console.log(`Received ${depth.width}x${depth.height} Depth!`)
+      depth.dispose()
+    }
+  })
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [depthOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++:9]
+const depthOutput = VisionCamera.createDepthFrameOutput({ /* options */ })
+const workletRuntime = createWorkletRuntimeForThread(depthOutput.thread)
+scheduleOnRuntime(workletRuntime, () => {
+  'worklet'
+  depthOutput.setOnDepthFrameCallback((depth) => {
+    console.log(`Received ${depth.width}x${depth.height} Depth!`)
+    depth.dispose()
+  })
+})
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: depthOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+See [`DepthFrameOutputOptions`](/api/react-native-vision-camera/interfaces/DepthFrameOutputOptions) for a full list of configuration options for the Depth Output.
+
+> [!DEPENDENCY]
+> The [`CameraDepthFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput) requires [react-native-vision-camera-worklets](/api/react-native-vision-camera-worklets) (and [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/)) to be installed to synchronously run the [`onDepth(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDepthFrameOutput#setondepthframecallback) function on a parallel JS Worklet Runtime.
+
+### Disposing a Depth Frame
+
+A [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame is a GPU-backed buffer, streamed at high resolution and frame rate.
+The Camera pipeline keeps a small pool to re-use buffers, and if that pool is full, the pipeline stalls and subsequent frames will be dropped.
+To prevent frame drops, you need to dispose a [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) frame once you are done using it via [`dispose()`](https://nitro.margelo.com/docs/hybrid-objects):
+
+```ts
+const depthOutput = useDepthOutput({
+  onDepth(depth) {
+    'worklet'
+    try {
+      // processing...
+    } finally {
+      // [!code ++]
+      depth.dispose()
+    }
+  }
+})
+```

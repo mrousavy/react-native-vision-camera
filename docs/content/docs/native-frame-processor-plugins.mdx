@@ -1,0 +1,249 @@
+---
+title: Native Frame Processor Plugins
+description: Understanding Native Frame Processor Plugins, using them and building them using Swift/Kotlin
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Native Frame Processor Plugins are essentially native Swift/Kotlin functions that can be called from a JS Frame Processor (see ["The Frame Output"](frame-output)).
+
+```ts
+const myNativePlugin = ...
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    // [!code ++]
+    myNativePlugin.call(frame)
+    frame.dispose()
+  }
+})
+```
+
+### Implementation
+
+Native Frame Processor Plugins are [Nitro Modules](https://github.com/mrousavy/nitro).
+
+#### 1. Bootstrap a Nitro Module
+
+To get started, follow the ["Nitro: How to build a Nitro Module"](https://nitro.margelo.com/docs/how-to-build-a-nitro-module) guide, and create a Swift/Kotlin Hybrid Object.
+
+#### 2. Add a dependency on react-native-vision-camera
+
+Then, in your Nitro Module, add a dependency on [react-native-vision-camera](/api/react-native-vision-camera) in your `package.json`:
+
+```json title="package.json"
+{
+  // ...
+  "devDependencies": {
+    // ...
+    // [!code ++]
+    "react-native-vision-camera": "*",
+  },
+  "peerDependencies": {
+    // ...
+    // [!code ++]
+    "react-native-vision-camera": "*"
+  },
+}
+```
+
+..as well as to your native iOS/Android dependencies:
+
+<Tabs items={["iOS", "Android"]}>
+<Tab value="iOS">
+Add the `VisionCamera` pod to your `*.podspec`:
+
+```rb title="MyNativePlugin.podspec"
+Pod::Spec.new do |s|
+  # ...
+  # [!code ++]
+  s.dependency 'VisionCamera'
+end
+```
+</Tab>
+<Tab value="Android">
+Add the `react-native-vision-camera` project to your `build.gradle`:
+
+```groovy title="android/build.gradle"
+// ...
+dependencies {
+  // ...
+  // [!code ++]
+  implementation project(":react-native-vision-camera")
+```
+
+..and the prefab to your `CMakeLists`:
+
+```cmake title="android/CMakeLists.txt"
+// ...
+// [!code ++]
+find_package(react-native-vision-camera REQUIRED)
+
+# Link all libraries together
+target_link_libraries(
+        ${PACKAGE_NAME}
+        // ...
+        // [!code ++]
+        react-native-vision-camera::VisionCamera
+)
+```
+</Tab>
+</Tabs>
+
+#### 3. Using the `Frame` in the specs
+
+Now, define a Nitro `HybridObject` that takes a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) from [react-native-vision-camera](/api/react-native-vision-camera):
+
+```ts title="MyNativePlugin.nitro.ts"
+import type { HybridObject } from 'react-native-nitro-modules'
+import type { Frame } from 'react-native-vision-camera'
+
+export interface MyNativePlugin extends HybridObject<{
+  ios: 'swift',
+  android: 'kotlin'
+}> {
+  call(frame: Frame): void
+}
+```
+
+> [!TIP]
+> The names, arguments, and return values are irrelevant - you can name this method whatever you like, pass any kind of arguments and return any return value - given Nitro supports it.
+
+#### 4. Implement the native plugin
+
+Then, generate your Nitro specs via `nitrogen`.
+In your native iOS/Android project, you can now implement `MyNativePlugin` and its `call(...)` function:
+
+<Tabs items={["iOS", "Android"]}>
+<Tab value="iOS">
+```swift title="HybridMyNativePlugin.swift"
+import VisionCamera
+import NitroModules
+
+class HybridMyNativePlugin: HybridMyNativePluginSpec {
+  // [!code ++:3]
+  func call(frame: any HybridFrameSpec) {
+    // TODO: Implementation
+  }
+}
+```
+</Tab>
+<Tab value="Android">
+```kt title="HybridMyNativePlugin.kt"
+package com.margelo.nitro.mynativeplugin
+import com.margelo.nitro.camera.HybridFrameSpec
+
+class HybridMyNativePlugin: HybridMyNativePluginSpec() {
+  // [!code ++:3]
+  fun call(frame: HybridFrameSpec) {
+    // TODO: Implementation
+  }
+}
+```
+</Tab>
+</Tabs>
+
+To unwrap the native [`CMSampleBuffer`](https://developer.apple.com/documentation/CoreMedia/CMSampleBuffer)/[`Image`](https://developer.android.com/reference/android/media/Image) from the `HybridFrameSpec`, cast it to `NativeFrame` - a public type exposed by VisionCamera:
+
+<Tabs items={["iOS", "Android"]}>
+<Tab value="iOS">
+```swift title="HybridMyNativePlugin.swift"
+import VisionCamera
+import AVFoundation
+import NitroModules
+
+class HybridMyNativePlugin: HybridMyNativePluginSpec {
+  func call(frame: any HybridFrameSpec) {
+    // [!code ++:2]
+    guard let frame = frame as? any NativeFrame else { return }
+    let buffer = frame.sampleBuffer // CMSampleBuffer
+  }
+}
+```
+</Tab>
+<Tab value="Android">
+```kt title="HybridMyNativePlugin.kt"
+package com.margelo.nitro.mynativeplugin
+import com.margelo.nitro.camera.HybridFrameSpec
+import com.margelo.nitro.camera.public.NativeFrame
+
+class HybridMyNativePlugin: HybridMyNativePluginSpec() {
+  fun call(frame: HybridFrameSpec) {
+    // [!code ++:2]
+    val frame = frame as? NativeFrame ?: return
+    val image = frame.image // ImageProxy
+  }
+}
+```
+</Tab>
+</Tabs>
+
+#### 5. Call it from JS
+
+In JS, you can now create an instance of your Nitro HybridObject and use it in a Frame Processor:
+
+```ts
+import { NitroModules } from 'react-native-nitro-modules'
+
+// [!code ++]
+const plugin = NitroModules.createHybridObject<MyNativePlugin>('MyNativePlugin')
+const frameOutput = useFrameOutput({
+  onFrame(frame) {
+    'worklet'
+    // [!code ++]
+    plugin.call(frame)
+    frame.dispose()
+  }
+})
+```
+
+Thanks to [Nitro](https://github.com/mrousavy/nitro)'s powerful architecture, your Native Frame Processor Plugin can accept any kinds of arguments, return any kind of values (even a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)!), and even be asynchronous.
+
+> [!TIP]
+> If your `HybridObject` needs arguments, you should create a separate `HybridObject` that acts as a factory and has a create-function for your `HybridObject` with arguments.
+
+### C++ Plugins
+
+Because [Nitro](https://github.com/mrousavy/nitro) supports C++, you can also implement your Frame Processor Plugin in pure C++.
+
+```cpp title="HybridMyNativePlugin.hpp"
+#include <VisionCamera/HybridFrameSpec.hpp>
+
+namespace margelo::nitro::myplugin {
+  class HybridMyNativePlugin: public HybridMyNativePluginSpec {
+  public:
+    HybridMyNativePlugin(): HybridObject(TAG) {}
+    // [!code ++:3]
+    void call(const std::shared_ptr<HybridFrameSpec>& frame) {
+      // TODO: Implementation
+    }
+  };
+}
+```
+
+Since the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is a platform type, you cannot reliably downcast it cross-platform directly.
+Instead, you can use the public JS APIs (like [`Frame.getNativeBuffer()`](/api/react-native-vision-camera/hybrid-objects/Frame#getnativebuffer)) from C++, and downcast per platform if needed:
+
+```cpp
+void call(const std::shared_ptr<HybridFrameSpec>& frame) {
+  // [!code ++:7]
+  auto nativeBuffer = frame->getNativeBuffer();
+  auto orientation = frame->getOrientation();
+#ifdef ANDROID
+  AHardwareBuffer* hardwareBuffer = reinterpret_cast<AHardwareBuffer*>(nativeBuffer.pointer);
+#else // iOS
+  CVPixelBufferRef pixelBuffer = reinterpret_cast<CVPixelBufferRef>(nativeBuffer.pointer);
+#endif
+}
+```
+
+> [!TIP]
+> See [A Frame's NativeBuffer](a-frames-nativebuffer) for more information.
+
+
+Alternatively, you can add platform-specific C++/Objective-C++ code to your existing Swift/Kotlin codebases, and use the respective [`CVPixelBuffer`](https://developer.apple.com/documentation/corevideo/cvpixelbuffer) or [`AHardwareBuffer*`](https://developer.android.com/ndk/reference/group/a-hardware-buffer) APIs.
+
+### Depth
+
+While this guide covered the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) type, the same principle applies to [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) as well.
+Simply use the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth) type instead of [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame), and cast to `NativeDepth`.

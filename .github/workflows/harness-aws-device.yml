@@ -1,0 +1,458 @@
+name: Harness AWS Device
+
+### About
+#
+# This workflow performs Android and iOS e2e tests with React Native Harness
+# on AWS Device Farm real devices.
+
+# This is needed for the AWS action to be able to upload properly to AWS
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: harness-aws-device-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      device_arch:
+        description: "Device architecture (x86_64, arm64-v8a)"
+        required: false
+        default: "arm64-v8a"
+        type: choice
+        options:
+          - x86_64
+          - arm64-v8a
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/harness-aws-device.yml"
+      - ".github/actions/upload-devicefarm-artifact/**"
+      - "apps/simple-camera/**"
+      - "packages/react-native-vision-camera/**"
+      - "packages/react-native-vision-camera-barcode-scanner/**"
+      - "packages/react-native-vision-camera-location/**"
+      - "packages/react-native-vision-camera-resizer/**"
+      - "packages/react-native-vision-camera-skia/**"
+      - "bun.lock"
+      - "package.json"
+  pull_request:
+    paths:
+      - ".github/workflows/harness-aws-device.yml"
+      - ".github/actions/upload-devicefarm-artifact/**"
+      - "apps/simple-camera/**"
+      - "packages/react-native-vision-camera/**"
+      - "packages/react-native-vision-camera-barcode-scanner/**"
+      - "packages/react-native-vision-camera-location/**"
+      - "packages/react-native-vision-camera-resizer/**"
+      - "packages/react-native-vision-camera-skia/**"
+      - "bun.lock"
+      - "package.json"
+
+env:
+  HARNESS_AWS_REGION: us-west-2
+  HARNESS_DEVICE_FARM_PROJECT_ARN: arn:aws:devicefarm:us-west-2:633665345122:project:210b1942-012b-4653-9673-f3ff91c5e649
+  HARNESS_XCODE_VERSION: "26.2"
+  HARNESS_PROJECT_ROOT: apps/simple-camera
+  HARNESS_ANDROID_APP_BUILD_OUTPUT: apps/simple-camera/android/app/build/outputs/apk/debug/app-debug.apk
+  HARNESS_IOS_APP_BUILD_OUTPUT: apps/simple-camera/ios/build/devicefarm/SimpleCamera.ipa
+  HARNESS_IOS_DERIVED_DATA_OUTPUT: apps/simple-camera/ios/build/devicefarm/DerivedData
+  HARNESS_IOS_IPA_ARTIFACT_NAME: harness-ios-ipa
+  HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT: devicefarm-test-package.zip
+  HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
+  HARNESS_ANDROID_DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'arm64-v8a' }}
+  # Name of the device pools on AWS to pick devices from.
+  HARNESS_DEVICE_FARM_ANDROID_DEVICE_POOL_ARN: LatestFlagshipsDynamic
+  HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN: iPhonePool
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    outputs:
+      run_android: ${{ steps.set_dispatch.outputs.run_android || steps.set_filter.outputs.run_android }}
+      run_ios: ${{ steps.set_dispatch.outputs.run_ios || steps.set_filter.outputs.run_ios }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            android:
+              - 'apps/simple-camera/android/**'
+              - 'apps/simple-camera/device-farm-tests/AwsTestSpec.yml'
+              - 'packages/**/*.kt'
+              - 'packages/**/android/**/*.@(cpp|hpp)'
+            ios:
+              - 'apps/simple-camera/ios/**'
+              - 'apps/simple-camera/device-farm-tests/AwsTestSpecIOS.yml'
+              - 'packages/**/*.@(swift|mm)'
+            shared:
+              - 'apps/simple-camera/__tests__/vision-camera.harness.ts'
+              - 'apps/simple-camera/src/**'
+              - 'apps/simple-camera/rn-harness.config.mjs'
+              - 'apps/simple-camera/package.json'
+              - 'packages/**'
+              - '!packages/**/*.kt'
+              - '!packages/**/android/**/*.@(cpp|hpp)'
+              - '!packages/**/*.@(swift|mm)'
+              - 'patches/**'
+              - '.github/workflows/harness-aws-device.yml'
+              - '.github/actions/upload-devicefarm-artifact/**'
+              - 'bun.lock'
+              - 'package.json'
+
+      - id: set_dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "run_android=true" >> "$GITHUB_OUTPUT"
+          echo "run_ios=true" >> "$GITHUB_OUTPUT"
+
+      - id: set_filter
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: |
+          echo "run_android=${{ steps.filter.outputs.android == 'true' || steps.filter.outputs.shared == 'true' }}" >> "$GITHUB_OUTPUT"
+          echo "run_ios=${{ steps.filter.outputs.ios == 'true' || steps.filter.outputs.shared == 'true' }}" >> "$GITHUB_OUTPUT"
+
+  prepare-devicefarm-assets:
+    name: Prepare Device Farm Assets
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    needs:
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.run_android == 'true' || needs.detect-changes.outputs.run_ios == 'true' }}
+    outputs:
+      test_package_arn: ${{ steps.upload-test-package.outputs.upload-arn }}
+      android_test_spec_arn: ${{ steps.upload-android-test-spec.outputs.upload-arn }}
+      ios_test_spec_arn: ${{ steps.upload-ios-test-spec.outputs.upload-arn }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::633665345122:role/GitHubDeviceFarmRole
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+
+      - name: Create Device Farm test package zip
+        run: |
+          rm -f "${{ env.HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT }}"
+          git archive \
+            --format=zip \
+            --output "${{ env.HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT }}" \
+            HEAD
+          unzip -tq "${{ env.HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT }}"
+
+      - name: Upload Device Farm test package
+        id: upload-test-package
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: ${{ env.HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT }}
+          upload-type: APPIUM_NODE_TEST_PACKAGE
+          content-type: application/zip
+          upload-name: DeviceFarmTestPackage-${{ github.run_id }}-${{ github.run_attempt }}.zip
+
+      - name: Upload Device Farm Android test spec
+        id: upload-android-test-spec
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: apps/simple-camera/device-farm-tests/AwsTestSpec.yml
+          upload-type: APPIUM_NODE_TEST_SPEC
+          content-type: application/octet-stream
+          upload-name: AwsTestSpecAndroid-${{ github.run_id }}-${{ github.run_attempt }}.yml
+
+      - name: Upload Device Farm iOS test spec
+        if: ${{ needs.detect-changes.outputs.run_ios == 'true' }}
+        id: upload-ios-test-spec
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: apps/simple-camera/device-farm-tests/AwsTestSpecIOS.yml
+          upload-type: APPIUM_NODE_TEST_SPEC
+          content-type: application/octet-stream
+          upload-name: AwsTestSpecIOS-${{ github.run_id }}-${{ github.run_attempt }}.yml
+
+  test-android:
+    name: Test Android
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 45
+    needs:
+      - detect-changes
+      - prepare-devicefarm-assets
+    if: ${{ needs.detect-changes.outputs.run_android == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: "17"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Restore Gradle cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::633665345122:role/GitHubDeviceFarmRole
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+
+      - name: Restore Android app from cache
+        id: cache-apk-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+
+      - name: Build Android app
+        if: steps.cache-apk-restore.outputs.cache-hit != 'true'
+        working-directory: apps/simple-camera/android
+        run: ./gradlew assembleDebug -Pandroid.injected.testOnly=false -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --console=plain
+
+      - name: Save Android app to cache
+        if: steps.cache-apk-restore.outputs.cache-hit != 'true' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+
+      - name: Verify Android app artifact
+        run: test -f ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+
+      - name: Upload APK to AWS Device Farm
+        id: upload-apk
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
+          upload-name: app-debug-${{ github.run_id }}-${{ github.run_attempt }}.apk
+
+      - name: Schedule Device Farm Android Automated Test
+        id: run-test
+        uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
+        continue-on-error: true
+        with:
+          run-settings-json: |
+            {
+              "name": "GitHubAction-${{ github.workflow }}-android_${{ github.run_id }}_${{ github.run_attempt }}",
+              "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
+              "appArn": "${{ steps.upload-apk.outputs['upload-arn'] }}",
+              "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_ANDROID_DEVICE_POOL_ARN }}",
+              "test": {
+                "type": "APPIUM_NODE",
+                "testPackageArn": "${{ needs.prepare-devicefarm-assets.outputs.test_package_arn }}",
+                "testSpecArn": "${{ needs.prepare-devicefarm-assets.outputs.android_test_spec_arn }}"
+              }
+            }
+          artifact-types: ALL
+
+      - name: Collect Android Device Farm results
+        if: always()
+        uses: ./.github/actions/collect-devicefarm-results
+        with:
+          artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          platform: android
+          test-step-outcome: ${{ steps.run-test.outcome }}
+
+  build-ios:
+    name: Build iOS
+    runs-on: blacksmith-6vcpu-macos-26
+    timeout-minutes: 45
+    needs:
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.run_ios == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Setup Ruby (bundle)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+          working-directory: apps/simple-camera/
+
+      - name: Select Xcode ${{ env.HARNESS_XCODE_VERSION }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ env.HARNESS_XCODE_VERSION }}.app/Contents/Developer"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Restore CocoaPods cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            apps/simple-camera/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('apps/simple-camera/ios/Podfile.lock', 'apps/simple-camera/package.json', 'bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install Pods
+        working-directory: apps/simple-camera/ios
+        env:
+          RCT_USE_PREBUILT_RNCORE: "0"
+        run: bun pods
+
+      - name: Restore DerivedData cache
+        id: cache-deriveddata-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.HARNESS_IOS_DERIVED_DATA_OUTPUT }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.HARNESS_XCODE_VERSION }}-dd-${{ hashFiles('bun.lock', 'apps/simple-camera/Gemfile.lock', 'apps/simple-camera/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.HARNESS_XCODE_VERSION }}-dd-
+
+      - name: Build iOS app
+        run: |
+          set -euo pipefail
+          DERIVED_DATA="${{ env.HARNESS_IOS_DERIVED_DATA_OUTPUT }}"
+          IPA_PATH="${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}"
+          APP_PATH="${DERIVED_DATA}/Build/Products/Debug-iphoneos/SimpleCamera.app"
+          PAYLOAD_ROOT="$(mktemp -d)"
+          PAYLOAD_DIR="$PAYLOAD_ROOT/Payload"
+
+          rm -f "$IPA_PATH"
+          mkdir -p "$DERIVED_DATA" "$(dirname "$IPA_PATH")" "$PAYLOAD_DIR"
+
+          xcodebuild \
+            -workspace apps/simple-camera/ios/SimpleCamera.xcworkspace \
+            -scheme SimpleCamera \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            -derivedDataPath "$DERIVED_DATA" \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            COMPILER_INDEX_STORE_ENABLE=NO | xcbeautify --renderer github-actions
+
+          test -d "$APP_PATH"
+          cp -R "$APP_PATH" "$PAYLOAD_DIR/"
+
+          (
+            cd "$PAYLOAD_ROOT"
+            zip -qry "$GITHUB_WORKSPACE/$IPA_PATH" Payload
+          )
+
+      - name: Save DerivedData cache
+        if: steps.cache-deriveddata-restore.outputs.cache-hit != 'true' && success()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.HARNESS_IOS_DERIVED_DATA_OUTPUT }}
+          key: ${{ steps.cache-deriveddata-restore.outputs.cache-primary-key }}
+
+      - name: Verify iOS app artifact
+        run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+
+      - name: Upload iOS app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 7
+
+  test-ios:
+    name: Test iOS
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 45
+    needs:
+      - detect-changes
+      - prepare-devicefarm-assets
+      - build-ios
+    if: ${{ needs.detect-changes.outputs.run_ios == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download iOS app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
+
+      - name: Verify iOS app artifact
+        run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::633665345122:role/GitHubDeviceFarmRole
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+
+      - name: Upload IPA to AWS Device Farm
+        id: upload-ipa
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+          upload-type: IOS_APP
+          content-type: application/octet-stream
+          upload-name: simple-camera-${{ github.run_id }}-${{ github.run_attempt }}.ipa
+
+      - name: Schedule Device Farm iOS Automated Test
+        id: run-test
+        uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
+        with:
+          run-settings-json: |
+            {
+              "name": "GitHubAction-${{ github.workflow }}-ios_${{ github.run_id }}_${{ github.run_attempt }}",
+              "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
+              "appArn": "${{ steps.upload-ipa.outputs['upload-arn'] }}",
+              "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN }}",
+              "test": {
+                "type": "APPIUM_NODE",
+                "testPackageArn": "${{ needs.prepare-devicefarm-assets.outputs.test_package_arn }}",
+                "testSpecArn": "${{ needs.prepare-devicefarm-assets.outputs.ios_test_spec_arn }}"
+              }
+            }
+          artifact-types: ALL
+
+      - name: Collect iOS Device Farm results
+        if: always()
+        uses: ./.github/actions/collect-devicefarm-results
+        with:
+          artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          platform: ios

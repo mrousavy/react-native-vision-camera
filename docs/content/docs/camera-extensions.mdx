@@ -1,0 +1,131 @@
+---
+title: Camera Extensions
+description: Understanding what Camera Extensions are, how to enable them, and what restrictions they have
+platforms: [Android]
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Some [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)s support vendor-specific [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s - such extensions provide application-level access to custom pipelines like [`'hdr'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType), [`'night'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType), [`'bokeh'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType) or [`'face-retouch.'`](/api/react-native-vision-camera/type-aliases/CameraExtensionType).
+
+### Getting available Extensions
+
+To get all available [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s, use [`getSupportedExtensions(...)`](/api/react-native-vision-camera/functions/getSupportedExtensions):
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const device = ...
+const extensions = useCameraDeviceExtensions(device)
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const device = ...
+const extensions = await getSupportedExtensions(device)
+```
+</Tab>
+</Tabs>
+
+### Enabling an Extension
+
+To enable a [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension), configure the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) connection:
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = ...
+  const extensions = useCameraDeviceExtensions(device)
+  const extension = extensions.find((e) => e.type === 'night')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      cameraExtension={extension}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = ...
+  const extensions = useCameraDeviceExtensions(device)
+  const extension = extensions.find((e) => e.type === 'night')
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    cameraExtension: extension
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const device = ...
+const session = ...
+const extensions = await getSupportedExtensions(device)
+const extension = extensions.find((e) => e.type === 'night')
+
+const controllers = await session.configure([
+  {
+    input: device,
+    outputs: [],
+    constraints: {
+      // [!code ++]
+      cameraExtension: extension
+    }
+  }
+], {})
+```
+</Tab>
+</Tabs>
+
+### Limitations
+
+Camera Extensions switch the camera into a vendor-defined processing mode.
+In this mode the capture pipeline is no longer fully controlled by the app, but by the device's built-in ISP and proprietary algorithms - which limits available Camera features - such as HDR videos, RAW capture or Frame Streaming.
+
+#### No Video HDR
+
+[`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s only work in SDR video sessions.
+Make sure no [`{ videoDynamicRange: ... }`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint) constraint is set (or its [`videoDynamicRange`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint#videodynamicrange) is an SDR Dynamic Range) to disable [Video HDR](video-hdr).
+
+#### No RAW Photo Capture
+
+[`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s don't work with RAW capture.
+Make sure you are not using a [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput) configured to capture RAW/[`'dng'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat), but instead capture in a native or processed format.
+
+#### Not every Camera Extension supports Frame Streaming
+
+Some [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s don't support Frame Streaming (see ["The Frame Output"](frame-output)) while they are enabled.
+To find out if a [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension) works with Frame Streaming, check [`supportsFrameStreaming`](/api/react-native-vision-camera/hybrid-objects/CameraExtension#supportsframestreaming):
+
+```tsx
+function App() {
+  const device = ...
+  const frameOutput = ...
+  const extensions = useCameraDeviceExtensions(device)
+  const extension = extensions.find((e) => {
+    // [!code ++]
+    return e.supportsFrameStreaming && e.type === 'night'
+  })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      outputs={[frameOutput]}
+      cameraExtension={extension}
+    />
+  )
+}
+```

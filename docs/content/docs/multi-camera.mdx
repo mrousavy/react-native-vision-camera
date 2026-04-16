@@ -1,0 +1,56 @@
+---
+title: Multi-Camera
+description: Using multiple Camera Devices in a single Camera Session
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) allows attaching multiple connections to stream from multiple [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)s at the same time - if the system supports it.
+
+### Creating a Multi-Camera Session
+
+To create a multi-camera [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), use [`createCameraSession(true)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#createcamerasession). Make sure [`supportsMultiCamSessions`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#supportsmulticamsessions) is `true`:
+
+```ts
+if (VisionCamera.supportsMultiCamSessions) {
+  const session = await VisionCamera.createCameraSession(true)
+}
+```
+
+### Using multiple Connections
+
+With a multi-cam [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), you can now attach multiple [`CameraSessionConnection`](/api/react-native-vision-camera/interfaces/CameraSessionConnection)s - for example to stream and capture from the Front- and Back-Camera at the same time, attach both devices:
+
+```ts
+const session = ...
+const frontDevice = useCameraDevice('front')
+const backDevice = useCameraDevice('back')
+const frontPreview = usePreviewOutput()
+const backPreview = usePreviewOutput()
+
+const [frontController, backController] = await session.configure([
+  // Front Camera
+  {
+    input: frontDevice,
+    outputs: [
+      { output: frontPreviewOutput, mirrorMode: 'on' },
+      { output: frontPhotoOutput, mirrorMode: 'off' },
+    ],
+    constraints: []
+  },
+  // Back Camera
+  {
+    input: backDevice,
+    outputs: [
+      { output: backPreviewOutput, mirrorMode: 'off' },
+      { output: backPhotoOutput, mirrorMode: 'off' },
+    ],
+    constraints: []
+  }
+])
+await session.start()
+```
+
+Then, ensure you display both `frontPreview` and `backPreview` in separate [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView) views.
+
+Each returned [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) correlates to the connection at that index.

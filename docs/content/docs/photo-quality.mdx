@@ -1,0 +1,55 @@
+---
+title: Configuring Photo Quality
+description: Configuring Photo quality, JPEG compression, and balancing speed over quality
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+While the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) negotiates the Photo resolution based on your [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s and connected outputs, the [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput) can still adjust its quality (JPEG compression), as well as balance photo quality over capture speed as preferred.
+
+### Adjust Quality Prioritization
+
+Use [`qualityPrioritization`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#qualityprioritization) to configure the [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput)'s capture mode - [`'speed'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) configures for maximum capture speed at the cost of possibly reducing image quality, [`'quality'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) configures the pipeline for maximum photo quality which possibly introduces more latency, and [`'balanced'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) balances between the two:
+
+```ts
+const photoOutput = usePhotoOutput({
+  qualityPrioritization: 'quality'
+})
+```
+
+To configure the pipeline for maximum capture speed, use [`'speed'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization), which requires the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) to support it:
+
+```ts
+const device = ...
+const photoOutput = usePhotoOutput({
+  qualityPrioritization: device.supportsSpeedQualityPrioritization ? 'speed' : 'balanced'
+})
+```
+
+> [!TIP]
+> [`'speed'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization) enables zero-shutter-lag (ZSL).
+
+### Configure JPEG `quality`
+
+Processed [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)s (such as [`'jpeg'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) or [`'heic'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)) compress captured [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s.
+By default, a compression of `0.95` (meaning 95% quality) is used, which can be adjusted via [`quality`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#quality) - for example, to capture in maximum quality set it to `1.0`:
+
+```ts
+const photoOutput = usePhotoOutput({
+  qualityPrioritization: 'quality',
+  quality: 1.0,
+})
+```
+
+For faster capture speed, use a lower [`quality`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#quality), such as `0.7`:
+
+```ts
+const device = ...
+const photoOutput = usePhotoOutput({
+  qualityPrioritization: device.supportsSpeedQualityPrioritization ? 'speed' : 'balanced',
+  quality: 0.7
+})
+```
+
+> [!NOTE]
+> RAW [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) (such as [`'dng'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)) do not support compression, effectively always using a [`quality`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#quality) of `1.0`.

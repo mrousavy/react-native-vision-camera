@@ -1,0 +1,15 @@
+{
+  "uiViewClassName": "PreviewView",
+  "supportsRawText": false,
+  "bubblingEventTypes": {},
+  "directEventTypes": {},
+  "validAttributes": {
+    "previewOutput": true,
+    "resizeMode": true,
+    "implementationMode": true,
+    "gestureControllers": true,
+    "onPreviewStarted": true,
+    "onPreviewStopped": true,
+    "hybridRef": true
+  }
+}

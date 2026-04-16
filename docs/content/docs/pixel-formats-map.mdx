@@ -1,0 +1,37 @@
+---
+title: Pixel Formats Map
+description: Mapping VisionCamera PixelFormats to native iOS/Android Pixel Formats
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+### Requesting a Pixel Format
+
+In a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput), you have three options that affects your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat):
+
+- [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig)'s [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) - this requires zero conversion and is generally the most efficient.
+- [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the platform default YUV format - often [`yuv-420-8-bit-full`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat). In most cases, this requires little to no conversion and is very efficient.
+- [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the platform default RGB format - often [`rgb-rgba-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) or [`rgb-bgra-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat). This always requires conversion as the Camera operates in YUV (or BayerRAW), and uses ~2.6x more memory.
+
+> [!TIP]
+> It is recommended to use [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) if possible, as it is the most efficient CPU-accessible format.
+> Only fall-back to [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) if your Native Frame Processor Plugins do not natively support YUV buffers.
+> If your pipeline is entirely GPU-based, use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat), as this requires zero conversions and keeps buffers entirely on the GPU.
+
+> [!WARNING]
+> Use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) with caution.
+> Most camera configurations stream in YUV formats like [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat), but on some devices the native format could also be a vendor-specific format ([`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat)) which is not readable by the CPU. You can still pass [`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat) [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s to consumers like a Media Encoder or a Surface, but you cannot access its pixel data.
+>
+> Some configurations natively stream in RAW pixel formats like [`raw-bayer-packed96-12-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat). Make sure to be prepared for this if you use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat).
+
+### Inspecting a Pixel Format
+
+When you receive a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame), you can inspect its [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat) to find out the precise Pixel Format it uses - here are some examples that map to native pixel formats:
+
+| VisionCamera [`VideoPixelFormat`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | iOS [`CVPixelFormatType`](https://developer.apple.com/documentation/corevideo/cvpixelformattype) | Android [`ImageFormat`](https://developer.android.com/reference/android/graphics/ImageFormat) |
+|---------------|--------|---------------------|
+| [`yuv-420-8-bit-full`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | [`420YpCbCr8BiPlanarFullRange`](https://developer.apple.com/documentation/CoreVideo/kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) | [`YUV_420_888`](https://developer.android.com/reference/android/graphics/ImageFormat#YUV_420_888) |
+| [`yuv-420-10-bit-full`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | [`420YpCbCr10BiPlanarFullRange`](https://developer.apple.com/documentation/corevideo/kcvpixelformattype_420ypcbcr10biplanarfullrange) | [`YCBCR_P010`](https://developer.android.com/reference/android/graphics/ImageFormat#YCBCR_P010) |
+| [`rgb-bgra-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | [`32BGRA`](https://developer.apple.com/documentation/CoreVideo/kCVPixelFormatType_32BGRA) | / |
+| [`rgb-rgba-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | / | [`FLEX_RGBA_888`](https://developer.android.com/reference/android/graphics/ImageFormat#FLEX_RGBA_888) |
+| [`private`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) | / | [`PRIVATE`](https://developer.android.com/reference/android/graphics/ImageFormat#PRIVATE) |

@@ -1,0 +1,119 @@
+---
+title: A Photo
+description: Understanding the Photo type
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+A [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) is a RAW- or processed in-memory buffer, captured by a [`CameraPhotoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput).
+
+See ["The Photo Output"](photo-output) for more information about capturing [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s.
+
+### Displaying a Photo
+
+A [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) holds an in-memory buffer of its pixels, and can be converted to an [`Image`](https://github.com/mrousavy/react-native-nitro-image) (from [react-native-nitro-image](https://github.com/mrousavy/react-native-nitro-image)) entirely in-memory by using [`toImageAsync()`](/api/react-native-vision-camera/hybrid-objects/Photo#toimageasync):
+
+```ts
+const photo = ...
+const image = await photo.toImageAsync()
+```
+
+The `image` can then be displayed in a [`<NitroImage />`](https://github.com/mrousavy/react-native-nitro-image) view:
+
+```tsx
+import { NitroImage } from 'react-native-nitro-image'
+
+function App() {
+  const image = ...
+  return (
+    <NitroImage
+      style={{ flex: 1 }}
+      image={image}
+    />
+  )
+}
+```
+
+### Saving to a File
+
+To save a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) to an image file, use [`saveToTemporaryFileAsync(...)`](/api/react-native-vision-camera/hybrid-objects/Photo#savetotemporaryfileasync) or [`saveToFileAsync(...)`](/api/react-native-vision-camera/hybrid-objects/Photo#savetofileasync):
+
+```ts
+const photo = ...
+const path = await photo.saveToTemporaryFileAsync()
+```
+
+#### Saving to the Camera Roll
+
+After a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) has been saved to a file, you can save it to the user's Camera Roll using a library like [@react-native-camera-roll/camera-roll](https://github.com/react-native-cameraroll/react-native-cameraroll) or [expo-media-library](https://docs.expo.dev/versions/latest/sdk/media-library/).
+
+### Container Formats
+
+[`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s can be captured in different container formats (see [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)), which adjusts the capture pipeline's processing steps accordingly - for example, [`'dcm'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) is a RAW format and applies almost no processing in a capture pipeline, whereas [`'jpeg'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) or [`'heic'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) are processed formats and apply color-grading, compression, multi-capture-fusion, HDR, and other processing steps in the capture pipeline.
+
+You can inspect a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)'s [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) via the [`containerFormat`](/api/react-native-vision-camera/hybrid-objects/Photo#containerformat) property:
+
+```ts
+console.log(photo.containerFormat) // 'jpeg'
+```
+
+### Accessing a Photo's Pixel Buffer
+
+Some [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s allow accessing their pixel buffer directly in-memory, without decoding.
+On iOS, this is often only available on RAW photos ([`containerFormat`](/api/react-native-vision-camera/hybrid-objects/Photo#containerformat) == [`'dcm'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)), while on Android this is available on all Photos.
+
+```ts
+if (photo.hasPixelBuffer) {
+  const pixelBuffer = photo.getPixelBuffer()
+  const rgba = new Uint8Array(pixelBuffer)
+  // process pixels
+}
+```
+
+A Photo's Pixel Buffer does not contain any container metadata (JPEG/HEIC headers), or EXIF flags - it's purely pixels.
+
+#### Accessing the Pixel Buffer via NitroImage
+
+Since a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) can be converted to an [`Image`](https://github.com/mrousavy/react-native-nitro-image) (from [react-native-nitro-image](https://github.com/mrousavy/react-native-nitro-image)), it is also a common pattern to access pixels via the [react-native-nitro-image](https://github.com/mrousavy/react-native-nitro-image) APIs;
+
+```ts
+const photo = ...
+const image = await photo.toImageAsync()
+const pixelBuffer = await image.toRawPixelData()
+```
+
+> [!NOTE]
+> It is worth noting that converting to an [`Image`](https://github.com/mrousavy/react-native-nitro-image) performs an encoding pass, and reading the Pixel Buffer requires a decoding pass.
+>
+> [Accessing a Photo's Pixel Buffer](#accessing-a-photos-pixel-buffer) directly does not require any encoding/decoding passes.
+
+### Accessing a Photo's Encoded Image Data
+
+The [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) also provides access to its Encoded Image Data - which is what would be written to a File if it was saved - including container metadata and EXIF flags.
+
+You can get the Encoded Image Data via [`getFileDataAsync()`](/api/react-native-vision-camera/hybrid-objects/Photo#getfiledataasync), for example to write this to a network stream entirely in-memory;
+
+```ts
+const photo = ...
+const encodedData = await photo.getFileDataAsync()
+// Upload to backend:
+await fetch('https://my-backend.com/upload', {
+  method: 'POST',
+  headers: { 'Content-Type': 'image/jpeg' },
+  body: Buffer.from(encodedData)
+})
+```
+
+#### Skia Images
+
+A [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) can also be imported into [@shopify/react-native-skia](https://github.com/shopify/react-native-skia) using the Encoded Image Data APIs, which allows you to apply shaders or custom drawing/rendering commands to it:
+
+```ts
+const photo = ...
+const encodedData = await photo.getFileDataAsync()
+// Convert Photo to SkImage:
+const bytes = new Uint8Array(buffer)
+const data = Skia.Data.fromBytes(bytes)
+const image = Skia.Image.MakeImageFromEncoded(data)
+// Render SkImage in SkCanvas now
+```

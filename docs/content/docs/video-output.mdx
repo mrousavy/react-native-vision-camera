@@ -1,0 +1,164 @@
+---
+title: The Video Output
+description: Capturing Videos using the Video Output
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+The [`CameraVideoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput) allows capturing Videos, optionally with Audio.
+
+### Creating a Video Output
+
+<Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
+<Tab value="<Camera /> (view)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const videoOutput = useVideoOutput({ /* options */ })
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      isActive={true}
+      device={device}
+      // [!code ++]
+      outputs={[videoOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="useCamera(...) (hook)">
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const videoOutput = useVideoOutput({ /* options */ })
+
+  const camera = useCamera({
+    isActive: true,
+    device: device,
+    // [!code ++]
+    outputs: [videoOutput],
+  })
+}
+```
+</Tab>
+<Tab value="CameraSession (imperative)">
+```tsx
+const session = await VisionCamera.createCameraSession(false)
+const device = await getDefaultCameraDevice('back')
+// [!code ++]
+const videoOutput = VisionCamera.createVideoOutput({ /* options */ })
+
+await session.configure([
+  {
+    input: device,
+    outputs: [
+      // [!code ++]
+      { output: videoOutput, mirrorMode: 'auto' }
+    ],
+    constraints: []
+  }
+], {})
+await session.start()
+```
+</Tab>
+</Tabs>
+
+See [`VideoOutputOptions`](/api/react-native-vision-camera/interfaces/VideoOutputOptions) for a full list of configuration options for the Video Output.
+
+#### Enabling Audio
+
+By default, audio is disabled. To record audio from the microphone, set [`enableAudio`](/api/react-native-vision-camera/interfaces/VideoOutputOptions#enableaudio) to `true`:
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const videoOutput = useVideoOutput({
+  // [!code ++]
+  enableAudio: true
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const videoOutput = VisionCamera.createVideoOutput({
+  // [!code ++]
+  enableAudio: true
+})
+```
+</Tab>
+</Tabs>
+
+> [!WARNING]
+> Enabling Audio requires microphone permission.
+
+#### Persistent Video Outputs
+
+By default, an active recording will be automatically stopped when the input [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) changes (e.g. when the user flips the Camera from front to back).
+To continue an active recording even when the [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) changes, set [`enablePersistentRecorder`](/api/react-native-vision-camera/interfaces/VideoOutputOptions#enablepersistentrecorder) to `true`:
+
+<Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
+<Tab value="Hooks">
+```ts
+const videoOutput = useVideoOutput({
+  // [!code ++]
+  enablePersistentRecorder: true
+})
+```
+</Tab>
+<Tab value="Imperative">
+```ts
+const videoOutput = VisionCamera.createVideoOutput({
+  // [!code ++]
+  enablePersistentRecorder: true
+})
+```
+</Tab>
+</Tabs>
+
+> [!NOTE]
+> The Persistent Recorder uses a different, buffered pipeline for recording Videos, which introduces slight overhead.
+> If possible, disable the persistent recorder by default for maximum efficiency.
+
+### Preparing a Recorder
+
+Before recording a Video, you must first prepare a [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) using [`createRecorder(...)`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput#createrecorder):
+
+```ts
+const recorder = await videoOutput.createRecorder({
+  // ...options
+})
+```
+
+See [`RecorderSettings`](/api/react-native-vision-camera/interfaces/RecorderSettings) for a full list of configuration options.
+
+### Recording a Video
+
+Then, capture a video using [`Recorder.startRecording(...)`](/api/react-native-vision-camera/hybrid-objects/Recorder#startrecording):
+
+```ts
+await recorder.startRecording(
+  (path) => console.log(`Recording finished!`),
+  (error) => console.error(`Recording error!`, error)
+)
+```
+
+To finish the recording, use [`Recorder.stopRecording()`](/api/react-native-vision-camera/hybrid-objects/Recorder#stoprecording):
+
+```ts
+await recorder.stopRecording()
+```
+
+This method resolves once a stop has been requested. After the video recording has been fully written to a file, the [`onRecordingFinished`](/api/react-native-vision-camera/hybrid-objects/Recorder#startrecording) callback passed to [`Recorder.startRecording(...)`](/api/react-native-vision-camera/hybrid-objects/Recorder#startrecording) will be called.
+
+> [!TIP]
+> See ["The Recorder"](recorder) to understand how the [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) works, and how to use it.
+
+### Re-create your Recorder
+
+> [!WARNING]
+> Don't re-use a [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder).
+> To start a new Video recording, you must create a new [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder).
