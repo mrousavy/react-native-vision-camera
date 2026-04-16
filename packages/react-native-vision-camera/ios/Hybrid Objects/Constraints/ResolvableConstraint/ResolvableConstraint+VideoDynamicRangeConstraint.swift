@@ -19,9 +19,8 @@ extension TargetDynamicRange {
   /// Returns the achievable dynamic range (using format's actual bit depth + color range,
   /// and the best available color space from the fallback chain).
   func resolve(for format: AVCaptureDevice.Format) -> ConstraintResolution<TargetDynamicRange> {
-    let targetBitDepth = self.bitDepth
     let actualBitDepth = format.formatDescription.mediaSubType.bitDepth
-    let bitDepthPenalty = targetBitDepth.penalty(to: actualBitDepth)
+    let bitDepthPenalty = self.bitDepth.penalty(to: actualBitDepth)
 
     let colorSpaceResolution = self.colorSpace.resolve(for: format)
 
