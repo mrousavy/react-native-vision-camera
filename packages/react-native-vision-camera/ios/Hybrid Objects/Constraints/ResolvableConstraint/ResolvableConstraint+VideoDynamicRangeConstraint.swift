@@ -19,7 +19,7 @@ extension TargetDynamicRange {
   /// Returns the achievable dynamic range (using format's actual bit depth + color range,
   /// and the best available color space from the fallback chain).
   func resolve(for format: AVCaptureDevice.Format) -> ConstraintResolution<TargetDynamicRange> {
-    let targetBitDepth = self.bitDepth.toBitDepth()
+    let targetBitDepth = self.bitDepth
     let actualBitDepth = format.formatDescription.mediaSubType.bitDepth
     let bitDepthPenalty = targetBitDepth.penalty(to: actualBitDepth)
 
@@ -145,16 +145,6 @@ extension CMFormatDescription.MediaSubType {
   }
 }
 extension TargetDynamicRangeBitDepth {
-  fileprivate func toBitDepth() -> DynamicRangeBitDepth {
-    switch self {
-    case .sdr8Bit:
-      return .sdr8Bit
-    case .hdr10Bit:
-      return .hdr10Bit
-    }
-  }
-}
-extension DynamicRangeBitDepth {
   fileprivate func penalty(to target: DynamicRangeBitDepth) -> Int {
     switch (self, target) {
     case (.sdr8Bit, .sdr8Bit), (.hdr10Bit, .hdr10Bit):
@@ -163,11 +153,12 @@ extension DynamicRangeBitDepth {
       return 1
     case (.hdr10Bit, .sdr8Bit):
       return 2
-    case (_, .unknown), (.unknown, _):
+    case (_, .unknown):
       return 3
     }
   }
-
+}
+extension DynamicRangeBitDepth {
   fileprivate func toTargetBitDepth() -> TargetDynamicRangeBitDepth {
     switch self {
     case .hdr10Bit:
