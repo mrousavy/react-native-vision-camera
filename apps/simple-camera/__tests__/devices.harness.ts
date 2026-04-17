@@ -136,13 +136,9 @@ describe('VisionCamera - CameraDeviceFactory', () => {
 
       expect(Array.isArray(extensions)).toBe(true)
       for (const extension of extensions) {
-        expect([
-          'bokeh',
-          'hdr',
-          'night',
-          'face-retouch',
-          'auto',
-        ]).toContain(extension.type)
+        expect(['bokeh', 'hdr', 'night', 'face-retouch', 'auto']).toContain(
+          extension.type,
+        )
         expect(typeof extension.supportsFrameStreaming).toBe('boolean')
       }
     }
