@@ -1,6 +1,5 @@
 // Devices API
 export * from './CameraDevices'
-export * from './createNormalizedMeteringPoint'
 export * from './devices/getCameraDevice'
 // Hooks
 export * from './hooks/useAsyncRunner'

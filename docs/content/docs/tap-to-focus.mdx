@@ -60,7 +60,7 @@ const meteringPoint = preview.createMeteringPoint(viewX, viewY)
 
 ..or from normalized Camera Coordinates (`0.0` to `1.0`) via [`createNormalizedMeteringPoint(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#createnormalizedmeteringpoint):
 ```ts
-const meteringPoint = VisionCamera.createMeteringPoint(0.5, 0.5)
+const meteringPoint = VisionCamera.createNormalizedMeteringPoint(0.5, 0.5)
 ```
 
 Then, start a Focus Metering Action to the specific [`MeteringPoint`](/api/react-native-vision-camera/hybrid-objects/MeteringPoint) via [`CameraController.focusTo(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#focusto)):
