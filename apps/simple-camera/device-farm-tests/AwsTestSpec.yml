@@ -19,6 +19,12 @@ phases:
       - MANUFACTURER="$(adb shell getprop ro.product.manufacturer | tr -d '\r')"
       - MODEL="$(adb shell getprop ro.product.model | tr -d '\r')"
       - 'echo "Resolved Device Farm device for harness: ${MANUFACTURER} ${MODEL}"'
+      # Harness installs the app via `adb install -r`, which does not auto-grant
+      # runtime permissions. Grant them manually so the Camera tests don't hang
+      # on the Android system permission dialog.
+      - PACKAGE="com.margelo.nitro.camera.example.simple"
+      - adb shell pm grant "$PACKAGE" android.permission.CAMERA || true
+      - adb shell pm grant "$PACKAGE" android.permission.RECORD_AUDIO || true
       - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
       - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
       - cd apps/simple-camera

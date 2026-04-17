@@ -21,42 +21,6 @@ describe('VisionCamera - Permissions', () => {
     expect(VALID_PERMISSION_STATUSES).toContain(status)
   })
 
-  it('requests camera permission and returns a boolean result', async () => {
-    const status = VisionCamera.cameraPermissionStatus
-
-    if (status === 'denied' || status === 'restricted') {
-      console.log(
-        `[SKIP] camera permission request: status is '${status}', cannot be requested programmatically`,
-      )
-      return
-    }
-
-    const wasGranted = await VisionCamera.requestCameraPermission()
-
-    expect(typeof wasGranted).toBe('boolean')
-    if (wasGranted) {
-      expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
-    }
-  })
-
-  it('requests microphone permission and returns a boolean result', async () => {
-    const status = VisionCamera.microphonePermissionStatus
-
-    if (status === 'denied' || status === 'restricted') {
-      console.log(
-        `[SKIP] microphone permission request: status is '${status}', cannot be requested programmatically`,
-      )
-      return
-    }
-
-    const wasGranted = await VisionCamera.requestMicrophonePermission()
-
-    expect(typeof wasGranted).toBe('boolean')
-    if (wasGranted) {
-      expect(VisionCamera.microphonePermissionStatus).toBe('authorized')
-    }
-  })
-
   it('returns a consistent camera permission status across reads', () => {
     const firstRead = VisionCamera.cameraPermissionStatus
     const secondRead = VisionCamera.cameraPermissionStatus
@@ -69,5 +33,33 @@ describe('VisionCamera - Permissions', () => {
     const secondRead = VisionCamera.microphonePermissionStatus
 
     expect(firstRead).toBe(secondRead)
+  })
+
+  it('resolves requestCameraPermission to true when already authorized', async () => {
+    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
+      console.log(
+        '[SKIP] requestCameraPermission: permission is not pre-authorized, skipping to avoid blocking on the native system dialog',
+      )
+      return
+    }
+
+    const wasGranted = await VisionCamera.requestCameraPermission()
+
+    expect(wasGranted).toBe(true)
+    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
+  })
+
+  it('resolves requestMicrophonePermission to true when already authorized', async () => {
+    if (VisionCamera.microphonePermissionStatus !== 'authorized') {
+      console.log(
+        '[SKIP] requestMicrophonePermission: permission is not pre-authorized, skipping to avoid blocking on the native system dialog',
+      )
+      return
+    }
+
+    const wasGranted = await VisionCamera.requestMicrophonePermission()
+
+    expect(wasGranted).toBe(true)
+    expect(VisionCamera.microphonePermissionStatus).toBe('authorized')
   })
 })
