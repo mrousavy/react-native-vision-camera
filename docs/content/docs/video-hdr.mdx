@@ -74,7 +74,7 @@ The [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSessi
 
 #### Custom Dynamic Ranges
 
-For a custom [`TargetDynamicRange`](/api/react-native-vision-camera/interfaces/TargetDynamicRange), pass the range as an object directly:
+For a custom [`TargetDynamicRange`](/api/react-native-vision-camera/interfaces/TargetDynamicRange), pass the dynamic range as an object directly. - for example, to try using [`'apple-log'`](/api/react-native-vision-camera/type-aliases/ColorSpace) in 10-bit:
 
 ```tsx
 [
@@ -82,7 +82,7 @@ For a custom [`TargetDynamicRange`](/api/react-native-vision-camera/interfaces/T
     // [!code ++:5]
     videoDynamicRange: {
       bitDepth: 'hdr-10-bit',
-      colorSpace: 'hlg-bt2020',
+      colorSpace: 'apple-log',
       colorRange: 'full'
     }
   }
