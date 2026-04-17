@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'react-native-harness'
 import {
   type CameraDevice,
   type CameraDeviceFactory,
+  CommonDynamicRanges,
   CommonResolutions,
   VisionCamera,
 } from 'react-native-vision-camera'
@@ -182,27 +183,17 @@ describe('VisionCamera - resolveConstraints', () => {
     expect(config.isPhotoHDREnabled).toBe(false)
   })
 
-  it('resolves an HDR video dynamic range when the device supports it', async () => {
+  it('resolves CommonDynamicRanges.ANY_HDR when the device supports it', async () => {
     if (device == null) {
       console.log('[SKIP] resolveConstraints Video HDR: no camera device')
       return
     }
-    const hdrRange = device.supportedVideoDynamicRanges.find(
+    const supportsHDR = device.supportedVideoDynamicRanges.some(
       (range) => range.bitDepth === 'hdr-10-bit',
     )
-    if (hdrRange == null) {
+    if (!supportsHDR) {
       console.log(
         '[SKIP] resolveConstraints Video HDR: device does not expose any HDR 10-bit range',
-      )
-      return
-    }
-    if (
-      hdrRange.bitDepth === 'unknown' ||
-      hdrRange.colorSpace === 'unknown' ||
-      hdrRange.colorRange === 'unknown'
-    ) {
-      console.log(
-        '[SKIP] resolveConstraints Video HDR: range has unknown fields',
       )
       return
     }
@@ -216,15 +207,7 @@ describe('VisionCamera - resolveConstraints', () => {
     const config = await VisionCamera.resolveConstraints(
       device,
       [{ output: videoOutput, mirrorMode: 'auto' }],
-      [
-        {
-          videoDynamicRange: {
-            bitDepth: hdrRange.bitDepth,
-            colorSpace: hdrRange.colorSpace,
-            colorRange: hdrRange.colorRange,
-          },
-        },
-      ],
+      [{ videoDynamicRange: CommonDynamicRanges.ANY_HDR }],
     )
 
     if (config.selectedVideoDynamicRange == null) {
@@ -235,6 +218,34 @@ describe('VisionCamera - resolveConstraints', () => {
     }
 
     expect(config.selectedVideoDynamicRange.bitDepth).toBe('hdr-10-bit')
+  })
+
+  it('resolves CommonDynamicRanges.ANY_SDR on every device', async () => {
+    if (device == null) {
+      console.log('[SKIP] resolveConstraints Video SDR: no camera device')
+      return
+    }
+
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.FHD_16_9,
+      enableAudio: false,
+      enablePersistentRecorder: false,
+    })
+
+    const config = await VisionCamera.resolveConstraints(
+      device,
+      [{ output: videoOutput, mirrorMode: 'auto' }],
+      [{ videoDynamicRange: CommonDynamicRanges.ANY_SDR }],
+    )
+
+    if (config.selectedVideoDynamicRange == null) {
+      console.log(
+        '[SKIP] resolveConstraints Video SDR: negotiation did not pick any dynamic range',
+      )
+      return
+    }
+
+    expect(config.selectedVideoDynamicRange.bitDepth).toBe('sdr-8-bit')
   })
 
   it("resolves video stabilization 'off' on every device", async () => {
