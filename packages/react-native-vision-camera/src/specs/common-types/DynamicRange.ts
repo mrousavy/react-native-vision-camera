@@ -1,6 +1,7 @@
+import type { CommonDynamicRanges } from '../../utils/CommonDynamicRanges'
 import type { CameraDevice } from '../inputs/CameraDevice.nitro'
 import type { CameraVideoOutput } from '../outputs/CameraVideoOutput.nitro'
-import type { VideoDynamicRangeConstraint } from './Constraint'
+import type { Constraint, VideoDynamicRangeConstraint } from './Constraint'
 
 export type ColorSpace =
   | 'srgb'
@@ -56,9 +57,19 @@ export interface DynamicRange {
   colorRange: ColorRange
 }
 
-type TargetColorSpace = Exclude<ColorSpace, 'unknown'>
-type TargetDynamicRangeBitDepth = Exclude<DynamicRangeBitDepth, 'unknown'>
-type TargetColorRange = Exclude<ColorRange, 'unknown'>
+export type TargetColorSpace = Exclude<ColorSpace, 'unknown'>
+export type TargetDynamicRangeBitDepth = Exclude<
+  DynamicRangeBitDepth,
+  'unknown'
+>
+export type TargetColorRange = Exclude<ColorRange, 'unknown'>
+/**
+ * Represents a target {@linkcode dynamicRange}, for
+ * example to be used with the Constraints API.
+ *
+ * @see {@linkcode Constraint}
+ * @see {@linkcode CommonDynamicRanges}
+ */
 export interface TargetDynamicRange {
   bitDepth: TargetDynamicRangeBitDepth
   colorSpace: TargetColorSpace

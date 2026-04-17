@@ -1,4 +1,5 @@
 import type { CameraProps } from '../../hooks/useCamera'
+import type { CommonDynamicRanges } from '../../utils/CommonDynamicRanges'
 import type { CameraFrameOutput } from '../outputs/CameraFrameOutput.nitro'
 import type { CameraOutput } from '../outputs/CameraOutput.nitro'
 import type { CameraPhotoOutput } from '../outputs/CameraPhotoOutput.nitro'
@@ -90,6 +91,13 @@ export interface ResolutionBiasConstraint {
  * A constraint to set {@linkcode TargetDynamicRange} for Video
  * Streams (e.g. {@linkcode CameraVideoOutput}).
  *
+ * @see {@linkcode CommonDynamicRanges}
+ *
+ * @example
+ * Any HDR range
+ * ```ts
+ * { videoDynamicRange: CommonDynamicRanges.ANY_HDR }
+ * ```
  * @example
  * HDR HLG BT2020
  * ```ts

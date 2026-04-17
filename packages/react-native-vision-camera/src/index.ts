@@ -1,5 +1,4 @@
 // Devices API
-
 export * from './CameraDevices'
 export * from './createNormalizedMeteringPoint'
 export * from './devices/getCameraDevice'
@@ -91,12 +90,13 @@ export * from './specs/views/PreviewView.nitro'
 export * from './threading/AsyncRunner'
 export * from './threading/RuntimeThread'
 export * from './threading/RuntimeThreadProvider'
-// Resolutions
+// Utils
+export * from './utils/CommonDynamicRanges'
 export * from './utils/CommonResolutions'
-// Frame Converter
 export * from './utils/FrameConverter'
+// Main factory
 export * from './VisionCamera'
-// Camera View Component
+// Views
 export * from './views/Camera'
 // Native Hybrid Views
 export * from './views/NativeFrameRendererView'

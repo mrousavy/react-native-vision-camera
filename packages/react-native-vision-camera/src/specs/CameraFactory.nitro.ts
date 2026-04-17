@@ -141,7 +141,7 @@ export interface CameraFactory
    *     { resolutionPreference: photoOutput },
    *     { resolutionPreference: videoOutput },
    *     { photoHDR: true },
-   *     { videoDynamicRange: { bitDepth: 'hdr-10-bit', colorSpace: 'hlg-bt2020', colorRange: 'full' } },
+   *     { videoDynamicRange: CommonDynamicRanges.ANY_HDR },
    *   ]
    * )
    * ```
