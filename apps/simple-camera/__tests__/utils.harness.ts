@@ -1,16 +1,7 @@
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import { describe, expect, it } from 'react-native-harness'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 describe('VisionCamera - createNormalizedMeteringPoint', () => {
-  beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Utility tests require camera permission.',
-      )
-    }
-  })
-
   it('creates a MeteringPoint at the center', () => {
     const point = VisionCamera.createNormalizedMeteringPoint(0.5, 0.5)
 

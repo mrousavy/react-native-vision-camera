@@ -12,13 +12,6 @@ let device: CameraDevice | undefined
 
 describe('VisionCamera - resolveConstraints', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Constraints tests require camera permission.',
-      )
-    }
-
     factory = await VisionCamera.createDeviceFactory()
     device =
       factory.getDefaultCamera('back') ??

@@ -1,17 +1,8 @@
 import { Platform } from 'react-native'
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import { describe, expect, it } from 'react-native-harness'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 describe('VisionCamera - CameraPreviewOutput', () => {
-  beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Output tests require camera permission.',
-      )
-    }
-  })
-
   it('creates a new CameraPreviewOutput', () => {
     const output = VisionCamera.createPreviewOutput()
 

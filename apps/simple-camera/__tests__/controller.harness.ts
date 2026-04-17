@@ -14,10 +14,9 @@ let device: CameraDevice | undefined
 
 describe('VisionCamera - CameraController', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
+    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
       throw new Error(
-        'Camera permission was not granted. Controller tests require camera permission.',
+        `Controller tests require camera permission. Current status: ${VisionCamera.cameraPermissionStatus}`,
       )
     }
 

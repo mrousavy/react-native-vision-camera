@@ -12,15 +12,6 @@ let frontDevice: CameraDevice | undefined
 let primaryDevice: CameraDevice | undefined
 
 describe('VisionCamera - CameraSession creation', () => {
-  beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Session tests require camera permission.',
-      )
-    }
-  })
-
   it('creates a single-cam CameraSession', async () => {
     const session = await VisionCamera.createCameraSession(false)
 
@@ -68,12 +59,7 @@ describe('VisionCamera - CameraSession creation', () => {
 
 describe('VisionCamera - CameraSession configuration', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Session tests require camera permission.',
-      )
-    }
+    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
 
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
@@ -335,12 +321,7 @@ describe('VisionCamera - CameraSession configuration', () => {
 
 describe('VisionCamera - CameraSession mirror modes', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Session tests require camera permission.',
-      )
-    }
+    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
 
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
@@ -406,12 +387,7 @@ describe('VisionCamera - CameraSession mirror modes', () => {
 
 describe('VisionCamera - CameraSession lifecycle', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Session tests require camera permission.',
-      )
-    }
+    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
 
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
@@ -574,12 +550,7 @@ describe('VisionCamera - CameraSession lifecycle', () => {
 
 describe('VisionCamera - Multi-cam CameraSession', () => {
   beforeAll(async () => {
-    const granted = await VisionCamera.requestCameraPermission()
-    if (!granted) {
-      throw new Error(
-        'Camera permission was not granted. Session tests require camera permission.',
-      )
-    }
+    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
 
     factory = await VisionCamera.createDeviceFactory()
     backDevice = factory.getDefaultCamera('back')
@@ -596,6 +567,7 @@ describe('VisionCamera - Multi-cam CameraSession', () => {
       console.log('[SKIP] multi-cam configure: not supported on this device')
       return
     }
+
     if (backDevice == null || frontDevice == null) {
       console.log(
         '[SKIP] multi-cam configure: needs both front and back cameras',
