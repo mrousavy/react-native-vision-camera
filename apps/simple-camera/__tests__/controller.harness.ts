@@ -11,30 +11,21 @@ import {
 let session: CameraSession | undefined
 let controller: CameraController | undefined
 let device: CameraDevice | undefined
-let skipAll = false
-let skipReason = ''
 
 describe('VisionCamera - CameraController', () => {
   beforeAll(async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      skipAll = true
-      skipReason = 'camera permission not authorized'
-      console.log(`[SKIP] controller tests: ${skipReason}`)
-      return
-    }
-
     const factory = await VisionCamera.createDeviceFactory()
-    device =
+    const resolvedDevice =
       factory.getDefaultCamera('back') ??
       factory.getDefaultCamera('front') ??
       factory.cameraDevices[0]
 
-    if (device == null) {
-      skipAll = true
-      skipReason = 'no camera device available'
-      console.log(`[SKIP] controller tests: ${skipReason}`)
-      return
+    if (resolvedDevice == null) {
+      throw new Error(
+        'Expected the device to expose at least one CameraDevice, but got none.',
+      )
     }
+    device = resolvedDevice
 
     session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
@@ -47,7 +38,7 @@ describe('VisionCamera - CameraController', () => {
 
     const controllers = await session.configure([
       {
-        input: device,
+        input: resolvedDevice,
         outputs: [
           { output: previewOutput, mirrorMode: 'auto' },
           { output: photoOutput, mirrorMode: 'auto' },
@@ -73,20 +64,12 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('exposes the bound CameraDevice on the CameraController', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.device: ${skipReason}`)
-      return
-    }
     if (controller == null || device == null) return
 
     expect(controller.device.id).toBe(device.id)
   })
 
   it('reports connected status while the session is running', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.isConnected: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     expect(typeof controller.isConnected).toBe('boolean')
@@ -95,10 +78,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('exposes a sensible zoom range and current zoom', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller zoom range: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     expect(controller.minZoom).toBeGreaterThan(0)
@@ -109,10 +88,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('sets the zoom to the minimum value', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setZoom min: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     await controller.setZoom(controller.minZoom)
@@ -120,10 +95,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('sets the zoom to the maximum value', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setZoom max: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     await controller.setZoom(controller.maxZoom)
@@ -132,10 +103,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('animates the zoom to a new value', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.startZoomAnimation: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     const target = Math.min(controller.minZoom + 0.5, controller.maxZoom)
@@ -145,10 +112,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('sets the torch on if the device has a torch', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setTorchMode: ${skipReason}`)
-      return
-    }
     if (controller == null) return
     if (!controller.device.hasTorch) {
       console.log('[SKIP] controller.setTorchMode: device has no torch')
@@ -163,10 +126,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('throws when setting the torch on a device without a torch', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setTorchMode no-torch: ${skipReason}`)
-      return
-    }
     if (controller == null) return
     if (controller.device.hasTorch) {
       console.log(
@@ -185,10 +144,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('sets the exposure bias if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setExposureBias: ${skipReason}`)
-      return
-    }
     if (controller == null) return
     if (!controller.device.supportsExposureBias) {
       console.log(
@@ -211,10 +166,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('exposes iso / exposureDuration / minISO / maxISO readonly state', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller exposure state: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     expect(typeof controller.iso).toBe('number')
@@ -232,10 +183,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('locks and resets the exposure on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setExposureLocked: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.setExposureLocked: iOS only')
       return
@@ -257,10 +204,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('locks the current exposure on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.lockCurrentExposure: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.lockCurrentExposure: iOS only')
       return
@@ -279,10 +222,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('exposes the current focus state', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller focus state: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     expect(['locked', 'auto-focus', 'continuous-auto-focus']).toContain(
@@ -293,10 +232,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('focuses to a normalized metering point if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.focusTo: ${skipReason}`)
-      return
-    }
     if (controller == null) return
     if (!controller.device.supportsFocusMetering) {
       console.log(
@@ -324,20 +259,12 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('resets focus to continuous auto-focus', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.resetFocus: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     await controller.resetFocus()
   })
 
   it('locks focus at a specific lens position on iOS', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setFocusLocked: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.setFocusLocked: iOS only')
       return
@@ -356,10 +283,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('locks the current focus on iOS', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.lockCurrentFocus: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.lockCurrentFocus: iOS only')
       return
@@ -376,10 +299,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('exposes the current white balance state', () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller white balance state: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     expect([
@@ -393,12 +312,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('converts white balance temperature and tint to gains on iOS', () => {
-    if (skipAll) {
-      console.log(
-        `[SKIP] convertWhiteBalanceTemperatureAndTintValues: ${skipReason}`,
-      )
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log(
         '[SKIP] convertWhiteBalanceTemperatureAndTintValues: iOS only',
@@ -418,10 +331,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('locks the white balance on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.setWhiteBalanceLocked: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.setWhiteBalanceLocked: iOS only')
       return
@@ -449,10 +358,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('locks the current white balance on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.lockCurrentWhiteBalance: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.lockCurrentWhiteBalance: iOS only')
       return
@@ -471,10 +376,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('enables low light boost if the device supports it', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.configure lowLightBoost: ${skipReason}`)
-      return
-    }
     if (controller == null) return
     if (!controller.device.supportsLowLightBoost) {
       console.log(
@@ -490,10 +391,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('enables smooth auto focus on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.configure smoothAutoFocus: ${skipReason}`)
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.configure smoothAutoFocus: iOS only')
       return
@@ -513,12 +410,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('enables distortion correction on iOS if supported', async () => {
-    if (skipAll) {
-      console.log(
-        `[SKIP] controller.configure distortionCorrection: ${skipReason}`,
-      )
-      return
-    }
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] controller.configure distortionCorrection: iOS only')
       return
@@ -538,10 +429,6 @@ describe('VisionCamera - CameraController', () => {
   })
 
   it('leaves values untouched when calling configure with an empty diff', async () => {
-    if (skipAll) {
-      console.log(`[SKIP] controller.configure empty diff: ${skipReason}`)
-      return
-    }
     if (controller == null) return
 
     const previousLowLight = controller.isLowLightBoostEnabled

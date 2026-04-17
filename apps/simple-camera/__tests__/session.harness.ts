@@ -71,12 +71,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('configures a session with a single photo output', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] session configure photo: camera permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session configure photo: no camera device available')
       return
@@ -103,12 +97,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('configures a session with a preview + photo output', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] session configure preview+photo: camera permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session configure preview+photo: no camera device')
       return
@@ -138,12 +126,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('configures a session with photo + video + frame outputs', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] session configure photo+video+frame: camera permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log(
         '[SKIP] session configure photo+video+frame: no camera device',
@@ -189,12 +171,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('configures a session with no outputs', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] session configure no outputs: camera permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session configure no outputs: no camera device')
       return
@@ -213,12 +189,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('supports reconfiguring a session and returning a new controller', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] session reconfigure: camera permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session reconfigure: no camera device')
       return
@@ -258,10 +228,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('configures a session with initialZoom and initialExposureBias', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] session initial zoom/bias: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session initial zoom/bias: no camera device')
       return
@@ -292,10 +258,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('calls onSessionConfigSelected after configuring', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] onSessionConfigSelected: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] onSessionConfigSelected: no camera device')
       return
@@ -327,12 +289,6 @@ describe('VisionCamera - CameraSession configuration', () => {
   })
 
   it('supports the allowBackgroundAudioPlayback session config flag on iOS', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] allowBackgroundAudioPlayback: permission not authorized',
-      )
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] allowBackgroundAudioPlayback: no camera device')
       return
@@ -375,10 +331,6 @@ describe('VisionCamera - CameraSession mirror modes', () => {
   })
 
   it("configures an output with mirrorMode 'on'", async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log("[SKIP] mirrorMode 'on': permission not authorized")
-      return
-    }
     if (primaryDevice == null) {
       console.log("[SKIP] mirrorMode 'on': no camera device")
       return
@@ -404,10 +356,6 @@ describe('VisionCamera - CameraSession mirror modes', () => {
   })
 
   it("configures an output with mirrorMode 'off'", async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log("[SKIP] mirrorMode 'off': permission not authorized")
-      return
-    }
     if (primaryDevice == null) {
       console.log("[SKIP] mirrorMode 'off': no camera device")
       return
@@ -447,10 +395,6 @@ describe('VisionCamera - CameraSession lifecycle', () => {
   })
 
   it('starts and stops a configured session', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] session lifecycle: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session lifecycle: no camera device')
       return
@@ -479,10 +423,6 @@ describe('VisionCamera - CameraSession lifecycle', () => {
   })
 
   it('supports starting and stopping the session multiple times', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] session start/stop loop: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] session start/stop loop: no camera device')
       return
@@ -512,10 +452,6 @@ describe('VisionCamera - CameraSession lifecycle', () => {
   })
 
   it('fires the onStarted listener when the session starts', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] onStarted listener: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] onStarted listener: no camera device')
       return
@@ -549,10 +485,6 @@ describe('VisionCamera - CameraSession lifecycle', () => {
   })
 
   it('fires the onStopped listener when the session stops', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] onStopped listener: permission not authorized')
-      return
-    }
     if (primaryDevice == null) {
       console.log('[SKIP] onStopped listener: no camera device')
       return
@@ -627,10 +559,6 @@ describe('VisionCamera - Multi-cam CameraSession', () => {
       console.log('[SKIP] multi-cam configure: not supported on this device')
       return
     }
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log('[SKIP] multi-cam configure: permission not authorized')
-      return
-    }
     if (backDevice == null || frontDevice == null) {
       console.log(
         '[SKIP] multi-cam configure: needs both front and back cameras',
@@ -671,12 +599,6 @@ describe('VisionCamera - Multi-cam CameraSession', () => {
   })
 
   it('rejects adding multiple connections on a single-cam session', async () => {
-    if (VisionCamera.cameraPermissionStatus !== 'authorized') {
-      console.log(
-        '[SKIP] single-cam rejects multiple connections: permission not authorized',
-      )
-      return
-    }
     if (backDevice == null || frontDevice == null) {
       console.log(
         '[SKIP] single-cam rejects multiple connections: needs both front and back cameras',

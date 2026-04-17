@@ -355,6 +355,15 @@ describe('VisionCamera - CameraDevice focus / exposure / white balance capabilit
       expect(typeof device.supportsWhiteBalanceMetering).toBe('boolean')
       expect(typeof device.supportsWhiteBalanceLocking).toBe('boolean')
       expect(typeof device.maxWhiteBalanceGain).toBe('number')
+    }
+  })
+
+  it('exposes a sensible maxWhiteBalanceGain when white balance locking is supported', () => {
+    for (const device of factory.cameraDevices) {
+      if (!device.supportsWhiteBalanceLocking) {
+        continue
+      }
+
       expect(device.maxWhiteBalanceGain).toBeGreaterThanOrEqual(1)
     }
   })

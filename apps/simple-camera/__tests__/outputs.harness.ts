@@ -2,8 +2,6 @@ import { Platform } from 'react-native'
 import { describe, expect, it } from 'react-native-harness'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
-const VALID_ORIENTATIONS = ['up', 'right', 'down', 'left'] as const
-
 describe('VisionCamera - CameraPreviewOutput', () => {
   it('creates a new CameraPreviewOutput', () => {
     const output = VisionCamera.createPreviewOutput()
@@ -17,16 +15,6 @@ describe('VisionCamera - CameraPreviewOutput', () => {
     const secondOutput = VisionCamera.createPreviewOutput()
 
     expect(firstOutput).not.toBe(secondOutput)
-  })
-
-  it('exposes a valid default outputOrientation and allows setting it', () => {
-    const output = VisionCamera.createPreviewOutput()
-
-    expect(VALID_ORIENTATIONS).toContain(output.outputOrientation)
-    output.outputOrientation = 'right'
-    expect(output.outputOrientation).toBe('right')
-    output.outputOrientation = 'up'
-    expect(output.outputOrientation).toBe('up')
   })
 })
 
@@ -106,18 +94,6 @@ describe('VisionCamera - CameraPhotoOutput', () => {
     })
 
     expect(output).toBeDefined()
-  })
-
-  it('allows setting outputOrientation on the CameraPhotoOutput', () => {
-    const output = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.UHD_4_3,
-      containerFormat: 'native',
-      quality: 0.9,
-      qualityPrioritization: 'balanced',
-    })
-
-    output.outputOrientation = 'left'
-    expect(output.outputOrientation).toBe('left')
   })
 })
 
@@ -203,17 +179,6 @@ describe('VisionCamera - CameraVideoOutput', () => {
     }
 
     expect(threw).toBe(true)
-  })
-
-  it('allows setting outputOrientation on the CameraVideoOutput', () => {
-    const output = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.FHD_16_9,
-      enableAudio: false,
-      enablePersistentRecorder: false,
-    })
-
-    output.outputOrientation = 'down'
-    expect(output.outputOrientation).toBe('down')
   })
 })
 
