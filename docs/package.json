@@ -22,6 +22,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@r4ai/remark-callout": "^0.6.2",
+    "@vercel/analytics": "^2.0.1",
     "fumadocs-core": "16.6.17",
     "fumadocs-docgen": "^3.0.4",
     "fumadocs-mdx": "14.2.10",
