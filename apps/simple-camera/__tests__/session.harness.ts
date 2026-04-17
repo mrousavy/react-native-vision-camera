@@ -12,6 +12,15 @@ let frontDevice: CameraDevice | undefined
 let primaryDevice: CameraDevice | undefined
 
 describe('VisionCamera - CameraSession creation', () => {
+  beforeAll(async () => {
+    const granted = await VisionCamera.requestCameraPermission()
+    if (!granted) {
+      throw new Error(
+        'Camera permission was not granted. Session tests cannot run without camera permission.',
+      )
+    }
+  })
+
   it('creates a single-cam CameraSession', async () => {
     const session = await VisionCamera.createCameraSession(false)
 
