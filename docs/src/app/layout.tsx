@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next'
 import { RootProvider } from 'fumadocs-ui/provider/next'
 import type { Metadata, Viewport } from 'next'
 import './global.css'
@@ -60,6 +61,7 @@ export default function Layout({ children }: LayoutProps<'/'>) {
     >
       <body className="flex flex-col min-h-dvh">
         <RootProvider>{children}</RootProvider>
+        <Analytics />
       </body>
     </html>
   )
