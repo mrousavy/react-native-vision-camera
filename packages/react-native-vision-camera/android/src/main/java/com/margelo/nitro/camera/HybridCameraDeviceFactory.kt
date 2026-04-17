@@ -16,7 +16,9 @@ import com.margelo.nitro.NitroModules
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.hybrids.inputs.HybridCameraDevice
 import com.margelo.nitro.camera.hybrids.inputs.HybridCameraExtension
+import com.margelo.nitro.camera.hybrids.inputs.HybridUSBCameraDevice
 import com.margelo.nitro.camera.public.NativeCameraDevice
+import com.margelo.nitro.camera.usb.USBCameraManager
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
 import com.margelo.nitro.core.Promise
 
@@ -34,9 +36,28 @@ class HybridCameraDeviceFactory(
     get() = NitroModules.applicationContext ?: throw Error("No ApplicationContext set!")
   private val sharedPreferences: SharedPreferences
     get() = context.getSharedPreferences("com.margelo.camera", Context.MODE_PRIVATE)
+  private val usbCameraManager: USBCameraManager by lazy {
+    USBCameraManager(context)
+  }
 
   override val cameraDevices: Array<HybridCameraDeviceSpec>
-    get() = cameraProvider.availableCameraInfos.mapToArray { HybridCameraDevice(it) }
+    get() {
+      // Get built-in cameras from CameraX
+      val builtInCameras = cameraProvider.availableCameraInfos.mapToArray { HybridCameraDevice(it) }
+
+      // Get USB cameras
+      val usbCameras = try {
+        usbCameraManager.discoverUSBCameras().mapToArray { usbCamera ->
+          HybridUSBCameraDevice(usbCamera, context)
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "Failed to discover USB cameras", e)
+        emptyArray()
+      }
+
+      // Combine both lists
+      return builtInCameras + usbCameras
+    }
 
   override var userPreferredCamera: HybridCameraDeviceSpec?
     get() {
@@ -75,6 +96,20 @@ class HybridCameraDeviceFactory(
   }
 
   override fun getCameraForId(id: String): HybridCameraDeviceSpec? {
+    // Check if it's a USB camera ID
+    if (id.startsWith("usb-")) {
+      try {
+        val usbCameras = usbCameraManager.discoverUSBCameras()
+        val usbCamera = usbCameras.firstOrNull { it.id == id }
+        if (usbCamera != null) {
+          return HybridUSBCameraDevice(usbCamera, context)
+        }
+      } catch (e: Exception) {
+        Log.e(TAG, "Failed to get USB camera by ID", e)
+      }
+    }
+
+    // Check built-in cameras
     val cameraInfo =
       cameraProvider.availableCameraInfos.firstOrNull { cameraInfo ->
         cameraInfo.cameraId?.value == id
