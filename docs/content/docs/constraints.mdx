@@ -347,13 +347,7 @@ const constraints = [
 
 ```ts
 const constraints = [
-  {
-    videoDynamicRange: {
-      bitDepth: 'hdr-10-bit',
-      colorSpace: 'hlg-bt2020',
-      colorRange: 'full'
-    }
-  },
+  { videoDynamicRange: CommonDynamicRanges.ANY_HDR },
 ] satisfies Constraint[]
 ```
 
