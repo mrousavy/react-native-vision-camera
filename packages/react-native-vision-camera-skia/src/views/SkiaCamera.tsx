@@ -20,7 +20,6 @@ import {
   type CameraSession,
   type CameraSessionConfig,
   type CameraVideoOutput,
-  createNormalizedMeteringPoint,
   type FocusOptions,
   type Frame,
   type MeteringMode,
@@ -34,6 +33,7 @@ import {
   useFrameOutput,
   useOrientation,
   type VideoPixelFormat,
+  VisionCamera,
 } from 'react-native-vision-camera'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
 import { renderToTexture, type SkiaOnFrameState } from '../render'
@@ -355,7 +355,7 @@ function SkiaCameraImpl({
         throw new Error(`Cannot focus - Camera is null!`)
       }
       const transformedPoint = this.convertViewPointToNormalizedPoint(viewPoint)
-      const meteringPoint = createNormalizedMeteringPoint(
+      const meteringPoint = VisionCamera.createNormalizedMeteringPoint(
         transformedPoint.x,
         transformedPoint.y,
       )
