@@ -31,7 +31,7 @@ function App() {
     onFrame(frame) {
       'worklet'
       // [!code ++]
-      frameRenderer.render(frame)
+      frameRenderer.renderFrame(frame)
       frame.dispose()
     }
   })

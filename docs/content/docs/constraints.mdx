@@ -321,7 +321,7 @@ console.log(`Config resolved: ${config.toString()}`)
 If Photo capture is more important than Video capture, list your [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) and potentially also a [`{ photoHDR: ... }`](/api/react-native-vision-camera/interfaces/PhotoHDRConstraint) above your video constraints:
 
 ```ts
-const contraints = [
+const constraints = [
   { resolutionBias: photoOutput },
   { photoHDR: true },
   { resolutionBias: videoOutput }
@@ -336,7 +336,7 @@ Constraints find the _closest match_ to your described intent, which goes both w
 const frameOutput = useFrameOutput({
   targetResolution: CommonResolutions.VGA_16_9
 })
-const contraints = [
+const constraints = [
   { resolutionBias: frameOutput },
 ] satisfies Constraint[]
 ```
@@ -346,7 +346,7 @@ const contraints = [
 [Video HDR](video-hdr) has to be negotiated across output resolutions, frame rates, and device specific capabilities - you can configure the Camera to stream in a High Dynamic Range (HDR) using a [`{ videoDynamicRange: ... }`](/api/react-native-vision-camera/interfaces/VideoDynamicRangeConstraint):
 
 ```ts
-const contraints = [
+const constraints = [
   {
     videoDynamicRange: {
       bitDepth: 'hdr-10-bit',
@@ -362,7 +362,7 @@ const contraints = [
 To prefer a specific [Video Stabilization Mode](video-stabilization), use a [`{ videoStabilizationMode: ... }`](/api/react-native-vision-camera/interfaces/VideoStabilizationModeConstraint):
 
 ```ts
-const contraints = [
+const constraints = [
   { videoStabilizationMode: 'cinematic-extended' },
 ] satisfies Constraint[]
 ```
@@ -377,7 +377,7 @@ To prefer a binned format over a non-binned format, use a [`{ binned: true }`](/
 As with other formats, not specifying the constraint means "no preference", so binned and non-binned formats are ranked equally.
 
 ```ts
-const contraints = [
+const constraints = [
   { binned: true },
 ] satisfies Constraint[]
 ```

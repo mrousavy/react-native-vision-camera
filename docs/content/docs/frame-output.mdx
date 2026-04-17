@@ -125,7 +125,7 @@ Use [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFo
 Examples:
 - [OpenCV](https://opencv.org) natively supports YUV, so streaming in [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is most efficient.
 - [LiteRT](https://ai.google.dev/edge/litert/overview) supports YUV, **but converts to RGB internally** - so streaming in [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) directly is more efficient as conversion is handled in the Camera pipeline.
-- [react-native-skia](https://shopify.github.io/react-native-skia/) supports importing external textures (PRIVATE), as well as YUV and RGB Frames, so streaming in so [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is most efficient, with [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) as a next-best alternative.
+- [react-native-skia](https://shopify.github.io/react-native-skia/) supports importing external textures (PRIVATE), as well as YUV and RGB Frames, so streaming in [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) is most efficient, with [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat) as a next-best alternative.
 
 After selecting a [`pixelFormat`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#pixelformat), inspect your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) for the actual pixel format you receive via [`Frame.pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat):
 

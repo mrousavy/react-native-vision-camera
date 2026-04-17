@@ -62,13 +62,13 @@ if (controller.device.supportsWhiteBalanceLocking) {
 
 ### Locking current values
 
-To lock the current Exposure/Focus/White-Balance values at their current value (for example, after a [tap to focus](tap-to-focus) action), use [`lockCurrentExposure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentexposure), [`lockCurrentFocus(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentfocus) or [`lockCurrentWhiteBalance(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentwhitebalance):
+To lock the current Exposure/Focus/White-Balance values at their current value (for example, after a [tap to focus](tap-to-focus) action), use [`lockCurrentExposure()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentexposure), [`lockCurrentFocus()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentfocus) or [`lockCurrentWhiteBalance()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentwhitebalance):
 
 ```ts
 const controller = ...
 const meteringPoint = ...
 await controller.focusTo(meteringPoint, {
-  autoReset: null
+  autoResetAfter: null
 })
 
 if (controller.device.supportsExposureLocking) {
@@ -82,7 +82,7 @@ if (controller.device.supportsWhiteBalanceLocking) {
 }
 ```
 
-To reset Exposure/Focus/White-Balance back to auto, use [`resetFocus(...)`](/api/react-native-vision-camera/hybrid-objects/CameraController#resetfocus):
+To reset Exposure/Focus/White-Balance back to auto, use [`resetFocus()`](/api/react-native-vision-camera/hybrid-objects/CameraController#resetfocus):
 
 ```ts
 const controller = ...

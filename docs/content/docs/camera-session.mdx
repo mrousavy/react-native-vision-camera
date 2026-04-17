@@ -64,7 +64,7 @@ await session.start()
 While the [`<Camera />`](/api/react-native-vision-camera/views/Camera) view and [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) hook automatically manage session configuration and lifecycle for you (see ["Lifecycle"](lifecycle)), manually using a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) requires you to explicitly configure, start and stop the session yourself.
 
 > [!TIP]
-> If you use manually use a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), ensure that most configuration (see [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure)) is handled before you start the session (see [`start(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#start)), as any configuration while the session is running can be expensive and cause stutters.
+> If you manually use a [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), ensure that most configuration (see [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure)) is handled before you start the session (see [`start()`](/api/react-native-vision-camera/hybrid-objects/CameraSession#start)), as any configuration while the session is running can be expensive and cause stutters.
 
 There's three stages to Camera configuration:
 
