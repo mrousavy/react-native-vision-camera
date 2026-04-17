@@ -14,6 +14,13 @@ let device: CameraDevice | undefined
 
 describe('VisionCamera - CameraController', () => {
   beforeAll(async () => {
+    const granted = await VisionCamera.requestCameraPermission()
+    if (!granted) {
+      throw new Error(
+        'Camera permission was not granted. Controller tests require camera permission.',
+      )
+    }
+
     const factory = await VisionCamera.createDeviceFactory()
     const resolvedDevice =
       factory.getDefaultCamera('back') ??

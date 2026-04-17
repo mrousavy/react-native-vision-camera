@@ -34,6 +34,13 @@ let factory: CameraDeviceFactory
 
 describe('VisionCamera - CameraDeviceFactory', () => {
   beforeAll(async () => {
+    const granted = await VisionCamera.requestCameraPermission()
+    if (!granted) {
+      throw new Error(
+        'Camera permission was not granted. Device tests require camera permission (iOS 17+ redacts device metadata without it).',
+      )
+    }
+
     factory = await VisionCamera.createDeviceFactory()
   })
 
