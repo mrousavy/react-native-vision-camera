@@ -455,13 +455,16 @@ export interface CameraDevice
   readonly supportsWhiteBalanceMetering: boolean
   /**
    * The maximum value a single color-channel can be
-   * set to in {@linkcode WhiteBalanceGains}.
+   * set to in {@linkcode WhiteBalanceGains}, or `0`
+   * if {@linkcode supportsWhiteBalanceLocking} is `false`.
    */
   readonly maxWhiteBalanceGain: number
   /**
    * Gets whether this {@linkcode CameraDevice}
    * supports manual white-balance via
    * {@linkcode CameraController.setWhiteBalanceLocked | setWhiteBalanceLocked(...)}.
+   *
+   * @see {@linkcode maxWhiteBalanceGain}
    */
   readonly supportsWhiteBalanceLocking: boolean
 
