@@ -134,6 +134,7 @@ android {
 repositories {
   mavenCentral()
   google()
+  maven { url 'https://jitpack.io' }
 }
 
 // CameraX 1.6.0 transitively pulls in media3-muxer -> media3-common -> guava:33.3.1-android,
@@ -163,6 +164,9 @@ dependencies {
 
   // EXIF Interface for editing EXIF in photos
   implementation 'androidx.exifinterface:exifinterface:1.4.2'
+
+  // UVC Camera for USB camera support
+  implementation 'com.github.saki4510t:UVCCamera:2.4.9'
 
   // Add a dependency on NitroModules
   implementation project(":react-native-nitro-modules")
