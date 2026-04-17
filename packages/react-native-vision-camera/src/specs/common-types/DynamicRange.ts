@@ -64,7 +64,7 @@ export type TargetDynamicRangeBitDepth = Exclude<
 >
 export type TargetColorRange = Exclude<ColorRange, 'unknown'>
 /**
- * Represents a target {@linkcode dynamicRange}, for
+ * Represents a target {@linkcode DynamicRange}, for
  * example to be used with the Constraints API.
  *
  * @see {@linkcode Constraint}
