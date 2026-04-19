@@ -461,22 +461,26 @@ export interface CameraController
   readonly exposureMode: ExposureMode
   /**
    * Represents the minimum value for the {@linkcode setExposureLocked | duration}
-   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}.
+   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}, or `0`
+   * if {@linkcode CameraDevice.supportsExposureLocking} is `false`.
    */
   readonly minExposureDuration: number
   /**
    * Represents the maximum value for the {@linkcode setExposureLocked | duration}
-   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}.
+   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}, or `0`
+   * if {@linkcode CameraDevice.supportsExposureLocking} is `false`.
    */
   readonly maxExposureDuration: number
   /**
    * Represents the minimum value for the {@linkcode setExposureLocked | iso}
-   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}.
+   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}, or `0`
+   * if {@linkcode CameraDevice.supportsExposureLocking} is `false`.
    */
   readonly minISO: number
   /**
    * Represents the maximum value for the {@linkcode setExposureLocked | iso}
-   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}.
+   * parameter in {@linkcode setExposureLocked | setExposureLocked(...)}, or `0`
+   * if {@linkcode CameraDevice.supportsExposureLocking} is `false`.
    */
   readonly maxISO: number
   /**
