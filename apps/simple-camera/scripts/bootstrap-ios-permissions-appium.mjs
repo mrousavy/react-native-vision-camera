@@ -2,6 +2,9 @@
 
 import { remote } from 'webdriverio'
 
+const alertSelector =
+  '**/XCUIElementTypeButton[`label IN {"OK", "Allow", "Allow While Using App"}`]'
+
 const capabilities = {
   platformName: 'iOS',
   'appium:automationName': 'XCUITest',
@@ -16,6 +19,7 @@ const capabilities = {
   'appium:forceAppLaunch': true,
   'appium:shouldTerminateApp': false,
   'appium:newCommandTimeout': 7200,
+  'appium:settings[autoClickAlertSelector]': alertSelector,
   'appium:processArguments': {
     args: ['-VisionCameraGrantPermissionsOnLaunch', 'YES'],
   },
@@ -32,6 +36,6 @@ const driver = await remote({
 })
 
 console.log(`Started Appium iOS permission bootstrap session ${driver.sessionId}`)
-await driver.pause(15_000)
+await driver.pause(30_000)
 console.log(`Stopping Appium iOS permission bootstrap session ${driver.sessionId}`)
 await driver.deleteSession()

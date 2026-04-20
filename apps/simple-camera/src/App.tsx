@@ -10,7 +10,6 @@ import { CameraScreen } from './screens/CameraScreen'
 import { PermissionsScreen } from './screens/PermissionsScreen'
 import { PhotoScreen } from './screens/PhotoScreen'
 import { VideoScreen } from './screens/VideoScreen'
-import { Alert } from 'react-native'
 
 interface AppProps {
   grantPermissionsOnLaunch?: boolean
@@ -65,13 +64,7 @@ const Navigation = createStaticNavigation(RootStack)
 
 function App({ grantPermissionsOnLaunch }: AppProps) {
   useEffect(() => {
-    if (grantPermissionsOnLaunch !== true) {
-      Alert.alert(
-        'Permissions not granted',
-        'Camera and microphone permissions have not been granted on launch. Please grant permissions to use the app.',
-      )
-      return;
-    }
+    if (grantPermissionsOnLaunch !== true) return
 
     VisionCamera.requestCameraPermission()
     VisionCamera.requestMicrophonePermission()
