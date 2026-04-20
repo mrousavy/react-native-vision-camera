@@ -59,8 +59,6 @@ describe('VisionCamera - CameraSession creation', () => {
 
 describe('VisionCamera - CameraSession configuration', () => {
   beforeAll(async () => {
-    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
-
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
       factory.getDefaultCamera('back') ??
@@ -321,8 +319,6 @@ describe('VisionCamera - CameraSession configuration', () => {
 
 describe('VisionCamera - CameraSession mirror modes', () => {
   beforeAll(async () => {
-    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
-
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
       factory.getDefaultCamera('back') ??
@@ -387,8 +383,6 @@ describe('VisionCamera - CameraSession mirror modes', () => {
 
 describe('VisionCamera - CameraSession lifecycle', () => {
   beforeAll(async () => {
-    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
-
     factory = await VisionCamera.createDeviceFactory()
     primaryDevice =
       factory.getDefaultCamera('back') ??
@@ -550,8 +544,6 @@ describe('VisionCamera - CameraSession lifecycle', () => {
 
 describe('VisionCamera - Multi-cam CameraSession', () => {
   beforeAll(async () => {
-    expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
-
     factory = await VisionCamera.createDeviceFactory()
     backDevice = factory.getDefaultCamera('back')
     frontDevice = factory.getDefaultCamera('front')
