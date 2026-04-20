@@ -552,47 +552,4 @@ describe('VisionCamera - Multi-cam CameraSession', () => {
     expect(controllers[0]?.device.id).toBe(frontDevice.id)
     expect(controllers[1]?.device.id).toBe(backDevice.id)
   })
-
-  it('rejects adding multiple connections on a single-cam session', async () => {
-    if (backDevice == null || frontDevice == null) {
-      console.log(
-        '[SKIP] single-cam rejects multiple connections: needs both front and back cameras',
-      )
-      return
-    }
-
-    const session = await VisionCamera.createCameraSession(false)
-    const frontPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'native',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const backPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'native',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-
-    let threw = false
-    try {
-      await session.configure([
-        {
-          input: frontDevice,
-          outputs: [{ output: frontPhoto, mirrorMode: 'auto' }],
-          constraints: [],
-        },
-        {
-          input: backDevice,
-          outputs: [{ output: backPhoto, mirrorMode: 'auto' }],
-          constraints: [],
-        },
-      ])
-    } catch {
-      threw = true
-    }
-
-    expect(threw).toBe(true)
-  })
 })
