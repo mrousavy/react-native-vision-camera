@@ -46,6 +46,14 @@ fun ReactApplicationContext.getPermissionStatus(permission: String): PermissionS
 private var permissionRequestCode: Int = 3682
 
 suspend fun ReactApplicationContext.requestPermission(permission: String): Boolean {
+  // Fast path: if the permission is already granted, return immediately.
+  // Calling activity.requestPermissions() for an already-granted permission
+  // still routes through GrantPermissionsActivity (which flashes, pauses our
+  // Activity, and can tear down React Native's dev websocket), so we skip it.
+  if (getPermissionStatus(permission) == PermissionStatus.AUTHORIZED) {
+    return true
+  }
+
   return suspendCoroutine { continuation ->
     val activity = currentActivity ?: throw Error("No Activity!")
     if (activity is PermissionAwareActivity) {
