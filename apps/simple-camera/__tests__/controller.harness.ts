@@ -118,9 +118,12 @@ describe('VisionCamera - CameraController', () => {
       return
     }
 
-    await controller.setTorchMode('on', 1)
+    // Don't pass a `strength` here: setting torch strength isn't supported on
+    // every device (e.g. the AWS Device Farm Galaxy S25 Ultra throws from
+    // CameraX's TorchControl.setTorchStrengthLevel), and there's no JS-side
+    // capability flag to gate on.
+    await controller.setTorchMode('on')
     expect(controller.torchMode).toBe('on')
-    expect(controller.torchStrength).toBeGreaterThan(0)
     await controller.setTorchMode('off')
     expect(controller.torchMode).toBe('off')
   })
