@@ -13,6 +13,14 @@ phases:
 
   test:
     commands:
+      # TODO(iOS permissions): AWS Device Farm doesn't auto-accept the camera
+      # and microphone permission prompts on physical iOS devices, so the
+      # harness tests hang forever waiting on `requestCameraPermission`.
+      # Fail fast until we wire up an Appium/WebDriverAgent bootstrap to
+      # dismiss the prompts. See the thread around commit dc67ec8e.
+      - echo "iOS harness tests are disabled until we have a way to pre-grant camera/microphone permissions on AWS Device Farm." >&2
+      - exit 1
+
       - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
       - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
 
