@@ -67,9 +67,21 @@ class HybridPhoto(
   override val memorySize: Long
     get() = image.width * image.height * 4L
 
+  // Tracks whether the underlying ImageProxy has already been closed. toImage()
+  // now closes it eagerly to prevent CameraX buffer pool exhaustion; dispose()
+  // consults this flag so it does not double-close.
+  private var imageClosed: Boolean = false
+
+  private fun closeImageIfOpen() {
+    if (!imageClosed) {
+      image.close()
+      imageClosed = true
+    }
+  }
+
   override fun dispose() {
     super.dispose()
-    image.close()
+    closeImageIfOpen()
     cachedPixelBuffer?.dispose()
   }
 
@@ -163,15 +175,22 @@ class HybridPhoto(
           postRotate(orientationToApply.degrees.toFloat())
         }
       }
-    if (matrix.isIdentity) {
+    val result = if (matrix.isIdentity) {
       // No transforms needed! Just return
-      return HybridImage(bitmap)
+      HybridImage(bitmap)
     } else {
       // We need to transform the Bitmap
       val transformedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
       bitmap.recycle()
-      return HybridImage(transformedBitmap)
+      HybridImage(transformedBitmap)
     }
+    // Close the ImageProxy now that the pixel data has been copied into the Bitmap.
+    // Without this, the CameraX ImageCapture buffer pool fills up under rapid
+    // captures and the next capturePhoto() call hangs until the JVM GCs this
+    // HybridPhoto (at which point dispose() closes it). Since toBitmap() fully
+    // consumes the ImageProxy, it is safe to release the buffer here.
+    closeImageIfOpen()
+    return result
   }
 
   override fun toImageAsync(): Promise<HybridImageSpec> {
