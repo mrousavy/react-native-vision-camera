@@ -54,7 +54,9 @@ phases:
         BOOTSTRAP_EXIT_CODE="$?"
         kill "$APPIUM_PID" 2>/dev/null || true
         wait "$APPIUM_PID" 2>/dev/null || true
-        exit "$BOOTSTRAP_EXIT_CODE"
+        if [ "$BOOTSTRAP_EXIT_CODE" -ne 0 ]; then
+          exit "$BOOTSTRAP_EXIT_CODE"
+        fi
 
       # Actually run the test:
       - set -o pipefail; HARNESS_METRO_BIND_HOST="::" HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" HARNESS_IOS_DEVICE_NAME="$IOS_DEVICE_NAME" HARNESS_DETECT_NATIVE_CRASHES=false CI=true JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness -- --harnessRunner ios --reporters=default --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
