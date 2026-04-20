@@ -3,12 +3,17 @@ import {
   type StaticParamList,
 } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { VisionCamera } from 'react-native-vision-camera'
 import { CameraScreen } from './screens/CameraScreen'
 import { PermissionsScreen } from './screens/PermissionsScreen'
 import { PhotoScreen } from './screens/PhotoScreen'
 import { VideoScreen } from './screens/VideoScreen'
+
+interface AppProps {
+  grantPermissionsOnLaunch?: boolean
+}
 
 const RootStack = createNativeStackNavigator({
   initialRouteName:
@@ -57,7 +62,14 @@ declare global {
 
 const Navigation = createStaticNavigation(RootStack)
 
-function App() {
+function App({ grantPermissionsOnLaunch }: AppProps) {
+  useEffect(() => {
+    if (grantPermissionsOnLaunch !== true) return
+
+    VisionCamera.requestCameraPermission()
+    VisionCamera.requestMicrophonePermission()
+  }, [grantPermissionsOnLaunch])
+
   return (
     <GestureHandlerRootView>
       <Navigation />

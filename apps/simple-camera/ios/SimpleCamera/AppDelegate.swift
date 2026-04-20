@@ -50,9 +50,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     window = UIWindow(frame: UIScreen.main.bounds)
 
+    let initialProperties = [
+      "grantPermissionsOnLaunch": valueForLaunchArgument("-VisionCameraGrantPermissionsOnLaunch") == "YES"
+    ]
+
     factory.startReactNative(
       withModuleName: "SimpleCamera",
       in: window,
+      initialProperties: initialProperties,
       launchOptions: launchOptions
     )
 

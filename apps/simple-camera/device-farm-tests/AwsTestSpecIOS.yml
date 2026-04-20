@@ -7,6 +7,8 @@ phases:
     commands:
       - devicefarm-cli use node 20
       - node -v
+      - devicefarm-cli use appium 2
+      - appium --version
       - curl -fsSL https://bun.com/install | bash
       - ~/.bun/bin/bun install
       - xcrun devicectl list devices
@@ -36,8 +38,25 @@ phases:
       - IOS_DEVICE_NAME="$(node -e "const fs=require('node:fs');const payload=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const devices=payload?.result?.devices ?? [];const udid=process.env.IOS_DEVICE_UDID || '';const matchedByUdid=devices.find((d)=>d?.identifier===udid);const selected=matchedByUdid ?? devices[0] ?? null;const name=selected?.deviceProperties?.name ?? '';if(!name){process.exit(1)};process.stdout.write(name);" "$IOS_DEVICES_JSON")"
       - 'echo "Resolved Device Farm iOS device for harness: ${IOS_DEVICE_NAME} (${IOS_DEVICE_UDID:-unknown-udid})"'
 
-      # Actually run the test:
+      # Launch once through Appium/XCUITest so WDA can auto-accept iOS permission dialogs.
+      - export HARNESS_IOS_BUNDLE_ID="com.margelo.nitro.camera.example.simple"
+      - APPIUM_LOG="$WORKING_DIRECTORY/appium-permissions.log"
+      - APPIUM_PERMISSION_BOOTSTRAP_LOG="$WORKING_DIRECTORY/appium-permission-bootstrap.log"
+      - |
+        APPIUM_DRIVER_VERSION="$(appium driver list --installed --json | node -e "let input='';process.stdin.on('data',(chunk)=>input+=chunk);process.stdin.on('end',()=>process.stdout.write(JSON.parse(input).xcuitest.version.split('.')[0]));")"
+        export DEVICEFARM_APPIUM_WDA_DERIVED_DATA_PATH="$(env | grep "DEVICEFARM_APPIUM_WDA_DERIVED_DATA_PATH_V${APPIUM_DRIVER_VERSION}" | cut -d "=" -f 2-)"
+        echo "Using Device Farm prebuilt WDA from: ${DEVICEFARM_APPIUM_WDA_DERIVED_DATA_PATH}"
       - cd apps/simple-camera
+      - |
+        appium --address 127.0.0.1 --port 4723 --base-path / --log-timestamp --log-no-colors >> "$APPIUM_LOG" 2>&1 &
+        APPIUM_PID="$!"
+        node scripts/bootstrap-ios-permissions-appium.mjs >> "$APPIUM_PERMISSION_BOOTSTRAP_LOG" 2>&1
+        BOOTSTRAP_EXIT_CODE="$?"
+        kill "$APPIUM_PID" 2>/dev/null || true
+        wait "$APPIUM_PID" 2>/dev/null || true
+        exit "$BOOTSTRAP_EXIT_CODE"
+
+      # Actually run the test:
       - set -o pipefail; HARNESS_METRO_BIND_HOST="::" HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" HARNESS_IOS_DEVICE_NAME="$IOS_DEVICE_NAME" HARNESS_DETECT_NATIVE_CRASHES=false CI=true JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness -- --harnessRunner ios --reporters=default --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
