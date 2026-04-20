@@ -14,6 +14,13 @@ phases:
       - adb wait-for-device
       - adb devices -l
 
+      # AWS Device Farm has no one to click "Allow" on the runtime permission
+      # prompt, so calling requestCameraPermission/requestMicrophonePermission
+      # from JS hangs forever. Grant the runtime permissions upfront via pm so
+      # the harness tests find them already authorized.
+      - adb shell pm grant com.margelo.nitro.camera.example.simple android.permission.CAMERA
+      - adb shell pm grant com.margelo.nitro.camera.example.simple android.permission.RECORD_AUDIO
+
   test:
     commands:
       - MANUFACTURER="$(adb shell getprop ro.product.manufacturer | tr -d '\r')"
