@@ -28,40 +28,43 @@ final class SynchronizedOutputDelegate: NSObject, AVCaptureDataOutputSynchronize
   ) {
     guard let onFrames else { return }
 
-    var datas: [SynchronizedDataFrame] = []
-    for output in synchronizer.dataOutputs {
-      guard let data = synchronizedDataCollection.synchronizedData(for: output) else {
-        logger.warning("AVCaptureSynchronizedDataCollection does not contain data for \(output)!")
-        continue
-      }
-      do {
-        switch data {
-        case let video as AVCaptureSynchronizedSampleBufferData:
-          // Video Frame
-          guard !video.sampleBufferWasDropped else {
-            onFrameDropped?(.video, video.droppedReason)
-            continue
-          }
-          let frame = try getSynchronizedVideoFrame(from: synchronizer, data: video)
-          datas.append(frame)
-        case let depth as AVCaptureSynchronizedDepthData:
-          // Depth Frame
-          guard !depth.depthDataWasDropped else {
-            onFrameDropped?(.depth, depth.droppedReason)
-            continue
-          }
-          let frame = try getSynchronizedDepthFrame(from: synchronizer, data: depth)
-          datas.append(frame)
-        default:
-          // ????? Frame
-          logger.error("SynchronizedOutputDelegate received an unknown data type! \(data)")
+    // Use autoreleasepool to avoid memory buildup when processing synchronized frames
+    autoreleasepool {
+      var datas: [SynchronizedDataFrame] = []
+      for output in synchronizer.dataOutputs {
+        guard let data = synchronizedDataCollection.synchronizedData(for: output) else {
+          logger.warning("AVCaptureSynchronizedDataCollection does not contain data for \(output)!")
+          continue
         }
-      } catch (let error) {
-        logger.error("Failed to capture AVCaptureSynchronizedData \(data)! Error: \(error)")
-        onFrameDropped?(.other, .none)
+        do {
+          switch data {
+          case let video as AVCaptureSynchronizedSampleBufferData:
+            // Video Frame
+            guard !video.sampleBufferWasDropped else {
+              onFrameDropped?(.video, video.droppedReason)
+              continue
+            }
+            let frame = try getSynchronizedVideoFrame(from: synchronizer, data: video)
+            datas.append(frame)
+          case let depth as AVCaptureSynchronizedDepthData:
+            // Depth Frame
+            guard !depth.depthDataWasDropped else {
+              onFrameDropped?(.depth, depth.droppedReason)
+              continue
+            }
+            let frame = try getSynchronizedDepthFrame(from: synchronizer, data: depth)
+            datas.append(frame)
+          default:
+            // ????? Frame
+            logger.error("SynchronizedOutputDelegate received an unknown data type! \(data)")
+          }
+        } catch (let error) {
+          logger.error("Failed to capture AVCaptureSynchronizedData \(data)! Error: \(error)")
+          onFrameDropped?(.other, .none)
+        }
       }
+      onFrames(datas)
     }
-    onFrames(datas)
   }
 
   private func getConnectedOutput<T: AVCaptureOutput>(

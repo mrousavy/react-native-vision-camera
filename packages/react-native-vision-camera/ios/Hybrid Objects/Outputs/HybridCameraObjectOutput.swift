@@ -53,9 +53,13 @@ class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput
     throws
   {
     if let onObjectsScanned {
-      delegate.onMetadataObjects = { objects in
-        let metadatas = objects.map { Self.createHybridScannedObject(from: $0) }
-        onObjectsScanned(metadatas)
+      delegate.onMetadataObjects = { [weak self] objects in
+        guard let self else { return }
+        // Use autoreleasepool to avoid memory buildup when many objects are detected
+        autoreleasepool {
+          let metadatas = objects.map { Self.createHybridScannedObject(from: $0) }
+          onObjectsScanned(metadatas)
+        }
       }
     } else {
       delegate.onMetadataObjects = nil

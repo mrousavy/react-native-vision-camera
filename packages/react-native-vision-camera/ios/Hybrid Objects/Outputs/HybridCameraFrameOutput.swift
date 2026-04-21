@@ -147,17 +147,25 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
         withMessage: "setOnFrameCallback(...) must be called on the FrameOutput's `thread`!")
     }
     if let onFrame {
-      delegate.onFrame = { (sampleBuffer, timestamp, bufferOrientation, isBufferMirrored) in
-        // Prepare Frame + Metadata
-        let metadata = self.getMediaSampleMetadata(
-          at: timestamp,
-          orientation: bufferOrientation,
-          isMirrored: isBufferMirrored)
-        let frame = HybridFrame(
-          buffer: sampleBuffer,
-          metadata: metadata)
-        // Call sync JS function
-        _ = onFrame(frame)
+      delegate.onFrame = { [weak self] (sampleBuffer, timestamp, bufferOrientation, isBufferMirrored) in
+        guard let self else { return }
+        // Use autoreleasepool to avoid memory buildup in high-frame-rate scenarios
+        autoreleasepool {
+          // Prepare Frame + Metadata
+          let metadata = self.getMediaSampleMetadata(
+            at: timestamp,
+            orientation: bufferOrientation,
+            isMirrored: isBufferMirrored)
+          let frame = HybridFrame(
+            buffer: sampleBuffer,
+            metadata: metadata)
+          defer {
+            // Explicitly dispose frame to release resources immediately
+            frame.dispose()
+          }
+          // Call sync JS function
+          _ = onFrame(frame)
+        }
       }
     } else {
       delegate.onFrame = nil
