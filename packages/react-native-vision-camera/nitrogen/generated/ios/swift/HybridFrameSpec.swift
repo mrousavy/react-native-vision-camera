@@ -16,7 +16,7 @@ public protocol HybridFrameSpec_protocol: HybridObject {
   var height: Double { get }
   var bytesPerRow: Double { get }
   var pixelFormat: PixelFormat { get }
-  var orientation: Orientation { get }
+  var orientation: CameraOrientation { get }
   var isMirrored: Bool { get }
   var isPlanar: Bool { get }
   var cameraIntrinsicMatrix: [Double]? { get }

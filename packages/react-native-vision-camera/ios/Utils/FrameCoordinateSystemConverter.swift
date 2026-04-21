@@ -17,7 +17,7 @@ enum FrameCoordinateSystemConverter {
    */
   static func getFrameToCameraMatrix(
     pixelBuffer: CVPixelBuffer,
-    orientation: Orientation,
+    orientation: CameraOrientation,
     isMirrored: Bool
   ) -> CGAffineTransform {
     let width = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
@@ -27,7 +27,7 @@ enum FrameCoordinateSystemConverter {
     var matrix = CGAffineTransform.identity
       .scaledBy(x: 1.0 / width, y: 1.0 / height)
 
-    // Orientation is applied in normalized space around origin.
+    // CameraOrientation is applied in normalized space around origin.
     // We add translations so the transformed result stays in [0,1]x[0,1].
     switch orientation {
     case .up:
@@ -66,7 +66,7 @@ enum FrameCoordinateSystemConverter {
 
   static func getCameraToFrameMatrix(
     pixelBuffer: CVPixelBuffer,
-    orientation: Orientation,
+    orientation: CameraOrientation,
     isMirrored: Bool
   ) -> CGAffineTransform {
     let frameToCameraMatrix = getFrameToCameraMatrix(

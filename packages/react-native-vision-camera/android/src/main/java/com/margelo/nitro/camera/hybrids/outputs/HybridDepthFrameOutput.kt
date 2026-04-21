@@ -10,7 +10,7 @@ import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridNativeThreadSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.orientation
 import com.margelo.nitro.camera.extensions.setAllowDroppingLateFrames
@@ -31,7 +31,7 @@ class HybridDepthFrameOutput(
 
   override val mediaType: MediaType = MediaType.DEPTH
   override val thread: HybridNativeThreadSpec by lazy { HybridNativeThread(executor) }
-  override var outputOrientation: Orientation = Orientation.UP
+  override var outputOrientation: CameraOrientation = CameraOrientation.UP
     set(value) {
       field = value
       imageAnalysis?.targetRotation = value.surfaceRotation

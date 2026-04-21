@@ -15,8 +15,8 @@
 
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `NativeBuffer` to properly resolve imports.
@@ -25,7 +25,7 @@ namespace margelo::nitro::camera { struct NativeBuffer; }
 namespace margelo::nitro::camera { struct Point; }
 
 #include "PixelFormat.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include <vector>
 #include <optional>
 #include <memory>
@@ -67,7 +67,7 @@ namespace margelo::nitro::camera {
       virtual double getHeight() = 0;
       virtual double getBytesPerRow() = 0;
       virtual PixelFormat getPixelFormat() = 0;
-      virtual Orientation getOrientation() = 0;
+      virtual CameraOrientation getOrientation() = 0;
       virtual bool getIsMirrored() = 0;
       virtual bool getIsPlanar() = 0;
       virtual std::optional<std::vector<double>> getCameraIntrinsicMatrix() = 0;

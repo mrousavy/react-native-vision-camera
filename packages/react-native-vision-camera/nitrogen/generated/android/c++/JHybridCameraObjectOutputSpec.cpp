@@ -11,8 +11,8 @@
 namespace margelo::nitro::camera { class HybridScannedObjectSpec; }
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include <memory>
 #include "HybridScannedObjectSpec.hpp"
@@ -24,8 +24,8 @@ namespace margelo::nitro::camera { enum class Orientation; }
 #include "JHybridScannedObjectSpec.hpp"
 #include "MediaType.hpp"
 #include "JMediaType.hpp"
-#include "Orientation.hpp"
-#include "JOrientation.hpp"
+#include "CameraOrientation.hpp"
+#include "JCameraOrientation.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -62,14 +62,14 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  Orientation JHybridCameraObjectOutputSpec::getOutputOrientation() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOrientation>()>("getOutputOrientation");
+  CameraOrientation JHybridCameraObjectOutputSpec::getOutputOrientation() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JCameraOrientation>()>("getOutputOrientation");
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  void JHybridCameraObjectOutputSpec::setOutputOrientation(Orientation outputOrientation) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JOrientation> /* outputOrientation */)>("setOutputOrientation");
-    method(_javaPart, JOrientation::fromCpp(outputOrientation));
+  void JHybridCameraObjectOutputSpec::setOutputOrientation(CameraOrientation outputOrientation) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JCameraOrientation> /* outputOrientation */)>("setOutputOrientation");
+    method(_javaPart, JCameraOrientation::fromCpp(outputOrientation));
   }
 
   // Methods

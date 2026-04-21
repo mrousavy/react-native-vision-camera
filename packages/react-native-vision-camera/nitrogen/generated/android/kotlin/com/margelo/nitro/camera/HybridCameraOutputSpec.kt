@@ -33,7 +33,7 @@ abstract class HybridCameraOutputSpec: HybridObject() {
   @get:Keep
   @set:DoNotStrip
   @set:Keep
-  abstract var outputOrientation: Orientation
+  abstract var outputOrientation: CameraOrientation
 
   // Methods
   

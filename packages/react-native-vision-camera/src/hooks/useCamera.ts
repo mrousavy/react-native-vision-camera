@@ -5,7 +5,7 @@ import type { CameraController } from '../specs/CameraController.nitro'
 import type { CameraPosition } from '../specs/common-types/CameraPosition'
 import type { Constraint } from '../specs/common-types/Constraint'
 import type { MirrorMode } from '../specs/common-types/MirrorMode'
-import type { Orientation } from '../specs/common-types/Orientation'
+import type { CameraOrientation } from '../specs/common-types/CameraOrientation'
 import type { OrientationSource } from '../specs/common-types/OrientationSource'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import type { CameraOutput } from '../specs/outputs/CameraOutput.nitro'
@@ -35,9 +35,9 @@ export interface CameraProps {
   onSessionConfigSelected?: (config: CameraSessionConfig) => void
   /**
    * Set a desired {@linkcode OrientationSource}
-   * for automatically applying {@linkcode Orientation}
+   * for automatically applying {@linkcode CameraOrientation}
    * to all {@linkcode outputs}, or `'custom'` if you
-   * prefer to manually specify {@linkcode Orientation}
+   * prefer to manually specify {@linkcode CameraOrientation}
    * yourself.
    */
   orientationSource?: OrientationSource | 'custom'

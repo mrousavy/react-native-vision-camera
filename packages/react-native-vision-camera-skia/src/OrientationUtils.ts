@@ -1,6 +1,6 @@
-import type { Orientation } from 'react-native-vision-camera'
+import type { CameraOrientation } from 'react-native-vision-camera'
 
-export function orientationToDegrees(orientation: Orientation): number {
+export function orientationToDegrees(orientation: CameraOrientation): number {
   'worklet'
   switch (orientation) {
     case 'up':

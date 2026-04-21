@@ -6,14 +6,14 @@ import android.view.OrientationEventListener
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.camera.HybridOrientationManagerSpec
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.OrientationSource
 import com.margelo.nitro.camera.extensions.fromDegrees
 import com.margelo.nitro.camera.extensions.fromSurfaceRotation
 
 class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
   override val source: OrientationSource = OrientationSource.DEVICE
-  override var currentOrientation: Orientation? = null
+  override var currentOrientation: CameraOrientation? = null
     private set
   private val context: ReactApplicationContext
     get() = NitroModules.applicationContext ?: throw Error("No Context available!")
@@ -25,12 +25,12 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
       val activity = context.currentActivity
       if (activity != null) {
         val surfaceRotation = activity.display.rotation
-        currentOrientation = Orientation.fromSurfaceRotation(surfaceRotation)
+        currentOrientation = CameraOrientation.fromSurfaceRotation(surfaceRotation)
       }
     }
   }
 
-  override fun startOrientationUpdates(onChanged: (orientation: Orientation) -> Unit) {
+  override fun startOrientationUpdates(onChanged: (orientation: CameraOrientation) -> Unit) {
     orientationListener?.disable()
     orientationListener =
       object : OrientationEventListener(context) {
@@ -39,7 +39,7 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
             // phone is laying flat - orientation is unknown! Avoid sending out event.
             return
           }
-          val orientation = Orientation.fromDegrees(rotationDegrees)
+          val orientation = CameraOrientation.fromDegrees(rotationDegrees)
           if (currentOrientation != orientation) {
             Log.i(TAG, "Device orientation changed! $orientation")
             currentOrientation = orientation

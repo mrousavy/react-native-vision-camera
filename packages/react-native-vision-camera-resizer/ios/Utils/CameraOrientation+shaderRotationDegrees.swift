@@ -1,5 +1,5 @@
 //
-//  Orientation+shaderRotationDegrees.swift
+//  CameraOrientation+shaderRotationDegrees.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 10.03.26.
@@ -7,7 +7,7 @@
 
 import VisionCamera
 
-extension Orientation {
+extension CameraOrientation {
   var shaderRotationDegrees: Int32 {
     switch self {
     case .up:

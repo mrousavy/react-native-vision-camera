@@ -10,7 +10,7 @@ import Foundation
 import NitroModules
 
 class HybridFrameRecorder: HybridRecorderSpec {
-  private let orientation: Orientation
+  private let orientation: CameraOrientation
   private let masterClock: CMClock
   private let fileURL: URL
   private let assetWriter: AVAssetWriter
@@ -32,7 +32,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
   }
 
   init(
-    orientation: Orientation,
+    orientation: CameraOrientation,
     masterClock: CMClock,
     fileType: AVFileType,
     delegate: RecorderDelegate

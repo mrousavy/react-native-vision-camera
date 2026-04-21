@@ -128,12 +128,12 @@ open class HybridOrientationManagerSpec_cxx {
     }
   }
   
-  public final var currentOrientation: bridge.std__optional_Orientation_ {
+  public final var currentOrientation: bridge.std__optional_CameraOrientation_ {
     @inline(__always)
     get {
-      return { () -> bridge.std__optional_Orientation_ in
+      return { () -> bridge.std__optional_CameraOrientation_ in
         if let __unwrappedValue = self.__implementation.currentOrientation {
-          return bridge.create_std__optional_Orientation_(__unwrappedValue)
+          return bridge.create_std__optional_CameraOrientation_(__unwrappedValue)
         } else {
           return .init()
         }
@@ -143,11 +143,11 @@ open class HybridOrientationManagerSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func startOrientationUpdates(onChanged: bridge.Func_void_Orientation) -> bridge.Result_void_ {
+  public final func startOrientationUpdates(onChanged: bridge.Func_void_CameraOrientation) -> bridge.Result_void_ {
     do {
-      try self.__implementation.startOrientationUpdates(onChanged: { () -> (Orientation) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_Orientation(onChanged)
-        return { (__orientation: Orientation) -> Void in
+      try self.__implementation.startOrientationUpdates(onChanged: { () -> (CameraOrientation) -> Void in
+        let __wrappedFunction = bridge.wrap_Func_void_CameraOrientation(onChanged)
+        return { (__orientation: CameraOrientation) -> Void in
           __wrappedFunction.call(__orientation.rawValue)
         }
       }())

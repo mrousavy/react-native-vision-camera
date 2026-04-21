@@ -12,7 +12,7 @@ extension CMAccelerometerData {
    Get the current device orientation from the given acceleration/gyro data, or `nil` if it is unknown.
    The orientation can only be unknown if the phone is flat, in which case it is not clear which orientation the phone is held in.
    */
-  var deviceOrientation: Orientation? {
+  var deviceOrientation: CameraOrientation? {
     let acceleration = acceleration
     let xNorm = acceleration.x.magnitude
     let yNorm = acceleration.y.magnitude

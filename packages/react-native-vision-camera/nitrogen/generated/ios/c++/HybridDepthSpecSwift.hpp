@@ -12,8 +12,8 @@
 // Forward declaration of `HybridDepthSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridDepthSpec_cxx; }
 
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `DepthPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthPixelFormat; }
 // Forward declaration of `DepthDataAccuracy` to properly resolve imports.
@@ -33,7 +33,7 @@ namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include "DepthPixelFormat.hpp"
 #include "DepthDataAccuracy.hpp"
 #include "DepthDataQuality.hpp"
@@ -96,9 +96,9 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    inline Orientation getOrientation() noexcept override {
+    inline CameraOrientation getOrientation() noexcept override {
       auto __result = _swiftPart.getOrientation();
-      return static_cast<Orientation>(__result);
+      return static_cast<CameraOrientation>(__result);
     }
     inline bool getIsMirrored() noexcept override {
       return _swiftPart.isMirrored();
@@ -160,7 +160,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<HybridDepthSpec> rotate(Orientation orientation, bool isMirrored) override {
+    inline std::shared_ptr<HybridDepthSpec> rotate(CameraOrientation orientation, bool isMirrored) override {
       auto __result = _swiftPart.rotate(static_cast<int>(orientation), std::forward<decltype(isMirrored)>(isMirrored));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
@@ -168,7 +168,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(Orientation orientation, bool isMirrored) override {
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(CameraOrientation orientation, bool isMirrored) override {
       auto __result = _swiftPart.rotateAsync(static_cast<int>(orientation), std::forward<decltype(isMirrored)>(isMirrored));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

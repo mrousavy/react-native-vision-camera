@@ -18,6 +18,8 @@ namespace margelo::nitro::camera { struct BoundingBox; }
 namespace margelo::nitro::camera { struct CameraControllerConfiguration; }
 // Forward declaration of `CameraExtensionType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraExtensionType; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `CameraOutputConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
 // Forward declaration of `CameraPosition` to properly resolve imports.
@@ -154,8 +156,6 @@ namespace margelo::nitro::camera { struct NativeBuffer; }
 namespace margelo::nitro::camera { struct ObjectOutputOptions; }
 // Forward declaration of `OrientationSource` to properly resolve imports.
 namespace margelo::nitro::camera { enum class OrientationSource; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `OutputStreamType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class OutputStreamType; }
 // Forward declaration of `PermissionStatus` to properly resolve imports.
@@ -233,6 +233,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "BoundingBox.hpp"
 #include "CameraControllerConfiguration.hpp"
 #include "CameraExtensionType.hpp"
+#include "CameraOrientation.hpp"
 #include "CameraOutputConfiguration.hpp"
 #include "CameraPosition.hpp"
 #include "CameraSessionConfiguration.hpp"
@@ -299,7 +300,6 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "MirrorMode.hpp"
 #include "NativeBuffer.hpp"
 #include "ObjectOutputOptions.hpp"
-#include "Orientation.hpp"
 #include "OrientationSource.hpp"
 #include "OutputStreamType.hpp"
 #include "PermissionStatus.hpp"

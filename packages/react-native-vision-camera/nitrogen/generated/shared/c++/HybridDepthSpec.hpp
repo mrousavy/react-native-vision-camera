@@ -13,8 +13,8 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `DepthPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthPixelFormat; }
 // Forward declaration of `DepthDataAccuracy` to properly resolve imports.
@@ -32,7 +32,7 @@ namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include "DepthPixelFormat.hpp"
 #include "DepthDataAccuracy.hpp"
 #include "DepthDataQuality.hpp"
@@ -74,7 +74,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Properties
-      virtual Orientation getOrientation() = 0;
+      virtual CameraOrientation getOrientation() = 0;
       virtual bool getIsMirrored() = 0;
       virtual double getTimestamp() = 0;
       virtual double getWidth() = 0;
@@ -92,8 +92,8 @@ namespace margelo::nitro::camera {
       // Methods
       virtual std::shared_ptr<ArrayBuffer> getDepthData() = 0;
       virtual NativeBuffer getNativeBuffer() = 0;
-      virtual std::shared_ptr<HybridDepthSpec> rotate(Orientation orientation, bool isMirrored) = 0;
-      virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(Orientation orientation, bool isMirrored) = 0;
+      virtual std::shared_ptr<HybridDepthSpec> rotate(CameraOrientation orientation, bool isMirrored) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(CameraOrientation orientation, bool isMirrored) = 0;
       virtual std::shared_ptr<HybridDepthSpec> convert(DepthPixelFormat pixelFormat) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) = 0;
       virtual Point convertCameraPointToDepthPoint(const Point& cameraPoint) = 0;

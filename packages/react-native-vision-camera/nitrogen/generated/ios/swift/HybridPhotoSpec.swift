@@ -12,7 +12,7 @@ import NitroImage
 public protocol HybridPhotoSpec_protocol: HybridObject {
   // Properties
   var isMirrored: Bool { get }
-  var orientation: Orientation { get }
+  var orientation: CameraOrientation { get }
   var timestamp: Double { get }
   var isRawPhoto: Bool { get }
   var width: Double { get }

@@ -1,5 +1,5 @@
 ///
-/// UI+Orientation.swift
+/// UI+CameraOrientation.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -7,8 +7,8 @@
 import UIKit
 import VisionCamera
 
-extension Orientation {
-  func toUIImageOrientation(isMirrored: Bool = false) -> UIImage.Orientation {
+extension CameraOrientation {
+  func toUIImageOrientation(isMirrored: Bool = false) -> UIImage.CameraOrientation {
     switch self {
     case .up:
       return isMirrored ? .upMirrored : .up

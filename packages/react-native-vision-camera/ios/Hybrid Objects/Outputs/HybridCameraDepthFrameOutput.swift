@@ -22,7 +22,7 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
     return HybridNativeThread(queue: queue)
   }()
 
-  var outputOrientation: Orientation = .up {
+  var outputOrientation: CameraOrientation = .up {
     didSet {
       guard let connection = output.connection(with: .depthData) else { return }
       if options.enablePhysicalBufferRotation {
@@ -79,7 +79,7 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
 
   private func getMediaSampleMetadata(
     at timestamp: CMTime,
-    orientation bufferOrientation: Orientation,
+    orientation bufferOrientation: CameraOrientation,
     isMirrored isBufferMirrored: Bool
   ) -> MediaSampleMetadata {
     // `isMirrored` is relative; if the buffer is already mirrored & we want mirror, good.

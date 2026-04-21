@@ -51,7 +51,7 @@ namespace margelo::nitro::camera {
   public:
     // Properties
     bool getIsMirrored() override;
-    Orientation getOrientation() override;
+    CameraOrientation getOrientation() override;
     double getTimestamp() override;
     bool getIsRawPhoto() override;
     double getWidth() override;

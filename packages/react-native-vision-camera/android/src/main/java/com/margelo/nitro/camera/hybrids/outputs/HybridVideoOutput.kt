@@ -12,7 +12,7 @@ import com.margelo.nitro.camera.HybridCameraVideoOutputSpec
 import com.margelo.nitro.camera.HybridRecorderSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.RecorderSettings
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
@@ -37,7 +37,7 @@ class HybridVideoOutput(
 ) : HybridCameraVideoOutputSpec(),
   NativeCameraOutput {
   override val mediaType: MediaType = MediaType.VIDEO
-  override var outputOrientation: Orientation = Orientation.UP
+  override var outputOrientation: CameraOrientation = CameraOrientation.UP
     set(value) {
       field = value
       videoCapture?.targetRotation = value.surfaceRotation

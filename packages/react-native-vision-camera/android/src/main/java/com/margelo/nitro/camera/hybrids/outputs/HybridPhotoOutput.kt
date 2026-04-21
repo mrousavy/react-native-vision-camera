@@ -13,7 +13,7 @@ import com.margelo.nitro.camera.HybridCameraPhotoOutputSpec
 import com.margelo.nitro.camera.HybridPhotoSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.PhotoFile
 import com.margelo.nitro.camera.PhotoOutputOptions
 import com.margelo.nitro.camera.QualityPrioritization
@@ -42,7 +42,7 @@ class HybridPhotoOutput(
 ) : HybridCameraPhotoOutputSpec(),
   NativeCameraOutput {
   override val mediaType: MediaType = MediaType.VIDEO
-  override var outputOrientation: Orientation = Orientation.UP
+  override var outputOrientation: CameraOrientation = CameraOrientation.UP
     set(value) {
       field = value
       imageCapture?.targetRotation = value.surfaceRotation
@@ -94,7 +94,7 @@ class HybridPhotoOutput(
           // Resolution
           setResolutionSelector(resolutionSelector)
 
-          // Orientation
+          // CameraOrientation
           setTargetRotation(outputOrientation.surfaceRotation)
 
           // Format (JPEG, RAW, ...)

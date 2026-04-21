@@ -135,7 +135,7 @@ open class HybridCameraOutputSpec_cxx {
     }
     @inline(__always)
     set {
-      self.__implementation.outputOrientation = margelo.nitro.camera.Orientation(rawValue: newValue)!
+      self.__implementation.outputOrientation = margelo.nitro.camera.CameraOrientation(rawValue: newValue)!
     }
   }
 

@@ -9,7 +9,7 @@ import AVFoundation
 import Foundation
 
 final class FrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-  var onFrame: ((CMSampleBuffer, CMTime, Orientation, Bool) -> Void)?
+  var onFrame: ((CMSampleBuffer, CMTime, CameraOrientation, Bool) -> Void)?
   var onFrameDropped: ((CMSampleBuffer) -> Void)?
 
   func captureOutput(

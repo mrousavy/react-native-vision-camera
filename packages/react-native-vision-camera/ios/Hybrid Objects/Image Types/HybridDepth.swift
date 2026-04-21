@@ -62,7 +62,7 @@ final class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
   var timestamp: Double {
     return metadata.timestamp.seconds
   }
-  var orientation: Orientation {
+  var orientation: CameraOrientation {
     return metadata.orientation
   }
   var isMirrored: Bool {
@@ -110,7 +110,7 @@ final class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
     return HybridCameraCalibrationData(calibrationData: calibrationData)
   }
 
-  func rotate(orientation: Orientation, isMirrored: Bool) throws -> any HybridDepthSpec {
+  func rotate(orientation: CameraOrientation, isMirrored: Bool) throws -> any HybridDepthSpec {
     guard let depthData else {
       throw RuntimeError.error(withMessage: "Tried to rotate an already disposed Depth!")
     }
@@ -121,7 +121,7 @@ final class HybridDepth: HybridDepthSpec, NativeDepth, LazyLockableBuffer {
       metadata: metadata)
   }
 
-  func rotateAsync(orientation: Orientation, isMirrored: Bool) throws -> Promise<
+  func rotateAsync(orientation: CameraOrientation, isMirrored: Bool) throws -> Promise<
     any HybridDepthSpec
   > {
     return Promise.async {

@@ -7,7 +7,7 @@ import androidx.camera.core.Preview
 import com.margelo.nitro.camera.HybridCameraPreviewOutputSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.TargetStabilizationMode
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
 import com.margelo.nitro.camera.public.NativeCameraOutput
@@ -18,8 +18,8 @@ class HybridPreviewOutput :
   NativeCameraOutput,
   NativePreviewOutput {
   override val mediaType: MediaType = MediaType.VIDEO
-  override var outputOrientation: Orientation
-    get() = Orientation.UP
+  override var outputOrientation: CameraOrientation
+    get() = CameraOrientation.UP
     set(_) {
       // Setting orientation in a Preview output does nothing.
       // It is controlled by the PreviewView.

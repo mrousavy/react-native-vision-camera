@@ -24,7 +24,7 @@ import {
   type Frame,
   type MeteringMode,
   type MirrorMode,
-  type Orientation,
+  type CameraOrientation,
   type PixelFormat,
   type Point,
   type ResolutionBiasConstraint,
@@ -169,7 +169,7 @@ export interface SkiaCameraProps
    */
   pixelFormat?: TargetVideoPixelFormat
   /**
-   * Physically rotates buffers to the desired target {@linkcode Orientation}
+   * Physically rotates buffers to the desired target {@linkcode CameraOrientation}
    * and {@linkcode MirrorMode}.
    *
    * By default, it is disabled as Skia rotates and mirrors the
@@ -218,7 +218,7 @@ function SkiaCameraImpl({
   const texture = useSharedValue<SkImage | null>(null)
 
   const lastFrameOrientation = useMemo(
-    () => createSynchronizable<Orientation | undefined>(undefined),
+    () => createSynchronizable<CameraOrientation | undefined>(undefined),
     [],
   )
   const lastFrameIsMirrored = useMemo(

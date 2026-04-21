@@ -10,7 +10,7 @@ import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.camera.HybridNativeThreadSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.TargetVideoPixelFormat
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.orientation
@@ -31,7 +31,7 @@ class HybridFrameOutput(
 
   override val mediaType: MediaType = MediaType.VIDEO
   override val thread: HybridNativeThreadSpec by lazy { HybridNativeThread(executor) }
-  override var outputOrientation: Orientation = Orientation.UP
+  override var outputOrientation: CameraOrientation = CameraOrientation.UP
     set(value) {
       field = value
       imageAnalysis?.targetRotation = value.surfaceRotation
@@ -73,7 +73,7 @@ class HybridFrameOutput(
           setAllowDroppingLateFrames(options.dropFramesWhileBusy)
           setBackgroundExecutor(executor)
 
-          // Set current Orientation
+          // Set current CameraOrientation
           setTargetRotation(outputOrientation.surfaceRotation)
           setOutputImageRotationEnabled(options.enablePhysicalBufferRotation)
 

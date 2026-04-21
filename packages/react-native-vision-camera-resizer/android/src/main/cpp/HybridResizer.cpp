@@ -18,15 +18,15 @@ namespace {
   /**
    * Convert the camera orientation enum into the rotation contract expected by the shader.
    */
-  int orientationToDegrees(camera::Orientation orientation) {
+  int orientationToDegrees(camera::CameraOrientation orientation) {
     switch (orientation) {
-      case camera::Orientation::UP:
+      case camera::CameraOrientation::UP:
         return 0;
-      case camera::Orientation::RIGHT:
+      case camera::CameraOrientation::RIGHT:
         return 90;
-      case camera::Orientation::DOWN:
+      case camera::CameraOrientation::DOWN:
         return 180;
-      case camera::Orientation::LEFT:
+      case camera::CameraOrientation::LEFT:
         return 270;
     }
 

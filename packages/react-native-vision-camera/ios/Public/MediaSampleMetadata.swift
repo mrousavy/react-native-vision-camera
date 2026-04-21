@@ -12,7 +12,7 @@ import UIKit
 
 public struct MediaSampleMetadata {
   let timestamp: CMTime
-  let orientation: Orientation
+  let orientation: CameraOrientation
   let isMirrored: Bool
 
   init(timestamp: CMTime, orientationFromOutput output: AVCaptureOutput) throws {
@@ -26,13 +26,13 @@ public struct MediaSampleMetadata {
     self.orientation = connection.orientation
     self.isMirrored = connection.isVideoMirrored
   }
-  init(timestamp: CMTime, orientation: Orientation, isMirrored: Bool) {
+  init(timestamp: CMTime, orientation: CameraOrientation, isMirrored: Bool) {
     self.timestamp = timestamp
     self.orientation = orientation
     self.isMirrored = isMirrored
   }
 
-  var uiImageOrientation: UIImage.Orientation {
+  var uiImageOrientation: UIImage.CameraOrientation {
     return orientation.toUIImageOrientation(isMirrored: isMirrored)
   }
 }

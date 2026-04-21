@@ -10,7 +10,7 @@ import NitroModules
 /// See ``HybridDepthSpec``
 public protocol HybridDepthSpec_protocol: HybridObject {
   // Properties
-  var orientation: Orientation { get }
+  var orientation: CameraOrientation { get }
   var isMirrored: Bool { get }
   var timestamp: Double { get }
   var width: Double { get }
@@ -27,8 +27,8 @@ public protocol HybridDepthSpec_protocol: HybridObject {
   // Methods
   func getDepthData() throws -> ArrayBuffer
   func getNativeBuffer() throws -> NativeBuffer
-  func rotate(orientation: Orientation, isMirrored: Bool) throws -> (any HybridDepthSpec)
-  func rotateAsync(orientation: Orientation, isMirrored: Bool) throws -> Promise<(any HybridDepthSpec)>
+  func rotate(orientation: CameraOrientation, isMirrored: Bool) throws -> (any HybridDepthSpec)
+  func rotateAsync(orientation: CameraOrientation, isMirrored: Bool) throws -> Promise<(any HybridDepthSpec)>
   func convert(pixelFormat: DepthPixelFormat) throws -> (any HybridDepthSpec)
   func convertAsync(pixelFormat: DepthPixelFormat) throws -> Promise<(any HybridDepthSpec)>
   func convertCameraPointToDepthPoint(cameraPoint: Point) throws -> Point

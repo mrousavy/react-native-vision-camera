@@ -7,8 +7,8 @@
 
 #include "JHybridPhotoSpec.hpp"
 
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `PhotoContainerFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PhotoContainerFormat; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
@@ -18,8 +18,8 @@ namespace margelo::nitro::camera { class HybridCameraCalibrationDataSpec; }
 // Forward declaration of `HybridImageSpec` to properly resolve imports.
 namespace margelo::nitro::image { class HybridImageSpec; }
 
-#include "Orientation.hpp"
-#include "JOrientation.hpp"
+#include "CameraOrientation.hpp"
+#include "JCameraOrientation.hpp"
 #include "PhotoContainerFormat.hpp"
 #include "JPhotoContainerFormat.hpp"
 #include <memory>
@@ -72,8 +72,8 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
-  Orientation JHybridPhotoSpec::getOrientation() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOrientation>()>("getOrientation");
+  CameraOrientation JHybridPhotoSpec::getOrientation() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JCameraOrientation>()>("getOrientation");
     auto __result = method(_javaPart);
     return __result->toCpp();
   }

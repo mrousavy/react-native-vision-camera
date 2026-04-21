@@ -14,8 +14,8 @@ namespace VisionCamera { class HybridFrameSpec_cxx; }
 
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
@@ -26,7 +26,7 @@ namespace margelo::nitro::camera { struct NativeBuffer; }
 namespace margelo::nitro::camera { struct Point; }
 
 #include "PixelFormat.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include <vector>
 #include <optional>
 #include <memory>
@@ -102,9 +102,9 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getPixelFormat();
       return static_cast<PixelFormat>(__result);
     }
-    inline Orientation getOrientation() noexcept override {
+    inline CameraOrientation getOrientation() noexcept override {
       auto __result = _swiftPart.getOrientation();
-      return static_cast<Orientation>(__result);
+      return static_cast<CameraOrientation>(__result);
     }
     inline bool getIsMirrored() noexcept override {
       return _swiftPart.isMirrored();

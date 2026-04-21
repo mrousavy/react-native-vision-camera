@@ -1,5 +1,5 @@
 ///
-/// CG+Orientation.swift
+/// CG+CameraOrientation.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -9,7 +9,7 @@ import CoreGraphics
 import Foundation
 import NitroModules
 
-extension Orientation {
+extension CameraOrientation {
   func toCGOrientation(isMirrored: Bool) -> CGImagePropertyOrientation {
     switch self {
     case .up:

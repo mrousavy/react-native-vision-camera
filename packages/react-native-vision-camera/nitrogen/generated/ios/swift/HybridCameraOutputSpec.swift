@@ -11,7 +11,7 @@ import NitroModules
 public protocol HybridCameraOutputSpec_protocol: HybridObject {
   // Properties
   var mediaType: MediaType { get }
-  var outputOrientation: Orientation { get set }
+  var outputOrientation: CameraOrientation { get set }
 
   // Methods
   

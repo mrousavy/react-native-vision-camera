@@ -1,5 +1,5 @@
 ///
-/// AV+Orientation.swift
+/// AV+CameraOrientation.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-extension Orientation {
+extension CameraOrientation {
   init(avOrientation: AVCaptureVideoOrientation) {
     switch avOrientation {
     case .portrait:

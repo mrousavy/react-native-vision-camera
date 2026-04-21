@@ -13,7 +13,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.margelo.nitro.camera.HybridCameraOutputSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.barcodescanner.extensions.toMLBarcodeScannerOptions
 import com.margelo.nitro.camera.extensions.surfaceRotation
 import com.margelo.nitro.camera.public.NativeCameraOutput
@@ -26,7 +26,7 @@ class HybridBarcodeScannerOutput(
   ImageAnalysis.Analyzer,
   NativeCameraOutput {
   override val mediaType: MediaType = MediaType.VIDEO
-  override var outputOrientation: Orientation = Orientation.UP
+  override var outputOrientation: CameraOrientation = CameraOrientation.UP
     get() = field
     set(value) {
       field = value

@@ -34,7 +34,7 @@ abstract class HybridPhotoSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val orientation: Orientation
+  abstract val orientation: CameraOrientation
   
   @get:DoNotStrip
   @get:Keep

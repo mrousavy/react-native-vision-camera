@@ -17,7 +17,7 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
     return options.enableAudio == true
   }
   let requiresDepthFormat: Bool = false
-  var outputOrientation: Orientation = .up {
+  var outputOrientation: CameraOrientation = .up {
     didSet {
       guard let connection = output.connection(with: .video) else { return }
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?

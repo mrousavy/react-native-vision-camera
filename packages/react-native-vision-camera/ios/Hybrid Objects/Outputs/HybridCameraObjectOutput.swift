@@ -16,7 +16,7 @@ class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput
   let output: AVCaptureMetadataOutput
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
-  var outputOrientation: Orientation = .up {
+  var outputOrientation: CameraOrientation = .up {
     didSet {
       guard let connection = output.connection(with: .metadataObject) else { return }
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?
