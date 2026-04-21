@@ -21,6 +21,13 @@ import type { Depth } from './Depth.nitro'
  * display that using `react-native-nitro-image`'s
  * `<NitroImage />` component.
  *
+ * @note
+ * As with all in-memory objects holding large native memory
+ * such as Photos, Frames, Images or more, make sure to
+ * {@linkcode Photo.dispose | dispose()} the Photo once you
+ * are no longer using it, as otherwise the JS Runtime might
+ * not immediately delete it, possibly exhausting system resources.
+ *
  * @example
  * Display the Photo to the user using `react-native-nitro-image`:
  * ```tsx
@@ -31,6 +38,7 @@ import type { Depth } from './Depth.nitro'
  *   const photo = await photoOutput.capturePhoto({}, {})
  *   const img = await photo.toImageAsync()
  *   setImage(img)
+ *   photo.dispose()
  * }
  *
  * return <NitroImage style={{ flex: 1 }} image={image} />
@@ -43,6 +51,7 @@ import type { Depth } from './Depth.nitro'
  * const takePhoto = async () => {
  *   const photo = await photoOutput.capturePhoto({}, {})
  *   const image = await photo.toImageAsync()
+ *   photo.dispose()
  * }
  * ```
  * @example
@@ -54,6 +63,7 @@ import type { Depth } from './Depth.nitro'
  * const bytes = new Uint8Array(encodedData)
  * const data = Skia.Data.fromBytes(bytes)
  * const skiaImage = Skia.Image.MakeImageFromEncoded(data)
+ * photo.dispose()
  * ```
  */
 export interface Photo

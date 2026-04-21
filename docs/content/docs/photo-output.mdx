@@ -80,7 +80,14 @@ const photo = await photoOutput.capturePhoto(
   { /*  options  */ },
   { /* callbacks */ }
 )
+// ...
+photo.dispose()
 ```
+
+> [!WARNING]
+> Make sure to [dispose the `Photo` when you no longer use it](a-photo#dispose-when-no-longer-used), as otherwise the JS Runtime might not immediately delete it, possibly exhausting system resources or stalling the Camera:
+
+See ["A Photo"](a-photo) to understand how the [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) type works, and how to use it.
 
 #### Capturing Photos to a file
 
@@ -94,6 +101,3 @@ const { filePath } = await photoOutput.capturePhotoToFile(
 ```
 
 See [`CapturePhotoSettings`](/api/react-native-vision-camera/interfaces/CapturePhotoSettings) for a full list of configuration options, and [`CapturePhotoCallbacks`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks) for a full list of callbacks for the capture method.
-
-> [!TIP]
-> See ["A Photo"](a-photo) to understand how the [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) type works, and how to use it.
