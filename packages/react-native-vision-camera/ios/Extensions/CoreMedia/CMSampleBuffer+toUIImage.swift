@@ -10,7 +10,7 @@ import Foundation
 import NitroModules
 
 extension CMSampleBuffer {
-  func toUIImage(orientation: UIImage.CameraOrientation) throws -> UIImage {
+  func toUIImage(orientation: UIImage.Orientation) throws -> UIImage {
     guard let imageBuffer else {
       throw RuntimeError.error(withMessage: "This Frame does not have a PixelBuffer!")
     }

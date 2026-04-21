@@ -32,7 +32,7 @@ public struct MediaSampleMetadata {
     self.isMirrored = isMirrored
   }
 
-  var uiImageOrientation: UIImage.CameraOrientation {
+  var uiImageOrientation: UIImage.Orientation {
     return orientation.toUIImageOrientation(isMirrored: isMirrored)
   }
 }

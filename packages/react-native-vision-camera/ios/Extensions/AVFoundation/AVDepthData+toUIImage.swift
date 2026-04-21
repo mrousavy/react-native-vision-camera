@@ -10,7 +10,7 @@ import Foundation
 import NitroModules
 
 extension AVDepthData {
-  func toUIImage(orientation: UIImage.CameraOrientation) throws -> UIImage {
+  func toUIImage(orientation: UIImage.Orientation) throws -> UIImage {
     // No-copy create CIImage from AVDepthData
     guard let ciImage = CIImage(depthData: self) else {
       throw RuntimeError.error(withMessage: "Failed to convert Depth to Image!")

@@ -12,7 +12,7 @@ import NitroModules
 extension CIImage {
   private static let context = CIContext(options: [.useSoftwareRenderer: false])
 
-  func toUIImage(orientation: UIImage.CameraOrientation) throws -> UIImage {
+  func toUIImage(orientation: UIImage.Orientation) throws -> UIImage {
     // Copy the CIImage into a CGImage (render)
     guard
       let cgImage = Self.context.createCGImage(
