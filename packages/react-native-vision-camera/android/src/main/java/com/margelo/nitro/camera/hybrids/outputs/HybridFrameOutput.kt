@@ -117,15 +117,22 @@ class HybridFrameOutput(
 
     if (onFrame != null) {
       imageAnalysis.setAnalyzer(executor) { image ->
-        // This represents the Image's orientation relative to the
-        // Frame Output. If `enablePhysicalBufferRotation` is true,
-        // it will always be `UP` - otherwise it will be whatever
-        // sensor orientation the Hardware uses, relative to current
-        // target orientation.
-        val orientation = image.orientation
-        val isMirrored = mirrorMode == MirrorMode.ON
-        val frame = HybridFrame(image, orientation, isMirrored)
-        onFrame(frame)
+        // Use try-with-resources pattern to ensure frame is properly disposed
+        // This avoids memory buildup in high-frame-rate scenarios
+        try {
+          // This represents the Image's orientation relative to the
+          // Frame Output. If `enablePhysicalBufferRotation` is true,
+          // it will always be `UP` - otherwise it will be whatever
+          // sensor orientation the Hardware uses, relative to current
+          // target orientation.
+          val orientation = image.orientation
+          val isMirrored = mirrorMode == MirrorMode.ON
+          val frame = HybridFrame(image, orientation, isMirrored)
+          onFrame(frame)
+        } finally {
+          // Ensure image is closed to release resources immediately
+          image.close()
+        }
       }
     } else {
       imageAnalysis.clearAnalyzer()

@@ -112,17 +112,25 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
           "setOnDepthFrameCallback(...) must be called on the DepthFrameOutput's `thread`!")
     }
     if let onDepthFrame {
-      delegate.onDepthFrame = { (depth, timestamp, bufferOrientation, isBufferMirrored) in
-        // Prepare Depth Frame + Metadata
-        let metadata = self.getMediaSampleMetadata(
-          at: timestamp,
-          orientation: bufferOrientation,
-          isMirrored: isBufferMirrored)
-        let depth = HybridDepth(
-          depthData: depth,
-          metadata: metadata)
-        // Call sync JS function
-        _ = onDepthFrame(depth)
+      delegate.onDepthFrame = { [weak self] (depth, timestamp, bufferOrientation, isBufferMirrored) in
+        guard let self else { return }
+        // Use autoreleasepool to avoid memory buildup in high-frame-rate scenarios
+        autoreleasepool {
+          // Prepare Depth Frame + Metadata
+          let metadata = self.getMediaSampleMetadata(
+            at: timestamp,
+            orientation: bufferOrientation,
+            isMirrored: isBufferMirrored)
+          let depth = HybridDepth(
+            depthData: depth,
+            metadata: metadata)
+          defer {
+            // Explicitly dispose frame to release resources immediately
+            depth.dispose()
+          }
+          // Call sync JS function
+          _ = onDepthFrame(depth)
+        }
       }
     } else {
       delegate.onDepthFrame = nil

@@ -1,36 +1,63 @@
-# dependencies (bun install)
-node_modules
-
-# output
-out
-dist
-*.tgz
-
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+```
+# Dependencies
+node_modules/
+# Build artifacts
+build/
+dist/
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+# Logs
+*.log
+# Environment
 .env
-.env.development.local
-.env.test.local
-.env.production.local
 .env.local
-
-# caches
-.cache
-*.tsbuildinfo
-
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
-**/.DS_Store
-
-# Claude Code local settings
-.claude/settings.local.json
+.env.*
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# Java/Kotlin
+*.class
+*.jar
+*.war
+*.ear
+*.so
+*.dll
+*.dylib
+# C/C++
+*.o
+*.a
+*.obj
+*.out
+*.exe
+# Gradle
+.gradle/
+# Coverage
+coverage/
+htmlcov/
+.coverage
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+```
