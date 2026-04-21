@@ -54,8 +54,8 @@ namespace margelo::nitro::camera {
     // Properties
     std::shared_ptr<HybridNativeThreadSpec> getThread() override;
     MediaType getMediaType() override;
-    Orientation getOutputOrientation() override;
-    void setOutputOrientation(Orientation outputOrientation) override;
+    CameraOrientation getOutputOrientation() override;
+    void setOutputOrientation(CameraOrientation outputOrientation) override;
 
   public:
     // Methods

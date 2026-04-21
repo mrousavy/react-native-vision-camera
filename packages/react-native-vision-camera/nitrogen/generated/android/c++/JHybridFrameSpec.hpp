@@ -56,7 +56,7 @@ namespace margelo::nitro::camera {
     double getHeight() override;
     double getBytesPerRow() override;
     PixelFormat getPixelFormat() override;
-    Orientation getOrientation() override;
+    CameraOrientation getOrientation() override;
     bool getIsMirrored() override;
     bool getIsPlanar() override;
     std::optional<std::vector<double>> getCameraIntrinsicMatrix() override;

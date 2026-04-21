@@ -2,6 +2,7 @@ package com.margelo.nitro.camera.hybrids.instances
 
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.DepthDataAccuracy
 import com.margelo.nitro.camera.DepthDataQuality
 import com.margelo.nitro.camera.DepthPixelFormat
@@ -9,7 +10,6 @@ import com.margelo.nitro.camera.HybridCameraCalibrationDataSpec
 import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.camera.NativeBuffer
-import com.margelo.nitro.camera.Orientation
 import com.margelo.nitro.camera.Point
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.convertPoint
@@ -22,7 +22,7 @@ import com.margelo.nitro.core.Promise
 
 class HybridDepthFrame(
   override val image: ImageProxy,
-  override val orientation: Orientation,
+  override val orientation: CameraOrientation,
   override val isMirrored: Boolean,
 ) : HybridDepthSpec(),
   NativeFrame {
@@ -83,7 +83,7 @@ class HybridDepthFrame(
   }
 
   override fun rotate(
-    orientation: Orientation,
+    orientation: CameraOrientation,
     isMirrored: Boolean,
   ): HybridDepthSpec {
     // TODO: On Android this is simply not supported.
@@ -93,7 +93,7 @@ class HybridDepthFrame(
   }
 
   override fun rotateAsync(
-    orientation: Orientation,
+    orientation: CameraOrientation,
     isMirrored: Boolean,
   ): Promise<HybridDepthSpec> {
     return Promise.async { rotate(orientation, isMirrored) }

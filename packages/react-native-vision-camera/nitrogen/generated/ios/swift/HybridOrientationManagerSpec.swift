@@ -11,10 +11,10 @@ import NitroModules
 public protocol HybridOrientationManagerSpec_protocol: HybridObject {
   // Properties
   var source: OrientationSource { get }
-  var currentOrientation: Orientation? { get }
+  var currentOrientation: CameraOrientation? { get }
 
   // Methods
-  func startOrientationUpdates(onChanged: @escaping (_ orientation: Orientation) -> Void) throws -> Void
+  func startOrientationUpdates(onChanged: @escaping (_ orientation: CameraOrientation) -> Void) throws -> Void
   func stopOrientationUpdates() throws -> Void
 }
 

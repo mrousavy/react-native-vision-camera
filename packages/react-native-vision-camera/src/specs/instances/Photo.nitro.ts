@@ -1,6 +1,6 @@
 import type { Image } from 'react-native-nitro-image'
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { Orientation } from '../common-types/Orientation'
+import type { CameraOrientation } from '../common-types/CameraOrientation'
 import type { PhotoContainerFormat } from '../common-types/PhotoContainerFormat'
 import type {
   CameraPhotoOutput,
@@ -74,14 +74,14 @@ export interface Photo
    */
   readonly isMirrored: boolean
   /**
-   * Gets the {@linkcode Orientation} this {@linkcode Photo} was
+   * Gets the {@linkcode CameraOrientation} this {@linkcode Photo} was
    * captured in.
    *
-   * {@linkcode Orientation} will be applied lazily via EXIF
+   * {@linkcode CameraOrientation} will be applied lazily via EXIF
    * flags, or when converting the {@linkcode Photo} to an
    * {@linkcode Image}.
    */
-  readonly orientation: Orientation
+  readonly orientation: CameraOrientation
   /**
    * Represents the timestamp this {@linkcode Photo} was
    * captured at, using the system's host clock, in seconds.

@@ -12,6 +12,8 @@
 namespace NitroModules { class ArrayBufferHolder; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `CameraOutputConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
 // Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
@@ -122,8 +124,6 @@ namespace margelo::nitro::camera { enum class MeteringMode; }
 namespace margelo::nitro::camera { enum class MirrorMode; }
 // Forward declaration of `NativeBuffer` to properly resolve imports.
 namespace margelo::nitro::camera { struct NativeBuffer; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
 // Forward declaration of `PhotoFile` to properly resolve imports.
 namespace margelo::nitro::camera { struct PhotoFile; }
 // Forward declaration of `PhotoHDRConstraint` to properly resolve imports.
@@ -247,6 +247,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 
 // Include C++ defined types
 #include "BinnedConstraint.hpp"
+#include "CameraOrientation.hpp"
 #include "CameraOutputConfiguration.hpp"
 #include "CameraSessionConfiguration.hpp"
 #include "CameraSessionConnection.hpp"
@@ -301,7 +302,6 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "MeteringMode.hpp"
 #include "MirrorMode.hpp"
 #include "NativeBuffer.hpp"
-#include "Orientation.hpp"
 #include "PhotoFile.hpp"
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormat.hpp"
@@ -1987,41 +1987,41 @@ namespace margelo::nitro::camera::bridge::swift {
   using std__weak_ptr_HybridLocationSpec_ = std::weak_ptr<HybridLocationSpec>;
   inline std__weak_ptr_HybridLocationSpec_ weakify_std__shared_ptr_HybridLocationSpec_(const std::shared_ptr<HybridLocationSpec>& strong) noexcept { return strong; }
   
-  // pragma MARK: std::optional<Orientation>
+  // pragma MARK: std::optional<CameraOrientation>
   /**
-   * Specialized version of `std::optional<Orientation>`.
+   * Specialized version of `std::optional<CameraOrientation>`.
    */
-  using std__optional_Orientation_ = std::optional<Orientation>;
-  inline std::optional<Orientation> create_std__optional_Orientation_(const Orientation& value) noexcept {
-    return std::optional<Orientation>(value);
+  using std__optional_CameraOrientation_ = std::optional<CameraOrientation>;
+  inline std::optional<CameraOrientation> create_std__optional_CameraOrientation_(const CameraOrientation& value) noexcept {
+    return std::optional<CameraOrientation>(value);
   }
-  inline bool has_value_std__optional_Orientation_(const std::optional<Orientation>& optional) noexcept {
+  inline bool has_value_std__optional_CameraOrientation_(const std::optional<CameraOrientation>& optional) noexcept {
     return optional.has_value();
   }
-  inline Orientation get_std__optional_Orientation_(const std::optional<Orientation>& optional) noexcept {
+  inline CameraOrientation get_std__optional_CameraOrientation_(const std::optional<CameraOrientation>& optional) noexcept {
     return optional.value();
   }
   
-  // pragma MARK: std::function<void(Orientation /* orientation */)>
+  // pragma MARK: std::function<void(CameraOrientation /* orientation */)>
   /**
-   * Specialized version of `std::function<void(Orientation)>`.
+   * Specialized version of `std::function<void(CameraOrientation)>`.
    */
-  using Func_void_Orientation = std::function<void(Orientation /* orientation */)>;
+  using Func_void_CameraOrientation = std::function<void(CameraOrientation /* orientation */)>;
   /**
-   * Wrapper class for a `std::function<void(Orientation / * orientation * /)>`, this can be used from Swift.
+   * Wrapper class for a `std::function<void(CameraOrientation / * orientation * /)>`, this can be used from Swift.
    */
-  class Func_void_Orientation_Wrapper final {
+  class Func_void_CameraOrientation_Wrapper final {
   public:
-    explicit Func_void_Orientation_Wrapper(std::function<void(Orientation /* orientation */)>&& func): _function(std::make_unique<std::function<void(Orientation /* orientation */)>>(std::move(func))) {}
+    explicit Func_void_CameraOrientation_Wrapper(std::function<void(CameraOrientation /* orientation */)>&& func): _function(std::make_unique<std::function<void(CameraOrientation /* orientation */)>>(std::move(func))) {}
     inline void call(int orientation) const noexcept {
-      _function->operator()(static_cast<Orientation>(orientation));
+      _function->operator()(static_cast<CameraOrientation>(orientation));
     }
   private:
-    std::unique_ptr<std::function<void(Orientation /* orientation */)>> _function;
+    std::unique_ptr<std::function<void(CameraOrientation /* orientation */)>> _function;
   } SWIFT_NONCOPYABLE;
-  Func_void_Orientation create_Func_void_Orientation(void* NON_NULL swiftClosureWrapper) noexcept;
-  inline Func_void_Orientation_Wrapper wrap_Func_void_Orientation(Func_void_Orientation value) noexcept {
-    return Func_void_Orientation_Wrapper(std::move(value));
+  Func_void_CameraOrientation create_Func_void_CameraOrientation(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_CameraOrientation_Wrapper wrap_Func_void_CameraOrientation(Func_void_CameraOrientation value) noexcept {
+    return Func_void_CameraOrientation_Wrapper(std::move(value));
   }
   
   // pragma MARK: std::function<bool(const std::shared_ptr<HybridDepthSpec>& /* depth */)>

@@ -1,10 +1,10 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { Orientation } from '../common-types/Orientation'
+import type { CameraOrientation } from '../common-types/CameraOrientation'
 import type { OrientationSource } from '../common-types/OrientationSource'
 
 /**
  * The {@linkcode OrientationManager} allows listening to
- * {@linkcode Orientation} changes, like device- or interface-
+ * {@linkcode CameraOrientation} changes, like device- or interface-
  * orientation.
  */
 export interface OrientationManager
@@ -15,14 +15,16 @@ export interface OrientationManager
    */
   readonly source: OrientationSource
   /**
-   * Get the current {@linkcode Orientation}, or `undefined` if no
+   * Get the current {@linkcode CameraOrientation}, or `undefined` if no
    * orientation is known.
    */
-  readonly currentOrientation: Orientation | undefined
+  readonly currentOrientation: CameraOrientation | undefined
   /**
    * Starts listening to orientation changes.
    */
-  startOrientationUpdates(onChanged: (orientation: Orientation) => void): void
+  startOrientationUpdates(
+    onChanged: (orientation: CameraOrientation) => void,
+  ): void
   /**
    * Stops listening to orientation changes.
    */

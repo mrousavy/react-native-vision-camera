@@ -39,7 +39,7 @@
 #include "JHybridLocationSpec.hpp"
 #include "JHybridMeteringPointSpec.hpp"
 #include "JHybridOrientationManagerSpec.hpp"
-#include "JFunc_void_Orientation.hpp"
+#include "JFunc_void_CameraOrientation.hpp"
 #include "JHybridCameraDepthFrameOutputSpec.hpp"
 #include "JFunc_bool_std__shared_ptr_HybridDepthSpec_.hpp"
 #include "JFunc_void_FrameDroppedReason.hpp"
@@ -147,7 +147,7 @@ void registerAllNatives() {
   margelo::nitro::camera::JHybridLocationSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JHybridMeteringPointSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JHybridOrientationManagerSpec::CxxPart::registerNatives();
-  margelo::nitro::camera::JFunc_void_Orientation_cxx::registerNatives();
+  margelo::nitro::camera::JFunc_void_CameraOrientation_cxx::registerNatives();
   margelo::nitro::camera::JHybridCameraDepthFrameOutputSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JFunc_bool_std__shared_ptr_HybridDepthSpec__cxx::registerNatives();
   margelo::nitro::camera::JFunc_void_FrameDroppedReason_cxx::registerNatives();

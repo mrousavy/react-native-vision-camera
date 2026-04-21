@@ -51,8 +51,8 @@ namespace margelo::nitro::camera {
   public:
     // Properties
     MediaType getMediaType() override;
-    Orientation getOutputOrientation() override;
-    void setOutputOrientation(Orientation outputOrientation) override;
+    CameraOrientation getOutputOrientation() override;
+    void setOutputOrientation(CameraOrientation outputOrientation) override;
 
   public:
     // Methods

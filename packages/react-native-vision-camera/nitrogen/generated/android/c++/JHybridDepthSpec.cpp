@@ -7,8 +7,8 @@
 
 #include "JHybridDepthSpec.hpp"
 
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `DepthPixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class DepthPixelFormat; }
 // Forward declaration of `DepthDataAccuracy` to properly resolve imports.
@@ -26,8 +26,8 @@ namespace margelo::nitro::camera { struct Point; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
 
-#include "Orientation.hpp"
-#include "JOrientation.hpp"
+#include "CameraOrientation.hpp"
+#include "JCameraOrientation.hpp"
 #include "DepthPixelFormat.hpp"
 #include "JDepthPixelFormat.hpp"
 #include "DepthDataAccuracy.hpp"
@@ -85,8 +85,8 @@ namespace margelo::nitro::camera {
   }
 
   // Properties
-  Orientation JHybridDepthSpec::getOrientation() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOrientation>()>("getOrientation");
+  CameraOrientation JHybridDepthSpec::getOrientation() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JCameraOrientation>()>("getOrientation");
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
@@ -171,14 +171,14 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  std::shared_ptr<HybridDepthSpec> JHybridDepthSpec::rotate(Orientation orientation, bool isMirrored) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridDepthSpec::JavaPart>(jni::alias_ref<JOrientation> /* orientation */, jboolean /* isMirrored */)>("rotate");
-    auto __result = method(_javaPart, JOrientation::fromCpp(orientation), isMirrored);
+  std::shared_ptr<HybridDepthSpec> JHybridDepthSpec::rotate(CameraOrientation orientation, bool isMirrored) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridDepthSpec::JavaPart>(jni::alias_ref<JCameraOrientation> /* orientation */, jboolean /* isMirrored */)>("rotate");
+    auto __result = method(_javaPart, JCameraOrientation::fromCpp(orientation), isMirrored);
     return __result->getJHybridDepthSpec();
   }
-  std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> JHybridDepthSpec::rotateAsync(Orientation orientation, bool isMirrored) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JOrientation> /* orientation */, jboolean /* isMirrored */)>("rotateAsync");
-    auto __result = method(_javaPart, JOrientation::fromCpp(orientation), isMirrored);
+  std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> JHybridDepthSpec::rotateAsync(CameraOrientation orientation, bool isMirrored) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JCameraOrientation> /* orientation */, jboolean /* isMirrored */)>("rotateAsync");
+    auto __result = method(_javaPart, JCameraOrientation::fromCpp(orientation), isMirrored);
     return [&]() {
       auto __promise = Promise<std::shared_ptr<HybridDepthSpec>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {

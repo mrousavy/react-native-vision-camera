@@ -1,5 +1,5 @@
 ///
-/// UI+Orientation.swift
+/// UI+CameraOrientation.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -8,8 +8,8 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-extension Orientation {
-  init(uiOrientation: UIImage.Orientation) {
+extension CameraOrientation {
+  init(uiOrientation: UIImage.CameraOrientation) {
     switch uiOrientation {
     case .up, .upMirrored:
       self = .up
@@ -20,7 +20,7 @@ extension Orientation {
     case .right, .rightMirrored:
       self = .right
     @unknown default:
-      fatalError("UIImage.Orientation has unknown value: \(uiOrientation)")
+      fatalError("UIImage.CameraOrientation has unknown value: \(uiOrientation)")
     }
   }
   init(interfaceOrientation: UIInterfaceOrientation) {
@@ -40,7 +40,7 @@ extension Orientation {
     }
   }
 
-  func toUIImageOrientation(isMirrored: Bool) -> UIImage.Orientation {
+  func toUIImageOrientation(isMirrored: Bool) -> UIImage.CameraOrientation {
     switch self {
     case .up:
       return isMirrored ? .upMirrored : .up

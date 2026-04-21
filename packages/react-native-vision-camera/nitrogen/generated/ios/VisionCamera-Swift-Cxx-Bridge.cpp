@@ -676,10 +676,10 @@ namespace margelo::nitro::camera::bridge::swift {
     return swiftPart.toUnsafe();
   }
   
-  // pragma MARK: std::function<void(Orientation /* orientation */)>
-  Func_void_Orientation create_Func_void_Orientation(void* NON_NULL swiftClosureWrapper) noexcept {
-    auto swiftClosure = VisionCamera::Func_void_Orientation::fromUnsafe(swiftClosureWrapper);
-    return [swiftClosure = std::move(swiftClosure)](Orientation orientation) mutable -> void {
+  // pragma MARK: std::function<void(CameraOrientation /* orientation */)>
+  Func_void_CameraOrientation create_Func_void_CameraOrientation(void* NON_NULL swiftClosureWrapper) noexcept {
+    auto swiftClosure = VisionCamera::Func_void_CameraOrientation::fromUnsafe(swiftClosureWrapper);
+    return [swiftClosure = std::move(swiftClosure)](CameraOrientation orientation) mutable -> void {
       swiftClosure.call(static_cast<int>(orientation));
     };
   }

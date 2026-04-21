@@ -29,7 +29,7 @@ abstract class HybridDepthSpec: HybridObject() {
   // Properties
   @get:DoNotStrip
   @get:Keep
-  abstract val orientation: Orientation
+  abstract val orientation: CameraOrientation
   
   @get:DoNotStrip
   @get:Keep
@@ -90,11 +90,11 @@ abstract class HybridDepthSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun rotate(orientation: Orientation, isMirrored: Boolean): HybridDepthSpec
+  abstract fun rotate(orientation: CameraOrientation, isMirrored: Boolean): HybridDepthSpec
   
   @DoNotStrip
   @Keep
-  abstract fun rotateAsync(orientation: Orientation, isMirrored: Boolean): Promise<HybridDepthSpec>
+  abstract fun rotateAsync(orientation: CameraOrientation, isMirrored: Boolean): Promise<HybridDepthSpec>
   
   @DoNotStrip
   @Keep

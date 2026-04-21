@@ -4,14 +4,14 @@ import android.content.Context
 import android.hardware.display.DisplayManager
 import android.util.Log
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridOrientationManagerSpec
-import com.margelo.nitro.camera.Orientation
 import com.margelo.nitro.camera.OrientationSource
 import com.margelo.nitro.camera.extensions.fromSurfaceRotation
 
 class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
   override val source: OrientationSource = OrientationSource.INTERFACE
-  override var currentOrientation: Orientation?
+  override var currentOrientation: CameraOrientation?
     private set
   private val context: Context
     get() = NitroModules.applicationContext ?: throw Error("No Context available!")
@@ -22,13 +22,13 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
     val defaultDisplay = displayManager.displays.firstOrNull()
     if (defaultDisplay != null) {
       val surfaceRotation = defaultDisplay.rotation
-      currentOrientation = Orientation.fromSurfaceRotation(surfaceRotation)
+      currentOrientation = CameraOrientation.fromSurfaceRotation(surfaceRotation)
     } else {
       currentOrientation = null
     }
   }
 
-  override fun startOrientationUpdates(onChanged: (orientation: Orientation) -> Unit) {
+  override fun startOrientationUpdates(onChanged: (orientation: CameraOrientation) -> Unit) {
     listener?.let { listener ->
       displayManager.unregisterDisplayListener(listener)
     }
@@ -41,7 +41,7 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
         override fun onDisplayChanged(displayId: Int) {
           val display = displayManager.getDisplay(displayId) ?: return
           val surfaceRotation = display.rotation
-          val orientation = Orientation.fromSurfaceRotation(surfaceRotation)
+          val orientation = CameraOrientation.fromSurfaceRotation(surfaceRotation)
           if (currentOrientation != orientation) {
             Log.i(TAG, "Display orientation changed! $orientation")
             currentOrientation = orientation

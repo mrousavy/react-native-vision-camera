@@ -15,11 +15,11 @@
 
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include "MediaType.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -49,8 +49,8 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual MediaType getMediaType() = 0;
-      virtual Orientation getOutputOrientation() = 0;
-      virtual void setOutputOrientation(Orientation outputOrientation) = 0;
+      virtual CameraOrientation getOutputOrientation() = 0;
+      virtual void setOutputOrientation(CameraOrientation outputOrientation) = 0;
 
     public:
       // Methods

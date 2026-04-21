@@ -55,8 +55,8 @@ namespace margelo::nitro::camera {
     bool getSupportsDepthDataDelivery() override;
     bool getSupportsCameraCalibrationDataDelivery() override;
     MediaType getMediaType() override;
-    Orientation getOutputOrientation() override;
-    void setOutputOrientation(Orientation outputOrientation) override;
+    CameraOrientation getOutputOrientation() override;
+    void setOutputOrientation(CameraOrientation outputOrientation) override;
 
   public:
     // Methods

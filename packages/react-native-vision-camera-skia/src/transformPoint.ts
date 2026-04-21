@@ -1,7 +1,7 @@
-import type { Orientation, Point } from 'react-native-vision-camera'
+import type { CameraOrientation, Point } from 'react-native-vision-camera'
 
 export interface Transform {
-  orientation: Orientation
+  orientation: CameraOrientation
   isMirrored: boolean
 }
 

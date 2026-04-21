@@ -12,7 +12,7 @@ class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewVie
   let mediaType: MediaType = .video
   let previewLayer: AVCaptureVideoPreviewLayer
   private let orientationManager = HybridInterfaceOrientationManager()
-  var outputOrientation: Orientation {
+  var outputOrientation: CameraOrientation {
     get {
       return previewLayer.connection?.orientation ?? .up
     }

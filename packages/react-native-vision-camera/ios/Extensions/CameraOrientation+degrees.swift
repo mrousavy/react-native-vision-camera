@@ -1,5 +1,5 @@
 ///
-/// Orientation+degrees.swift
+/// CameraOrientation+degrees.swift
 /// VisionCamera
 /// Copyright © 2025 Marc Rousavy @ Margelo
 ///
@@ -8,9 +8,9 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-extension Orientation {
+extension CameraOrientation {
   init(degrees: Int) {
-    let normalized = Orientation.normalizeDegrees(degrees)
+    let normalized = CameraOrientation.normalizeDegrees(degrees)
     switch normalized {
     case 45..<135:
       self = .right
@@ -21,7 +21,7 @@ extension Orientation {
     case 315..<360, 0..<45:
       self = .up
     default:
-      fatalError("Orientation: Invalid degrees (\(degrees)°) specified!")
+      fatalError("CameraOrientation: Invalid degrees (\(degrees)°) specified!")
     }
   }
 
@@ -38,16 +38,16 @@ extension Orientation {
     }
   }
 
-  func rotatedBy(degrees: Int) -> Orientation {
+  func rotatedBy(degrees: Int) -> CameraOrientation {
     let newDegrees = self.degrees + degrees
-    return Orientation(degrees: newDegrees)
+    return CameraOrientation(degrees: newDegrees)
   }
 
-  func rotatedBy(_ orientation: Orientation) -> Orientation {
+  func rotatedBy(_ orientation: CameraOrientation) -> CameraOrientation {
     return self.rotatedBy(degrees: orientation.degrees)
   }
 
-  func relativeTo(_ orientation: Orientation) -> Orientation {
+  func relativeTo(_ orientation: CameraOrientation) -> CameraOrientation {
     return self.rotatedBy(degrees: -orientation.degrees)
   }
 

@@ -31,14 +31,14 @@ abstract class HybridOrientationManagerSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
-  abstract val currentOrientation: Orientation?
+  abstract val currentOrientation: CameraOrientation?
 
   // Methods
-  abstract fun startOrientationUpdates(onChanged: (orientation: Orientation) -> Unit): Unit
+  abstract fun startOrientationUpdates(onChanged: (orientation: CameraOrientation) -> Unit): Unit
   
   @DoNotStrip
   @Keep
-  private fun startOrientationUpdates_cxx(onChanged: Func_void_Orientation): Unit {
+  private fun startOrientationUpdates_cxx(onChanged: Func_void_CameraOrientation): Unit {
     val __result = startOrientationUpdates(onChanged)
     return __result
   }

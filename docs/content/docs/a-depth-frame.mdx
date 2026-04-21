@@ -26,7 +26,7 @@ The Camera pipeline does not physically rotate or mirror buffers automatically, 
 Instead, it is much more efficient to pass [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) along as metadata so consumers can apply rotation/mirroring logic themselves.
 
 > [!TIP]
-> If you need your buffers to be correctly rotated and mirrored already, enable [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/DepthFrameOutputOptions#enablephysicalbufferrotation), which results in [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) always being [`'up'`](/api/react-native-vision-camera/type-aliases/Orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) always being `false`, indicating no rotation or mirroring is necessary to get the Depth's intended presentation.
+> If you need your buffers to be correctly rotated and mirrored already, enable [`enablePhysicalBufferRotation`](/api/react-native-vision-camera/interfaces/DepthFrameOutputOptions#enablephysicalbufferrotation), which results in [`orientation`](/api/react-native-vision-camera/hybrid-objects/Depth#orientation) always being [`'up'`](/api/react-native-vision-camera/type-aliases/CameraOrientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Depth#ismirrored) always being `false`, indicating no rotation or mirroring is necessary to get the Depth's intended presentation.
 
 ### Understanding Depth Formats
 

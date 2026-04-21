@@ -5,4 +5,4 @@
  * - `'left'`: Rotated 90° left. Whatever was "top" before is now "left", whatever was bottom before is now "right".
  * - `'right'`: Rotated 90° right. Whatever was "top" before is now "right", whatever was bottom before is now "left".
  */
-export type Orientation = 'up' | 'right' | 'down' | 'left'
+export type CameraOrientation = 'up' | 'right' | 'down' | 'left'

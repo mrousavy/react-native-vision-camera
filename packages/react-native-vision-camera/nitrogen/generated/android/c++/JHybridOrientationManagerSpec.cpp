@@ -9,16 +9,16 @@
 
 // Forward declaration of `OrientationSource` to properly resolve imports.
 namespace margelo::nitro::camera { enum class OrientationSource; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include "OrientationSource.hpp"
 #include "JOrientationSource.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include <optional>
-#include "JOrientation.hpp"
+#include "JCameraOrientation.hpp"
 #include <functional>
-#include "JFunc_void_Orientation.hpp"
+#include "JFunc_void_CameraOrientation.hpp"
 #include <NitroModules/JNICallable.hpp>
 
 namespace margelo::nitro::camera {
@@ -56,16 +56,16 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  std::optional<Orientation> JHybridOrientationManagerSpec::getCurrentOrientation() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOrientation>()>("getCurrentOrientation");
+  std::optional<CameraOrientation> JHybridOrientationManagerSpec::getCurrentOrientation() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JCameraOrientation>()>("getCurrentOrientation");
     auto __result = method(_javaPart);
     return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
 
   // Methods
-  void JHybridOrientationManagerSpec::startOrientationUpdates(const std::function<void(Orientation /* orientation */)>& onChanged) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_Orientation::javaobject> /* onChanged */)>("startOrientationUpdates_cxx");
-    method(_javaPart, JFunc_void_Orientation_cxx::fromCpp(onChanged));
+  void JHybridOrientationManagerSpec::startOrientationUpdates(const std::function<void(CameraOrientation /* orientation */)>& onChanged) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void_CameraOrientation::javaobject> /* onChanged */)>("startOrientationUpdates_cxx");
+    method(_javaPart, JFunc_void_CameraOrientation_cxx::fromCpp(onChanged));
   }
   void JHybridOrientationManagerSpec::stopOrientationUpdates() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void()>("stopOrientationUpdates");

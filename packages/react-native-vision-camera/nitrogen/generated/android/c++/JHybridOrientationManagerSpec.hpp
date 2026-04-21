@@ -51,11 +51,11 @@ namespace margelo::nitro::camera {
   public:
     // Properties
     OrientationSource getSource() override;
-    std::optional<Orientation> getCurrentOrientation() override;
+    std::optional<CameraOrientation> getCurrentOrientation() override;
 
   public:
     // Methods
-    void startOrientationUpdates(const std::function<void(Orientation /* orientation */)>& onChanged) override;
+    void startOrientationUpdates(const std::function<void(CameraOrientation /* orientation */)>& onChanged) override;
     void stopOrientationUpdates() override;
 
   private:

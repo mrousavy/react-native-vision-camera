@@ -255,7 +255,7 @@ open class HybridDepthSpec_cxx {
   @inline(__always)
   public final func rotate(orientation: Int32, isMirrored: Bool) -> bridge.Result_std__shared_ptr_HybridDepthSpec__ {
     do {
-      let __result = try self.__implementation.rotate(orientation: margelo.nitro.camera.Orientation(rawValue: orientation)!, isMirrored: isMirrored)
+      let __result = try self.__implementation.rotate(orientation: margelo.nitro.camera.CameraOrientation(rawValue: orientation)!, isMirrored: isMirrored)
       let __resultCpp = { () -> bridge.std__shared_ptr_HybridDepthSpec_ in
         let __cxxWrapped = __result.getCxxWrapper()
         return __cxxWrapped.getCxxPart()
@@ -270,7 +270,7 @@ open class HybridDepthSpec_cxx {
   @inline(__always)
   public final func rotateAsync(orientation: Int32, isMirrored: Bool) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec____ {
     do {
-      let __result = try self.__implementation.rotateAsync(orientation: margelo.nitro.camera.Orientation(rawValue: orientation)!, isMirrored: isMirrored)
+      let __result = try self.__implementation.rotateAsync(orientation: margelo.nitro.camera.CameraOrientation(rawValue: orientation)!, isMirrored: isMirrored)
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__shared_ptr_HybridDepthSpec___(__promise)

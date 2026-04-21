@@ -15,11 +15,11 @@
 
 // Forward declaration of `OrientationSource` to properly resolve imports.
 namespace margelo::nitro::camera { enum class OrientationSource; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include "OrientationSource.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include <optional>
 #include <functional>
 
@@ -51,11 +51,11 @@ namespace margelo::nitro::camera {
     public:
       // Properties
       virtual OrientationSource getSource() = 0;
-      virtual std::optional<Orientation> getCurrentOrientation() = 0;
+      virtual std::optional<CameraOrientation> getCurrentOrientation() = 0;
 
     public:
       // Methods
-      virtual void startOrientationUpdates(const std::function<void(Orientation /* orientation */)>& onChanged) = 0;
+      virtual void startOrientationUpdates(const std::function<void(CameraOrientation /* orientation */)>& onChanged) = 0;
       virtual void stopOrientationUpdates() = 0;
 
     protected:

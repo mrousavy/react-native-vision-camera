@@ -14,11 +14,11 @@ namespace VisionCamera { class HybridOrientationManagerSpec_cxx; }
 
 // Forward declaration of `OrientationSource` to properly resolve imports.
 namespace margelo::nitro::camera { enum class OrientationSource; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include "OrientationSource.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 #include <optional>
 #include <functional>
 
@@ -72,14 +72,14 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getSource();
       return static_cast<OrientationSource>(__result);
     }
-    inline std::optional<Orientation> getCurrentOrientation() noexcept override {
+    inline std::optional<CameraOrientation> getCurrentOrientation() noexcept override {
       auto __result = _swiftPart.getCurrentOrientation();
       return __result;
     }
 
   public:
     // Methods
-    inline void startOrientationUpdates(const std::function<void(Orientation /* orientation */)>& onChanged) override {
+    inline void startOrientationUpdates(const std::function<void(CameraOrientation /* orientation */)>& onChanged) override {
       auto __result = _swiftPart.startOrientationUpdates(onChanged);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

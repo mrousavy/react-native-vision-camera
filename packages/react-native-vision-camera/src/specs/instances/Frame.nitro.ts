@@ -1,6 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
+import type { CameraOrientation } from '../common-types/CameraOrientation'
 import type { NativeBuffer } from '../common-types/NativeBuffer'
-import type { Orientation } from '../common-types/Orientation'
 import type { PixelFormat } from '../common-types/PixelFormat'
 import type { Point } from '../common-types/Point'
 import type {
@@ -203,7 +203,7 @@ export interface Frame
    * orientation flag for input images - pass `orientation`
    * directly in those cases.
    */
-  readonly orientation: Orientation
+  readonly orientation: CameraOrientation
   /**
    * Indicates whether this {@linkcode Frame}'s pixel data must be
    * interpreted as mirrored along the vertical axis.

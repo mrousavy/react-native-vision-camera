@@ -10,9 +10,9 @@ If you rotate your phone, the Camera doesn't physically rotate alongside with it
 
 ### Automatically set Orientation
 
-In most cases, your [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) should be automatically set to either the App's Interface Orientation, or your Phone's Device Orientation:
+In most cases, your [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) should be automatically set to either the App's Interface Orientation, or your Phone's Device Orientation:
 
-- App Interface Orientation ([`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation only when the UI rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will still stick to `portrait` ([`'up'`](/api/react-native-vision-camera/type-aliases/Orientation)). This is how apps like Snapchat or Instagram work.
+- App Interface Orientation ([`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation only when the UI rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will still stick to `portrait` ([`'up'`](/api/react-native-vision-camera/type-aliases/CameraOrientation)). This is how apps like Snapchat or Instagram work.
 - Phone Device Orientation ([`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation when the phone physically rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will change to be sideways - even if the UI doesn't rotate to `landscape`. This is how most photography apps (including the stock iOS Camera app) work.
 
 VisionCamera exposes two [`OrientationManager`](/api/react-native-vision-camera/hybrid-objects/OrientationManager)s - one for monitoring [`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource) orientation, and one for monitoring [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource) orientation:
@@ -71,19 +71,19 @@ Since Camera sensors have fixed orientations, rotation has to be applied to Fram
 
 #### Photo Orientation via EXIF tags
 
-For captured Photos (see ["The Photo Output"](photo-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) is applied via EXIF tags.
+For captured Photos (see ["The Photo Output"](photo-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) is applied via EXIF tags.
 
 #### Video Orientation via metadata
 
-For recorded videos (see ["The Video Output"](video-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) is applied via mp4/mov metadata.
+For recorded videos (see ["The Video Output"](video-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) is applied via mp4/mov metadata.
 
 #### Preview Orientation via View Transforms
 
-For preview (see ["The Preview Output"](preview-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) is applied via view transforms.
+For preview (see ["The Preview Output"](preview-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) is applied via view transforms.
 
 #### Frame Output is manual
 
-For streamed Frames (see ["The Frame Output"](frame-output) or ["The Depth Output"](depth-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/Orientation) is **not** applied automatically - instead, it is passed alongside as metadata, relative to what the [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)'s target [`outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraOutput#outputorientation) is.
+For streamed Frames (see ["The Frame Output"](frame-output) or ["The Depth Output"](depth-output)), [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) is **not** applied automatically - instead, it is passed alongside as metadata, relative to what the [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput)'s target [`outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraOutput#outputorientation) is.
 
 Inside a Frame Processor, you must interpret a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) accordingly.
 Most Frame Processing libraries allow setting orientation and mirror settings as flags, for example, [MLKit](https://developers.google.com/ml-kit) uses `UIImageOrientation`:
@@ -107,10 +107,10 @@ case .down:
 
 For example, to get the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to its _intended presentation_ for rendering it with a custom rendering library, counter-rotate the [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) accordingly:
 
-- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'up'`](/api/react-native-vision-camera/type-aliases/Orientation), you don't need to rotate anything - it is already in upright rotation.
-- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'left'`](/api/react-native-vision-camera/type-aliases/Orientation), it is rotated -90° left relative to the output's target orientation - you need to rotate it by +90° to get it back "upright".
-- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'right'`](/api/react-native-vision-camera/type-aliases/Orientation), it is rotated +90° right relative to the output's target orientation - you need to rotate it by -90° to get it back "upright".
-- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'down'`](/api/react-native-vision-camera/type-aliases/Orientation), it is rotated 180° upside down relative to the output's target orientation - you need to rotate it by 180° to get it back "upright".
+- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'up'`](/api/react-native-vision-camera/type-aliases/CameraOrientation), you don't need to rotate anything - it is already in upright rotation.
+- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'left'`](/api/react-native-vision-camera/type-aliases/CameraOrientation), it is rotated -90° left relative to the output's target orientation - you need to rotate it by +90° to get it back "upright".
+- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'right'`](/api/react-native-vision-camera/type-aliases/CameraOrientation), it is rotated +90° right relative to the output's target orientation - you need to rotate it by -90° to get it back "upright".
+- If [`Frame.orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) is [`'down'`](/api/react-native-vision-camera/type-aliases/CameraOrientation), it is rotated 180° upside down relative to the output's target orientation - you need to rotate it by 180° to get it back "upright".
 
 This also applies to [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored):
 

@@ -9,11 +9,11 @@ import Foundation
 import NitroModules
 
 extension AVCaptureConnection {
-  var orientation: Orientation {
-    return Orientation(avOrientation: videoOrientation)
+  var orientation: CameraOrientation {
+    return CameraOrientation(avOrientation: videoOrientation)
   }
 
-  func setOrientation(_ orientation: Orientation) throws {
+  func setOrientation(_ orientation: CameraOrientation) throws {
     guard self.isVideoOrientationSupported else {
       throw RuntimeError.error(
         withMessage:

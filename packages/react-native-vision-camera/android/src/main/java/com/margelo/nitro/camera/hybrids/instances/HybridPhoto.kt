@@ -6,10 +6,10 @@ import android.graphics.Matrix
 import android.location.Location
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.Exif
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraCalibrationDataSpec
 import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridPhotoSpec
-import com.margelo.nitro.camera.Orientation
 import com.margelo.nitro.camera.PhotoContainerFormat
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.counterRotated
@@ -41,7 +41,7 @@ class HybridPhoto(
   override val height: Double
     get() = image.height.toDouble()
 
-  override val orientation: Orientation
+  override val orientation: CameraOrientation
     get() = image.orientation
   override val timestamp: Double
     get() {
@@ -158,7 +158,7 @@ class HybridPhoto(
         if (isMirrored) {
           preScale(-1f, 1f)
         }
-        if (orientation != Orientation.UP) {
+        if (orientation != CameraOrientation.UP) {
           val orientationToApply = orientation.counterRotated()
           postRotate(orientationToApply.degrees.toFloat())
         }
@@ -187,7 +187,7 @@ class HybridPhoto(
     if (isMirrored) {
       exif.flipHorizontally()
     }
-    if (orientation != Orientation.UP) {
+    if (orientation != CameraOrientation.UP) {
       exif.rotate(orientation.degrees)
     }
     if (location != null) {

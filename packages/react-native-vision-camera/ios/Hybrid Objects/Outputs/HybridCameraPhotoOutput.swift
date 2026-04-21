@@ -24,7 +24,7 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
   var supportsCameraCalibrationDataDelivery: Bool {
     return output.isCameraCalibrationDataDeliverySupported
   }
-  var outputOrientation: Orientation = .up {
+  var outputOrientation: CameraOrientation = .up {
     didSet {
       guard let connection = output.connection(with: .video) else { return }
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?

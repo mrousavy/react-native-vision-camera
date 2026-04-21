@@ -50,7 +50,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Properties
-    Orientation getOrientation() override;
+    CameraOrientation getOrientation() override;
     bool getIsMirrored() override;
     double getTimestamp() override;
     double getWidth() override;
@@ -68,8 +68,8 @@ namespace margelo::nitro::camera {
     // Methods
     std::shared_ptr<ArrayBuffer> getDepthData() override;
     NativeBuffer getNativeBuffer() override;
-    std::shared_ptr<HybridDepthSpec> rotate(Orientation orientation, bool isMirrored) override;
-    std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(Orientation orientation, bool isMirrored) override;
+    std::shared_ptr<HybridDepthSpec> rotate(CameraOrientation orientation, bool isMirrored) override;
+    std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> rotateAsync(CameraOrientation orientation, bool isMirrored) override;
     std::shared_ptr<HybridDepthSpec> convert(DepthPixelFormat pixelFormat) override;
     std::shared_ptr<Promise<std::shared_ptr<HybridDepthSpec>>> convertAsync(DepthPixelFormat pixelFormat) override;
     Point convertCameraPointToDepthPoint(const Point& cameraPoint) override;

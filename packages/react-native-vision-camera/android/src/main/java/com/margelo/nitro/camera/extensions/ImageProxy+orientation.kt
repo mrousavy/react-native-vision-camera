@@ -1,10 +1,10 @@
 package com.margelo.nitro.camera.extensions
 
 import androidx.camera.core.ImageProxy
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 
-val ImageProxy.orientation: Orientation
+val ImageProxy.orientation: CameraOrientation
   get() {
     val degrees = imageInfo.rotationDegrees
-    return Orientation.fromDegrees(degrees)
+    return CameraOrientation.fromDegrees(degrees)
   }

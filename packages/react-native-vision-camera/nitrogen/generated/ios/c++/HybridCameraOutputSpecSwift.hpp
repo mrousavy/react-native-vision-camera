@@ -14,11 +14,11 @@ namespace VisionCamera { class HybridCameraOutputSpec_cxx; }
 
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 
 #include "MediaType.hpp"
-#include "Orientation.hpp"
+#include "CameraOrientation.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -70,11 +70,11 @@ namespace margelo::nitro::camera {
       auto __result = _swiftPart.getMediaType();
       return static_cast<MediaType>(__result);
     }
-    inline Orientation getOutputOrientation() noexcept override {
+    inline CameraOrientation getOutputOrientation() noexcept override {
       auto __result = _swiftPart.getOutputOrientation();
-      return static_cast<Orientation>(__result);
+      return static_cast<CameraOrientation>(__result);
     }
-    inline void setOutputOrientation(Orientation outputOrientation) noexcept override {
+    inline void setOutputOrientation(CameraOrientation outputOrientation) noexcept override {
       _swiftPart.setOutputOrientation(static_cast<int>(outputOrientation));
     }
 

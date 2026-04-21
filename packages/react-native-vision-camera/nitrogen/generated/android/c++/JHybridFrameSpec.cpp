@@ -9,8 +9,8 @@
 
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
-// Forward declaration of `Orientation` to properly resolve imports.
-namespace margelo::nitro::camera { enum class Orientation; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `HybridFramePlaneSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFramePlaneSpec; }
 // Forward declaration of `NativeBuffer` to properly resolve imports.
@@ -20,8 +20,8 @@ namespace margelo::nitro::camera { struct Point; }
 
 #include "PixelFormat.hpp"
 #include "JPixelFormat.hpp"
-#include "Orientation.hpp"
-#include "JOrientation.hpp"
+#include "CameraOrientation.hpp"
+#include "JCameraOrientation.hpp"
 #include <vector>
 #include <optional>
 #include <memory>
@@ -97,8 +97,8 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return __result->toCpp();
   }
-  Orientation JHybridFrameSpec::getOrientation() {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JOrientation>()>("getOrientation");
+  CameraOrientation JHybridFrameSpec::getOrientation() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JCameraOrientation>()>("getOrientation");
     auto __result = method(_javaPart);
     return __result->toCpp();
   }

@@ -38,7 +38,7 @@ final class HybridFrame: HybridFrameSpec, NativeFrame, LazyLockableBuffer {
   var isMirrored: Bool {
     return metadata.isMirrored
   }
-  var orientation: Orientation {
+  var orientation: CameraOrientation {
     return metadata.orientation
   }
 

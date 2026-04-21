@@ -9,7 +9,7 @@ import AVFoundation
 import Foundation
 
 final class DepthFrameDelegate: NSObject, AVCaptureDepthDataOutputDelegate {
-  var onDepthFrame: ((AVDepthData, CMTime, Orientation, Bool) -> Void)?
+  var onDepthFrame: ((AVDepthData, CMTime, CameraOrientation, Bool) -> Void)?
   var onDepthFrameDropped: ((AVCaptureOutput.DataDroppedReason) -> Void)?
 
   func depthDataOutput(

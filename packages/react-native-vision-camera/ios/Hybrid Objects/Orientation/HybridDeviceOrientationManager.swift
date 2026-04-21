@@ -10,7 +10,7 @@ import NitroModules
 
 final class HybridDeviceOrientationManager: HybridOrientationManagerSpec {
   let source: OrientationSource = .device
-  var currentOrientation: Orientation?
+  var currentOrientation: CameraOrientation?
   private let motionManager = CMMotionManager()
   private let operationQueue = OperationQueue()
 
@@ -19,7 +19,7 @@ final class HybridDeviceOrientationManager: HybridOrientationManagerSpec {
     motionManager.accelerometerUpdateInterval = 0.2  // 200ms
   }
 
-  func startOrientationUpdates(onChanged: @escaping (Orientation) -> Void) throws {
+  func startOrientationUpdates(onChanged: @escaping (CameraOrientation) -> Void) throws {
     logger.info("Starting device orientation updates...")
     guard motionManager.isAccelerometerAvailable else {
       throw RuntimeError.error(

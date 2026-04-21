@@ -3,10 +3,10 @@ package com.margelo.nitro.camera.extensions
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
-import com.margelo.nitro.camera.Orientation
+import com.margelo.nitro.camera.CameraOrientation
 
 fun ImageProxy.toBitmap(
-  orientation: Orientation,
+  orientation: CameraOrientation,
   isMirrored: Boolean,
 ): Bitmap {
   val originalBitmap = this.toBitmap()
@@ -16,7 +16,7 @@ fun ImageProxy.toBitmap(
       if (isMirrored) {
         preScale(-1f, 1f)
       }
-      if (orientation != Orientation.UP) {
+      if (orientation != CameraOrientation.UP) {
         postRotate(orientation.degrees.toFloat())
       }
     }
