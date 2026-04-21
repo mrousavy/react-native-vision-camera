@@ -60,6 +60,34 @@ if (controller.device.supportsWhiteBalanceLocking) {
 > [!WARNING]
 > A good range for `temperature` is between 2500K and 8000K, and a good value for `tint` is usually between -150 and 150.
 
+### Getting current values
+
+At any point in time you can get the Camera's current Exposure, Focus or White-Balance values.
+For example, to figure out how far away the current focus point is, simply get the current [`lensPosition`](/api/react-native-vision-camera/hybrid-objects/CameraController#lensposition):
+
+```ts
+const controller = ...
+console.log(controller.lensPosition) // between 0...1
+```
+
+To get the current exposure values (for example to use VisionCamera as a light meter) use [`exposureDuration`](/api/react-native-vision-camera/hybrid-objects/CameraController#exposureduration) or [`iso`](/api/react-native-vision-camera/hybrid-objects/CameraController#iso):
+
+```ts
+const controller = ...
+console.log(controller.exposureDuration)
+console.log(controller.iso)
+```
+
+Lastly, the [`CameraController`](/api/react-native-vision-camera/hybrid-objects/CameraController) also exposes its current White-Balance Gains via [`whiteBalanceGains`](/api/react-native-vision-camera/hybrid-objects/CameraController#whitebalancegains):
+
+```ts
+const controller = ...
+console.log(controller.whiteBalanceGains)
+```
+
+> [!WARNING]
+> If the device does not support manual control over AE/AF/AWB, invalid values (e.g. `0`) will be returned.
+
 ### Locking current values
 
 To lock the current Exposure/Focus/White-Balance values at their current value (for example, after a [tap to focus](tap-to-focus) action), use [`lockCurrentExposure()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentexposure), [`lockCurrentFocus()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentfocus) or [`lockCurrentWhiteBalance()`](/api/react-native-vision-camera/hybrid-objects/CameraController#lockcurrentwhitebalance):

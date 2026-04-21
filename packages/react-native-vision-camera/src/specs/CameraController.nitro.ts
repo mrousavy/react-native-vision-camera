@@ -368,7 +368,10 @@ export interface CameraController
 
   // pragma MARK: Exposure
   /**
-   * Get the current exposure compensation bias.
+   * Get the current exposure compensation bias, or `0`
+   * if the {@linkcode device} does not support exposure
+   * bias compensation - see
+   * {@linkcode CameraDevice.supportsExposureBias}.
    *
    * A positive value (like `1`) means over-exposed ("brighter"),
    * whereas a negative value (like `-1`) means under-exposed ("darker").
@@ -410,7 +413,9 @@ export interface CameraController
   readonly focusMode: FocusMode
   /**
    * Represents the current focus length, from `0.0` (closest)
-   * to `1.0` (furthest).
+   * to `1.0` (furthest), or `0` if the {@linkcode device} does
+   * not support manual focus control - see
+   * {@linkcode CameraDevice.supportsFocusLocking}.
    *
    * The {@linkcode lensPosition} changes over time (via continuous
    * auto-focus/3A), when focused to a specific point (via
@@ -484,7 +489,10 @@ export interface CameraController
    */
   readonly maxISO: number
   /**
-   * Represents the current exposure duration, in seconds.
+   * Represents the current exposure duration, in seconds,
+   * or `0` if the {@linkcode device} does not support
+   * manual exposure control - see
+   * {@linkcode CameraDevice.supportsExposureLocking}..
    *
    * The {@linkcode exposureDuration} value changes over time (via
    * continuous auto-focus/3A), when focused to a specific point (via
@@ -493,7 +501,10 @@ export interface CameraController
    */
   readonly exposureDuration: number
   /**
-   * Represents the current ISO value.
+   * Represents the current ISO value, or `0`
+   * if the {@linkcode device} does not support
+   * manual exposure control - see
+   * {@linkcode CameraDevice.supportsExposureLocking}..
    *
    * The {@linkcode iso} value changes over time (via continuous
    * auto-focus/3A), when focused to a specific point (via
@@ -545,7 +556,10 @@ export interface CameraController
    */
   readonly whiteBalanceMode: WhiteBalanceMode
   /**
-   * Represents the current white balance gains.
+   * Represents the current white balance gains, or
+   * `{ 0, 0, 0 }` if the {@linkcode device} does not
+   * support manual white-balance control - see
+   * {@linkcode CameraDevice.supportsWhiteBalanceLocking}..
    *
    * The {@linkcode whiteBalanceGains} change over time (via continuous
    * auto-focus/3A), when focused to a specific point (via
