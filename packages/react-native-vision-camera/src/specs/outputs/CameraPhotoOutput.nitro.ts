@@ -273,12 +273,19 @@ export interface CameraPhotoOutput extends CameraOutput {
    * as CameraX does not properly support in-memory Photos for formats like RAW yet.
    * See https://issuetracker.google.com/u/3/issues/482079661 for more information.
    *
+   * @note
+   * The {@linkcode Photo} has to be `dispose()`'d after it
+   * is no longer used, as otherwise the JS Runtime might not
+   * immediately delete it, possibly exhausting system resources.
+   *
    * @example
    * ```ts
    * const photo = await photoOutput.capturePhoto(
    *   { flashMode: 'on' },
    *   {}
    * )
+   * // ...
+   * photo.dispose()
    * ```
    */
   capturePhoto(

@@ -16,6 +16,7 @@ A [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) holds an in-me
 ```ts
 const photo = ...
 const image = await photo.toImageAsync()
+photo.dispose()
 ```
 
 The `image` can then be displayed in a [`<NitroImage />`](https://github.com/mrousavy/react-native-nitro-image) view:
@@ -32,6 +33,15 @@ function App() {
     />
   )
 }
+```
+
+### Dispose when no longer used
+
+As with all in-memory objects holding large native memory ([`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo), [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame), [`Image`](https://github.com/mrousavy/react-native-nitro-image) or more) make sure to `dispose()` the [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) once you are no longer using it, as otherwise the JS Runtime might not immediately delete it, possibly exhausting system resources or even stalling the Camera preventing further captures.
+
+```ts
+const photo = ...
+photo.dispose()
 ```
 
 ### Saving to a File
