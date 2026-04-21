@@ -3,6 +3,7 @@ package com.margelo.nitro.camera.hybrids.outputs
 import android.annotation.SuppressLint
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.resolutionselector.ResolutionSelector
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.FrameDroppedReason
 import com.margelo.nitro.camera.FrameOutputOptions
 import com.margelo.nitro.camera.HybridCameraFrameOutputSpec
@@ -10,7 +11,6 @@ import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.camera.HybridNativeThreadSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.TargetVideoPixelFormat
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.orientation

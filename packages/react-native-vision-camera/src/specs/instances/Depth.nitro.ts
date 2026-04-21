@@ -1,7 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules'
+import type { CameraOrientation } from '../common-types/CameraOrientation'
 import type { DepthPixelFormat } from '../common-types/DepthPixelFormat'
 import type { NativeBuffer } from '../common-types/NativeBuffer'
-import type { CameraOrientation } from '../common-types/CameraOrientation'
 import type { Point } from '../common-types/Point'
 import type { CameraDepthFrameOutput } from '../outputs/CameraDepthFrameOutput.nitro'
 import type { CameraCalibrationData } from './CameraCalibrationData.nitro'
@@ -181,7 +181,10 @@ export interface Depth
    * it to the specified {@linkcode orientation}, and potentially
    * mirroring it.
    */
-  rotateAsync(orientation: CameraOrientation, isMirrored: boolean): Promise<Depth>
+  rotateAsync(
+    orientation: CameraOrientation,
+    isMirrored: boolean,
+  ): Promise<Depth>
   /**
    * Converts this {@linkcode Depth} frame to the target {@linkcode pixelFormat}.
    *

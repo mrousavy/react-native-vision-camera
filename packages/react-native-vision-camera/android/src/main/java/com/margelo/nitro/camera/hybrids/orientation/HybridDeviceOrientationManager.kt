@@ -5,8 +5,8 @@ import android.util.Log
 import android.view.OrientationEventListener
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
-import com.margelo.nitro.camera.HybridOrientationManagerSpec
 import com.margelo.nitro.camera.CameraOrientation
+import com.margelo.nitro.camera.HybridOrientationManagerSpec
 import com.margelo.nitro.camera.OrientationSource
 import com.margelo.nitro.camera.extensions.fromDegrees
 import com.margelo.nitro.camera.extensions.fromSurfaceRotation

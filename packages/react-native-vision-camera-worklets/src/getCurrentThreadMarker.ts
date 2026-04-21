@@ -1,6 +1,6 @@
 import { HybridWorkletQueueFactory } from './internal/HybridWorkletQueueFactory'
 
 export function getCurrentThreadMarker(): number {
-    "worklet";
+  'worklet'
   return HybridWorkletQueueFactory.getCurrentThreadMarker()
 }

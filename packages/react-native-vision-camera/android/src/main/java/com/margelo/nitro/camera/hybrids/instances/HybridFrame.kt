@@ -2,10 +2,10 @@ package com.margelo.nitro.camera.hybrids.instances
 
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridFramePlaneSpec
 import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.camera.NativeBuffer
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.Point
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer

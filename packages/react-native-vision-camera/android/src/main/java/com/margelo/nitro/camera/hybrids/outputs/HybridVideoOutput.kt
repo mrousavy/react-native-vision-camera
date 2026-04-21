@@ -8,11 +8,11 @@ import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraVideoOutputSpec
 import com.margelo.nitro.camera.HybridRecorderSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.RecorderSettings
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode

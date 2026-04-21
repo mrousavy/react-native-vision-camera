@@ -7,13 +7,13 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.takePicture
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.CapturePhotoCallbacks
 import com.margelo.nitro.camera.CapturePhotoSettings
 import com.margelo.nitro.camera.HybridCameraPhotoOutputSpec
 import com.margelo.nitro.camera.HybridPhotoSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.PhotoFile
 import com.margelo.nitro.camera.PhotoOutputOptions
 import com.margelo.nitro.camera.QualityPrioritization

@@ -4,8 +4,8 @@ import android.content.Context
 import android.hardware.display.DisplayManager
 import android.util.Log
 import com.margelo.nitro.NitroModules
-import com.margelo.nitro.camera.HybridOrientationManagerSpec
 import com.margelo.nitro.camera.CameraOrientation
+import com.margelo.nitro.camera.HybridOrientationManagerSpec
 import com.margelo.nitro.camera.OrientationSource
 import com.margelo.nitro.camera.extensions.fromSurfaceRotation
 

@@ -2,6 +2,7 @@ package com.margelo.nitro.camera.hybrids.instances
 
 import android.graphics.Matrix
 import androidx.camera.core.ImageProxy
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.DepthDataAccuracy
 import com.margelo.nitro.camera.DepthDataQuality
 import com.margelo.nitro.camera.DepthPixelFormat
@@ -9,7 +10,6 @@ import com.margelo.nitro.camera.HybridCameraCalibrationDataSpec
 import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.camera.NativeBuffer
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.Point
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.convertPoint

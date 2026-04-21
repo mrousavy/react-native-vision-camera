@@ -16,6 +16,7 @@ import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
 import {
   type CameraController,
   type CameraFrameOutput,
+  type CameraOrientation,
   type CameraProps,
   type CameraSession,
   type CameraSessionConfig,
@@ -24,7 +25,6 @@ import {
   type Frame,
   type MeteringMode,
   type MirrorMode,
-  type CameraOrientation,
   type PixelFormat,
   type Point,
   type ResolutionBiasConstraint,

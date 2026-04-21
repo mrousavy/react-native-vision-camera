@@ -6,10 +6,10 @@ import android.graphics.Matrix
 import android.location.Location
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.Exif
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraCalibrationDataSpec
 import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridPhotoSpec
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.PhotoContainerFormat
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.counterRotated

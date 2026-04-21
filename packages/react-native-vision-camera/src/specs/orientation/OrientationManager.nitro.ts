@@ -22,7 +22,9 @@ export interface OrientationManager
   /**
    * Starts listening to orientation changes.
    */
-  startOrientationUpdates(onChanged: (orientation: CameraOrientation) => void): void
+  startOrientationUpdates(
+    onChanged: (orientation: CameraOrientation) => void,
+  ): void
   /**
    * Stops listening to orientation changes.
    */

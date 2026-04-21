@@ -1,6 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { MediaType } from '../common-types/MediaType'
 import type { CameraOrientation } from '../common-types/CameraOrientation'
+import type { MediaType } from '../common-types/MediaType'
 import type { CameraSession } from '../session/CameraSession.nitro'
 
 /**

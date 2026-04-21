@@ -1,6 +1,6 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { NativeBuffer } from '../common-types/NativeBuffer'
 import type { CameraOrientation } from '../common-types/CameraOrientation'
+import type { NativeBuffer } from '../common-types/NativeBuffer'
 import type { PixelFormat } from '../common-types/PixelFormat'
 import type { Point } from '../common-types/Point'
 import type {

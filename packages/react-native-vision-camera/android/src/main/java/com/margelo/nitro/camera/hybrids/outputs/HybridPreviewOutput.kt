@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalMirrorMode
 import androidx.camera.core.Preview
+import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraPreviewOutputSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.TargetStabilizationMode
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
 import com.margelo.nitro.camera.public.NativeCameraOutput
