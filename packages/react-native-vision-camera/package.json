@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "VisionCamera is the fastest and most powerful Camera for react-native.",
   "main": "lib/index",
   "module": "lib/index",
