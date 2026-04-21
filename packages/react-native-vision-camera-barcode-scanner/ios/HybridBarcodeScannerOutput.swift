@@ -66,6 +66,7 @@ class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
     self.output.setSampleBufferDelegate(delegate, queue: queue)
     self.output.alwaysDiscardsLateVideoFrames = true
     if #available(iOS 17.0, *), options.outputResolution != .full {
+      self.output.automaticallyConfiguresOutputBufferDimensions = false
       self.output.deliversPreviewSizedOutputBuffers = true
     }
   }
