@@ -62,5 +62,5 @@
   "trustedDependencies": [
     "@shopify/react-native-skia"
   ],
-  "version": "5.0.2"
+  "version": "5.0.3"
 }
