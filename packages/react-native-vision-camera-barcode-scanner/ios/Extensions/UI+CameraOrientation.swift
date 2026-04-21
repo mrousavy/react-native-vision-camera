@@ -8,7 +8,7 @@ import UIKit
 import VisionCamera
 
 extension CameraOrientation {
-  func toUIImageOrientation(isMirrored: Bool = false) -> UIImage.CameraOrientation {
+  func toUIImageOrientation(isMirrored: Bool = false) -> UIImage.Orientation {
     switch self {
     case .up:
       return isMirrored ? .upMirrored : .up

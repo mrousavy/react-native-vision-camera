@@ -9,7 +9,7 @@ import Foundation
 import NitroModules
 
 extension CameraOrientation {
-  init(uiOrientation: UIImage.CameraOrientation) {
+  init(uiOrientation: UIImage.Orientation) {
     switch uiOrientation {
     case .up, .upMirrored:
       self = .up
@@ -20,7 +20,7 @@ extension CameraOrientation {
     case .right, .rightMirrored:
       self = .right
     @unknown default:
-      fatalError("UIImage.CameraOrientation has unknown value: \(uiOrientation)")
+      fatalError("UIImage.Orientation has unknown value: \(uiOrientation)")
     }
   }
   init(interfaceOrientation: UIInterfaceOrientation) {
@@ -40,7 +40,7 @@ extension CameraOrientation {
     }
   }
 
-  func toUIImageOrientation(isMirrored: Bool) -> UIImage.CameraOrientation {
+  func toUIImageOrientation(isMirrored: Bool) -> UIImage.Orientation {
     switch self {
     case .up:
       return isMirrored ? .upMirrored : .up
