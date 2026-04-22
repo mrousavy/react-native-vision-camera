@@ -59,13 +59,10 @@ export function getCameraDevice(
   position: CameraPosition,
   filter: DeviceFilter = {},
 ): CameraDevice | undefined {
-  if (devices.length < 1) {
-    // No devices.
-    return undefined
-  }
+  const filteredDevices = devices.filter((d) => d.position === position)
+  if (filteredDevices.length < 1) return undefined  // No devices match the requested position.
 
-  return devices
-    .filter((d) => d.position === position)
+  return filteredDevices
     .reduce((prev, curr) => {
       let prevPoints = 0
       let currPoints = 0
