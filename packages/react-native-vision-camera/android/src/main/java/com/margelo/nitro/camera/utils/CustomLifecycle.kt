@@ -77,8 +77,8 @@ class CustomLifecycle(
       val newState =
         when (context.lifecycleState) {
           LifecycleState.BEFORE_CREATE -> Lifecycle.State.INITIALIZED
-          LifecycleState.BEFORE_RESUME -> Lifecycle.State.STARTED
-          LifecycleState.RESUMED -> if (isActive) Lifecycle.State.RESUMED else Lifecycle.State.STARTED
+          LifecycleState.BEFORE_RESUME -> if (isActive) Lifecycle.State.STARTED else Lifecycle.State.CREATED
+          LifecycleState.RESUMED -> if (isActive) Lifecycle.State.RESUMED else Lifecycle.State.CREATED
         }
       moveTo(newState)
     }
