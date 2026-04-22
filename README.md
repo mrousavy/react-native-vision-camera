@@ -47,7 +47,7 @@ cd ios && pod install
 ### VisionCamera V4
 
 As VisionCamera V5 is released, VisionCamera V4 is no longer actively maintained.
-The VisionCamera V4 code has been archived under [margelo/react-native-vision-camera-v4-snapshot](https://github.com/margelo/react-native-vision-camera-v4-snapshot), and the old documentation page is deployed at https://visioncamera4.margelo.com.
+The VisionCamera V4 code has been archived under [margelo/react-native-vision-camera-v4-snapshot](https://github.com/margelo/react-native-vision-camera-v4-snapshot), and the old documentation page is deployed at [visioncamera4.margelo.com](https://visioncamera4.margelo.com).
 
 ### ShadowLens
 
