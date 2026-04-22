@@ -7,6 +7,7 @@ import {
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { LetsTalkWidget } from '@/components/lets-talk-widget'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
 import { PlatformPills } from '@/components/platform/pills'
 import { readPlatformsFromPageData } from '@/lib/platforms'
@@ -29,7 +30,11 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const githubUrl = getGithubContentUrl('docs', page.path)
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      tableOfContent={{ footer: <LetsTalkWidget /> }}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <PlatformPills platforms={platforms} />
       <DocsDescription className="mb-2">
