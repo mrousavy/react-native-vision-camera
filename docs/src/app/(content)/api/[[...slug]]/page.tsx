@@ -7,6 +7,7 @@ import {
 } from 'fumadocs-ui/layouts/docs/page'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { LetsTalkWidget } from '@/components/lets-talk-widget'
 import { PlatformPills } from '@/components/platform/pills'
 import { getApiCodeTypeLinks } from '@/lib/api-code-links'
 import { createApiRelativeLink } from '@/lib/api-relative-link'
@@ -94,7 +95,11 @@ export default async function Page(props: PageProps<'/api/[[...slug]]'>) {
   const currentTypeName = page.slugs[2]
 
   return (
-    <DocsPage toc={toc} full={page.data.full}>
+    <DocsPage
+      toc={toc}
+      full={page.data.full}
+      tableOfContent={{ footer: <LetsTalkWidget /> }}
+    >
       <DocsTitle className="m-0 text-4xl md:text-5xl tracking-tight break-words [overflow-wrap:anywhere]">
         {page.data.title}
       </DocsTitle>
