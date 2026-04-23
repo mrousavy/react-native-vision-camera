@@ -67,6 +67,10 @@ export function CameraView({ device, constraints, ...props }: Props) {
         style={styles.camera}
         device={device}
         constraints={constraints}
+        onSubjectAreaChanged={() => {
+          console.log(`Subject Area Changed! Resetting Focus...`)
+          camera.current?.resetFocus()
+        }}
         onSessionConfigSelected={(config) => {
           console.log(`Given Constraints:`, constraints)
           console.log(`Resolved SessionConfig:`, config.toString())
