@@ -270,7 +270,7 @@ export interface CameraController
    * resets the focus point of interest to be in the center.
    *
    * @example
-   * ```
+   * ```ts
    * await controller.resetFocus()
    * ```
    */
