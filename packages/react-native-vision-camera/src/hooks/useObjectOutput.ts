@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import type { CameraObjectOutput, ScannedObject, ScannedObjectType } from '..'
 import { VisionCamera } from '../VisionCamera'
 
-interface Props {
+export interface UseObjectOutputProps {
   /**
    * The types of objects that the {@linkcode CameraObjectOutput} should scan for,
    * or `['all']` to scan for all supported object types.
@@ -33,7 +33,7 @@ interface Props {
 export function useObjectOutput({
   types,
   onObjectsScanned,
-}: Props): CameraObjectOutput {
+}: UseObjectOutputProps): CameraObjectOutput {
   // 1. Create object output
   const objectOutput = useMemo(
     () =>

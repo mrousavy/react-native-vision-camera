@@ -17,7 +17,7 @@ type BaseDepthOptions = Pick<
   | 'enableFiltering'
 >
 
-interface Props extends Partial<BaseDepthOptions> {
+export interface UseDepthOutputProps extends Partial<BaseDepthOptions> {
   /**
    * A callback that will be called for every {@linkcode Depth} Frame
    * the Camera produces.
@@ -41,9 +41,10 @@ interface Props extends Partial<BaseDepthOptions> {
 /**
  * Use a {@linkcode CameraDepthFrameOutput} for streaming {@linkcode Depth} Frames.
  *
- * The `onDepth(...)` callback will be called for every {@linkcode Depth} Frame
- * the Camera produces. It is a synchronous JS function running on the
- * {@linkcode CameraDepthFrameOutput}'s thread - aka a "worklet".
+ * The {@linkcode UseDepthOutputProps.onDepth | onDepth(...)} callback will be
+ * called for every {@linkcode Depth} Frame the Camera produces. It is a
+ * synchronous JS function running on the {@linkcode CameraDepthFrameOutput}'s
+ * thread - aka a "worklet".
  *
  * @note {@linkcode useDepthOutput | useDepthOutput(...)} requires
  * `react-native-vision-camera-worklets` (and
@@ -53,7 +54,7 @@ interface Props extends Partial<BaseDepthOptions> {
  * @discussion
  * You must {@linkcode Depth.dispose | dispose} the {@linkcode Depth} Frame after
  * your callback has finished processing, otherwise subsequent Frames may be
- * dropped (see `onDepthFrameDropped(...)`).
+ * dropped (see {@linkcode UseDepthOutputProps.onDepthFrameDropped | onDepthFrameDropped(...)}).
  *
  * @example
  * ```ts
@@ -73,7 +74,7 @@ export function useDepthOutput({
   onDepthFrameDropped,
   dropFramesWhileBusy = true,
   allowDeferredStart = true,
-}: Props): CameraDepthFrameOutput {
+}: UseDepthOutputProps): CameraDepthFrameOutput {
   // 1. Create depth output
   const depthOutput = useMemo(
     () =>
