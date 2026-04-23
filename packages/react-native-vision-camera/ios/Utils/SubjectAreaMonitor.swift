@@ -83,6 +83,7 @@ enum SubjectAreaMonitor {
       try device.lockForConfiguration()
       device.isSubjectAreaChangeMonitoringEnabled = enabled
       device.unlockForConfiguration()
+      logger.info("\(enabled ? "Enabled" : "Disabled") subject area change monitoring.")
     } catch {
       logger.error("Failed to set subject area monitoring to \(enabled): \(error)")
     }
