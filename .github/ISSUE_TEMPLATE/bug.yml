@@ -88,27 +88,13 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: version-major
-    attributes:
-      label: VisionCamera version (major)
-      description: |
-        Which major/minor version family? For the exact patch version, fill in the field below.
-        See [Releases](https://github.com/mrousavy/react-native-vision-camera/releases) for the full list.
-      options:
-        - v5.x (current)
-        - v4.x
-        - v3.x
-        - v2.x (unsupported)
-        - other / fork
-    validations:
-      required: true
-
   - type: input
     id: version-exact
     attributes:
-      label: VisionCamera version (exact)
-      description: The exact version from your `package.json` (e.g. `5.2.1`).
+      label: VisionCamera version
+      description: |
+        The exact version from your `package.json` (e.g. `5.2.1`).
+        See [Releases](https://github.com/mrousavy/react-native-vision-camera/releases) for the full list.
       placeholder: "5.2.1"
     validations:
       required: true
