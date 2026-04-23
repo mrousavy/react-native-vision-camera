@@ -139,12 +139,18 @@ export interface CapturePhotoSettings {
    * Configures the {@linkcode FlashMode} for this Photo
    * capture.
    *
+   * @throws If {@linkcode FlashMode} is `'on'`, but
+   * the {@linkcode CameraDevice} does not have a
+   * flash - see {@linkcode CameraDevice.hasFlash}
    * @default 'off'
    */
   flashMode?: FlashMode
   /**
    * Enables or disables the system shutter sound.
    * The shutter sound is fired exactly when a photo will be captured.
+   *
+   * The OS may choose to override this behaviour, e.g. if
+   * regional sound-suppression settings are applied.
    *
    * @default true
    */

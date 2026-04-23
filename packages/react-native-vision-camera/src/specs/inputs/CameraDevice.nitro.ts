@@ -477,6 +477,8 @@ export interface CameraDevice
    * devices, {@linkcode hasFlash} may be `false`,
    * but you might still be able to use a screen-
    * flash for photo capture.
+   *
+   * @see {@linkcode CapturePhotoSettings.flashMode}
    */
   readonly hasFlash: boolean
   /**
@@ -486,6 +488,8 @@ export interface CameraDevice
    *
    * In almost all cases, {@linkcode hasTorch} is the
    * same as {@linkcode hasFlash}.
+   *
+   * @see {@linkcode CameraController.setTorchMode | setTorchMode(...)}
    */
   readonly hasTorch: boolean
 
