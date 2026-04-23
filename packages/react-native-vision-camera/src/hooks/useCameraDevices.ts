@@ -19,6 +19,14 @@ function getSnapshot(): CameraDevice[] {
  *
  * The hook automatically updates with the new devices as
  * devices get added or removed to the phone - e.g. USB Cameras.
+ *
+ * @see {@linkcode useCameraDevice}
+ * @see {@linkcode getCameraDevice}
+ * @example
+ * ```ts
+ * const devices = useCameraDevices()
+ * const backDevice = devices.find((d) => d.position === 'back')
+ * ```
  */
 export function useCameraDevices(): CameraDevice[] {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)

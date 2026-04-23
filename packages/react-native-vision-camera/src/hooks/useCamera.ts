@@ -208,7 +208,7 @@ function defaultOnErrorHandler(error: Error) {
  *
  * This creates a {@linkcode CameraSession}, manages
  * the input and outputs (including orientation and
- * mirrorm odes), wraps listeners as stable React
+ * mirror modes), wraps listeners as stable React
  * callbacks, and returns a {@linkcode CameraController}.
  *
  * @example

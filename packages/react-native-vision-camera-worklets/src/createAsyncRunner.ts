@@ -54,7 +54,7 @@ export function createAsyncRunner(): AsyncRunner {
         })
         return true
       } catch (e) {
-        // An error ocurred while scheduling - unset blocking & throw!
+        // An error occurred while scheduling - unset blocking & throw!
         isBusy.setBlocking(false)
         // Rethrow!
         throw e

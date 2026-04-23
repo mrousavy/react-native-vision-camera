@@ -41,7 +41,7 @@ export interface Barcode
    */
   readonly boundingBox: Rect
   /**
-   * Get the {@linkcode Barcode}'s corder points, relative
+   * Get the {@linkcode Barcode}'s corner points, relative
    * to the input {@linkcode Frame}'s coordinates.
    */
   readonly cornerPoints: Point[]

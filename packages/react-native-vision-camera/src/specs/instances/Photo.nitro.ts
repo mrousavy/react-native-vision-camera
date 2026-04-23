@@ -168,7 +168,7 @@ export interface Photo
    */
   getFileData(): ArrayBuffer
   /**
-   * Asynchronously ets the raw file data of
+   * Asynchronously gets the raw file data of
    * the {@linkcode Photo} after processing
    * and including EXIF flags.
    */
