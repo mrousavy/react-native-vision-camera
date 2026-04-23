@@ -7,6 +7,7 @@ import type {
   MeteringMode,
   SceneAdaptiveness,
 } from './common-types/FocusOptions'
+import type { ListenerSubscription } from './common-types/ListenerSubscription'
 import type { TorchMode } from './common-types/TorchMode'
 import type { WhiteBalanceGains } from './common-types/WhiteBalanceGains'
 import type { WhiteBalanceMode } from './common-types/WhiteBalanceMode'
@@ -279,9 +280,12 @@ export interface CameraController
    * substantially changes - e.g. when the user pans away
    * from a scene previously in focus.
    *
-   * When {@linkcode onSubjectAreaChanged} is set to
-   * `undefined`, the device stops monitoring subject
-   * area change events.
+   * Returns a {@linkcode ListenerSubscription} - call
+   * {@linkcode ListenerSubscription.remove | remove()} on it
+   * to stop receiving subject-area-change events. Multiple
+   * subscriptions can coexist; the device stops monitoring
+   * subject-area changes only once the last subscription is
+   * removed.
    *
    * @discussion
    * When manually locking focus (e.g. via
@@ -300,15 +304,17 @@ export interface CameraController
    *   controller.lockCurrentFocus(),
    *   controller.lockCurrentWhiteBalance(),
    * ])
-   * const listener = controller.setSubjectAreaChangedListener(() => {
+   * const subscription = controller.addSubjectAreaChangedListener(() => {
    *   // When user moves Camera away, reset AE/AF/AWB again
    *   controller.resetFocus()
    * })
+   * // Later, to stop listening:
+   * subscription.remove()
    * ```
    */
-  setSubjectAreaChangedListener(
-    onSubjectAreaChanged: (() => void) | undefined,
-  ): void
+  addSubjectAreaChangedListener(
+    onSubjectAreaChanged: () => void,
+  ): ListenerSubscription
 
   // pragma MARK: Zoom
   /**

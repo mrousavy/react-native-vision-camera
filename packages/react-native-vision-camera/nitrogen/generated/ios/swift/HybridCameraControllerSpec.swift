@@ -40,7 +40,7 @@ public protocol HybridCameraControllerSpec_protocol: HybridObject {
   func configure(config: CameraControllerConfiguration) throws -> Promise<Void>
   func focusTo(point: (any HybridMeteringPointSpec), options: FocusOptions) throws -> Promise<Void>
   func resetFocus() throws -> Promise<Void>
-  func setSubjectAreaChangedListener(onSubjectAreaChanged: (() -> Void)?) throws -> Void
+  func addSubjectAreaChangedListener(onSubjectAreaChanged: @escaping () -> Void) throws -> ListenerSubscription
   func setZoom(zoom: Double) throws -> Promise<Void>
   func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
   func cancelZoomAnimation() throws -> Promise<Void>

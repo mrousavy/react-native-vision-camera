@@ -179,7 +179,7 @@ class HybridCameraController(
     }
   }
 
-  override fun setSubjectAreaChangedListener(onSubjectAreaChanged: (() -> Unit)?) {
+  override fun addSubjectAreaChangedListener(onSubjectAreaChanged: (() -> Unit)?) {
     // TODO: CameraX does not yet support subject area changed listeners.
     //       Feature Request: https://issuetracker.google.com/issues/505643406
   }

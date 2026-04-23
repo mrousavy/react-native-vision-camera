@@ -362,25 +362,19 @@ open class HybridCameraControllerSpec_cxx {
   }
   
   @inline(__always)
-  public final func setSubjectAreaChangedListener(onSubjectAreaChanged: bridge.std__optional_std__function_void____) -> bridge.Result_void_ {
+  public final func addSubjectAreaChangedListener(onSubjectAreaChanged: bridge.Func_void) -> bridge.Result_ListenerSubscription_ {
     do {
-      try self.__implementation.setSubjectAreaChangedListener(onSubjectAreaChanged: { () -> (() -> Void)? in
-        if bridge.has_value_std__optional_std__function_void____(onSubjectAreaChanged) {
-          let __unwrapped = bridge.get_std__optional_std__function_void____(onSubjectAreaChanged)
-          return { () -> () -> Void in
-            let __wrappedFunction = bridge.wrap_Func_void(__unwrapped)
-            return { () -> Void in
-              __wrappedFunction.call()
-            }
-          }()
-        } else {
-          return nil
+      let __result = try self.__implementation.addSubjectAreaChangedListener(onSubjectAreaChanged: { () -> () -> Void in
+        let __wrappedFunction = bridge.wrap_Func_void(onSubjectAreaChanged)
+        return { () -> Void in
+          __wrappedFunction.call()
         }
       }())
-      return bridge.create_Result_void_()
+      let __resultCpp = __result
+      return bridge.create_Result_ListenerSubscription_(__resultCpp)
     } catch (let __error) {
       let __exceptionPtr = __error.toCpp()
-      return bridge.create_Result_void_(__exceptionPtr)
+      return bridge.create_Result_ListenerSubscription_(__exceptionPtr)
     }
   }
   

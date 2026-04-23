@@ -42,7 +42,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridMethod("configure", &HybridCameraControllerSpec::configure);
       prototype.registerHybridMethod("focusTo", &HybridCameraControllerSpec::focusTo);
       prototype.registerHybridMethod("resetFocus", &HybridCameraControllerSpec::resetFocus);
-      prototype.registerHybridMethod("setSubjectAreaChangedListener", &HybridCameraControllerSpec::setSubjectAreaChangedListener);
+      prototype.registerHybridMethod("addSubjectAreaChangedListener", &HybridCameraControllerSpec::addSubjectAreaChangedListener);
       prototype.registerHybridMethod("setZoom", &HybridCameraControllerSpec::setZoom);
       prototype.registerHybridMethod("startZoomAnimation", &HybridCameraControllerSpec::startZoomAnimation);
       prototype.registerHybridMethod("cancelZoomAnimation", &HybridCameraControllerSpec::cancelZoomAnimation);

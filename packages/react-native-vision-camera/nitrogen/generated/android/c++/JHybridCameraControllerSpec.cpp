@@ -19,6 +19,8 @@ namespace margelo::nitro::camera { enum class ExposureMode; }
 namespace margelo::nitro::camera { enum class WhiteBalanceMode; }
 // Forward declaration of `WhiteBalanceGains` to properly resolve imports.
 namespace margelo::nitro::camera { struct WhiteBalanceGains; }
+// Forward declaration of `ListenerSubscription` to properly resolve imports.
+namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `CameraControllerConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraControllerConfiguration; }
 // Forward declaration of `HybridMeteringPointSpec` to properly resolve imports.
@@ -50,6 +52,11 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include <NitroModules/JUnit.hpp>
+#include "ListenerSubscription.hpp"
+#include "JListenerSubscription.hpp"
+#include <functional>
+#include "JFunc_void.hpp"
+#include <NitroModules/JNICallable.hpp>
 #include "CameraControllerConfiguration.hpp"
 #include "JCameraControllerConfiguration.hpp"
 #include <optional>
@@ -68,9 +75,6 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include <variant>
 #include "JVariant_NullType_Double.hpp"
 #include <NitroModules/JNull.hpp>
-#include <functional>
-#include "JFunc_void.hpp"
-#include <NitroModules/JNICallable.hpp>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 #include "JWhiteBalanceTemperatureAndTint.hpp"
 
@@ -276,9 +280,10 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  void JHybridCameraControllerSpec::setSubjectAreaChangedListener(const std::optional<std::function<void()>>& onSubjectAreaChanged) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* onSubjectAreaChanged */)>("setSubjectAreaChangedListener_cxx");
-    method(_javaPart, onSubjectAreaChanged.has_value() ? JFunc_void_cxx::fromCpp(onSubjectAreaChanged.value()) : nullptr);
+  ListenerSubscription JHybridCameraControllerSpec::addSubjectAreaChangedListener(const std::function<void()>& onSubjectAreaChanged) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JListenerSubscription>(jni::alias_ref<JFunc_void::javaobject> /* onSubjectAreaChanged */)>("addSubjectAreaChangedListener_cxx");
+    auto __result = method(_javaPart, JFunc_void_cxx::fromCpp(onSubjectAreaChanged));
+    return __result->toCpp();
   }
   std::shared_ptr<Promise<void>> JHybridCameraControllerSpec::setZoom(double zoom) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* zoom */)>("setZoom");
