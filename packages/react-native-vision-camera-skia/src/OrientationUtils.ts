@@ -1,5 +1,12 @@
 import type { CameraOrientation } from 'react-native-vision-camera'
 
+/**
+ * Converts a {@linkcode CameraOrientation} to its equivalent clockwise
+ * rotation angle in degrees.
+ *
+ * @internal
+ * @worklet
+ */
 export function orientationToDegrees(orientation: CameraOrientation): number {
   'worklet'
   switch (orientation) {
@@ -14,6 +21,12 @@ export function orientationToDegrees(orientation: CameraOrientation): number {
   }
 }
 
+/**
+ * Normalizes the given rotation in degrees into the `[0, 360)` range.
+ *
+ * @internal
+ * @worklet
+ */
 export function normalizeRotationDegrees(degrees: number): number {
   'worklet'
   const normalized = degrees % 360

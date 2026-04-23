@@ -11,6 +11,16 @@ interface SurfaceCache {
 const MAXIMUM_SURFACE_CACHE_AGE_MS = 15_000
 const surfacesCache = createSynchronizable<SurfaceCache[]>([])
 
+/**
+ * Clears the internal {@linkcode SkSurface} cache, disposing every cached
+ * Surface.
+ *
+ * Surfaces are otherwise kept alive for up to 15 seconds of inactivity per
+ * thread to avoid re-creating them on every Frame. Call this on teardown to
+ * release GPU memory eagerly.
+ *
+ * @internal
+ */
 export function clearSurfacesCache() {
   surfacesCache.setBlocking((surfaces) => {
     for (const surface of surfaces) {
@@ -20,6 +30,17 @@ export function clearSurfacesCache() {
   })
 }
 
+/**
+ * Gets (or lazily creates) an offscreen {@linkcode SkSurface} of the given
+ * {@linkcode width} and {@linkcode height} for the current thread.
+ *
+ * @discussion
+ * Surfaces are cached per thread + size. Unused Surfaces are automatically
+ * evicted from the cache after 15 seconds of inactivity.
+ *
+ * @internal
+ * @worklet
+ */
 export function getSurface(width: number, height: number): SkSurface {
   'worklet'
   // The Thread ID is a `thread_local` counter. We use it as a cache key,

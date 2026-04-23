@@ -6,6 +6,24 @@ import type {
 import { CommonResolutions } from '../utils/CommonResolutions'
 import { VisionCamera } from '../VisionCamera'
 
+/**
+ * Use a {@linkcode CameraPhotoOutput} for capturing {@linkcode Photo}s.
+ *
+ * The returned {@linkcode CameraPhotoOutput} can be passed to a
+ * {@linkcode Camera} to enable photo capture. Photos can then be captured
+ * via {@linkcode CameraPhotoOutput.capture | capture()}.
+ *
+ * @example
+ * ```ts
+ * const photoOutput = usePhotoOutput({
+ *   targetResolution: CommonResolutions.UHD_4_3,
+ *   qualityPrioritization: 'quality',
+ * })
+ *
+ * // ...
+ * const photo = await photoOutput.capture({ flash: 'auto' })
+ * ```
+ */
 export function usePhotoOutput({
   targetResolution = CommonResolutions.UHD_4_3,
   containerFormat = 'native',

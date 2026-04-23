@@ -65,6 +65,13 @@ export interface CameraRef
   controller: CameraController | undefined
 }
 
+/**
+ * Props for the {@linkcode Camera} component.
+ *
+ * Extends {@linkcode CameraProps} (the options for the underlying
+ * {@linkcode useCamera} hook) with {@linkcode PreviewView}-specific options
+ * and convenience props for gesture handling and animated values.
+ */
 export interface CameraViewProps
   extends CameraProps,
     Pick<ViewProps, 'style' | 'onLayout' | 'pointerEvents' | 'nativeID'>,

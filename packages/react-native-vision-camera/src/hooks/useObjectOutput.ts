@@ -3,7 +3,18 @@ import type { CameraObjectOutput, ScannedObject, ScannedObjectType } from '..'
 import { VisionCamera } from '../VisionCamera'
 
 interface Props {
+  /**
+   * The types of objects that the {@linkcode CameraObjectOutput} should scan for.
+   *
+   * Use `['all']` to scan for all supported object types.
+   */
   types: ScannedObjectType[]
+  /**
+   * A callback that will be called every time the {@linkcode CameraObjectOutput}
+   * has scanned one or more objects.
+   *
+   * @see {@linkcode ScannedObject}
+   */
   onObjectsScanned?: (objects: ScannedObject[]) => void
 }
 

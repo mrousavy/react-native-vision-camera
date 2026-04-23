@@ -9,9 +9,28 @@ import type { Location } from 'react-native-vision-camera'
 import type { LocationManagerOptions } from '../specs/LocationManagerFactory.nitro'
 import { useLocationManager } from './useLocationManager'
 
+/**
+ * The current state of the {@linkcode useLocation} hook.
+ */
 export interface LocationState {
+  /**
+   * Whether the app has been granted permission to access the user's location.
+   *
+   * If this is `false`, call {@linkcode requestPermission | requestPermission()}
+   * to prompt the user.
+   */
   hasPermission: boolean
+  /**
+   * Requests the location permission from the user.
+   *
+   * Resolves with whether the permission was granted after the request completed.
+   */
   requestPermission(): Promise<boolean>
+  /**
+   * The last known user {@linkcode Location}, or `undefined` if no location has
+   * been reported yet (e.g. because permission has not been granted, or because
+   * the device is still acquiring a fix).
+   */
   currentLocation: Location | undefined
 }
 

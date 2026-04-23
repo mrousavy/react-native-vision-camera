@@ -19,12 +19,53 @@ type BaseDepthOptions = Pick<
 
 interface Props extends Partial<BaseDepthOptions> {
   /**
+   * A callback that will be called for every {@linkcode Depth} Frame
+   * the Camera produces.
+   *
+   * This must be a synchronous function, like a Worklet.
+   *
+   * The {@linkcode Depth} Frame must be disposed as soon as it
+   * is no longer needed to avoid stalling the Camera pipeline.
    * @worklet
    */
   onDepth?: (depth: Depth) => void
+  /**
+   * A callback that will be called every time the Camera pipeline
+   * has to drop a {@linkcode Depth} Frame.
+   *
+   * @see {@linkcode FrameDroppedReason}
+   */
   onDepthFrameDropped?: (reason: FrameDroppedReason) => void
 }
 
+/**
+ * Use a {@linkcode CameraDepthFrameOutput} for streaming {@linkcode Depth} Frames.
+ *
+ * The {@linkcode Props.onDepth | onDepth(...)} callback will be called for
+ * every {@linkcode Depth} Frame the Camera produces. It is a synchronous JS
+ * function running on the {@linkcode CameraDepthFrameOutput}'s thread - aka a "worklet".
+ *
+ * @note {@linkcode useDepthOutput | useDepthOutput(...)} requires
+ * `react-native-vision-camera-worklets` (and
+ * [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/))
+ * to be installed.
+ *
+ * @discussion
+ * You must {@linkcode Depth.dispose | dispose} the {@linkcode Depth} Frame after
+ * your callback has finished processing, otherwise subsequent Frames may be
+ * dropped (see {@linkcode Props.onDepthFrameDropped | onDepthFrameDropped(...)}).
+ *
+ * @example
+ * ```ts
+ * const depthOutput = useDepthOutput({
+ *   onDepth(depth) {
+ *     'worklet'
+ *     // some depth processing
+ *     depth.dispose()
+ *   }
+ * })
+ * ```
+ */
 export function useDepthOutput({
   targetResolution = CommonResolutions.VGA_16_9,
   enableFiltering = true,

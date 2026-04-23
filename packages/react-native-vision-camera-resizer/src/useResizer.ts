@@ -4,6 +4,12 @@ import { createResizer } from './createResizer'
 import type { Resizer } from './specs/Resizer.nitro'
 import type { ResizerOptions } from './specs/ResizerFactory.nitro'
 
+/**
+ * The current state of the {@linkcode useResizer} hook.
+ * - `'loading'`: The {@linkcode Resizer} is still being created.
+ * - `'ready'`: The {@linkcode Resizer} has been created successfully and is ready to use.
+ * - `'error'`: Creating the {@linkcode Resizer} failed. Inspect `error` for details.
+ */
 export type ResizerState =
   | { state: 'loading'; resizer: undefined; error: undefined }
   | { state: 'ready'; resizer: Resizer; error: undefined }
