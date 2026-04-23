@@ -36,6 +36,8 @@ namespace margelo::nitro::camera { enum class FocusResponsiveness; }
 namespace margelo::nitro::camera { enum class SceneAdaptiveness; }
 // Forward declaration of `MeteringMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MeteringMode; }
+// Forward declaration of `ListenerSubscription` to properly resolve imports.
+namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `WhiteBalanceTemperatureAndTint` to properly resolve imports.
 namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 
@@ -57,6 +59,8 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include <vector>
 #include <NitroModules/Null.hpp>
 #include <variant>
+#include "ListenerSubscription.hpp"
+#include <functional>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -206,6 +210,14 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<Promise<void>> resetFocus() override {
       auto __result = _swiftPart.resetFocus();
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline ListenerSubscription addSubjectAreaChangedListener(const std::function<void()>& onSubjectAreaChanged) override {
+      auto __result = _swiftPart.addSubjectAreaChangedListener(onSubjectAreaChanged);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

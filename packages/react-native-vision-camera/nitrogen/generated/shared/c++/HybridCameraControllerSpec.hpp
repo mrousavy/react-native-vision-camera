@@ -31,6 +31,8 @@ namespace margelo::nitro::camera { struct CameraControllerConfiguration; }
 namespace margelo::nitro::camera { class HybridMeteringPointSpec; }
 // Forward declaration of `FocusOptions` to properly resolve imports.
 namespace margelo::nitro::camera { struct FocusOptions; }
+// Forward declaration of `ListenerSubscription` to properly resolve imports.
+namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `WhiteBalanceTemperatureAndTint` to properly resolve imports.
 namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 
@@ -45,6 +47,8 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "CameraControllerConfiguration.hpp"
 #include "HybridMeteringPointSpec.hpp"
 #include "FocusOptions.hpp"
+#include "ListenerSubscription.hpp"
+#include <functional>
 #include <optional>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 
@@ -106,6 +110,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<Promise<void>> configure(const CameraControllerConfiguration& config) = 0;
       virtual std::shared_ptr<Promise<void>> focusTo(const std::shared_ptr<HybridMeteringPointSpec>& point, const FocusOptions& options) = 0;
       virtual std::shared_ptr<Promise<void>> resetFocus() = 0;
+      virtual ListenerSubscription addSubjectAreaChangedListener(const std::function<void()>& onSubjectAreaChanged) = 0;
       virtual std::shared_ptr<Promise<void>> setZoom(double zoom) = 0;
       virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
       virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;

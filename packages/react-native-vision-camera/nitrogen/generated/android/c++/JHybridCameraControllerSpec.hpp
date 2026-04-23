@@ -81,6 +81,7 @@ namespace margelo::nitro::camera {
     std::shared_ptr<Promise<void>> configure(const CameraControllerConfiguration& config) override;
     std::shared_ptr<Promise<void>> focusTo(const std::shared_ptr<HybridMeteringPointSpec>& point, const FocusOptions& options) override;
     std::shared_ptr<Promise<void>> resetFocus() override;
+    ListenerSubscription addSubjectAreaChangedListener(const std::function<void()>& onSubjectAreaChanged) override;
     std::shared_ptr<Promise<void>> setZoom(double zoom) override;
     std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) override;
     std::shared_ptr<Promise<void>> cancelZoomAnimation() override;

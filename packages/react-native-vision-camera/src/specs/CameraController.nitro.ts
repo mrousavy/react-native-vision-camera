@@ -7,6 +7,7 @@ import type {
   MeteringMode,
   SceneAdaptiveness,
 } from './common-types/FocusOptions'
+import type { ListenerSubscription } from './common-types/ListenerSubscription'
 import type { TorchMode } from './common-types/TorchMode'
 import type { WhiteBalanceGains } from './common-types/WhiteBalanceGains'
 import type { WhiteBalanceMode } from './common-types/WhiteBalanceMode'
@@ -263,7 +264,9 @@ export interface CameraController
   focusTo(point: MeteringPoint, options: FocusOptions): Promise<void>
   /**
    * Cancels any current focus operations from {@linkcode focusTo | focusTo(...)},
-   * resets back all 3A focus modes to continuously auto-focus, and
+   * resets back all 3A focus modes to continuously auto-focus if they
+   * have been previously locked (e.g. via {@linkcode setFocusLocked | setFocusLocked(...)} or
+   * {@linkcode lockCurrentFocus | lockCurrentFocus()}, and similar), and
    * resets the focus point of interest to be in the center.
    *
    * @example
@@ -272,6 +275,47 @@ export interface CameraController
    * ```
    */
   resetFocus(): Promise<void>
+  /**
+   * Adds a listener to be fired everytime the subject area
+   * substantially changes - e.g. when the user pans away
+   * from a scene previously in focus.
+   *
+   * Returns a {@linkcode ListenerSubscription} - call
+   * {@linkcode ListenerSubscription.remove | remove()} on it
+   * to stop receiving subject-area-change events. Multiple
+   * subscriptions can coexist; the device stops monitoring
+   * subject-area changes only once the last subscription is
+   * removed.
+   *
+   * @discussion
+   * When manually locking focus (e.g. via
+   * {@linkcode focusTo | focusTo(...)} with {@linkcode FocusOptions.adaptiveness adaptiveness} set to {@linkcode SceneAdaptiveness | 'locked'},
+   * {@linkcode setFocusLocked | setFocusLocked(...)} (or similar), or
+   * {@linkcode lockCurrentFocus | lockCurrentFocus()} (or similar)),
+   * it is useful to listen for subject area changes, to reset focus
+   * again via {@linkcode resetFocus | resetFocus()}.
+   *
+   * @platform iOS
+   * @example
+   * ```ts
+   * const controller = ...
+   * // Lock AE/AF/AWB
+   * await Promise.all([
+   *   controller.lockCurrentExposure(),
+   *   controller.lockCurrentFocus(),
+   *   controller.lockCurrentWhiteBalance(),
+   * ])
+   * const subscription = controller.addSubjectAreaChangedListener(() => {
+   *   // When user moves Camera away, reset AE/AF/AWB again
+   *   controller.resetFocus()
+   * })
+   * // Later, to stop listening:
+   * subscription.remove()
+   * ```
+   */
+  addSubjectAreaChangedListener(
+    onSubjectAreaChanged: () => void,
+  ): ListenerSubscription
 
   // pragma MARK: Zoom
   /**

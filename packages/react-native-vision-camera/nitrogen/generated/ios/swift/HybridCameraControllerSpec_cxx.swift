@@ -362,6 +362,23 @@ open class HybridCameraControllerSpec_cxx {
   }
   
   @inline(__always)
+  public final func addSubjectAreaChangedListener(onSubjectAreaChanged: bridge.Func_void) -> bridge.Result_ListenerSubscription_ {
+    do {
+      let __result = try self.__implementation.addSubjectAreaChangedListener(onSubjectAreaChanged: { () -> () -> Void in
+        let __wrappedFunction = bridge.wrap_Func_void(onSubjectAreaChanged)
+        return { () -> Void in
+          __wrappedFunction.call()
+        }
+      }())
+      let __resultCpp = __result
+      return bridge.create_Result_ListenerSubscription_(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_ListenerSubscription_(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
   public final func setZoom(zoom: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
     do {
       let __result = try self.__implementation.setZoom(zoom: zoom)

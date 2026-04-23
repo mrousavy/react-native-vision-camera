@@ -91,6 +91,17 @@ export interface CameraProps {
    * is running uninterrupted again.
    */
   onInterruptionEnded?: () => void
+  /**
+   * Called when the subject area substantially changes,
+   * e.g. when the user pans away from a scene that was
+   * previously in focus.
+   *
+   * This is a good point to reset any locked AE/AF/AWB
+   * focus states back to continuously auto-focus.
+   *
+   * @platform iOS
+   */
+  onSubjectAreaChanged?: () => void
 }
 
 function defaultOnErrorHandler(error: Error) {
@@ -112,6 +123,7 @@ export function useCamera({
   onError = defaultOnErrorHandler,
   onInterruptionStarted,
   onInterruptionEnded,
+  onSubjectAreaChanged,
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
@@ -185,6 +197,11 @@ export function useCamera({
     session,
     'addOnInterruptionEndedListener',
     onInterruptionEnded,
+  )
+  useListenerSubscription(
+    controller,
+    'addSubjectAreaChangedListener',
+    onSubjectAreaChanged,
   )
 
   // 8. On unmount, dispose the controller & session.

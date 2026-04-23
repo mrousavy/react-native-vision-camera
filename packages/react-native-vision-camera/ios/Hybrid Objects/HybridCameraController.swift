@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraController: HybridCameraControllerSpec, NativeCameraController {
+final class HybridCameraController: HybridCameraControllerSpec, NativeCameraController {
   let device: any HybridCameraDeviceSpec
   let queue: DispatchQueue
   let captureDevice: AVCaptureDevice
@@ -267,6 +267,12 @@ class HybridCameraController: HybridCameraControllerSpec, NativeCameraController
         device.whiteBalanceMode = .continuousAutoWhiteBalance
       }
     }
+  }
+
+  func addSubjectAreaChangedListener(onSubjectAreaChanged: @escaping () -> Void) -> ListenerSubscription {
+    return SubjectAreaMonitor.addObserver(
+      device: captureDevice,
+      onSubjectAreaDidChange: onSubjectAreaChanged)
   }
 
   func setTorchMode(mode: TorchMode, strength: Double?) -> Promise<Void> {

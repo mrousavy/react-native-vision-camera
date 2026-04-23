@@ -579,6 +579,15 @@ namespace margelo::nitro::camera::bridge::swift {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
   }
   
+  // pragma MARK: Result<ListenerSubscription>
+  using Result_ListenerSubscription_ = Result<ListenerSubscription>;
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const ListenerSubscription& value) noexcept {
+    return Result<ListenerSubscription>::withValue(value);
+  }
+  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const std::exception_ptr& error) noexcept {
+    return Result<ListenerSubscription>::withError(error);
+  }
+  
   // pragma MARK: Result<WhiteBalanceGains>
   using Result_WhiteBalanceGains_ = Result<WhiteBalanceGains>;
   inline Result_WhiteBalanceGains_ create_Result_WhiteBalanceGains_(const WhiteBalanceGains& value) noexcept {
@@ -1491,15 +1500,6 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec__ create_Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec__(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec___Wrapper wrap_Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec__(Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec__ value) noexcept {
     return Func_void_std__vector_std__shared_ptr_HybridCameraExtensionSpec___Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: Result<ListenerSubscription>
-  using Result_ListenerSubscription_ = Result<ListenerSubscription>;
-  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const ListenerSubscription& value) noexcept {
-    return Result<ListenerSubscription>::withValue(value);
-  }
-  inline Result_ListenerSubscription_ create_Result_ListenerSubscription_(const std::exception_ptr& error) noexcept {
-    return Result<ListenerSubscription>::withError(error);
   }
   
   // pragma MARK: Result<std::optional<std::shared_ptr<HybridCameraDeviceSpec>>>
