@@ -91,7 +91,7 @@ export interface CameraControllerConfiguration {
  * const device = useCameraDevice('back')
  * const camera = useCamera({
  *   isActive: true,
- *   input: device,
+ *   device: device,
  *   outputs: []
  * })
  * useEffect(() => {
