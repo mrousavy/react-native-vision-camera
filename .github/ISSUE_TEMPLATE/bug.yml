@@ -147,6 +147,15 @@ body:
       required: true
 
   - type: textarea
+    id: media
+    attributes:
+      label: Screenshots / screen recording
+      description: |
+        Drag-and-drop images or a short screen recording showing the bug. For camera issues this is extremely helpful — a 5–10 second clip of the broken preview, wrong orientation, or glitched frames tells us more than a paragraph of description.
+
+        Supported: PNG, JPG, GIF, MP4, MOV, WebM (up to 100 MB). Do **not** use this field for log output — paste logs as text in the field above.
+
+  - type: textarea
     id: additional
     attributes:
       label: Additional context
