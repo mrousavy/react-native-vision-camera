@@ -14,7 +14,7 @@ extension RecorderFileType {
     case .mp4:
       return .mp4
     case .mov:
-      return .quickTimeMovie
+      return .mov
     }
   }
 }
