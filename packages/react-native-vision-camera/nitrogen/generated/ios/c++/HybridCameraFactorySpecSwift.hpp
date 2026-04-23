@@ -70,6 +70,8 @@ namespace margelo::nitro::camera { enum class QualityPrioritization; }
 namespace margelo::nitro::camera { class HybridCameraVideoOutputSpec; }
 // Forward declaration of `VideoOutputOptions` to properly resolve imports.
 namespace margelo::nitro::camera { struct VideoOutputOptions; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `HybridCameraFrameOutputSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraFrameOutputSpec; }
 // Forward declaration of `FrameOutputOptions` to properly resolve imports.
@@ -137,6 +139,7 @@ namespace margelo::nitro::camera { class HybridMeteringPointSpec; }
 #include "QualityPrioritization.hpp"
 #include "HybridCameraVideoOutputSpec.hpp"
 #include "VideoOutputOptions.hpp"
+#include "RecorderFileType.hpp"
 #include "HybridCameraFrameOutputSpec.hpp"
 #include "FrameOutputOptions.hpp"
 #include "TargetVideoPixelFormat.hpp"

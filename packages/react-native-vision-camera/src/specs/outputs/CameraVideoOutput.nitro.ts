@@ -97,7 +97,22 @@ export interface VideoOutputOptions {
    * @default undefined
    */
   targetBitRate?: number
+
+  /**
+   * The container file type for recordings produced by this output.
+   *
+   * On Android this is always `.mp4` and this field is ignored.
+   *
+   * @platform iOS
+   * @default 'mov'
+   */
+  fileType?: RecorderFileType
 }
+
+/**
+ * Container file type for a {@linkcode CameraVideoOutput}'s recordings.
+ */
+export type RecorderFileType = 'mp4' | 'mov'
 
 /**
  * Output settings for a {@linkcode CameraVideoOutput}.

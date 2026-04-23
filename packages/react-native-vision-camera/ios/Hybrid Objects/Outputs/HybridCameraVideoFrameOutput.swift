@@ -19,8 +19,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
   let requiresDepthFormat: Bool = false
   let output: AVCaptureVideoDataOutput
   private var recorders = WeakArray<HybridFrameRecorder>()
-  // TODO: Allow configuring this
-  private let fileType = AVFileType.mov
+  private let fileType: AVFileType
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule {
@@ -40,6 +39,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
     self.output = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
     self.options = options
+    self.fileType = options.fileType?.toAVFileType() ?? .quickTimeMovie
     self.queue = DispatchQueue(
       label: "com.margelo.camera.video-frame",
       qos: .userInteractive,

@@ -31,7 +31,10 @@ data class VideoOutputOptions(
   val enableHigherResolutionCodecs: Boolean?,
   @DoNotStrip
   @Keep
-  val targetBitRate: Double?
+  val targetBitRate: Double?,
+  @DoNotStrip
+  @Keep
+  val fileType: RecorderFileType?
 ) {
   /* primary constructor */
 
@@ -43,8 +46,8 @@ data class VideoOutputOptions(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(targetResolution: Size, enableAudio: Boolean?, enablePersistentRecorder: Boolean?, enableHigherResolutionCodecs: Boolean?, targetBitRate: Double?): VideoOutputOptions {
-      return VideoOutputOptions(targetResolution, enableAudio, enablePersistentRecorder, enableHigherResolutionCodecs, targetBitRate)
+    private fun fromCpp(targetResolution: Size, enableAudio: Boolean?, enablePersistentRecorder: Boolean?, enableHigherResolutionCodecs: Boolean?, targetBitRate: Double?, fileType: RecorderFileType?): VideoOutputOptions {
+      return VideoOutputOptions(targetResolution, enableAudio, enablePersistentRecorder, enableHigherResolutionCodecs, targetBitRate, fileType)
     }
   }
 }
