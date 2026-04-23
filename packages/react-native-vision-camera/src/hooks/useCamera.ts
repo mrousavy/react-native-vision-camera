@@ -5,7 +5,6 @@ import type {
   CameraController,
   CameraControllerConfiguration,
 } from '../specs/CameraController.nitro'
-import type { CameraFactory } from '../specs/CameraFactory.nitro'
 import type { CameraOrientation } from '../specs/common-types/CameraOrientation'
 import type { CameraPosition } from '../specs/common-types/CameraPosition'
 import type { Constraint } from '../specs/common-types/Constraint'
@@ -40,15 +39,6 @@ export interface CameraProps {
    * @see {@linkcode CameraSession.isRunning}
    */
   isActive: boolean
-  /**
-   * Enables multi-cam support on the underlying {@linkcode CameraSession}, allowing
-   * multiple {@linkcode CameraDevice}s (e.g. front and back) to stream simultaneously.
-   *
-   * @see {@linkcode CameraFactory.createCameraSession | createCameraSession(enableMultiCam)}
-   * @see {@linkcode CameraFactory.supportsMultiCamSessions}
-   * @default false
-   */
-  enableMultiCamSupport?: boolean
 
   // Connection Configuration
   /**
@@ -215,7 +205,6 @@ function defaultOnErrorHandler(error: Error) {
 
 export function useCamera({
   isActive,
-  enableMultiCamSupport = false,
   device,
   outputs = [],
   constraints,
@@ -236,9 +225,7 @@ export function useCamera({
   getInitialZoom,
 }: CameraProps): CameraController | undefined {
   // 1. Create session
-  const session = useCameraSession({
-    enableMultiCamSupport: enableMultiCamSupport,
-  })
+  const session = useCameraSession({ enableMultiCamSupport: false })
 
   // 2. Update output orientations
   const orientationSourceOrUndefined =
