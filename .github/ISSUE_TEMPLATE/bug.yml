@@ -141,8 +141,29 @@ body:
       description: |
         Paste the full crash log, Xcode console output, or `adb logcat` output. Redact anything sensitive.
 
-        **Do not paste screenshots of logs** — paste the text, wrapped in a code block.
+        **Do not paste screenshots of logs** — paste the text. It will automatically be rendered as a code block.
       render: shell
+      placeholder: |
+        // iOS example:
+        Exception Type:  EXC_CRASH (SIGABRT)
+        Termination Reason: SIGNAL 6 Abort trap: 6
+        Crashed Thread: 8  com.margelo.camera.session
+
+        Thread 8 Crashed:
+        0   libsystem_kernel.dylib    __pthread_kill + 8
+        1   libsystem_pthread.dylib   pthread_kill + 268
+        2   libsystem_c.dylib         abort + 136
+        3   AVFCapture                -[AVCaptureOutput attachToFigCaptureSession:] + 108
+        4   AVFCapture                -[AVCaptureSession _makeConfigurationLive:] + 344
+        ...
+
+        // Android example:
+        FATAL EXCEPTION: mrousavy/VisionCamera.CameraQueue
+        Process: com.example.app, PID: 12345
+        java.lang.IllegalStateException: Camera not initialized
+            at com.mrousavy.camera.core.CameraSession.startRunning(CameraSession.kt:142)
+            at com.mrousavy.camera.react.CameraView.onAttachedToWindow(CameraView.kt:89)
+            ...
     validations:
       required: true
 
