@@ -39,7 +39,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
     self.output = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
     self.options = options
-    self.fileType = options.fileType?.toAVFileType() ?? .quickTimeMovie
+    self.fileType = options.fileType?.toAVFileType() ?? .mov
     self.queue = DispatchQueue(
       label: "com.margelo.camera.video-frame",
       qos: .userInteractive,

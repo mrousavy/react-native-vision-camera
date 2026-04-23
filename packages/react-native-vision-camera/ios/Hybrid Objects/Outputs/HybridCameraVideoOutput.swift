@@ -34,7 +34,7 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
   init(options: VideoOutputOptions) {
     self.output = AVCaptureMovieFileOutput()
     self.options = options
-    self.fileType = options.fileType?.toAVFileType() ?? .quickTimeMovie
+    self.fileType = options.fileType?.toAVFileType() ?? .mov
     super.init()
     self.setMetadataTag(.libraryTag)
   }
