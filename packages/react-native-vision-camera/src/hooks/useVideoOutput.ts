@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import {
-  type Camera,
-  type CameraVideoOutput,
-  CommonResolutions,
-  type Recorder,
-  type VideoOutputOptions,
-} from '..'
+import type {
+  CameraVideoOutput,
+  VideoOutputOptions,
+} from '../specs/outputs/CameraVideoOutput.nitro'
+import type { Recorder } from '../specs/outputs/Recorder.nitro'
+import { CommonResolutions } from '../utils/CommonResolutions'
+import type { Camera } from '../views/Camera'
 import { VisionCamera } from '../VisionCamera'
 
 /**

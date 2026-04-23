@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import type { CameraPreviewOutput, CameraSession } from '..'
+import type { CameraPreviewOutput } from '../specs/outputs/CameraPreviewOutput.nitro'
+import type { CameraSession } from '../specs/session/CameraSession.nitro'
 import { VisionCamera } from '../VisionCamera'
 
 /**

@@ -1,5 +1,9 @@
 import { useEffect, useMemo } from 'react'
-import type { CameraObjectOutput, ScannedObject, ScannedObjectType } from '..'
+import type {
+  ScannedObject,
+  ScannedObjectType,
+} from '../specs/instances/ScannedObject.nitro'
+import type { CameraObjectOutput } from '../specs/outputs/CameraObjectOutput.nitro'
 import { VisionCamera } from '../VisionCamera'
 
 export interface UseObjectOutputProps {
