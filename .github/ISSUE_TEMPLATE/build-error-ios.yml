@@ -1,7 +1,7 @@
-name: "🛠️ Build error"
-description: "Your app fails to build / compile / link when using react-native-vision-camera."
-title: "🛠️ "
-labels: ["🛠️ build-error"]
+name: "🛠️ Build error (iOS)"
+description: "Your app fails to build / compile / link on iOS when using react-native-vision-camera."
+title: "🛠️ (iOS) "
+labels: ["🛠️ build-error", "platform:ios"]
 body:
   - type: markdown
     attributes:
@@ -12,27 +12,16 @@ body:
 
         - ✅ [Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting)
         - ✅ [Installation guide](https://react-native-vision-camera.com/docs/guides)
-        - ✅ Clean build: delete `node_modules`, `ios/Pods`, `ios/build`, `android/build`, `android/.gradle`, `android/app/build` and reinstall.
-        - ✅ Search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) — build errors are very often duplicates.
+        - ✅ Clean build: delete `node_modules`, `ios/Pods`, `ios/build`, and Xcode's DerivedData, then reinstall.
+        - ✅ Search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue+label%3A%22%F0%9F%9B%A0%EF%B8%8F+build-error%22) — build errors are very often duplicates.
         - ❌ Do **not** paste AI-generated summaries of the error. Paste the actual error text.
-
-  - type: dropdown
-    id: platform
-    attributes:
-      label: Which platform fails to build?
-      options:
-        - iOS
-        - Android
-        - Both
-    validations:
-      required: true
 
   - type: textarea
     id: error
     attributes:
       label: Full build error output
       description: |
-        The complete error as printed by `xcodebuild` / `pod install` / `gradle` — not just the last line.
+        The complete error as printed by `xcodebuild` / `pod install` — not just the last line.
 
         **Paste as text**, not as a screenshot. Use a code block.
       render: shell
@@ -95,23 +84,20 @@ body:
   - type: input
     id: host-os
     attributes:
-      label: Host OS + version
-      description: What OS are you building on?
-      placeholder: "macOS 14.5 (Sonoma) on Apple Silicon"
+      label: Host macOS version
+      description: From `sw_vers`. Include chip (Apple Silicon / Intel).
+      placeholder: "macOS 14.5 (Sonoma) on Apple Silicon (M2)"
     validations:
       required: true
-
-  # iOS-specific
-  - type: markdown
-    attributes:
-      value: "### iOS-specific (fill out if building for iOS)"
 
   - type: input
     id: xcode-version
     attributes:
       label: Xcode version
-      description: From `xcodebuild -version`. Leave blank if Android-only.
+      description: From `xcodebuild -version`.
       placeholder: "Xcode 15.4 (15F31d)"
+    validations:
+      required: true
 
   - type: input
     id: ios-deployment-target
@@ -119,6 +105,8 @@ body:
       label: iOS Deployment Target
       description: From your `Podfile` / target settings.
       placeholder: "15.1"
+    validations:
+      required: true
 
   - type: input
     id: cocoapods-version
@@ -126,6 +114,8 @@ body:
       label: CocoaPods version
       description: From `pod --version`.
       placeholder: "1.15.2"
+    validations:
+      required: true
 
   - type: input
     id: ruby-version
@@ -133,70 +123,20 @@ body:
       label: Ruby version
       description: From `ruby --version` (matters for CocoaPods).
       placeholder: "3.2.2"
+    validations:
+      required: true
 
-  # Android-specific
-  - type: markdown
+  - type: dropdown
+    id: target
     attributes:
-      value: "### Android-specific (fill out if building for Android)"
-
-  - type: input
-    id: android-studio-version
-    attributes:
-      label: Android Studio version
-      description: From Android Studio → About. Leave blank if iOS-only.
-      placeholder: "Android Studio Koala 2024.1.1"
-
-  - type: input
-    id: gradle-version
-    attributes:
-      label: Gradle version
-      description: From `android/gradle/wrapper/gradle-wrapper.properties`.
-      placeholder: "8.7"
-
-  - type: input
-    id: agp-version
-    attributes:
-      label: Android Gradle Plugin (AGP) version
-      description: From `android/build.gradle`.
-      placeholder: "8.3.2"
-
-  - type: input
-    id: kotlin-version
-    attributes:
-      label: Kotlin version
-      description: From `android/build.gradle` `kotlinVersion`.
-      placeholder: "1.9.24"
-
-  - type: input
-    id: jdk-version
-    attributes:
-      label: JDK version
-      description: From `java --version`.
-      placeholder: "OpenJDK 17.0.10"
-
-  - type: input
-    id: ndk-version
-    attributes:
-      label: NDK version
-      description: From `android/build.gradle` `ndkVersion`. Leave blank if not set.
-      placeholder: "26.1.10909125"
-
-  - type: input
-    id: android-min-sdk
-    attributes:
-      label: Android minSdkVersion
-      placeholder: "24"
-
-  - type: input
-    id: android-compile-sdk
-    attributes:
-      label: Android compileSdkVersion
-      placeholder: "34"
-
-  # Packaging
-  - type: markdown
-    attributes:
-      value: "### Package manager"
+      label: Build target
+      multiple: true
+      options:
+        - Physical device
+        - Simulator (Apple Silicon)
+        - Simulator (Intel / Rosetta)
+    validations:
+      required: true
 
   - type: dropdown
     id: package-manager
@@ -218,9 +158,8 @@ body:
       description: Check the ones you've tried. This helps us skip obvious suggestions.
       options:
         - label: Deleted `node_modules` and reinstalled.
-        - label: Deleted `ios/Pods` and ran `pod install` again.
-        - label: Ran `cd android && ./gradlew clean` and/or cleared `~/.gradle/caches`.
-        - label: Deleted Xcode's DerivedData.
+        - label: Deleted `ios/Pods` and `ios/Podfile.lock`, then ran `pod install` again.
+        - label: Deleted Xcode's DerivedData (`~/Library/Developer/Xcode/DerivedData`).
         - label: Searched existing GitHub issues for the error message.
         - label: Tried on a fresh `npx @react-native-community/cli init` project with only VisionCamera installed.
 
@@ -238,7 +177,7 @@ body:
     id: additional
     attributes:
       label: Additional context
-      description: Any other relevant info — other native libraries, custom Podfile/Gradle changes, monorepo setup, EAS Build config, etc.
+      description: Any other relevant info — other native libraries, custom Podfile changes, monorepo setup, EAS Build config, use_frameworks!, static/dynamic linking, etc.
 
   - type: checkboxes
     id: checklist
@@ -247,7 +186,7 @@ body:
       options:
         - label: I searched existing issues for this build error.
           required: true
-        - label: I did a clean install (deleted `node_modules`, `Pods`, Gradle caches) before reporting.
+        - label: I did a clean install (deleted `node_modules`, `Pods`, DerivedData) before reporting.
           required: true
         - label: I pasted the full error output as text, not as a screenshot.
           required: true
