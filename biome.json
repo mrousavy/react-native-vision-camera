@@ -17,7 +17,20 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["..", "../index"],
+                "message": "Import directly from the source file, not the package's index barrel."
+              }
+            ]
+          }
+        }
+      }
     },
     "domains": {
       "react": "recommended"
