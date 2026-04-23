@@ -6,6 +6,7 @@ import type {
 } from '../specs/outputs/CameraPhotoOutput.nitro'
 import { CommonResolutions } from '../utils/CommonResolutions'
 import { VisionCamera } from '../VisionCamera'
+import type { Camera } from '../views/Camera'
 
 /**
  * Use a {@linkcode CameraPhotoOutput} for capturing {@linkcode Photo}s.
