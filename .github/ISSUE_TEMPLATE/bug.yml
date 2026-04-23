@@ -134,7 +134,8 @@ body:
         - label: Preview
         - label: Photo capture
         - label: Video capture
-        - label: Frame Processors
+        - label: Frame Processors (worklets)
+        - label: Skia Frame Processors
         - label: Code/Barcode Scanner
         - label: Location metadata
         - label: Multi-cam
@@ -176,19 +177,10 @@ body:
       required: true
 
   - type: textarea
-    id: media
-    attributes:
-      label: Screenshots / screen recording
-      description: |
-        Drag-and-drop images or a short screen recording showing the bug. For camera issues this is extremely helpful — a 5–10 second clip of the broken preview, wrong orientation, or glitched frames tells us more than a paragraph of description.
-
-        Supported: PNG, JPG, GIF, MP4, MOV, WebM (up to 100 MB). Do **not** use this field for log output — paste logs as text in the field above.
-
-  - type: textarea
     id: additional
     attributes:
       label: Additional context
-      description: Anything else that might be relevant — other libraries, custom native modules, Expo vs bare, etc.
+      description: Anything else that might be relevant — other libraries, custom native modules, Expo vs bare, etc. You can drag-and-drop screenshots or a short screen recording here too (especially useful for broken preview, wrong orientation, or glitched frames).
 
   - type: checkboxes
     id: submission
