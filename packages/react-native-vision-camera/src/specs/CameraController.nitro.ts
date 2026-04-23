@@ -295,6 +295,7 @@ export interface CameraController
    * it is useful to listen for subject area changes, to reset focus
    * again via {@linkcode resetFocus | resetFocus()}.
    *
+   * @platform iOS
    * @example
    * ```ts
    * const controller = ...
