@@ -4,7 +4,11 @@ import type { Point } from '../common-types/Point'
 import type { PreviewView } from '../views/PreviewView.nitro'
 
 /**
- * Represents the bounding box around an object.
+ * Represents the bounding box around a {@linkcode ScannedObject}, in
+ * camera-space coordinates (`0.0` ... `1.0`).
+ *
+ * Convert to view-space using
+ * {@linkcode PreviewView.convertCameraPointToViewPoint | PreviewView.convertCameraPointToViewPoint(...)}.
  */
 export interface BoundingBox {
   /**

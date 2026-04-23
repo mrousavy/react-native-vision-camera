@@ -8,6 +8,12 @@ import { useOrientationManager } from './internal/useOrientationManager'
  * - {@linkcode OrientationSource | 'interface'} will listen to UI-orientation.
  * - {@linkcode OrientationSource | 'device'} will listen to physical phone orientation.
  * - `undefined` will return `undefined` and not listen to anything.
+ *
+ * @example
+ * ```ts
+ * const orientation = useOrientation('device')
+ * // orientation: 'up' | 'right' | 'down' | 'left' | undefined
+ * ```
  */
 export function useOrientation(
   source: OrientationSource | undefined,

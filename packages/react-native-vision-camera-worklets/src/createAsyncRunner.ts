@@ -1,13 +1,29 @@
 import { NitroModules } from 'react-native-nitro-modules'
 import type {
   AsyncRunner,
+  NativeThread,
   NativeThreadFactory,
+  RuntimeThreadProvider,
+  useAsyncRunner,
 } from 'react-native-vision-camera'
 import { createSynchronizable, scheduleOnRuntime } from 'react-native-worklets'
 import { createWorkletRuntimeForThread } from './createWorkletRuntimeForThread'
 
 let counter = 1
 
+/**
+ * Creates a new {@linkcode AsyncRunner} backed by a dedicated {@linkcode NativeThread}.
+ *
+ * An {@linkcode AsyncRunner} can be used inside a Frame Processor to offload
+ * work to a separate thread without blocking the Camera pipeline.
+ *
+ * @discussion
+ * This is the Worklets-based implementation used by the default
+ * {@linkcode RuntimeThreadProvider}. Most users should use
+ * {@linkcode useAsyncRunner | useAsyncRunner()} instead.
+ *
+ * @see {@linkcode useAsyncRunner}
+ */
 export function createAsyncRunner(): AsyncRunner {
   const isBusy = createSynchronizable(false)
   const threadFactory = NitroModules.createHybridObject<NativeThreadFactory>(
@@ -38,7 +54,7 @@ export function createAsyncRunner(): AsyncRunner {
         })
         return true
       } catch (e) {
-        // An error ocurred while scheduling - unset blocking & throw!
+        // An error occurred while scheduling - unset blocking & throw!
         isBusy.setBlocking(false)
         // Rethrow!
         throw e

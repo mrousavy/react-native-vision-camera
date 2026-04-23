@@ -1,5 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Frame, PreviewViewMethods } from 'react-native-vision-camera'
+import type { createBarcodeScanner } from '../factory'
+import type { useBarcodeScanner } from '../useBarcodeScanner'
 import type { Barcode } from './Barcode.nitro'
 
 /**
@@ -7,6 +9,9 @@ import type { Barcode } from './Barcode.nitro'
  *
  * The {@linkcode BarcodeScanner} can be used in a
  * Frame Processor by calling {@linkcode BarcodeScanner.scanCodes | scanCodes(...)}.
+ *
+ * @see {@linkcode useBarcodeScanner | useBarcodeScanner(...)}
+ * @see {@linkcode createBarcodeScanner | createBarcodeScanner(...)}
  */
 export interface BarcodeScanner
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {

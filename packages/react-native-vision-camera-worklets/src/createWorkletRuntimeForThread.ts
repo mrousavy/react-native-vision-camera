@@ -5,6 +5,15 @@ import {
 } from 'react-native-worklets'
 import { HybridWorkletQueueFactory } from './internal/HybridWorkletQueueFactory'
 
+/**
+ * Creates a new `WorkletRuntime` that schedules its work on the given
+ * {@linkcode NativeThread}.
+ *
+ * This wraps a Camera-owned {@linkcode NativeThread} in a
+ * [react-native-worklets](https://docs.swmansion.com/react-native-worklets/docs/)
+ * `WorkletRuntime` so that Worklets (such as Frame Processors) can run directly
+ * on the Camera pipeline's thread without context switching.
+ */
 export function createWorkletRuntimeForThread(
   thread: NativeThread,
 ): WorkletRuntime {

@@ -1,3 +1,11 @@
+import type { Barcode } from './Barcode.nitro'
+import type { BarcodeScanner } from './BarcodeScanner.nitro'
+
+/**
+ * Represents a detected {@linkcode Barcode}'s format, or
+ * `'unknown'` if the format of a scanned Barcode could not be
+ * determined.
+ */
 export type BarcodeFormat =
   | 'unknown'
   | 'code-128'
@@ -14,6 +22,10 @@ export type BarcodeFormat =
   | 'pdf-417'
   | 'aztec'
 
+/**
+ * Represents a target {@linkcode BarcodeFormat} that the {@linkcode BarcodeScanner}
+ * can be configured to scan for, or `'all-formats'` to scan for every supported format.
+ */
 export type TargetBarcodeFormat =
   | Exclude<BarcodeFormat, 'unknown'>
   | 'all-formats'

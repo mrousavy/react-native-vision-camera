@@ -3,10 +3,33 @@ import { AppState } from 'react-native'
 import type { PermissionStatus } from '../specs/common-types/PermissionStatus'
 import { VisionCamera } from '../VisionCamera'
 
+/**
+ * The state of a Camera or Microphone permission, as returned by
+ * {@linkcode useCameraPermission} or {@linkcode useMicrophonePermission}.
+ */
 export interface PermissionState {
+  /**
+   * The current raw {@linkcode PermissionStatus}.
+   */
   status: PermissionStatus
+  /**
+   * Requests the permission from the user.
+   *
+   * Resolves with whether the permission was granted after the request completed.
+   * Can only be called if {@linkcode canRequestPermission} is `true`.
+   */
   requestPermission: () => Promise<boolean>
+  /**
+   * Whether the app has been granted this permission ({@linkcode status} is
+   * {@linkcode PermissionStatus | 'authorized'}).
+   */
   hasPermission: boolean
+  /**
+   * Whether the app can still request this permission ({@linkcode status} is
+   * {@linkcode PermissionStatus | 'not-determined'}). If this is `false` but
+   * {@linkcode hasPermission} is also `false`, the user must grant the
+   * permission from the system Settings.
+   */
   canRequestPermission: boolean
 }
 

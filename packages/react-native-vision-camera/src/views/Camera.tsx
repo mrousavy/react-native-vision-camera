@@ -2,21 +2,24 @@ import React, { type Ref, useImperativeHandle, useMemo, useRef } from 'react'
 import type { ViewProps } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
 import type { SharedValue } from 'react-native-reanimated'
-import type {
-  CameraController,
-  FocusOptions,
-  Point,
-  PreviewView,
-  PreviewViewMethods,
-  PreviewViewProps,
-  TorchMode,
-} from '..'
 import { useExposureUpdater } from '../hooks/internal/useExposureUpdater'
 import { useGestureControllers } from '../hooks/internal/useGestureControllers'
 import { useTorchModeUpdater } from '../hooks/internal/useTorchModeUpdater'
 import { useZoomUpdater } from '../hooks/internal/useZoomUpdater'
 import { type CameraProps, useCamera } from '../hooks/useCamera'
 import { usePreviewOutput } from '../hooks/usePreviewOutput'
+import type { CameraController } from '../specs/CameraController.nitro'
+import type {
+  FocusOptions,
+  MeteringMode,
+} from '../specs/common-types/FocusOptions'
+import type { Point } from '../specs/common-types/Point'
+import type { TorchMode } from '../specs/common-types/TorchMode'
+import type {
+  PreviewView,
+  PreviewViewMethods,
+  PreviewViewProps,
+} from '../specs/views/PreviewView.nitro'
 import { NativePreviewView } from './NativePreviewView'
 
 /**
@@ -65,6 +68,13 @@ export interface CameraRef
   controller: CameraController | undefined
 }
 
+/**
+ * Props for the {@linkcode Camera} component.
+ *
+ * Extends {@linkcode CameraProps} (the options for the underlying
+ * {@linkcode useCamera} hook) with {@linkcode PreviewView}-specific options
+ * and convenience props for gesture handling and animated values.
+ */
 export interface CameraViewProps
   extends CameraProps,
     Pick<ViewProps, 'style' | 'onLayout' | 'pointerEvents' | 'nativeID'>,

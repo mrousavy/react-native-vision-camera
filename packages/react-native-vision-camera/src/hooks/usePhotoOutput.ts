@@ -1,11 +1,33 @@
 import { useMemo } from 'react'
+import type { Photo } from '../specs/instances/Photo.nitro'
 import type {
   CameraPhotoOutput,
   PhotoOutputOptions,
 } from '../specs/outputs/CameraPhotoOutput.nitro'
 import { CommonResolutions } from '../utils/CommonResolutions'
 import { VisionCamera } from '../VisionCamera'
+import type { Camera } from '../views/Camera'
 
+/**
+ * Use a {@linkcode CameraPhotoOutput} for capturing {@linkcode Photo}s.
+ *
+ * The returned {@linkcode CameraPhotoOutput} can be passed to a
+ * {@linkcode Camera} to enable photo capture. Photos can then be captured
+ * via {@linkcode CameraPhotoOutput.capturePhoto | capturePhoto(...)}.
+ *
+ * @example
+ * ```ts
+ * const photoOutput = usePhotoOutput({
+ *   targetResolution: CommonResolutions.UHD_4_3,
+ *   qualityPrioritization: 'quality',
+ * })
+ *
+ * // ...
+ * const photo = await photoOutput.capturePhoto({ flashMode: 'on' }, {})
+ * // ...
+ * photo.dispose()
+ * ```
+ */
 export function usePhotoOutput({
   targetResolution = CommonResolutions.UHD_4_3,
   containerFormat = 'native',
