@@ -270,10 +270,8 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
   }
 
   func addSubjectAreaChangedListener(onSubjectAreaChanged: @escaping () -> Void) -> ListenerSubscription {
-    let remove = SubjectAreaMonitor.addObserver(device: captureDevice) {
-      onSubjectAreaChanged()
-    }
-    return ListenerSubscription(remove: remove)
+    return SubjectAreaMonitor.addObserver(device: captureDevice,
+                                          onSubjectAreaDidChange: onSubjectAreaChanged)
   }
 
   func setTorchMode(mode: TorchMode, strength: Double?) -> Promise<Void> {

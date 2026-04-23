@@ -28,19 +28,19 @@ enum SubjectAreaMonitor {
   /// Registers an observer for `subjectAreaDidChangeNotification` on the given device.
   ///
   /// Enables `isSubjectAreaChangeMonitoringEnabled` on the device if this is the
-  /// first observer. Returns a closure that, when invoked, removes this observer
-  /// and disables monitoring iff it was the last one across all callers.
+  /// first observer. Returns a `ListenerSubscription`, which removes this observer
+  /// and disables monitoring if it was the last one across all callers.
   static func addObserver(
     device: AVCaptureDevice,
-    handler: @escaping @Sendable () -> Void
-  ) -> () -> Void {
-    let key = device.uniqueID
-    let id = UUID()
+    onSubjectAreaDidChange: @escaping () -> Void
+  ) -> ListenerSubscription {
+    let deviceKey = device.uniqueID
+    let listenerID = UUID()
 
     lock.lock()
     defer { lock.unlock() }
 
-    let entry = entries[key] ?? Entry(device: device)
+    let entry = entries[deviceKey] ?? Entry(device: device)
     if entry.tokens.isEmpty {
       setMonitoringEnabled(on: device, enabled: true)
     }
@@ -50,22 +50,22 @@ enum SubjectAreaMonitor {
       object: device,
       queue: nil
     ) { _ in
-      handler()
+      onSubjectAreaDidChange()
     }
-    entry.tokens[id] = token
-    entries[key] = entry
+    entry.tokens[listenerID] = token
+    entries[deviceKey] = entry
 
-    return {
-      removeObserver(deviceKey: key, id: id)
+    return ListenerSubscription {
+      removeObserver(deviceKey: deviceKey, listenerID: listenerID)
     }
   }
 
-  private static func removeObserver(deviceKey: String, id: UUID) {
+  private static func removeObserver(deviceKey: String, listenerID: UUID) {
     lock.lock()
     defer { lock.unlock() }
 
     guard let entry = entries[deviceKey],
-          let token = entry.tokens.removeValue(forKey: id)
+      let token = entry.tokens.removeValue(forKey: listenerID)
     else {
       return
     }
