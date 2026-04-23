@@ -304,7 +304,7 @@ export interface CameraPhotoOutput extends CameraOutput {
    * using the given {@linkcode CapturePhotoSettings}.
    * @example
    * ```ts
-   * const photoFilePath = await photoOutput.capturePhoto(
+   * const photoFile = await photoOutput.capturePhotoToFile(
    *   { flashMode: 'on' },
    *   {}
    * )
