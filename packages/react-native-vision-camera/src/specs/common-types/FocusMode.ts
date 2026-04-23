@@ -1,3 +1,5 @@
+import type { CameraDevice } from '../inputs/CameraDevice.nitro'
+
 /**
  * Represents the focus mode of a {@linkcode CameraDevice}.
  * - `'locked'`: The lens position is locked at its current value and does not adapt to scene changes.

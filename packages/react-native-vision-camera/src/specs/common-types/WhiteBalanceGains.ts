@@ -1,3 +1,5 @@
+import type { WhiteBalanceTemperatureAndTint } from './WhiteBalanceTemperatureAndTint'
+
 /**
  * Represents the per-channel gains applied for white balance correction.
  *

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import type { Photo } from '../specs/instances/Photo.nitro'
 import type {
   CameraPhotoOutput,
   PhotoOutputOptions,

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import {
+  type Camera,
   type CameraVideoOutput,
   CommonResolutions,
   type Recorder,

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { CameraPreviewOutput } from '..'
+import type { CameraPreviewOutput, CameraSession } from '..'
 import { VisionCamera } from '../VisionCamera'
 
 /**

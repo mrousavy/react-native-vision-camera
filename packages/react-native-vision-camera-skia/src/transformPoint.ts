@@ -1,4 +1,8 @@
-import type { CameraOrientation, Point } from 'react-native-vision-camera'
+import type {
+  CameraOrientation,
+  Frame,
+  Point,
+} from 'react-native-vision-camera'
 
 /**
  * Describes how a {@linkcode Frame}'s pixel data is oriented relative to the

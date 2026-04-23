@@ -1,3 +1,6 @@
+import type { Barcode } from './Barcode.nitro'
+import type { BarcodeFormat } from './BarcodeFormat'
+
 /**
  * Represents the semantic type of data encoded in a {@linkcode Barcode} - e.g.
  * a URL, a phone number, or a WiFi config - or `'unknown'` if the content type

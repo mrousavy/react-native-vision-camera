@@ -1,3 +1,5 @@
+import type { WhiteBalanceGains } from './WhiteBalanceGains'
+
 /**
  * Represents a white balance setting expressed as a color temperature and tint offset.
  *

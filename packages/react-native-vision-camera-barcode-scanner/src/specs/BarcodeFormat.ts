@@ -1,3 +1,6 @@
+import type { Barcode } from './Barcode.nitro'
+import type { BarcodeScanner } from './BarcodeScanner.nitro'
+
 /**
  * Represents a detected {@linkcode Barcode}'s format, or
  * `'unknown'` if the format of a scanned Barcode could not be

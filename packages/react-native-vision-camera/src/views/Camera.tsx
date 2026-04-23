@@ -5,6 +5,7 @@ import type { SharedValue } from 'react-native-reanimated'
 import type {
   CameraController,
   FocusOptions,
+  MeteringMode,
   Point,
   PreviewView,
   PreviewViewMethods,

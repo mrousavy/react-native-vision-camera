@@ -1,3 +1,5 @@
+import type { CameraDevice } from '../inputs/CameraDevice.nitro'
+
 /**
  * Represents the physical position of a {@linkcode CameraDevice} on the device.
  * - `'front'`: The Camera is located on the front of the device, typically used for selfies.

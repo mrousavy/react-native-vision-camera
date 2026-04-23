@@ -1,3 +1,5 @@
+import type { CameraDevice } from '../inputs/CameraDevice.nitro'
+
 /**
  * Represents the white balance mode of a {@linkcode CameraDevice}.
  * - `'locked'`: The white balance is locked at its current value and does not adapt to scene changes.

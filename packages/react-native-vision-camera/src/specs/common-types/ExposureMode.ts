@@ -1,3 +1,5 @@
+import type { CameraDevice } from '../inputs/CameraDevice.nitro'
+
 /**
  * Represents the exposure mode of a {@linkcode CameraDevice}.
  * - `'locked'`: The exposure is locked at its current value and does not adapt to scene changes.

@@ -1,3 +1,5 @@
+import type { CameraDevice } from '../inputs/CameraDevice.nitro'
+
 /**
  * Represents the type of a physical or logical Camera lens on the {@linkcode CameraDevice}.
  *

@@ -1,4 +1,8 @@
 import { NitroModules } from 'react-native-nitro-modules'
+import type { Location } from 'react-native-vision-camera'
+import type { createLocationManager } from './createLocationManager'
+import type { useLocationManager } from './hooks/useLocationManager'
+import type { LocationManager } from './specs/LocationManager.nitro'
 import type { LocationManagerFactory } from './specs/LocationManagerFactory.nitro'
 
 /**
