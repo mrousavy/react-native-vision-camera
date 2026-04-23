@@ -3,20 +3,13 @@ description: "Suggest a new feature, API, or capability for react-native-vision-
 title: "✨ "
 labels: ["✨ feature"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Before opening this issue
-
-        If you're not sure this is a concrete feature yet, start a [Discussion](https://github.com/mrousavy/react-native-vision-camera/discussions) instead.
-
   - type: checkboxes
     id: prerequisites
     attributes:
       label: Prerequisites
       description: Please confirm you've done each of these. Every box must be ticked.
       options:
-        - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and [discussions](https://github.com/mrousavy/react-native-vision-camera/discussions) for a similar request.
+        - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) for a similar request.
           required: true
 
   - type: textarea

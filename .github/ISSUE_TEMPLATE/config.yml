@@ -9,6 +9,3 @@ contact_links:
   - name: Discord
     url: https://margelo.com/discord
     about: Chat with the community for general questions and help.
-  - name: GitHub Discussions
-    url: https://github.com/mrousavy/react-native-vision-camera/discussions
-    about: Ask usage questions or discuss ideas that aren't yet concrete feature requests.
