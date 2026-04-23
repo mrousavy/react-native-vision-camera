@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://react-native-vision-camera.com/docs/guides
+    about: Check the docs before opening an issue — most questions are answered there.
+  - name: Troubleshooting Guide
+    url: https://react-native-vision-camera.com/docs/guides/troubleshooting
+    about: Common build and runtime issues with known fixes.
+  - name: Discord
+    url: https://margelo.com/discord
+    about: Chat with the community for general questions and help.

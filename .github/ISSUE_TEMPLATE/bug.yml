@@ -1,0 +1,204 @@
+name: "🐛 Bug report (runtime error / crash / unexpected behavior)"
+description: "Something is broken at runtime — a crash, a frozen preview, wrong output, wrong camera selected, etc."
+title: "🐛 "
+labels: ["🐛 bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before opening this issue
+
+        Camera behavior depends on the device, OS version, format, lens, multi-cam support, permissions, thermal state, and dozens of other factors. **We cannot debug something we cannot reproduce.** Bug reports without a reproduction will be **closed without investigation**.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you've done each of these. Every box must be ticked.
+      options:
+        - label: I have read and followed every applicable step in the [Nitro Modules Troubleshooting guide](https://nitro.margelo.com/docs/guides/troubleshooting).
+          required: true
+        - label: I have read the [VisionCamera Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting).
+          required: true
+        - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and found nothing matching.
+          required: true
+        - label: I am on the [latest version of react-native-vision-camera](https://github.com/mrousavy/react-native-vision-camera/releases), or have a specific reason I cannot upgrade.
+          required: true
+
+  - type: input
+    id: repro
+    attributes:
+      label: Reproduction repository
+      description: |
+        **Required.** A link to a minimal public GitHub repository that reproduces the issue on a fresh clone.
+
+        The easiest starting point is to fork [`mrousavy/react-native-vision-camera`](https://github.com/mrousavy/react-native-vision-camera) and modify the [`package/example`](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example) app, or start from a fresh `npx @react-native-community/cli init` and add only what's needed to show the bug.
+
+        Issues without a reproduction repo are **invalid** and will be closed. Stripped-down snippets in the description do not count.
+      placeholder: "https://github.com/<you>/vision-camera-bug-repro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Exact, numbered steps someone can follow on a fresh clone of the repo above. Include:
+        - Which device + OS to run on (if specific)
+        - Which screen / button to interact with
+        - What to watch for
+      placeholder: |
+        1. Clone https://github.com/<you>/vision-camera-bug-repro
+        2. `bun install && cd ios && pod install`
+        3. Run on iPhone 15 Pro (iOS 17.5)
+        4. Tap "Start recording", wait 3 seconds
+        5. App crashes with ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: "Recording should continue until I tap Stop."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Describe the actual behavior. If the app crashes, include the crash signal / exception type.
+      placeholder: "App crashes with EXC_BAD_ACCESS on the capture session queue."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Affected platforms
+      multiple: true
+      options:
+        - iOS (device)
+        - iOS (simulator)
+        - Android (device)
+        - Android (emulator)
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device(s) affected
+      description: Exact model and OS version. Include every device you tested on.
+      placeholder: "iPhone 15 Pro (iOS 17.5.1), Pixel 8 (Android 14)"
+    validations:
+      required: true
+
+  - type: input
+    id: version-exact
+    attributes:
+      label: VisionCamera version
+      description: |
+        The exact version from your `package.json` (e.g. `5.2.1`).
+        See [Releases](https://github.com/mrousavy/react-native-vision-camera/releases) for the full list.
+      placeholder: "5.2.1"
+    validations:
+      required: true
+
+  - type: input
+    id: rn-version
+    attributes:
+      label: React Native version
+      placeholder: "0.85.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: React Native architecture
+      options:
+        - New Architecture (Fabric / bridgeless)
+        - Old Architecture (Paper)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Features being used
+      description: Which VisionCamera features are in use when the bug happens? Check all that apply.
+      options:
+        - label: Preview
+        - label: Photo capture
+        - label: Video capture
+        - label: Frame Processors
+        - label: Code/Barcode Scanner
+        - label: Location metadata
+        - label: Multi-cam
+        - label: Depth data
+        - label: HDR / custom dynamic range
+        - label: Custom format / FPS / resolution
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / stack trace
+      description: |
+        Paste the full crash log, Xcode console output, or `adb logcat` output. Redact anything sensitive.
+
+        **Do not paste screenshots of logs** — paste the text. It will automatically be rendered as a code block.
+      render: shell
+      placeholder: |
+        // iOS example:
+        Exception Type:  EXC_CRASH (SIGABRT)
+        Termination Reason: SIGNAL 6 Abort trap: 6
+        Crashed Thread: 8  com.margelo.camera.session
+
+        Thread 8 Crashed:
+        0   libsystem_kernel.dylib    __pthread_kill + 8
+        1   libsystem_pthread.dylib   pthread_kill + 268
+        2   libsystem_c.dylib         abort + 136
+        3   AVFCapture                -[AVCaptureOutput attachToFigCaptureSession:] + 108
+        4   AVFCapture                -[AVCaptureSession _makeConfigurationLive:] + 344
+        ...
+
+        // Android example:
+        FATAL EXCEPTION: mrousavy/VisionCamera.CameraQueue
+        Process: com.example.app, PID: 12345
+        java.lang.IllegalStateException: Camera not initialized
+            at com.mrousavy.camera.core.CameraSession.startRunning(CameraSession.kt:142)
+            at com.mrousavy.camera.react.CameraView.onAttachedToWindow(CameraView.kt:89)
+            ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots / screen recording
+      description: |
+        Drag-and-drop images or a short screen recording showing the bug. For camera issues this is extremely helpful — a 5–10 second clip of the broken preview, wrong orientation, or glitched frames tells us more than a paragraph of description.
+
+        Supported: PNG, JPG, GIF, MP4, MOV, WebM (up to 100 MB). Do **not** use this field for log output — paste logs as text in the field above.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might be relevant — other libraries, custom native modules, Expo vs bare, etc.
+
+  - type: checkboxes
+    id: submission
+    attributes:
+      label: Submission
+      description: Please confirm each of the following about what you submitted above. Every box must be ticked.
+      options:
+        - label: The reproduction repository I linked is public and reproduces the bug on a fresh clone. I understand the issue will be closed without one.
+          required: true
+        - label: I pasted logs as text (not screenshots).
+          required: true
+        - label: I wrote this report in my own words. I did not paste AI-generated descriptions of the bug.
+          required: true
