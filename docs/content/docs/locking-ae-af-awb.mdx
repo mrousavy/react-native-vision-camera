@@ -126,9 +126,9 @@ await controller.resetFocus()
 
 ### Reacting to subject area changes
 
-Once you lock AE/AF/AWB, the Camera keeps those values frozen no matter what the user points the device at. That's usually fine for a deliberate tap-to-focus, but if the user pans the Camera away from the subject, the scene becomes very under- or over-exposed and out-of-focus - the locked values no longer make sense.
+Once you lock AE/AF/AWB, the Camera keeps those values frozen no matter what the user points the device at. That's usually fine for a deliberate tap-to-focus, but if the user pans the Camera away from the subject, the scene becomes very under- or over-exposed and out-of-focus; so the locked values no longer make sense.
 
-VisionCamera fires a [`onSubjectAreaChanged()`](/api/react-native-vision-camera/hybrid-objects/CameraController#addsubjectareachangedlistener) listener whenever the scene substantially changes - for example, when the focus point drifts off the previously-focused subject. You can listen for this event and automatically reset AE/AF/AWB back to continuously auto-adjusting.
+VisionCamera fires an [`onSubjectAreaChanged()`](/api/react-native-vision-camera/hybrid-objects/CameraController#addsubjectareachangedlistener) listener whenever the scene substantially changes - for example, when the focus point drifts off the previously-focused subject. You can listen for this event and automatically reset AE/AF/AWB back to continuously auto-adjusting via [`resetFocus()`](/api/react-native-vision-camera/hybrid-objects/CameraController#resetfocus):
 
 <Tabs items={["<Camera /> (view)", "useCamera(...) (hook)", "CameraSession (imperative)"]} groupId="api-style" persist>
 <Tab value="<Camera /> (view)">
