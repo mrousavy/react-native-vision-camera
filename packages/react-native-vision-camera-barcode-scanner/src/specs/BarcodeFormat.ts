@@ -1,7 +1,6 @@
 /**
- * Represents a detected {@linkcode Barcode}'s format.
- *
- * `'unknown'` is used when the format of a scanned Barcode could not be
+ * Represents a detected {@linkcode Barcode}'s format, or
+ * `'unknown'` if the format of a scanned Barcode could not be
  * determined.
  */
 export type BarcodeFormat =
@@ -22,9 +21,7 @@ export type BarcodeFormat =
 
 /**
  * Represents a target {@linkcode BarcodeFormat} that the {@linkcode BarcodeScanner}
- * can be configured to scan for.
- *
- * Use `'all-formats'` to scan for every supported format.
+ * can be configured to scan for, or `'all-formats'` to scan for every supported format.
  */
 export type TargetBarcodeFormat =
   | Exclude<BarcodeFormat, 'unknown'>

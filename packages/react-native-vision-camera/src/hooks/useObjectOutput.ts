@@ -4,9 +4,8 @@ import { VisionCamera } from '../VisionCamera'
 
 interface Props {
   /**
-   * The types of objects that the {@linkcode CameraObjectOutput} should scan for.
-   *
-   * Use `['all']` to scan for all supported object types.
+   * The types of objects that the {@linkcode CameraObjectOutput} should scan for,
+   * or `['all']` to scan for all supported object types.
    */
   types: ScannedObjectType[]
   /**
