@@ -1,8 +1,22 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Location, PermissionStatus } from 'react-native-vision-camera'
+import type { createLocationManager } from '../createLocationManager'
+import type { useLocation } from '../hooks/useLocation'
+import type { useLocationManager } from '../hooks/useLocationManager'
 import type { ListenerSubscription } from './ListenerSubscription'
 import type { LocationAccuracy } from './LocationAccuracy'
 
+/**
+ * Streams device location updates and exposes the last known {@linkcode Location}.
+ *
+ * Create a {@linkcode LocationManager} via {@linkcode createLocationManager} or the
+ * {@linkcode useLocationManager} hook. For a React-friendly API that handles
+ * permissions and subscriptions automatically, use {@linkcode useLocation}.
+ *
+ * @see {@linkcode useLocation}
+ * @see {@linkcode useLocationManager}
+ * @see {@linkcode createLocationManager | createLocationManager(...)}
+ */
 export interface LocationManager
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
   /**
