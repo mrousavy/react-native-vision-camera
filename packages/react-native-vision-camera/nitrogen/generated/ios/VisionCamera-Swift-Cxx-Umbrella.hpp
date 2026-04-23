@@ -184,6 +184,8 @@ namespace margelo::nitro::camera { struct PreviewStabilizationModeConstraint; }
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `Range` to properly resolve imports.
 namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `RecorderSettings` to properly resolve imports.
 namespace margelo::nitro::camera { struct RecorderSettings; }
 // Forward declaration of `ResolutionBiasConstraint` to properly resolve imports.
@@ -315,6 +317,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "PreviewStabilizationModeConstraint.hpp"
 #include "QualityPrioritization.hpp"
 #include "Range.hpp"
+#include "RecorderFileType.hpp"
 #include "RecorderSettings.hpp"
 #include "ResolutionBiasConstraint.hpp"
 #include "ScannedObjectType.hpp"

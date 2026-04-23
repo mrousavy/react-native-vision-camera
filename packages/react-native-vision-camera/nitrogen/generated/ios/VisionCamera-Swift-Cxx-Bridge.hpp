@@ -142,6 +142,8 @@ namespace margelo::nitro::camera { enum class PreviewResizeMode; }
 namespace margelo::nitro::camera { struct PreviewStabilizationModeConstraint; }
 // Forward declaration of `Range` to properly resolve imports.
 namespace margelo::nitro::camera { struct Range; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `ResolutionBiasConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct ResolutionBiasConstraint; }
 // Forward declaration of `ScannedObjectType` to properly resolve imports.
@@ -311,6 +313,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "PreviewResizeMode.hpp"
 #include "PreviewStabilizationModeConstraint.hpp"
 #include "Range.hpp"
+#include "RecorderFileType.hpp"
 #include "ResolutionBiasConstraint.hpp"
 #include "ScannedObjectType.hpp"
 #include "SceneAdaptiveness.hpp"
@@ -2516,6 +2519,21 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_std__shared_ptr_HybridRecorderSpec_ create_Func_void_std__shared_ptr_HybridRecorderSpec_(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__shared_ptr_HybridRecorderSpec__Wrapper wrap_Func_void_std__shared_ptr_HybridRecorderSpec_(Func_void_std__shared_ptr_HybridRecorderSpec_ value) noexcept {
     return Func_void_std__shared_ptr_HybridRecorderSpec__Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::optional<RecorderFileType>
+  /**
+   * Specialized version of `std::optional<RecorderFileType>`.
+   */
+  using std__optional_RecorderFileType_ = std::optional<RecorderFileType>;
+  inline std::optional<RecorderFileType> create_std__optional_RecorderFileType_(const RecorderFileType& value) noexcept {
+    return std::optional<RecorderFileType>(value);
+  }
+  inline bool has_value_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline RecorderFileType get_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
+    return optional.value();
   }
   
   // pragma MARK: Result<std::vector<VideoCodec>>

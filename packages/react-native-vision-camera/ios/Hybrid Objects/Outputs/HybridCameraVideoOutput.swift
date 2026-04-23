@@ -106,7 +106,16 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
         let metadataItem = try location.location.toAVMutableMetadataItem()
         self.setMetadataTag(metadataItem)
       }
-      return try HybridVideoRecorder(videoOutput: self.output, queue: self.queue)
+      let fileType: AVFileType
+      switch settings.fileType {
+      case .some(.mp4):
+        fileType = .mp4
+      case .some(.mov):
+        fileType = .quickTimeMovie
+      case .none:
+        fileType = .quickTimeMovie
+      }
+      return try HybridVideoRecorder(videoOutput: self.output, queue: self.queue, fileType: fileType)
     }
   }
 

@@ -18,13 +18,19 @@ public extension RecorderSettings {
   /**
    * Create a new instance of `RecorderSettings`.
    */
-  init(location: (any HybridLocationSpec)?) {
+  init(location: (any HybridLocationSpec)?, fileType: RecorderFileType?) {
     self.init({ () -> bridge.std__optional_std__shared_ptr_HybridLocationSpec__ in
       if let __unwrappedValue = location {
         return bridge.create_std__optional_std__shared_ptr_HybridLocationSpec__({ () -> bridge.std__shared_ptr_HybridLocationSpec_ in
           let __cxxWrapped = __unwrappedValue.getCxxWrapper()
           return __cxxWrapped.getCxxPart()
         }())
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_RecorderFileType_ in
+      if let __unwrappedValue = fileType {
+        return bridge.create_std__optional_RecorderFileType_(__unwrappedValue)
       } else {
         return .init()
       }
@@ -45,5 +51,10 @@ public extension RecorderSettings {
         return nil
       }
     }()
+  }
+  
+  @inline(__always)
+  var fileType: RecorderFileType? {
+    return self.__fileType.value
   }
 }

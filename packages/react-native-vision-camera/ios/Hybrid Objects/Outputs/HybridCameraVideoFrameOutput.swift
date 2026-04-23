@@ -118,6 +118,16 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
 
   func createRecorder(settings: RecorderSettings) -> Promise<any HybridRecorderSpec> {
     return Promise.parallel(queue) {
+      // Persistent recorders are bound to the output's preconfigured fileType
+      // (used for both codec negotiation and track setup). Customizing
+      // `fileType` per-recorder on this path would require a deeper refactor,
+      // so for now we reject it explicitly instead of silently ignoring it.
+      if settings.fileType != nil {
+        throw RuntimeError.error(
+          withMessage:
+            "`fileType` is not supported on persistent recorders. Disable `enablePersistentRecorder` to configure the container format per-recording."
+        )
+      }
       // 1. Create AVAssetWriter Recorder
       let clock = try self.getMasterClock()
       let recorder = try HybridFrameRecorder(

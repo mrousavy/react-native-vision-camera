@@ -22,6 +22,8 @@ namespace margelo::nitro::camera { class HybridRecorderSpec; }
 namespace margelo::nitro::camera { struct RecorderSettings; }
 // Forward declaration of `HybridLocationSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridLocationSpec; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `HybridCameraOutputSpecSwift` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraOutputSpecSwift; }
 
@@ -34,6 +36,7 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpecSwift; }
 #include "HybridRecorderSpec.hpp"
 #include "RecorderSettings.hpp"
 #include "HybridLocationSpec.hpp"
+#include "RecorderFileType.hpp"
 #include "HybridCameraOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
