@@ -1,0 +1,85 @@
+name: "✨ Feature request"
+description: "Suggest a new feature, API, or capability for react-native-vision-camera."
+title: "✨ "
+labels: ["✨ feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before opening this issue
+
+        - ✅ Please search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and [discussions](https://github.com/mrousavy/react-native-vision-camera/discussions) — the feature may already be proposed.
+        - ✅ If you're not sure this is a concrete feature yet, start a [Discussion](https://github.com/mrousavy/react-native-vision-camera/discussions) instead.
+        - ❌ Do **not** paste AI-generated proposals. Describe what you actually need, in your own words.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the real-world use case. Focus on the problem first, not the solution.
+      placeholder: |
+        I'm building a document scanner and I need to detect when the camera is focused on a flat surface before capturing, so the user doesn't get blurry scans.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API / solution
+      description: |
+        What would the new feature look like? Ideally include a code sketch of how you'd use it.
+        If it's platform-specific (e.g. iOS-only), call that out.
+      placeholder: |
+        ```ts
+        const focus = useCameraFocusState(camera)
+        if (focus.isStable && focus.subjectArea === 'document') { ... }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds have you tried? Why are they not good enough?
+      placeholder: |
+        I tried polling `camera.getIsFocused()` every 100ms but it's noisy and doesn't tell me when the scene has stabilized.
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Platforms this should target
+      multiple: true
+      options:
+        - iOS
+        - Android
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you be willing to contribute this?
+      options:
+        - "Yes — I'd like to open a PR."
+        - "Maybe, with guidance."
+        - "No, I'm requesting only."
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Links to related AVFoundation / CameraX APIs, papers, other libraries that do this, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and discussions for a similar request.
+          required: true
+        - label: I described the problem, not just the solution.
+          required: true

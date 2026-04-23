@@ -1,0 +1,182 @@
+name: "🐛 Bug report (runtime error / crash / unexpected behavior)"
+description: "Something is broken at runtime — a crash, a frozen preview, wrong output, wrong camera selected, etc."
+title: "🐛 "
+labels: ["🐛 bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before opening this issue
+
+        Please read this carefully. Bug reports without a reproduction will be **closed without investigation**.
+
+        Camera behavior depends on the device, OS version, format, lens, multi-cam support, permissions, thermal state, and dozens of other factors. **We cannot debug something we cannot reproduce**, and "it works on my phone" isn't useful to anyone.
+
+        - ✅ Please search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) first.
+        - ✅ Please make sure you are on the [latest version](https://github.com/mrousavy/react-native-vision-camera/releases).
+        - ✅ Please read the [Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting).
+        - ❌ Do **not** paste AI-generated problem descriptions. Describe in your own words what you tried and what happened.
+
+  - type: input
+    id: repro
+    attributes:
+      label: Reproduction repository
+      description: |
+        **Required.** A link to a minimal public GitHub repository that reproduces the issue on a fresh clone.
+
+        The easiest starting point is to fork [`mrousavy/react-native-vision-camera`](https://github.com/mrousavy/react-native-vision-camera) and modify the [`package/example`](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example) app, or start from a fresh `npx @react-native-community/cli init` and add only what's needed to show the bug.
+
+        Issues without a reproduction repo are **invalid** and will be closed. Stripped-down snippets in the description do not count.
+      placeholder: "https://github.com/<you>/vision-camera-bug-repro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Exact, numbered steps someone can follow on a fresh clone of the repo above. Include:
+        - Which device + OS to run on (if specific)
+        - Which screen / button to interact with
+        - What to watch for
+      placeholder: |
+        1. Clone https://github.com/<you>/vision-camera-bug-repro
+        2. `bun install && cd ios && pod install`
+        3. Run on iPhone 15 Pro (iOS 17.5)
+        4. Tap "Start recording", wait 3 seconds
+        5. App crashes with ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: "Recording should continue until I tap Stop."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Describe the actual behavior. If the app crashes, include the crash signal / exception type.
+      placeholder: "App crashes with EXC_BAD_ACCESS on the capture session queue."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Affected platforms
+      multiple: true
+      options:
+        - iOS (device)
+        - iOS (simulator)
+        - Android (device)
+        - Android (emulator)
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device(s) affected
+      description: Exact model and OS version. Include every device you tested on.
+      placeholder: "iPhone 15 Pro (iOS 17.5.1), Pixel 8 (Android 14)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version-major
+    attributes:
+      label: VisionCamera version (major)
+      description: |
+        Which major/minor version family? For the exact patch version, fill in the field below.
+        See [Releases](https://github.com/mrousavy/react-native-vision-camera/releases) for the full list.
+      options:
+        - v5.x (current)
+        - v4.x
+        - v3.x
+        - v2.x (unsupported)
+        - other / fork
+    validations:
+      required: true
+
+  - type: input
+    id: version-exact
+    attributes:
+      label: VisionCamera version (exact)
+      description: The exact version from your `package.json` (e.g. `5.2.1`).
+      placeholder: "5.2.1"
+    validations:
+      required: true
+
+  - type: input
+    id: rn-version
+    attributes:
+      label: React Native version
+      placeholder: "0.76.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: React Native architecture
+      options:
+        - New Architecture (Fabric / bridgeless)
+        - Old Architecture (Paper)
+        - Not sure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Features being used
+      description: Which VisionCamera features are in use when the bug happens? Check all that apply.
+      options:
+        - label: Preview
+        - label: Photo capture
+        - label: Video capture
+        - label: Frame Processors
+        - label: Code/Barcode Scanner
+        - label: Location metadata
+        - label: Multi-cam
+        - label: Depth data
+        - label: HDR / custom dynamic range
+        - label: Custom format / FPS / resolution
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / stack trace
+      description: |
+        Paste the full crash log, Xcode console output, or `adb logcat` output. Redact anything sensitive.
+
+        **Do not paste screenshots of logs** — paste the text, wrapped in a code block.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might be relevant — other libraries, custom native modules, Expo vs bare, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and found nothing matching.
+          required: true
+        - label: I am on the latest version of react-native-vision-camera, or have a specific reason I cannot upgrade.
+          required: true
+        - label: I provided a reproduction repository above. I understand the issue will be closed without one.
+          required: true
+        - label: I have included logs as text (not screenshots).
+          required: true
