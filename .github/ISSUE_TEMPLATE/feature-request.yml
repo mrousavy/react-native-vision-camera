@@ -8,9 +8,16 @@ body:
       value: |
         ## Before opening this issue
 
-        - ✅ Please search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and [discussions](https://github.com/mrousavy/react-native-vision-camera/discussions) — the feature may already be proposed.
-        - ✅ If you're not sure this is a concrete feature yet, start a [Discussion](https://github.com/mrousavy/react-native-vision-camera/discussions) instead.
-        - ❌ Do **not** paste AI-generated proposals. Describe what you actually need, in your own words.
+        If you're not sure this is a concrete feature yet, start a [Discussion](https://github.com/mrousavy/react-native-vision-camera/discussions) instead.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you've done each of these. Every box must be ticked.
+      options:
+        - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and [discussions](https://github.com/mrousavy/react-native-vision-camera/discussions) for a similar request.
+          required: true
 
   - type: textarea
     id: problem
@@ -75,11 +82,12 @@ body:
       description: Links to related AVFoundation / CameraX APIs, papers, other libraries that do this, etc.
 
   - type: checkboxes
-    id: checklist
+    id: submission
     attributes:
-      label: Checklist
+      label: Submission
+      description: Please confirm each of the following about what you submitted above. Every box must be ticked.
       options:
-        - label: I searched existing issues and discussions for a similar request.
-          required: true
         - label: I described the problem, not just the solution.
+          required: true
+        - label: I wrote this request in my own words. I did not paste AI-generated proposals.
           required: true

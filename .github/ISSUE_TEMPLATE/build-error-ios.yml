@@ -8,13 +8,22 @@ body:
       value: |
         ## Before opening this issue
 
-        Most build errors are caused by environment or setup issues, not by VisionCamera itself. Please check these first:
+        Most build errors are caused by environment or setup issues, not by VisionCamera itself.
 
-        - ✅ [Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting)
-        - ✅ [Installation guide](https://react-native-vision-camera.com/docs/guides)
-        - ✅ Clean build: delete `node_modules`, `ios/Pods`, `ios/build`, and Xcode's DerivedData, then reinstall.
-        - ✅ Search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue+label%3A%22%F0%9F%9B%A0%EF%B8%8F+build-error%22) — build errors are very often duplicates.
-        - ❌ Do **not** paste AI-generated summaries of the error. Paste the actual error text.
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you've done each of these. Every box must be ticked.
+      options:
+        - label: I have read and followed every applicable step in the [Nitro Modules Troubleshooting guide](https://nitro.margelo.com/docs/guides/troubleshooting).
+          required: true
+        - label: I have read the [VisionCamera Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting) and [Installation guide](https://react-native-vision-camera.com/docs/guides).
+          required: true
+        - label: I did a clean build — deleted `node_modules`, `ios/Pods`, `ios/build`, and Xcode's DerivedData, then reinstalled.
+          required: true
+        - label: I searched [existing build-error issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue+label%3A%22%F0%9F%9B%A0%EF%B8%8F+build-error%22) and found nothing matching.
+          required: true
 
   - type: textarea
     id: error
@@ -120,8 +129,7 @@ body:
       multiple: true
       options:
         - Physical device
-        - Simulator (Apple Silicon)
-        - Simulator (Intel / Rosetta)
+        - Simulator
     validations:
       required: true
 
@@ -137,18 +145,6 @@ body:
         - bun
     validations:
       required: true
-
-  - type: checkboxes
-    id: tried
-    attributes:
-      label: Steps you have already tried
-      description: Check the ones you've tried. This helps us skip obvious suggestions.
-      options:
-        - label: Deleted `node_modules` and reinstalled.
-        - label: Deleted `ios/Pods` and `ios/Podfile.lock`, then ran `pod install` again.
-        - label: Deleted Xcode's DerivedData (`~/Library/Developer/Xcode/DerivedData`).
-        - label: Searched existing GitHub issues for the error message.
-        - label: Tried on a fresh `npx @react-native-community/cli init` project with only VisionCamera installed.
 
   - type: textarea
     id: repro
@@ -167,13 +163,12 @@ body:
       description: Any other relevant info — other native libraries, custom Podfile changes, monorepo setup, EAS Build config, use_frameworks!, static/dynamic linking, etc.
 
   - type: checkboxes
-    id: checklist
+    id: submission
     attributes:
-      label: Checklist
+      label: Submission
+      description: Please confirm each of the following about what you submitted above. Every box must be ticked.
       options:
-        - label: I searched existing issues for this build error.
+        - label: I pasted the full error output as text (not a screenshot).
           required: true
-        - label: I did a clean install (deleted `node_modules`, `Pods`, DerivedData) before reporting.
-          required: true
-        - label: I pasted the full error output as text, not as a screenshot.
+        - label: I wrote this report in my own words. I did not paste AI-generated summaries of the error.
           required: true

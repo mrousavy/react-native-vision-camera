@@ -8,14 +8,22 @@ body:
       value: |
         ## Before opening this issue
 
-        Please read this carefully. Bug reports without a reproduction will be **closed without investigation**.
+        Camera behavior depends on the device, OS version, format, lens, multi-cam support, permissions, thermal state, and dozens of other factors. **We cannot debug something we cannot reproduce.** Bug reports without a reproduction will be **closed without investigation**.
 
-        Camera behavior depends on the device, OS version, format, lens, multi-cam support, permissions, thermal state, and dozens of other factors. **We cannot debug something we cannot reproduce**, and "it works on my phone" isn't useful to anyone.
-
-        - ✅ Please search [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) first.
-        - ✅ Please make sure you are on the [latest version](https://github.com/mrousavy/react-native-vision-camera/releases).
-        - ✅ Please read the [Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting).
-        - ❌ Do **not** paste AI-generated problem descriptions. Describe in your own words what you tried and what happened.
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you've done each of these. Every box must be ticked.
+      options:
+        - label: I have read and followed every applicable step in the [Nitro Modules Troubleshooting guide](https://nitro.margelo.com/docs/guides/troubleshooting).
+          required: true
+        - label: I have read the [VisionCamera Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting).
+          required: true
+        - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and found nothing matching.
+          required: true
+        - label: I am on the [latest version of react-native-vision-camera](https://github.com/mrousavy/react-native-vision-camera/releases), or have a specific reason I cannot upgrade.
+          required: true
 
   - type: input
     id: repro
@@ -183,15 +191,14 @@ body:
       description: Anything else that might be relevant — other libraries, custom native modules, Expo vs bare, etc.
 
   - type: checkboxes
-    id: checklist
+    id: submission
     attributes:
-      label: Checklist
+      label: Submission
+      description: Please confirm each of the following about what you submitted above. Every box must be ticked.
       options:
-        - label: I have searched existing issues and found nothing matching.
+        - label: The reproduction repository I linked is public and reproduces the bug on a fresh clone. I understand the issue will be closed without one.
           required: true
-        - label: I am on the latest version of react-native-vision-camera, or have a specific reason I cannot upgrade.
+        - label: I pasted logs as text (not screenshots).
           required: true
-        - label: I provided a reproduction repository above. I understand the issue will be closed without one.
-          required: true
-        - label: I have included logs as text (not screenshots).
+        - label: I wrote this report in my own words. I did not paste AI-generated descriptions of the bug.
           required: true
