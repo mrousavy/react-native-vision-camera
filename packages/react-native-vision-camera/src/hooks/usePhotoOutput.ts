@@ -21,7 +21,9 @@ import { VisionCamera } from '../VisionCamera'
  * })
  *
  * // ...
- * const photo = await photoOutput.capturePhoto({ flash: 'auto' })
+ * const photo = await photoOutput.capturePhoto({ flashMode: 'on' }, {})
+ * // ...
+ * photo.dispose()
  * ```
  */
 export function usePhotoOutput({

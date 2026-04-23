@@ -92,8 +92,10 @@ export function addOnCameraDevicesChangedListener(
 /**
  * Returns all {@linkcode CameraExtension}s supported by the given {@linkcode CameraDevice}.
  *
- * Extensions are vendor-specific Camera modes like Night Mode, Portrait Mode, or HDR.
+ * Extensions are vendor-specific Camera modes (such as HDR, Night, or Bokeh)
+ * implemented in the device's ISP pipeline.
  *
+ * @platform Android
  * @see {@linkcode useCameraDeviceExtensions}
  * @see {@linkcode CameraExtension}
  */

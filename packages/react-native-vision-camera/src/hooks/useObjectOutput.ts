@@ -4,8 +4,8 @@ import { VisionCamera } from '../VisionCamera'
 
 export interface UseObjectOutputProps {
   /**
-   * The types of objects that the {@linkcode CameraObjectOutput} should scan for,
-   * or `['all']` to scan for all supported object types.
+   * The array of {@linkcode ScannedObjectType}s the {@linkcode CameraObjectOutput}
+   * should scan for.
    */
   types: ScannedObjectType[]
   /**
@@ -23,7 +23,7 @@ export interface UseObjectOutputProps {
  * @example
  * ```ts
  * const objectOutput = useObjectOutput({
- *   types: ['all'],
+ *   types: ['qr'],
  *   onObjectsScanned(objects) {
  *     console.log(`Scanned ${objects.length} objects!`)
  *   }

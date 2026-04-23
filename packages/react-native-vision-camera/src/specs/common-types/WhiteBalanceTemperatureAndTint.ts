@@ -2,7 +2,7 @@
  * Represents a white balance setting expressed as a color temperature and tint offset.
  *
  * This is a human-friendly way of expressing white balance compared to raw
- * {@linkcode WhiteBalanceGains | per-channel gains}.
+ * {@linkcode WhiteBalanceGains}.
  *
  * @see {@linkcode WhiteBalanceGains}
  */
