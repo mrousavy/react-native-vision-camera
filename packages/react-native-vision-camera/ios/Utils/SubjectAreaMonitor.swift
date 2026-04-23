@@ -38,12 +38,10 @@ enum SubjectAreaMonitor {
     let id = UUID()
 
     lock.lock()
-    let entry = entries[key] ?? Entry(device: device)
-    let wasEmpty = entry.tokens.isEmpty
-    entries[key] = entry
-    lock.unlock()
+    defer { lock.unlock() }
 
-    if wasEmpty {
+    let entry = entries[key] ?? Entry(device: device)
+    if entry.tokens.isEmpty {
       setMonitoringEnabled(on: device, enabled: true)
     }
 
@@ -54,10 +52,8 @@ enum SubjectAreaMonitor {
     ) { _ in
       handler()
     }
-
-    lock.lock()
     entry.tokens[id] = token
-    lock.unlock()
+    entries[key] = entry
 
     return {
       removeObserver(deviceKey: key, id: id)
@@ -66,22 +62,19 @@ enum SubjectAreaMonitor {
 
   private static func removeObserver(deviceKey: String, id: UUID) {
     lock.lock()
+    defer { lock.unlock() }
+
     guard let entry = entries[deviceKey],
           let token = entry.tokens.removeValue(forKey: id)
     else {
-      lock.unlock()
       return
     }
-    let shouldDisable = entry.tokens.isEmpty
-    let device = entry.device
-    if shouldDisable {
-      entries.removeValue(forKey: deviceKey)
-    }
-    lock.unlock()
 
     NotificationCenter.default.removeObserver(token)
-    if shouldDisable {
-      setMonitoringEnabled(on: device, enabled: false)
+
+    if entry.tokens.isEmpty {
+      setMonitoringEnabled(on: entry.device, enabled: false)
+      entries.removeValue(forKey: deviceKey)
     }
   }
 
