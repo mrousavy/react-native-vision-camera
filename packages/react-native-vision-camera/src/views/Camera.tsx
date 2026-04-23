@@ -2,8 +2,17 @@ import React, { type Ref, useImperativeHandle, useMemo, useRef } from 'react'
 import type { ViewProps } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
 import type { SharedValue } from 'react-native-reanimated'
+import { useExposureUpdater } from '../hooks/internal/useExposureUpdater'
+import { useGestureControllers } from '../hooks/internal/useGestureControllers'
+import { useTorchModeUpdater } from '../hooks/internal/useTorchModeUpdater'
+import { useZoomUpdater } from '../hooks/internal/useZoomUpdater'
+import { type CameraProps, useCamera } from '../hooks/useCamera'
+import { usePreviewOutput } from '../hooks/usePreviewOutput'
 import type { CameraController } from '../specs/CameraController.nitro'
-import type { FocusOptions, MeteringMode } from '../specs/common-types/FocusOptions'
+import type {
+  FocusOptions,
+  MeteringMode,
+} from '../specs/common-types/FocusOptions'
 import type { Point } from '../specs/common-types/Point'
 import type { TorchMode } from '../specs/common-types/TorchMode'
 import type {
@@ -11,12 +20,6 @@ import type {
   PreviewViewMethods,
   PreviewViewProps,
 } from '../specs/views/PreviewView.nitro'
-import { useExposureUpdater } from '../hooks/internal/useExposureUpdater'
-import { useGestureControllers } from '../hooks/internal/useGestureControllers'
-import { useTorchModeUpdater } from '../hooks/internal/useTorchModeUpdater'
-import { useZoomUpdater } from '../hooks/internal/useZoomUpdater'
-import { type CameraProps, useCamera } from '../hooks/useCamera'
-import { usePreviewOutput } from '../hooks/usePreviewOutput'
 import { NativePreviewView } from './NativePreviewView'
 
 /**

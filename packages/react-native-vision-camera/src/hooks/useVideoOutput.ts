@@ -5,8 +5,8 @@ import type {
 } from '../specs/outputs/CameraVideoOutput.nitro'
 import type { Recorder } from '../specs/outputs/Recorder.nitro'
 import { CommonResolutions } from '../utils/CommonResolutions'
-import type { Camera } from '../views/Camera'
 import { VisionCamera } from '../VisionCamera'
+import type { Camera } from '../views/Camera'
 
 /**
  * Use a {@linkcode CameraVideoOutput} for recording videos.
