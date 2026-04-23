@@ -18,7 +18,7 @@ const recorder = await videoOutput.createRecorder({
 
 ### Choosing the output container (iOS)
 
-By default, recordings on iOS are written to a QuickTime (`.mov`) container. If the consumer expects MPEG-4, set `fileType: 'mp4'` on the [`VideoOutputOptions`](/api/react-native-vision-camera/type-aliases/VideoOutputOptions) when creating the output:
+By default, recordings on iOS are written to a QuickTime (`.mov`) container. If the consumer expects MPEG-4, set `fileType: 'mp4'` on the [`VideoOutputOptions`](/api/react-native-vision-camera/interfaces/VideoOutputOptions) when creating the output:
 
 ```ts
 const videoOutput = useVideoOutput({ fileType: 'mp4' })
