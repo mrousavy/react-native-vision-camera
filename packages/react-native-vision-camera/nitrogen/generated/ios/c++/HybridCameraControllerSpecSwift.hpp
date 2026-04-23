@@ -57,6 +57,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include <vector>
 #include <NitroModules/Null.hpp>
 #include <variant>
+#include <functional>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -211,6 +212,12 @@ namespace margelo::nitro::camera {
       }
       auto __value = std::move(__result.value());
       return __value;
+    }
+    inline void setSubjectAreaChangedListener(const std::optional<std::function<void()>>& onSubjectAreaChanged) override {
+      auto __result = _swiftPart.setSubjectAreaChangedListener(onSubjectAreaChanged);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
     }
     inline std::shared_ptr<Promise<void>> setZoom(double zoom) override {
       auto __result = _swiftPart.setZoom(std::forward<decltype(zoom)>(zoom));

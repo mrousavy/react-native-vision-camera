@@ -45,6 +45,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "CameraControllerConfiguration.hpp"
 #include "HybridMeteringPointSpec.hpp"
 #include "FocusOptions.hpp"
+#include <functional>
 #include <optional>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 
@@ -106,6 +107,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<Promise<void>> configure(const CameraControllerConfiguration& config) = 0;
       virtual std::shared_ptr<Promise<void>> focusTo(const std::shared_ptr<HybridMeteringPointSpec>& point, const FocusOptions& options) = 0;
       virtual std::shared_ptr<Promise<void>> resetFocus() = 0;
+      virtual void setSubjectAreaChangedListener(const std::optional<std::function<void()>>& onSubjectAreaChanged) = 0;
       virtual std::shared_ptr<Promise<void>> setZoom(double zoom) = 0;
       virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
       virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;

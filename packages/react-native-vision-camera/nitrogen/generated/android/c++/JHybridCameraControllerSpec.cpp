@@ -68,6 +68,9 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include <variant>
 #include "JVariant_NullType_Double.hpp"
 #include <NitroModules/JNull.hpp>
+#include <functional>
+#include "JFunc_void.hpp"
+#include <NitroModules/JNICallable.hpp>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 #include "JWhiteBalanceTemperatureAndTint.hpp"
 
@@ -272,6 +275,10 @@ namespace margelo::nitro::camera {
       });
       return __promise;
     }();
+  }
+  void JHybridCameraControllerSpec::setSubjectAreaChangedListener(const std::optional<std::function<void()>>& onSubjectAreaChanged) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JFunc_void::javaobject> /* onSubjectAreaChanged */)>("setSubjectAreaChangedListener_cxx");
+    method(_javaPart, onSubjectAreaChanged.has_value() ? JFunc_void_cxx::fromCpp(onSubjectAreaChanged.value()) : nullptr);
   }
   std::shared_ptr<Promise<void>> JHybridCameraControllerSpec::setZoom(double zoom) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* zoom */)>("setZoom");

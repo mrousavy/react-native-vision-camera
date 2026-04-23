@@ -139,6 +139,15 @@ abstract class HybridCameraControllerSpec: HybridObject() {
   @Keep
   abstract fun resetFocus(): Promise<Unit>
   
+  abstract fun setSubjectAreaChangedListener(onSubjectAreaChanged: (() -> Unit)?): Unit
+  
+  @DoNotStrip
+  @Keep
+  private fun setSubjectAreaChangedListener_cxx(onSubjectAreaChanged: Func_void?): Unit {
+    val __result = setSubjectAreaChangedListener(onSubjectAreaChanged?.let { it })
+    return __result
+  }
+  
   @DoNotStrip
   @Keep
   abstract fun setZoom(zoom: Double): Promise<Unit>

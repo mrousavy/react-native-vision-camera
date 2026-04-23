@@ -543,6 +543,21 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.value();
   }
   
+  // pragma MARK: std::optional<std::function<void()>>
+  /**
+   * Specialized version of `std::optional<std::function<void()>>`.
+   */
+  using std__optional_std__function_void____ = std::optional<std::function<void()>>;
+  inline std::optional<std::function<void()>> create_std__optional_std__function_void____(const std::function<void()>& value) noexcept {
+    return std::optional<std::function<void()>>(value);
+  }
+  inline bool has_value_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline std::function<void()> get_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
+    return optional.value();
+  }
+  
   // pragma MARK: std::optional<double>
   /**
    * Specialized version of `std::optional<double>`.
@@ -577,6 +592,15 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_std__shared_ptr_Promise_void___ create_Result_std__shared_ptr_Promise_void___(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<void>>>::withError(error);
+  }
+  
+  // pragma MARK: Result<void>
+  using Result_void_ = Result<void>;
+  inline Result_void_ create_Result_void_() noexcept {
+    return Result<void>::withValue();
+  }
+  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
+    return Result<void>::withError(error);
   }
   
   // pragma MARK: Result<WhiteBalanceGains>
@@ -1246,15 +1270,6 @@ namespace margelo::nitro::camera::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridFrameSpec>
   using std__weak_ptr_HybridFrameSpec_ = std::weak_ptr<HybridFrameSpec>;
   inline std__weak_ptr_HybridFrameSpec_ weakify_std__shared_ptr_HybridFrameSpec_(const std::shared_ptr<HybridFrameSpec>& strong) noexcept { return strong; }
-  
-  // pragma MARK: Result<void>
-  using Result_void_ = Result<void>;
-  inline Result_void_ create_Result_void_() noexcept {
-    return Result<void>::withValue();
-  }
-  inline Result_void_ create_Result_void_(const std::exception_ptr& error) noexcept {
-    return Result<void>::withError(error);
-  }
   
   // pragma MARK: std::shared_ptr<HybridNativeThreadSpec>
   /**
@@ -2379,21 +2394,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.has_value();
   }
   inline std::shared_ptr<HybridLocationSpec> get_std__optional_std__shared_ptr_HybridLocationSpec__(const std::optional<std::shared_ptr<HybridLocationSpec>>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<std::function<void()>>
-  /**
-   * Specialized version of `std::optional<std::function<void()>>`.
-   */
-  using std__optional_std__function_void____ = std::optional<std::function<void()>>;
-  inline std::optional<std::function<void()>> create_std__optional_std__function_void____(const std::function<void()>& value) noexcept {
-    return std::optional<std::function<void()>>(value);
-  }
-  inline bool has_value_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline std::function<void()> get_std__optional_std__function_void____(const std::optional<std::function<void()>>& optional) noexcept {
     return optional.value();
   }
   

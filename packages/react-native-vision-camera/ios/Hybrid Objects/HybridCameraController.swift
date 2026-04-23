@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraController: HybridCameraControllerSpec, NativeCameraController {
+final class HybridCameraController: HybridCameraControllerSpec, NativeCameraController {
   let device: any HybridCameraDeviceSpec
   let queue: DispatchQueue
   let captureDevice: AVCaptureDevice
@@ -269,6 +269,20 @@ class HybridCameraController: HybridCameraControllerSpec, NativeCameraController
     }
   }
 
+  func setSubjectAreaChangedListener(onSubjectAreaChanged: (() -> Void)?) throws {
+    // TODO: Properly implement this so that this supports multiple listeners and can be removed in JS? `observer`?
+    try captureDevice.lockForConfiguration()
+    captureDevice.isSubjectAreaChangeMonitoringEnabled = true
+    captureDevice.unlockForConfiguration()
+    
+    let observer = NotificationCenter.default.addObserver(
+      forName: AVCaptureDevice.subjectAreaDidChangeNotification,
+      object: captureDevice,
+      queue: .current) { [weak self] notification in
+        onSubjectAreaChanged?.()
+      }
+  }
+  
   func setTorchMode(mode: TorchMode, strength: Double?) -> Promise<Void> {
     return captureDevice.withLock(queue) {
       // 1. Ensure we have a torch
