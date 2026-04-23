@@ -263,7 +263,9 @@ export interface CameraController
   focusTo(point: MeteringPoint, options: FocusOptions): Promise<void>
   /**
    * Cancels any current focus operations from {@linkcode focusTo | focusTo(...)},
-   * resets back all 3A focus modes to continuously auto-focus, and
+   * resets back all 3A focus modes to continuously auto-focus if they
+   * have been previously locked (e.g. via {@linkcode setFocusLocked | setFocusLocked(...)} or
+   * {@linkcode lockCurrentFocus | lockCurrentFocus()}, and similar), and
    * resets the focus point of interest to be in the center.
    *
    * @example
@@ -272,6 +274,41 @@ export interface CameraController
    * ```
    */
   resetFocus(): Promise<void>
+  /**
+   * Adds a listener to be fired everytime the subject area
+   * substantially changes - e.g. when the user pans away
+   * from a scene previously in focus.
+   *
+   * When {@linkcode onSubjectAreaChanged} is set to
+   * `undefined`, the device stops monitoring subject
+   * area change events.
+   *
+   * @discussion
+   * When manually locking focus (e.g. via
+   * {@linkcode focusTo | focusTo(...)} with {@linkcode FocusOptions.adaptiveness adaptiveness} set to {@linkcode SceneAdaptiveness | 'locked'},
+   * {@linkcode setFocusLocked | setFocusLocked(...)} (or similar), or
+   * {@linkcode lockCurrentFocus | lockCurrentFocus()} (or similar)),
+   * it is useful to listen for subject area changes, to reset focus
+   * again via {@linkcode resetFocus | resetFocus()}.
+   *
+   * @example
+   * ```ts
+   * const controller = ...
+   * // Lock AE/AF/AWB
+   * await Promise.all([
+   *   controller.lockCurrentExposure(),
+   *   controller.lockCurrentFocus(),
+   *   controller.lockCurrentWhiteBalance(),
+   * ])
+   * const listener = controller.setSubjectAreaChangedListener(() => {
+   *   // When user moves Camera away, reset AE/AF/AWB again
+   *   controller.resetFocus()
+   * })
+   * ```
+   */
+  setSubjectAreaChangedListener(
+    onSubjectAreaChanged: (() => void) | undefined,
+  ): void
 
   // pragma MARK: Zoom
   /**
