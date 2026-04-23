@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react'
 import type { ListenerSubscription } from '../../specs/common-types/ListenerSubscription'
+import { useStableCallback } from './useStableCallback'
 
 type ListenerMethodName<T> = {
   [K in keyof T]: T[K] extends (
@@ -22,13 +23,15 @@ export function useListenerSubscription<T, K extends ListenerMethodName<T>>(
     ? L | undefined
     : never,
 ): void {
+  const stableCallback = useStableCallback(callback)
+
   // Subscribe during layout so passive effects (e.g. start/stop) cannot emit before listeners are attached.
   useLayoutEffect(() => {
     if (object == null) return
-    if (callback == null) return
+    if (stableCallback == null) return
 
-    type Func = (_: typeof callback) => ListenerSubscription
-    const listener = (object[subscriberFuncName] as Func)(callback)
+    type Func = (_: typeof stableCallback) => ListenerSubscription
+    const listener = (object[subscriberFuncName] as Func)(stableCallback)
     return () => listener.remove()
-  }, [callback, object, subscriberFuncName])
+  }, [stableCallback, object, subscriberFuncName])
 }
