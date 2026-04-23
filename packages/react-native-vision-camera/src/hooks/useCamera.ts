@@ -98,6 +98,8 @@ export interface CameraProps {
    *
    * This is a good point to reset any locked AE/AF/AWB
    * focus states back to continuously auto-focus.
+   *
+   * @platform iOS
    */
   onSubjectAreaChanged?: () => void
 }
