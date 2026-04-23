@@ -35,7 +35,7 @@ export function clearSurfacesCache() {
  * {@linkcode width} and {@linkcode height} for the current thread.
  *
  * @discussion
- * Surfaces are cached per thread + size. Unused Surfaces are automatically
+ * Surfaces are cached per thread and size. Unused Surfaces are automatically
  * evicted from the cache after 15 seconds of inactivity.
  *
  * @internal

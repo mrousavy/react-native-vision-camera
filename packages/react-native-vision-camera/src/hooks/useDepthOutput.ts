@@ -41,9 +41,9 @@ interface Props extends Partial<BaseDepthOptions> {
 /**
  * Use a {@linkcode CameraDepthFrameOutput} for streaming {@linkcode Depth} Frames.
  *
- * The {@linkcode Props.onDepth | onDepth(...)} callback will be called for
- * every {@linkcode Depth} Frame the Camera produces. It is a synchronous JS
- * function running on the {@linkcode CameraDepthFrameOutput}'s thread - aka a "worklet".
+ * The `onDepth(...)` callback will be called for every {@linkcode Depth} Frame
+ * the Camera produces. It is a synchronous JS function running on the
+ * {@linkcode CameraDepthFrameOutput}'s thread - aka a "worklet".
  *
  * @note {@linkcode useDepthOutput | useDepthOutput(...)} requires
  * `react-native-vision-camera-worklets` (and
@@ -53,7 +53,7 @@ interface Props extends Partial<BaseDepthOptions> {
  * @discussion
  * You must {@linkcode Depth.dispose | dispose} the {@linkcode Depth} Frame after
  * your callback has finished processing, otherwise subsequent Frames may be
- * dropped (see {@linkcode Props.onDepthFrameDropped | onDepthFrameDropped(...)}).
+ * dropped (see `onDepthFrameDropped(...)`).
  *
  * @example
  * ```ts

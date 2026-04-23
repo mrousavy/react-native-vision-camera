@@ -1,3 +1,5 @@
+import type { Frame } from '../instances/Frame.nitro'
+
 /**
  * Represents the reason why a {@linkcode Frame} was dropped by the Camera pipeline.
  * - `'frame-was-late'`: The Frame took too long to process and could not be delivered in time.

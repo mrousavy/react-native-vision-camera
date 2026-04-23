@@ -22,7 +22,8 @@ export function orientationToDegrees(orientation: CameraOrientation): number {
 }
 
 /**
- * Normalizes the given rotation in degrees into the `[0, 360)` range.
+ * Normalizes the given rotation in degrees into the range from
+ * `0` to `360` (not including `360`).
  *
  * @internal
  * @worklet

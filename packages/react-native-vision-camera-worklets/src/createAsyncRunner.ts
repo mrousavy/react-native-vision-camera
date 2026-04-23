@@ -1,7 +1,10 @@
 import { NitroModules } from 'react-native-nitro-modules'
 import type {
   AsyncRunner,
+  NativeThread,
   NativeThreadFactory,
+  RuntimeThreadProvider,
+  useAsyncRunner,
 } from 'react-native-vision-camera'
 import { createSynchronizable, scheduleOnRuntime } from 'react-native-worklets'
 import { createWorkletRuntimeForThread } from './createWorkletRuntimeForThread'

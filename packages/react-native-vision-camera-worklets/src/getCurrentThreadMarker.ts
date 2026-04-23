@@ -1,3 +1,4 @@
+import type { AsyncRunner } from 'react-native-vision-camera'
 import { HybridWorkletQueueFactory } from './internal/HybridWorkletQueueFactory'
 
 /**

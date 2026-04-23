@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import {
   type CameraVideoOutput,
   CommonResolutions,
+  type Recorder,
   type VideoOutputOptions,
 } from '..'
 import { VisionCamera } from '../VisionCamera'
@@ -10,9 +11,11 @@ import { VisionCamera } from '../VisionCamera'
  * Use a {@linkcode CameraVideoOutput} for recording videos.
  *
  * The returned {@linkcode CameraVideoOutput} can be passed to a
- * {@linkcode Camera} to enable video recording. Recordings are started and
- * stopped via the {@linkcode CameraVideoOutput.startRecording | startRecording()}
- * and {@linkcode CameraVideoOutput.stopRecording | stopRecording()} methods.
+ * {@linkcode Camera} to enable video recording. To actually record a video,
+ * create a {@linkcode Recorder} via
+ * {@linkcode CameraVideoOutput.createRecorder | createRecorder(...)}, then
+ * start and stop it via {@linkcode Recorder.startRecording | startRecording(...)}
+ * and {@linkcode Recorder.stopRecording | stopRecording()}.
  *
  * @example
  * ```ts
@@ -22,9 +25,13 @@ import { VisionCamera } from '../VisionCamera'
  * })
  *
  * // ...
- * await videoOutput.startRecording()
+ * const recorder = await videoOutput.createRecorder({})
+ * await recorder.startRecording(
+ *   (filePath) => console.log(`Recorded to ${filePath}`),
+ *   (error) => console.error(error),
+ * )
  * // later...
- * const video = await videoOutput.stopRecording()
+ * await recorder.stopRecording()
  * ```
  */
 export function useVideoOutput({

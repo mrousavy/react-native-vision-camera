@@ -11,7 +11,7 @@ import { VisionCamera } from '../VisionCamera'
  *
  * The returned {@linkcode CameraPhotoOutput} can be passed to a
  * {@linkcode Camera} to enable photo capture. Photos can then be captured
- * via {@linkcode CameraPhotoOutput.capture | capture()}.
+ * via {@linkcode CameraPhotoOutput.capturePhoto | capturePhoto(...)}.
  *
  * @example
  * ```ts
@@ -21,7 +21,7 @@ import { VisionCamera } from '../VisionCamera'
  * })
  *
  * // ...
- * const photo = await photoOutput.capture({ flash: 'auto' })
+ * const photo = await photoOutput.capturePhoto({ flash: 'auto' })
  * ```
  */
 export function usePhotoOutput({
