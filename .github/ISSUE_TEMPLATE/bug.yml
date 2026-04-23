@@ -103,7 +103,7 @@ body:
     id: rn-version
     attributes:
       label: React Native version
-      placeholder: "0.76.3"
+      placeholder: "0.85.2"
     validations:
       required: true
 
@@ -114,7 +114,6 @@ body:
       options:
         - New Architecture (Fabric / bridgeless)
         - Old Architecture (Paper)
-        - Not sure
     validations:
       required: true
 
