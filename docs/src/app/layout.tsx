@@ -4,10 +4,7 @@ import type { Metadata, Viewport } from 'next'
 import './global.css'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { siteConfig } from '@/lib/site-config'
-import {
-  getSiteStructuredData,
-  serializeJsonLd,
-} from '@/lib/structured-data'
+import { getSiteStructuredData, serializeJsonLd } from '@/lib/structured-data'
 
 const geist = Geist({
   variable: '--font-sans',
