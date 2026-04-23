@@ -18,7 +18,7 @@ public extension VideoOutputOptions {
   /**
    * Create a new instance of `VideoOutputOptions`.
    */
-  init(targetResolution: Size, enableAudio: Bool?, enablePersistentRecorder: Bool?, enableHigherResolutionCodecs: Bool?, targetBitRate: Double?) {
+  init(targetResolution: Size, enableAudio: Bool?, enablePersistentRecorder: Bool?, enableHigherResolutionCodecs: Bool?, targetBitRate: Double?, fileType: RecorderFileType?) {
     self.init(targetResolution, { () -> bridge.std__optional_bool_ in
       if let __unwrappedValue = enableAudio {
         return bridge.create_std__optional_bool_(__unwrappedValue)
@@ -40,6 +40,12 @@ public extension VideoOutputOptions {
     }(), { () -> bridge.std__optional_double_ in
       if let __unwrappedValue = targetBitRate {
         return bridge.create_std__optional_double_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_RecorderFileType_ in
+      if let __unwrappedValue = fileType {
+        return bridge.create_std__optional_RecorderFileType_(__unwrappedValue)
       } else {
         return .init()
       }
@@ -97,5 +103,10 @@ public extension VideoOutputOptions {
         return nil
       }
     }()
+  }
+  
+  @inline(__always)
+  var fileType: RecorderFileType? {
+    return self.__fileType.value
   }
 }

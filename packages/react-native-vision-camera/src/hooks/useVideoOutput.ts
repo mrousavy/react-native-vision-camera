@@ -11,6 +11,7 @@ export function useVideoOutput({
   targetBitRate,
   enablePersistentRecorder,
   enableAudio,
+  fileType,
 }: Partial<VideoOutputOptions> = {}): CameraVideoOutput {
   const videoOutput = useMemo(
     () =>
@@ -19,8 +20,15 @@ export function useVideoOutput({
         targetBitRate: targetBitRate,
         enablePersistentRecorder: enablePersistentRecorder,
         enableAudio: enableAudio,
+        fileType: fileType,
       }),
-    [enablePersistentRecorder, targetBitRate, enableAudio, targetResolution],
+    [
+      enablePersistentRecorder,
+      targetBitRate,
+      enableAudio,
+      targetResolution,
+      fileType,
+    ],
   )
 
   return videoOutput

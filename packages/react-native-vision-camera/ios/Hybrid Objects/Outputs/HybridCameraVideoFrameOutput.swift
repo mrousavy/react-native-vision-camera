@@ -19,8 +19,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
   let requiresDepthFormat: Bool = false
   let output: AVCaptureVideoDataOutput
   private var recorders = WeakArray<HybridFrameRecorder>()
-  // TODO: Allow configuring this
-  private let fileType = AVFileType.mov
+  private let fileType: AVFileType
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule {
@@ -40,6 +39,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
     self.output = AVCaptureVideoDataOutput()
     self.delegate = FrameDelegate()
     self.options = options
+    self.fileType = options.fileType?.toAVFileType() ?? .quickTimeMovie
     self.queue = DispatchQueue(
       label: "com.margelo.camera.video-frame",
       qos: .userInteractive,
@@ -118,16 +118,6 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
 
   func createRecorder(settings: RecorderSettings) -> Promise<any HybridRecorderSpec> {
     return Promise.parallel(queue) {
-      // Persistent recorders are bound to the output's preconfigured fileType
-      // (used for both codec negotiation and track setup). Customizing
-      // `fileType` per-recorder on this path would require a deeper refactor,
-      // so for now we reject it explicitly instead of silently ignoring it.
-      if settings.fileType != nil {
-        throw RuntimeError.error(
-          withMessage:
-            "`fileType` is not supported on persistent recorders. Disable `enablePersistentRecorder` to configure the container format per-recording."
-        )
-      }
       // 1. Create AVAssetWriter Recorder
       let clock = try self.getMasterClock()
       let recorder = try HybridFrameRecorder(

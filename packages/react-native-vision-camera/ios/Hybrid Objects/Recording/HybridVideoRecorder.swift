@@ -12,13 +12,11 @@ class HybridVideoRecorder: HybridRecorderSpec {
   private let videoOutput: AVCaptureMovieFileOutput
   private let queue: DispatchQueue
   private let fileURL: URL
-  private let fileType: AVFileType
   private var isCancelled = false
 
   init(videoOutput: AVCaptureMovieFileOutput, queue: DispatchQueue, fileType: AVFileType = .quickTimeMovie) throws {
     self.videoOutput = videoOutput
     self.queue = queue
-    self.fileType = fileType
     self.fileURL = try URL.createTempURL(fileType: fileType)
     super.init()
   }

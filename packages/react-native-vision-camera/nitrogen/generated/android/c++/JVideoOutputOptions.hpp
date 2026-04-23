@@ -10,7 +10,9 @@
 #include <fbjni/fbjni.h>
 #include "VideoOutputOptions.hpp"
 
+#include "JRecorderFileType.hpp"
 #include "JSize.hpp"
+#include "RecorderFileType.hpp"
 #include "Size.hpp"
 #include <optional>
 
@@ -43,12 +45,15 @@ namespace margelo::nitro::camera {
       jni::local_ref<jni::JBoolean> enableHigherResolutionCodecs = this->getFieldValue(fieldEnableHigherResolutionCodecs);
       static const auto fieldTargetBitRate = clazz->getField<jni::JDouble>("targetBitRate");
       jni::local_ref<jni::JDouble> targetBitRate = this->getFieldValue(fieldTargetBitRate);
+      static const auto fieldFileType = clazz->getField<JRecorderFileType>("fileType");
+      jni::local_ref<JRecorderFileType> fileType = this->getFieldValue(fieldFileType);
       return VideoOutputOptions(
         targetResolution->toCpp(),
         enableAudio != nullptr ? std::make_optional(static_cast<bool>(enableAudio->value())) : std::nullopt,
         enablePersistentRecorder != nullptr ? std::make_optional(static_cast<bool>(enablePersistentRecorder->value())) : std::nullopt,
         enableHigherResolutionCodecs != nullptr ? std::make_optional(static_cast<bool>(enableHigherResolutionCodecs->value())) : std::nullopt,
-        targetBitRate != nullptr ? std::make_optional(targetBitRate->value()) : std::nullopt
+        targetBitRate != nullptr ? std::make_optional(targetBitRate->value()) : std::nullopt,
+        fileType != nullptr ? std::make_optional(fileType->toCpp()) : std::nullopt
       );
     }
 
@@ -58,7 +63,7 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JVideoOutputOptions::javaobject> fromCpp(const VideoOutputOptions& value) {
-      using JSignature = JVideoOutputOptions(jni::alias_ref<JSize>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>);
+      using JSignature = JVideoOutputOptions(jni::alias_ref<JSize>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JRecorderFileType>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -67,7 +72,8 @@ namespace margelo::nitro::camera {
         value.enableAudio.has_value() ? jni::JBoolean::valueOf(value.enableAudio.value()) : nullptr,
         value.enablePersistentRecorder.has_value() ? jni::JBoolean::valueOf(value.enablePersistentRecorder.value()) : nullptr,
         value.enableHigherResolutionCodecs.has_value() ? jni::JBoolean::valueOf(value.enableHigherResolutionCodecs.value()) : nullptr,
-        value.targetBitRate.has_value() ? jni::JDouble::valueOf(value.targetBitRate.value()) : nullptr
+        value.targetBitRate.has_value() ? jni::JDouble::valueOf(value.targetBitRate.value()) : nullptr,
+        value.fileType.has_value() ? JRecorderFileType::fromCpp(value.fileType.value()) : nullptr
       );
     }
   };

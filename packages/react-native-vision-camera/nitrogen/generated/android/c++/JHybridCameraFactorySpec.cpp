@@ -85,6 +85,8 @@ namespace margelo::nitro::camera { enum class TargetPhotoContainerFormat; }
 namespace margelo::nitro::camera { enum class QualityPrioritization; }
 // Forward declaration of `VideoOutputOptions` to properly resolve imports.
 namespace margelo::nitro::camera { struct VideoOutputOptions; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `FrameOutputOptions` to properly resolve imports.
 namespace margelo::nitro::camera { struct FrameOutputOptions; }
 // Forward declaration of `TargetVideoPixelFormat` to properly resolve imports.
@@ -183,6 +185,8 @@ namespace margelo::nitro::camera { enum class OrientationSource; }
 #include "JQualityPrioritization.hpp"
 #include "VideoOutputOptions.hpp"
 #include "JVideoOutputOptions.hpp"
+#include "RecorderFileType.hpp"
+#include "JRecorderFileType.hpp"
 #include "FrameOutputOptions.hpp"
 #include "JFrameOutputOptions.hpp"
 #include "TargetVideoPixelFormat.hpp"

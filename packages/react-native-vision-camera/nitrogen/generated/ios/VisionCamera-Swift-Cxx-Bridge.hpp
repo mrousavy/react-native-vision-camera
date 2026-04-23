@@ -904,6 +904,21 @@ namespace margelo::nitro::camera::bridge::swift {
   using std__weak_ptr_HybridCameraVideoOutputSpec_ = std::weak_ptr<HybridCameraVideoOutputSpec>;
   inline std__weak_ptr_HybridCameraVideoOutputSpec_ weakify_std__shared_ptr_HybridCameraVideoOutputSpec_(const std::shared_ptr<HybridCameraVideoOutputSpec>& strong) noexcept { return strong; }
   
+  // pragma MARK: std::optional<RecorderFileType>
+  /**
+   * Specialized version of `std::optional<RecorderFileType>`.
+   */
+  using std__optional_RecorderFileType_ = std::optional<RecorderFileType>;
+  inline std::optional<RecorderFileType> create_std__optional_RecorderFileType_(const RecorderFileType& value) noexcept {
+    return std::optional<RecorderFileType>(value);
+  }
+  inline bool has_value_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline RecorderFileType get_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
+    return optional.value();
+  }
+  
   // pragma MARK: std::shared_ptr<HybridCameraFrameOutputSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridCameraFrameOutputSpec>`.
@@ -2519,21 +2534,6 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_std__shared_ptr_HybridRecorderSpec_ create_Func_void_std__shared_ptr_HybridRecorderSpec_(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__shared_ptr_HybridRecorderSpec__Wrapper wrap_Func_void_std__shared_ptr_HybridRecorderSpec_(Func_void_std__shared_ptr_HybridRecorderSpec_ value) noexcept {
     return Func_void_std__shared_ptr_HybridRecorderSpec__Wrapper(std::move(value));
-  }
-  
-  // pragma MARK: std::optional<RecorderFileType>
-  /**
-   * Specialized version of `std::optional<RecorderFileType>`.
-   */
-  using std__optional_RecorderFileType_ = std::optional<RecorderFileType>;
-  inline std::optional<RecorderFileType> create_std__optional_RecorderFileType_(const RecorderFileType& value) noexcept {
-    return std::optional<RecorderFileType>(value);
-  }
-  inline bool has_value_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline RecorderFileType get_std__optional_RecorderFileType_(const std::optional<RecorderFileType>& optional) noexcept {
-    return optional.value();
   }
   
   // pragma MARK: Result<std::vector<VideoCodec>>

@@ -97,7 +97,22 @@ export interface VideoOutputOptions {
    * @default undefined
    */
   targetBitRate?: number
+
+  /**
+   * The container file type for recordings produced by this output.
+   *
+   * On Android this is always `.mp4` and this field is ignored.
+   *
+   * @platform iOS
+   * @default 'mov'
+   */
+  fileType?: RecorderFileType
 }
+
+/**
+ * Container file type for a {@linkcode CameraVideoOutput}'s recordings.
+ */
+export type RecorderFileType = 'mp4' | 'mov'
 
 /**
  * Output settings for a {@linkcode CameraVideoOutput}.
@@ -115,13 +130,6 @@ export interface VideoOutputSettings {
 }
 
 /**
- * The container file type a {@linkcode Recorder} should write to.
- *
- * @see {@linkcode RecorderSettings.fileType}
- */
-export type RecorderFileType = 'mp4' | 'mov'
-
-/**
  * Video Recorder settings for a {@linkcode Recorder}
  * created by a {@linkcode CameraVideoOutput}.
  *
@@ -135,25 +143,6 @@ export interface RecorderSettings {
    * into the video metadata using the ISO-6709 standard.
    */
   location?: Location
-  /**
-   * The output container format the {@linkcode Recorder} should write to.
-   *
-   * - `'mp4'`: MPEG-4 Part 14 (`.mp4`). Widely interoperable and expected by
-   *   most HTTP video consumers and CDNs.
-   * - `'mov'`: Apple QuickTime (`.mov`). The historical iOS default; still an
-   *   ISO base media container but advertised with a `video/quicktime` MIME.
-   *
-   * On Android, {@linkcode CameraVideoOutput} always writes `.mp4` regardless
-   * of this setting (CameraX's `Recorder` does not expose a QuickTime output).
-   *
-   * @note Currently only honored for the default (non-persistent) recorder.
-   * Persistent recorders (created when {@linkcode VideoOutputOptions.enablePersistentRecorder}
-   * is `true`) always write `.mov`.
-   *
-   * @platform iOS
-   * @default 'mov' (current iOS default)
-   */
-  fileType?: RecorderFileType
 }
 
 /**

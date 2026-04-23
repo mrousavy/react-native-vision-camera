@@ -17,8 +17,6 @@ namespace margelo::nitro::camera { struct VideoOutputSettings; }
 namespace margelo::nitro::camera { struct RecorderSettings; }
 // Forward declaration of `HybridLocationSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridLocationSpec; }
-// Forward declaration of `RecorderFileType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `CameraOrientation` to properly resolve imports.
@@ -40,8 +38,6 @@ namespace margelo::nitro::camera { enum class CameraOrientation; }
 #include "JRecorderSettings.hpp"
 #include "HybridLocationSpec.hpp"
 #include "JHybridLocationSpec.hpp"
-#include "RecorderFileType.hpp"
-#include "JRecorderFileType.hpp"
 #include "MediaType.hpp"
 #include "JMediaType.hpp"
 #include "CameraOrientation.hpp"

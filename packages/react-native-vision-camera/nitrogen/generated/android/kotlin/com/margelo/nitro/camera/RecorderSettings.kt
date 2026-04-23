@@ -19,10 +19,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 data class RecorderSettings(
   @DoNotStrip
   @Keep
-  val location: HybridLocationSpec?,
-  @DoNotStrip
-  @Keep
-  val fileType: RecorderFileType?
+  val location: HybridLocationSpec?
 ) {
   /* primary constructor */
 
@@ -34,8 +31,8 @@ data class RecorderSettings(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(location: HybridLocationSpec?, fileType: RecorderFileType?): RecorderSettings {
-      return RecorderSettings(location, fileType)
+    private fun fromCpp(location: HybridLocationSpec?): RecorderSettings {
+      return RecorderSettings(location)
     }
   }
 }

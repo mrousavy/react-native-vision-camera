@@ -30,9 +30,12 @@
 
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `RecorderFileType` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecorderFileType; }
 
 #include "Size.hpp"
 #include <optional>
+#include "RecorderFileType.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -46,10 +49,11 @@ namespace margelo::nitro::camera {
     std::optional<bool> enablePersistentRecorder     SWIFT_PRIVATE;
     std::optional<bool> enableHigherResolutionCodecs     SWIFT_PRIVATE;
     std::optional<double> targetBitRate     SWIFT_PRIVATE;
+    std::optional<RecorderFileType> fileType     SWIFT_PRIVATE;
 
   public:
     VideoOutputOptions() = default;
-    explicit VideoOutputOptions(Size targetResolution, std::optional<bool> enableAudio, std::optional<bool> enablePersistentRecorder, std::optional<bool> enableHigherResolutionCodecs, std::optional<double> targetBitRate): targetResolution(targetResolution), enableAudio(enableAudio), enablePersistentRecorder(enablePersistentRecorder), enableHigherResolutionCodecs(enableHigherResolutionCodecs), targetBitRate(targetBitRate) {}
+    explicit VideoOutputOptions(Size targetResolution, std::optional<bool> enableAudio, std::optional<bool> enablePersistentRecorder, std::optional<bool> enableHigherResolutionCodecs, std::optional<double> targetBitRate, std::optional<RecorderFileType> fileType): targetResolution(targetResolution), enableAudio(enableAudio), enablePersistentRecorder(enablePersistentRecorder), enableHigherResolutionCodecs(enableHigherResolutionCodecs), targetBitRate(targetBitRate), fileType(fileType) {}
 
   public:
     friend bool operator==(const VideoOutputOptions& lhs, const VideoOutputOptions& rhs) = default;
@@ -69,7 +73,8 @@ namespace margelo::nitro {
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableAudio"))),
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enablePersistentRecorder"))),
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableHigherResolutionCodecs"))),
-        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "targetBitRate")))
+        JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "targetBitRate"))),
+        JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fileType")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::camera::VideoOutputOptions& arg) {
@@ -79,6 +84,7 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "enablePersistentRecorder"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.enablePersistentRecorder));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "enableHigherResolutionCodecs"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.enableHigherResolutionCodecs));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "targetBitRate"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.targetBitRate));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "fileType"), JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::toJSI(runtime, arg.fileType));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -94,6 +100,7 @@ namespace margelo::nitro {
       if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enablePersistentRecorder")))) return false;
       if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableHigherResolutionCodecs")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "targetBitRate")))) return false;
+      if (!JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fileType")))) return false;
       return true;
     }
   };

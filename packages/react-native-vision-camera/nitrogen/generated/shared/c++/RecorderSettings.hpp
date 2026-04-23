@@ -30,13 +30,10 @@
 
 // Forward declaration of `HybridLocationSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridLocationSpec; }
-// Forward declaration of `RecorderFileType` to properly resolve imports.
-namespace margelo::nitro::camera { enum class RecorderFileType; }
 
 #include <memory>
 #include "HybridLocationSpec.hpp"
 #include <optional>
-#include "RecorderFileType.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -46,11 +43,10 @@ namespace margelo::nitro::camera {
   struct RecorderSettings final {
   public:
     std::optional<std::shared_ptr<HybridLocationSpec>> location     SWIFT_PRIVATE;
-    std::optional<RecorderFileType> fileType     SWIFT_PRIVATE;
 
   public:
     RecorderSettings() = default;
-    explicit RecorderSettings(std::optional<std::shared_ptr<HybridLocationSpec>> location, std::optional<RecorderFileType> fileType): location(location), fileType(fileType) {}
+    explicit RecorderSettings(std::optional<std::shared_ptr<HybridLocationSpec>> location): location(location) {}
 
   public:
     friend bool operator==(const RecorderSettings& lhs, const RecorderSettings& rhs) = default;
@@ -66,14 +62,12 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::RecorderSettings fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::camera::RecorderSettings(
-        JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "location"))),
-        JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fileType")))
+        JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "location")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::camera::RecorderSettings& arg) {
       jsi::Object obj(runtime);
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "location"), JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::toJSI(runtime, arg.location));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "fileType"), JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::toJSI(runtime, arg.fileType));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -85,7 +79,6 @@ namespace margelo::nitro {
         return false;
       }
       if (!JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "location")))) return false;
-      if (!JSIConverter<std::optional<margelo::nitro::camera::RecorderFileType>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "fileType")))) return false;
       return true;
     }
   };
