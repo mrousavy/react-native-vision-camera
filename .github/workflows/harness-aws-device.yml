@@ -54,6 +54,7 @@ on:
       - "package.json"
 
 env:
+  USE_CCACHE: 1
   HARNESS_AWS_REGION: us-west-2
   HARNESS_DEVICE_FARM_PROJECT_ARN: arn:aws:devicefarm:us-west-2:633665345122:project:210b1942-012b-4653-9673-f3ff91c5e649
   HARNESS_XCODE_VERSION: "26.2"
@@ -203,14 +204,17 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Restore Gradle cache
+      - name: Restore Gradle/CMake cache
         uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'bun.lock') }}
+            apps/simple-camera/android/.gradle
+            apps/simple-camera/android/app/.cxx
+          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'bun.lock') }}
           restore-keys: |
+            ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-
             ${{ runner.os }}-gradle-
 
       - name: Configure AWS credentials
@@ -229,7 +233,7 @@ jobs:
       - name: Build Android app
         if: steps.cache-apk-restore.outputs.cache-hit != 'true'
         working-directory: apps/simple-camera/android
-        run: ./gradlew assembleDebug -Pandroid.injected.testOnly=false -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --console=plain
+        run: ./gradlew assembleDebug -Pandroid.injected.testOnly=false -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --build-cache --console=plain
 
       - name: Save Android app to cache
         if: steps.cache-apk-restore.outputs.cache-hit != 'true' && success()
@@ -301,6 +305,23 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 1.5G
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.HARNESS_XCODE_VERSION }}-ccache-harness-ios
+          create-symlink: true
+
+      - name: Setup ccache behavior
+        run: |
+          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
+          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
+          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
+          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
+
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
@@ -310,9 +331,6 @@ jobs:
 
       - name: Select Xcode ${{ env.HARNESS_XCODE_VERSION }}
         run: sudo xcode-select -s "/Applications/Xcode_${{ env.HARNESS_XCODE_VERSION }}.app/Contents/Developer"
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
 
       - name: Restore CocoaPods cache
         uses: actions/cache@v5
@@ -352,12 +370,15 @@ jobs:
           mkdir -p "$DERIVED_DATA" "$(dirname "$IPA_PATH")" "$PAYLOAD_DIR"
 
           xcodebuild \
+            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
             -workspace apps/simple-camera/ios/SimpleCamera.xcworkspace \
             -scheme SimpleCamera \
             -configuration Debug \
             -sdk iphoneos \
             -destination generic/platform=iOS \
             -derivedDataPath "$DERIVED_DATA" \
+            -showBuildTimingSummary \
+            ONLY_ACTIVE_ARCH=YES \
             build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
