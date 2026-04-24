@@ -16,16 +16,19 @@ const recorder = await videoOutput.createRecorder({
 })
 ```
 
-### Choosing the output container (iOS)
+### Setting maximum duration or file-size
 
-By default, recordings on iOS are written to a QuickTime (`.mov`) container. If the consumer expects MPEG-4, set `fileType: 'mp4'` on the [`VideoOutputOptions`](/api/react-native-vision-camera/interfaces/VideoOutputOptions) when creating the output:
+To automatically stop a recording when a certain duration or file-size has been reached, use [`maxDuration`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxduration) or [`maxFileSize`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxfilesize):
 
 ```ts
-const videoOutput = useVideoOutput({ fileType: 'mp4' })
-const recorder = await videoOutput.createRecorder({})
+const videoOutput = ...
+const recorder = await videoOutput.createRecorder({
+  maxDuration: 5,        // 5 seconds
+  maxFileSize: 10000000, // ~10 MB
+})
 ```
 
-Android always writes `.mp4` and ignores this option.
+When the duration or file size has been reached, the [`onRecordingFinished(...)`](/api/react-native-vision-camera/hybrid-objects/Recorder#startrecording) callback will be called with a [`reason`](/api/react-native-vision-camera/type-aliases/RecordingFinishedReason) - either [`'max-duration'`](/api/react-native-vision-camera/type-aliases/RecordingFinishedReason) or [`'max-file-size'`](/api/react-native-vision-camera/type-aliases/RecordingFinishedReason).
 
 ### Starting a Recording
 
@@ -34,7 +37,7 @@ To start a Video Recording, use [`Recorder.startRecording(...)`](/api/react-nati
 ```ts
 const recorder = ...
 await recorder.startRecording({
-  (path) => console.log(`Recording finished!`),
+  (path, reason) => console.log(`Recording finished! ${reason}`),
   (error) => console.error(`Recording error!`, error),
   () => console.log(`Recording paused!`),
   () => console.log(`Recording resumed!`)
