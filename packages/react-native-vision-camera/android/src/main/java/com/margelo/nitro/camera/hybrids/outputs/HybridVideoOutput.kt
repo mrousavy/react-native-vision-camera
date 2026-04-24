@@ -159,11 +159,12 @@ class HybridVideoOutput(
               setLocation(location.location)
             }
             if (settings.maxDuration != null) {
-              // maxDuration={..} - CameraX finalizes successfully when reached.
-              setDurationLimitMillis((settings.maxDuration * 1000.0).toLong())
+              // maxDuration={..} (milliseconds)
+              val maxDurationMs = settings.maxDuration * 1000.0
+              setDurationLimitMillis(maxDurationMs.toLong())
             }
             if (settings.maxFileSize != null) {
-              // maxFileSize={..} - CameraX finalizes successfully when reached.
+              // maxFileSize={..} (bytes)
               setFileSizeLimit(settings.maxFileSize.toLong())
             }
           }.build()

@@ -4,14 +4,12 @@ import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import com.margelo.nitro.camera.HybridRecorderSpec
-import com.margelo.nitro.camera.extensions.getThrowable
-import com.margelo.nitro.camera.extensions.isRecoverableLimitReached
+import com.margelo.nitro.camera.extensions.VideoRecorderError
 import com.margelo.nitro.camera.extensions.parallel
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolve
 import java.io.File
-import java.util.concurrent.Executors
 
 class HybridVideoRecorder(
   private val pendingRecording: PendingRecording,
@@ -69,23 +67,23 @@ class HybridVideoRecorder(
                 file.delete()
                 return@start
               }
-              val error = event.getThrowable()
-              when {
-                error == null || event.isRecoverableLimitReached -> {
-                  // Recording finished successfully, or reached a configured
-                  // `maxDuration` / `maxFileSize` limit. In both cases the file
-                  // is finalized and usable.
+              when (event.error) {
+                VideoRecordEvent.Finalize.ERROR_NONE, VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED, VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> {
+                  // Recording finished successfully - either no error, or file/duration limit reached:
                   val outputUri = event.outputResults.outputUri
                   onRecordingFinished(outputUri.toString())
                 }
-                !didResolve -> {
-                  // Recording didn't even start yet - something went wrong!
-                  promise.reject(error)
-                  didResolve = true
-                }
                 else -> {
-                  // We are in an active recording, but an error occurred!
-                  onRecordingError(error)
+                  // We have an error, either during capture or even while starting:
+                  val error = VideoRecorderError(event.error)
+                  if (!didResolve) {
+                    // We didn't even start the Recording yet! Reject promise
+                    promise.reject(error)
+                    didResolve = true
+                  } else {
+                    // Unknown error while recording
+                    onRecordingError(error)
+                  }
                 }
               }
             }
