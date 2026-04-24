@@ -82,6 +82,10 @@ Once the Video Recording has been finished, the `onRecordingFinished` callback p
 
 To cancel a Video Recording instead of stopping it, use [`cancelRecording()`](/api/react-native-vision-camera/hybrid-objects/Recorder#cancelrecording), which deletes the file and cleans up state.
 
+```ts
+await recorder.cancelRecording()
+```
+
 ### Interruptions
 
 The [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) gracefully handles interruptions such as incoming calls, minimizing the app, or pipeline stalls - in this case your [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession)'s [`onInterruptionStarted`](/api/react-native-vision-camera/hybrid-objects/CameraSession#addoninterruptionstartedlistener) listener will get called.
