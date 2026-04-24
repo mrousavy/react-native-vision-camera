@@ -41,7 +41,7 @@ export interface Recorder
    * This Promise resolves once the Recording has been successfully started,
    * and returns the temporary file URL it is currently recording to.
    * @param onRecordingFinished Called when the Recording has successfully finished
-   * via a `stopRecording()` call, or when the max file-size has been reached.
+   * via a `stopRecording()` call, or when the max duration/file-size has been reached.
    * @param onRecordingError Called when an unexpected error occurred while recording.
    * @param onRecordingPaused Called when the recording has been paused.
    * @param onRecordingResumed Called when the paused recording has been resumed.
