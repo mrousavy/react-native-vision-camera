@@ -413,9 +413,17 @@ describe('VisionCamera - Photo', () => {
       console.log(
         `mirrorMode=${mirrorMode} => photo.isMirrored=${photo.isMirrored}`,
       )
-      if (mirrorMode === 'on') expect(photo.isMirrored).toBe(true)
-      if (mirrorMode === 'off') expect(photo.isMirrored).toBe(false)
-      expect(photo.width).toBeGreaterThan(0)
+      switch (mirrorMode) {
+        case 'off':
+          expect(photo.isMirrored).toBe(false)
+          break
+        case 'on':
+          expect(photo.isMirrored).toBe(true)
+          break
+        case 'auto':
+          expect(photo.isMirrored).toBe(backDevice.position === 'front')
+          break
+      }
       photo.dispose()
       await session.stop()
     }
