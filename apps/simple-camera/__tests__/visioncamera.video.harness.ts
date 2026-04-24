@@ -9,14 +9,13 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraVideoOutput,
   RecordingFinishedReason,
 } from 'react-native-vision-camera'
-import {
-  CommonResolutions,
-  VisionCamera,
-} from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 describe('VisionCamera - Video', () => {
   let factory: CameraDeviceFactory
@@ -341,7 +340,7 @@ describe('VisionCamera - Video', () => {
 
   it('supports a persistent recorder across a session stop/start cycle', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let videoOutput
+    let videoOutput: CameraVideoOutput
     try {
       videoOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.HD_16_9,
@@ -394,7 +393,7 @@ describe('VisionCamera - Video', () => {
       return
     }
     const session = await VisionCamera.createCameraSession(false)
-    let videoOutput
+    let videoOutput: CameraVideoOutput
     try {
       videoOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.FHD_16_9,

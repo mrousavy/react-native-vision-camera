@@ -6,10 +6,7 @@ import {
   waitUntil,
 } from 'react-native-harness'
 import type { CameraDeviceFactory } from 'react-native-vision-camera'
-import {
-  CommonResolutions,
-  VisionCamera,
-} from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 describe('VisionCamera - Session', () => {
   let factory: CameraDeviceFactory

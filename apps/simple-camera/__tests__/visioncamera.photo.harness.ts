@@ -9,15 +9,13 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraPhotoOutput,
   FlashMode,
   MirrorMode,
   QualityPrioritization,
   Size,
 } from 'react-native-vision-camera'
-import {
-  CommonResolutions,
-  VisionCamera,
-} from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 describe('VisionCamera - Photo', () => {
   let factory: CameraDeviceFactory
@@ -68,7 +66,7 @@ describe('VisionCamera - Photo', () => {
 
   it('captures a HEIC Photo if the platform supports it', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let photoOutput
+    let photoOutput: CameraPhotoOutput
     try {
       photoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
@@ -77,7 +75,9 @@ describe('VisionCamera - Photo', () => {
         qualityPrioritization: 'balanced',
       })
     } catch {
-      console.log('[SKIP] HEIC: createPhotoOutput rejected the container format')
+      console.log(
+        '[SKIP] HEIC: createPhotoOutput rejected the container format',
+      )
       return
     }
     try {
@@ -107,7 +107,7 @@ describe('VisionCamera - Photo', () => {
 
   it('captures a RAW DNG Photo to a file if the device supports it', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let photoOutput
+    let photoOutput: CameraPhotoOutput
     try {
       photoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
@@ -116,7 +116,9 @@ describe('VisionCamera - Photo', () => {
         qualityPrioritization: 'quality',
       })
     } catch {
-      console.log('[SKIP] RAW DNG: createPhotoOutput rejected the container format')
+      console.log(
+        '[SKIP] RAW DNG: createPhotoOutput rejected the container format',
+      )
       return
     }
     try {
@@ -261,7 +263,9 @@ describe('VisionCamera - Photo', () => {
 
   it('delivers a preview image when previewImageTargetSize is set and the device supports it', async () => {
     if (!backDevice.supportsPreviewImage) {
-      console.log('[SKIP] onPreviewImageAvailable: device has no preview image support')
+      console.log(
+        '[SKIP] onPreviewImageAvailable: device has no preview image support',
+      )
       return
     }
     const session = await VisionCamera.createCameraSession(false)

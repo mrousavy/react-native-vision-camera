@@ -52,7 +52,7 @@ describe('VisionCamera - Devices', () => {
 
   it('returns undefined when calling getCameraForId with an unknown id', () => {
     const looked = factory.getCameraForId(
-      'definitely-not-a-real-camera-id-' + Date.now(),
+      `definitely-not-a-real-camera-id-${Date.now()}`,
     )
     expect(looked).toBe(undefined)
   })

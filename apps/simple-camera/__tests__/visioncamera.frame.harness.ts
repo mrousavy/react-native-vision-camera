@@ -8,13 +8,11 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  Frame,
   FrameDroppedReason,
 } from 'react-native-vision-camera'
-import {
-  CommonResolutions,
-  VisionCamera,
-  VisionCameraWorkletsProxy,
-} from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
 
 describe('VisionCamera - Frame', () => {
@@ -54,10 +52,8 @@ describe('VisionCamera - Frame', () => {
       framesReceived++
     }
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       scheduleOnRN(onFrameReceived)
       frame.dispose()
@@ -101,10 +97,8 @@ describe('VisionCamera - Frame', () => {
       reportedPlanes = planes
     }
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       const w = frame.width
       const h = frame.height
@@ -158,10 +152,8 @@ describe('VisionCamera - Frame', () => {
       frameCount++
     }
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       scheduleOnRN(onFrame)
       frame.dispose()
@@ -197,10 +189,8 @@ describe('VisionCamera - Frame', () => {
 
     const counter = createSynchronizable(0)
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       counter.setBlocking((prev) => prev + 1)
       frame.dispose()
@@ -240,10 +230,8 @@ describe('VisionCamera - Frame', () => {
       droppedReason = reason
     })
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       const start = Date.now()
       // Deliberately stall so subsequent frames are dropped.
@@ -297,10 +285,8 @@ describe('VisionCamera - Frame', () => {
       reportedHeight = h
     }
 
-    const runtime = VisionCameraWorkletsProxy.createRuntimeForThread(
-      frameOutput.thread,
-    )
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
       'worklet'
       scheduleOnRN(report, frame.width, frame.height)
       frame.dispose()
