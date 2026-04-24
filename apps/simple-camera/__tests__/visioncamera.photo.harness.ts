@@ -413,6 +413,7 @@ describe('VisionCamera - Photo', () => {
       )
       if (mirrorMode === 'on') expect(photo.isMirrored).toBe(true)
       if (mirrorMode === 'off') expect(photo.isMirrored).toBe(false)
+      expect(photo.width).toBeGreaterThan(0)
       photo.dispose()
       await session.stop()
     }
