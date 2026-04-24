@@ -19,8 +19,8 @@ class HybridFrameRecorder: HybridRecorderSpec {
   private let queue: DispatchQueue
   private var isFinishing = false
   private let delegate: RecorderDelegate
-  private let maxDuration: CMTime?
-  private let maxFileSize: Int64?
+  private let settings: RecorderSettings
+
   /// Sum of all appended sample sizes. Accumulated rather than stat'd because
   /// `AVAssetWriter` buffers writes, so on-disk size lags significantly behind
   /// the actual recorded data until `finishWriting` flushes.
@@ -54,8 +54,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
       qos: .utility
     )
     self.delegate = delegate
-    self.maxDuration = settings.maxDuration.map { CMTime(seconds: $0, preferredTimescale: 600) }
-    self.maxFileSize = settings.maxFileSize.map { Int64($0) }
+    self.settings = settings
 
     super.init()
   }
@@ -303,17 +302,23 @@ class HybridFrameRecorder: HybridRecorderSpec {
     }
   }
 
-  /// Must be called on `queue`.
   private func hasReachedRecordingLimit() -> Bool {
-    if let maxDuration, let duration = videoTrack?.duration,
-      CMTimeCompare(duration, maxDuration) >= 0
+    if let maxDuration = settings.maxDuration,
+      let duration = videoTrack?.duration
     {
-      logger.info("Reached maxDuration of \(maxDuration.seconds)s - finishing recording.")
-      return true
+      // Check if video track duration >= max target duration
+      let maxDuration = CMTime(seconds: maxDuration, preferredTimescale: 600)
+      if CMTimeCompare(duration, maxDuration) >= 0 {
+        logger.info("Reached maxDuration of \(maxDuration.seconds)s - finishing recording.")
+        return true
+      }
     }
-    if let maxFileSize, accumulatedBytes >= maxFileSize {
-      logger.info("Reached maxFileSize of \(maxFileSize) bytes - finishing recording.")
-      return true
+    if let maxFileSize = settings.maxFileSize {
+      // Check if video size >= max target file size
+      if accumulatedBytes >= Int64(maxFileSize) {
+        logger.info("Reached maxFileSize of \(maxFileSize) bytes - finishing recording.")
+        return true
+      }
     }
     return false
   }
