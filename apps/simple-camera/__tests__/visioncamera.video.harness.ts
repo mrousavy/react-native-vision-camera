@@ -194,15 +194,7 @@ describe('VisionCamera - Video', () => {
         },
         () => {},
       )
-      try {
-        await waitUntil(() => finishedReason != null, { timeout: 20_000 })
-      } catch {
-        console.log(
-          '[SKIP] maxFileSize: recording did not hit the size limit within the timeout on this device',
-        )
-        await recorder.cancelRecording()
-        return
-      }
+      await waitUntil(() => finishedReason != null, { timeout: 20_000 })
       expect(finishedReason).toBe('max-file-size-reached')
     } finally {
       await session.stop()

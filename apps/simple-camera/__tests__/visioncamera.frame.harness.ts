@@ -242,14 +242,7 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      try {
-        await waitUntil(() => droppedReason != null, { timeout: 15_000 })
-      } catch {
-        console.log(
-          '[SKIP] frame dropped callback: no drop observed within the timeout',
-        )
-        return
-      }
+      await waitUntil(() => droppedReason != null, { timeout: 15_000 })
       console.log(`frame dropped reason: ${droppedReason}`)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
