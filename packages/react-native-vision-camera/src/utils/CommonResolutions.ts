@@ -1,3 +1,5 @@
+import type { Size } from '../specs/common-types/Size'
+
 /**
  * Common camera-centric resolution targets.
  *
@@ -76,4 +78,4 @@ export const CommonResolutions = {
    * Useful when you want the maximum available quality.
    */
   HIGHEST_4_3: { width: 30000, height: 40000 },
-} as const
+} as const satisfies Record<string, Size>

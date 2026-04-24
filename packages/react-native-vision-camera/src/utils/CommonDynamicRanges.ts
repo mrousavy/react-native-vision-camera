@@ -11,7 +11,7 @@ export const CommonDynamicRanges = {
     bitDepth: 'sdr-8-bit',
     colorSpace: 'srgb',
     colorRange: 'full',
-  } satisfies TargetDynamicRange,
+  },
   /**
    * Any HDR profile, preferrably 10-bit HLG_BT2020.
    */
@@ -19,5 +19,5 @@ export const CommonDynamicRanges = {
     bitDepth: 'hdr-10-bit',
     colorSpace: 'hlg-bt2020',
     colorRange: 'full',
-  } satisfies TargetDynamicRange,
-}
+  },
+} as const satisfies Record<string, TargetDynamicRange>
