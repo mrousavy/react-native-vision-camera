@@ -9,7 +9,6 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
-  CameraVideoOutput,
   RecordingFinishedReason,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
@@ -338,19 +337,13 @@ describe('VisionCamera - Video', () => {
     }
   })
 
-  it('supports a persistent recorder across a session stop/start cycle', async () => {
+  it('records with a persistent recorder across a session stop/start cycle', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let videoOutput: CameraVideoOutput
-    try {
-      videoOutput = VisionCamera.createVideoOutput({
-        targetResolution: CommonResolutions.HD_16_9,
-        enableAudio: false,
-        enablePersistentRecorder: true,
-      })
-    } catch (error) {
-      console.log(`[SKIP] persistent recorder: ${(error as Error).message}`)
-      return
-    }
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+      enablePersistentRecorder: true,
+    })
     await session.configure([
       {
         input: backDevice,
@@ -387,36 +380,28 @@ describe('VisionCamera - Video', () => {
     }
   })
 
-  it('enables higher-resolution codecs on Android when available', async () => {
+  it('records with enableHigherResolutionCodecs on Android', async () => {
     if (Platform.OS !== 'android') {
       console.log('[SKIP] enableHigherResolutionCodecs: Android only')
       return
     }
     const session = await VisionCamera.createCameraSession(false)
-    let videoOutput: CameraVideoOutput
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.FHD_16_9,
+      enableAudio: false,
+      enableHigherResolutionCodecs: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+    const recorder = await videoOutput.createRecorder({})
+    let finished = false
     try {
-      videoOutput = VisionCamera.createVideoOutput({
-        targetResolution: CommonResolutions.FHD_16_9,
-        enableAudio: false,
-        enableHigherResolutionCodecs: true,
-      })
-    } catch (error) {
-      console.log(
-        `[SKIP] enableHigherResolutionCodecs: ${(error as Error).message}`,
-      )
-      return
-    }
-    try {
-      await session.configure([
-        {
-          input: backDevice,
-          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
-          constraints: [],
-        },
-      ])
-      await session.start()
-      const recorder = await videoOutput.createRecorder({})
-      let finished = false
       await recorder.startRecording(
         () => {
           finished = true
