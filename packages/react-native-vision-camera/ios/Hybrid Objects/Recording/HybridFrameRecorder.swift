@@ -26,7 +26,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
   /// the actual recorded data until `finishWriting` flushes.
   private var accumulatedBytes: Int64 = 0
 
-  private var onRecordingFinished: ((String) -> Void)? = nil
+  private var onRecordingFinished: ((String, RecordingFinishedReason) -> Void)? = nil
   private var onRecordingError: ((any Error) -> Void)? = nil
   private var onRecordingPaused: (() -> Void)? = nil
   private var onRecordingResumed: (() -> Void)? = nil
@@ -152,7 +152,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
   }
 
   func startRecording(
-    onRecordingFinished: @escaping (String) -> Void,
+    onRecordingFinished: @escaping (String, RecordingFinishedReason) -> Void,
     onRecordingError: @escaping (any Error) -> Void,
     onRecordingPaused: (() -> Void)?,
     onRecordingResumed: (() -> Void)?
@@ -206,7 +206,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
           logger.error(
             "Waited \(timeout) seconds, but the session is still not finished - force-stopping session..."
           )
-          self.finish()
+          self.finish(reason: .stopped)
         }
       }
     }
@@ -281,28 +281,42 @@ class HybridFrameRecorder: HybridRecorderSpec {
       // If we failed to write the frames, stop the Recording
       if self.assetWriter.status == .failed {
         logger.error("Failed to write buffer: \(self.assetWriter.error)")
-        self.onRecordingError?(
-          self.assetWriter.error ?? RuntimeError.error(withMessage: "Failed to write Buffer!"))
-        self.finish()
+        let error = self.assetWriter.error ?? RuntimeError("Failed to write Buffer!")
+        self.onRecordingError?(error)
+        // finish() will hit the error guard below - reason is unused in that branch
+        self.finish(reason: .stopped)
         return
       }
 
-      // Check configured `maxDuration` / `maxFileSize` limits. When either is
-      // reached the recording finishes successfully - same contract as
-      // `AVCaptureMovieFileOutput`'s native limit handling.
-      if self.hasReachedRecordingLimit() {
-        self.finish()
+      // Check if we reached any limits (file size or duration), if yes; stop
+      if self.reachedDurationLimit() {
+        self.finish(reason: .maxDurationReached)
+        return
+      }
+      if self.reachedFileSizeLimit() {
+        self.finish(reason: .maxFileSizeReached)
         return
       }
 
-      // When all tracks (video + audio) are finished, finish the Recording.
+      // When all tracks (video + audio) are finished (via `stopRecording`),
+      // finish the Recording.
       if self.isFinished {
-        self.finish()
+        self.finish(reason: .stopped)
       }
     }
   }
 
-  private func hasReachedRecordingLimit() -> Bool {
+  private func reachedFileSizeLimit() -> Bool {
+    if let maxFileSize = settings.maxFileSize {
+      // Check if video size >= max target file size
+      if accumulatedBytes >= Int64(maxFileSize) {
+        logger.info("Reached maxFileSize of \(maxFileSize) bytes - finishing recording.")
+        return true
+      }
+    }
+    return false
+  }
+  private func reachedDurationLimit() -> Bool {
     if let maxDuration = settings.maxDuration,
       let duration = videoTrack?.duration
     {
@@ -310,13 +324,6 @@ class HybridFrameRecorder: HybridRecorderSpec {
       let maxDuration = CMTime(seconds: maxDuration, preferredTimescale: 600)
       if CMTimeCompare(duration, maxDuration) >= 0 {
         logger.info("Reached maxDuration of \(maxDuration.seconds)s - finishing recording.")
-        return true
-      }
-    }
-    if let maxFileSize = settings.maxFileSize {
-      // Check if video size >= max target file size
-      if accumulatedBytes >= Int64(maxFileSize) {
-        logger.info("Reached maxFileSize of \(maxFileSize) bytes - finishing recording.")
         return true
       }
     }
@@ -341,15 +348,14 @@ class HybridFrameRecorder: HybridRecorderSpec {
     }
   }
 
-  private func finish() {
+  private func finish(reason: RecordingFinishedReason) {
     logger.info("Stopping AssetWriter with status \(self.assetWriter.status.rawValue)...")
 
     guard let videoTrack,
       let lastVideoTimestamp = videoTrack.lastTimestamp
     else {
       // We don't even have a video track
-      let error = RuntimeError.error(
-        withMessage: "Failed to finish() - No video track was ever initialized/started!")
+      let error = RuntimeError("Failed to finish() - No video track was ever initialized/started!")
       logger.error("\(error.description)")
       self.onRecordingError?(error)
       assetWriter.cancelWriting()
@@ -358,8 +364,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
     }
     guard assetWriter.status == .writing else {
       // The asset writer has an error - cancel everything.
-      let error = RuntimeError.error(
-        withMessage: "Failed to finish() - AssetWriter status was \(assetWriter.status.rawValue)!")
+      let error = RuntimeError("Failed to finish() - AssetWriter status was \(assetWriter.status.rawValue)!")
       logger.error("\(error.description)")
       self.onRecordingError?(error)
       assetWriter.cancelWriting()
@@ -383,7 +388,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
     )
     assetWriter.finishWriting {
       logger.info("Asset Writer finished writing successfully!")
-      self.onRecordingFinished?(self.filePath)
+      self.onRecordingFinished?(self.filePath, reason)
       self.delegate.onRecorderDidStop()
     }
   }

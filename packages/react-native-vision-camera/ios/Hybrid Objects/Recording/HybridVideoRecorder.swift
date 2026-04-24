@@ -48,7 +48,7 @@ class HybridVideoRecorder: HybridRecorderSpec {
   }
 
   func startRecording(
-    onRecordingFinished: @escaping (_ filePath: String) -> Void,
+    onRecordingFinished: @escaping (_ filePath: String, _ reason: RecordingFinishedReason) -> Void,
     onRecordingError: @escaping (_ error: Error) -> Void,
     onRecordingPaused: (() -> Void)?,
     onRecordingResumed: (() -> Void)?
@@ -80,14 +80,14 @@ class HybridVideoRecorder: HybridRecorderSpec {
         },
         onRecordingPaused: onRecordingPaused,
         onRecordingResumed: onRecordingResumed,
-        onRecordingFinished: { url in
+        onRecordingFinished: { url, reason in
           if self.isCancelled {
             // Recording was cancelled - delete the file
             try? FileManager.default.removeItem(at: url)
             return
           }
           // Recording finished!
-          onRecordingFinished(url.absoluteString)
+          onRecordingFinished(url.absoluteString, reason)
         },
         onRecordingError: { error in
           if !isResolved {
