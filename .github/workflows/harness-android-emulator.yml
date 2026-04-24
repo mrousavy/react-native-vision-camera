@@ -97,14 +97,17 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Restore Gradle cache
+      - name: Restore Gradle/CMake cache
         uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'bun.lock') }}
+            apps/simple-camera/android/.gradle
+            apps/simple-camera/android/app/.cxx
+          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'bun.lock') }}
           restore-keys: |
+            ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-
             ${{ runner.os }}-gradle-
 
       - name: Restore Android app from cache
@@ -117,7 +120,7 @@ jobs:
       - name: Build Android app
         if: steps.cache-apk-restore.outputs.cache-hit != 'true'
         working-directory: apps/simple-camera/android
-        run: ./gradlew assembleDebug -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --console=plain
+        run: ./gradlew assembleDebug -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --build-cache --console=plain
 
       - name: Save Android app to cache
         if: steps.cache-apk-restore.outputs.cache-hit != 'true' && success()
