@@ -90,6 +90,7 @@ class HybridPhysicalCameraDevice(
   override val maxWhiteBalanceGain: Double = 0.0
   override val hasFlash: Boolean = false
   override val hasTorch: Boolean = false
+  override val maxTorchStrength: Double = 0.0
   override val supportsLowLightBoost: Boolean = false
   override val minZoom: Double = 0.0
   override val maxZoom: Double = 0.0

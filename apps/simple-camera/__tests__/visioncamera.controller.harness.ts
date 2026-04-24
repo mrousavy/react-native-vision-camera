@@ -133,11 +133,48 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      // TODO: Add setTorchMode('on', STRENGTH) test when we expose something like
-      //       CameraDevice.supportsTorchStrength - currently this might throw on
-      //       some phones without a way to check upfront if it supports setting strength!
       await controller.setTorchMode('on')
       expect(controller.torchMode).toBe('on')
+
+      await controller.setTorchMode('off')
+      expect(controller.torchMode).toBe('off')
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('sets torchMode with a specific strength when the device supports it', async () => {
+    if (backDevice.maxTorchStrength === 0) {
+      console.log(
+        '[SKIP] torchStrength: device only supports binary torch (maxTorchStrength === 0)',
+      )
+      return
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+    await session.start()
+
+    try {
+      const target = backDevice.maxTorchStrength / 2
+      await controller.setTorchMode('on', target)
+      expect(controller.torchMode).toBe('on')
+      expect(controller.torchStrength).toBeGreaterThan(0)
+      expect(controller.torchStrength).toBeLessThanOrEqual(
+        backDevice.maxTorchStrength,
+      )
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')

@@ -168,6 +168,14 @@ class HybridCameraDevice(
 
   override val hasTorch: Boolean
     get() = cameraInfo.hasFlashUnit()
+  override val maxTorchStrength: Double
+    // CameraX reports `maxTorchStrengthLevel == 1` for devices that only
+    // support binary torch (on/off) and `> 1` for devices that accept a
+    // strength level. Our public `setTorchMode(mode, strength?)` API
+    // normalizes the incoming strength to 0..1 before multiplying by
+    // `maxTorchStrengthLevel`, so the public maximum is always `1.0`
+    // when strength is configurable, and `0.0` otherwise.
+    get() = if (cameraInfo.maxTorchStrengthLevel > 1) 1.0 else 0.0
 
   override val supportsLowLightBoost: Boolean
     get() = cameraInfo.isLowLightBoostSupported
