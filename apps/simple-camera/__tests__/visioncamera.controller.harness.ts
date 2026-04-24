@@ -212,9 +212,11 @@ describe('VisionCamera - Controller', () => {
         initialExposureBias: initial,
       },
     ])
+    if (controller == null) throw new Error('no controller')
     await session.start()
+
     try {
-      expect(controller?.exposureBias).toBe(initial)
+      expect(controller.exposureBias).toBe(initial)
     } finally {
       await session.stop()
     }
