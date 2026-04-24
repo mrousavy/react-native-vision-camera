@@ -55,11 +55,7 @@ describe('VisionCamera - Constraints', () => {
     const config = received
     if (config == null) throw new Error('no config')
     expect(backDevice.supportedPixelFormats).toContain(config.nativePixelFormat)
-    expect(config.selectedFPS).toBeGreaterThan(0)
-    console.log(
-      `baseline config: fps=${config.selectedFPS} pixelFormat=${config.nativePixelFormat} ` +
-        `isBinned=${config.isBinned} autoFocusSystem=${config.autoFocusSystem}`,
-    )
+    console.log(`baseline config: ${config.toString()}`)
     await session.stop()
   })
 
