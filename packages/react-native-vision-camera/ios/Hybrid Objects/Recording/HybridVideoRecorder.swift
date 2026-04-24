@@ -12,12 +12,23 @@ class HybridVideoRecorder: HybridRecorderSpec {
   private let videoOutput: AVCaptureMovieFileOutput
   private let queue: DispatchQueue
   private let fileURL: URL
+  private let maxRecordedDuration: CMTime
+  private let maxRecordedFileSize: Int64
   private var isCancelled = false
 
-  init(videoOutput: AVCaptureMovieFileOutput, queue: DispatchQueue, fileType: RecorderFileType) throws {
+  init(
+    videoOutput: AVCaptureMovieFileOutput,
+    queue: DispatchQueue,
+    fileType: RecorderFileType,
+    settings: RecorderSettings
+  ) throws {
     self.videoOutput = videoOutput
     self.queue = queue
     self.fileURL = try URL.createTempURL(fileType: fileType.toUTType())
+    // `CMTime.invalid` / `0` mean "no limit" for `AVCaptureMovieFileOutput`.
+    self.maxRecordedDuration =
+      settings.maxDuration.map { CMTime(seconds: $0, preferredTimescale: 600) } ?? .invalid
+    self.maxRecordedFileSize = settings.maxFileSize.map { Int64($0) } ?? 0
     super.init()
   }
 
@@ -92,6 +103,11 @@ class HybridVideoRecorder: HybridRecorderSpec {
             onRecordingError(error)
           }
         })
+
+      // Apply recording limits. `AVCaptureMovieFileOutput` delivers the file
+      // via the success path when either limit is reached (see `VideoDelegate`).
+      self.videoOutput.maxRecordedDuration = self.maxRecordedDuration
+      self.videoOutput.maxRecordedFileSize = self.maxRecordedFileSize
 
       // Start recording!
       self.videoOutput.startRecording(to: self.fileURL, recordingDelegate: delegate)

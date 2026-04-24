@@ -5,6 +5,7 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import com.margelo.nitro.camera.HybridRecorderSpec
 import com.margelo.nitro.camera.extensions.getThrowable
+import com.margelo.nitro.camera.extensions.isRecoverableLimitReached
 import com.margelo.nitro.camera.extensions.parallel
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
 import com.margelo.nitro.core.Promise
@@ -69,19 +70,23 @@ class HybridVideoRecorder(
                 return@start
               }
               val error = event.getThrowable()
-              if (error != null) {
-                if (!didResolve) {
-                  // recording didn't even start yet - something went wrong!
+              when {
+                error == null || event.isRecoverableLimitReached -> {
+                  // Recording finished successfully, or reached a configured
+                  // `maxDuration` / `maxFileSize` limit. In both cases the file
+                  // is finalized and usable.
+                  val outputUri = event.outputResults.outputUri
+                  onRecordingFinished(outputUri.toString())
+                }
+                !didResolve -> {
+                  // Recording didn't even start yet - something went wrong!
                   promise.reject(error)
                   didResolve = true
-                } else {
-                  // we are in an active recording, but an error occurred!
+                }
+                else -> {
+                  // We are in an active recording, but an error occurred!
                   onRecordingError(error)
                 }
-              } else {
-                // recording finished successfully!
-                val outputUri = event.outputResults.outputUri
-                onRecordingFinished(outputUri.toString())
               }
             }
             is VideoRecordEvent.Status -> {

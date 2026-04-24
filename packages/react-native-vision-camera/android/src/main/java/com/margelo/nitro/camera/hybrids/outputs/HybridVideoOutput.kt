@@ -158,6 +158,14 @@ class HybridVideoOutput(
               val location = settings.location as? NativeLocation ?: throw Error("Location is not of type `NativeLocation`!")
               setLocation(location.location)
             }
+            if (settings.maxDuration != null) {
+              // maxDuration={..} - CameraX finalizes successfully when reached.
+              setDurationLimitMillis((settings.maxDuration * 1000.0).toLong())
+            }
+            if (settings.maxFileSize != null) {
+              // maxFileSize={..} - CameraX finalizes successfully when reached.
+              setFileSizeLimit(settings.maxFileSize.toLong())
+            }
           }.build()
       var pendingRecording = videoOutput.prepareRecording(context, fileOutputOptions)
       if (options.enableAudio == true) {

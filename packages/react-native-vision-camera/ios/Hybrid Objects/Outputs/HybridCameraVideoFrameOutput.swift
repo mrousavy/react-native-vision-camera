@@ -124,6 +124,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
         orientation: .up,
         masterClock: clock,
         fileType: self.fileType,
+        settings: settings,
         delegate: self)
       // 2. Initialize its video track immediately
       guard

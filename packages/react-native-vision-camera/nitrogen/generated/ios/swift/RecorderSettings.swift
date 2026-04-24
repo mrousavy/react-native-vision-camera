@@ -18,13 +18,25 @@ public extension RecorderSettings {
   /**
    * Create a new instance of `RecorderSettings`.
    */
-  init(location: (any HybridLocationSpec)?) {
+  init(location: (any HybridLocationSpec)?, maxDuration: Double?, maxFileSize: Double?) {
     self.init({ () -> bridge.std__optional_std__shared_ptr_HybridLocationSpec__ in
       if let __unwrappedValue = location {
         return bridge.create_std__optional_std__shared_ptr_HybridLocationSpec__({ () -> bridge.std__shared_ptr_HybridLocationSpec_ in
           let __cxxWrapped = __unwrappedValue.getCxxWrapper()
           return __cxxWrapped.getCxxPart()
         }())
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_double_ in
+      if let __unwrappedValue = maxDuration {
+        return bridge.create_std__optional_double_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_double_ in
+      if let __unwrappedValue = maxFileSize {
+        return bridge.create_std__optional_double_(__unwrappedValue)
       } else {
         return .init()
       }
@@ -41,6 +53,30 @@ public extension RecorderSettings {
           let __instance = HybridLocationSpec_cxx.fromUnsafe(__unsafePointer)
           return __instance.getHybridLocationSpec()
         }()
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var maxDuration: Double? {
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__maxDuration) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__maxDuration)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var maxFileSize: Double? {
+    return { () -> Double? in
+      if bridge.has_value_std__optional_double_(self.__maxFileSize) {
+        let __unwrapped = bridge.get_std__optional_double_(self.__maxFileSize)
+        return __unwrapped
       } else {
         return nil
       }

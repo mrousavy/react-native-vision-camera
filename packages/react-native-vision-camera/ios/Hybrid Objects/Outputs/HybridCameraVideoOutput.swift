@@ -109,7 +109,10 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
         self.setMetadataTag(metadataItem)
       }
       return try HybridVideoRecorder(
-        videoOutput: self.output, queue: self.queue, fileType: self.fileType)
+        videoOutput: self.output,
+        queue: self.queue,
+        fileType: self.fileType,
+        settings: settings)
     }
   }
 

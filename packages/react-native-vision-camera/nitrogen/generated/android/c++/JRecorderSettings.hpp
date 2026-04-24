@@ -36,8 +36,14 @@ namespace margelo::nitro::camera {
       static const auto clazz = javaClassStatic();
       static const auto fieldLocation = clazz->getField<JHybridLocationSpec::JavaPart>("location");
       jni::local_ref<JHybridLocationSpec::JavaPart> location = this->getFieldValue(fieldLocation);
+      static const auto fieldMaxDuration = clazz->getField<jni::JDouble>("maxDuration");
+      jni::local_ref<jni::JDouble> maxDuration = this->getFieldValue(fieldMaxDuration);
+      static const auto fieldMaxFileSize = clazz->getField<jni::JDouble>("maxFileSize");
+      jni::local_ref<jni::JDouble> maxFileSize = this->getFieldValue(fieldMaxFileSize);
       return RecorderSettings(
-        location != nullptr ? std::make_optional(location->getJHybridLocationSpec()) : std::nullopt
+        location != nullptr ? std::make_optional(location->getJHybridLocationSpec()) : std::nullopt,
+        maxDuration != nullptr ? std::make_optional(maxDuration->value()) : std::nullopt,
+        maxFileSize != nullptr ? std::make_optional(maxFileSize->value()) : std::nullopt
       );
     }
 
@@ -47,12 +53,14 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JRecorderSettings::javaobject> fromCpp(const RecorderSettings& value) {
-      using JSignature = JRecorderSettings(jni::alias_ref<JHybridLocationSpec::JavaPart>);
+      using JSignature = JRecorderSettings(jni::alias_ref<JHybridLocationSpec::JavaPart>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
-        value.location.has_value() ? std::dynamic_pointer_cast<JHybridLocationSpec>(value.location.value())->getJavaPart() : nullptr
+        value.location.has_value() ? std::dynamic_pointer_cast<JHybridLocationSpec>(value.location.value())->getJavaPart() : nullptr,
+        value.maxDuration.has_value() ? jni::JDouble::valueOf(value.maxDuration.value()) : nullptr,
+        value.maxFileSize.has_value() ? jni::JDouble::valueOf(value.maxFileSize.value()) : nullptr
       );
     }
   };

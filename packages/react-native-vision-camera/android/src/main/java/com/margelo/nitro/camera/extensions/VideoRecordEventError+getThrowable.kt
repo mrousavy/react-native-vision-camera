@@ -23,3 +23,16 @@ fun VideoRecordEvent.Finalize.getThrowable(): Throwable? {
     }
   return Error("Failed to record! $message", this.cause)
 }
+
+/**
+ * CameraX reports reaching a configured `maxDuration` / `maxFileSize` limit as an
+ * error, but the resulting file is still finalized and usable. Callers should
+ * treat these as a successful finish.
+ */
+val VideoRecordEvent.Finalize.isRecoverableLimitReached: Boolean
+  get() =
+    this.hasError() &&
+      (
+        this.error == VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED ||
+          this.error == VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
+      )

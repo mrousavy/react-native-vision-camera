@@ -19,6 +19,12 @@ class HybridFrameRecorder: HybridRecorderSpec {
   private let queue: DispatchQueue
   private var isFinishing = false
   private let delegate: RecorderDelegate
+  private let maxDuration: CMTime?
+  private let maxFileSize: Int64?
+  /// Sum of all appended sample sizes. Accumulated rather than stat'd because
+  /// `AVAssetWriter` buffers writes, so on-disk size lags significantly behind
+  /// the actual recorded data until `finishWriting` flushes.
+  private var accumulatedBytes: Int64 = 0
 
   private var onRecordingFinished: ((String) -> Void)? = nil
   private var onRecordingError: ((any Error) -> Void)? = nil
@@ -35,6 +41,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
     orientation: CameraOrientation,
     masterClock: CMClock,
     fileType: RecorderFileType,
+    settings: RecorderSettings,
     delegate: RecorderDelegate
   ) throws {
     self.orientation = orientation
@@ -47,6 +54,8 @@ class HybridFrameRecorder: HybridRecorderSpec {
       qos: .utility
     )
     self.delegate = delegate
+    self.maxDuration = settings.maxDuration.map { CMTime(seconds: $0, preferredTimescale: 600) }
+    self.maxFileSize = settings.maxFileSize.map { Int64($0) }
 
     super.init()
   }
@@ -264,6 +273,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
       do {
         let track = try self.getTrack(ofType: type)
         try track.append(buffer: buffer)
+        self.accumulatedBytes += Int64(CMSampleBufferGetTotalSampleSize(buffer))
       } catch {
         logger.error("Failed to append buffer to \(type.rawValue) track! \(error)")
         self.onRecordingError?(error)
@@ -278,11 +288,34 @@ class HybridFrameRecorder: HybridRecorderSpec {
         return
       }
 
+      // Check configured `maxDuration` / `maxFileSize` limits. When either is
+      // reached the recording finishes successfully - same contract as
+      // `AVCaptureMovieFileOutput`'s native limit handling.
+      if self.hasReachedRecordingLimit() {
+        self.finish()
+        return
+      }
+
       // When all tracks (video + audio) are finished, finish the Recording.
       if self.isFinished {
         self.finish()
       }
     }
+  }
+
+  /// Must be called on `queue`.
+  private func hasReachedRecordingLimit() -> Bool {
+    if let maxDuration, let duration = videoTrack?.duration,
+      CMTimeCompare(duration, maxDuration) >= 0
+    {
+      logger.info("Reached maxDuration of \(maxDuration.seconds)s - finishing recording.")
+      return true
+    }
+    if let maxFileSize, accumulatedBytes >= maxFileSize {
+      logger.info("Reached maxFileSize of \(maxFileSize) bytes - finishing recording.")
+      return true
+    }
+    return false
   }
 
   @inline(__always)

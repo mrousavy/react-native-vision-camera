@@ -143,6 +143,32 @@ export interface RecorderSettings {
    * into the video metadata using the ISO-6709 standard.
    */
   location?: Location
+  /**
+   * If set, the recording automatically stops once it reaches
+   * this duration, in seconds.
+   *
+   * When the limit is reached, the recording is finalized
+   * successfully, and the `onRecordingFinished` callback
+   * passed to {@linkcode Recorder.startRecording | startRecording(...)}
+   * is invoked with the resulting file path — the same
+   * behavior as calling {@linkcode Recorder.stopRecording | stopRecording()}.
+   *
+   * @default undefined
+   */
+  maxDuration?: number
+  /**
+   * If set, the recording automatically stops once the file
+   * reaches this size, in bytes.
+   *
+   * When the limit is reached, the recording is finalized
+   * successfully, and the `onRecordingFinished` callback
+   * passed to {@linkcode Recorder.startRecording | startRecording(...)}
+   * is invoked with the resulting file path — the same
+   * behavior as calling {@linkcode Recorder.stopRecording | stopRecording()}.
+   *
+   * @default undefined
+   */
+  maxFileSize?: number
 }
 
 /**
