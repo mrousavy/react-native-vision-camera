@@ -1,9 +1,9 @@
 package com.margelo.nitro.camera.hybrids.outputs
 
-import android.annotation.SuppressLint
 import android.media.MediaActionSound
 import android.util.Log
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.takePicture
@@ -134,11 +134,14 @@ class HybridPhotoOutput(
   override val supportsCameraCalibrationDataDelivery: Boolean
     get() = false
 
-  @SuppressLint("RestrictedApi")
   private fun shouldMirror(): Boolean {
-    val imageCapture = imageCapture ?: return false
-    val camera = imageCapture.camera ?: return false
-    return imageCapture.isMirroringRequired(camera)
+    val camera = imageCapture?.camera ?: return false
+    return when (mirrorMode) {
+      MirrorMode.ON -> true
+      MirrorMode.OFF -> false
+      // AUTO follows CameraX's default "mirror front only" semantics.
+      MirrorMode.AUTO -> camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
+    }
   }
 
   override fun capturePhoto(
