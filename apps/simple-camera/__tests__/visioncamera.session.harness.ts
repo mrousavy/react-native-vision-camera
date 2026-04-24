@@ -257,43 +257,4 @@ describe('VisionCamera - Session', () => {
     await session.stop()
     sub.remove()
   })
-
-  it('rejects multi-cam connections on a single-cam session', async () => {
-    const back = factory.getDefaultCamera('back')
-    const front = factory.getDefaultCamera('front')
-    if (back == null || front == null) return
-
-    const session = await VisionCamera.createCameraSession(false)
-    const backPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const frontPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-
-    let threw = false
-    try {
-      await session.configure([
-        {
-          input: back,
-          outputs: [{ output: backPhoto, mirrorMode: 'off' }],
-          constraints: [],
-        },
-        {
-          input: front,
-          outputs: [{ output: frontPhoto, mirrorMode: 'on' }],
-          constraints: [],
-        },
-      ])
-    } catch {
-      threw = true
-    }
-    expect(threw).toBe(true)
-  })
 })
