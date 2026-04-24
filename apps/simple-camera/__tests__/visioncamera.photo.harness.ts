@@ -9,7 +9,6 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
-  CameraPhotoOutput,
   FlashMode,
   MirrorMode,
   QualityPrioritization,
@@ -64,23 +63,18 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
+  // TODO: make this a hard requirement once VisionCamera exposes a way to
+  // query supported photo container formats upfront (see the TODO in
+  // CameraPhotoOutput.nitro.ts near `TargetPhotoContainerFormat`).
   it('captures a HEIC Photo if the platform supports it', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let photoOutput: CameraPhotoOutput
     try {
-      photoOutput = VisionCamera.createPhotoOutput({
+      const photoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
         containerFormat: 'heic',
         quality: 0.9,
         qualityPrioritization: 'balanced',
       })
-    } catch {
-      console.log(
-        '[SKIP] HEIC: createPhotoOutput rejected the container format',
-      )
-      return
-    }
-    try {
       await session.configure([
         {
           input: backDevice,
@@ -89,7 +83,6 @@ describe('VisionCamera - Photo', () => {
         },
       ])
       await session.start()
-
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
@@ -99,29 +92,23 @@ describe('VisionCamera - Photo', () => {
       photo.dispose()
     } catch (error) {
       console.log(`[SKIP] HEIC: ${(error as Error).message}`)
-      return
     } finally {
-      await session.stop()
+      await session.stop().catch(() => undefined)
     }
   })
 
+  // TODO: make this a hard requirement once VisionCamera exposes a way to
+  // query supported photo container formats upfront (see the TODO in
+  // CameraPhotoOutput.nitro.ts near `TargetPhotoContainerFormat`).
   it('captures a RAW DNG Photo to a file if the device supports it', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    let photoOutput: CameraPhotoOutput
     try {
-      photoOutput = VisionCamera.createPhotoOutput({
+      const photoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
         containerFormat: 'dng',
         quality: 1.0,
         qualityPrioritization: 'quality',
       })
-    } catch {
-      console.log(
-        '[SKIP] RAW DNG: createPhotoOutput rejected the container format',
-      )
-      return
-    }
-    try {
       await session.configure([
         {
           input: backDevice,
@@ -130,7 +117,6 @@ describe('VisionCamera - Photo', () => {
         },
       ])
       await session.start()
-
       const file = await photoOutput.capturePhotoToFile(
         { flashMode: 'off', enableShutterSound: false },
         {},
@@ -138,9 +124,8 @@ describe('VisionCamera - Photo', () => {
       expect(file.filePath.length).toBeGreaterThan(0)
     } catch (error) {
       console.log(`[SKIP] RAW DNG: ${(error as Error).message}`)
-      return
     } finally {
-      await session.stop()
+      await session.stop().catch(() => undefined)
     }
   })
 
