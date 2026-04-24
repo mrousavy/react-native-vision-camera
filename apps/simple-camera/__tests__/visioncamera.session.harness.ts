@@ -130,16 +130,26 @@ describe('VisionCamera - Session', () => {
     })
     startSub.remove()
 
+    // Second listener we keep attached so we can observe that the session
+    // actually started before requesting a stop.
+    let actuallyStarted = false
+    const secondStartSub = session.addOnStartedListener(() => {
+      actuallyStarted = true
+    })
+
     let stopped = false
     const stopSub = session.addOnStoppedListener(() => {
       stopped = true
     })
 
     await session.start()
+    await waitUntil(() => actuallyStarted, { timeout: 10_000 })
+
     await session.stop()
     await waitUntil(() => stopped, { timeout: 10_000 })
 
     expect(startedAfterRemove).toBe(0)
+    secondStartSub.remove()
     stopSub.remove()
   })
 
