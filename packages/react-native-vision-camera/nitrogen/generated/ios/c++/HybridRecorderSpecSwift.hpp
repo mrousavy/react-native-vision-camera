@@ -12,10 +12,12 @@
 // Forward declaration of `HybridRecorderSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridRecorderSpec_cxx; }
 
-
+// Forward declaration of `RecordingFinishedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecordingFinishedReason; }
 
 #include <string>
 #include <NitroModules/Promise.hpp>
+#include "RecordingFinishedReason.hpp"
 #include <functional>
 #include <exception>
 #include <optional>
@@ -85,7 +87,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) override {
+    inline std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) override {
       auto __result = _swiftPart.startRecording(onRecordingFinished, onRecordingError, onRecordingPaused, onRecordingResumed);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

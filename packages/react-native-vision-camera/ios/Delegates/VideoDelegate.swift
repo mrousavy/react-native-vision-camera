@@ -15,14 +15,14 @@ final class VideoDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
   var onRecordingStarted: (() -> Void)?
   var onRecordingPaused: (() -> Void)?
   var onRecordingResumed: (() -> Void)?
-  var onRecordingFinished: (URL) -> Void
+  var onRecordingFinished: (URL, RecordingFinishedReason) -> Void
   var onRecordingError: (any Error) -> Void
 
   init(
     onRecordingStarted: (() -> Void)? = nil,
     onRecordingPaused: (() -> Void)? = nil,
     onRecordingResumed: (() -> Void)? = nil,
-    onRecordingFinished: @escaping (URL) -> Void,
+    onRecordingFinished: @escaping (URL, RecordingFinishedReason) -> Void,
     onRecordingError: @escaping (any Error) -> Void
   ) {
     self.onRecordingStarted = onRecordingStarted
@@ -66,29 +66,26 @@ final class VideoDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
     _ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL,
     from connections: [AVCaptureConnection], error: (any Error)?
   ) {
-    if let error, !Self.isRecoverableLimitReached(error) {
-      onRecordingError(error)
+    if let error {
+      // We have an error! Either we hit our max limits, or it's a true unexpected error.
+      let nsError = error as NSError
+      switch nsError.code {
+      case AVError.maximumDurationReached.rawValue:
+        // We hit max duration limit - treat this as a success, not error!
+        onRecordingFinished(outputFileURL, .maxDurationReached)
+      case AVError.maximumFileSizeReached.rawValue:
+        // We hit max file size limit - treat this as a success, not error!
+        onRecordingFinished(outputFileURL, .maxFileSizeReached)
+      default:
+        // We hit any other kind of error - this is an error event now.
+        onRecordingError(error)
+      }
     } else {
-      // Either finished cleanly, or reached a configured `maxDuration` / `maxFileSize`
-      // limit - in both cases the written file is functional and should be returned.
-      onRecordingFinished(outputFileURL)
+      // No error, everything went according to plan we just stopped + finished:
+      onRecordingFinished(outputFileURL, .stopped)
     }
+
     // Remove the static strong reference, we're done
     VideoDelegate.delegates.removeAll { $0 == self }
-  }
-
-  /// `AVCaptureMovieFileOutput` reports reaching a configured recording limit
-  /// as an error, but the resulting file is still usable. Treat these codes
-  /// as a successful finish.
-  private static func isRecoverableLimitReached(_ error: any Error) -> Bool {
-    let nsError = error as NSError
-    guard nsError.domain == AVFoundationErrorDomain else { return false }
-    switch nsError.code {
-    case AVError.maximumDurationReached.rawValue,
-      AVError.maximumFileSizeReached.rawValue:
-      return true
-    default:
-      return false
-    }
   }
 }

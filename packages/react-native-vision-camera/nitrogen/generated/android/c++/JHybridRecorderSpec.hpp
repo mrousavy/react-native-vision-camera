@@ -58,7 +58,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) override;
+    std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) override;
     std::shared_ptr<Promise<void>> stopRecording() override;
     std::shared_ptr<Promise<void>> pauseRecording() override;
     std::shared_ptr<Promise<void>> resumeRecording() override;

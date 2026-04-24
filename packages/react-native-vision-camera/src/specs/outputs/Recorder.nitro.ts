@@ -1,4 +1,27 @@
 import type { HybridObject } from 'react-native-nitro-modules'
+import type { RecorderSettings } from './CameraVideoOutput.nitro'
+
+/**
+ * Describes why a {@linkcode Recorder}'s recording finished, and was delivered
+ * to the `onRecordingFinished` callback passed to
+ * {@linkcode Recorder.startRecording | Recorder.startRecording(...)}.
+ *
+ * In all cases, the resulting video file is fully written and usable - this type
+ * only communicates _why_ the recording ended, so the caller can react
+ * accordingly (e.g. show a "max length reached" toast, or chain a follow-up
+ * recording).
+ *
+ * - `'stopped'`: The recording was stopped via a
+ *   {@linkcode Recorder.stopRecording | Recorder.stopRecording()} call.
+ * - `'max-duration-reached'`: The recording automatically stopped because it
+ *   reached the configured {@linkcode RecorderSettings.maxDuration} limit.
+ * - `'max-file-size-reached'`: The recording automatically stopped because it
+ *   reached the configured {@linkcode RecorderSettings.maxFileSize} limit.
+ */
+export type RecordingFinishedReason =
+  | 'stopped'
+  | 'max-duration-reached'
+  | 'max-file-size-reached'
 
 /**
  * Represents an instance that can record videos to
@@ -41,14 +64,18 @@ export interface Recorder
    * This Promise resolves once the Recording has been successfully started,
    * and returns the temporary file URL it is currently recording to.
    * @param onRecordingFinished Called when the Recording has successfully finished
-   * via a `stopRecording()` call, or when the max duration/file-size has been reached.
+   * via a {@linkcode stopRecording | stopRecording()} call, or when the max
+   * duration/file-size has been reached. See {@linkcode RecordingFinishedReason}
    * @param onRecordingError Called when an unexpected error occurred while recording.
    * @param onRecordingPaused Called when the recording has been paused.
    * @param onRecordingResumed Called when the paused recording has been resumed.
    * @throws If called twice on the same {@linkcode Recorder} instance.
    */
   startRecording(
-    onRecordingFinished: (filePath: string) => void,
+    onRecordingFinished: (
+      filePath: string,
+      reason: RecordingFinishedReason,
+    ) => void,
     onRecordingError: (error: Error) => void,
     onRecordingPaused?: () => void,
     onRecordingResumed?: () => void,
@@ -59,6 +86,8 @@ export interface Recorder
    * Once the recording has actually been stopped,
    * the `onRecordingFinished` callback passed to
    * {@linkcode startRecording} will be called.
+   *
+   * @throws If the recording is already stopped.
    */
   stopRecording(): Promise<void>
   /**

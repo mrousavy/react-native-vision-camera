@@ -13,10 +13,12 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
-
+// Forward declaration of `RecordingFinishedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecordingFinishedReason; }
 
 #include <string>
 #include <NitroModules/Promise.hpp>
+#include "RecordingFinishedReason.hpp"
 #include <functional>
 #include <exception>
 #include <optional>
@@ -56,7 +58,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) = 0;
+      virtual std::shared_ptr<Promise<void>> startRecording(const std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) = 0;
       virtual std::shared_ptr<Promise<void>> stopRecording() = 0;
       virtual std::shared_ptr<Promise<void>> pauseRecording() = 0;
       virtual std::shared_ptr<Promise<void>> resumeRecording() = 0;

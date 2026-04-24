@@ -17,7 +17,7 @@ public protocol HybridRecorderSpec_protocol: HybridObject {
   var filePath: String { get }
 
   // Methods
-  func startRecording(onRecordingFinished: @escaping (_ filePath: String) -> Void, onRecordingError: @escaping (_ error: Error) -> Void, onRecordingPaused: (() -> Void)?, onRecordingResumed: (() -> Void)?) throws -> Promise<Void>
+  func startRecording(onRecordingFinished: @escaping (_ filePath: String, _ reason: RecordingFinishedReason) -> Void, onRecordingError: @escaping (_ error: Error) -> Void, onRecordingPaused: (() -> Void)?, onRecordingResumed: (() -> Void)?) throws -> Promise<Void>
   func stopRecording() throws -> Promise<Void>
   func pauseRecording() throws -> Promise<Void>
   func resumeRecording() throws -> Promise<Void>

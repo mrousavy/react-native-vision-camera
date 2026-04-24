@@ -188,6 +188,8 @@ namespace margelo::nitro::camera { struct Range; }
 namespace margelo::nitro::camera { enum class RecorderFileType; }
 // Forward declaration of `RecorderSettings` to properly resolve imports.
 namespace margelo::nitro::camera { struct RecorderSettings; }
+// Forward declaration of `RecordingFinishedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecordingFinishedReason; }
 // Forward declaration of `ResolutionBiasConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct ResolutionBiasConstraint; }
 // Forward declaration of `ScannedObjectType` to properly resolve imports.
@@ -319,6 +321,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "Range.hpp"
 #include "RecorderFileType.hpp"
 #include "RecorderSettings.hpp"
+#include "RecordingFinishedReason.hpp"
 #include "ResolutionBiasConstraint.hpp"
 #include "ScannedObjectType.hpp"
 #include "SceneAdaptiveness.hpp"

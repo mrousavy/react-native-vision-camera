@@ -56,7 +56,7 @@
 #include "JHybridCameraPreviewOutputSpec.hpp"
 #include "JHybridCameraVideoOutputSpec.hpp"
 #include "JHybridRecorderSpec.hpp"
-#include "JFunc_void_std__string.hpp"
+#include "JFunc_void_std__string_RecordingFinishedReason.hpp"
 #include "JFunc_void_std__exception_ptr.hpp"
 #include "JHybridCameraSessionSpec.hpp"
 #include "JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_.hpp"
@@ -164,7 +164,7 @@ void registerAllNatives() {
   margelo::nitro::camera::JHybridCameraPreviewOutputSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JHybridCameraVideoOutputSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JHybridRecorderSpec::CxxPart::registerNatives();
-  margelo::nitro::camera::JFunc_void_std__string_cxx::registerNatives();
+  margelo::nitro::camera::JFunc_void_std__string_RecordingFinishedReason_cxx::registerNatives();
   margelo::nitro::camera::JFunc_void_std__exception_ptr_cxx::registerNatives();
   margelo::nitro::camera::JHybridCameraSessionSpec::CxxPart::registerNatives();
   margelo::nitro::camera::JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec__cxx::registerNatives();
