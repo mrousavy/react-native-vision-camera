@@ -14,6 +14,23 @@ phases:
       - adb wait-for-device
       - adb devices -l
 
+      # Grant all runtime permissions we need up-front. AWS Device Farm has no UI
+      # operator to tap through permission dialogs, so any runtime permission
+      # request would hang the test. The APK is already installed by Device Farm
+      # before the test spec runs, so `pm grant` targets the installed package.
+      - |
+        APP_PACKAGE="com.margelo.nitro.camera.example.simple"
+        for PERMISSION in \
+          android.permission.CAMERA \
+          android.permission.RECORD_AUDIO \
+          android.permission.ACCESS_FINE_LOCATION \
+          android.permission.ACCESS_COARSE_LOCATION \
+          android.permission.READ_EXTERNAL_STORAGE \
+          android.permission.WRITE_EXTERNAL_STORAGE; do
+          echo "Granting ${PERMISSION} to ${APP_PACKAGE}"
+          adb shell pm grant "${APP_PACKAGE}" "${PERMISSION}" || echo "Failed to grant ${PERMISSION} (may not be applicable on this API level)"
+        done
+
   test:
     commands:
       - MANUFACTURER="$(adb shell getprop ro.product.manufacturer | tr -d '\r')"
