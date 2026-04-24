@@ -8,7 +8,6 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
-  Frame,
   FrameDroppedReason,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
@@ -53,7 +52,7 @@ describe('VisionCamera - Frame', () => {
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       scheduleOnRN(onFrameReceived)
       frame.dispose()
@@ -98,7 +97,7 @@ describe('VisionCamera - Frame', () => {
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       const w = frame.width
       const h = frame.height
@@ -153,7 +152,7 @@ describe('VisionCamera - Frame', () => {
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       scheduleOnRN(onFrame)
       frame.dispose()
@@ -190,7 +189,7 @@ describe('VisionCamera - Frame', () => {
     const counter = createSynchronizable(0)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       counter.setBlocking((prev) => prev + 1)
       frame.dispose()
@@ -231,7 +230,7 @@ describe('VisionCamera - Frame', () => {
     })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       const start = Date.now()
       // Deliberately stall so subsequent frames are dropped.
@@ -286,7 +285,7 @@ describe('VisionCamera - Frame', () => {
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame: Frame) => {
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       scheduleOnRN(report, frame.width, frame.height)
       frame.dispose()
