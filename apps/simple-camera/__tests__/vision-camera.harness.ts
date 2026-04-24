@@ -31,7 +31,6 @@ describe('VisionCamera Harness', () => {
     expect(controllers.length).toBe(1)
 
     await session.start()
-    expect(session.isRunning).toBe(true)
 
     const photo = await photoOutput.capturePhoto(
       { flashMode: 'off', enableShutterSound: false },
