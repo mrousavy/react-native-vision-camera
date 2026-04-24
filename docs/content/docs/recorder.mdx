@@ -93,6 +93,8 @@ If the Recording has to be paused, the `onRecordingPaused` callback previously p
 
 For incoming calls, the Recording doesn't have to be paused - only the audio track will be disabled, while video may continue to record.
 
+By default, the [`CameraVideoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput) stops an active recording when its input [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) changes (e.g. when flipping from the [`'front'`](/api/react-native-vision-camera/type-aliases/CameraPosition) to the [`'back'`](/api/react-native-vision-camera/type-aliases/CameraPosition) Camera) - to continue recording in this case, create [a Persistent Video Output](video-output#persistent-video-outputs) instead.
+
 ### Don't re-use a `Recorder`
 
 A [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) is single-use, meaning you need to create a new [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) to record a new Video.
