@@ -204,6 +204,21 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Install Ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          max-size: 1.5G
+          key: ${{ runner.os }}-ccache-harness-android-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}
+          create-symlink: true
+
+      - name: Setup ccache behavior
+        run: |
+          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
+          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
+          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
+          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
+          echo "CMAKE_CCACHE_ENABLED=1" >> $GITHUB_ENV
+
       - name: Restore Gradle/CMake cache
         uses: actions/cache@v5
         with:
@@ -212,7 +227,7 @@ jobs:
             ~/.gradle/wrapper
             apps/simple-camera/android/.gradle
             apps/simple-camera/android/app/.cxx
-          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'bun.lock') }}
+          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-
             ${{ runner.os }}-gradle-
@@ -223,24 +238,9 @@ jobs:
           role-to-assume: arn:aws:iam::633665345122:role/GitHubDeviceFarmRole
           aws-region: ${{ env.HARNESS_AWS_REGION }}
 
-      - name: Restore Android app from cache
-        id: cache-apk-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
-          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
-
       - name: Build Android app
-        if: steps.cache-apk-restore.outputs.cache-hit != 'true'
         working-directory: apps/simple-camera/android
         run: ./gradlew assembleDebug -Pandroid.injected.testOnly=false -PreactNativeArchitectures=${{ env.HARNESS_ANDROID_DEVICE_ARCH }} --no-daemon --build-cache --console=plain
-
-      - name: Save Android app to cache
-        if: steps.cache-apk-restore.outputs.cache-hit != 'true' && success()
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
-          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
 
       - name: Verify Android app artifact
         run: test -f ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
@@ -280,6 +280,11 @@ jobs:
           artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
           platform: android
           test-step-outcome: ${{ steps.run-test.outcome }}
+
+      - name: Stop Gradle Daemon
+        if: always()
+        working-directory: apps/simple-camera/android
+        run: ./gradlew --stop
 
   # iOS testing on AWS Device Farm is temporarily disabled.
   # Device Farm has no UI operator to tap through runtime permission dialogs
