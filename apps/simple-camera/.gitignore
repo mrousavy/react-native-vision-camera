@@ -73,3 +73,6 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# react-native-harness (auto-generated manifest + crash dumps)
+.harness/
