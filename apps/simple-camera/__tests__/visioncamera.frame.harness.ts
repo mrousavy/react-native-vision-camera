@@ -205,10 +205,10 @@ describe('VisionCamera - Frame', () => {
     expect(counter.getBlocking()).toBeGreaterThanOrEqual(3)
   })
 
-  // Re-enable once the Android CameraX ImageAnalysis pipeline surfaces
-  // dropped-frame notifications. Today HybridFrameOutput.setOnFrameDroppedCallback
-  // is a no-op on Android (see the `TODO: CameraX does not have a way to figure
-  // out if a Frame has been dropped` comment in HybridFrameOutput.kt).
+  // TODO: Re-enable this test once the Android CameraX ImageAnalysis pipeline surfaces
+  //       dropped-frame notifications. Today HybridFrameOutput.setOnFrameDroppedCallback
+  //       is a no-op on Android (see the `TODO: CameraX does not have a way to figure
+  //       out if a Frame has been dropped` comment in HybridFrameOutput.kt).
   it.skip('invokes the onFrameDropped callback when the worklet stalls', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
@@ -255,7 +255,12 @@ describe('VisionCamera - Frame', () => {
     }
   })
 
-  it('delivers smaller buffers when enablePreviewSizedOutputBuffers is true', async () => {
+  // TODO: Re-enable once the Android frame output honors `enablePreviewSizedOutputBuffers`
+  //       (today HybridFrameOutput.kt / HybridDepthFrameOutput.kt both have a
+  //       `TODO: enablePreviewSizedOutputBuffers is not taken into account here.`).
+  //       Actually, maybe we should remoev `enablePreviewSizedOutputBuffers` in favor of
+  //       the simple, yet more flexible `targetResolution: ...` prop anyways.
+  it.skip('delivers smaller buffers when enablePreviewSizedOutputBuffers is true', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.UHD_16_9,

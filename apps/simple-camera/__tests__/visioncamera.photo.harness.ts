@@ -63,11 +63,11 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  // Re-enable once VisionCamera exposes a way to query supported photo
-  // container formats upfront (see the TODO in CameraPhotoOutput.nitro.ts
-  // near `TargetPhotoContainerFormat`). Without that API there is no
-  // precondition to gate on, and the HEIC path throws at configure time
-  // on devices that do not support the format.
+  // TODO: Re-enable once VisionCamera exposes a way to query supported photo
+  //       container formats upfront (see the TODO in CameraPhotoOutput.nitro.ts
+  //       near `TargetPhotoContainerFormat`). Without that API there is no
+  //       precondition to gate on, and the HEIC path throws at configure time
+  //       on devices that do not support the format.
   it.skip('captures a HEIC Photo', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -97,12 +97,12 @@ describe('VisionCamera - Photo', () => {
     }
   })
 
-  // Re-enable once VisionCamera exposes a way to query RAW / DNG support
-  // upfront. Today the CameraX DngCreator path also crashes natively on
-  // some devices with a buffer-size assertion
-  // (java.lang.AssertionError: Height and width of image buffer did not
-  // match height and width of either the preCorrectionActiveArraySize or
-  // the pixelArraySize.) — see androidx.camera.core.imagecapture.DngImage2Disk.
+  // TODO: Re-enable once VisionCamera exposes a way to query RAW / DNG support
+  //       upfront. Today the CameraX DngCreator path also crashes natively on
+  //       some devices with a buffer-size assertion
+  //       (java.lang.AssertionError: Height and width of image buffer did not
+  //       match height and width of either the preCorrectionActiveArraySize or
+  //       the pixelArraySize.) — see androidx.camera.core.imagecapture.DngImage2Disk.
   it.skip('captures a RAW DNG Photo to a file', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
