@@ -34,13 +34,13 @@ class HybridFrameRecorder: HybridRecorderSpec {
   init(
     orientation: CameraOrientation,
     masterClock: CMClock,
-    fileType: AVFileType,
+    fileType: RecorderFileType,
     delegate: RecorderDelegate
   ) throws {
     self.orientation = orientation
     self.masterClock = masterClock
-    self.fileURL = try URL.createTempURL(fileType: fileType)
-    self.assetWriter = try AVAssetWriter(outputURL: fileURL, fileType: fileType)
+    self.fileURL = try URL.createTempURL(fileType: fileType.toUTType())
+    self.assetWriter = try AVAssetWriter(outputURL: fileURL, fileType: fileType.toAVFileType())
     self.assetWriter.shouldOptimizeForNetworkUse = false
     self.queue = DispatchQueue(
       label: "com.margelo.camera.recorder",

@@ -11,7 +11,7 @@ import NitroModules
 class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
   private let queue = DispatchQueue(label: "com.margelo.camera.video")
   private let options: VideoOutputOptions
-  private let fileType: AVFileType
+  private let fileType: RecorderFileType
   let mediaType: MediaType = .video
   let output: AVCaptureMovieFileOutput
   var requiresAudioInput: Bool {
@@ -34,7 +34,7 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
   init(options: VideoOutputOptions) {
     self.output = AVCaptureMovieFileOutput()
     self.options = options
-    self.fileType = options.fileType?.toAVFileType() ?? .mov
+    self.fileType = options.fileType ?? .mov
     super.init()
     self.setMetadataTag(.libraryTag)
   }
