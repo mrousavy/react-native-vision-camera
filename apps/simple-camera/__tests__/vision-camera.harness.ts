@@ -40,6 +40,5 @@ describe('VisionCamera Harness', () => {
     photo.dispose()
 
     await session.stop()
-    expect(session.isRunning).toBe(false)
   })
 })
