@@ -28,14 +28,24 @@ body:
   - type: input
     id: repro
     attributes:
-      label: Reproduction repository
+      label: Reproduction
       description: |
-        **Required.** A link to a minimal public GitHub repository that reproduces the issue on a fresh clone.
+        **Required.** Either (strongly preferred) a link to a PR on this repo that adds a failing harness test reproducing the bug, **or** a link to a minimal public GitHub repository that reproduces the issue on a fresh clone.
 
-        The easiest starting point is to fork [`mrousavy/react-native-vision-camera`](https://github.com/mrousavy/react-native-vision-camera) and modify the [`package/example`](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example) app, or start from a fresh `npx @react-native-community/cli init` and add only what's needed to show the bug.
+        ### ✅ Preferred: open a PR with a failing harness test
 
-        Issues without a reproduction repo are **invalid** and will be closed. Stripped-down snippets in the description do not count.
-      placeholder: "https://github.com/<you>/vision-camera-bug-repro"
+        Add the smallest possible `it(...)` block under [`apps/simple-camera/__tests__/`](https://github.com/mrousavy/react-native-vision-camera/tree/main/apps/simple-camera/__tests__) that reproduces the bug. Follow [the harness-tests README](https://github.com/mrousavy/react-native-vision-camera/blob/main/apps/simple-camera/__tests__/README.md) for the conventions — it explains where to put the test, how to write it against the `VisionCamera` imperative API, and the hard-vs-soft requirement rules.
+
+        This is the fastest path to a fix: your PR's CI run is the reproduction (no maintainer setup needed), the maintainer can push a fix to the same branch until CI goes green, and both the fix and the regression test land together so the same bug can never come back silently.
+
+        Link the PR URL here. Example: `https://github.com/mrousavy/react-native-vision-camera/pull/1234`
+
+        ### 🥈 Fallback: a reproduction repo
+
+        If the bug genuinely cannot be expressed as a harness test (for example, something specific to a `<Camera>` component with custom rendering that isn't covered by the imperative tests yet), fork this repo and modify the [`apps/simple-camera`](https://github.com/mrousavy/react-native-vision-camera/tree/main/apps/simple-camera) app, or start from a fresh `npx @react-native-community/cli init` and add only what's needed to show the bug. Link the repo URL here instead.
+
+        Issues without either a PR link or a reproduction repo link are **invalid** and will be closed. Stripped-down snippets in the description do not count.
+      placeholder: "https://github.com/mrousavy/react-native-vision-camera/pull/<your-repro-PR>  (or a repo URL as fallback)"
     validations:
       required: true
 
@@ -188,7 +198,7 @@ body:
       label: Submission
       description: Please confirm each of the following about what you submitted above. Every box must be ticked.
       options:
-        - label: The reproduction repository I linked is public and reproduces the bug on a fresh clone. I understand the issue will be closed without one.
+        - label: The reproduction I linked is either (preferred) a PR against this repo that adds a failing harness test following [the harness-tests README](https://github.com/mrousavy/react-native-vision-camera/blob/main/apps/simple-camera/__tests__/README.md), or (fallback) a public repo that reproduces the bug on a fresh clone. I understand the issue will be closed without one.
           required: true
         - label: I pasted logs as text (not screenshots).
           required: true
