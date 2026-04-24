@@ -190,7 +190,8 @@ export interface CameraFrameOutput extends CameraOutput {
   /**
    * Adds a callback that calls the given {@linkcode onFrame} function
    * every time the Camera produces a new {@linkcode Frame}.
-   * @note This method has to be called on a Worklet running on this {@linkcode thread}.
+   *
+   * @throws If not called on a Worklet/Runtime running on this {@linkcode thread}.
    */
   setOnFrameCallback(onFrame: Sync<(frame: Frame) => boolean> | undefined): void
   /**

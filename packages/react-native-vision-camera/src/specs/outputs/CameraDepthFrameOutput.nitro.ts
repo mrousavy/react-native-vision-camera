@@ -55,7 +55,8 @@ export interface CameraDepthFrameOutput extends CameraOutput {
   /**
    * Adds a callback that calls the given {@linkcode onDepthFrame} function
    * every time the Camera produces a new {@linkcode Depth}.
-   * @note This method has to be called on a Worklet running on this {@linkcode thread}.
+   *
+   * @throws If not called on a Worklet/Runtime running on this {@linkcode thread}.
    */
   setOnDepthFrameCallback(
     onDepthFrame: Sync<(depth: Depth) => boolean> | undefined,
