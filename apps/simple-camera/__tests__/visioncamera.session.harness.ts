@@ -50,7 +50,6 @@ describe('VisionCamera - Session', () => {
 
       await session.start()
       await waitUntil(() => started, { timeout: 10_000 })
-
       await session.stop()
       await waitUntil(() => stopped, { timeout: 10_000 })
 
@@ -93,7 +92,6 @@ describe('VisionCamera - Session', () => {
 
     await session.start()
     await waitUntil(() => startedCount === 1, { timeout: 10_000 })
-
     await session.stop()
     await waitUntil(() => stoppedCount === 1, { timeout: 10_000 })
 
@@ -144,7 +142,6 @@ describe('VisionCamera - Session', () => {
 
     await session.start()
     await waitUntil(() => actuallyStarted, { timeout: 10_000 })
-
     await session.stop()
     await waitUntil(() => stopped, { timeout: 10_000 })
 
