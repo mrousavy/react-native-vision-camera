@@ -195,6 +195,13 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
     return device.hasTorch
   }
 
+  var maxTorchStrength: Double {
+    // AVCaptureDevice.maxAvailableTorchLevel is a platform constant (1.0).
+    // When the device has a torch, torch strength is always configurable via
+    // setTorchModeOn(level:) in the 0...1 range.
+    return device.hasTorch ? Double(AVCaptureDevice.maxAvailableTorchLevel) : 0.0
+  }
+
   var supportsLowLightBoost: Bool {
     return device.isLowLightBoostSupported
   }

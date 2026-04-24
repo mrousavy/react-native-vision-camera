@@ -114,6 +114,7 @@ namespace margelo::nitro::camera {
       virtual bool getSupportsWhiteBalanceLocking() = 0;
       virtual bool getHasFlash() = 0;
       virtual bool getHasTorch() = 0;
+      virtual double getMaxTorchStrength() = 0;
       virtual bool getSupportsLowLightBoost() = 0;
       virtual double getMinZoom() = 0;
       virtual double getMaxZoom() = 0;

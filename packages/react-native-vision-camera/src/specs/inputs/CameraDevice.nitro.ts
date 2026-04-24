@@ -492,6 +492,21 @@ export interface CameraDevice
    * @see {@linkcode CameraController.setTorchMode | setTorchMode(...)}
    */
   readonly hasTorch: boolean
+  /**
+   * The maximum `strength` value accepted by
+   * {@linkcode CameraController.setTorchMode | setTorchMode('on', strength)}.
+   *
+   * - `0` — Configurable torch strength is **not supported** on this device.
+   * You may still call {@linkcode CameraController.setTorchMode | setTorchMode('on')}
+   * / `setTorchMode('off')` to toggle the torch, but passing a specific
+   * {@linkcode CameraController.setTorchMode | strength} value is not supported
+   * and will throw.
+   * - `> 0` — Strength is configurable in the normalized range
+   * from `0` (off) to `maxTorchStrength` (brightest).
+   *
+   * @see {@linkcode CameraController.setTorchMode | setTorchMode(...)}
+   */
+  readonly maxTorchStrength: number
 
   // pragma MARK: Low Light Boost
   /**
