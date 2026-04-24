@@ -123,6 +123,17 @@ const videoOutput = VisionCamera.createVideoOutput({
 > The Persistent Recorder uses a different, buffered pipeline for recording Videos, which introduces slight overhead.
 > If possible, disable the persistent recorder by default for maximum efficiency.
 
+#### File container format
+
+By default, VisionCamera records to a QuickTime container (`.mov`) on iOS, and an MPEG-4 container (`.mp4`) on Android.
+You can configure iOS to also record to an MPEG-4 container by setting your [`VideoOutputOptions.fileType`](/api/react-native-vision-camera/interfaces/VideoOutputOptions#filetype) to [`'mp4'`](/api/react-native-vision-camera/type-aliases/RecorderFileType):
+
+```ts
+const videoOutput = useVideoOutput({ fileType: 'mp4' })
+```
+
+As Android does not support QuickTime containers (`.mov`), this option is iOS only.
+
 ### Preparing a Recorder
 
 Before recording a Video, you must first prepare a [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) using [`createRecorder(...)`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput#createrecorder):
