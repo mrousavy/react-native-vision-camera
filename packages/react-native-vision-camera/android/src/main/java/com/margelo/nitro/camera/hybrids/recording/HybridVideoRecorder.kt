@@ -68,7 +68,10 @@ class HybridVideoRecorder(
                 return@start
               }
               when (event.error) {
-                VideoRecordEvent.Finalize.ERROR_NONE, VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED, VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> {
+                VideoRecordEvent.Finalize.ERROR_NONE,
+                VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED,
+                VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED,
+                -> {
                   // Recording finished successfully - either no error, or file/duration limit reached:
                   val outputUri = event.outputResults.outputUri
                   onRecordingFinished(outputUri.toString())
