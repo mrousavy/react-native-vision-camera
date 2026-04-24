@@ -133,9 +133,11 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await controller.setTorchMode('on', 0.5)
+      // TODO: Add setTorchMode('on', STRENGTH) test when we expose something like
+      //       CameraDevice.supportsTorchStrength - currently this might throw on
+      //       some phones without a way to check upfront if it supports setting strength!
+      await controller.setTorchMode('on')
       expect(controller.torchMode).toBe('on')
-      expect(controller.torchStrength).toBeGreaterThan(0)
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
