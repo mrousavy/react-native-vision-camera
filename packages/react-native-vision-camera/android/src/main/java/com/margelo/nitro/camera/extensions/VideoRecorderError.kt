@@ -5,7 +5,8 @@ import androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError
 
 class VideoRecorderError(
   @param:VideoRecordError val errorCode: Int,
-) : Error() {
+  cause: Throwable? = null,
+) : Error(cause) {
   override val message: String?
     get() =
       when (errorCode) {

@@ -78,7 +78,7 @@ class HybridVideoRecorder(
                 }
                 else -> {
                   // We have an error, either during capture or even while starting:
-                  val error = VideoRecorderError(event.error)
+                  val error = VideoRecorderError(event.error, event.cause)
                   if (!didResolve) {
                     // We didn't even start the Recording yet! Reject promise
                     promise.reject(error)
