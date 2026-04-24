@@ -11,11 +11,11 @@ import MLKitVision
 import NitroModules
 import VisionCamera
 
-class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
+final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
   private let scanner: BarcodeScanner
-  private var delegate: Delegate? = nil
+  private var delegate: BarcodeScannerDelegate? = nil
   private let queue: DispatchQueue
-  let output = AVCaptureVideoDataOutput()
+  let output: AVCaptureVideoDataOutput
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   let mediaType: MediaType = .video
@@ -33,11 +33,12 @@ class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
   init(options: BarcodeScannerOutputOptions) {
     self.scanner = BarcodeScanner.barcodeScanner(options: options.toMLKitOptions())
     self.queue = DispatchQueue(label: "com.margelo.camera.barcodescanner")
+    self.output = AVCaptureVideoDataOutput()
     super.init()
 
     // set delegate
     var isScanning = false
-    self.delegate = Delegate(onSampleBuffer: { [weak self] buffer in
+    self.delegate = BarcodeScannerDelegate(onSampleBuffer: { [weak self] buffer in
       guard let self else { return }
       if isScanning { return }
 
@@ -76,21 +77,5 @@ class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
       return
     }
     connection.preferredVideoStabilizationMode = .off
-  }
-
-  final class Delegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    private let onSampleBuffer: (CMSampleBuffer) -> Void
-
-    init(onSampleBuffer: @escaping (CMSampleBuffer) -> Void) {
-      self.onSampleBuffer = onSampleBuffer
-      super.init()
-    }
-
-    func captureOutput(
-      _ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
-      from connection: AVCaptureConnection
-    ) {
-      onSampleBuffer(sampleBuffer)
-    }
   }
 }
