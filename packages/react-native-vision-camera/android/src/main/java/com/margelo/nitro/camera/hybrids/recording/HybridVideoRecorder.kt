@@ -4,6 +4,7 @@ import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import com.margelo.nitro.camera.HybridRecorderSpec
+import com.margelo.nitro.camera.RecordingFinishedReason
 import com.margelo.nitro.camera.extensions.VideoRecorderError
 import com.margelo.nitro.camera.extensions.parallel
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
@@ -29,7 +30,7 @@ class HybridVideoRecorder(
     get() = file.absolutePath
 
   override fun startRecording(
-    onRecordingFinished: (String) -> Unit,
+    onRecordingFinished: (String, RecordingFinishedReason) -> Unit,
     onRecordingError: (Throwable) -> Unit,
     onRecordingPaused: (() -> Unit)?,
     onRecordingResumed: (() -> Unit)?,
@@ -71,26 +72,27 @@ class HybridVideoRecorder(
                 file.delete()
                 return@start
               }
-              when (event.error) {
-                VideoRecordEvent.Finalize.ERROR_NONE,
-                VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED,
-                VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED,
-                -> {
-                  // Recording finished successfully - either no error, or file/duration limit reached:
-                  val outputUri = event.outputResults.outputUri
-                  onRecordingFinished(outputUri.toString())
+              val finishReason =
+                when (event.error) {
+                  VideoRecordEvent.Finalize.ERROR_NONE -> RecordingFinishedReason.STOPPED
+                  VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED -> RecordingFinishedReason.MAX_DURATION_REACHED
+                  VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> RecordingFinishedReason.MAX_FILE_SIZE_REACHED
+                  else -> null
                 }
-                else -> {
-                  // We have an error, either during capture or even while starting:
-                  val error = VideoRecorderError(event.error, event.cause)
-                  if (!didResolve) {
-                    // We didn't even start the Recording yet! Reject promise
-                    promise.reject(error)
-                    didResolve = true
-                  } else {
-                    // Unknown error while recording
-                    onRecordingError(error)
-                  }
+              if (finishReason != null) {
+                // Recording finished successfully - either no error, or file/duration limit reached:
+                val outputUri = event.outputResults.outputUri
+                onRecordingFinished(outputUri.toString(), finishReason)
+              } else {
+                // We have an error, either during capture or even while starting:
+                val error = VideoRecorderError(event.error, event.cause)
+                if (!didResolve) {
+                  // We didn't even start the Recording yet! Reject promise
+                  promise.reject(error)
+                  didResolve = true
+                } else {
+                  // Unknown error while recording
+                  onRecordingError(error)
                 }
               }
             }
