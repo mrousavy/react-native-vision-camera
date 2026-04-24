@@ -10,6 +10,8 @@ body:
 
         Most build errors are caused by environment or setup issues, not by VisionCamera itself.
 
+        **A public reproduction repository is required.** Build errors depend on your toolchain, native dependencies, Podfile config, and dozens of other factors — we cannot debug something we cannot reproduce. Reports without a repro will be **closed without investigation**.
+
   - type: checkboxes
     id: prerequisites
     attributes:
@@ -146,15 +148,19 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: repro
     attributes:
-      label: Reproduction repository (strongly encouraged)
+      label: Reproduction repository
       description: |
-        If the error reproduces on a fresh project, a link to a minimal public repo dramatically speeds up diagnosis.
+        **Required.** A link to a minimal public GitHub repository that reproduces the build error on a fresh clone.
 
-        Not strictly required for build errors (unlike runtime bugs), but the lack of one may mean the issue sits unresolved.
+        Start from a fresh `npx @react-native-community/cli init` and add only what's needed to trigger the error.
+
+        Issues without a reproduction repo are **invalid** and will be closed. Stripped-down snippets in the description do not count.
       placeholder: "https://github.com/<you>/vision-camera-build-repro"
+    validations:
+      required: true
 
   - type: textarea
     id: additional
@@ -171,4 +177,6 @@ body:
         - label: I pasted the full error output as text (not a screenshot).
           required: true
         - label: I wrote this report in my own words. I did not paste AI-generated summaries of the error.
+          required: true
+        - label: The reproduction repository I linked is public and reproduces the build error on a fresh clone. I understand the issue will be closed without one.
           required: true
