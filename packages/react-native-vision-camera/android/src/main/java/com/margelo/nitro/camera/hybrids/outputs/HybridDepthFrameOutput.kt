@@ -57,7 +57,6 @@ class HybridDepthFrameOutput(
       ResolutionSelector
         .Builder()
         .setResolutionFilter { sizes, _ ->
-          // TODO: `enablePreviewSizedOutputBuffers` is not taken into account here.
           val targetSize = options.targetResolution.toSize()
           return@setResolutionFilter sizes.sortedByClosestTo(targetSize)
         }.build()

@@ -265,7 +265,7 @@ describe('VisionCamera - Constraints', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
