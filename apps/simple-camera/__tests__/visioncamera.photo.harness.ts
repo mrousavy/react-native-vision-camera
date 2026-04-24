@@ -63,18 +63,20 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  // TODO: make this a hard requirement once VisionCamera exposes a way to
-  // query supported photo container formats upfront (see the TODO in
-  // CameraPhotoOutput.nitro.ts near `TargetPhotoContainerFormat`).
-  it('captures a HEIC Photo if the platform supports it', async () => {
+  // Re-enable once VisionCamera exposes a way to query supported photo
+  // container formats upfront (see the TODO in CameraPhotoOutput.nitro.ts
+  // near `TargetPhotoContainerFormat`). Without that API there is no
+  // precondition to gate on, and the HEIC path throws at configure time
+  // on devices that do not support the format.
+  it.skip('captures a HEIC Photo', async () => {
     const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.FHD_4_3,
+      containerFormat: 'heic',
+      quality: 0.9,
+      qualityPrioritization: 'balanced',
+    })
     try {
-      const photoOutput = VisionCamera.createPhotoOutput({
-        targetResolution: CommonResolutions.FHD_4_3,
-        containerFormat: 'heic',
-        quality: 0.9,
-        qualityPrioritization: 'balanced',
-      })
       await session.configure([
         {
           input: backDevice,
@@ -90,25 +92,26 @@ describe('VisionCamera - Photo', () => {
       expect(photo.width).toBeGreaterThan(0)
       expect(photo.height).toBeGreaterThan(0)
       photo.dispose()
-    } catch (error) {
-      console.log(`[SKIP] HEIC: ${(error as Error).message}`)
     } finally {
-      await session.stop().catch(() => undefined)
+      await session.stop()
     }
   })
 
-  // TODO: make this a hard requirement once VisionCamera exposes a way to
-  // query supported photo container formats upfront (see the TODO in
-  // CameraPhotoOutput.nitro.ts near `TargetPhotoContainerFormat`).
-  it('captures a RAW DNG Photo to a file if the device supports it', async () => {
+  // Re-enable once VisionCamera exposes a way to query RAW / DNG support
+  // upfront. Today the CameraX DngCreator path also crashes natively on
+  // some devices with a buffer-size assertion
+  // (java.lang.AssertionError: Height and width of image buffer did not
+  // match height and width of either the preCorrectionActiveArraySize or
+  // the pixelArraySize.) — see androidx.camera.core.imagecapture.DngImage2Disk.
+  it.skip('captures a RAW DNG Photo to a file', async () => {
     const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.FHD_4_3,
+      containerFormat: 'dng',
+      quality: 1.0,
+      qualityPrioritization: 'quality',
+    })
     try {
-      const photoOutput = VisionCamera.createPhotoOutput({
-        targetResolution: CommonResolutions.FHD_4_3,
-        containerFormat: 'dng',
-        quality: 1.0,
-        qualityPrioritization: 'quality',
-      })
       await session.configure([
         {
           input: backDevice,
@@ -122,10 +125,8 @@ describe('VisionCamera - Photo', () => {
         {},
       )
       expect(file.filePath.length).toBeGreaterThan(0)
-    } catch (error) {
-      console.log(`[SKIP] RAW DNG: ${(error as Error).message}`)
     } finally {
-      await session.stop().catch(() => undefined)
+      await session.stop()
     }
   })
 

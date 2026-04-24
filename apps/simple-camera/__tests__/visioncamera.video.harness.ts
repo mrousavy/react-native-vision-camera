@@ -368,7 +368,7 @@ describe('VisionCamera - Video', () => {
       await waitUntil(() => finished, { timeout: 15_000 })
       expect(recordingError).toBe(undefined)
     } finally {
-      await session.stop().catch(() => undefined)
+      await session.stop()
     }
   })
 
