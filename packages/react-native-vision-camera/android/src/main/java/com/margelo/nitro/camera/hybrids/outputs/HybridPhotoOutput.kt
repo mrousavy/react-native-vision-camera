@@ -168,6 +168,7 @@ class HybridPhotoOutput(
         }
 
       // 2. Perform Capture
+      var didFireOnDidCapturePhoto = false
       val image =
         imageCapture.takePicture(
           {
@@ -184,6 +185,7 @@ class HybridPhotoOutput(
             if (progress == 100) {
               // Capture is complete! Now we're encoding...
               callbacks.onDidCapturePhoto?.invoke()
+              didFireOnDidCapturePhoto = true
             }
           },
           { bitmap ->
@@ -194,6 +196,11 @@ class HybridPhotoOutput(
             }
           },
         )
+
+      if (!didFireOnDidCapturePhoto) {
+        // Not every device supports progress callbacks, so we just fire it later here
+        callbacks.onDidCapturePhoto?.invoke()
+      }
 
       // 3. Return
       return@async HybridPhoto(
@@ -244,6 +251,7 @@ class HybridPhotoOutput(
           }.build()
 
       // 2. Perform Capture
+      var didFireOnDidCapturePhoto = false
       imageCapture.takePicture(
         outputFileOptions,
         {
@@ -257,6 +265,7 @@ class HybridPhotoOutput(
           if (progress == 100) {
             // Capture is complete! Saving...
             callbacks.onDidCapturePhoto?.invoke()
+            didFireOnDidCapturePhoto = true
           }
         },
         { bitmap ->
@@ -267,6 +276,11 @@ class HybridPhotoOutput(
           }
         },
       )
+
+      if (!didFireOnDidCapturePhoto) {
+        // Not every device supports progress callbacks, so we just fire it later here
+        callbacks.onDidCapturePhoto?.invoke()
+      }
 
       // 3. Return
       return@async PhotoFile(file.absolutePath)
