@@ -171,10 +171,14 @@ class HybridPhotoOutput(
       val image =
         imageCapture.takePicture(
           {
+            callbacks.onWillBeginCapture?.invoke()
             if (enableShutterSound) {
               shutterSound.play(MediaActionSound.SHUTTER_CLICK)
             }
-            callbacks.onWillBeginCapture?.invoke()
+            // CameraX exposes a single pre-capture hook, so we fire both the
+            // "will begin" and "will capture" callbacks here. On iOS these
+            // are distinct moments (AVCapturePhotoCaptureDelegate).
+            callbacks.onWillCapturePhoto?.invoke()
           },
           { progress ->
             if (progress == 100) {
@@ -243,10 +247,11 @@ class HybridPhotoOutput(
       imageCapture.takePicture(
         outputFileOptions,
         {
+          callbacks.onWillBeginCapture?.invoke()
           if (enableShutterSound) {
             shutterSound.play(MediaActionSound.SHUTTER_CLICK)
           }
-          callbacks.onWillBeginCapture?.invoke()
+          callbacks.onWillCapturePhoto?.invoke()
         },
         { progress ->
           if (progress == 100) {
