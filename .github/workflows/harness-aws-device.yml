@@ -204,21 +204,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Install Ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-        with:
-          max-size: 1.5G
-          key: ${{ runner.os }}-ccache-harness-android-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}
-          create-symlink: true
-
-      - name: Setup ccache behavior
-        run: |
-          echo "CCACHE_SLOPPINESS=clang_index_store,file_stat_matches,include_file_ctime,include_file_mtime,ivfsoverlay,pch_defines,modules,system_headers,time_macros" >> $GITHUB_ENV
-          echo "CCACHE_FILECLONE=true" >> $GITHUB_ENV
-          echo "CCACHE_DEPEND=true" >> $GITHUB_ENV
-          echo "CCACHE_INODECACHE=true" >> $GITHUB_ENV
-          echo "CMAKE_CCACHE_ENABLED=1" >> $GITHUB_ENV
-
       - name: Restore Gradle/CMake cache
         uses: actions/cache@v5
         with:
@@ -227,7 +212,7 @@ jobs:
             ~/.gradle/wrapper
             apps/simple-camera/android/.gradle
             apps/simple-camera/android/app/.cxx
-          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake') }}
           restore-keys: |
             ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-
             ${{ runner.os }}-gradle-
