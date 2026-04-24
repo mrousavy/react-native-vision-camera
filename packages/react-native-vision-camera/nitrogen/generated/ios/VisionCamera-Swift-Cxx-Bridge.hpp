@@ -144,6 +144,8 @@ namespace margelo::nitro::camera { struct PreviewStabilizationModeConstraint; }
 namespace margelo::nitro::camera { struct Range; }
 // Forward declaration of `RecorderFileType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class RecorderFileType; }
+// Forward declaration of `RecordingFinishedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecordingFinishedReason; }
 // Forward declaration of `ResolutionBiasConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct ResolutionBiasConstraint; }
 // Forward declaration of `ScannedObjectType` to properly resolve imports.
@@ -314,6 +316,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "PreviewStabilizationModeConstraint.hpp"
 #include "Range.hpp"
 #include "RecorderFileType.hpp"
+#include "RecordingFinishedReason.hpp"
 #include "ResolutionBiasConstraint.hpp"
 #include "ScannedObjectType.hpp"
 #include "SceneAdaptiveness.hpp"
@@ -2552,6 +2555,28 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_std__shared_ptr_Promise_std__shared_ptr_HybridRecorderSpec____ create_Result_std__shared_ptr_Promise_std__shared_ptr_HybridRecorderSpec____(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<std::shared_ptr<HybridRecorderSpec>>>>::withError(error);
+  }
+  
+  // pragma MARK: std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>
+  /**
+   * Specialized version of `std::function<void(const std::string&, RecordingFinishedReason)>`.
+   */
+  using Func_void_std__string_RecordingFinishedReason = std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>;
+  /**
+   * Wrapper class for a `std::function<void(const std::string& / * filePath * /, RecordingFinishedReason / * reason * /)>`, this can be used from Swift.
+   */
+  class Func_void_std__string_RecordingFinishedReason_Wrapper final {
+  public:
+    explicit Func_void_std__string_RecordingFinishedReason_Wrapper(std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>&& func): _function(std::make_unique<std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>>(std::move(func))) {}
+    inline void call(std::string filePath, int reason) const noexcept {
+      _function->operator()(filePath, static_cast<RecordingFinishedReason>(reason));
+    }
+  private:
+    std::unique_ptr<std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>> _function;
+  } SWIFT_NONCOPYABLE;
+  Func_void_std__string_RecordingFinishedReason create_Func_void_std__string_RecordingFinishedReason(void* NON_NULL swiftClosureWrapper) noexcept;
+  inline Func_void_std__string_RecordingFinishedReason_Wrapper wrap_Func_void_std__string_RecordingFinishedReason(Func_void_std__string_RecordingFinishedReason value) noexcept {
+    return Func_void_std__string_RecordingFinishedReason_Wrapper(std::move(value));
   }
   
   // pragma MARK: std::vector<std::shared_ptr<HybridCameraControllerSpec>>

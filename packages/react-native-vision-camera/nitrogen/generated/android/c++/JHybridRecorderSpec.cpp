@@ -7,15 +7,18 @@
 
 #include "JHybridRecorderSpec.hpp"
 
-
+// Forward declaration of `RecordingFinishedReason` to properly resolve imports.
+namespace margelo::nitro::camera { enum class RecordingFinishedReason; }
 
 #include <string>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/JPromise.hpp>
 #include <NitroModules/JUnit.hpp>
+#include "RecordingFinishedReason.hpp"
 #include <functional>
-#include "JFunc_void_std__string.hpp"
+#include "JFunc_void_std__string_RecordingFinishedReason.hpp"
 #include <NitroModules/JNICallable.hpp>
+#include "JRecordingFinishedReason.hpp"
 #include <exception>
 #include "JFunc_void_std__exception_ptr.hpp"
 #include <optional>
@@ -78,9 +81,9 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<void>> JHybridRecorderSpec::startRecording(const std::function<void(const std::string& /* filePath */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JFunc_void_std__string::javaobject> /* onRecordingFinished */, jni::alias_ref<JFunc_void_std__exception_ptr::javaobject> /* onRecordingError */, jni::alias_ref<JFunc_void::javaobject> /* onRecordingPaused */, jni::alias_ref<JFunc_void::javaobject> /* onRecordingResumed */)>("startRecording_cxx");
-    auto __result = method(_javaPart, JFunc_void_std__string_cxx::fromCpp(onRecordingFinished), JFunc_void_std__exception_ptr_cxx::fromCpp(onRecordingError), onRecordingPaused.has_value() ? JFunc_void_cxx::fromCpp(onRecordingPaused.value()) : nullptr, onRecordingResumed.has_value() ? JFunc_void_cxx::fromCpp(onRecordingResumed.value()) : nullptr);
+  std::shared_ptr<Promise<void>> JHybridRecorderSpec::startRecording(const std::function<void(const std::string& /* filePath */, RecordingFinishedReason /* reason */)>& onRecordingFinished, const std::function<void(const std::exception_ptr& /* error */)>& onRecordingError, const std::optional<std::function<void()>>& onRecordingPaused, const std::optional<std::function<void()>>& onRecordingResumed) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JFunc_void_std__string_RecordingFinishedReason::javaobject> /* onRecordingFinished */, jni::alias_ref<JFunc_void_std__exception_ptr::javaobject> /* onRecordingError */, jni::alias_ref<JFunc_void::javaobject> /* onRecordingPaused */, jni::alias_ref<JFunc_void::javaobject> /* onRecordingResumed */)>("startRecording_cxx");
+    auto __result = method(_javaPart, JFunc_void_std__string_RecordingFinishedReason_cxx::fromCpp(onRecordingFinished), JFunc_void_std__exception_ptr_cxx::fromCpp(onRecordingError), onRecordingPaused.has_value() ? JFunc_void_cxx::fromCpp(onRecordingPaused.value()) : nullptr, onRecordingResumed.has_value() ? JFunc_void_cxx::fromCpp(onRecordingResumed.value()) : nullptr);
     return [&]() {
       auto __promise = Promise<void>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {

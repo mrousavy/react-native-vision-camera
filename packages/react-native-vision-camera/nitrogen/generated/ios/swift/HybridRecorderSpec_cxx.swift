@@ -158,12 +158,12 @@ open class HybridRecorderSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func startRecording(onRecordingFinished: bridge.Func_void_std__string, onRecordingError: bridge.Func_void_std__exception_ptr, onRecordingPaused: bridge.std__optional_std__function_void____, onRecordingResumed: bridge.std__optional_std__function_void____) -> bridge.Result_std__shared_ptr_Promise_void___ {
+  public final func startRecording(onRecordingFinished: bridge.Func_void_std__string_RecordingFinishedReason, onRecordingError: bridge.Func_void_std__exception_ptr, onRecordingPaused: bridge.std__optional_std__function_void____, onRecordingResumed: bridge.std__optional_std__function_void____) -> bridge.Result_std__shared_ptr_Promise_void___ {
     do {
-      let __result = try self.__implementation.startRecording(onRecordingFinished: { () -> (String) -> Void in
-        let __wrappedFunction = bridge.wrap_Func_void_std__string(onRecordingFinished)
-        return { (__filePath: String) -> Void in
-          __wrappedFunction.call(std.string(__filePath))
+      let __result = try self.__implementation.startRecording(onRecordingFinished: { () -> (String, RecordingFinishedReason) -> Void in
+        let __wrappedFunction = bridge.wrap_Func_void_std__string_RecordingFinishedReason(onRecordingFinished)
+        return { (__filePath: String, __reason: RecordingFinishedReason) -> Void in
+          __wrappedFunction.call(std.string(__filePath), __reason.rawValue)
         }
       }(), onRecordingError: { () -> (Error) -> Void in
         let __wrappedFunction = bridge.wrap_Func_void_std__exception_ptr(onRecordingError)
