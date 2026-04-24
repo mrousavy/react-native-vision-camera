@@ -25,9 +25,9 @@ export function createRuntimeThreadProvider(): RuntimeThreadProvider {
       const runtime = createWorkletRuntimeForThread(thread)
       return {
         setOnDepthFrameCallback(depthOutput, onDepth) {
-          if (onDepth != null) {
-            scheduleOnRuntime(runtime, () => {
-              'worklet'
+          scheduleOnRuntime(runtime, () => {
+            'worklet'
+            if (onDepth != null) {
               depthOutput.setOnDepthFrameCallback((depth) => {
                 try {
                   onDepth(depth)
@@ -40,15 +40,15 @@ export function createRuntimeThreadProvider(): RuntimeThreadProvider {
                 }
                 return true
               })
-            })
-          } else {
-            depthOutput.setOnDepthFrameCallback(undefined)
-          }
+            } else {
+              depthOutput.setOnDepthFrameCallback(undefined)
+            }
+          })
         },
         setOnFrameCallback(frameOutput, onFrame) {
-          if (onFrame != null) {
-            scheduleOnRuntime(runtime, () => {
-              'worklet'
+          scheduleOnRuntime(runtime, () => {
+            'worklet'
+            if (onFrame != null) {
               frameOutput.setOnFrameCallback((frame) => {
                 try {
                   onFrame(frame)
@@ -61,10 +61,10 @@ export function createRuntimeThreadProvider(): RuntimeThreadProvider {
                 }
                 return true
               })
-            })
-          } else {
-            frameOutput.setOnFrameCallback(undefined)
-          }
+            } else {
+              frameOutput.setOnFrameCallback(undefined)
+            }
+          })
         },
       }
     },
