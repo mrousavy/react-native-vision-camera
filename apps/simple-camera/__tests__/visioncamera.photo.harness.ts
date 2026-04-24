@@ -235,13 +235,15 @@ describe('VisionCamera - Photo', () => {
         },
       },
     )
-    photo.dispose()
-    await session.stop()
-
+    // Wait for the callbacks to drain BEFORE we stop the session, otherwise
+    // pending callback invocations can be dropped.
     await waitUntil(
       () => willBegin >= 1 && willCapture >= 1 && didCapture >= 1,
       { timeout: 5_000 },
     )
+    photo.dispose()
+    await session.stop()
+
     expect(willBegin).toBe(1)
     expect(willCapture).toBe(1)
     expect(didCapture).toBe(1)
