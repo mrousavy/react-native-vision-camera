@@ -1,5 +1,23 @@
 import type { HybridObject } from 'react-native-nitro-modules'
+import type { RecorderSettings } from './CameraVideoOutput.nitro'
 
+/**
+ * Describes why a {@linkcode Recorder}'s recording finished, and was delivered
+ * to the `onRecordingFinished` callback passed to
+ * {@linkcode Recorder.startRecording | Recorder.startRecording(...)}.
+ *
+ * In all cases, the resulting video file is fully written and usable - this type
+ * only communicates _why_ the recording ended, so the caller can react
+ * accordingly (e.g. show a "max length reached" toast, or chain a follow-up
+ * recording).
+ *
+ * - `'stopped'`: The recording was stopped via a
+ *   {@linkcode Recorder.stopRecording | Recorder.stopRecording()} call.
+ * - `'max-duration-reached'`: The recording automatically stopped because it
+ *   reached the configured {@linkcode RecorderSettings.maxDuration} limit.
+ * - `'max-file-size-reached'`: The recording automatically stopped because it
+ *   reached the configured {@linkcode RecorderSettings.maxFileSize} limit.
+ */
 export type RecordingFinishedReason =
   | 'stopped'
   | 'max-duration-reached'
