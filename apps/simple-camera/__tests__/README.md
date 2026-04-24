@@ -39,7 +39,7 @@ Tests are split by domain. Each file tests one slice of the imperative
 | [visioncamera.session.harness.ts](visioncamera.session.harness.ts) | `createCameraSession`, `configure`, `start`, `stop`, `addOnStartedListener` / `addOnStoppedListener` / `addOnErrorListener` / interruption listeners, reconfigure-while-running, multi-cam |
 | [visioncamera.photo.harness.ts](visioncamera.photo.harness.ts) | `createPhotoOutput`, `capturePhoto` / `capturePhotoToFile`, container formats (JPEG, HEIC, DNG), flash / mirror / quality / resolution options, capture lifecycle callbacks, preview images |
 | [visioncamera.video.harness.ts](visioncamera.video.harness.ts) | `createVideoOutput`, `Recorder` lifecycle, audio, `maxDuration` / `maxFileSize` stops, pause / resume / cancel, persistent recorder, higher-resolution codecs |
-| [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `enablePreviewSizedOutputBuffers` |
+| [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `allowPhysicalBufferResizing` |
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
 
@@ -228,9 +228,6 @@ file pointing at what needs to land first. Today:
   `CameraControl.setExposureCompensationIndex` silently fails in that state.
   The corresponding tests are `it.skip` until the initial config application
   happens at a point where CameraX accepts it.
-- **`enablePreviewSizedOutputBuffers` on Android** — the flag is not honored
-  by `HybridFrameOutput.kt` today (`TODO: enablePreviewSizedOutputBuffers is
-  not taken into account here.`).
 - **`onFrameDropped` on Android** — `HybridFrameOutput.setOnFrameDroppedCallback`
   is a no-op (`TODO: CameraX does not have a way to figure out if a Frame
   has been dropped or not.`).

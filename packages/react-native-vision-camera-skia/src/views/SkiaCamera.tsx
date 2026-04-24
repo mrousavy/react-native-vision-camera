@@ -23,6 +23,7 @@ import {
   type CameraVideoOutput,
   type FocusOptions,
   type Frame,
+  type FrameOutputOptions,
   type MeteringMode,
   type MirrorMode,
   type PixelFormat,
@@ -181,20 +182,23 @@ export interface SkiaCameraProps
    */
   enablePhysicalBufferRotation?: boolean
   /**
-   * Configures the underlying {@linkcode CameraVideoOutput}
-   * to downscale {@linkcode Frame}s to a size suitable for
-   * preview, such as the screen size.
+   * Allow the underlying {@linkcode CameraFrameOutput} to physically
+   * resize its buffers independently of the {@linkcode CameraSession}'s
+   * negotiated resolution.
    *
-   * This may be more efficient if the {@linkcode CameraSession}
-   * negotiated a high-resolution output, as Skia doesn't
-   * have to operate on high-resolution {@linkcode Frame}s.
-   * Ideally, configure a matching {@linkcode ResolutionBiasConstraint}
-   * upfront so no scaling would be necessary at any point
-   * in the pipeline.
+   * This is useful when another output (e.g. a high-resolution
+   * {@linkcode CameraVideoOutput}) needs a full-resolution format but
+   * Skia's preview pipeline can render more efficiently from
+   * downscaled {@linkcode Frame}s.
    *
+   * See {@linkcode FrameOutputOptions.allowPhysicalBufferResizing}
+   * for details and caveats (active-format aspect ratio match, no
+   * upscaling beyond native).
+   *
+   * @platform iOS
    * @default false
    */
-  enablePreviewSizedOutputBuffers?: boolean
+  allowPhysicalBufferResizing?: boolean
 }
 
 const DEFAULT_PIXEL_FORMAT = Platform.select<TargetVideoPixelFormat>({
@@ -209,7 +213,7 @@ function SkiaCameraImpl({
   onFrame,
   pixelFormat = DEFAULT_PIXEL_FORMAT,
   enablePhysicalBufferRotation,
-  enablePreviewSizedOutputBuffers,
+  allowPhysicalBufferResizing,
   device,
   orientationSource,
   warnIfRenderSkipped = true,
@@ -252,7 +256,7 @@ function SkiaCameraImpl({
     dropFramesWhileBusy: true,
     allowDeferredStart: false,
     enablePhysicalBufferRotation: enablePhysicalBufferRotation,
-    enablePreviewSizedOutputBuffers: enablePreviewSizedOutputBuffers,
+    allowPhysicalBufferResizing: allowPhysicalBufferResizing,
     onFrame: (frame) => {
       'worklet'
       let renderCount = 0

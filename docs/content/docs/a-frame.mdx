@@ -65,6 +65,32 @@ case .down:
 > [!TIP]
 > See ["Orientation"](orientation) for more information about orientation.
 
+### Physical buffer resizing
+
+By default, a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) participates in the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession)'s resolution negotiation — its [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution) is used as a `"closest to"` bias, and all outputs share the same negotiated format.
+
+For multi-output sessions where the [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) wants smaller buffers than another output needs (e.g. a Frame Processor running ML on preview-sized buffers while a [`CameraVideoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput) concurrently records at 4K), set [`allowPhysicalBufferResizing`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#allowphysicalbufferresizing) to `true`:
+
+```ts
+const frameOutput = useFrameOutput({
+  // [!code ++]
+  targetResolution: { width: 480, height: 854 },
+  // [!code ++]
+  allowPhysicalBufferResizing: true,
+  onFrame(frame) {
+    'worklet'
+    frame.dispose()
+  }
+})
+```
+
+This opts the [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) out of session-wide resolution negotiation — the [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) picks the format best for the other outputs — and the Camera pipeline physically downscales delivered [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s to [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution).
+
+> [!NOTE]
+> On iOS, the resized buffer size must match the active format's aspect ratio and cannot exceed its native dimensions. A [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution) whose aspect ratio differs from the active format will be honored along its long side only — the delivered [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s aspect ratio follows the active format.
+
+[`allowPhysicalBufferResizing`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#allowphysicalbufferresizing) is iOS-only; Android already uses [`targetResolution`](/api/react-native-vision-camera/interfaces/FrameOutputOptions#targetresolution) as the sole resolution input for [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput), so the flag has no effect there.
+
 ### Understanding Pixel Formats
 
 A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) has a GPU-backed buffer that contains its pixels - their layout is described by the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat).

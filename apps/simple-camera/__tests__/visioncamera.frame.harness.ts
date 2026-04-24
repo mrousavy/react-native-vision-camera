@@ -5,6 +5,7 @@ import {
   it,
   waitUntil,
 } from 'react-native-harness'
+import { Platform } from 'react-native'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -32,7 +33,7 @@ describe('VisionCamera - Frame', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -73,7 +74,7 @@ describe('VisionCamera - Frame', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'yuv',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -132,7 +133,7 @@ describe('VisionCamera - Frame', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.VGA_16_9,
       pixelFormat: 'rgb',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -172,7 +173,7 @@ describe('VisionCamera - Frame', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.VGA_16_9,
       pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -214,7 +215,7 @@ describe('VisionCamera - Frame', () => {
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
+      allowPhysicalBufferResizing: false,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -255,17 +256,25 @@ describe('VisionCamera - Frame', () => {
     }
   })
 
-  // TODO: Re-enable once the Android frame output honors `enablePreviewSizedOutputBuffers`
-  //       (today HybridFrameOutput.kt / HybridDepthFrameOutput.kt both have a
-  //       `TODO: enablePreviewSizedOutputBuffers is not taken into account here.`).
-  //       Actually, maybe we should remoev `enablePreviewSizedOutputBuffers` in favor of
-  //       the simple, yet more flexible `targetResolution: ...` prop anyways.
-  it.skip('delivers smaller buffers when enablePreviewSizedOutputBuffers is true', async () => {
+  it('downscales frame buffers when allowPhysicalBufferResizing is true (iOS only)', async () => {
+    if (Platform.OS !== 'ios') {
+      console.log('[SKIP] allowPhysicalBufferResizing: iOS only')
+      return
+    }
+    // Session hosts both a UHD video output and a VGA-target frame output.
+    // With `allowPhysicalBufferResizing: true`, the frame output opts out of
+    // resolution negotiation so the session picks a format suitable for the
+    // video recorder (≈ UHD), and the frame pipeline physically downscales
+    // delivered buffers to ≈ VGA via `videoSettings` W/H.
     const session = await VisionCamera.createCameraSession(false)
-    const frameOutput = VisionCamera.createFrameOutput({
+    const videoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.UHD_16_9,
+      enableAudio: false,
+    })
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.VGA_16_9,
       pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: true,
+      allowPhysicalBufferResizing: true,
       enablePhysicalBufferRotation: false,
       enableCameraMatrixDelivery: false,
       allowDeferredStart: false,
@@ -274,7 +283,10 @@ describe('VisionCamera - Frame', () => {
     await session.configure([
       {
         input: backDevice,
-        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        outputs: [
+          { output: videoOutput, mirrorMode: 'auto' },
+          { output: frameOutput, mirrorMode: 'auto' },
+        ],
         constraints: [],
       },
     ])
@@ -302,12 +314,25 @@ describe('VisionCamera - Frame', () => {
       runtime.setOnFrameCallback(frameOutput, undefined)
       await session.stop()
     }
-    console.log(
-      `preview-sized frame: ${reportedWidth}x${reportedHeight} (requested target ${CommonResolutions.UHD_16_9.width}x${CommonResolutions.UHD_16_9.height})`,
+    const frameLong = Math.max(reportedWidth, reportedHeight)
+    const vgaLong = Math.max(
+      CommonResolutions.VGA_16_9.width,
+      CommonResolutions.VGA_16_9.height,
     )
-    const requestedPixels =
-      CommonResolutions.UHD_16_9.width * CommonResolutions.UHD_16_9.height
-    const actualPixels = reportedWidth * reportedHeight
-    expect(actualPixels).toBeLessThan(requestedPixels)
+    const uhdLong = Math.max(
+      CommonResolutions.UHD_16_9.width,
+      CommonResolutions.UHD_16_9.height,
+    )
+    console.log(
+      `allowPhysicalBufferResizing frame: ${reportedWidth}x${reportedHeight} (target VGA long ${vgaLong}, session UHD long ${uhdLong})`,
+    )
+    // Downscale happened — frame long side is well below UHD's.
+    expect(frameLong).toBeLessThan(uhdLong)
+    // Frame long side lands close to VGA, with tolerance for the
+    // active-aspect clamp (iOS only accepts sizes matching the active
+    // format's aspect ratio, so rounding to the nearest legal size is
+    // expected). Keep the band wide enough to absorb that.
+    expect(frameLong).toBeGreaterThanOrEqual(480)
+    expect(frameLong).toBeLessThanOrEqual(1280)
   })
 })

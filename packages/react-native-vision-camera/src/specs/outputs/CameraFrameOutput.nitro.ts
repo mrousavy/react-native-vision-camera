@@ -10,8 +10,6 @@ import type { CameraSession } from '../session/CameraSession.nitro'
 import type { CameraSessionConfig } from '../session/CameraSessionConfig.nitro'
 import type { CameraOutput } from './CameraOutput.nitro'
 
-// TODO: Should we remove `enablePreviewSizedOutputBuffers` and infer it from `targetResolution`?
-
 /**
  * Configuration options for a {@linkcode CameraFrameOutput}.
  *
@@ -38,18 +36,39 @@ export interface FrameOutputOptions {
   targetResolution: Size
 
   /**
-   * Deliver smaller, preview-sized output buffers for Frame Processing.
+   * Allow the {@linkcode CameraFrameOutput} to physically resize its
+   * buffers independently of the {@linkcode CameraSession}'s negotiated
+   * resolution.
    *
-   * This is useful for ML and computer vision workloads where full-resolution
-   * buffers are unnecessary and would only increase memory bandwidth and
-   * processing costs.
+   * - When `false` (default), the {@linkcode CameraFrameOutput} participates
+   * in the {@linkcode CameraSession}'s resolution negotiation using its
+   * {@linkcode targetResolution} as a bias (see "closest to"). All outputs
+   * share the same negotiated format, so the {@linkcode CameraFrameOutput}
+   * receives {@linkcode Frame}s at the negotiated resolution regardless of
+   * what other outputs (e.g. a full-resolution {@linkcode CameraVideoOutput})
+   * requested.
+   * - When `true`, the {@linkcode CameraFrameOutput} opts _out_ of
+   * resolution negotiation — the {@linkcode CameraSession} is free to
+   * pick the best format for the _other_ outputs — and the Camera pipeline
+   * physically downscales delivered {@linkcode Frame}s to match
+   * {@linkcode targetResolution} as closely as possible. This is useful when
+   * the {@linkcode CameraFrameOutput} wants small buffers (e.g. for ML or
+   * GPU preview) while another output (e.g. a 4K {@linkcode CameraVideoOutput})
+   * needs to keep using the full-resolution output.
    *
-   * Other camera outputs (for example {@linkcode CameraVideoOutput}) keep using
-   * the full-resolution output negotiated by the {@linkcode CameraSession}.
+   * @discussion
+   * The "closely as possible" caveat is important: the underlying
+   * `AVCaptureVideoDataOutput` will only accept a physically-resized buffer size
+   * that matches the active format's aspect ratio and does not exceed its
+   * native dimensions. A {@linkcode targetResolution} that does not match
+   * the active format's aspect ratio will therefore be honored along its
+   * long side only — the aspect ratio of the delivered {@linkcode Frame}
+   * follows the active format.
    *
+   * @platform iOS
    * @default false
    */
-  enablePreviewSizedOutputBuffers: boolean
+  allowPhysicalBufferResizing: boolean
 
   /**
    * Allow this output to start later in the capture pipeline startup process.

@@ -33,6 +33,11 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule {
+    if options.allowPhysicalBufferResizing {
+      // Opt out of negotiation — the CameraSession picks whatever format is best for the
+      // other outputs, and we pin our buffer size via `videoSettings` in `configure(...)`.
+      return .any
+    }
     return .closestTo(options.targetResolution)
   }
 
@@ -62,14 +67,6 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       // of preview-related outputs to make preview appear faster.
       output.isDeferredStartEnabled = options.allowDeferredStart
     }
-    // TODO: Add a flag called `allowBufferResizing` and probably get rid of `enablePreviewSizedOutputBuffers`
-    //       If `allowBufferResizing` is true, we can set `.videoSettings`/dimensions here to `options.targetResolution`
-    //       and `targetResolution` to `.any` (to not participate in resolution negotiations).
-    //       If `allowBufferResizing` is false, we don't set `.videoSettings` ("native" resolution), and reflect our
-    //       target resolution via `targetResolution` to participate in resolution negotiations.
-    if #available(iOS 17.0, *), options.enablePreviewSizedOutputBuffers {
-      output.deliversPreviewSizedOutputBuffers = true
-    }
     if #available(iOS 26.0, *) {
       // We don't need HDR metadata, as that's only useful for encoders.
       output.preservesDynamicHDRMetadata = false
@@ -94,6 +91,65 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       if connection.isCameraIntrinsicMatrixDeliverySupported {
         connection.isCameraIntrinsicMatrixDeliveryEnabled = true
       }
+    }
+    if #available(iOS 16.0, *), options.allowPhysicalBufferResizing {
+      // We opted out of resolution negotiation via `targetResolution = .any`; pin our
+      // delivered buffer size here via `videoSettings`. iOS 16+ enforces that the
+      // requested W/H match the active format's aspect ratio (corrected for the
+      // connection's videoOrientation) and do not exceed its native dimensions.
+      if let input = connection.inputPorts.first?.input as? AVCaptureDeviceInput,
+        let dims = HybridCameraFrameOutput.computeResizedBufferDimensions(
+          activeFormat: input.device.activeFormat,
+          connection: connection,
+          target: options.targetResolution) {
+        var settings = output.videoSettings ?? [:]
+        settings[kCVPixelBufferWidthKey as String] = dims.width
+        settings[kCVPixelBufferHeightKey as String] = dims.height
+        output.videoSettings = settings
+      }
+    }
+  }
+
+  /// Computes a buffer size that satisfies `AVCaptureVideoDataOutput.videoSettings`'
+  /// iOS 16+ constraints for `kCVPixelBufferWidthKey` / `kCVPixelBufferHeightKey`:
+  ///   • matches the active format's aspect ratio exactly
+  ///   • never exceeds the active format's native dimensions (no upscaling)
+  ///   • is expressed in output (post-rotation) coordinates, respecting
+  ///     the connection's videoOrientation / videoRotationAngle
+  /// The result is the size closest to `target` that satisfies all of the above.
+  /// Returns `nil` if the active format has degenerate dimensions.
+  private static func computeResizedBufferDimensions(
+    activeFormat: AVCaptureDevice.Format,
+    connection: AVCaptureConnection,
+    target: Size
+  ) -> (width: Int, height: Int)? {
+    let dims = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+    let activeLong = Int(max(dims.width, dims.height))
+    let activeShort = Int(min(dims.width, dims.height))
+    guard activeLong > 0, activeShort > 0 else { return nil }
+
+    // Work in orientation-independent (long, short) space. The active format's aspect
+    // is the only aspect iOS will accept, so we ignore the target's own aspect and
+    // match the target's long side to the active's.
+    let targetLong = max(Int(target.width), Int(target.height))
+    let useLong = max(min(targetLong, activeLong), 2)
+    let useShort = max(
+      Int((Double(useLong) * Double(activeShort) / Double(activeLong)).rounded()), 2)
+
+    // Project back onto (width, height) using the connection's orientation.
+    let isPortrait: Bool
+    if #available(iOS 17.0, *) {
+      let angle = connection.videoRotationAngle
+      isPortrait = abs(angle - 90).isLess(than: 0.5) || abs(angle - 270).isLess(than: 0.5)
+    } else {
+      isPortrait =
+        connection.videoOrientation == .portrait
+        || connection.videoOrientation == .portraitUpsideDown
+    }
+    if isPortrait {
+      return (width: useShort, height: useLong)
+    } else {
+      return (width: useLong, height: useShort)
     }
   }
 
