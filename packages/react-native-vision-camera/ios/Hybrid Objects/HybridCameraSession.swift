@@ -23,6 +23,9 @@ class HybridCameraSession: HybridCameraSessionSpec {
     } else {
       self.session = AVCaptureSession()
     }
+    // We manage formats manually via `device.activeFormat`, so opt out of the
+    // session's preset-based format selection upfront.
+    self.session.sessionPreset = .inputPriority
     super.init()
   }
 
