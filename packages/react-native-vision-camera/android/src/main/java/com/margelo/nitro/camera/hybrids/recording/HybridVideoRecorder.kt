@@ -61,6 +61,10 @@ class HybridVideoRecorder(
             is VideoRecordEvent.Pause -> onRecordingPaused?.invoke()
             is VideoRecordEvent.Resume -> onRecordingResumed?.invoke()
             is VideoRecordEvent.Finalize -> {
+              // Recording is over - drop the Recording reference so `isRecording`
+              // flips to false even when the finalize was auto-triggered (e.g. by
+              // reaching `maxDuration` / `maxFileSize`) instead of via `stopRecording()`.
+              this.recording = null
               if (isCancelled) {
                 // Recording was cancelled - delete the file and don't notify
                 isCancelled = false
