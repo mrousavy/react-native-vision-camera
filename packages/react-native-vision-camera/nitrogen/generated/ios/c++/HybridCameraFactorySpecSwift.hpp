@@ -42,6 +42,8 @@ namespace margelo::nitro::camera { struct PhotoHDRConstraint; }
 namespace margelo::nitro::camera { struct PixelFormatConstraint; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
 // Forward declaration of `TargetStabilizationMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetStabilizationMode; }
 // Forward declaration of `TargetDynamicRange` to properly resolve imports.
@@ -54,6 +56,8 @@ namespace margelo::nitro::camera { enum class TargetColorSpace; }
 namespace margelo::nitro::camera { enum class TargetColorRange; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraPhotoOutputSpec` to properly resolve imports.
@@ -121,6 +125,7 @@ namespace margelo::nitro::camera { class HybridMeteringPointSpec; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include "TargetStabilizationMode.hpp"
 #include "TargetDynamicRange.hpp"
@@ -128,6 +133,7 @@ namespace margelo::nitro::camera { class HybridMeteringPointSpec; }
 #include "TargetColorSpace.hpp"
 #include "TargetColorRange.hpp"
 #include "PixelFormat.hpp"
+#include "VideoRecordingMode.hpp"
 #include <optional>
 #include "HybridCameraDeviceFactorySpec.hpp"
 #include "HybridCameraPhotoOutputSpec.hpp"
@@ -238,7 +244,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>>& constraints, std::optional<bool> requiresMultiCam) override {
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>>& constraints, std::optional<bool> requiresMultiCam) override {
       auto __result = _swiftPart.resolveConstraints(device, outputConfigurations, constraints, requiresMultiCam);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());

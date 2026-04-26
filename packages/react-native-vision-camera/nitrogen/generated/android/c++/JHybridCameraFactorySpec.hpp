@@ -59,7 +59,7 @@ namespace margelo::nitro::camera {
     std::shared_ptr<Promise<bool>> requestCameraPermission() override;
     std::shared_ptr<Promise<bool>> requestMicrophonePermission() override;
     std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionSpec>>> createCameraSession(bool enableMultiCam) override;
-    std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>>& constraints, std::optional<bool> requiresMultiCam) override;
+    std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>>& constraints, std::optional<bool> requiresMultiCam) override;
     std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() override;
     std::shared_ptr<HybridCameraPhotoOutputSpec> createPhotoOutput(const PhotoOutputOptions& options) override;
     std::shared_ptr<HybridCameraVideoOutputSpec> createVideoOutput(const VideoOutputOptions& options) override;

@@ -55,6 +55,7 @@ namespace margelo::nitro::camera {
     std::optional<TargetStabilizationMode> getSelectedPreviewStabilizationMode() override;
     std::optional<TargetDynamicRange> getSelectedVideoDynamicRange() override;
     bool getIsPhotoHDREnabled() override;
+    std::optional<VideoRecordingMode> getSelectedVideoRecordingMode() override;
     PixelFormat getNativePixelFormat() override;
     AutoFocusSystem getAutoFocusSystem() override;
     bool getIsBinned() override;

@@ -361,6 +361,20 @@ const constraints = [
 ] satisfies Constraint[]
 ```
 
+#### High-speed and slow-motion
+
+On Android, you can request a high-speed capture session with a [`{ videoRecordingMode: ... }`](/api/react-native-vision-camera/interfaces/VideoRecordingModeConstraint) constraint.
+Use `'high-speed'` to save a high frame-rate file directly, or `'slow-motion'` to save the recording with a slow-motion playback effect.
+
+If you do not also provide an explicit [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint, VisionCamera automatically picks the lowest supported high-speed FPS for the negotiated session.
+
+```ts
+const constraints = [
+  { videoRecordingMode: 'slow-motion' },
+  { fps: 240 },
+] satisfies Constraint[]
+```
+
 #### Binned preference
 
 Binned formats combine multiple neighboring sensor pixels into one larger effective pixel.

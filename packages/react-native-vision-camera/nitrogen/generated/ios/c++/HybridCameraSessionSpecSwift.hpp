@@ -40,6 +40,8 @@ namespace margelo::nitro::camera { struct PhotoHDRConstraint; }
 namespace margelo::nitro::camera { struct PixelFormatConstraint; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
 // Forward declaration of `TargetStabilizationMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetStabilizationMode; }
 // Forward declaration of `TargetDynamicRange` to properly resolve imports.
@@ -52,6 +54,8 @@ namespace margelo::nitro::camera { enum class TargetColorSpace; }
 namespace margelo::nitro::camera { enum class TargetColorRange; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `HybridCameraSessionConfigSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 // Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
@@ -78,6 +82,7 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include "TargetStabilizationMode.hpp"
 #include "TargetDynamicRange.hpp"
@@ -85,6 +90,7 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "TargetColorSpace.hpp"
 #include "TargetColorRange.hpp"
 #include "PixelFormat.hpp"
+#include "VideoRecordingMode.hpp"
 #include <optional>
 #include "HybridCameraSessionConfigSpec.hpp"
 #include <functional>

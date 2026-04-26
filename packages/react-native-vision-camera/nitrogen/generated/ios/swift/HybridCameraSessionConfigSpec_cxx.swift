@@ -180,6 +180,19 @@ open class HybridCameraSessionConfigSpec_cxx {
     }
   }
   
+  public final var selectedVideoRecordingMode: bridge.std__optional_VideoRecordingMode_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_VideoRecordingMode_ in
+        if let __unwrappedValue = self.__implementation.selectedVideoRecordingMode {
+          return bridge.create_std__optional_VideoRecordingMode_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
+  
   public final var nativePixelFormat: Int32 {
     @inline(__always)
     get {

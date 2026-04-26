@@ -38,6 +38,10 @@ final class HybridCameraSessionConfig: HybridCameraSessionConfigSpec, NativeCame
     return negotiatedFormat.format.isHighestPhotoQualitySupported
   }
 
+  var selectedVideoRecordingMode: VideoRecordingMode? {
+    return enabledConstraints.selectedVideoRecordingMode
+  }
+
   var nativePixelFormat: PixelFormat {
     let format = negotiatedFormat.format
     return PixelFormat(mediaSubType: format.formatDescription.mediaSubType)
@@ -60,6 +64,7 @@ final class HybridCameraSessionConfig: HybridCameraSessionConfigSpec, NativeCame
       "selectedPreviewStabilizationMode: \(String(describing: selectedPreviewStabilizationMode))",
       "selectedVideoDynamicRange: \(String(describing: selectedVideoDynamicRange))",
       "isPhotoHDREnabled: \(isPhotoHDREnabled)",
+      "selectedVideoRecordingMode: \(String(describing: selectedVideoRecordingMode))",
     ]
     return "CameraSessionConfig(\(components.joined(separator: ", ")))"
   }

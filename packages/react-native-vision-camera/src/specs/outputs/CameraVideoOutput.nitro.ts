@@ -134,6 +134,11 @@ export interface RecorderSettings {
  * A Video output allows recording videos (possibly with audio)
  * to a file.
  *
+ * @discussion
+ * To record high-speed or slow-motion video on Android, combine this
+ * output with a {@linkcode Constraint} such as
+ * `{ videoRecordingMode: 'slow-motion' }`.
+ *
  * @see {@linkcode VideoOutputOptions}
  * @see {@linkcode Recorder}
  * @see {@linkcode useVideoOutput | useVideoOutput(...)}
