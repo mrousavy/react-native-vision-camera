@@ -35,6 +35,7 @@ class HybridPhoto(
   val location: Location?,
 ) : HybridPhotoSpec() {
   private val ioScope = CoroutineScope(Dispatchers.IO)
+  private val encodedFileDataLock = Any()
 
   override val width: Double
     get() = image.width.toDouble()
@@ -71,9 +72,12 @@ class HybridPhoto(
     super.dispose()
     image.close()
     cachedPixelBuffer?.dispose()
+    cachedEncodedFileDataBytes = null
   }
 
   private var cachedPixelBuffer: DisposableArrayBuffer? = null
+  @Volatile
+  private var cachedEncodedFileDataBytes: ByteArray? = null
 
   override fun getPixelBuffer(): ArrayBuffer {
     cachedPixelBuffer?.let {
@@ -85,15 +89,34 @@ class HybridPhoto(
     return pixelBuffer.arrayBuffer
   }
 
+  private fun getRawImageBytes(): ByteArray {
+    return when (image.format) {
+      android.graphics.ImageFormat.JPEG -> {
+        // Always read from a duplicate so callers don't consume ImageProxy state.
+        val buffer = image.planes.single().buffer.duplicate()
+        buffer.rewind()
+        ByteArray(buffer.remaining()).also { bytes -> buffer.get(bytes) }
+      }
+      else -> {
+        throw Error(
+          "Photos with ImageFormat \"${image.format}\" cannot be encoded to bytes " +
+            "until https://issuetracker.google.com/u/3/issues/482079661 is implemented!",
+        )
+      }
+    }
+  }
+
   private fun saveToFile(file: File) {
     when (image.format) {
       android.graphics.ImageFormat.JPEG -> {
-        // JPEG Images have a single plane of image data.
-        val plane = image.planes.single()
-        val buffer = plane.buffer
-        val bytes = ByteArray(buffer.remaining()).also { bytes -> buffer.get(bytes) }
+        cachedEncodedFileDataBytes?.let { encodedBytes ->
+          FileOutputStream(file).use { stream ->
+            stream.write(encodedBytes)
+          }
+          return
+        }
         FileOutputStream(file).use { stream ->
-          stream.write(bytes)
+          stream.write(getRawImageBytes())
         }
         attachExifData(file)
       }
@@ -124,27 +147,48 @@ class HybridPhoto(
     }
   }
 
-  override fun getFileData(): ArrayBuffer {
-    when (image.format) {
-      android.graphics.ImageFormat.JPEG -> {
-        // JPEG Images have a single plane of image data.
-        val plane = image.planes.single()
-        return ArrayBuffer.wrap(plane.buffer)
-      }
-      else -> {
-        // TODO: If the CameraX team implements https://issuetracker.google.com/u/3/issues/482079661,
-        //       we could avoid manually reading the buffer and "just get the file data representation",
-        //       just like on iOS via `AVCapturePhoto.fileDataRepresentation()` - no matter the format.
-        throw Error(
-          "Cannot get File Data for Photos with Image Format \"${image.format}\" " +
-            "until https://issuetracker.google.com/u/3/issues/482079661 is implemented!",
-        )
+  private fun getEncodedFileDataBytes(): ByteArray {
+    cachedEncodedFileDataBytes?.let { return it }
+
+    return synchronized(encodedFileDataLock) {
+      cachedEncodedFileDataBytes?.let { return@synchronized it }
+
+      when (image.format) {
+        android.graphics.ImageFormat.JPEG -> {
+          val tempFile = File.createTempFile("VisionCamera_", containerFormat.fileExtension)
+          try {
+            // Reuse the same pipeline as saveToFile() so JS receives identical EXIF/location flags.
+            val encodedBytes = if (cachedEncodedFileDataBytes != null) {
+              cachedEncodedFileDataBytes!!
+            } else {
+              saveToFile(tempFile)
+              tempFile.readBytes()
+            }
+            cachedEncodedFileDataBytes = encodedBytes
+            return@synchronized encodedBytes
+          } finally {
+            tempFile.delete()
+          }
+        }
+        else -> {
+          // TODO: If the CameraX team implements https://issuetracker.google.com/u/3/issues/482079661,
+          //       we could avoid manually reading the buffer and "just get the file data representation",
+          //       just like on iOS via `AVCapturePhoto.fileDataRepresentation()` - no matter the format.
+          throw Error(
+            "Cannot get File Data for Photos with Image Format \"${image.format}\" " +
+              "until https://issuetracker.google.com/u/3/issues/482079661 is implemented!",
+          )
+        }
       }
     }
   }
 
+  override fun getFileData(): ArrayBuffer {
+    return ArrayBuffer.copy(getEncodedFileDataBytes())
+  }
+
   override fun getFileDataAsync(): Promise<ArrayBuffer> {
-    return Promise.async { getFileData() }
+    return Promise.async(ioScope) { getFileData() }
   }
 
   override fun toImage(): HybridImageSpec {
