@@ -14,6 +14,7 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
   private let queue: DispatchQueue
   private let videoQueue: DispatchQueue
   private var audioSession: AudioSession? = nil
+  private var sessionConfiguration: CameraSessionConfiguration? = nil
   let mediaType: MediaType = .video
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
@@ -83,6 +84,22 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
     }
     try? connection.setMirrorMode(config.mirrorMode)
     try? connection.setOrientation(outputOrientation)
+  }
+
+  func configure(
+    config: CameraOutputConfiguration,
+    sessionConfig: CameraSessionConfiguration?
+  ) {
+    self.sessionConfiguration = sessionConfig
+    self.configure(config: config)
+
+    if let audioSession {
+      audioSession.updateConfiguration(
+        automaticallyConfiguresApplicationAudioSession:
+          sessionConfig?.automaticallyConfiguresApplicationAudioSession ?? true,
+        allowBackgroundAudioPlayback: sessionConfig?.allowBackgroundAudioPlayback
+      )
+    }
   }
 
   func getSupportedVideoCodecs() throws -> [VideoCodec] {
@@ -212,7 +229,11 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
       return audioSession
     }
     // 1. Create session
-    let audioSession = try AudioSession()
+    let audioSession = try AudioSession(
+      automaticallyConfiguresApplicationAudioSession:
+        sessionConfiguration?.automaticallyConfiguresApplicationAudioSession ?? true,
+      allowBackgroundAudioPlayback: sessionConfiguration?.allowBackgroundAudioPlayback
+    )
     // 2. Add on frame listener
     audioSession.setOnFrameListener { [weak self] buffer, timestamp in
       guard let self else { return }

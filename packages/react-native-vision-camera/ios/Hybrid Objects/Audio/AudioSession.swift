@@ -16,7 +16,10 @@ class AudioSession {
   private let queue: DispatchQueue
   private let delegate: AudioFrameDelegate
 
-  init() throws {
+  init(
+    automaticallyConfiguresApplicationAudioSession: Bool,
+    allowBackgroundAudioPlayback: Bool?
+  ) throws {
     logger.log("Initializing AudioSession...")
     // 1. Create AVCaptureSession
     self.audioSession = AVCaptureSession()
@@ -24,6 +27,12 @@ class AudioSession {
     self.audioSession.beginConfiguration()
     let audioSession = self.audioSession
     defer { audioSession.commitConfiguration() }
+
+    updateConfiguration(
+      automaticallyConfiguresApplicationAudioSession:
+        automaticallyConfiguresApplicationAudioSession,
+      allowBackgroundAudioPlayback: allowBackgroundAudioPlayback
+    )
 
     // 3. Create audio input
     guard let microphone = AVCaptureDevice.default(for: .audio) else {
@@ -56,6 +65,18 @@ class AudioSession {
     // 8. Add delegate/listener
     self.delegate = AudioFrameDelegate()
     output.setSampleBufferDelegate(delegate, queue: queue)
+  }
+
+  func updateConfiguration(
+    automaticallyConfiguresApplicationAudioSession: Bool,
+    allowBackgroundAudioPlayback: Bool?
+  ) {
+    audioSession.automaticallyConfiguresApplicationAudioSession =
+      automaticallyConfiguresApplicationAudioSession
+    if #available(iOS 18.0, *) {
+      audioSession.configuresApplicationAudioSessionToMixWithOthers =
+        automaticallyConfiguresApplicationAudioSession && (allowBackgroundAudioPlayback ?? false)
+    }
   }
 
   func setOnFrameListener(onFrame: @escaping (CMSampleBuffer, CMTime) -> Void) {

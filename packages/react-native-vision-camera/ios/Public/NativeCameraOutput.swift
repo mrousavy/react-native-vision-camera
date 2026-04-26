@@ -56,4 +56,25 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotionParticipant {
    * such as orientation or mirroring settings in here.
    */
   func configure(config: CameraOutputConfiguration)
+  /**
+   * Called whenever the `CameraOutputConfiguration` or
+   * session-wide configuration might change.
+   *
+   * Outputs that need session-wide settings can override
+   * this method. The default implementation delegates to
+   * `configure(config:)`.
+   */
+  func configure(
+    config: CameraOutputConfiguration,
+    sessionConfig: CameraSessionConfiguration?
+  )
+}
+
+public extension NativeCameraOutput {
+  func configure(
+    config: CameraOutputConfiguration,
+    sessionConfig: CameraSessionConfiguration?
+  ) {
+    self.configure(config: config)
+  }
 }

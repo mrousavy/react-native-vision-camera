@@ -62,6 +62,11 @@ class HybridCameraSession: HybridCameraSessionSpec {
         )
       }
 
+      let automaticallyConfiguresApplicationAudioSession =
+        config?.automaticallyConfiguresApplicationAudioSession ?? true
+      self.session.automaticallyConfiguresApplicationAudioSession =
+        automaticallyConfiguresApplicationAudioSession
+
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(connections)
       // Remove all unwanted outputs and add all new outputs
@@ -79,7 +84,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
           switch outputConfiguration.output {
           case let output as any NativeCameraOutput:
             // Configure AVCaptureOutput
-            output.configure(config: outputConfiguration)
+            output.configure(config: outputConfiguration, sessionConfig: config)
           case let previewOutput as any NativePreviewViewOutput:
             // Configure AVCaptureVideoPreviewLayer
             previewOutput.configure(config: outputConfiguration)
@@ -100,10 +105,10 @@ class HybridCameraSession: HybridCameraSessionSpec {
       self.session.automaticallyConfiguresCaptureDeviceForWideColor = !hasCustomDynamicRangeConstraint
 
       // Background Audio Playback
-      if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
-        if #available(iOS 18.0, *) {
-          self.session.configuresApplicationAudioSessionToMixWithOthers = allowBackgroundAudioPlayback
-        }
+      if #available(iOS 18.0, *) {
+        self.session.configuresApplicationAudioSessionToMixWithOthers =
+          automaticallyConfiguresApplicationAudioSession
+          && (config?.allowBackgroundAudioPlayback ?? false)
       }
 
       // Return CameraControllers per connection to adjust camera settings (focus, etc)

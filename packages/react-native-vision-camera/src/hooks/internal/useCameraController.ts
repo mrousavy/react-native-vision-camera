@@ -10,6 +10,7 @@ import { useMemoizedArray } from './useMemoizedArray'
 import { useStableCallback } from './useStableCallback'
 
 interface Config {
+  automaticallyConfiguresApplicationAudioSession?: boolean
   mirrorMode?: MirrorMode
   allowBackgroundAudioPlayback?: boolean
   constraints?: Constraint[]
@@ -32,6 +33,7 @@ export function useCameraController(
   device: CameraDevice | undefined,
   outputs: CameraOutput[],
   {
+    automaticallyConfiguresApplicationAudioSession,
     mirrorMode = 'auto',
     constraints = [],
     onSessionConfigSelected,
@@ -98,7 +100,11 @@ export function useCameraController(
               onSessionConfigSelected: stableOnSessionConfigSelected,
             },
           ],
-          { allowBackgroundAudioPlayback: allowBackgroundAudioPlayback },
+          {
+            automaticallyConfiguresApplicationAudioSession:
+              automaticallyConfiguresApplicationAudioSession,
+            allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
+          },
         )
         if (isCanceled) {
           controllers.forEach((c) => {
@@ -116,6 +122,7 @@ export function useCameraController(
     }
   }, [
     device,
+    automaticallyConfiguresApplicationAudioSession,
     mirrorMode,
     session,
     allowBackgroundAudioPlayback,

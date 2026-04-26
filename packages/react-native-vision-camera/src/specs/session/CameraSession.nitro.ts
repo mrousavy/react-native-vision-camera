@@ -115,7 +115,8 @@ export interface CameraSession
    * as a multi-cam session (see {@linkcode CameraFactory.createCameraSession | createCameraSession(enableMultiCam)}),
    * you can add multiple {@linkcode CameraSessionConnection}s.
    * @param config Configures session-wide configuration,
-   * such as {@linkcode CameraSessionConfiguration.allowBackgroundAudioPlayback}.
+   * such as {@linkcode CameraSessionConfiguration.automaticallyConfiguresApplicationAudioSession}
+   * or {@linkcode CameraSessionConfiguration.allowBackgroundAudioPlayback}.
    *
    * @returns One {@linkcode CameraController} per {@linkcode CameraSessionConnection}.
    *

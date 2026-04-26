@@ -31,9 +31,12 @@ namespace margelo::nitro::camera {
     [[nodiscard]]
     CameraSessionConfiguration toCpp() const {
       static const auto clazz = javaClassStatic();
+      static const auto fieldAutomaticallyConfiguresApplicationAudioSession = clazz->getField<jni::JBoolean>("automaticallyConfiguresApplicationAudioSession");
+      jni::local_ref<jni::JBoolean> automaticallyConfiguresApplicationAudioSession = this->getFieldValue(fieldAutomaticallyConfiguresApplicationAudioSession);
       static const auto fieldAllowBackgroundAudioPlayback = clazz->getField<jni::JBoolean>("allowBackgroundAudioPlayback");
       jni::local_ref<jni::JBoolean> allowBackgroundAudioPlayback = this->getFieldValue(fieldAllowBackgroundAudioPlayback);
       return CameraSessionConfiguration(
+        automaticallyConfiguresApplicationAudioSession != nullptr ? std::make_optional(static_cast<bool>(automaticallyConfiguresApplicationAudioSession->value())) : std::nullopt,
         allowBackgroundAudioPlayback != nullptr ? std::make_optional(static_cast<bool>(allowBackgroundAudioPlayback->value())) : std::nullopt
       );
     }
@@ -44,11 +47,12 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JCameraSessionConfiguration::javaobject> fromCpp(const CameraSessionConfiguration& value) {
-      using JSignature = JCameraSessionConfiguration(jni::alias_ref<jni::JBoolean>);
+      using JSignature = JCameraSessionConfiguration(jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
+        value.automaticallyConfiguresApplicationAudioSession.has_value() ? jni::JBoolean::valueOf(value.automaticallyConfiguresApplicationAudioSession.value()) : nullptr,
         value.allowBackgroundAudioPlayback.has_value() ? jni::JBoolean::valueOf(value.allowBackgroundAudioPlayback.value()) : nullptr
       );
     }

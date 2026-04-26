@@ -95,6 +95,34 @@ const videoOutput = VisionCamera.createVideoOutput({
 > [!WARNING]
 > Enabling Audio requires microphone permission.
 
+#### Custom iOS Audio Session Control
+
+On iOS, `AVCaptureSession` normally configures the app's `AVAudioSession` automatically when audio recording is active.
+
+If you only want to keep already-playing audio alive while recording, enable [`allowBackgroundAudioPlayback`](/api/react-native-vision-camera/interfaces/CameraProps#allowbackgroundaudioplayback):
+
+```tsx
+const camera = useCamera({
+  isActive: true,
+  device: device,
+  outputs: [videoOutput],
+  allowBackgroundAudioPlayback: true,
+})
+```
+
+If you need full control over the app's `AVAudioSession` category or mode, disable [`automaticallyConfiguresApplicationAudioSession`](/api/react-native-vision-camera/interfaces/CameraProps#automaticallyconfiguresapplicationaudiosession) and configure `AVAudioSession` yourself using your preferred native integration:
+
+```tsx
+const camera = useCamera({
+  isActive: true,
+  device: device,
+  outputs: [videoOutput],
+  automaticallyConfiguresApplicationAudioSession: false,
+})
+```
+
+This is especially useful for FaceTime-style experiences where you want to use a custom `AVAudioSession` mode such as `videoChat`, `voiceChat`, or `measurement` through a library like `react-native-volume-manager`.
+
 #### Persistent Video Outputs
 
 By default, an active recording will be automatically stopped when the input [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) changes (e.g. when the user flips the Camera from front to back).

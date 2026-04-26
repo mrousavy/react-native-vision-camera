@@ -39,11 +39,12 @@ namespace margelo::nitro::camera {
    */
   struct CameraSessionConfiguration final {
   public:
+    std::optional<bool> automaticallyConfiguresApplicationAudioSession     SWIFT_PRIVATE;
     std::optional<bool> allowBackgroundAudioPlayback     SWIFT_PRIVATE;
 
   public:
     CameraSessionConfiguration() = default;
-    explicit CameraSessionConfiguration(std::optional<bool> allowBackgroundAudioPlayback): allowBackgroundAudioPlayback(allowBackgroundAudioPlayback) {}
+    explicit CameraSessionConfiguration(std::optional<bool> automaticallyConfiguresApplicationAudioSession, std::optional<bool> allowBackgroundAudioPlayback): automaticallyConfiguresApplicationAudioSession(automaticallyConfiguresApplicationAudioSession), allowBackgroundAudioPlayback(allowBackgroundAudioPlayback) {}
 
   public:
     friend bool operator==(const CameraSessionConfiguration& lhs, const CameraSessionConfiguration& rhs) = default;
@@ -59,11 +60,13 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::CameraSessionConfiguration fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::camera::CameraSessionConfiguration(
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "automaticallyConfiguresApplicationAudioSession"))),
         JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::camera::CameraSessionConfiguration& arg) {
       jsi::Object obj(runtime);
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "automaticallyConfiguresApplicationAudioSession"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.automaticallyConfiguresApplicationAudioSession));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.allowBackgroundAudioPlayback));
       return obj;
     }
@@ -75,6 +78,7 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "automaticallyConfiguresApplicationAudioSession")))) return false;
       if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback")))) return false;
       return true;
     }

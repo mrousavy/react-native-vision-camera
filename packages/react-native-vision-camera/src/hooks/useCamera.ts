@@ -27,6 +27,30 @@ export interface CameraProps {
   // Session Configuration
   isActive: boolean
   enableMultiCamSupport?: boolean
+  /**
+   * Whether the underlying iOS `AVCaptureSession`s should automatically
+   * configure the application's `AVAudioSession` when audio recording is enabled.
+   *
+   * Disable this if you want to manage `AVAudioSession` yourself,
+   * for example to set a custom `videoChat` or `measurement` mode via
+   * another library.
+   *
+   * @default true
+   * @platform iOS
+   */
+  automaticallyConfiguresApplicationAudioSession?: boolean
+  /**
+   * If enabled, audio that is already playing can continue while a recording
+   * is in progress instead of being interrupted by the Camera.
+   *
+   * This only applies when
+   * {@linkcode CameraProps.automaticallyConfiguresApplicationAudioSession}
+   * is enabled.
+   *
+   * @default false
+   * @platform iOS
+   */
+  allowBackgroundAudioPlayback?: boolean
 
   // Connection Configuration
   device: CameraDevice | CameraPosition
@@ -100,6 +124,8 @@ function defaultOnErrorHandler(error: Error) {
 export function useCamera({
   isActive,
   enableMultiCamSupport = false,
+  automaticallyConfiguresApplicationAudioSession,
+  allowBackgroundAudioPlayback,
   device,
   outputs = [],
   constraints,
@@ -153,6 +179,9 @@ export function useCamera({
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, input, outputs, {
+    automaticallyConfiguresApplicationAudioSession:
+      automaticallyConfiguresApplicationAudioSession,
+    allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
     getInitialExposureBias: getInitialExposureBias,

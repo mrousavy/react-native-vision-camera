@@ -19,6 +19,9 @@ import com.facebook.proguard.annotations.DoNotStrip
 data class CameraSessionConfiguration(
   @DoNotStrip
   @Keep
+  val automaticallyConfiguresApplicationAudioSession: Boolean?,
+  @DoNotStrip
+  @Keep
   val allowBackgroundAudioPlayback: Boolean?
 ) {
   /* primary constructor */
@@ -31,8 +34,8 @@ data class CameraSessionConfiguration(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(allowBackgroundAudioPlayback: Boolean?): CameraSessionConfiguration {
-      return CameraSessionConfiguration(allowBackgroundAudioPlayback)
+    private fun fromCpp(automaticallyConfiguresApplicationAudioSession: Boolean?, allowBackgroundAudioPlayback: Boolean?): CameraSessionConfiguration {
+      return CameraSessionConfiguration(automaticallyConfiguresApplicationAudioSession, allowBackgroundAudioPlayback)
     }
   }
 }
