@@ -18,6 +18,7 @@
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include "JFPSConstraint.hpp"
 #include "JVideoStabilizationModeConstraint.hpp"
@@ -42,6 +43,9 @@
 #include "PixelFormat.hpp"
 #include "JPixelFormat.hpp"
 #include "JBinnedConstraint.hpp"
+#include "JVideoRecordingModeConstraint.hpp"
+#include "VideoRecordingMode.hpp"
+#include "JVideoRecordingMode.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -86,8 +90,12 @@ namespace margelo::nitro::camera {
       static const auto method = javaClassStatic()->getStaticMethod<JConstraint(jni::alias_ref<JBinnedConstraint>)>("create");
       return method(javaClassStatic(), value);
     }
+    static jni::local_ref<JConstraint> create_8(jni::alias_ref<JVideoRecordingModeConstraint> value) {
+      static const auto method = javaClassStatic()->getStaticMethod<JConstraint(jni::alias_ref<JVideoRecordingModeConstraint>)>("create");
+      return method(javaClassStatic(), value);
+    }
 
-    static jni::local_ref<JConstraint> fromCpp(const std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>& variant) {
+    static jni::local_ref<JConstraint> fromCpp(const std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>& variant) {
       switch (variant.index()) {
         case 0: return create_0(JFPSConstraint::fromCpp(std::get<0>(variant)));
         case 1: return create_1(JVideoStabilizationModeConstraint::fromCpp(std::get<1>(variant)));
@@ -97,11 +105,12 @@ namespace margelo::nitro::camera {
         case 5: return create_5(JPhotoHDRConstraint::fromCpp(std::get<5>(variant)));
         case 6: return create_6(JPixelFormatConstraint::fromCpp(std::get<6>(variant)));
         case 7: return create_7(JBinnedConstraint::fromCpp(std::get<7>(variant)));
+        case 8: return create_8(JVideoRecordingModeConstraint::fromCpp(std::get<8>(variant)));
         default: throw std::invalid_argument("Variant holds unknown index! (" + std::to_string(variant.index()) + ")");
       }
     }
 
-    [[nodiscard]] std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint> toCpp() const;
+    [[nodiscard]] std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint> toCpp() const;
   };
 
   namespace JConstraint_impl {
@@ -181,6 +190,16 @@ namespace margelo::nitro::camera {
     
       [[nodiscard]] jni::local_ref<JBinnedConstraint> getValue() const {
         static const auto field = javaClassStatic()->getField<JBinnedConstraint>("value");
+        return getFieldValue(field);
+      }
+    };
+    
+    class Ninth final: public jni::JavaClass<Ninth, JConstraint> {
+    public:
+      static constexpr auto kJavaDescriptor = "Lcom/margelo/nitro/camera/Constraint$Ninth;";
+    
+      [[nodiscard]] jni::local_ref<JVideoRecordingModeConstraint> getValue() const {
+        static const auto field = javaClassStatic()->getField<JVideoRecordingModeConstraint>("value");
         return getFieldValue(field);
       }
     };

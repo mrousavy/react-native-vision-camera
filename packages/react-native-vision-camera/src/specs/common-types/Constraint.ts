@@ -10,6 +10,7 @@ import type { CameraSessionConnection } from '../session/CameraSessionConnection
 import type { TargetDynamicRange } from './DynamicRange'
 import type { PixelFormat } from './PixelFormat'
 import type { TargetStabilizationMode } from './StabilizationMode'
+import type { VideoRecordingMode } from './VideoRecordingMode'
 
 /**
  * A constraint to set a given FPS `number` for any Video,
@@ -154,6 +155,31 @@ export interface PixelFormatConstraint {
 export interface BinnedConstraint {
   binned: boolean
 }
+/**
+ * A constraint to request high-speed capture on Android.
+ *
+ * @discussion
+ * This is useful for both smooth high frame-rate playback and
+ * slow-motion recording. If no explicit {@linkcode FPSConstraint}
+ * is present, VisionCamera automatically picks the lowest supported
+ * high-speed frame-rate to maximize compatibility.
+ *
+ * @example
+ * Record high frame-rate video:
+ * ```ts
+ * { videoRecordingMode: 'high-speed' }
+ * ```
+ * @example
+ * Record slow-motion video:
+ * ```ts
+ * { videoRecordingMode: 'slow-motion' }
+ * ```
+ *
+ * @platform Android
+ */
+export interface VideoRecordingModeConstraint {
+  videoRecordingMode: VideoRecordingMode
+}
 
 /**
  * Constraints are session configuration options that are negotiated by
@@ -204,3 +230,4 @@ export type Constraint =
   | PhotoHDRConstraint
   | PixelFormatConstraint
   | BinnedConstraint
+  | VideoRecordingModeConstraint

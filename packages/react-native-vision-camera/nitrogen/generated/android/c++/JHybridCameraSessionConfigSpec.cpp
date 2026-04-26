@@ -17,6 +17,8 @@ namespace margelo::nitro::camera { enum class TargetDynamicRangeBitDepth; }
 namespace margelo::nitro::camera { enum class TargetColorSpace; }
 // Forward declaration of `TargetColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetColorRange; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
@@ -33,6 +35,8 @@ namespace margelo::nitro::camera { enum class AutoFocusSystem; }
 #include "JTargetColorSpace.hpp"
 #include "TargetColorRange.hpp"
 #include "JTargetColorRange.hpp"
+#include "VideoRecordingMode.hpp"
+#include "JVideoRecordingMode.hpp"
 #include "PixelFormat.hpp"
 #include "JPixelFormat.hpp"
 #include "AutoFocusSystem.hpp"
@@ -92,6 +96,11 @@ namespace margelo::nitro::camera {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("isPhotoHDREnabled");
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
+  }
+  std::optional<VideoRecordingMode> JHybridCameraSessionConfigSpec::getSelectedVideoRecordingMode() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JVideoRecordingMode>()>("getSelectedVideoRecordingMode");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
   PixelFormat JHybridCameraSessionConfigSpec::getNativePixelFormat() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPixelFormat>()>("getNativePixelFormat");

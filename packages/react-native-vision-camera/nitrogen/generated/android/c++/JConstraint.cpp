@@ -9,9 +9,9 @@
 
 namespace margelo::nitro::camera {
   /**
-   * Converts JConstraint to std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>
+   * Converts JConstraint to std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>
    */
-  std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint> JConstraint::toCpp() const {
+  std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint> JConstraint::toCpp() const {
     if (isInstanceOf(JConstraint_impl::First::javaClassStatic())) {
       // It's a `FPSConstraint`
       auto jniValue = static_cast<const JConstraint_impl::First*>(this)->getValue();
@@ -43,6 +43,10 @@ namespace margelo::nitro::camera {
     } else if (isInstanceOf(JConstraint_impl::Eigth::javaClassStatic())) {
       // It's a `BinnedConstraint`
       auto jniValue = static_cast<const JConstraint_impl::Eigth*>(this)->getValue();
+      return jniValue->toCpp();
+    } else if (isInstanceOf(JConstraint_impl::Ninth::javaClassStatic())) {
+      // It's a `VideoRecordingModeConstraint`
+      auto jniValue = static_cast<const JConstraint_impl::Ninth*>(this)->getValue();
       return jniValue->toCpp();
     }
     throw std::invalid_argument("Variant is unknown Kotlin instance!");

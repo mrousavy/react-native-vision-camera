@@ -7,6 +7,7 @@ import com.margelo.nitro.camera.HybridCameraSessionConfigSpec
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.TargetDynamicRange
 import com.margelo.nitro.camera.TargetStabilizationMode
+import com.margelo.nitro.camera.VideoRecordingMode
 import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.public.NativeCameraSessionConfig
 
@@ -31,6 +32,9 @@ class HybridCameraSessionConfig(
   override val isPhotoHDREnabled: Boolean
     get() = resolvedConfig.photoHDR ?: false
 
+  override val selectedVideoRecordingMode: VideoRecordingMode?
+    get() = resolvedConfig.videoRecordingMode
+
   override val nativePixelFormat: PixelFormat
     // TODO: Do we always stream in PRIVATE?
     get() = PixelFormat.PRIVATE
@@ -52,6 +56,7 @@ class HybridCameraSessionConfig(
         "selectedPreviewStabilizationMode: $selectedPreviewStabilizationMode",
         "selectedVideoDynamicRange: $selectedVideoDynamicRange",
         "isPhotoHDREnabled: $isPhotoHDREnabled",
+        "selectedVideoRecordingMode: $selectedVideoRecordingMode",
       )
     return "CameraSessionConfig(${components.joinToString(", ")})"
   }

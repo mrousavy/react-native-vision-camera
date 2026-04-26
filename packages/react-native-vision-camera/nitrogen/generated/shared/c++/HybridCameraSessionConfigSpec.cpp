@@ -19,6 +19,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("selectedPreviewStabilizationMode", &HybridCameraSessionConfigSpec::getSelectedPreviewStabilizationMode);
       prototype.registerHybridGetter("selectedVideoDynamicRange", &HybridCameraSessionConfigSpec::getSelectedVideoDynamicRange);
       prototype.registerHybridGetter("isPhotoHDREnabled", &HybridCameraSessionConfigSpec::getIsPhotoHDREnabled);
+      prototype.registerHybridGetter("selectedVideoRecordingMode", &HybridCameraSessionConfigSpec::getSelectedVideoRecordingMode);
       prototype.registerHybridGetter("nativePixelFormat", &HybridCameraSessionConfigSpec::getNativePixelFormat);
       prototype.registerHybridGetter("autoFocusSystem", &HybridCameraSessionConfigSpec::getAutoFocusSystem);
       prototype.registerHybridGetter("isBinned", &HybridCameraSessionConfigSpec::getIsBinned);

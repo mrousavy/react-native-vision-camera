@@ -36,6 +36,8 @@
 #include "JTargetDynamicRangeBitDepth.hpp"
 #include "JTargetStabilizationMode.hpp"
 #include "JVideoDynamicRangeConstraint.hpp"
+#include "JVideoRecordingMode.hpp"
+#include "JVideoRecordingModeConstraint.hpp"
 #include "JVideoStabilizationModeConstraint.hpp"
 #include "MirrorMode.hpp"
 #include "PhotoHDRConstraint.hpp"
@@ -49,6 +51,8 @@
 #include "TargetDynamicRangeBitDepth.hpp"
 #include "TargetStabilizationMode.hpp"
 #include "VideoDynamicRangeConstraint.hpp"
+#include "VideoRecordingMode.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include "VideoStabilizationModeConstraint.hpp"
 #include <NitroModules/JNICallable.hpp>
 #include <functional>
@@ -102,7 +106,7 @@ namespace margelo::nitro::camera {
         }(),
         [&]() {
           size_t __size = constraints->size();
-          std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>> __vector;
+          std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
             auto __element = constraints->getElement(__i);

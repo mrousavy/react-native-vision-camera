@@ -39,6 +39,8 @@ namespace margelo::nitro::camera { struct PhotoHDRConstraint; }
 namespace margelo::nitro::camera { struct PixelFormatConstraint; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
 // Forward declaration of `HybridCameraDeviceFactorySpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceFactorySpec; }
 // Forward declaration of `HybridCameraPhotoOutputSpec` to properly resolve imports.
@@ -96,6 +98,7 @@ namespace margelo::nitro::camera { class HybridMeteringPointSpec; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include <optional>
 #include "HybridCameraDeviceFactorySpec.hpp"
@@ -155,7 +158,7 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<Promise<bool>> requestCameraPermission() = 0;
       virtual std::shared_ptr<Promise<bool>> requestMicrophonePermission() = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionSpec>>> createCameraSession(bool enableMultiCam) = 0;
-      virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>>& constraints, std::optional<bool> requiresMultiCam) = 0;
+      virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>>& constraints, std::optional<bool> requiresMultiCam) = 0;
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridCameraDeviceFactorySpec>>> createDeviceFactory() = 0;
       virtual std::shared_ptr<HybridCameraPhotoOutputSpec> createPhotoOutput(const PhotoOutputOptions& options) = 0;
       virtual std::shared_ptr<HybridCameraVideoOutputSpec> createVideoOutput(const VideoOutputOptions& options) = 0;

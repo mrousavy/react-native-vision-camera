@@ -78,3 +78,18 @@ await session.start()
 ```
 </Tab>
 </Tabs>
+
+### High-speed and Slow-motion
+
+On Android, you can turn a Video recording into a negotiated high-speed capture session by combining your Video output with a [`{ videoRecordingMode: ... }`](/api/react-native-vision-camera/interfaces/VideoRecordingModeConstraint) constraint:
+
+```ts
+const constraints = [
+  { videoRecordingMode: 'slow-motion' },
+  { fps: 240 },
+]
+```
+
+- Use `'high-speed'` to save the file at the negotiated high FPS.
+- Use `'slow-motion'` to record at a high FPS and save the file for slow-motion playback.
+- If you omit the [`{ fps: ... }`](/api/react-native-vision-camera/interfaces/FPSConstraint) constraint, VisionCamera automatically picks the lowest supported high-speed FPS for that session.

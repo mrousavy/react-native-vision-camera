@@ -28,27 +28,29 @@ public extension CameraSessionConnection {
         __vector.push_back(__item)
       }
       return __vector
-    }(), { () -> bridge.std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__ in
-      var __vector = bridge.create_std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__(constraints.count)
+    }(), { () -> bridge.std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint__ in
+      var __vector = bridge.create_std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint__(constraints.count)
       for __item in constraints {
-        __vector.push_back({ () -> bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_ in
+        __vector.push_back({ () -> bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_ in
           switch __item {
             case .first(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .second(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .third(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .fourth(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .fifth(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .sixth(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .seventh(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
             case .eigth(let __value):
-              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__value)
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
+            case .ninth(let __value):
+              return bridge.create_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__value)
           }
         }().variant)
       }
@@ -94,7 +96,7 @@ public extension CameraSessionConnection {
   @inline(__always)
   var constraints: [Constraint] {
     return self.__constraints.map({ __item in { () -> Constraint in
-      let __variant = bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__item)
+      let __variant = bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__item)
       switch __variant.index() {
         case 0:
           let __actual = __variant.get_0()
@@ -120,6 +122,9 @@ public extension CameraSessionConnection {
         case 7:
           let __actual = __variant.get_7()
           return .eigth(__actual)
+        case 8:
+          let __actual = __variant.get_8()
+          return .ninth(__actual)
         default:
           fatalError("Variant can never have index \(__variant.index())!")
       }

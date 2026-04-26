@@ -6,6 +6,7 @@ import type {
 } from '../common-types/DynamicRange'
 import type { PixelFormat } from '../common-types/PixelFormat'
 import type { TargetStabilizationMode } from '../common-types/StabilizationMode'
+import type { VideoRecordingMode } from '../common-types/VideoRecordingMode'
 import type { CameraDevice } from '../inputs/CameraDevice.nitro'
 import type { Frame } from '../instances/Frame.nitro'
 import type { CameraFrameOutput } from '../outputs/CameraFrameOutput.nitro'
@@ -55,6 +56,14 @@ export interface CameraSessionConfig
    * Gets whether Photo HDR is enabled, or not.
    */
   readonly isPhotoHDREnabled: boolean
+
+  /**
+   * Gets the currently selected high-speed recording mode for Video streams,
+   * or `undefined` if the session is not using a high-speed capture session.
+   *
+   * @platform Android
+   */
+  readonly selectedVideoRecordingMode?: VideoRecordingMode
 
   /**
    * Gets the {@linkcode PixelFormat} this config is natively
