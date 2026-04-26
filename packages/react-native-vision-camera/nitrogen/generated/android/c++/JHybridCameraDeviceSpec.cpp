@@ -15,6 +15,8 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `PhotoContainerFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhotoContainerFormat; }
 // Forward declaration of `DynamicRange` to properly resolve imports.
 namespace margelo::nitro::camera { struct DynamicRange; }
 // Forward declaration of `DynamicRangeBitDepth` to properly resolve imports.
@@ -49,6 +51,8 @@ namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 #include "JHybridCameraDeviceSpec.hpp"
 #include "PixelFormat.hpp"
 #include "JPixelFormat.hpp"
+#include "PhotoContainerFormat.hpp"
+#include "JPhotoContainerFormat.hpp"
 #include "DynamicRange.hpp"
 #include "JDynamicRange.hpp"
 #include "DynamicRangeBitDepth.hpp"
@@ -158,6 +162,20 @@ namespace margelo::nitro::camera {
     return [&]() {
       size_t __size = __result->size();
       std::vector<PixelFormat> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back(__element->toCpp());
+      }
+      return __vector;
+    }();
+  }
+  std::vector<PhotoContainerFormat> JHybridCameraDeviceSpec::getSupportedPhotoContainerFormats() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JPhotoContainerFormat>>()>("getSupportedPhotoContainerFormats");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<PhotoContainerFormat> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
         auto __element = __result->getElement(__i);

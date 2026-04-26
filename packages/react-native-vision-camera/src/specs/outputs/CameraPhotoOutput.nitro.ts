@@ -11,7 +11,6 @@ import type { CameraSessionConfig } from '../session/CameraSessionConfig.nitro'
 import type { CameraOutput } from './CameraOutput.nitro'
 
 // TODO: Move depth data into configuration upfront, I think we need to prepare the Photo Output for that natively.
-// TODO: I think there is no way to get `containerFormat` upfront - we dont know what formats are supported! We need to expose that probably via `CameraDevice.supportedPhotoContainerFormats`
 
 /**
  * Configuration options for a {@linkcode CameraPhotoOutput}.
@@ -40,6 +39,9 @@ export interface PhotoOutputOptions {
   /**
    * Specifies the {@linkcode TargetPhotoContainerFormat} to
    * shoot the {@linkcode Photo} in.
+   *
+   * To check which explicit container formats are supported upfront,
+   * inspect {@linkcode CameraDevice.supportedPhotoContainerFormats}.
    */
   containerFormat: TargetPhotoContainerFormat
   /**

@@ -124,6 +124,8 @@ namespace margelo::nitro::camera { enum class MeteringMode; }
 namespace margelo::nitro::camera { enum class MirrorMode; }
 // Forward declaration of `NativeBuffer` to properly resolve imports.
 namespace margelo::nitro::camera { struct NativeBuffer; }
+// Forward declaration of `PhotoContainerFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhotoContainerFormat; }
 // Forward declaration of `PhotoFile` to properly resolve imports.
 namespace margelo::nitro::camera { struct PhotoFile; }
 // Forward declaration of `PhotoHDRConstraint` to properly resolve imports.
@@ -306,6 +308,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "MeteringMode.hpp"
 #include "MirrorMode.hpp"
 #include "NativeBuffer.hpp"
+#include "PhotoContainerFormat.hpp"
 #include "PhotoFile.hpp"
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormat.hpp"
@@ -1338,6 +1341,17 @@ namespace margelo::nitro::camera::bridge::swift {
     return vector;
   }
   
+  // pragma MARK: std::vector<PhotoContainerFormat>
+  /**
+   * Specialized version of `std::vector<PhotoContainerFormat>`.
+   */
+  using std__vector_PhotoContainerFormat_ = std::vector<PhotoContainerFormat>;
+  inline std::vector<PhotoContainerFormat> create_std__vector_PhotoContainerFormat_(size_t size) noexcept {
+    std::vector<PhotoContainerFormat> vector;
+    vector.reserve(size);
+    return vector;
+  }
+
   // pragma MARK: std::vector<Size>
   /**
    * Specialized version of `std::vector<Size>`.

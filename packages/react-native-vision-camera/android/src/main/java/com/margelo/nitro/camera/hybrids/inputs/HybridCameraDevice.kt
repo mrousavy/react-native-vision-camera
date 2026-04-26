@@ -24,6 +24,7 @@ import com.margelo.nitro.camera.HybridCameraSessionConfigSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.OutputStreamType
 import com.margelo.nitro.camera.PixelFormat
+import com.margelo.nitro.camera.PhotoContainerFormat
 import com.margelo.nitro.camera.Range
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
@@ -109,6 +110,19 @@ class HybridCameraDevice(
     get() = cameraInfo.isLogicalMultiCameraSupported
   override val supportedPixelFormats: Array<PixelFormat>
     get() = camera2Info?.getPixelFormats() ?: emptyArray()
+  override val supportedPhotoContainerFormats: Array<PhotoContainerFormat>
+    get() =
+      imageCapabilities.supportedOutputFormats
+        .mapNotNull { outputFormat ->
+          when (outputFormat) {
+            ImageCapture.OUTPUT_FORMAT_JPEG,
+            ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR,
+            -> PhotoContainerFormat.JPEG
+            ImageCapture.OUTPUT_FORMAT_RAW -> PhotoContainerFormat.DNG
+            else -> null
+          }
+        }.distinct()
+        .toTypedArray()
 
   override val focalLength: Double?
     get() = camera2Info?.focalLength?.toDouble()

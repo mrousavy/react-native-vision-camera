@@ -24,6 +24,9 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
       .map { PixelFormat(mediaSubType: $0.formatDescription.mediaSubType) }
       .withoutDuplicates()
   }()
+  lazy var supportedPhotoContainerFormats: [PhotoContainerFormat] = {
+    return getSupportedPhotoContainerFormats()
+  }()
 
   func getSupportedResolutions(outputStreamType: OutputStreamType) -> [Size] {
     let streamType = streamType(from: outputStreamType)
@@ -42,6 +45,43 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
       return .depthPhoto
     case .depthStream:
       return .depthVideo
+    }
+  }
+
+  private func getSupportedPhotoContainerFormats() -> [PhotoContainerFormat] {
+    let session = AVCaptureSession()
+    let output = AVCapturePhotoOutput()
+
+    do {
+      let input = try AVCaptureDeviceInput(device: device)
+      guard session.canAddInput(input) else {
+        logger.error("Failed to determine supported photo container formats - cannot add camera input.")
+        return [.jpeg]
+      }
+      guard session.canAddOutput(output) else {
+        logger.error("Failed to determine supported photo container formats - cannot add photo output.")
+        return [.jpeg]
+      }
+
+      session.beginConfiguration()
+      session.addInput(input)
+      session.addOutput(output)
+      if output.isAppleProRAWSupported {
+        output.isAppleProRAWEnabled = true
+      }
+      session.commitConfiguration()
+
+      let processedFormats = output.availablePhotoFileTypes
+        .map { PhotoContainerFormat(avFileType: $0) }
+        .filter { $0 == .jpeg || $0 == .heic }
+      let rawFormats = output.availableRawPhotoFileTypes
+        .map { PhotoContainerFormat(avFileType: $0) }
+        .filter { $0 == .dng }
+      let formats = (processedFormats + rawFormats).withoutDuplicates()
+      return formats.isEmpty ? [.jpeg] : formats
+    } catch {
+      logger.error("Failed to determine supported photo container formats: \(error)")
+      return [.jpeg]
     }
   }
 

@@ -21,6 +21,8 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `PhotoContainerFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhotoContainerFormat; }
 // Forward declaration of `DynamicRange` to properly resolve imports.
 namespace margelo::nitro::camera { struct DynamicRange; }
 // Forward declaration of `Range` to properly resolve imports.
@@ -45,6 +47,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "PixelFormat.hpp"
+#include "PhotoContainerFormat.hpp"
 #include "DynamicRange.hpp"
 #include "Range.hpp"
 #include <optional>
@@ -91,6 +94,7 @@ namespace margelo::nitro::camera {
       virtual std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getPhysicalDevices() = 0;
       virtual bool getIsVirtualDevice() = 0;
       virtual std::vector<PixelFormat> getSupportedPixelFormats() = 0;
+      virtual std::vector<PhotoContainerFormat> getSupportedPhotoContainerFormats() = 0;
       virtual bool getSupportsPhotoHDR() = 0;
       virtual std::vector<DynamicRange> getSupportedVideoDynamicRanges() = 0;
       virtual std::vector<Range> getSupportedFPSRanges() = 0;

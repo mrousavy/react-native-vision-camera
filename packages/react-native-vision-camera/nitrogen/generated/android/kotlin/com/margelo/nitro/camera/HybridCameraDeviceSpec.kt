@@ -60,15 +60,19 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   @get:DoNotStrip
   @get:Keep
   abstract val supportedPixelFormats: Array<PixelFormat>
-  
+
+  @get:DoNotStrip
+  @get:Keep
+  abstract val supportedPhotoContainerFormats: Array<PhotoContainerFormat>
+
   @get:DoNotStrip
   @get:Keep
   abstract val supportsPhotoHDR: Boolean
-  
+
   @get:DoNotStrip
   @get:Keep
   abstract val supportedVideoDynamicRanges: Array<DynamicRange>
-  
+
   @get:DoNotStrip
   @get:Keep
   abstract val supportedFPSRanges: Array<Range>

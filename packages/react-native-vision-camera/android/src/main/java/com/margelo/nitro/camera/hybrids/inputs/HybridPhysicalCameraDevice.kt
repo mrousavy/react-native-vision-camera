@@ -16,6 +16,7 @@ import com.margelo.nitro.camera.HybridCameraSessionConfigSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.OutputStreamType
 import com.margelo.nitro.camera.PixelFormat
+import com.margelo.nitro.camera.PhotoContainerFormat
 import com.margelo.nitro.camera.Range
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
@@ -63,6 +64,7 @@ class HybridPhysicalCameraDevice(
   override val physicalDevices: Array<HybridCameraDeviceSpec> = emptyArray()
   override val isVirtualDevice: Boolean = false
   override val supportedPixelFormats: Array<PixelFormat> = emptyArray()
+  override val supportedPhotoContainerFormats: Array<PhotoContainerFormat> = emptyArray()
   override val supportsPhotoHDR: Boolean = false
   override val supportedVideoDynamicRanges: Array<DynamicRange> = emptyArray()
   override val supportedFPSRanges: Array<Range> = emptyArray()

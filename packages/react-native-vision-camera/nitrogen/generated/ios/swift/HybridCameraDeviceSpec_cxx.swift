@@ -199,6 +199,19 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
+  public final var supportedPhotoContainerFormats: bridge.std__vector_PhotoContainerFormat_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__vector_PhotoContainerFormat_ in
+        var __vector = bridge.create_std__vector_PhotoContainerFormat_(self.__implementation.supportedPhotoContainerFormats.count)
+        for __item in self.__implementation.supportedPhotoContainerFormats {
+          __vector.push_back(__item)
+        }
+        return __vector
+      }()
+    }
+  }
+
   public final var supportsPhotoHDR: Bool {
     @inline(__always)
     get {

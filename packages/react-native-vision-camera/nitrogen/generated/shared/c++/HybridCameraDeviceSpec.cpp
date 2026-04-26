@@ -23,6 +23,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("physicalDevices", &HybridCameraDeviceSpec::getPhysicalDevices);
       prototype.registerHybridGetter("isVirtualDevice", &HybridCameraDeviceSpec::getIsVirtualDevice);
       prototype.registerHybridGetter("supportedPixelFormats", &HybridCameraDeviceSpec::getSupportedPixelFormats);
+      prototype.registerHybridGetter("supportedPhotoContainerFormats", &HybridCameraDeviceSpec::getSupportedPhotoContainerFormats);
       prototype.registerHybridGetter("supportsPhotoHDR", &HybridCameraDeviceSpec::getSupportsPhotoHDR);
       prototype.registerHybridGetter("supportedVideoDynamicRanges", &HybridCameraDeviceSpec::getSupportedVideoDynamicRanges);
       prototype.registerHybridGetter("supportedFPSRanges", &HybridCameraDeviceSpec::getSupportedFPSRanges);

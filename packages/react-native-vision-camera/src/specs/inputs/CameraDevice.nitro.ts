@@ -20,6 +20,7 @@ import type { MeteringMode } from '../common-types/FocusOptions'
 import type { MediaType } from '../common-types/MediaType'
 import type { OutputStreamType } from '../common-types/OutputStreamType'
 import type { PixelFormat } from '../common-types/PixelFormat'
+import type { PhotoContainerFormat } from '../common-types/PhotoContainerFormat'
 import type { QualityPrioritization } from '../common-types/QualityPrioritization'
 import type { Range } from '../common-types/Range'
 import type { Size } from '../common-types/Size'
@@ -115,6 +116,27 @@ export interface CameraDevice
    * {@linkcode CameraDevice} can stream in.
    */
   readonly supportedPixelFormats: PixelFormat[]
+  /**
+   * Gets the explicit {@linkcode PhotoContainerFormat | Photo Container Formats}
+   * this {@linkcode CameraDevice} can capture in when using
+   * {@linkcode PhotoOutputOptions.containerFormat}.
+   *
+   * This only includes real container formats such as
+   * {@linkcode PhotoContainerFormat | 'jpeg'}, {@linkcode PhotoContainerFormat | 'heic'}
+   * or {@linkcode PhotoContainerFormat | 'dng'}.
+   *
+   * The platform default alias {@linkcode TargetPhotoContainerFormat | 'native'}
+   * is intentionally not listed here, because it resolves to a platform-specific
+   * processed format (`'jpeg'` on Android and typically `'heic'` on iOS).
+   *
+   * @example
+   * ```ts
+   * const format = device.supportedPhotoContainerFormats.includes('heic')
+   *   ? 'heic'
+   *   : 'jpeg'
+   * ```
+   */
+  readonly supportedPhotoContainerFormats: PhotoContainerFormat[]
 
   /**
    * Get a list of all supported resolutions this {@linkcode CameraDevice}
