@@ -21,6 +21,10 @@ export function CameraView({ device, constraints, ...props }: Props) {
       console.log(`Device changed: ${device.localizedName}`)
       console.log(`  - Supported Pixel Formats:`, device.supportedPixelFormats)
       console.log(
+        `  - Supported Photo Container Formats:`,
+        device.supportedPhotoContainerFormats,
+      )
+      console.log(
         `  - Supported Photo Resolutions:`,
         device.getSupportedResolutions('photo'),
       )

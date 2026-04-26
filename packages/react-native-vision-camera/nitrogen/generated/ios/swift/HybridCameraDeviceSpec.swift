@@ -19,6 +19,7 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var physicalDevices: [(any HybridCameraDeviceSpec)] { get }
   var isVirtualDevice: Bool { get }
   var supportedPixelFormats: [PixelFormat] { get }
+  var supportedPhotoContainerFormats: [PhotoContainerFormat] { get }
   var supportsPhotoHDR: Bool { get }
   var supportedVideoDynamicRanges: [DynamicRange] { get }
   var supportedFPSRanges: [Range] { get }

@@ -59,6 +59,7 @@ namespace margelo::nitro::camera {
     std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getPhysicalDevices() override;
     bool getIsVirtualDevice() override;
     std::vector<PixelFormat> getSupportedPixelFormats() override;
+    std::vector<PhotoContainerFormat> getSupportedPhotoContainerFormats() override;
     bool getSupportsPhotoHDR() override;
     std::vector<DynamicRange> getSupportedVideoDynamicRanges() override;
     std::vector<Range> getSupportedFPSRanges() override;

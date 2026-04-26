@@ -20,6 +20,8 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `PhotoContainerFormat` to properly resolve imports.
+namespace margelo::nitro::camera { enum class PhotoContainerFormat; }
 // Forward declaration of `DynamicRange` to properly resolve imports.
 namespace margelo::nitro::camera { struct DynamicRange; }
 // Forward declaration of `DynamicRangeBitDepth` to properly resolve imports.
@@ -50,6 +52,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 #include "HybridCameraDeviceSpec.hpp"
 #include <vector>
 #include "PixelFormat.hpp"
+#include "PhotoContainerFormat.hpp"
 #include "DynamicRange.hpp"
 #include "DynamicRangeBitDepth.hpp"
 #include "ColorSpace.hpp"
@@ -142,6 +145,10 @@ namespace margelo::nitro::camera {
     }
     inline std::vector<PixelFormat> getSupportedPixelFormats() noexcept override {
       auto __result = _swiftPart.getSupportedPixelFormats();
+      return __result;
+    }
+    inline std::vector<PhotoContainerFormat> getSupportedPhotoContainerFormats() noexcept override {
+      auto __result = _swiftPart.getSupportedPhotoContainerFormats();
       return __result;
     }
     inline bool getSupportsPhotoHDR() noexcept override {
