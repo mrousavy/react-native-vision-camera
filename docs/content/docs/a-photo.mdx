@@ -101,6 +101,8 @@ const pixelBuffer = await image.toRawPixelData()
 
 The [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) also provides access to its Encoded Image Data - which is what would be written to a File if it was saved - including container metadata and EXIF flags.
 
+This is especially useful when you need metadata-bearing image bytes entirely in-memory, for example to preserve orientation, timestamps, or GPS/location EXIF tags while uploading a Photo without first saving it yourself.
+
 You can get the Encoded Image Data via [`getFileDataAsync()`](/api/react-native-vision-camera/hybrid-objects/Photo#getfiledataasync), for example to write this to a network stream entirely in-memory;
 
 ```ts
