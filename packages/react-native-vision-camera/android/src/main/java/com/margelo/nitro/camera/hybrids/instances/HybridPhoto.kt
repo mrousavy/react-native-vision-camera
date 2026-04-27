@@ -35,7 +35,6 @@ class HybridPhoto(
   val location: Location?,
 ) : HybridPhotoSpec() {
   private val ioScope = CoroutineScope(Dispatchers.IO)
-  private val encodedFileDataLock = Any()
 
   override val width: Double
     get() = image.width.toDouble()
@@ -72,12 +71,9 @@ class HybridPhoto(
     super.dispose()
     image.close()
     cachedPixelBuffer?.dispose()
-    cachedEncodedFileDataBytes = null
   }
 
   private var cachedPixelBuffer: DisposableArrayBuffer? = null
-  @Volatile
-  private var cachedEncodedFileDataBytes: ByteArray? = null
 
   override fun getPixelBuffer(): ArrayBuffer {
     cachedPixelBuffer?.let {
@@ -109,12 +105,6 @@ class HybridPhoto(
   private fun saveToFile(file: File) {
     when (image.format) {
       android.graphics.ImageFormat.JPEG -> {
-        cachedEncodedFileDataBytes?.let { encodedBytes ->
-          FileOutputStream(file).use { stream ->
-            stream.write(encodedBytes)
-          }
-          return
-        }
         FileOutputStream(file).use { stream ->
           stream.write(getRawImageBytes())
         }
@@ -147,44 +137,15 @@ class HybridPhoto(
     }
   }
 
-  private fun getEncodedFileDataBytes(): ByteArray {
-    cachedEncodedFileDataBytes?.let { return it }
-
-    return synchronized(encodedFileDataLock) {
-      cachedEncodedFileDataBytes?.let { return@synchronized it }
-
-      when (image.format) {
-        android.graphics.ImageFormat.JPEG -> {
-          val tempFile = File.createTempFile("VisionCamera_", containerFormat.fileExtension)
-          try {
-            // Reuse the same pipeline as saveToFile() so JS receives identical EXIF/location flags.
-            val encodedBytes = if (cachedEncodedFileDataBytes != null) {
-              cachedEncodedFileDataBytes!!
-            } else {
-              saveToFile(tempFile)
-              tempFile.readBytes()
-            }
-            cachedEncodedFileDataBytes = encodedBytes
-            return@synchronized encodedBytes
-          } finally {
-            tempFile.delete()
-          }
-        }
-        else -> {
-          // TODO: If the CameraX team implements https://issuetracker.google.com/u/3/issues/482079661,
-          //       we could avoid manually reading the buffer and "just get the file data representation",
-          //       just like on iOS via `AVCapturePhoto.fileDataRepresentation()` - no matter the format.
-          throw Error(
-            "Cannot get File Data for Photos with Image Format \"${image.format}\" " +
-              "until https://issuetracker.google.com/u/3/issues/482079661 is implemented!",
-          )
-        }
-      }
-    }
-  }
-
   override fun getFileData(): ArrayBuffer {
-    return ArrayBuffer.copy(getEncodedFileDataBytes())
+    val tempFile = File.createTempFile("VisionCamera_", containerFormat.fileExtension)
+    try {
+      // Reuse the same save pipeline so JS receives the same EXIF/location flags as a saved file.
+      saveToFile(tempFile)
+      return ArrayBuffer.copy(tempFile.readBytes())
+    } finally {
+      tempFile.delete()
+    }
   }
 
   override fun getFileDataAsync(): Promise<ArrayBuffer> {

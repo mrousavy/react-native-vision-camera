@@ -163,14 +163,20 @@ export interface Photo
    */
   saveToTemporaryFileAsync(): Promise<string>
   /**
-   * Gets the raw file data of the {@linkcode Photo} after
-   * processing and including EXIF flags.
+   * Gets the encoded file data of the {@linkcode Photo}.
+   *
+   * This matches what {@linkcode saveToFileAsync} or
+   * {@linkcode saveToTemporaryFileAsync} would write to disk,
+   * including container metadata and EXIF flags.
    */
   getFileData(): ArrayBuffer
   /**
-   * Asynchronously ets the raw file data of
-   * the {@linkcode Photo} after processing
-   * and including EXIF flags.
+   * Asynchronously gets the encoded file data of
+   * the {@linkcode Photo}.
+   *
+   * This matches what {@linkcode saveToFileAsync} or
+   * {@linkcode saveToTemporaryFileAsync} would write to disk,
+   * including container metadata and EXIF flags.
    */
   getFileDataAsync(): Promise<ArrayBuffer>
 
