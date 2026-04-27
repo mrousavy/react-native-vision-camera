@@ -85,7 +85,7 @@ class HybridPhoto(
     return pixelBuffer.arrayBuffer
   }
 
-  private fun getRawImageBytes(): ByteArray {
+  private fun getEncodedImageBytes(): ByteArray {
     return when (image.format) {
       android.graphics.ImageFormat.JPEG -> {
         // Always read from a duplicate so callers don't consume ImageProxy state.
@@ -106,7 +106,7 @@ class HybridPhoto(
     when (image.format) {
       android.graphics.ImageFormat.JPEG -> {
         FileOutputStream(file).use { stream ->
-          stream.write(getRawImageBytes())
+          stream.write(getEncodedImageBytes())
         }
         attachExifData(file)
       }
@@ -144,7 +144,9 @@ class HybridPhoto(
       saveToFile(tempFile)
       return ArrayBuffer.copy(tempFile.readBytes())
     } finally {
-      tempFile.delete()
+      if (!tempFile.delete()) {
+        tempFile.deleteOnExit()
+      }
     }
   }
 
