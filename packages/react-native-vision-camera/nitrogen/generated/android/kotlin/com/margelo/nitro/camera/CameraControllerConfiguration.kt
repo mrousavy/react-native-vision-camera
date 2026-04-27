@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -28,6 +29,22 @@ data class CameraControllerConfiguration(
   val enableDistortionCorrection: Boolean?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CameraControllerConfiguration) return false
+    return Objects.deepEquals(this.enableLowLightBoost, other.enableLowLightBoost)
+      && Objects.deepEquals(this.enableSmoothAutoFocus, other.enableSmoothAutoFocus)
+      && Objects.deepEquals(this.enableDistortionCorrection, other.enableDistortionCorrection)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      enableLowLightBoost,
+      enableSmoothAutoFocus,
+      enableDistortionCorrection
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,6 +23,18 @@ data class CameraSessionConfiguration(
   val allowBackgroundAudioPlayback: Boolean?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CameraSessionConfiguration) return false
+    return Objects.deepEquals(this.allowBackgroundAudioPlayback, other.allowBackgroundAudioPlayback)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      allowBackgroundAudioPlayback
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

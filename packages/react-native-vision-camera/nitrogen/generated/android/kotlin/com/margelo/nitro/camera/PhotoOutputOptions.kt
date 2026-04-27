@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -34,6 +35,26 @@ data class PhotoOutputOptions(
   val previewImageTargetSize: Size?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is PhotoOutputOptions) return false
+    return Objects.deepEquals(this.targetResolution, other.targetResolution)
+      && Objects.deepEquals(this.containerFormat, other.containerFormat)
+      && Objects.deepEquals(this.quality, other.quality)
+      && Objects.deepEquals(this.qualityPrioritization, other.qualityPrioritization)
+      && Objects.deepEquals(this.previewImageTargetSize, other.previewImageTargetSize)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      targetResolution,
+      containerFormat,
+      quality,
+      qualityPrioritization,
+      previewImageTargetSize
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

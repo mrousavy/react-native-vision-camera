@@ -9,6 +9,7 @@ package com.margelo.nitro.camera.barcodescanner
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -35,6 +36,24 @@ data class BarcodeScannerOutputOptions(
    */
   constructor(barcodeFormats: Array<TargetBarcodeFormat>, outputResolution: BarcodeScannerOutputResolution?, onBarcodeScanned: (barcodes: Array<HybridBarcodeSpec>) -> Unit, onError: (error: Throwable) -> Unit):
          this(barcodeFormats, outputResolution, Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec___java(onBarcodeScanned), Func_void_std__exception_ptr_java(onError))
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is BarcodeScannerOutputOptions) return false
+    return Objects.deepEquals(this.barcodeFormats, other.barcodeFormats)
+      && Objects.deepEquals(this.outputResolution, other.outputResolution)
+      && Objects.deepEquals(this.onBarcodeScanned, other.onBarcodeScanned)
+      && Objects.deepEquals(this.onError, other.onError)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      barcodeFormats,
+      outputResolution,
+      onBarcodeScanned,
+      onError
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

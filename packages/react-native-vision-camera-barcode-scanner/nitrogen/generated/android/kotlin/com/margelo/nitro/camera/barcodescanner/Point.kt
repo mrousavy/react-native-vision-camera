@@ -9,6 +9,7 @@ package com.margelo.nitro.camera.barcodescanner
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -25,6 +26,20 @@ data class Point(
   val y: Double
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is Point) return false
+    return Objects.deepEquals(this.x, other.x)
+      && Objects.deepEquals(this.y, other.y)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      x,
+      y
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

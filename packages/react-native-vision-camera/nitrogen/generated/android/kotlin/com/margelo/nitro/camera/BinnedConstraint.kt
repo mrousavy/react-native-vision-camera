@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,6 +23,18 @@ data class BinnedConstraint(
   val binned: Boolean
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is BinnedConstraint) return false
+    return Objects.deepEquals(this.binned, other.binned)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      binned
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

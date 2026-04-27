@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 import com.margelo.nitro.core.NullType
 
 /**
@@ -31,6 +32,24 @@ data class FocusOptions(
   val autoResetAfter: Variant_NullType_Double?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is FocusOptions) return false
+    return Objects.deepEquals(this.responsiveness, other.responsiveness)
+      && Objects.deepEquals(this.adaptiveness, other.adaptiveness)
+      && Objects.deepEquals(this.modes, other.modes)
+      && Objects.deepEquals(this.autoResetAfter, other.autoResetAfter)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      responsiveness,
+      adaptiveness,
+      modes,
+      autoResetAfter
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

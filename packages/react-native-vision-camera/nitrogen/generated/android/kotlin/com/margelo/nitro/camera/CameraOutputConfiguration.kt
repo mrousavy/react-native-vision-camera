@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -25,6 +26,20 @@ data class CameraOutputConfiguration(
   val output: HybridCameraOutputSpec
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CameraOutputConfiguration) return false
+    return Objects.deepEquals(this.mirrorMode, other.mirrorMode)
+      && Objects.deepEquals(this.output, other.output)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      mirrorMode,
+      output
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -31,6 +32,24 @@ data class BoundingBox(
   val height: Double
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is BoundingBox) return false
+    return Objects.deepEquals(this.x, other.x)
+      && Objects.deepEquals(this.y, other.y)
+      && Objects.deepEquals(this.width, other.width)
+      && Objects.deepEquals(this.height, other.height)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      x,
+      y,
+      width,
+      height
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

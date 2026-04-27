@@ -9,6 +9,7 @@ package com.margelo.nitro.camera.location
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -28,6 +29,22 @@ data class LocationManagerOptions(
   val updateInterval: Double
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is LocationManagerOptions) return false
+    return Objects.deepEquals(this.accuracy, other.accuracy)
+      && Objects.deepEquals(this.distanceFilter, other.distanceFilter)
+      && Objects.deepEquals(this.updateInterval, other.updateInterval)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      accuracy,
+      distanceFilter,
+      updateInterval
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

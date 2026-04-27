@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -34,6 +35,26 @@ data class DepthFrameOutputOptions(
   val allowDeferredStart: Boolean
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is DepthFrameOutputOptions) return false
+    return Objects.deepEquals(this.enableFiltering, other.enableFiltering)
+      && Objects.deepEquals(this.targetResolution, other.targetResolution)
+      && Objects.deepEquals(this.enablePhysicalBufferRotation, other.enablePhysicalBufferRotation)
+      && Objects.deepEquals(this.dropFramesWhileBusy, other.dropFramesWhileBusy)
+      && Objects.deepEquals(this.allowDeferredStart, other.allowDeferredStart)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      enableFiltering,
+      targetResolution,
+      enablePhysicalBufferRotation,
+      dropFramesWhileBusy,
+      allowDeferredStart
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

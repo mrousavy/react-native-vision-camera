@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -37,6 +38,28 @@ data class VideoOutputOptions(
   val fileType: RecorderFileType?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is VideoOutputOptions) return false
+    return Objects.deepEquals(this.targetResolution, other.targetResolution)
+      && Objects.deepEquals(this.enableAudio, other.enableAudio)
+      && Objects.deepEquals(this.enablePersistentRecorder, other.enablePersistentRecorder)
+      && Objects.deepEquals(this.enableHigherResolutionCodecs, other.enableHigherResolutionCodecs)
+      && Objects.deepEquals(this.targetBitRate, other.targetBitRate)
+      && Objects.deepEquals(this.fileType, other.fileType)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      targetResolution,
+      enableAudio,
+      enablePersistentRecorder,
+      enableHigherResolutionCodecs,
+      targetBitRate,
+      fileType
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

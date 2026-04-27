@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,6 +23,18 @@ data class VideoStabilizationModeConstraint(
   val videoStabilizationMode: TargetStabilizationMode
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is VideoStabilizationModeConstraint) return false
+    return Objects.deepEquals(this.videoStabilizationMode, other.videoStabilizationMode)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      videoStabilizationMode
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

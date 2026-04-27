@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 import com.margelo.nitro.image.HybridImageSpec
 
 /**
@@ -35,6 +36,24 @@ data class CapturePhotoCallbacks(
    */
   constructor(onWillBeginCapture: (() -> Unit)?, onWillCapturePhoto: (() -> Unit)?, onDidCapturePhoto: (() -> Unit)?, onPreviewImageAvailable: ((previewImage: com.margelo.nitro.image.HybridImageSpec) -> Unit)?):
          this(onWillBeginCapture?.let { Func_void_java(it) }, onWillCapturePhoto?.let { Func_void_java(it) }, onDidCapturePhoto?.let { Func_void_java(it) }, onPreviewImageAvailable?.let { Func_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec__java(it) })
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CapturePhotoCallbacks) return false
+    return Objects.deepEquals(this.onWillBeginCapture, other.onWillBeginCapture)
+      && Objects.deepEquals(this.onWillCapturePhoto, other.onWillCapturePhoto)
+      && Objects.deepEquals(this.onDidCapturePhoto, other.onDidCapturePhoto)
+      && Objects.deepEquals(this.onPreviewImageAvailable, other.onPreviewImageAvailable)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      onWillBeginCapture,
+      onWillCapturePhoto,
+      onDidCapturePhoto,
+      onPreviewImageAvailable
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

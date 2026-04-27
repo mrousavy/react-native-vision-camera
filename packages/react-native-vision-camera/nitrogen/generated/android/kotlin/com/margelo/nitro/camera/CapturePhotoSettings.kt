@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -43,6 +44,32 @@ data class CapturePhotoSettings(
   val location: HybridLocationSpec?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CapturePhotoSettings) return false
+    return Objects.deepEquals(this.flashMode, other.flashMode)
+      && Objects.deepEquals(this.enableShutterSound, other.enableShutterSound)
+      && Objects.deepEquals(this.enableDepthData, other.enableDepthData)
+      && Objects.deepEquals(this.enableRedEyeReduction, other.enableRedEyeReduction)
+      && Objects.deepEquals(this.enableCameraCalibrationDataDelivery, other.enableCameraCalibrationDataDelivery)
+      && Objects.deepEquals(this.enableDistortionCorrection, other.enableDistortionCorrection)
+      && Objects.deepEquals(this.enableVirtualDeviceFusion, other.enableVirtualDeviceFusion)
+      && Objects.deepEquals(this.location, other.location)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      flashMode,
+      enableShutterSound,
+      enableDepthData,
+      enableRedEyeReduction,
+      enableCameraCalibrationDataDelivery,
+      enableDistortionCorrection,
+      enableVirtualDeviceFusion,
+      location
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

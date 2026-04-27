@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -28,6 +29,22 @@ data class RecorderSettings(
   val maxFileSize: Double?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is RecorderSettings) return false
+    return Objects.deepEquals(this.location, other.location)
+      && Objects.deepEquals(this.maxDuration, other.maxDuration)
+      && Objects.deepEquals(this.maxFileSize, other.maxFileSize)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      location,
+      maxDuration,
+      maxFileSize
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

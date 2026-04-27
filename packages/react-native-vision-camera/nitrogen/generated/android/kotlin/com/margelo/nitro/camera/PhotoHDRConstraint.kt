@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,6 +23,18 @@ data class PhotoHDRConstraint(
   val photoHDR: Boolean
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is PhotoHDRConstraint) return false
+    return Objects.deepEquals(this.photoHDR, other.photoHDR)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      photoHDR
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

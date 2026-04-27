@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -28,6 +29,22 @@ data class TargetDynamicRange(
   val colorRange: TargetColorRange
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is TargetDynamicRange) return false
+    return Objects.deepEquals(this.bitDepth, other.bitDepth)
+      && Objects.deepEquals(this.colorSpace, other.colorSpace)
+      && Objects.deepEquals(this.colorRange, other.colorRange)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      bitDepth,
+      colorSpace,
+      colorRange
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

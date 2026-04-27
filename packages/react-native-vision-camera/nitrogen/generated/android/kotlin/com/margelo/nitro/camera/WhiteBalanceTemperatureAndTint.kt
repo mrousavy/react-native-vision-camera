@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -25,6 +26,20 @@ data class WhiteBalanceTemperatureAndTint(
   val tint: Double
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is WhiteBalanceTemperatureAndTint) return false
+    return Objects.deepEquals(this.temperature, other.temperature)
+      && Objects.deepEquals(this.tint, other.tint)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      temperature,
+      tint
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

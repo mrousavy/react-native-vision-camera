@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -41,6 +42,28 @@ data class CameraSessionConnection(
    */
   constructor(input: HybridCameraDeviceSpec, outputs: Array<CameraOutputConfiguration>, constraints: Array<Constraint>, initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: ((config: HybridCameraSessionConfigSpec) -> Unit)?):
          this(input, outputs, constraints, initialZoom, initialExposureBias, onSessionConfigSelected?.let { Func_void_std__shared_ptr_HybridCameraSessionConfigSpec__java(it) })
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CameraSessionConnection) return false
+    return Objects.deepEquals(this.input, other.input)
+      && Objects.deepEquals(this.outputs, other.outputs)
+      && Objects.deepEquals(this.constraints, other.constraints)
+      && Objects.deepEquals(this.initialZoom, other.initialZoom)
+      && Objects.deepEquals(this.initialExposureBias, other.initialExposureBias)
+      && Objects.deepEquals(this.onSessionConfigSelected, other.onSessionConfigSelected)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      input,
+      outputs,
+      constraints,
+      initialZoom,
+      initialExposureBias,
+      onSessionConfigSelected
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

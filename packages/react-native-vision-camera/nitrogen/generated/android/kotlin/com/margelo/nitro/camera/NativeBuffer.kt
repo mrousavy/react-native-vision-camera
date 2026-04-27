@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -29,6 +30,20 @@ data class NativeBuffer(
    */
   constructor(pointer: ULong, release: () -> Unit):
          this(pointer.toLong(), Func_void_java(release))
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is NativeBuffer) return false
+    return Objects.deepEquals(this.pointer, other.pointer)
+      && Objects.deepEquals(this.release, other.release)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      pointer,
+      release
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

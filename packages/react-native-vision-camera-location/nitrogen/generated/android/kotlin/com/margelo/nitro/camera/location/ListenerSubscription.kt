@@ -9,6 +9,7 @@ package com.margelo.nitro.camera.location
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -26,6 +27,18 @@ data class ListenerSubscription(
    */
   constructor(remove: () -> Unit):
          this(Func_void_java(remove))
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is ListenerSubscription) return false
+    return Objects.deepEquals(this.remove, other.remove)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      remove
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**

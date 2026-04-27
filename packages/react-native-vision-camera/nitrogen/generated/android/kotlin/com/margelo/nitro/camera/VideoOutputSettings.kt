@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,6 +23,18 @@ data class VideoOutputSettings(
   val codec: VideoCodec?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is VideoOutputSettings) return false
+    return Objects.deepEquals(this.codec, other.codec)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf(
+      codec
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**
