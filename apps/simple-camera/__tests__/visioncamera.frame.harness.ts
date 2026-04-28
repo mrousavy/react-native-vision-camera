@@ -205,6 +205,66 @@ describe('VisionCamera - Frame', () => {
     expect(counter.getBlocking()).toBeGreaterThanOrEqual(3)
   })
 
+  // Regression test for #3807 / #3811: with `pixelFormat: 'native'` +
+  // `dropFramesWhileBusy: true`, a slow worklet causes multiple
+  // `OnImageAvailable` callbacks to pile up on the single frame-thread
+  // executor. When the executor finally drains them, the first
+  // `acquireLatestImage()` empties the underlying `ImageReader` queue and the
+  // next runnable's `acquireLatestImage()` returns null microseconds later —
+  // which the Android `PrivateImageReaderProxy` previously dereferenced,
+  // crashing with a `NullPointerException`. The fast worklets in the existing
+  // 'native' tests above never let callbacks pile up, so they never hit this
+  // race; this test deliberately stalls each frame so the race fires.
+  it('does not crash on `native` pixel format streaming when the worklet is slow', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    let framesReceived = 0
+    const onFrameReceived = () => {
+      framesReceived++
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      // Stall the analyzer so multiple OnImageAvailable callbacks queue on the
+      // frame-thread executor while the analyzer is running. When the analyzer
+      // returns and the queued callbacks drain back-to-back, the second one's
+      // `acquireLatestImage()` finds the underlying ImageReader empty and
+      // returns null — exactly the path that hit the NPE.
+      const start = Date.now()
+      while (Date.now() - start < 100) {
+        // busy wait
+      }
+      scheduleOnRN(onFrameReceived)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(() => framesReceived >= 10, { timeout: 30_000 })
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      await session.stop()
+    }
+    expect(framesReceived).toBeGreaterThanOrEqual(10)
+  })
+
   // TODO: Re-enable this test once the Android CameraX ImageAnalysis pipeline surfaces
   //       dropped-frame notifications. Today HybridFrameOutput.setOnFrameDroppedCallback
   //       is a no-op on Android (see the `TODO: CameraX does not have a way to figure
