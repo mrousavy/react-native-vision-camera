@@ -12,7 +12,6 @@ public protocol HybridCameraDeviceFactorySpec_protocol: HybridObject {
   // Properties
   var cameraDevices: [(any HybridCameraDeviceSpec)] { get }
   var userPreferredCamera: (any HybridCameraDeviceSpec)? { get set }
-  var supportedMultiCamDeviceCombinations: [[(any HybridCameraDeviceSpec)]] { get }
 
   // Methods
   func addOnCameraDevicesChangedListener(listener: @escaping (_ newDevices: [(any HybridCameraDeviceSpec)]) -> Void) throws -> ListenerSubscription

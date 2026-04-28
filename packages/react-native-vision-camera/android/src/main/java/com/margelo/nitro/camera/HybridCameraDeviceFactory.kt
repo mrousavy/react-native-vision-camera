@@ -38,13 +38,6 @@ class HybridCameraDeviceFactory(
   override val cameraDevices: Array<HybridCameraDeviceSpec>
     get() = cameraProvider.availableCameraInfos.mapToArray { HybridCameraDevice(it) }
 
-  override val supportedMultiCamDeviceCombinations: Array<Array<HybridCameraDeviceSpec>>
-    get() {
-      return cameraProvider.availableConcurrentCameraInfos.mapToArray { devices ->
-        return@mapToArray devices.mapToArray { HybridCameraDevice(it) }
-      }
-    }
-
   override var userPreferredCamera: HybridCameraDeviceSpec?
     get() {
       val preferredCameraId =

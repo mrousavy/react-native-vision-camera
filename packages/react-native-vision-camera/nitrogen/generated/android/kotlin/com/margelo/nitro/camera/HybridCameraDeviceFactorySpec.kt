@@ -35,10 +35,6 @@ abstract class HybridCameraDeviceFactorySpec: HybridObject() {
   @set:DoNotStrip
   @set:Keep
   abstract var userPreferredCamera: HybridCameraDeviceSpec?
-  
-  @get:DoNotStrip
-  @get:Keep
-  abstract val supportedMultiCamDeviceCombinations: Array<Array<HybridCameraDeviceSpec>>
 
   // Methods
   abstract fun addOnCameraDevicesChangedListener(listener: (newDevices: Array<HybridCameraDeviceSpec>) -> Unit): ListenerSubscription

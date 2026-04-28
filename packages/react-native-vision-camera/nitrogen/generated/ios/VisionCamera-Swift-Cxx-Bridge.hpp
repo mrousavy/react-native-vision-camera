@@ -1426,17 +1426,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return Result<bool>::withError(error);
   }
   
-  // pragma MARK: std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>
-  /**
-   * Specialized version of `std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>`.
-   */
-  using std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___ = std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>;
-  inline std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> create_std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___(size_t size) noexcept {
-    std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> vector;
-    vector.reserve(size);
-    return vector;
-  }
-  
   // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>
   /**
    * Specialized version of `std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>&)>`.

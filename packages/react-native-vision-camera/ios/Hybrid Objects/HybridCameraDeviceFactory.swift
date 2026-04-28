@@ -9,23 +9,17 @@ import Foundation
 import NitroModules
 
 class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
+  let discoverySession: AVCaptureDevice.DiscoverySession
+  var cameraDevices: [any HybridCameraDeviceSpec] {
+    return discoverySession.devices.map { HybridCameraDevice(device: $0) }
+  }
+
   override init() {
     self.discoverySession = AVCaptureDevice.DiscoverySession(
       deviceTypes: AVCaptureDevice.DeviceType.all,
       mediaType: nil,
       position: .unspecified)
     super.init()
-  }
-
-  let discoverySession: AVCaptureDevice.DiscoverySession
-  var cameraDevices: [any HybridCameraDeviceSpec] {
-    return discoverySession.devices.map { HybridCameraDevice(device: $0) }
-  }
-
-  var supportedMultiCamDeviceCombinations: [[any HybridCameraDeviceSpec]] {
-    return discoverySession.supportedMultiCamDeviceSets.map { devices in
-      return devices.map { HybridCameraDevice(device: $0) }
-    }
   }
 
   var userPreferredCamera: (any HybridCameraDeviceSpec)? {
@@ -42,7 +36,7 @@ class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
       guard #available(iOS 17.0, *) else {
         return
       }
-      guard let hybridDevice = newValue as? any NativeCameraDevice else {
+      guard let hybridDevice = newValue as? HybridCameraDevice else {
         return
       }
       AVCaptureDevice.userPreferredCamera = hybridDevice.device

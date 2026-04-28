@@ -167,28 +167,6 @@ open class HybridCameraDeviceFactorySpec_cxx {
       }()
     }
   }
-  
-  public final var supportedMultiCamDeviceCombinations: bridge.std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___ {
-    @inline(__always)
-    get {
-      return { () -> bridge.std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___ in
-        var __vector = bridge.create_std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___(self.__implementation.supportedMultiCamDeviceCombinations.count)
-        for __item in self.__implementation.supportedMultiCamDeviceCombinations {
-          __vector.push_back({ () -> bridge.std__vector_std__shared_ptr_HybridCameraDeviceSpec__ in
-            var __vector = bridge.create_std__vector_std__shared_ptr_HybridCameraDeviceSpec__(__item.count)
-            for __item in __item {
-              __vector.push_back({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
-                let __cxxWrapped = __item.getCxxWrapper()
-                return __cxxWrapped.getCxxPart()
-              }())
-            }
-            return __vector
-          }())
-        }
-        return __vector
-      }()
-    }
-  }
 
   // Methods
   @inline(__always)
