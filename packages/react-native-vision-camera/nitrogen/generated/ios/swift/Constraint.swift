@@ -9,7 +9,7 @@
 
 /**
  * An Swift enum with associated values representing a Variant/Union type.
- * JS type: `struct | struct | struct | struct | struct | struct | struct | struct`
+ * JS type: `struct | struct | struct | struct | struct | struct | struct | struct | struct`
  */
 @frozen
 public indirect enum Constraint {
@@ -21,6 +21,7 @@ public indirect enum Constraint {
   case sixth(PhotoHDRConstraint)
   case seventh(PixelFormatConstraint)
   case eigth(BinnedConstraint)
+  case ninth(VideoRecordingModeConstraint)
 }
 
 public extension Constraint {
@@ -34,6 +35,7 @@ public extension Constraint {
       case .sixth(let value): return value as? T
       case .seventh(let value): return value as? T
       case .eigth(let value): return value as? T
+      case .ninth(let value): return value as? T
     }
   }
   func isType<T>(_ type: T.Type = T.self) -> Bool {

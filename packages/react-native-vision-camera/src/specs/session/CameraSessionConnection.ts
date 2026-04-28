@@ -53,7 +53,9 @@ export interface CameraSessionConnection {
    * The given {@linkcode config} can be used to provide visual feedback in
    * Camera apps where buttons have to be greyed out when they are not supported,
    * e.g. when passing a HDR {@linkcode Constraint} but the session didn't end up
-   * selecting a {@linkcode CameraSessionConfig.selectedVideoDynamicRange}.
+   * selecting a {@linkcode CameraSessionConfig.selectedVideoDynamicRange}, or
+   * when requesting slow-motion but the session didn't end up selecting a
+   * {@linkcode CameraSessionConfig.selectedVideoRecordingMode}.
    */
   onSessionConfigSelected?: (config: CameraSessionConfig) => void
 }

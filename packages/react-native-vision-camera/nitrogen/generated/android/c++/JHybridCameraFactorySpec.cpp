@@ -63,6 +63,8 @@ namespace margelo::nitro::camera { struct PhotoHDRConstraint; }
 namespace margelo::nitro::camera { struct PixelFormatConstraint; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
 // Forward declaration of `TargetStabilizationMode` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetStabilizationMode; }
 // Forward declaration of `TargetDynamicRange` to properly resolve imports.
@@ -75,6 +77,8 @@ namespace margelo::nitro::camera { enum class TargetColorSpace; }
 namespace margelo::nitro::camera { enum class TargetColorRange; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `PhotoOutputOptions` to properly resolve imports.
 namespace margelo::nitro::camera { struct PhotoOutputOptions; }
 // Forward declaration of `Size` to properly resolve imports.
@@ -152,6 +156,7 @@ namespace margelo::nitro::camera { enum class OrientationSource; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include "JConstraint.hpp"
 #include "JFPSConstraint.hpp"
@@ -174,6 +179,9 @@ namespace margelo::nitro::camera { enum class OrientationSource; }
 #include "PixelFormat.hpp"
 #include "JPixelFormat.hpp"
 #include "JBinnedConstraint.hpp"
+#include "JVideoRecordingModeConstraint.hpp"
+#include "VideoRecordingMode.hpp"
+#include "JVideoRecordingMode.hpp"
 #include <optional>
 #include "PhotoOutputOptions.hpp"
 #include "JPhotoOutputOptions.hpp"
@@ -295,7 +303,7 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> JHybridCameraFactorySpec::resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>>& constraints, std::optional<bool> requiresMultiCam) {
+  std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> JHybridCameraFactorySpec::resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>>& constraints, std::optional<bool> requiresMultiCam) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JHybridCameraDeviceSpec::JavaPart> /* device */, jni::alias_ref<jni::JArrayClass<JCameraOutputConfiguration>> /* outputConfigurations */, jni::alias_ref<jni::JArrayClass<JConstraint>> /* constraints */, jni::alias_ref<jni::JBoolean> /* requiresMultiCam */)>("resolveConstraints");
     auto __result = method(_javaPart, std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(device)->getJavaPart(), [&]() {
       size_t __size = outputConfigurations.size();

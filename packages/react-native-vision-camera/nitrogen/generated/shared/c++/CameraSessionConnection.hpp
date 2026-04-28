@@ -48,6 +48,8 @@ namespace margelo::nitro::camera { struct PhotoHDRConstraint; }
 namespace margelo::nitro::camera { struct PixelFormatConstraint; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
 // Forward declaration of `HybridCameraSessionConfigSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 
@@ -63,6 +65,7 @@ namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include <variant>
 #include <optional>
 #include "HybridCameraSessionConfigSpec.hpp"
@@ -77,14 +80,14 @@ namespace margelo::nitro::camera {
   public:
     std::shared_ptr<HybridCameraDeviceSpec> input     SWIFT_PRIVATE;
     std::vector<CameraOutputConfiguration> outputs     SWIFT_PRIVATE;
-    std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>> constraints     SWIFT_PRIVATE;
+    std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>> constraints     SWIFT_PRIVATE;
     std::optional<double> initialZoom     SWIFT_PRIVATE;
     std::optional<double> initialExposureBias     SWIFT_PRIVATE;
     std::optional<std::function<void(const std::shared_ptr<HybridCameraSessionConfigSpec>& /* config */)>> onSessionConfigSelected     SWIFT_PRIVATE;
 
   public:
     CameraSessionConnection() = default;
-    explicit CameraSessionConnection(std::shared_ptr<HybridCameraDeviceSpec> input, std::vector<CameraOutputConfiguration> outputs, std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>> constraints, std::optional<double> initialZoom, std::optional<double> initialExposureBias, std::optional<std::function<void(const std::shared_ptr<HybridCameraSessionConfigSpec>& /* config */)>> onSessionConfigSelected): input(input), outputs(outputs), constraints(constraints), initialZoom(initialZoom), initialExposureBias(initialExposureBias), onSessionConfigSelected(onSessionConfigSelected) {}
+    explicit CameraSessionConnection(std::shared_ptr<HybridCameraDeviceSpec> input, std::vector<CameraOutputConfiguration> outputs, std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint, VideoRecordingModeConstraint>> constraints, std::optional<double> initialZoom, std::optional<double> initialExposureBias, std::optional<std::function<void(const std::shared_ptr<HybridCameraSessionConfigSpec>& /* config */)>> onSessionConfigSelected): input(input), outputs(outputs), constraints(constraints), initialZoom(initialZoom), initialExposureBias(initialExposureBias), onSessionConfigSelected(onSessionConfigSelected) {}
 
   public:
     // CameraSessionConnection is not equatable because these properties are not equatable: onSessionConfigSelected
@@ -102,7 +105,7 @@ namespace margelo::nitro {
       return margelo::nitro::camera::CameraSessionConnection(
         JSIConverter<std::shared_ptr<margelo::nitro::camera::HybridCameraDeviceSpec>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "input"))),
         JSIConverter<std::vector<margelo::nitro::camera::CameraOutputConfiguration>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "outputs"))),
-        JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "constraints"))),
+        JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint, margelo::nitro::camera::VideoRecordingModeConstraint>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "constraints"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initialZoom"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initialExposureBias"))),
         JSIConverter<std::optional<std::function<void(const std::shared_ptr<margelo::nitro::camera::HybridCameraSessionConfigSpec>&)>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "onSessionConfigSelected")))
@@ -112,7 +115,7 @@ namespace margelo::nitro {
       jsi::Object obj(runtime);
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "input"), JSIConverter<std::shared_ptr<margelo::nitro::camera::HybridCameraDeviceSpec>>::toJSI(runtime, arg.input));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "outputs"), JSIConverter<std::vector<margelo::nitro::camera::CameraOutputConfiguration>>::toJSI(runtime, arg.outputs));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "constraints"), JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint>>>::toJSI(runtime, arg.constraints));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "constraints"), JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint, margelo::nitro::camera::VideoRecordingModeConstraint>>>::toJSI(runtime, arg.constraints));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "initialZoom"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.initialZoom));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "initialExposureBias"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.initialExposureBias));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "onSessionConfigSelected"), JSIConverter<std::optional<std::function<void(const std::shared_ptr<margelo::nitro::camera::HybridCameraSessionConfigSpec>&)>>>::toJSI(runtime, arg.onSessionConfigSelected));
@@ -128,7 +131,7 @@ namespace margelo::nitro {
       }
       if (!JSIConverter<std::shared_ptr<margelo::nitro::camera::HybridCameraDeviceSpec>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "input")))) return false;
       if (!JSIConverter<std::vector<margelo::nitro::camera::CameraOutputConfiguration>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "outputs")))) return false;
-      if (!JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "constraints")))) return false;
+      if (!JSIConverter<std::vector<std::variant<margelo::nitro::camera::FPSConstraint, margelo::nitro::camera::VideoStabilizationModeConstraint, margelo::nitro::camera::PreviewStabilizationModeConstraint, margelo::nitro::camera::ResolutionBiasConstraint, margelo::nitro::camera::VideoDynamicRangeConstraint, margelo::nitro::camera::PhotoHDRConstraint, margelo::nitro::camera::PixelFormatConstraint, margelo::nitro::camera::BinnedConstraint, margelo::nitro::camera::VideoRecordingModeConstraint>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "constraints")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initialZoom")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "initialExposureBias")))) return false;
       if (!JSIConverter<std::optional<std::function<void(const std::shared_ptr<margelo::nitro::camera::HybridCameraSessionConfigSpec>&)>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "onSessionConfigSelected")))) return false;

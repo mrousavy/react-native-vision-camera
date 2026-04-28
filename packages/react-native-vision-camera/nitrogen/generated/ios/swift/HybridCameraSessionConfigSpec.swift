@@ -15,6 +15,7 @@ public protocol HybridCameraSessionConfigSpec_protocol: HybridObject {
   var selectedPreviewStabilizationMode: TargetStabilizationMode? { get }
   var selectedVideoDynamicRange: TargetDynamicRange? { get }
   var isPhotoHDREnabled: Bool { get }
+  var selectedVideoRecordingMode: VideoRecordingMode? { get }
   var nativePixelFormat: PixelFormat { get }
   var autoFocusSystem: AutoFocusSystem { get }
   var isBinned: Bool { get }

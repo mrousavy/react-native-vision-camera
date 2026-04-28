@@ -6,7 +6,9 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
+import androidx.camera.video.HighSpeedVideoSessionConfig
 import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import com.margelo.nitro.camera.CameraOutputConfiguration
 import com.margelo.nitro.camera.Constraint
 import com.margelo.nitro.camera.FPSConstraint
@@ -17,6 +19,8 @@ import com.margelo.nitro.camera.TargetDynamicRange
 import com.margelo.nitro.camera.TargetDynamicRangeBitDepth
 import com.margelo.nitro.camera.TargetStabilizationMode
 import com.margelo.nitro.camera.VideoDynamicRangeConstraint
+import com.margelo.nitro.camera.VideoRecordingMode
+import com.margelo.nitro.camera.VideoRecordingModeConstraint
 import com.margelo.nitro.camera.VideoStabilizationModeConstraint
 import com.margelo.nitro.camera.extensions.converters.toDynamicRange
 import com.margelo.nitro.camera.public.NativeCameraOutput
@@ -67,23 +71,19 @@ object ConstraintResolver {
           return@map output.createUseCase(outputConfiguration.mirrorMode, config)
         }
       val sessionConfig =
-        SessionConfig
-          .Builder(preparedUseCases.map { it.useCase })
-          .build()
+        buildSessionConfig(cameraInfo, preparedUseCases, config)
 
-      if (cameraInfo.isSessionConfigSupported(sessionConfig) || activeConstraints.isEmpty()) {
+      if (sessionConfig != null && (cameraInfo.isSessionConfigSupported(sessionConfig) || activeConstraints.isEmpty())) {
         // Pass 2: Resolve FPS against the validated use-case combination.
-        val resolvedFPSRange = fpsConstraint?.resolveFPSRange(cameraInfo, sessionConfig)
+        val resolvedFPSRange =
+          resolveFPSRange(
+            cameraInfo = cameraInfo,
+            sessionConfig = sessionConfig,
+            targetFps = fpsConstraint?.fps?.toInt(),
+            shouldAutoSelectLowest = config.videoRecordingMode != null,
+          )
         val finalConfig = config.copy(fpsRange = resolvedFPSRange)
-        val finalSessionConfig =
-          if (resolvedFPSRange != null) {
-            SessionConfig
-              .Builder(preparedUseCases.map { it.useCase })
-              .apply { setFrameRateRange(resolvedFPSRange) }
-              .build()
-          } else {
-            sessionConfig
-          }
+        val finalSessionConfig = buildSessionConfig(cameraInfo, preparedUseCases, finalConfig) ?: sessionConfig
         Log.i(TAG, "Resolved constraints to: $finalConfig")
         return CameraSessionConfig(finalSessionConfig, preparedUseCases, finalConfig)
       }
@@ -109,13 +109,20 @@ object ConstraintResolver {
    * Picks the supported range whose upper bound is closest to the target FPS.
    * On ties, prefers tighter ranges (higher lower bound).
    */
-  private fun FPSConstraint.resolveFPSRange(
+  private fun resolveFPSRange(
     cameraInfo: CameraInfo,
     sessionConfig: SessionConfig,
+    targetFps: Int?,
+    shouldAutoSelectLowest: Boolean,
   ): Range<Int>? {
-    val targetFps = fps.toInt()
     val supportedRanges = cameraInfo.getSupportedFrameRateRanges(sessionConfig)
     if (supportedRanges.isEmpty()) return null
+    if (targetFps == null) {
+      if (!shouldAutoSelectLowest) return null
+      return supportedRanges.minWith(
+        compareBy<Range<Int>> { it.upper }.thenBy { it.lower },
+      )
+    }
 
     return supportedRanges.minWith(
       compareBy<Range<Int>> {
@@ -126,6 +133,49 @@ object ConstraintResolver {
         it.lower
       },
     )
+  }
+
+  private fun buildSessionConfig(
+    cameraInfo: CameraInfo,
+    preparedUseCases: List<NativeCameraOutput.PreparedUseCase>,
+    config: NativeCameraOutput.Config,
+  ): SessionConfig? {
+    return when (config.videoRecordingMode) {
+      null -> {
+        SessionConfig
+          .Builder(preparedUseCases.map { it.useCase })
+          .apply {
+            config.fpsRange?.let { setFrameRateRange(it) }
+          }.build()
+      }
+      else -> buildHighSpeedSessionConfig(cameraInfo, preparedUseCases, config)
+    }
+  }
+
+  private fun buildHighSpeedSessionConfig(
+    cameraInfo: CameraInfo,
+    preparedUseCases: List<NativeCameraOutput.PreparedUseCase>,
+    config: NativeCameraOutput.Config,
+  ): SessionConfig? {
+    if (Recorder.getHighSpeedVideoCapabilities(cameraInfo) == null) return null
+
+    val previewUseCases = preparedUseCases.mapNotNull { it.useCase as? Preview }
+    val videoCaptureUseCases = preparedUseCases.mapNotNull { it.useCase as? VideoCapture<*> }
+    val containsUnsupportedUseCases =
+      preparedUseCases.any { preparedUseCase ->
+        preparedUseCase.useCase !is Preview && preparedUseCase.useCase !is VideoCapture<*>
+      }
+    if (containsUnsupportedUseCases || videoCaptureUseCases.size != 1 || previewUseCases.size > 1) {
+      return null
+    }
+
+    return HighSpeedVideoSessionConfig
+      .Builder(videoCaptureUseCases.single())
+      .apply {
+        previewUseCases.singleOrNull()?.let { setPreview(it) }
+        setSlowMotionEnabled(config.videoRecordingMode == VideoRecordingMode.SLOW_MOTION)
+        config.fpsRange?.let { setFrameRateRange(it) }
+      }.build()
   }
 }
 
@@ -138,7 +188,7 @@ object ConstraintResolver {
  * constraint are `null`, meaning "platform decides".
  *
  * FPS is not resolved here — it requires a validated [SessionConfig]
- * and is resolved separately in [FPSConstraint.resolveFPSRange].
+ * and is resolved separately in [ConstraintResolver.resolveConstraints].
  */
 internal fun List<Constraint>.toConfig(): NativeCameraOutput.Config {
   return NativeCameraOutput.Config(
@@ -147,6 +197,7 @@ internal fun List<Constraint>.toConfig(): NativeCameraOutput.Config {
     videoStabilizationMode = firstNotNullOfOrNull { it.asType<VideoStabilizationModeConstraint>() }?.videoStabilizationMode,
     videoDynamicRange = firstNotNullOfOrNull { it.asType<VideoDynamicRangeConstraint>() }?.videoDynamicRange,
     photoHDR = firstNotNullOfOrNull { it.asType<PhotoHDRConstraint>() }?.photoHDR,
+    videoRecordingMode = firstNotNullOfOrNull { it.asType<VideoRecordingModeConstraint>() }?.videoRecordingMode,
   )
 }
 
@@ -161,7 +212,9 @@ internal fun List<Constraint>.toConfig(): NativeCameraOutput.Config {
  * When in doubt, returns `true` — a constraint that wrongly returns `false`
  * is silently dropped with no chance of recovery.
  */
-private fun Constraint.isSupportedIndividually(cameraInfo: CameraInfo): Boolean {
+private fun Constraint.isSupportedIndividually(
+  cameraInfo: CameraInfo,
+): Boolean {
   return this.match(
     { true }, // FPS: resolved separately after features
     { videoStabilizationMode ->
@@ -195,6 +248,7 @@ private fun Constraint.isSupportedIndividually(cameraInfo: CameraInfo): Boolean 
     },
     { true }, // PixelFormat: let downgrade loop handle it
     { true }, // Binning: not configurable in CameraX
+    { Recorder.getHighSpeedVideoCapabilities(cameraInfo) != null },
   )
 }
 
@@ -261,5 +315,6 @@ private fun Constraint.getNextBestOption(): Constraint? {
     { null }, // PhotoHDR: on or off, no middle ground
     { null }, // PixelFormat: no fallback
     { null }, // Binning: not configurable
+    { null }, // VideoRecordingMode: falls back to regular recording
   )
 }

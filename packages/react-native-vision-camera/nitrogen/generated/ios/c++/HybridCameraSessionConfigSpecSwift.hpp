@@ -22,6 +22,8 @@ namespace margelo::nitro::camera { enum class TargetDynamicRangeBitDepth; }
 namespace margelo::nitro::camera { enum class TargetColorSpace; }
 // Forward declaration of `TargetColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetColorRange; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
@@ -33,6 +35,7 @@ namespace margelo::nitro::camera { enum class AutoFocusSystem; }
 #include "TargetDynamicRangeBitDepth.hpp"
 #include "TargetColorSpace.hpp"
 #include "TargetColorRange.hpp"
+#include "VideoRecordingMode.hpp"
 #include "PixelFormat.hpp"
 #include "AutoFocusSystem.hpp"
 
@@ -100,6 +103,10 @@ namespace margelo::nitro::camera {
     }
     inline bool getIsPhotoHDREnabled() noexcept override {
       return _swiftPart.isPhotoHDREnabled();
+    }
+    inline std::optional<VideoRecordingMode> getSelectedVideoRecordingMode() noexcept override {
+      auto __result = _swiftPart.getSelectedVideoRecordingMode();
+      return __result;
     }
     inline PixelFormat getNativePixelFormat() noexcept override {
       auto __result = _swiftPart.getNativePixelFormat();

@@ -2,8 +2,6 @@ package com.margelo.nitro.camera.hybrids.outputs
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
-import androidx.camera.core.DynamicRange
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
@@ -14,7 +12,6 @@ import com.margelo.nitro.camera.HybridRecorderSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.RecorderSettings
-import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
 import com.margelo.nitro.camera.VideoCodec
 import com.margelo.nitro.camera.VideoOutputOptions
@@ -100,8 +97,10 @@ class HybridVideoOutput(
       VideoCapture
         .Builder(videoOutput)
         .apply {
-          // isMirrored={...}
-          setMirrorMode(mirrorMode.toMirrorMode())
+          if (config.videoRecordingMode == null) {
+            // High-speed sessions cannot set mirror mode on VideoCapture.
+            setMirrorMode(mirrorMode.toMirrorMode())
+          }
           // orientation from previous value
           setTargetRotation(outputOrientation.surfaceRotation)
 

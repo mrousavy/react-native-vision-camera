@@ -204,14 +204,14 @@ open class HybridCameraFactorySpec_cxx {
   }
   
   @inline(__always)
-  public final func resolveConstraints(device: bridge.std__shared_ptr_HybridCameraDeviceSpec_, outputConfigurations: bridge.std__vector_CameraOutputConfiguration_, constraints: bridge.std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__, requiresMultiCam: bridge.std__optional_bool_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionConfigSpec____ {
+  public final func resolveConstraints(device: bridge.std__shared_ptr_HybridCameraDeviceSpec_, outputConfigurations: bridge.std__vector_CameraOutputConfiguration_, constraints: bridge.std__vector_std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint__, requiresMultiCam: bridge.std__optional_bool_) -> bridge.Result_std__shared_ptr_Promise_std__shared_ptr_HybridCameraSessionConfigSpec____ {
     do {
       let __result = try self.__implementation.resolveConstraints(device: { () -> any HybridCameraDeviceSpec in
         let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(device)
         let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
         return __instance.getHybridCameraDeviceSpec()
       }(), outputConfigurations: outputConfigurations.map({ __item in __item }), constraints: constraints.map({ __item in { () -> Constraint in
-        let __variant = bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint_(__item)
+        let __variant = bridge.std__variant_FPSConstraint__VideoStabilizationModeConstraint__PreviewStabilizationModeConstraint__ResolutionBiasConstraint__VideoDynamicRangeConstraint__PhotoHDRConstraint__PixelFormatConstraint__BinnedConstraint__VideoRecordingModeConstraint_(__item)
         switch __variant.index() {
           case 0:
             let __actual = __variant.get_0()
@@ -237,6 +237,9 @@ open class HybridCameraFactorySpec_cxx {
           case 7:
             let __actual = __variant.get_7()
             return .eigth(__actual)
+          case 8:
+            let __actual = __variant.get_8()
+            return .ninth(__actual)
           default:
             fatalError("Variant can never have index \(__variant.index())!")
         }

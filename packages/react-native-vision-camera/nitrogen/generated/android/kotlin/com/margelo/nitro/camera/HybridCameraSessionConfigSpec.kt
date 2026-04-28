@@ -47,6 +47,10 @@ abstract class HybridCameraSessionConfigSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
+  abstract val selectedVideoRecordingMode: VideoRecordingMode?
+  
+  @get:DoNotStrip
+  @get:Keep
   abstract val nativePixelFormat: PixelFormat
   
   @get:DoNotStrip

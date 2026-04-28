@@ -126,7 +126,8 @@ enum ConstraintResolver {
       selectedFPS: fps,
       selectedVideoStabilizationMode: videoStabilizationMode,
       selectedPreviewStabilizationMode: previewStabilizationMode,
-      selectedVideoDynamicRange: videoDynamicRange)
+      selectedVideoDynamicRange: videoDynamicRange,
+      selectedVideoRecordingMode: nil)
 
     return FormatEvaluation(
       format: format,
@@ -238,6 +239,9 @@ extension Constraint {
     case .eigth(let binned):
       let r = binned.resolve(for: format)
       return ConstraintEvaluation(penalty: r.penalty, resolved: .formatOnly)
+    case .ninth( /* videoRecordingMode */ _):
+      // High-speed session orchestration is currently Android-only.
+      return ConstraintEvaluation(penalty: .noPenalty, resolved: .formatOnly)
     }
   }
 }

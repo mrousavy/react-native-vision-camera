@@ -222,6 +222,10 @@ namespace margelo::nitro::camera { struct VideoDynamicRangeConstraint; }
 namespace margelo::nitro::camera { struct VideoOutputOptions; }
 // Forward declaration of `VideoOutputSettings` to properly resolve imports.
 namespace margelo::nitro::camera { struct VideoOutputSettings; }
+// Forward declaration of `VideoRecordingModeConstraint` to properly resolve imports.
+namespace margelo::nitro::camera { struct VideoRecordingModeConstraint; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `VideoStabilizationModeConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct VideoStabilizationModeConstraint; }
 // Forward declaration of `WhiteBalanceGains` to properly resolve imports.
@@ -338,6 +342,8 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "VideoDynamicRangeConstraint.hpp"
 #include "VideoOutputOptions.hpp"
 #include "VideoOutputSettings.hpp"
+#include "VideoRecordingMode.hpp"
+#include "VideoRecordingModeConstraint.hpp"
 #include "VideoStabilizationModeConstraint.hpp"
 #include "WhiteBalanceGains.hpp"
 #include "WhiteBalanceMode.hpp"

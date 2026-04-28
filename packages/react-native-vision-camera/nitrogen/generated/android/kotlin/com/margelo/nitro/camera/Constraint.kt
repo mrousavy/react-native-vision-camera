@@ -11,7 +11,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 
 
 /**
- * Represents the TypeScript variant "FPSConstraint | VideoStabilizationModeConstraint | PreviewStabilizationModeConstraint | ResolutionBiasConstraint | VideoDynamicRangeConstraint | PhotoHDRConstraint | PixelFormatConstraint | BinnedConstraint".
+ * Represents the TypeScript variant "FPSConstraint | VideoStabilizationModeConstraint | PreviewStabilizationModeConstraint | ResolutionBiasConstraint | VideoDynamicRangeConstraint | PhotoHDRConstraint | PixelFormatConstraint | BinnedConstraint | VideoRecordingModeConstraint".
  */
 @Suppress("ClassName")
 @DoNotStrip
@@ -32,6 +32,8 @@ sealed class Constraint {
   data class Seventh(@DoNotStrip val value: PixelFormatConstraint): Constraint()
   @DoNotStrip
   data class Eigth(@DoNotStrip val value: BinnedConstraint): Constraint()
+  @DoNotStrip
+  data class Ninth(@DoNotStrip val value: VideoRecordingModeConstraint): Constraint()
 
   inline fun <reified T> asType(): T? {
     return when (this) {
@@ -43,12 +45,13 @@ sealed class Constraint {
       is Sixth -> (value) as? T
       is Seventh -> (value) as? T
       is Eigth -> (value) as? T
+      is Ninth -> (value) as? T
     }
   }
   inline fun <reified T> isType(): Boolean {
     return asType<T>() != null
   }
-  inline fun <R> match(first: (FPSConstraint) -> R, second: (VideoStabilizationModeConstraint) -> R, third: (PreviewStabilizationModeConstraint) -> R, fourth: (ResolutionBiasConstraint) -> R, fifth: (VideoDynamicRangeConstraint) -> R, sixth: (PhotoHDRConstraint) -> R, seventh: (PixelFormatConstraint) -> R, eigth: (BinnedConstraint) -> R): R {
+  inline fun <R> match(first: (FPSConstraint) -> R, second: (VideoStabilizationModeConstraint) -> R, third: (PreviewStabilizationModeConstraint) -> R, fourth: (ResolutionBiasConstraint) -> R, fifth: (VideoDynamicRangeConstraint) -> R, sixth: (PhotoHDRConstraint) -> R, seventh: (PixelFormatConstraint) -> R, eigth: (BinnedConstraint) -> R, ninth: (VideoRecordingModeConstraint) -> R): R {
     return when (this) {
       is First -> first(value)
       is Second -> second(value)
@@ -58,6 +61,7 @@ sealed class Constraint {
       is Sixth -> sixth(value)
       is Seventh -> seventh(value)
       is Eigth -> eigth(value)
+      is Ninth -> ninth(value)
     }
   }
 
@@ -77,6 +81,8 @@ sealed class Constraint {
     get() = this is Seventh
   val isEigth: Boolean
     get() = this is Eigth
+  val isNinth: Boolean
+    get() = this is Ninth
 
   fun asFirstOrNull(): FPSConstraint? {
     val value = (this as? First)?.value ?: return null
@@ -110,6 +116,10 @@ sealed class Constraint {
     val value = (this as? Eigth)?.value ?: return null
     return value
   }
+  fun asNinthOrNull(): VideoRecordingModeConstraint? {
+    val value = (this as? Ninth)?.value ?: return null
+    return value
+  }
 
   companion object {
     @JvmStatic
@@ -136,5 +146,8 @@ sealed class Constraint {
     @JvmStatic
     @DoNotStrip
     fun create(value: BinnedConstraint): Constraint = Eigth(value)
+    @JvmStatic
+    @DoNotStrip
+    fun create(value: VideoRecordingModeConstraint): Constraint = Ninth(value)
   }
 }

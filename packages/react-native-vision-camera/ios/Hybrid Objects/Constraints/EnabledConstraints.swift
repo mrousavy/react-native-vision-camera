@@ -13,4 +13,5 @@ public struct EnabledConstraints {
   let selectedVideoStabilizationMode: TargetStabilizationMode?
   let selectedPreviewStabilizationMode: TargetStabilizationMode?
   let selectedVideoDynamicRange: TargetDynamicRange?
+  let selectedVideoRecordingMode: VideoRecordingMode?
 }

@@ -17,6 +17,8 @@
 namespace margelo::nitro::camera { enum class TargetStabilizationMode; }
 // Forward declaration of `TargetDynamicRange` to properly resolve imports.
 namespace margelo::nitro::camera { struct TargetDynamicRange; }
+// Forward declaration of `VideoRecordingMode` to properly resolve imports.
+namespace margelo::nitro::camera { enum class VideoRecordingMode; }
 // Forward declaration of `PixelFormat` to properly resolve imports.
 namespace margelo::nitro::camera { enum class PixelFormat; }
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
@@ -25,6 +27,7 @@ namespace margelo::nitro::camera { enum class AutoFocusSystem; }
 #include <optional>
 #include "TargetStabilizationMode.hpp"
 #include "TargetDynamicRange.hpp"
+#include "VideoRecordingMode.hpp"
 #include "PixelFormat.hpp"
 #include "AutoFocusSystem.hpp"
 
@@ -60,6 +63,7 @@ namespace margelo::nitro::camera {
       virtual std::optional<TargetStabilizationMode> getSelectedPreviewStabilizationMode() = 0;
       virtual std::optional<TargetDynamicRange> getSelectedVideoDynamicRange() = 0;
       virtual bool getIsPhotoHDREnabled() = 0;
+      virtual std::optional<VideoRecordingMode> getSelectedVideoRecordingMode() = 0;
       virtual PixelFormat getNativePixelFormat() = 0;
       virtual AutoFocusSystem getAutoFocusSystem() = 0;
       virtual bool getIsBinned() = 0;
