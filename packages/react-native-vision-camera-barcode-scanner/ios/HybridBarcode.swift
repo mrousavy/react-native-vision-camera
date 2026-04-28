@@ -5,8 +5,10 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
-import MLKitBarcodeScanning
 import NitroModules
+
+#if canImport(MLKitBarcodeScanning)
+import MLKitBarcodeScanning
 
 final class HybridBarcode: HybridBarcodeSpec {
   private let barcode: Barcode
@@ -60,3 +62,4 @@ final class HybridBarcode: HybridBarcodeSpec {
     return BarcodeValueType(fromMLKitValueType: barcode.valueType)
   }
 }
+#endif

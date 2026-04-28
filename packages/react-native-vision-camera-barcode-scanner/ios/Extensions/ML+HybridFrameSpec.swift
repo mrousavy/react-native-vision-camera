@@ -5,9 +5,11 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
-import MLKitVision
 import NitroModules
 import VisionCamera
+
+#if canImport(MLKitBarcodeScanning)
+import MLKitVision
 
 extension HybridFrameSpec_protocol {
   func toMLImage() throws -> MLImage {
@@ -24,3 +26,4 @@ extension HybridFrameSpec_protocol {
     return image
   }
 }
+#endif

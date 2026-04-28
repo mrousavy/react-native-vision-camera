@@ -26,7 +26,12 @@ Pod::Spec.new do |s|
   load 'nitrogen/generated/ios/VisionCameraBarcodeScanner+autolinking.rb'
   add_nitrogen_files(s)
 
-  s.dependency 'GoogleMLKit/BarcodeScanning', '8.0.0'
+  if ENV['VISION_CAMERA_DISABLE_MLKIT'] == '1'
+    Pod::UI.warn "VISION_CAMERA_DISABLE_MLKIT=1 — skipping GoogleMLKit/BarcodeScanning. " \
+                 "BarcodeScanner will throw at runtime in this build."
+  else
+    s.dependency 'GoogleMLKit/BarcodeScanning', '8.0.0'
+  end
   s.dependency 'VisionCamera'
   s.dependency 'React-jsi'
   s.dependency 'React-callinvoker'

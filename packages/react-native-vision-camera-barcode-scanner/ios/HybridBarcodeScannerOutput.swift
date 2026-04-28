@@ -6,10 +6,12 @@
 //
 
 import AVFoundation
-import MLKitBarcodeScanning
-import MLKitVision
 import NitroModules
 import VisionCamera
+
+#if canImport(MLKitBarcodeScanning)
+import MLKitBarcodeScanning
+import MLKitVision
 
 final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
   private let scanner: BarcodeScanner
@@ -79,3 +81,4 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
     connection.preferredVideoStabilizationMode = .off
   }
 }
+#endif

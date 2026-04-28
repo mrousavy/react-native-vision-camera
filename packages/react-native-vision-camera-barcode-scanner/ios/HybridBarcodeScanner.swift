@@ -5,10 +5,12 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
-import MLKitBarcodeScanning
-import MLKitVision
 import NitroModules
 import VisionCamera
+
+#if canImport(MLKitBarcodeScanning)
+import MLKitBarcodeScanning
+import MLKitVision
 
 class HybridBarcodeScanner: HybridBarcodeScannerSpec {
   private let scanner: BarcodeScanner
@@ -40,3 +42,4 @@ class HybridBarcodeScanner: HybridBarcodeScannerSpec {
     return promise
   }
 }
+#endif

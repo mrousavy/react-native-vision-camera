@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+#if canImport(MLKitBarcodeScanning)
 import MLKitBarcodeScanning
 
 extension BarcodeValueType {
@@ -41,3 +42,4 @@ extension BarcodeValueType {
     }
   }
 }
+#endif
