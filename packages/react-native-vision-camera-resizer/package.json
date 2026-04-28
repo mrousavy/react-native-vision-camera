@@ -70,10 +70,10 @@
   },
   "devDependencies": {
     "@types/react": "19.2.14",
-    "nitrogen": "0.35.5",
+    "nitrogen": "0.35.6",
     "react": "19.2.3",
     "react-native": "0.84.0",
-    "react-native-nitro-modules": "0.35.5",
+    "react-native-nitro-modules": "0.35.6",
     "react-native-vision-camera": "*",
     "typescript": "5.9.3"
   },
