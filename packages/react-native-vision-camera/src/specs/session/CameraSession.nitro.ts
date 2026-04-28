@@ -68,6 +68,10 @@ export type InterruptionReason =
  * and back-Camera using the imperative API:
  * ```ts
  * if (VisionCamera.supportsMultiCamSessions) {
+ *   const deviceFactory = await VisionCamera.createDeviceFactory()
+ *   const deviceCombinations = deviceFactory.supportedMultiCamDeviceCombinations
+ *   // ... get `frontDevice` and `backDevice` from one of
+ *   //     the combinations in `deviceCombinations`.
  *   const session = await VisionCamera.createCameraSession(true)
  *   const [frontController, backController] = await session.configure([
  *     // Front Camera
@@ -110,6 +114,12 @@ export interface CameraSession
    * from one {@linkcode CameraDevice} (the _input_) to multiple
    * {@linkcode CameraOutput}s (the _outputs_).
    *
+   * @note In a Multi-Cam Camera Session, the given {@linkcode connections}' input devices
+   * must be supported to be used together in a Multi-Cam Camera Session, as not every
+   * {@linkcode CameraDevice} can be used with every other {@linkcode CameraDevice}
+   * simultaneously. See {@linkcode CameraDeviceFactory.supportedMultiCamDeviceCombinations}
+   * for a full list of supported combinations.
+   *
    * @param connections The list of connections from one _input_ to
    * multiple _outputs_. If this {@linkcode CameraSession} was created
    * as a multi-cam session (see {@linkcode CameraFactory.createCameraSession | createCameraSession(enableMultiCam)}),
@@ -122,6 +132,9 @@ export interface CameraSession
    * @throws If Camera Permission has not been granted - see {@linkcode CameraFactory.cameraPermissionStatus}
    * @throws If multiple {@linkcode connections} are added, but the
    * {@linkcode CameraSession} was not created as a multi-cam session.
+   * @throws If hardware resources are being exhausted by too large connection graphs.
+   * @throws If this is a Multi-Cam session, but the connection inputs are not supported to
+   * be used together - see {@linkcode CameraDeviceFactory.supportedMultiCamDeviceCombinations}
    *
    * @example
    * Creating a simple Preview + Photo connection:
@@ -162,6 +175,10 @@ export interface CameraSession
    * Creating a multi-cam session with front- and back Camera:
    * ```ts
    * if (VisionCamera.supportsMultiCamSessions) {
+   *   const deviceFactory = await VisionCamera.createDeviceFactory()
+   *   const deviceCombinations = deviceFactory.supportedMultiCamDeviceCombinations
+   *   // ... get `frontDevice` and `backDevice` from one of
+   *   //     the combinations in `deviceCombinations`.
    *   const session = await VisionCamera.createCameraSession(true)
    *   const [frontController, backController] = await session.configure([
    *     // Front Camera
