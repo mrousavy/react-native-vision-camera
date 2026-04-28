@@ -254,4 +254,59 @@ describe('VisionCamera - Session', () => {
     await session.stop()
     sub.remove()
   })
+
+  it('configures, starts and stops a multi-cam session for every supported device combination', async () => {
+    if (!VisionCamera.supportsMultiCamSessions) {
+      console.log(
+        '[SKIP] multi-cam combinations: not supported on this platform',
+      )
+      return
+    }
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    if (combinations.length === 0) {
+      console.log(
+        '[SKIP] multi-cam combinations: no combinations reported on this device',
+      )
+      return
+    }
+
+    for (const combination of combinations) {
+      const session = await VisionCamera.createCameraSession(true)
+      const connections = combination.map((device) => ({
+        input: device,
+        outputs: [
+          {
+            output: VisionCamera.createPhotoOutput({
+              targetResolution: CommonResolutions.HD_4_3,
+              containerFormat: 'jpeg' as const,
+              quality: 0.8,
+              qualityPrioritization: 'balanced' as const,
+            }),
+            mirrorMode: 'auto' as const,
+          },
+        ],
+        constraints: [],
+      }))
+
+      const controllers = await session.configure(connections)
+      expect(controllers.length).toBe(combination.length)
+      for (let i = 0; i < combination.length; i++) {
+        expect(controllers[i]?.device.id).toBe(combination[i]?.id)
+      }
+
+      let started = false
+      const sub = session.addOnStartedListener(() => {
+        started = true
+      })
+      await session.start()
+      await waitUntil(() => started, { timeout: 15_000 })
+      await session.stop()
+      sub.remove()
+
+      const description = combination
+        .map((d) => `${d.position}:${d.id}`)
+        .join(', ')
+      console.log(`multi-cam session ok: [${description}]`)
+    }
+  })
 })
