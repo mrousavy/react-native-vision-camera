@@ -53,6 +53,7 @@ namespace margelo::nitro::camera {
     std::vector<std::shared_ptr<HybridCameraDeviceSpec>> getCameraDevices() override;
     std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getUserPreferredCamera() override;
     void setUserPreferredCamera(const std::optional<std::shared_ptr<HybridCameraDeviceSpec>>& userPreferredCamera) override;
+    std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> getSupportedMultiCamDeviceCombinations() override;
 
   public:
     // Methods
