@@ -109,29 +109,29 @@ namespace margelo::nitro::camera {
   std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>> JHybridPreviewViewSpec::getGestureControllers() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridGestureControllerSpec::JavaPart>>()>("getGestureControllers");
     auto __result = method(_javaPart);
-    return __result != nullptr ? std::make_optional([&]() {
-      size_t __size = __result->size();
+    return __result != nullptr ? std::make_optional([&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<std::shared_ptr<HybridGestureControllerSpec>> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->getJHybridGestureControllerSpec());
       }
       return __vector;
-    }()) : std::nullopt;
+    }(__result)) : std::nullopt;
   }
   void JHybridPreviewViewSpec::setGestureControllers(const std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>& gestureControllers) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<jni::JArrayClass<JHybridGestureControllerSpec::JavaPart>> /* gestureControllers */)>("setGestureControllers");
-    method(_javaPart, gestureControllers.has_value() ? [&]() {
-      size_t __size = gestureControllers.value().size();
+    method(_javaPart, gestureControllers.has_value() ? [&](auto&& __input) {
+      size_t __size = __input.size();
       jni::local_ref<jni::JArrayClass<JHybridGestureControllerSpec::JavaPart>> __array = jni::JArrayClass<JHybridGestureControllerSpec::JavaPart>::newArray(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        const auto& __element = gestureControllers.value()[__i];
+        const auto& __element = __input[__i];
         auto __elementJni = std::dynamic_pointer_cast<JHybridGestureControllerSpec>(__element)->getJavaPart();
         __array->setElement(__i, *__elementJni);
       }
       return __array;
-    }() : nullptr);
+    }(gestureControllers.value()) : nullptr);
   }
   std::optional<std::function<void()>> JHybridPreviewViewSpec::getOnPreviewStarted() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JFunc_void::javaobject>()>("getOnPreviewStarted_cxx");

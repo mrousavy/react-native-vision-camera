@@ -136,16 +136,16 @@ namespace margelo::nitro::camera {
   std::vector<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceSpec::getPhysicalDevices() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridCameraDeviceSpec::JavaPart>>()>("getPhysicalDevices");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<std::shared_ptr<HybridCameraDeviceSpec>> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->getJHybridCameraDeviceSpec());
       }
       return __vector;
-    }();
+    }(__result);
   }
   bool JHybridCameraDeviceSpec::getIsVirtualDevice() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("isVirtualDevice");
@@ -155,16 +155,16 @@ namespace margelo::nitro::camera {
   std::vector<PixelFormat> JHybridCameraDeviceSpec::getSupportedPixelFormats() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JPixelFormat>>()>("getSupportedPixelFormats");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<PixelFormat> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   bool JHybridCameraDeviceSpec::getSupportsPhotoHDR() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getSupportsPhotoHDR");
@@ -174,30 +174,30 @@ namespace margelo::nitro::camera {
   std::vector<DynamicRange> JHybridCameraDeviceSpec::getSupportedVideoDynamicRanges() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JDynamicRange>>()>("getSupportedVideoDynamicRanges");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<DynamicRange> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   std::vector<Range> JHybridCameraDeviceSpec::getSupportedFPSRanges() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JRange>>()>("getSupportedFPSRanges");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<Range> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   bool JHybridCameraDeviceSpec::getSupportsPreviewImage() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getSupportsPreviewImage");
@@ -232,16 +232,16 @@ namespace margelo::nitro::camera {
   std::vector<MediaType> JHybridCameraDeviceSpec::getMediaTypes() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JMediaType>>()>("getMediaTypes");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<MediaType> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   bool JHybridCameraDeviceSpec::getSupportsFocusMetering() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getSupportsFocusMetering");
@@ -343,16 +343,16 @@ namespace margelo::nitro::camera {
   std::vector<Size> JHybridCameraDeviceSpec::getSupportedResolutions(OutputStreamType outputStreamType) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JSize>>(jni::alias_ref<JOutputStreamType> /* outputStreamType */)>("getSupportedResolutions");
     auto __result = method(_javaPart, JOutputStreamType::fromCpp(outputStreamType));
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<Size> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   bool JHybridCameraDeviceSpec::supportsOutput(const std::shared_ptr<HybridCameraOutputSpec>& output) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean(jni::alias_ref<JHybridCameraOutputSpec::JavaPart> /* output */)>("supportsOutput");

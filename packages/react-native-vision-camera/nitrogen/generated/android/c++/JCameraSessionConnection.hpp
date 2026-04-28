@@ -90,26 +90,26 @@ namespace margelo::nitro::camera {
       jni::local_ref<JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_::javaobject> onSessionConfigSelected = this->getFieldValue(fieldOnSessionConfigSelected);
       return CameraSessionConnection(
         input->getJHybridCameraDeviceSpec(),
-        [&]() {
-          size_t __size = outputs->size();
+        [&](auto&& __input) {
+          size_t __size = __input->size();
           std::vector<CameraOutputConfiguration> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            auto __element = outputs->getElement(__i);
+            auto __element = __input->getElement(__i);
             __vector.push_back(__element->toCpp());
           }
           return __vector;
-        }(),
-        [&]() {
-          size_t __size = constraints->size();
+        }(outputs),
+        [&](auto&& __input) {
+          size_t __size = __input->size();
           std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            auto __element = constraints->getElement(__i);
+            auto __element = __input->getElement(__i);
             __vector.push_back(__element->toCpp());
           }
           return __vector;
-        }(),
+        }(constraints),
         initialZoom != nullptr ? std::make_optional(initialZoom->value()) : std::nullopt,
         initialExposureBias != nullptr ? std::make_optional(initialExposureBias->value()) : std::nullopt,
         onSessionConfigSelected != nullptr ? std::make_optional([&]() -> std::function<void(const std::shared_ptr<HybridCameraSessionConfigSpec>& /* config */)> {
@@ -136,26 +136,26 @@ namespace margelo::nitro::camera {
       return create(
         clazz,
         std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(value.input)->getJavaPart(),
-        [&]() {
-          size_t __size = value.outputs.size();
+        [&](auto&& __input) {
+          size_t __size = __input.size();
           jni::local_ref<jni::JArrayClass<JCameraOutputConfiguration>> __array = jni::JArrayClass<JCameraOutputConfiguration>::newArray(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            const auto& __element = value.outputs[__i];
+            const auto& __element = __input[__i];
             auto __elementJni = JCameraOutputConfiguration::fromCpp(__element);
             __array->setElement(__i, *__elementJni);
           }
           return __array;
-        }(),
-        [&]() {
-          size_t __size = value.constraints.size();
+        }(value.outputs),
+        [&](auto&& __input) {
+          size_t __size = __input.size();
           jni::local_ref<jni::JArrayClass<JConstraint>> __array = jni::JArrayClass<JConstraint>::newArray(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            const auto& __element = value.constraints[__i];
+            const auto& __element = __input[__i];
             auto __elementJni = JConstraint::fromCpp(__element);
             __array->setElement(__i, *__elementJni);
           }
           return __array;
-        }(),
+        }(value.constraints),
         value.initialZoom.has_value() ? jni::JDouble::valueOf(value.initialZoom.value()) : nullptr,
         value.initialExposureBias.has_value() ? jni::JDouble::valueOf(value.initialExposureBias.value()) : nullptr,
         value.onSessionConfigSelected.has_value() ? JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec__cxx::fromCpp(value.onSessionConfigSelected.value()) : nullptr

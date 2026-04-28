@@ -53,16 +53,16 @@ namespace margelo::nitro::camera {
       return FocusOptions(
         responsiveness != nullptr ? std::make_optional(responsiveness->toCpp()) : std::nullopt,
         adaptiveness != nullptr ? std::make_optional(adaptiveness->toCpp()) : std::nullopt,
-        modes != nullptr ? std::make_optional([&]() {
-          size_t __size = modes->size();
+        modes != nullptr ? std::make_optional([&](auto&& __input) {
+          size_t __size = __input->size();
           std::vector<MeteringMode> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            auto __element = modes->getElement(__i);
+            auto __element = __input->getElement(__i);
             __vector.push_back(__element->toCpp());
           }
           return __vector;
-        }()) : std::nullopt,
+        }(modes)) : std::nullopt,
         autoResetAfter != nullptr ? std::make_optional(autoResetAfter->toCpp()) : std::nullopt
       );
     }
@@ -80,16 +80,16 @@ namespace margelo::nitro::camera {
         clazz,
         value.responsiveness.has_value() ? JFocusResponsiveness::fromCpp(value.responsiveness.value()) : nullptr,
         value.adaptiveness.has_value() ? JSceneAdaptiveness::fromCpp(value.adaptiveness.value()) : nullptr,
-        value.modes.has_value() ? [&]() {
-          size_t __size = value.modes.value().size();
+        value.modes.has_value() ? [&](auto&& __input) {
+          size_t __size = __input.size();
           jni::local_ref<jni::JArrayClass<JMeteringMode>> __array = jni::JArrayClass<JMeteringMode>::newArray(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            const auto& __element = value.modes.value()[__i];
+            const auto& __element = __input[__i];
             auto __elementJni = JMeteringMode::fromCpp(__element);
             __array->setElement(__i, *__elementJni);
           }
           return __array;
-        }() : nullptr,
+        }(value.modes.value()) : nullptr,
         value.autoResetAfter.has_value() ? JVariant_NullType_Double::fromCpp(value.autoResetAfter.value()) : nullptr
       );
     }

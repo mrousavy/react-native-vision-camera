@@ -36,16 +36,16 @@ namespace margelo::nitro::camera {
       static const auto fieldEnabledObjectTypes = clazz->getField<jni::JArrayClass<JScannedObjectType>>("enabledObjectTypes");
       jni::local_ref<jni::JArrayClass<JScannedObjectType>> enabledObjectTypes = this->getFieldValue(fieldEnabledObjectTypes);
       return ObjectOutputOptions(
-        [&]() {
-          size_t __size = enabledObjectTypes->size();
+        [&](auto&& __input) {
+          size_t __size = __input->size();
           std::vector<ScannedObjectType> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            auto __element = enabledObjectTypes->getElement(__i);
+            auto __element = __input->getElement(__i);
             __vector.push_back(__element->toCpp());
           }
           return __vector;
-        }()
+        }(enabledObjectTypes)
       );
     }
 
@@ -60,16 +60,16 @@ namespace margelo::nitro::camera {
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
-        [&]() {
-          size_t __size = value.enabledObjectTypes.size();
+        [&](auto&& __input) {
+          size_t __size = __input.size();
           jni::local_ref<jni::JArrayClass<JScannedObjectType>> __array = jni::JArrayClass<JScannedObjectType>::newArray(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            const auto& __element = value.enabledObjectTypes[__i];
+            const auto& __element = __input[__i];
             auto __elementJni = JScannedObjectType::fromCpp(__element);
             __array->setElement(__i, *__elementJni);
           }
           return __array;
-        }()
+        }(value.enabledObjectTypes)
       );
     }
   };

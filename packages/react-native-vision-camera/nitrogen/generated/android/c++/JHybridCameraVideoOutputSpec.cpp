@@ -92,16 +92,16 @@ namespace margelo::nitro::camera {
   std::vector<VideoCodec> JHybridCameraVideoOutputSpec::getSupportedVideoCodecs() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JVideoCodec>>()>("getSupportedVideoCodecs");
     auto __result = method(_javaPart);
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<VideoCodec> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->toCpp());
       }
       return __vector;
-    }();
+    }(__result);
   }
   std::shared_ptr<Promise<void>> JHybridCameraVideoOutputSpec::setOutputSettings(const VideoOutputSettings& settings) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JVideoOutputSettings> /* settings */)>("setOutputSettings");
