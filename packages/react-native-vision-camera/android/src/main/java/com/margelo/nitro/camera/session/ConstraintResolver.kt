@@ -64,7 +64,7 @@ object ConstraintResolver {
           val output =
             outputConfiguration.output as? NativeCameraOutput
               ?: throw Error("The given `output` (${outputConfiguration.output}) is not of type `NativeCameraOutput`!")
-          return@map output.createUseCase(outputConfiguration.mirrorMode, config)
+          return@map output.createUseCase(cameraInfo, outputConfiguration.mirrorMode, config)
         }
       val sessionConfig =
         SessionConfig

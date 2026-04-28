@@ -1,6 +1,7 @@
 package com.margelo.nitro.camera.public
 
 import android.util.Range
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.UseCase
 import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.TargetDynamicRange
@@ -57,6 +58,15 @@ interface NativeCameraOutput {
    * [UseCase], which could result in better
    * performance and session start times with large
    * allocations.
+   */
+  fun createUseCase(
+    cameraInfo: CameraInfo,
+    mirrorMode: MirrorMode,
+    config: Config,
+  ): PreparedUseCase = createUseCase(mirrorMode, config)
+
+  /**
+   * Creates a [PreparedUseCase] for the given [Config].
    */
   fun createUseCase(
     mirrorMode: MirrorMode,
