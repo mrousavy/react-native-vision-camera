@@ -10,11 +10,7 @@ import MLKitBarcodeScanning
 extension BarcodeScannerOptions {
   func toMLKitOptions() -> MLKitBarcodeScanning.BarcodeScannerOptions {
     let formats = self.barcodeFormats.map { $0.toMLKitFormat() }
-    // combines the array into an OptionSet/bitmask
-    let combinedFormats = formats.reduce(into: MLKitBarcodeScanning.BarcodeFormat()) {
-      partial, next in
-      partial.formUnion(next)
-    }
+    let combinedFormats = MLKitBarcodeScanning.BarcodeFormat(formats)
     return MLKitBarcodeScanning.BarcodeScannerOptions(formats: combinedFormats)
   }
 }
@@ -22,11 +18,7 @@ extension BarcodeScannerOptions {
 extension BarcodeScannerOutputOptions {
   func toMLKitOptions() -> MLKitBarcodeScanning.BarcodeScannerOptions {
     let formats = self.barcodeFormats.map { $0.toMLKitFormat() }
-    // combines the array into an OptionSet/bitmask
-    let combinedFormats = formats.reduce(into: MLKitBarcodeScanning.BarcodeFormat()) {
-      partial, next in
-      partial.formUnion(next)
-    }
+    let combinedFormats = MLKitBarcodeScanning.BarcodeFormat(formats)
     return MLKitBarcodeScanning.BarcodeScannerOptions(formats: combinedFormats)
   }
 }
