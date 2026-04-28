@@ -102,8 +102,8 @@ namespace margelo::nitro::camera {
       std::vector<std::shared_ptr<HybridCameraDeviceSpec>> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __element->getElement(__i);
-        __vector.push_back(__element->getJHybridCameraDeviceSpec());
+        auto __element2 = __element->getElement(__i);
+        __vector.push_back(__element2->getJHybridCameraDeviceSpec());
       }
       return __vector;
     }());
