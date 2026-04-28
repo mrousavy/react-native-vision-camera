@@ -88,6 +88,29 @@ namespace margelo::nitro::camera {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JHybridCameraDeviceSpec::JavaPart> /* userPreferredCamera */)>("setUserPreferredCamera");
     method(_javaPart, userPreferredCamera.has_value() ? std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(userPreferredCamera.value())->getJavaPart() : nullptr);
   }
+  std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> JHybridCameraDeviceFactorySpec::getSupportedMultiCamDeviceCombinations() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<jni::JArrayClass<JHybridCameraDeviceSpec::JavaPart>>>()>("getSupportedMultiCamDeviceCombinations");
+    auto __result = method(_javaPart);
+    return [&]() {
+      size_t __size = __result->size();
+      std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __result->getElement(__i);
+        __vector.push_back([&]() {
+      size_t __size = __element->size();
+      std::vector<std::shared_ptr<HybridCameraDeviceSpec>> __vector;
+      __vector.reserve(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        auto __element = __element->getElement(__i);
+        __vector.push_back(__element->getJHybridCameraDeviceSpec());
+      }
+      return __vector;
+    }());
+      }
+      return __vector;
+    }();
+  }
 
   // Methods
   ListenerSubscription JHybridCameraDeviceFactorySpec::addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) {
