@@ -205,6 +205,157 @@ describe('VisionCamera - Frame', () => {
     expect(counter.getBlocking()).toBeGreaterThanOrEqual(3)
   })
 
+  // ──────────────────────────────────────────────────────────────────────
+  // Frame Processor stress tests: stall the worklet for ~1s per frame so
+  // the camera pipeline drops most produced frames and OnImageAvailable
+  // callbacks pile up on the frame-thread executor. The analyzer must keep
+  // delivering frames, must not crash, and must survive teardown.
+  //
+  // The `native` variant is also a regression test for #3807 / #3811 on
+  // Android: with `pixelFormat: 'native'` + `dropFramesWhileBusy: true`,
+  // multiple piled-up callbacks would drain the underlying `ImageReader`
+  // queue back-to-back. The first `acquireLatestImage()` returned the
+  // latest image; subsequent ones returned null microseconds later — which
+  // `PrivateImageReaderProxy` dereferenced and crashed with an NPE. The
+  // fast worklets in the basic `'native'` tests above never let callbacks
+  // pile up, so they never hit this race.
+  // ──────────────────────────────────────────────────────────────────────
+
+  it('survives a frame processor that stalls 1s per frame on `native` pixel format', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    let framesReceived = 0
+    const onFrameReceived = () => {
+      framesReceived++
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const start = Date.now()
+      while (Date.now() - start < 1000) {
+        // busy wait — frames produced during this 1s window must be dropped
+      }
+      scheduleOnRN(onFrameReceived)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(() => framesReceived >= 3, { timeout: 30_000 })
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      await session.stop()
+    }
+    expect(framesReceived).toBeGreaterThanOrEqual(3)
+  })
+
+  it('survives a frame processor that stalls 1s per frame on `yuv` pixel format', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'yuv',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    let framesReceived = 0
+    const onFrameReceived = () => {
+      framesReceived++
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const start = Date.now()
+      while (Date.now() - start < 1000) {
+        // busy wait — frames produced during this 1s window must be dropped
+      }
+      scheduleOnRN(onFrameReceived)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(() => framesReceived >= 3, { timeout: 30_000 })
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      await session.stop()
+    }
+    expect(framesReceived).toBeGreaterThanOrEqual(3)
+  })
+
+  it('survives a frame processor that stalls 1s per frame on `rgb` pixel format', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.VGA_16_9,
+      pixelFormat: 'rgb',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    let framesReceived = 0
+    const onFrameReceived = () => {
+      framesReceived++
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const start = Date.now()
+      while (Date.now() - start < 1000) {
+        // busy wait — frames produced during this 1s window must be dropped
+      }
+      scheduleOnRN(onFrameReceived)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(() => framesReceived >= 3, { timeout: 30_000 })
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      await session.stop()
+    }
+    expect(framesReceived).toBeGreaterThanOrEqual(3)
+  })
+
   // TODO: Re-enable this test once the Android CameraX ImageAnalysis pipeline surfaces
   //       dropped-frame notifications. Today HybridFrameOutput.setOnFrameDroppedCallback
   //       is a no-op on Android (see the `TODO: CameraX does not have a way to figure
