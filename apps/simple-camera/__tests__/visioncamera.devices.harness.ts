@@ -151,4 +151,54 @@ describe('VisionCamera - Devices', () => {
     expect(factory.userPreferredCamera?.id).toBe(back.id)
     factory.userPreferredCamera = previous
   })
+
+  it('returns an empty supportedMultiCamDeviceCombinations array when the platform does not support multi-cam', () => {
+    if (VisionCamera.supportsMultiCamSessions) {
+      console.log(
+        '[SKIP] supportedMultiCamDeviceCombinations empty: platform supports multi-cam',
+      )
+      return
+    }
+    expect(factory.supportedMultiCamDeviceCombinations.length).toBe(0)
+  })
+
+  it('returns at least one supportedMultiCamDeviceCombinations combination when the platform supports multi-cam', () => {
+    if (!VisionCamera.supportsMultiCamSessions) {
+      console.log(
+        '[SKIP] supportedMultiCamDeviceCombinations non-empty: multi-cam not supported on this platform',
+      )
+      return
+    }
+    expect(factory.supportedMultiCamDeviceCombinations.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('every device in a supportedMultiCamDeviceCombinations combination is also present in cameraDevices', () => {
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    if (combinations.length === 0) {
+      console.log(
+        '[SKIP] supportedMultiCamDeviceCombinations device lookup: no combinations on this platform',
+      )
+      return
+    }
+    const knownIds = new Set(factory.cameraDevices.map((d) => d.id))
+    for (const combination of combinations) {
+      expect(combination.length).toBeGreaterThan(0)
+      for (const device of combination) {
+        expect(knownIds.has(device.id)).toBe(true)
+      }
+    }
+  })
+
+  it('logs every supported multi-cam device combination', () => {
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    console.log(
+      `supportedMultiCamDeviceCombinations: ${combinations.length} combinations`,
+    )
+    for (const [index, combination] of combinations.entries()) {
+      const description = combination
+        .map((d) => `${d.position}:${d.id}`)
+        .join(', ')
+      console.log(`  [${index}] ${description}`)
+    }
+  })
 })
