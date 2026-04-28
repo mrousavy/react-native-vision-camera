@@ -13,7 +13,7 @@ extension BarcodeScannerOptions {
     // combines the array into an OptionSet/bitmask
     let combinedFormats = formats.reduce(into: MLKitBarcodeScanning.BarcodeFormat()) {
       partial, next in
-      _ = partial.union(next)
+      partial.formUnion(next)
     }
     return MLKitBarcodeScanning.BarcodeScannerOptions(formats: combinedFormats)
   }
@@ -25,7 +25,7 @@ extension BarcodeScannerOutputOptions {
     // combines the array into an OptionSet/bitmask
     let combinedFormats = formats.reduce(into: MLKitBarcodeScanning.BarcodeFormat()) {
       partial, next in
-      _ = partial.union(next)
+      partial.formUnion(next)
     }
     return MLKitBarcodeScanning.BarcodeScannerOptions(formats: combinedFormats)
   }
