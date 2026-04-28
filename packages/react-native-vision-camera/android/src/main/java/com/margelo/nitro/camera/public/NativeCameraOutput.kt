@@ -18,6 +18,7 @@ interface NativeCameraOutput {
     val videoStabilizationMode: TargetStabilizationMode?,
     val videoDynamicRange: TargetDynamicRange?,
     val photoHDR: Boolean?,
+    val cameraInfo: CameraInfo? = null,
   )
 
   /**
@@ -58,15 +59,6 @@ interface NativeCameraOutput {
    * [UseCase], which could result in better
    * performance and session start times with large
    * allocations.
-   */
-  fun createUseCase(
-    cameraInfo: CameraInfo,
-    mirrorMode: MirrorMode,
-    config: Config,
-  ): PreparedUseCase = createUseCase(mirrorMode, config)
-
-  /**
-   * Creates a [PreparedUseCase] for the given [Config].
    */
   fun createUseCase(
     mirrorMode: MirrorMode,

@@ -1,15 +1,8 @@
 package com.margelo.nitro.camera.hybrids.outputs
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CaptureResult
-import androidx.annotation.OptIn
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.impl.CameraCaptureResults
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.FrameDroppedReason
@@ -21,7 +14,7 @@ import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.TargetVideoPixelFormat
 import com.margelo.nitro.camera.extensions.converters.toSize
-import com.margelo.nitro.camera.extensions.fromSafe
+import com.margelo.nitro.camera.extensions.getCameraIntrinsicCalibrationOrNull
 import com.margelo.nitro.camera.extensions.orientation
 import com.margelo.nitro.camera.extensions.setAllowDroppingLateFrames
 import com.margelo.nitro.camera.extensions.sortedByClosestTo
@@ -61,37 +54,16 @@ class HybridFrameOutput(
 
   private var staticCameraIntrinsicCalibration: FloatArray? = null
 
-  @OptIn(ExperimentalCamera2Interop::class)
   override fun createUseCase(
-    cameraInfo: CameraInfo,
     mirrorMode: MirrorMode,
     config: NativeCameraOutput.Config,
   ): NativeCameraOutput.PreparedUseCase {
-    val staticCameraIntrinsicCalibration =
+    staticCameraIntrinsicCalibration =
       if (options.enableCameraMatrixDelivery) {
-        Camera2CameraInfo
-          .fromSafe(cameraInfo)
-          ?.getCameraCharacteristic(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION)
+        config.cameraInfo?.getCameraIntrinsicCalibrationOrNull()
       } else {
         null
       }
-
-    return createUseCase(mirrorMode, config, staticCameraIntrinsicCalibration)
-  }
-
-  override fun createUseCase(
-    mirrorMode: MirrorMode,
-    config: NativeCameraOutput.Config,
-  ): NativeCameraOutput.PreparedUseCase {
-    return createUseCase(mirrorMode, config, null)
-  }
-
-  private fun createUseCase(
-    mirrorMode: MirrorMode,
-    config: NativeCameraOutput.Config,
-    staticCameraIntrinsicCalibration: FloatArray?,
-  ): NativeCameraOutput.PreparedUseCase {
-    this.staticCameraIntrinsicCalibration = staticCameraIntrinsicCalibration
 
     val resolutionSelector =
       ResolutionSelector
@@ -173,13 +145,11 @@ class HybridFrameOutput(
     }
   }
 
-  @SuppressLint("RestrictedApi")
   private fun getCameraIntrinsicMatrix(image: ImageProxy): DoubleArray? {
     if (!options.enableCameraMatrixDelivery) return null
 
-    val captureResult = CameraCaptureResults.retrieveCameraCaptureResult(image.imageInfo)?.captureResult
     val cameraIntrinsicCalibration =
-      captureResult?.get(CaptureResult.LENS_INTRINSIC_CALIBRATION)
+      image.getCameraIntrinsicCalibrationOrNull()
         ?: staticCameraIntrinsicCalibration
 
     return cameraIntrinsicCalibration?.toCameraIntrinsicMatrix(image.imageInfo.sensorToBufferTransformMatrix)

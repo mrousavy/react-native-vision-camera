@@ -13,9 +13,15 @@ fun FloatArray.toCameraIntrinsicMatrix(sensorToBufferTransform: Matrix? = null):
 
   if (sensorToBufferTransform == null) {
     return doubleArrayOf(
-      fx, 0.0, 0.0,
-      s, fy, 0.0,
-      cx, cy, 1.0,
+      fx,
+      0.0,
+      0.0,
+      s,
+      fy,
+      0.0,
+      cx,
+      cy,
+      1.0,
     )
   }
 
