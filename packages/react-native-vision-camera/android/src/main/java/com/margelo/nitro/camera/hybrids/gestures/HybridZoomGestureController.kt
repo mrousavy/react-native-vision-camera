@@ -6,7 +6,9 @@ import android.os.Looper
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.annotation.Keep
 import androidx.camera.core.Camera
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.camera.HybridCameraControllerSpec
 import com.margelo.nitro.camera.HybridZoomGestureControllerSpec
@@ -15,6 +17,8 @@ import com.margelo.nitro.camera.public.NativeGestureController
 import kotlin.math.max
 import kotlin.math.min
 
+@Keep
+@DoNotStrip
 class HybridZoomGestureController :
   HybridZoomGestureControllerSpec(),
   NativeGestureController {

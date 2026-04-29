@@ -1,14 +1,18 @@
 package com.margelo.nitro.camera.hybrids.inputs
 
+import androidx.annotation.Keep
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.CameraExtensionType
 import com.margelo.nitro.camera.HybridCameraExtensionSpec
 import com.margelo.nitro.camera.extensions.converters.fromExtensionMode
 import com.margelo.nitro.camera.public.NativeCameraExtension
 
+@Keep
+@DoNotStrip
 class HybridCameraExtension(
   override val cameraInfo: CameraInfo,
   private val extensionsManager: ExtensionsManager,

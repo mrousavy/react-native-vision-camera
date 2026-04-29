@@ -1,9 +1,13 @@
 package com.margelo.nitro.camera.session
 
+import androidx.annotation.Keep
 import androidx.camera.core.Camera
 import androidx.camera.core.ConcurrentCamera
+import com.facebook.proguard.annotations.DoNotStrip
 import java.io.Closeable
 
+@Keep
+@DoNotStrip
 class ActiveCameraSessionMulti(
   private val camera: ConcurrentCamera,
   private val listener: ActiveCameraSession.LifecycleListener,

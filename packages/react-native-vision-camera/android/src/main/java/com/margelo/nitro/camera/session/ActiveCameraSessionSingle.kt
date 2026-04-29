@@ -1,13 +1,17 @@
 package com.margelo.nitro.camera.session
 
 import android.util.Log
+import androidx.annotation.Keep
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraState
 import androidx.lifecycle.Observer
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.extensions.reason
 import java.io.Closeable
 
+@Keep
+@DoNotStrip
 class ActiveCameraSessionSingle(
   private val camera: Camera,
   private val listener: ActiveCameraSession.LifecycleListener,

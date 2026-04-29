@@ -3,6 +3,7 @@ package com.margelo.nitro.camera
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.annotation.Keep
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
@@ -11,6 +12,7 @@ import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.edit
+import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.camera.extensions.mapToArray
@@ -20,6 +22,8 @@ import com.margelo.nitro.camera.public.NativeCameraDevice
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
 import com.margelo.nitro.core.Promise
 
+@Keep
+@DoNotStrip
 class HybridCameraDeviceFactory(
   val cameraProvider: ProcessCameraProvider,
 ) : HybridCameraDeviceFactorySpec() {

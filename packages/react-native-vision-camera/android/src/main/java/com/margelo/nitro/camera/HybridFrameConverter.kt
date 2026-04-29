@@ -1,11 +1,15 @@
 package com.margelo.nitro.camera
 
+import androidx.annotation.Keep
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.extensions.toBitmap
 import com.margelo.nitro.camera.public.NativeFrame
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.image.HybridImage
 import com.margelo.nitro.image.HybridImageSpec
 
+@Keep
+@DoNotStrip
 class HybridFrameConverter : HybridFrameConverterSpec() {
   override fun convertFrameToImage(frame: HybridFrameSpec): HybridImageSpec {
     val nativeFrame =

@@ -2,11 +2,13 @@ package com.margelo.nitro.camera.hybrids.inputs
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.Keep
 import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.CameraPosition
 import com.margelo.nitro.camera.DeviceType
 import com.margelo.nitro.camera.DynamicRange
@@ -35,6 +37,8 @@ import com.margelo.nitro.camera.public.NativeCameraDevice
  * This type has less available information than the combined [CameraInfo].
  */
 @SuppressLint("RestrictedApi")
+@Keep
+@DoNotStrip
 class HybridPhysicalCameraDevice(
   override val cameraInfo: CameraInfo,
 ) : HybridCameraDeviceSpec(),

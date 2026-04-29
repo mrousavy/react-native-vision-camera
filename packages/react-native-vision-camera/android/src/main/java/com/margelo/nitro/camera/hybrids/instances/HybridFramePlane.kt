@@ -1,11 +1,15 @@
 package com.margelo.nitro.camera.hybrids.instances
 
+import androidx.annotation.Keep
 import androidx.camera.core.ImageProxy
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.HybridFramePlaneSpec
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
 
+@Keep
+@DoNotStrip
 class HybridFramePlane(
   val plane: ImageProxy.PlaneProxy,
 ) : HybridFramePlaneSpec() {

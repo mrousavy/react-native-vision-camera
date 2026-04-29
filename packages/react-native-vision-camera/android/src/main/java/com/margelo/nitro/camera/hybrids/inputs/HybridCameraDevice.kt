@@ -3,6 +3,7 @@ package com.margelo.nitro.camera.hybrids.inputs
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.annotation.Keep
 import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.camera2.interop.Camera2CameraInfo
@@ -15,6 +16,7 @@ import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.video.Recorder
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.CameraPosition
 import com.margelo.nitro.camera.DeviceType
 import com.margelo.nitro.camera.DynamicRange
@@ -58,6 +60,8 @@ import com.margelo.nitro.camera.utils.ImageFormatUtils
  * APIs if necessary.
  */
 @SuppressLint("RestrictedApi")
+@Keep
+@DoNotStrip
 class HybridCameraDevice(
   override val cameraInfo: CameraInfo,
 ) : HybridCameraDeviceSpec(),

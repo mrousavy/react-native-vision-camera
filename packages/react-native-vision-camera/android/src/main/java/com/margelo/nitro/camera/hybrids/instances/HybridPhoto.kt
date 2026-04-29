@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.location.Location
+import androidx.annotation.Keep
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.Exif
+import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraCalibrationDataSpec
 import com.margelo.nitro.camera.HybridDepthSpec
@@ -29,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.FileOutputStream
 
+@Keep
+@DoNotStrip
 class HybridPhoto(
   val image: ImageProxy,
   override val isMirrored: Boolean,
