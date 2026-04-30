@@ -9,6 +9,7 @@ import {
   useFrameOutput,
   usePhotoOutput,
   useVideoOutput,
+  CommonResolutions
 } from 'react-native-vision-camera'
 import { useLocation } from 'react-native-vision-camera-location'
 import { useResizer } from 'react-native-vision-camera-resizer'
@@ -77,6 +78,7 @@ export function CameraScreen() {
   }, [error])
   const frameOutput1 = useFrameOutput({
     pixelFormat: 'yuv',
+    targetResolution: CommonResolutions.HD_4_3,
     onFrame(frame) {
       'worklet'
       if (resizer != null) {
@@ -232,7 +234,7 @@ export function CameraScreen() {
       <CameraView
         isActive={isAppActive && isScreenFocused}
         device={device}
-        outputs={[photoOutput]}
+        outputs={[frameOutput1]}
         mirrorMode={device.position === 'front' ? 'on' : 'off'}
         constraints={
           [
