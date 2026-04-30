@@ -83,6 +83,9 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
           try? prepareDefaultPhotoSettings()
         }
       }
+    } else {
+      // For iOS 15 and earlier, enabling AVCapturePhotoSettings.isHighResolutionPhotoEnabled requires setting isHighResolutionCaptureEnabled = true on the AVCapturePhotoOutput instance.
+      output.isHighResolutionCaptureEnabled = true
     }
   }
 
