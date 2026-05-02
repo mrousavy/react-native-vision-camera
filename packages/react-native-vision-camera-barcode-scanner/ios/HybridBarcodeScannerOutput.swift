@@ -13,6 +13,9 @@ import VisionCamera
 
 final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
   private let scanner: BarcodeScanner
+  private let onBarcodeScanned: (_ barcodes: [any HybridBarcodeSpec]) -> Void
+  private let onError: (_ error: Error) -> Void
+  private var isScanning = false
   private var delegate: BarcodeScannerDelegate? = nil
   private let queue: DispatchQueue
   let output: AVCaptureVideoDataOutput
@@ -32,43 +35,48 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
 
   init(options: BarcodeScannerOutputOptions) {
     self.scanner = BarcodeScanner.barcodeScanner(options: options.toMLKitOptions())
+    self.onBarcodeScanned = options.onBarcodeScanned
+    self.onError = options.onError
     self.queue = DispatchQueue(label: "com.margelo.camera.barcodescanner")
     self.output = AVCaptureVideoDataOutput()
     super.init()
 
     // set delegate
-    var isScanning = false
     self.delegate = BarcodeScannerDelegate(onSampleBuffer: { [weak self] buffer in
-      guard let self else { return }
-      if isScanning { return }
-
-      // prepare MLImage
-      isScanning = true
-      guard let image = MLImage(sampleBuffer: buffer) else {
-        options.onError(
-          RuntimeError.error(withMessage: "Failed to convert CMSampleBuffer to MLImage!"))
-        return
-      }
-      image.orientation = self.outputOrientation.toUIImageOrientation()
-      // start scanning
-      self.scanner.process(image) { barcodes, error in
-        isScanning = false
-        if let barcodes {
-          // scanned x barcodes!
-          let hybridBarcodes = barcodes.map { HybridBarcode(barcode: $0) }
-          options.onBarcodeScanned(hybridBarcodes)
-        }
-        if let error {
-          // error
-          options.onError(error)
-        }
-      }
+      self?.scan(buffer)
     })
     self.output.setSampleBufferDelegate(delegate, queue: queue)
     self.output.alwaysDiscardsLateVideoFrames = true
     if #available(iOS 17.0, *), options.outputResolution != .full {
       self.output.automaticallyConfiguresOutputBufferDimensions = false
       self.output.deliversPreviewSizedOutputBuffers = true
+    }
+  }
+
+  private func scan(_ buffer: CMSampleBuffer) {
+    if isScanning { return }
+
+    // prepare MLImage
+    isScanning = true
+    guard let image = MLImage(sampleBuffer: buffer) else {
+      isScanning = false
+      onError(RuntimeError.error(withMessage: "Failed to convert CMSampleBuffer to MLImage!"))
+      return
+    }
+    image.orientation = outputOrientation.toUIImageOrientation()
+    // start scanning
+    scanner.process(image) { [weak self] barcodes, error in
+      guard let self else { return }
+      self.isScanning = false
+      if let barcodes {
+        // scanned x barcodes!
+        let hybridBarcodes: [any HybridBarcodeSpec] = barcodes.map { HybridBarcode(barcode: $0) }
+        self.onBarcodeScanned(hybridBarcodes)
+      }
+      if let error {
+        // error
+        self.onError(error)
+      }
     }
   }
 
