@@ -6,10 +6,13 @@
 //
 
 import AVFoundation
-import MLKitBarcodeScanning
-import MLKitVision
 import NitroModules
 import VisionCamera
+
+#if !targetEnvironment(simulator)
+
+import MLKitBarcodeScanning
+import MLKitVision
 
 final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
   private let scanner: BarcodeScanner
@@ -79,3 +82,32 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
     connection.preferredVideoStabilizationMode = .off
   }
 }
+
+#else
+
+final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
+  let output: AVCaptureVideoDataOutput
+  let requiresAudioInput: Bool = false
+  let requiresDepthFormat: Bool = false
+  let mediaType: MediaType = .video
+  var outputOrientation: CameraOrientation = .up
+  let streamType: StreamType = .video
+  var targetResolution: ResolutionRule {
+    return .closestTo(Size(width: 720.0, height: 1280.0))
+  }
+
+  init(options: BarcodeScannerOutputOptions) {
+    self.output = AVCaptureVideoDataOutput()
+    super.init()
+    // No - OP 
+  }
+
+  func configure(config: CameraOutputConfiguration) {
+    guard let connection = self.output.connection(with: .video) else {
+      return
+    }
+    connection.preferredVideoStabilizationMode = .off
+  }
+}
+
+#endif

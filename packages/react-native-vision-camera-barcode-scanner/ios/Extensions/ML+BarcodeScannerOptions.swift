@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+#if !targetEnvironment(simulator)
+
 import MLKitBarcodeScanning
 
 extension BarcodeScannerOptions {
@@ -22,3 +24,5 @@ extension BarcodeScannerOutputOptions {
     return MLKitBarcodeScanning.BarcodeScannerOptions(formats: combinedFormats)
   }
 }
+
+#endif

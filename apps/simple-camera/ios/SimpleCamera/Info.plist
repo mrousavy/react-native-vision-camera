@@ -35,10 +35,10 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>VisionCamera needs access to your Microphone to record audio for video recordings.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>VisionCamera needs access to your Location to add GPS tags to captured photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VisionCamera needs access to your Microphone to record audio for video recordings.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

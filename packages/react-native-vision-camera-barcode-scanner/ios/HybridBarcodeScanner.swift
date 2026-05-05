@@ -5,10 +5,13 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
-import MLKitBarcodeScanning
-import MLKitVision
 import NitroModules
 import VisionCamera
+
+#if !targetEnvironment(simulator)
+
+import MLKitBarcodeScanning
+import MLKitVision
 
 class HybridBarcodeScanner: HybridBarcodeScannerSpec {
   private let scanner: BarcodeScanner
@@ -40,3 +43,21 @@ class HybridBarcodeScanner: HybridBarcodeScannerSpec {
     return promise
   }
 }
+
+#else
+
+class HybridBarcodeScanner: HybridBarcodeScannerSpec {
+  init(options: BarcodeScannerOptions) {
+    super.init()
+  }
+
+  func scanCodes(frame: any HybridFrameSpec) throws -> [any HybridBarcodeSpec] {
+    throw RuntimeError.error(withMessage: SimulatorUnsupported.message)
+  }
+
+  func scanCodesAsync(frame: any HybridFrameSpec) throws -> Promise<[any HybridBarcodeSpec]> {
+    throw RuntimeError.error(withMessage: SimulatorUnsupported.message)
+  }
+}
+
+#endif

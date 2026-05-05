@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+#if !targetEnvironment(simulator)
+
 import MLKitBarcodeScanning
 import NitroModules
 
@@ -60,3 +62,5 @@ final class HybridBarcode: HybridBarcodeSpec {
     return BarcodeValueType(fromMLKitValueType: barcode.valueType)
   }
 }
+
+#endif

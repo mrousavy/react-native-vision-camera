@@ -8,6 +8,8 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.5'
 prepare_react_native_project!
 
+require_relative '../../../packages/react-native-vision-camera-barcode-scanner/mlkit_simulator_patch'
+
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -30,5 +32,6 @@ target 'SimpleCamera' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    patch_mlkit_for_simulator(installer)
   end
 end

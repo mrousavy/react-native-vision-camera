@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+#if !targetEnvironment(simulator)
+
 import MLKitVision
 import NitroModules
 import VisionCamera
@@ -24,3 +26,5 @@ extension HybridFrameSpec_protocol {
     return image
   }
 }
+
+#endif

@@ -5,6 +5,8 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+#if !targetEnvironment(simulator)
+
 import MLKitBarcodeScanning
 
 extension BarcodeFormat {
@@ -76,3 +78,5 @@ extension TargetBarcodeFormat {
     }
   }
 }
+
+#endif
