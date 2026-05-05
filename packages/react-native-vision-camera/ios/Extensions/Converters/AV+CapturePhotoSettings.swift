@@ -110,8 +110,6 @@ extension CapturePhotoSettings {
     // Shoot in max resolution
     if #available(iOS 16.0, *) {
       settings.maxPhotoDimensions = output.maxPhotoDimensions
-    } else {
-      settings.isHighResolutionPhotoEnabled = true
     }
 
     // photoQualityPrioritization can only be set on processed photos.
