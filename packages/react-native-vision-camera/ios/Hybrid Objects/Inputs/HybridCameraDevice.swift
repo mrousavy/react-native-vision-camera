@@ -142,10 +142,15 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
   }
 
   var focalLength: Double? {
-    guard #available(iOS 26.0, *) else {
-      return nil
-    }
-    return Double(device.nominalFocalLengthIn35mmFilm)
+    // Note: On iOS 18.5, accessing Nitro HybridObject properties after the underlying
+    // AVCaptureDevice has been freed causes EXC_BREAKPOINT. This happens when JS still
+    // holds a reference to the old device object during camera-flip device transitions
+    // and reads focalLength from it in a microtask. Returning nil is safe — focalLength
+    // is informational only and not used for camera operation.
+    //
+    // TODO: Restore once VisionCamera has a safe device lifecycle (e.g. weak device ref
+    //       or a validity check before property access).
+    return nil
   }
 
   var lensAperture: Double {

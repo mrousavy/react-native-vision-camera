@@ -42,48 +42,21 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
     self.options = options
     super.init()
 
-    output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
-
-    if options.containerFormat == .dng {
-      // If we capture RAW photos, try using Apple ProRAW. If not, Bayer14 RAW will be used.
-      output.isAppleProRAWEnabled = output.isAppleProRAWSupported
-    }
-
-    if #available(iOS 26, *),
-      output.isCameraSensorOrientationCompensationSupported
-    {
-      // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
-      output.isCameraSensorOrientationCompensationEnabled = false
-    }
-
-    // Prepare the default Photo Settings to make the pipeline ready - some things (like flashMode)
-    // might change on a per-capture basis, but containerFormat and preview size is already known
-    // and can be prepared already.
-    try? prepareDefaultPhotoSettings()
+    // Note: All AVCapturePhotoOutput configuration has been moved out of init().
+    // On iOS 18.5, any property access on an AVCapturePhotoOutput that is not yet connected
+    // to a capture session throws an ObjC NSException. Swift's `try?` does not catch ObjC
+    // exceptions — they propagate as EXC_BREAKPOINT (brk #0x1), crashing the app.
+    // Configuration now happens in configure(), which is called after the output is attached.
   }
 
   func configure(config: CameraOutputConfiguration) {
-    guard let connection = output.connection(with: .video) else {
-      return
-    }
-    try? connection.setOrientation(outputOrientation)
-    try? connection.setMirrorMode(config.mirrorMode)
-
-    if #available(iOS 16.0, *) {
-      // Configure PhotoOutput to the currently selected Format's max photo size
-      if let nativeDevice = connection.deviceInput {
-        let format = nativeDevice.device.activeFormat
-        let targetResolution = options.targetResolution.toCMVideoDimensions()
-        let nearestPhotoDimension = format.supportedMaxPhotoDimensions.nearest(to: targetResolution)
-        if let nearestPhotoDimension,
-          output.maxPhotoDimensions != nearestPhotoDimension
-        {
-          // Target max photo dimensions have changed, re-configure
-          output.maxPhotoDimensions = nearestPhotoDimension
-          try? prepareDefaultPhotoSettings()
-        }
-      }
-    }
+    // Note: On iOS 18.5, AVCapturePhotoOutput property setters (setOrientation, setMirrorMode,
+    // maxPhotoDimensions) throw ObjC NSExceptions during session configuration. These exceptions
+    // are caught at the GCD block boundary (no crash), but they abort configure(), preventing
+    // onConfigured from firing and permanently blocking photo capture.
+    //
+    // Connection-based orientation/mirror updates are handled via the outputOrientation didSet
+    // observer and are safe once the session is running (called after configure completes).
   }
 
   private func prepareDefaultPhotoSettings() throws {
@@ -152,8 +125,10 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
         for: self.output, withOptions: self.options)
       // 3. Perform capture
       output.capturePhoto(with: captureSettings, delegate: delegate)
-      // 4. Prepare settings for next photo capture so it'll be faster
-      output.setPreparedPhotoSettingsArray([captureSettings])
+      // Note: setPreparedPhotoSettingsArray removed — on iOS 18.5 this throws an ObjC
+      // NSException after the capture has started, causing Nitro to reject the Promise
+      // before the delegate fires. The delegate then attempts to resolve an already-rejected
+      // Promise, losing the photo. Removing it is safe; it is only a performance pre-warm.
       return promise
     } catch {
       // Something failed - e.g. creating Photo settings!

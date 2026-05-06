@@ -10,7 +10,12 @@ extension FPSConstraint: ResolvableConstraint {
   typealias ResolvedValue = Double
 
   func resolve(for format: AVCaptureDevice.Format) -> ConstraintResolution<Double> {
-    let nearestRange = format.nearestFrameRateRange(containing: fps)
+    guard let nearestRange = format.nearestFrameRateRange(containing: fps) else {
+      // Format has no frame rate ranges — return infinite penalty so this format is skipped
+      return ConstraintResolution(
+        penalty: ConstraintPenalty(distance: Double.infinity),
+        resolvedValue: fps)
+    }
     let penalty = nearestRange.penalty(for: fps)
     let clampedFPS = min(max(fps, nearestRange.minFrameRate), nearestRange.maxFrameRate)
     return ConstraintResolution(
@@ -34,11 +39,9 @@ extension AVFrameRateRange {
   }
 }
 extension AVCaptureDevice.Format {
-  func nearestFrameRateRange(containing targetFPS: Double) -> AVFrameRateRange {
-    let nearestRange = self.videoSupportedFrameRateRanges.min { left, right in
+  func nearestFrameRateRange(containing targetFPS: Double) -> AVFrameRateRange? {
+    return self.videoSupportedFrameRateRanges.min { left, right in
       return left.penalty(for: targetFPS) < right.penalty(for: targetFPS)
     }
-    guard let nearestRange else { fatalError("Device has no formats!") }
-    return nearestRange
   }
 }

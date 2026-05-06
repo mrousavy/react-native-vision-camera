@@ -51,7 +51,21 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
 
     // Set up our `delegate`
     output.setSampleBufferDelegate(delegate, queue: queue)
-    // Configure `videoSettings`
+    // Note: AVCaptureVideoDataOutput property setters (videoSettings, alwaysDiscardsLateVideoFrames,
+    // automaticallyConfiguresOutputBufferDimensions, deliversPreviewSizedOutputBuffers,
+    // preservesDynamicHDRMetadata, isDeferredStartEnabled) have been moved out of init().
+    // On iOS 18.5, these setters throw ObjC NSExceptions before the output is connected to
+    // a capture session. Swift's `try?` does not catch ObjC exceptions — they propagate as
+    // EXC_BREAKPOINT (brk #0x1), crashing the app when the frame output is first created.
+    // These are now applied in configure(), which is called after the output is attached.
+  }
+
+  func configure(config: CameraOutputConfiguration) {
+    // TODO: Somehow attach this to `connection`, so we dont have race conditions
+    //       where we read `self.mirrorMode` for an old Frame in `getMediaSampleMetadata`
+    self.mirrorMode = config.mirrorMode
+
+    // Apply output-level settings here (safe: called after the output is attached to the session)
     output.videoSettings = videoSettingsForPixelFormat(options.pixelFormat)
     // If the pipeline stalls, drop frames to avoid blowing up RAM
     output.alwaysDiscardsLateVideoFrames = options.dropFramesWhileBusy
@@ -74,12 +88,6 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       // We don't need HDR metadata, as that's only useful for encoders.
       output.preservesDynamicHDRMetadata = false
     }
-  }
-
-  func configure(config: CameraOutputConfiguration) {
-    // TODO: Somehow attach this to `connection`, so we dont have race conditions
-    //       where we read `self.mirrorMode` for an old Frame in `getMediaSampleMetadata`
-    self.mirrorMode = config.mirrorMode
 
     guard let connection = output.connection(with: .video) else {
       return
