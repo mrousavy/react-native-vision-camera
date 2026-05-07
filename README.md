@@ -35,7 +35,7 @@ npm i react-native-vision-camera
 cd ios && pod install
 ```
 
-..and get started by [setting up permissions](https://react-native-vision-camera.com/docs/guides)!
+..and get started by [setting up permissions](https://visioncamera.margelo.com/docs)!
 
 ### Documentation
 

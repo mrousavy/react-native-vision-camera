@@ -18,7 +18,7 @@ body:
       options:
         - label: I have read and followed every applicable step in the [Nitro Modules Troubleshooting guide](https://nitro.margelo.com/docs/guides/troubleshooting).
           required: true
-        - label: I have read the [VisionCamera Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting).
+        - label: I have read the [VisionCamera Troubleshooting guide](https://visioncamera.margelo.com/docs).
           required: true
         - label: I have searched [existing issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue) and found nothing matching.
           required: true
