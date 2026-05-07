@@ -18,13 +18,19 @@ public extension RecorderSettings {
   /**
    * Create a new instance of `RecorderSettings`.
    */
-  init(location: (any HybridLocationSpec)?, maxDuration: Double?, maxFileSize: Double?) {
+  init(location: (any HybridLocationSpec)?, filePath: String?, maxDuration: Double?, maxFileSize: Double?) {
     self.init({ () -> bridge.std__optional_std__shared_ptr_HybridLocationSpec__ in
       if let __unwrappedValue = location {
         return bridge.create_std__optional_std__shared_ptr_HybridLocationSpec__({ () -> bridge.std__shared_ptr_HybridLocationSpec_ in
           let __cxxWrapped = __unwrappedValue.getCxxWrapper()
           return __cxxWrapped.getCxxPart()
         }())
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_std__string_ in
+      if let __unwrappedValue = filePath {
+        return bridge.create_std__optional_std__string_(std.string(__unwrappedValue))
       } else {
         return .init()
       }
@@ -53,6 +59,18 @@ public extension RecorderSettings {
           let __instance = HybridLocationSpec_cxx.fromUnsafe(__unsafePointer)
           return __instance.getHybridLocationSpec()
         }()
+      } else {
+        return nil
+      }
+    }()
+  }
+  
+  @inline(__always)
+  var filePath: String? {
+    return { () -> String? in
+      if bridge.has_value_std__optional_std__string_(self.__filePath) {
+        let __unwrapped = bridge.get_std__optional_std__string_(self.__filePath)
+        return String(__unwrapped)
       } else {
         return nil
       }

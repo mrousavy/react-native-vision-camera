@@ -145,8 +145,14 @@ class HybridVideoOutput(
   @SuppressLint("MissingPermission")
   override fun createRecorder(settings: RecorderSettings): Promise<HybridRecorderSpec> {
     return Promise.async {
-      // Create .mp4 file in temp directory
-      val file = File.createTempFile("VisionCamera_", "mp4")
+      val file =
+        if (settings.filePath != null) {
+          File(settings.filePath)
+        } else {
+          // Create .mp4 file in temp directory
+          File.createTempFile("VisionCamera_", "mp4")
+        }
+      file.parentFile?.mkdirs()
 
       // Prepare output options
       val fileOutputOptions =

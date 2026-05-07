@@ -144,6 +144,12 @@ export interface RecorderSettings {
    */
   location?: Location
   /**
+   * The absolute path where the recording file should be written.
+   *
+   * If omitted, the recording will be written to a temporary file.
+   */
+  filePath?: string;
+  /**
    * If set, the recording automatically stops once it reaches
    * this duration, in seconds.
    *
@@ -210,8 +216,9 @@ export interface CameraVideoOutput extends CameraOutput {
    * Creates and prepares a new {@linkcode Recorder}
    * instance with the given {@linkcode RecorderSettings}.
    *
-   * The {@linkcode Recorder} will record to a temporary
-   * file, and can only record once.
+   * The {@linkcode Recorder} will record to the configured
+   * file path, or to a temporary file if no path was provided.
+   * It can only record once.
    *
    * If you want to create a second recording,
    * you must create a new {@linkcode Recorder}.
