@@ -144,9 +144,14 @@ export interface RecorderSettings {
    */
   location?: Location
   /**
-   * The absolute path where the recording file should be written.
-   *
-   * If omitted, the recording will be written to a temporary file.
+   * The absolute path (including file name and extension) where
+   * the recording file should be written to, or `undefined` to
+   * create a file in the device's temporary directory.
+   * 
+   * All parent directories in this {@linkcode filePath} will
+   * be automatically created if they do not yet exist.
+   * 
+   * @default undefined
    */
   filePath?: string
   /**
