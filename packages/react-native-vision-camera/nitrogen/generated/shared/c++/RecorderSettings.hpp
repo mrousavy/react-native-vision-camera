@@ -34,6 +34,7 @@ namespace margelo::nitro::camera { class HybridLocationSpec; }
 #include <memory>
 #include "HybridLocationSpec.hpp"
 #include <optional>
+#include <string>
 
 namespace margelo::nitro::camera {
 
@@ -43,12 +44,13 @@ namespace margelo::nitro::camera {
   struct RecorderSettings final {
   public:
     std::optional<std::shared_ptr<HybridLocationSpec>> location     SWIFT_PRIVATE;
+    std::optional<std::string> filePath     SWIFT_PRIVATE;
     std::optional<double> maxDuration     SWIFT_PRIVATE;
     std::optional<double> maxFileSize     SWIFT_PRIVATE;
 
   public:
     RecorderSettings() = default;
-    explicit RecorderSettings(std::optional<std::shared_ptr<HybridLocationSpec>> location, std::optional<double> maxDuration, std::optional<double> maxFileSize): location(location), maxDuration(maxDuration), maxFileSize(maxFileSize) {}
+    explicit RecorderSettings(std::optional<std::shared_ptr<HybridLocationSpec>> location, std::optional<std::string> filePath, std::optional<double> maxDuration, std::optional<double> maxFileSize): location(location), filePath(filePath), maxDuration(maxDuration), maxFileSize(maxFileSize) {}
 
   public:
     friend bool operator==(const RecorderSettings& lhs, const RecorderSettings& rhs) = default;
@@ -65,6 +67,7 @@ namespace margelo::nitro {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::camera::RecorderSettings(
         JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "location"))),
+        JSIConverter<std::optional<std::string>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filePath"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxDuration"))),
         JSIConverter<std::optional<double>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxFileSize")))
       );
@@ -72,6 +75,7 @@ namespace margelo::nitro {
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::camera::RecorderSettings& arg) {
       jsi::Object obj(runtime);
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "location"), JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::toJSI(runtime, arg.location));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "filePath"), JSIConverter<std::optional<std::string>>::toJSI(runtime, arg.filePath));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "maxDuration"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.maxDuration));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "maxFileSize"), JSIConverter<std::optional<double>>::toJSI(runtime, arg.maxFileSize));
       return obj;
@@ -85,6 +89,7 @@ namespace margelo::nitro {
         return false;
       }
       if (!JSIConverter<std::optional<std::shared_ptr<margelo::nitro::camera::HybridLocationSpec>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "location")))) return false;
+      if (!JSIConverter<std::optional<std::string>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "filePath")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxDuration")))) return false;
       if (!JSIConverter<std::optional<double>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "maxFileSize")))) return false;
       return true;

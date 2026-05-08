@@ -23,7 +23,16 @@ class HybridVideoRecorder: HybridRecorderSpec {
   ) throws {
     self.videoOutput = videoOutput
     self.queue = queue
-    self.fileURL = try URL.createTempURL(fileType: fileType.toUTType())
+    if let customFilePath = settings.filePath {
+      self.fileURL = URL(fileURLWithPath: customFilePath)
+    } else {
+      self.fileURL = try URL.createTempURL(fileType: fileType.toUTType())
+    }
+    // Create all parent directories if they don't exist yet.
+    try FileManager.default.createDirectory(
+      at: self.fileURL.deletingLastPathComponent(),
+      withIntermediateDirectories: true
+    )
     self.settings = settings
     super.init()
   }

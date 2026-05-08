@@ -38,6 +38,7 @@ namespace margelo::nitro::camera { enum class CameraOrientation; }
 #include "JRecorderSettings.hpp"
 #include "HybridLocationSpec.hpp"
 #include "JHybridLocationSpec.hpp"
+#include <string>
 #include "MediaType.hpp"
 #include "JMediaType.hpp"
 #include "CameraOrientation.hpp"

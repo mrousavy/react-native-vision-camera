@@ -23,6 +23,9 @@ data class RecorderSettings(
   val location: HybridLocationSpec?,
   @DoNotStrip
   @Keep
+  val filePath: String?,
+  @DoNotStrip
+  @Keep
   val maxDuration: Double?,
   @DoNotStrip
   @Keep
@@ -34,6 +37,7 @@ data class RecorderSettings(
     if (this === other) return true
     if (other !is RecorderSettings) return false
     return Objects.deepEquals(this.location, other.location)
+      && Objects.deepEquals(this.filePath, other.filePath)
       && Objects.deepEquals(this.maxDuration, other.maxDuration)
       && Objects.deepEquals(this.maxFileSize, other.maxFileSize)
   }
@@ -41,6 +45,7 @@ data class RecorderSettings(
   override fun hashCode(): Int {
     return arrayOf(
       location,
+      filePath,
       maxDuration,
       maxFileSize
     ).contentDeepHashCode()
@@ -54,8 +59,8 @@ data class RecorderSettings(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(location: HybridLocationSpec?, maxDuration: Double?, maxFileSize: Double?): RecorderSettings {
-      return RecorderSettings(location, maxDuration, maxFileSize)
+    private fun fromCpp(location: HybridLocationSpec?, filePath: String?, maxDuration: Double?, maxFileSize: Double?): RecorderSettings {
+      return RecorderSettings(location, filePath, maxDuration, maxFileSize)
     }
   }
 }

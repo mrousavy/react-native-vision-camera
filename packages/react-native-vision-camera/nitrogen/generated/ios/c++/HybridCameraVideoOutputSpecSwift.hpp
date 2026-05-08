@@ -34,6 +34,7 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpecSwift; }
 #include "HybridRecorderSpec.hpp"
 #include "RecorderSettings.hpp"
 #include "HybridLocationSpec.hpp"
+#include <string>
 #include "HybridCameraOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
