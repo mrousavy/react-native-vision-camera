@@ -148,7 +148,7 @@ export interface RecorderSettings {
    *
    * If omitted, the recording will be written to a temporary file.
    */
-  filePath?: string;
+  filePath?: string
   /**
    * If set, the recording automatically stops once it reaches
    * this duration, in seconds.
