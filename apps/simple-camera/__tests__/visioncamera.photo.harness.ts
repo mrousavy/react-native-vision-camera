@@ -63,6 +63,49 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
+  it('saves a JPEG Photo to a temporary file after converting it to an Image', async () => {
+    // Regression: on Android, `toImageAsync()` goes through CameraX's
+    // `jpegImageToJpegByteArray`, which advances the JPEG plane's `ByteBuffer`
+    // position to `capacity`. The plane buffer is shared across reads (Android's
+    // `ImageReader` caches the same `ByteBuffer` instance), so a subsequent
+    // `saveToTemporaryFileAsync()` that reads `buffer.remaining()` would write a
+    // 0-byte file, and `ExifInterface.saveAttributes()` would then throw
+    // "ExifInterface only supports saving attributes for JPEG, PNG, and WebP
+    // formats" because it cannot sniff the MIME type of an empty file.
+    // See `HybridPhoto.kt#saveToFile`.
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.9,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    const photo = await photoOutput.capturePhoto(
+      { flashMode: 'off', enableShutterSound: false },
+      {},
+    )
+
+    const image = await photo.toImageAsync()
+    expect(image.width).toBeGreaterThan(0)
+    expect(image.height).toBeGreaterThan(0)
+    image.dispose()
+
+    const path = await photo.saveToTemporaryFileAsync()
+    expect(path.length).toBeGreaterThan(0)
+    photo.dispose()
+
+    await session.stop()
+  })
+
   // TODO: Re-enable once VisionCamera exposes a way to query supported photo
   //       container formats upfront (see the TODO in CameraPhotoOutput.nitro.ts
   //       near `TargetPhotoContainerFormat`). Without that API there is no

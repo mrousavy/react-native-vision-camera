@@ -91,7 +91,12 @@ class HybridPhoto(
         // JPEG Images have a single plane of image data.
         val plane = image.planes.single()
         val buffer = plane.buffer
-        val bytes = ByteArray(buffer.remaining()).also { bytes -> buffer.get(bytes) }
+        // The ByteBuffer is shared and cached by Android's ImageReader, so other readers
+        // (e.g. `image.toBitmap()` via `toImage()`) may have advanced its position to the end.
+        // Rewind so we read all bytes from the start instead of writing an empty file.
+        buffer.rewind()
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
         FileOutputStream(file).use { stream ->
           stream.write(bytes)
         }
