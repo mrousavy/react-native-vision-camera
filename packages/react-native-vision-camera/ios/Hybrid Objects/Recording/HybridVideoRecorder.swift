@@ -28,6 +28,7 @@ class HybridVideoRecorder: HybridRecorderSpec {
     } else {
       self.fileURL = try URL.createTempURL(fileType: fileType.toUTType())
     }
+    // Create all parent directories if they don't exist yet.
     try FileManager.default.createDirectory(
       at: self.fileURL.deletingLastPathComponent(),
       withIntermediateDirectories: true
