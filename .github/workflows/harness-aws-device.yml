@@ -63,6 +63,8 @@ env:
   HARNESS_IOS_APP_BUILD_OUTPUT: apps/simple-camera/ios/build/devicefarm/SimpleCamera.ipa
   HARNESS_IOS_DERIVED_DATA_OUTPUT: apps/simple-camera/ios/build/devicefarm/DerivedData
   HARNESS_IOS_IPA_ARTIFACT_NAME: harness-ios-ipa
+  HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME: harness-xctest-agent-ipa
+  HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH: apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentUITests.ipa
   HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT: devicefarm-test-package.zip
   HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
   HARNESS_ANDROID_DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'arm64-v8a' }}
@@ -405,6 +407,51 @@ jobs:
             zip -qry "$GITHUB_WORKSPACE/$IPA_PATH" Payload
           )
 
+      - name: Build Harness XCTest UI runner IPA
+        run: |
+          set -euo pipefail
+
+          PLATFORM_PACKAGE_JSON="$(node -p "require.resolve('@react-native-harness/platform-apple/package.json')")"
+          PLATFORM_APPLE_ROOT="$(dirname "$PLATFORM_PACKAGE_JSON")"
+
+          DERIVED_DATA="apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentDerivedData"
+          IPA_PATH="apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentUITests.ipa"
+          PROJECT_PATH="$PLATFORM_APPLE_ROOT/xctest-agent/HarnessXCTestAgent.xcodeproj"
+
+          PAYLOAD_ROOT="$(mktemp -d)"
+          PAYLOAD_DIR="$PAYLOAD_ROOT/Payload"
+
+          rm -rf "$DERIVED_DATA" "$IPA_PATH"
+          mkdir -p "$DERIVED_DATA" "$(dirname "$IPA_PATH")" "$PAYLOAD_DIR"
+
+          xcodebuild \
+            -project "$PROJECT_PATH" \
+            -scheme HarnessXCTestAgent \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            -derivedDataPath "$DERIVED_DATA" \
+            -showBuildTimingSummary \
+            build-for-testing \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            DEVELOPMENT_TEAM= \
+            COMPILER_INDEX_STORE_ENABLE=NO | xcbeautify --renderer github-actions
+
+          RUNNER_APP="$(find "$DERIVED_DATA/Build/Products/Debug-iphoneos" -maxdepth 1 -type d -name '*UITests-Runner.app' -print -quit)"
+          test -n "$RUNNER_APP"
+          test -d "$RUNNER_APP"
+
+          cp -R "$RUNNER_APP" "$PAYLOAD_DIR/"
+
+          (
+            cd "$PAYLOAD_ROOT"
+            zip -qry "$GITHUB_WORKSPACE/$IPA_PATH" Payload
+          )
+
+          test -f "$IPA_PATH"
+
       - name: Save DerivedData cache
         if: steps.cache-deriveddata-restore.outputs.cache-hit != 'true' && success()
         uses: actions/cache/save@v4
@@ -420,6 +467,14 @@ jobs:
         with:
           name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Harness XCTest UI runner IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
           if-no-files-found: error
           retention-days: 7
 
@@ -463,6 +518,17 @@ jobs:
           content-type: application/octet-stream
           upload-name: simple-camera-${{ github.run_id }}-${{ github.run_attempt }}.ipa
 
+      - name: Upload Harness XCTest UI runner IPA to AWS Device Farm
+        id: upload-xctest-runner
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
+          upload-type: IOS_APP
+          content-type: application/octet-stream
+          upload-name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}-${{ github.run_id }}-${{ github.run_attempt }}.ipa
+
       - name: Schedule Device Farm iOS Automated Test
         id: run-test
         uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
@@ -473,6 +539,11 @@ jobs:
               "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
               "appArn": "${{ steps.upload-ipa.outputs['upload-arn'] }}",
               "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN }}",
+              "configuration": {
+                "auxiliaryApps": [
+                  "${{ steps.upload-xctest-runner.outputs['upload-arn'] }}"
+                ]
+              },
               "test": {
                 "type": "APPIUM_NODE",
                 "testPackageArn": "${{ needs.prepare-devicefarm-assets.outputs.test_package_arn }}",
