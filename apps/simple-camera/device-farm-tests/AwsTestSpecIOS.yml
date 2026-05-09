@@ -37,9 +37,9 @@ phases:
       - |
         set -euo pipefail
 
-        METRO_HOST_IP="$(ifconfig utun1 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}')"
+        METRO_HOST_IP="$(ifconfig utun1 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}' || true)"
         if [ -z "$METRO_HOST_IP" ]; then
-          METRO_HOST_IP="$(ifconfig utun0 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}')"
+          METRO_HOST_IP="$(ifconfig utun0 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}' || true)"
         fi
 
         METRO_HOST_IP="${METRO_HOST_IP%%%*}"
