@@ -1,3 +1,71 @@
+diff --git a/README.md b/README.md
+index 4046b69619f5770d26353894eeb02b15bd8baedc..497e8d97982c3b4391e4d8ecfa6b4bb382ba371c 100644
+--- a/README.md
++++ b/README.md
+@@ -68,13 +68,15 @@ Creates an iOS simulator device configuration.
+ - `deviceName` - Name of the iOS simulator (e.g., 'iPhone 16 Pro Max')
+ - `osVersion` - iOS version (e.g., '18.0')
+ 
+-### `applePhysicalDevice(deviceName)`
++### `applePhysicalDevice(deviceNameOrId)`
+ 
+ Creates a physical Apple device configuration.
+ 
+ **Parameters:**
+ 
+-- `deviceName` - Name of the physical device (e.g., 'iPhone (Your Name)')
++- `deviceNameOrId` - Name, CoreDevice identifier, or hardware UDID of the
++  physical device (e.g., 'iPhone (Your Name)' or
++  '6954F636-D116-52FA-9D00-8298BBB63705')
+ 
+ ## Requirements
+ 
+diff --git a/dist/xcrun/devicectl.d.ts b/dist/xcrun/devicectl.d.ts
+index 14a80c74f1dc73972db8a75325bb3883760f667e..140217054d1744ce725da5a3986752ad2e7824bf 100644
+--- a/dist/xcrun/devicectl.d.ts
++++ b/dist/xcrun/devicectl.d.ts
+@@ -62,8 +62,9 @@ export declare const copyFileFrom: (identifier: string, options: {
+     domainType: "systemCrashLogs";
+ }) => Promise<void>;
+ export declare const stopApp: (identifier: string, bundleId: string) => Promise<void>;
+-export declare const getDevice: (name: string) => Promise<AppleDeviceInfo | null>;
+-export declare const getDeviceId: (name: string) => Promise<string | null>;
++export declare const isMatchingDevice: (device: AppleDeviceInfo, identifier: string) => boolean;
++export declare const getDevice: (identifier: string) => Promise<AppleDeviceInfo | null>;
++export declare const getDeviceId: (identifier: string) => Promise<string | null>;
+ export declare const isAppRunning: (identifier: string, bundleId: string) => Promise<boolean>;
+ export {};
+ //# sourceMappingURL=devicectl.d.ts.map
+\ No newline at end of file
+diff --git a/dist/xcrun/devicectl.js b/dist/xcrun/devicectl.js
+index afe05044f103f10ecdb057ee0ec58f9425f96981..34d4cefc4d43a8433a235a3bee7eabfac70a3738 100644
+--- a/dist/xcrun/devicectl.js
++++ b/dist/xcrun/devicectl.js
+@@ -172,12 +172,20 @@ export const stopApp = async (identifier, bundleId) => {
+         process.processIdentifier.toString(),
+     ]);
+ };
+-export const getDevice = async (name) => {
++export const isMatchingDevice = (device, identifier) => {
++    return (device.deviceProperties.name === identifier ||
++        device.identifier === identifier ||
++        device.hardwareProperties.udid === identifier);
++};
++export const getDevice = async (identifier) => {
+     const devices = await listDevices();
+-    return (devices.find((device) => device.deviceProperties.name === name) ?? null);
++    const matchingDevice = devices.find((device) => {
++        return isMatchingDevice(device, identifier);
++    });
++    return matchingDevice ?? null;
+ };
+-export const getDeviceId = async (name) => {
+-    const device = await getDevice(name);
++export const getDeviceId = async (identifier) => {
++    const device = await getDevice(identifier);
+     return device?.identifier ?? null;
+ };
+ export const isAppRunning = async (identifier, bundleId) => {
 diff --git a/dist/xctest-agent.js b/dist/xctest-agent.js
 index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a93e31d8f 100644
 --- a/dist/xctest-agent.js
@@ -82,6 +150,93 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a
              '-destination',
              getXCTestAgentRunDestination(target),
              '-parallel-testing-enabled',
+diff --git a/src/__tests__/launch-options.test.ts b/src/__tests__/launch-options.test.ts
+index 1e4e058385e227ea9c7ef9f19de7d0e737e2c4bc..b5bc63c862fe360f4599485df4b4dcf5b1611564 100644
+--- a/src/__tests__/launch-options.test.ts
++++ b/src/__tests__/launch-options.test.ts
+@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
+ import {
+   getDeviceConnectionHost,
+   getDeviceCtlLaunchArgs,
++  isMatchingDevice,
+ } from '../xcrun/devicectl.js';
+ import { getSimctlChildEnvironment } from '../xcrun/simctl.js';
+ 
+@@ -62,4 +63,31 @@ describe('Apple app launch options', () => {
+       })
+     ).toBe('fd12:3456:789a::1');
+   });
++
++  it('matches physical devices by name, CoreDevice identifier, or hardware UDID', () => {
++    const device = {
++      identifier: '6954F636-D116-52FA-9D00-8298BBB63705',
++      deviceProperties: {
++        name: 'G22RJQXC3V',
++        osVersionNumber: '26.0',
++      },
++      hardwareProperties: {
++        marketingName: 'iPhone',
++        productType: 'iPhone17,1',
++        udid: '00008140-001600222422201C',
++      },
++    };
++    const matchesName = isMatchingDevice(device, 'G22RJQXC3V');
++    const matchesIdentifier = isMatchingDevice(
++      device,
++      '6954F636-D116-52FA-9D00-8298BBB63705'
++    );
++    const matchesUdid = isMatchingDevice(device, '00008140-001600222422201C');
++    const matchesUnknownName = isMatchingDevice(device, 'Unknown iPhone');
++
++    expect(matchesName).toBe(true);
++    expect(matchesIdentifier).toBe(true);
++    expect(matchesUdid).toBe(true);
++    expect(matchesUnknownName).toBe(false);
++  });
+ });
+diff --git a/src/xcrun/devicectl.ts b/src/xcrun/devicectl.ts
+index 6269a237e15f83ea9bb574255cec99fd6ce09d0c..521951e5aa376f5ffeb6ae7f992f0e76df540313 100644
+--- a/src/xcrun/devicectl.ts
++++ b/src/xcrun/devicectl.ts
+@@ -331,17 +331,32 @@ export const stopApp = async (
+   ]);
+ };
+ 
++export const isMatchingDevice = (
++  device: AppleDeviceInfo,
++  identifier: string
++): boolean => {
++  return (
++    device.deviceProperties.name === identifier ||
++    device.identifier === identifier ||
++    device.hardwareProperties.udid === identifier
++  );
++};
++
+ export const getDevice = async (
+-  name: string
++  identifier: string
+ ): Promise<AppleDeviceInfo | null> => {
+   const devices = await listDevices();
+-  return (
+-    devices.find((device) => device.deviceProperties.name === name) ?? null
+-  );
++  const matchingDevice = devices.find((device) => {
++    return isMatchingDevice(device, identifier);
++  });
++
++  return matchingDevice ?? null;
+ };
+ 
+-export const getDeviceId = async (name: string): Promise<string | null> => {
+-  const device = await getDevice(name);
++export const getDeviceId = async (
++  identifier: string
++): Promise<string | null> => {
++  const device = await getDevice(identifier);
+   return device?.identifier ?? null;
+ };
+ 
 diff --git a/src/xctest-agent.ts b/src/xctest-agent.ts
 index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d53e0f6f3a 100644
 --- a/src/xctest-agent.ts
