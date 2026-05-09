@@ -34,6 +34,12 @@ const iosSimulatorName = process.env.HARNESS_IOS_SIMULATOR ?? 'iPhone 16 Pro'
 const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.5'
 const iosPhysicalDeviceIdentifier =
   process.env.HARNESS_IOS_DEVICE_ID?.trim() || 'iPhone'
+const iosDevelopmentTeam =
+  process.env.HARNESS_IOS_DEVELOPMENT_TEAM?.trim() ?? ''
+const iosCodeSignIdentity =
+  process.env.HARNESS_IOS_CODE_SIGN_IDENTITY?.trim() ?? ''
+const iosProvisioningProfile =
+  process.env.HARNESS_IOS_PROVISIONING_PROFILE?.trim() ?? ''
 const iosMetroHostInput = process.env.HARNESS_IOS_METRO_HOST?.trim() ?? ''
 const iosMetroPort = process.env.HARNESS_IOS_METRO_PORT ?? '8081'
 
@@ -88,9 +94,31 @@ const androidDevice = useEmulator
     })
   : physicalAndroidDevice(androidPhysicalManufacturer, androidPhysicalModel)
 
-const iosDevice = isCI
-  ? applePhysicalDevice(iosPhysicalDeviceIdentifier)
-  : appleSimulator(iosSimulatorName, iosSimulatorVersion)
+const iosPhysicalDeviceOptions = {}
+if (iosDevelopmentTeam !== '') {
+  iosPhysicalDeviceOptions.codeSign = {
+    teamId: iosDevelopmentTeam,
+  }
+
+  if (iosCodeSignIdentity !== '') {
+    iosPhysicalDeviceOptions.codeSign.signingIdentity = iosCodeSignIdentity
+  }
+
+  if (iosProvisioningProfile !== '') {
+    iosPhysicalDeviceOptions.codeSign.provisioningProfile =
+      iosProvisioningProfile
+  }
+}
+
+let iosDevice
+if (isCI) {
+  iosDevice = applePhysicalDevice(
+    iosPhysicalDeviceIdentifier,
+    iosPhysicalDeviceOptions,
+  )
+} else {
+  iosDevice = appleSimulator(iosSimulatorName, iosSimulatorVersion)
+}
 
 const config = {
   entryPoint: './index.js',

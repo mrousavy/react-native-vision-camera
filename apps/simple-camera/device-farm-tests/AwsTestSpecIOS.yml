@@ -16,6 +16,7 @@ phases:
     commands:
       - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
       - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
+      - HARNESS_SIGNING_ENV="$WORKING_DIRECTORY/harness-ios-signing.env"
 
       # Resolve host IPv6 for Metro. On macOS runners IPv4 won't work, as
       # confirmed by AWS support. AWS recommends utun interfaces for this.
@@ -36,12 +37,88 @@ phases:
         echo "Using Metro host IPv6 for iOS harness: ${METRO_HOST_IP}"
         echo "$METRO_HOST_IP" > "$WORKING_DIRECTORY/metro-host-ip.txt"
 
+      # Inspect whether Device Farm exposes signing material we can reuse for
+      # the XCTest runner that Harness builds dynamically.
+      - |
+        set -euo pipefail
+
+        : > "$HARNESS_SIGNING_ENV"
+
+        echo "Available code signing identities:"
+        security find-identity -v -p codesigning || true
+
+        echo "Device Farm app path: ${DEVICEFARM_APP_PATH:-<unset>}"
+
+        APP_PROFILE=""
+        if [ -n "${DEVICEFARM_APP_PATH:-}" ] && [ -d "$DEVICEFARM_APP_PATH" ]; then
+          APP_PROFILE="$DEVICEFARM_APP_PATH/embedded.mobileprovision"
+        elif [ -n "${DEVICEFARM_APP_PATH:-}" ] && [ -f "$DEVICEFARM_APP_PATH" ]; then
+          APP_UNZIP_DIR="$(mktemp -d)"
+          unzip -q "$DEVICEFARM_APP_PATH" -d "$APP_UNZIP_DIR" || true
+          APP_PROFILE="$(find "$APP_UNZIP_DIR/Payload" -path "*.app/embedded.mobileprovision" -print -quit 2>/dev/null || true)"
+        fi
+
+        TEAM_ID=""
+        if [ -n "$APP_PROFILE" ] && [ -f "$APP_PROFILE" ]; then
+          APP_PROFILE_PLIST="$(mktemp)"
+          if security cms -D -i "$APP_PROFILE" > "$APP_PROFILE_PLIST" 2>/dev/null; then
+            TEAM_ID="$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
+            APP_PROFILE_NAME="$(/usr/libexec/PlistBuddy -c "Print :Name" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
+            APP_PROFILE_ID="$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
+            echo "Device Farm app profile: ${APP_PROFILE_NAME:-unknown} team=${TEAM_ID:-unknown} app=${APP_PROFILE_ID:-unknown}"
+          fi
+          rm -f "$APP_PROFILE_PLIST"
+        fi
+
+        PROFILES_LIST="$WORKING_DIRECTORY/provisioning-profiles.txt"
+        find \
+          "$HOME/Library/MobileDevice/Provisioning Profiles" \
+          "/Library/MobileDevice/Provisioning Profiles" \
+          -name "*.mobileprovision" \
+          -print 2>/dev/null | sort > "$PROFILES_LIST" || true
+
+        PROFILE_COUNT="$(wc -l < "$PROFILES_LIST" | tr -d ' ')"
+        echo "Found ${PROFILE_COUNT} provisioning profile(s)."
+
+        while IFS= read -r PROFILE_PATH; do
+          [ -n "$PROFILE_PATH" ] || continue
+
+          PROFILE_PLIST="$(mktemp)"
+          if ! security cms -D -i "$PROFILE_PATH" > "$PROFILE_PLIST" 2>/dev/null; then
+            rm -f "$PROFILE_PLIST"
+            continue
+          fi
+
+          PROFILE_TEAM_ID="$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$PROFILE_PLIST" 2>/dev/null || true)"
+          PROFILE_DISPLAY_NAME="$(/usr/libexec/PlistBuddy -c "Print :Name" "$PROFILE_PLIST" 2>/dev/null || true)"
+          PROFILE_APP_ID="$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$PROFILE_PLIST" 2>/dev/null || true)"
+
+          echo "Provisioning profile: ${PROFILE_DISPLAY_NAME:-unknown} team=${PROFILE_TEAM_ID:-unknown} app=${PROFILE_APP_ID:-unknown}"
+
+          if [ -z "$TEAM_ID" ] && [ -n "$PROFILE_TEAM_ID" ]; then
+            TEAM_ID="$PROFILE_TEAM_ID"
+          fi
+
+          rm -f "$PROFILE_PLIST"
+        done < "$PROFILES_LIST"
+
+        if [ -n "$TEAM_ID" ]; then
+          echo "Using iOS signing team for Harness XCTest agent: ${TEAM_ID}"
+          echo "HARNESS_IOS_DEVELOPMENT_TEAM=$TEAM_ID" >> "$HARNESS_SIGNING_ENV"
+        else
+          echo "No iOS development team found for Harness XCTest agent signing."
+        fi
+
       # Actually run the JS Harness tests. Harness owns the XCTest agent
       # lifecycle and builds it without signing when no codeSign config exists.
       - |
         set -euo pipefail
 
         : "${DEVICEFARM_DEVICE_UDID:?Missing DEVICEFARM_DEVICE_UDID. Device Farm must provide the physical iOS device UDID.}"
+
+        set -a
+        . "$HARNESS_SIGNING_ENV"
+        set +a
 
         cd apps/simple-camera
 
