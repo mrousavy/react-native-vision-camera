@@ -51,56 +51,12 @@ phases:
         echo "Using Metro host IPv6 for iOS harness: ${METRO_HOST_IP}"
         echo "$METRO_HOST_IP" > "$WORKING_DIRECTORY/metro-host-ip.txt"
 
-      # Find the physical device connected to this runner.
-      - |
-        set -euo pipefail
-
-        IOS_DEVICE_UDID="${DEVICEFARM_DEVICE_UDID:-${DEVICEFARM_DEVICE_NAME:-}}"
-        IOS_DEVICES_JSON="$(mktemp)"
-        xcrun devicectl list devices --json-output "$IOS_DEVICES_JSON"
-
-        IOS_DEVICE_NAME="$(
-          IOS_DEVICE_UDID="$IOS_DEVICE_UDID" node - "$IOS_DEVICES_JSON" <<'NODE'
-        const fs = require('node:fs')
-
-        const jsonPath = process.argv[2]
-        const rawJson = fs.readFileSync(jsonPath, 'utf8')
-        const payload = JSON.parse(rawJson)
-        const devices = payload.result.devices
-        const udid = process.env.IOS_DEVICE_UDID || ''
-
-        let selected = null
-        for (const device of devices) {
-          if (device.identifier === udid) {
-            selected = device
-            break
-          }
-        }
-
-        if (selected == null && devices.length > 0) {
-          selected = devices[0]
-        }
-
-        if (selected == null) {
-          process.exit(1)
-        }
-
-        const name = selected.deviceProperties.name
-        if (!name) {
-          process.exit(1)
-        }
-
-        process.stdout.write(name)
-        NODE
-        )"
-
-        echo "$IOS_DEVICE_NAME" > "$WORKING_DIRECTORY/ios-device-name.txt"
-        echo "Resolved Device Farm iOS device for harness: ${IOS_DEVICE_NAME} (${IOS_DEVICE_UDID:-unknown-udid})"
-
       # Actually run the JS Harness tests. Harness owns the XCTest agent
       # lifecycle, but uses AWS's generated .xctestrun instead of building one.
       - |
-        set -o pipefail
+        set -euo pipefail
+
+        : "${DEVICEFARM_DEVICE_UDID:?Missing DEVICEFARM_DEVICE_UDID. Device Farm must provide the physical iOS device UDID.}"
 
         cd "$WORKING_DIRECTORY/react-native-vision-camera/apps/simple-camera"
 
@@ -108,7 +64,7 @@ phases:
           HARNESS_IOS_XCTEST_DERIVED_DATA_PATH="$DEVICEFARM_DERIVED_DATA_PATH" \
           HARNESS_METRO_BIND_HOST="::" \
           HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" \
-          HARNESS_IOS_DEVICE_NAME="$(cat "$WORKING_DIRECTORY/ios-device-name.txt")" \
+          HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
           HARNESS_DETECT_NATIVE_CRASHES=false \
           CI=true \
           JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" \
