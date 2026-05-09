@@ -32,7 +32,8 @@ const iosBundleId =
   process.env.HARNESS_IOS_BUNDLE_ID ?? 'com.margelo.nitro.camera.example.simple'
 const iosSimulatorName = process.env.HARNESS_IOS_SIMULATOR ?? 'iPhone 16 Pro'
 const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.5'
-const iosPhysicalDeviceName = process.env.HARNESS_IOS_DEVICE_NAME ?? 'iPhone'
+const iosPhysicalDeviceIdentifier =
+  process.env.HARNESS_IOS_DEVICE_ID?.trim() || 'iPhone'
 const iosMetroHostInput = process.env.HARNESS_IOS_METRO_HOST?.trim() ?? ''
 const iosMetroPort = process.env.HARNESS_IOS_METRO_PORT ?? '8081'
 
@@ -88,11 +89,11 @@ const androidDevice = useEmulator
   : physicalAndroidDevice(androidPhysicalManufacturer, androidPhysicalModel)
 
 const iosDevice = isCI
-  ? applePhysicalDevice(iosPhysicalDeviceName, {
-    codeSign: {
-      teamId: 'LC6XSNN25D'
-    }
-  })
+  ? applePhysicalDevice(iosPhysicalDeviceIdentifier, {
+      codeSign: {
+        teamId: 'TheTeamHereDoesntMatterOnCiButWeHaveToPassItStillIthink',
+      },
+    })
   : appleSimulator(iosSimulatorName, iosSimulatorVersion)
 
 const config = {
