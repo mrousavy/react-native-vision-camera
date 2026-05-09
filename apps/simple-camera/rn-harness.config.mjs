@@ -31,7 +31,7 @@ const androidDeviceMode =
 const iosBundleId =
   process.env.HARNESS_IOS_BUNDLE_ID ?? 'com.margelo.nitro.camera.example.simple'
 const iosSimulatorName = process.env.HARNESS_IOS_SIMULATOR ?? 'iPhone 16 Pro'
-const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.0'
+const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.5'
 const iosPhysicalDeviceName = process.env.HARNESS_IOS_DEVICE_NAME ?? 'iPhone'
 const iosMetroHostInput = process.env.HARNESS_IOS_METRO_HOST?.trim() ?? ''
 const iosMetroPort = process.env.HARNESS_IOS_METRO_PORT ?? '8081'
