@@ -14,9 +14,12 @@ phases:
 
   test:
     commands:
-      - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
-      - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
-      - HARNESS_SIGNING_ENV="$WORKING_DIRECTORY/harness-ios-signing.env"
+      - HARNESS_ARTIFACTS="$WORKING_DIRECTORY/harness-artifacts"
+      - HARNESS_JUNIT="$HARNESS_ARTIFACTS/harness-results.junit.xml"
+      - HARNESS_LOG="$HARNESS_ARTIFACTS/harness-output.log"
+      - HARNESS_SIGNING_ENV="$HARNESS_ARTIFACTS/harness-ios-signing.env"
+      - HARNESS_METRO_HOST_FILE="$HARNESS_ARTIFACTS/metro-host-ip.txt"
+      - mkdir -p "$HARNESS_ARTIFACTS"
 
       # Resolve host IPv6 for Metro. On macOS runners IPv4 won't work, as
       # confirmed by AWS support. AWS recommends utun interfaces for this.
@@ -35,7 +38,7 @@ phases:
         fi
 
         echo "Using Metro host IPv6 for iOS harness: ${METRO_HOST_IP}"
-        echo "$METRO_HOST_IP" > "$WORKING_DIRECTORY/metro-host-ip.txt"
+        echo "$METRO_HOST_IP" > "$HARNESS_METRO_HOST_FILE"
 
       # Inspect whether Device Farm exposes signing material we can reuse for
       # the XCTest runner that Harness builds dynamically.
@@ -70,7 +73,7 @@ phases:
           rm -f "$APP_PROFILE_PLIST"
         fi
 
-        PROFILES_LIST="$WORKING_DIRECTORY/provisioning-profiles.txt"
+        PROFILES_LIST="$HARNESS_ARTIFACTS/provisioning-profiles.txt"
         find \
           "$HOME/Library/MobileDevice/Provisioning Profiles" \
           "/Library/MobileDevice/Provisioning Profiles" \
@@ -123,7 +126,7 @@ phases:
         cd apps/simple-camera
 
         HARNESS_METRO_BIND_HOST="::" \
-          HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" \
+          HARNESS_IOS_METRO_HOST="$(cat "$HARNESS_METRO_HOST_FILE")" \
           HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
           HARNESS_DETECT_NATIVE_CRASHES=false \
           CI=true \
@@ -134,4 +137,4 @@ phases:
             --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
-  - $WORKING_DIRECTORY
+  - $WORKING_DIRECTORY/harness-artifacts
