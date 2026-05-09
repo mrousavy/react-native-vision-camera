@@ -10,22 +10,7 @@ phases:
       - xcodebuild -version
       - curl -fsSL https://bun.com/install | bash
       - xcrun devicectl list devices
-
-      # The XCTEST_UI package contains the Harness XCTest runner IPA and a
-      # repo archive. Unpack the repo so the Node/Bun Harness tests can run.
-      - |
-        set -euo pipefail
-
-        REPO_ARCHIVE="$DEVICEFARM_XCTEST_BUILD_DIRECTORY/react-native-vision-camera.zip"
-        HARNESS_REPO_ROOT="$WORKING_DIRECTORY/react-native-vision-camera"
-
-        test -f "$REPO_ARCHIVE"
-        rm -rf "$HARNESS_REPO_ROOT"
-        mkdir -p "$HARNESS_REPO_ROOT"
-        unzip -q "$REPO_ARCHIVE" -d "$HARNESS_REPO_ROOT"
-
-        cd "$HARNESS_REPO_ROOT"
-        ~/.bun/bin/bun install --frozen-lockfile
+      - ~/.bun/bin/bun install --frozen-lockfile
 
   test:
     commands:
@@ -52,17 +37,15 @@ phases:
         echo "$METRO_HOST_IP" > "$WORKING_DIRECTORY/metro-host-ip.txt"
 
       # Actually run the JS Harness tests. Harness owns the XCTest agent
-      # lifecycle, but uses AWS's generated .xctestrun instead of building one.
+      # lifecycle and builds it without signing when no codeSign config exists.
       - |
         set -euo pipefail
 
         : "${DEVICEFARM_DEVICE_UDID:?Missing DEVICEFARM_DEVICE_UDID. Device Farm must provide the physical iOS device UDID.}"
 
-        cd "$WORKING_DIRECTORY/react-native-vision-camera/apps/simple-camera"
+        cd apps/simple-camera
 
-        HARNESS_IOS_XCTESTRUN_FILE="$DEVICEFARM_XCUITESTRUN_FILE" \
-          HARNESS_IOS_XCTEST_DERIVED_DATA_PATH="$DEVICEFARM_DERIVED_DATA_PATH" \
-          HARNESS_METRO_BIND_HOST="::" \
+        HARNESS_METRO_BIND_HOST="::" \
           HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" \
           HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
           HARNESS_DETECT_NATIVE_CRASHES=false \

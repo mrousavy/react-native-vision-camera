@@ -89,11 +89,7 @@ const androidDevice = useEmulator
   : physicalAndroidDevice(androidPhysicalManufacturer, androidPhysicalModel)
 
 const iosDevice = isCI
-  ? applePhysicalDevice(iosPhysicalDeviceIdentifier, {
-      codeSign: {
-        teamId: 'TheTeamHereDoesntMatterOnCiButWeHaveToPassItStillIthink',
-      },
-    })
+  ? applePhysicalDevice(iosPhysicalDeviceIdentifier)
   : appleSimulator(iosSimulatorName, iosSimulatorVersion)
 
 const config = {
@@ -120,7 +116,7 @@ const config = {
   detectNativeCrashes,
   resetEnvironmentBetweenTestFiles: true,
   forwardClientLogs: true,
-  permissions: true
+  permissions: true,
 }
 
 export default config

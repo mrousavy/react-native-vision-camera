@@ -20,6 +20,29 @@ index 4046b69619f5770d26353894eeb02b15bd8baedc..497e8d97982c3b4391e4d8ecfa6b4bb3
  
  ## Requirements
  
+diff --git a/dist/instance.js b/dist/instance.js
+index e718bee0b4b4347eb66649b6e7c55ecaa337e55f..6b4145268f733a0381ecc097fdbd745527a4287b 100644
+--- a/dist/instance.js
++++ b/dist/instance.js
+@@ -139,7 +139,7 @@ export const getApplePhysicalDevicePlatformInstance = async (config, harnessConf
+     if (!isAvailable) {
+         throw new AppNotInstalledError(config.bundleId, getDeviceName(config.device));
+     }
+-    const xctestAgent = permissionsEnabled && config.device.codeSign
++    const xctestAgent = permissionsEnabled
+         ? createXCTestAgentController({
+             appBundleId: config.bundleId,
+             target: {
+@@ -162,9 +162,6 @@ export const getApplePhysicalDevicePlatformInstance = async (config, harnessConf
+             }
+         }
+     }
+-    else if (permissionsEnabled) {
+-        iosInstanceLogger.info('Skipping XCTest agent for physical device (no codeSign config provided)');
+-    }
+     return {
+         startApp: async (options) => {
+             await devicectl.startApp(deviceId, config.bundleId, options ??
 diff --git a/dist/xcrun/devicectl.d.ts b/dist/xcrun/devicectl.d.ts
 index 14a80c74f1dc73972db8a75325bb3883760f667e..140217054d1744ce725da5a3986752ad2e7824bf 100644
 --- a/dist/xcrun/devicectl.d.ts
@@ -67,7 +90,7 @@ index afe05044f103f10ecdb057ee0ec58f9425f96981..34d4cefc4d43a8433a235a3bee7eabfa
  };
  export const isAppRunning = async (identifier, bundleId) => {
 diff --git a/dist/xctest-agent.js b/dist/xctest-agent.js
-index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a93e31d8f 100644
+index 837e6a141ddedeadff87b2c5b7e891d248323019..f7da367648a9a0dd699bf27abcad264e171d71fc 100644
 --- a/dist/xctest-agent.js
 +++ b/dist/xctest-agent.js
 @@ -14,6 +14,8 @@ const XCTEST_AGENT_PROJECT_NAME = 'HarnessXCTestAgent';
@@ -105,6 +128,29 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a
  const getXCTestAgentBuildManifestPath = (derivedDataPath) => path.join(derivedDataPath, 'build-manifest.json');
  const getXCTestAgentCacheManifestPath = (derivedDataPath) => path.join(derivedDataPath, 'cache.json');
  const getXCTestAgentBuildDestination = (target) => {
+@@ -57,7 +78,7 @@ const getXCTestAgentRunDestination = (target) => {
+         : `platform=iOS,id=${target.id}`;
+ };
+ const getXCTestAgentBuildSigningArgs = (target) => {
+-    if (target.kind === 'simulator') {
++    if (target.kind === 'simulator' || !target.codeSign) {
+         return [
+             'CODE_SIGNING_ALLOWED=NO',
+             'CODE_SIGNING_REQUIRED=NO',
+@@ -257,10 +278,10 @@ const shouldReuseBuildArtifacts = (target, buildInputsHash) => {
+         return false;
+     }
+     if (target.kind === 'device') {
+-        if (manifest.codeSign?.teamId !== target.codeSign.teamId ||
+-            manifest.codeSign?.signingIdentity !== target.codeSign.signingIdentity ||
++        if (manifest.codeSign?.teamId !== target.codeSign?.teamId ||
++            manifest.codeSign?.signingIdentity !== target.codeSign?.signingIdentity ||
+             manifest.codeSign?.provisioningProfile !==
+-                target.codeSign.provisioningProfile) {
++                target.codeSign?.provisioningProfile) {
+             return false;
+         }
+     }
 @@ -427,6 +448,17 @@ export const createXCTestAgentController = (options) => {
          if (prepared) {
              return;
@@ -123,7 +169,18 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a
          const buildInputsHash = getProjectInputsHash();
          xctestAgentLogger.debug('verifying checked-in XCTest agent project for %s', target.kind);
          xctestAgentLogger.info('Using checked-in XCTest agent project for %s target', target.kind);
-@@ -499,12 +531,22 @@ export const createXCTestAgentController = (options) => {
+@@ -462,7 +494,9 @@ export const createXCTestAgentController = (options) => {
+             getXCTestAgentBuildDestination(target),
+             '-derivedDataPath',
+             preparedDerivedDataPath,
+-            ...(target.kind === 'device' ? ['-allowProvisioningUpdates'] : []),
++            ...(target.kind === 'device' && target.codeSign
++                ? ['-allowProvisioningUpdates']
++                : []),
+             ...getXCTestAgentBuildSigningArgs(target),
+         ]);
+         if (target.kind === 'simulator') {
+@@ -499,12 +533,22 @@ export const createXCTestAgentController = (options) => {
          xctestAgentLogger.debug('starting XCTest agent for %s', target.kind);
          xctestAgentLogger.info('Starting XCTest agent session for %s target', target.kind);
          xctestAgentLogger.debug('Using XCTest agent port %d', port);
@@ -194,6 +251,73 @@ index 1e4e058385e227ea9c7ef9f19de7d0e737e2c4bc..b5bc63c862fe360f4599485df4b4dcf5
 +    expect(matchesUnknownName).toBe(false);
 +  });
  });
+diff --git a/src/__tests__/xctest-agent.test.ts b/src/__tests__/xctest-agent.test.ts
+index 052c2788b713a76c0fbfd241242829a13403f943..e1bf79dde2c805207cbd689630b33eb967bb6922 100644
+--- a/src/__tests__/xctest-agent.test.ts
++++ b/src/__tests__/xctest-agent.test.ts
+@@ -290,6 +290,38 @@ describe('xctest-agent orchestration', () => {
+     expect(mocks.spawn).not.toHaveBeenCalled();
+   });
+ 
++  it('builds physical-device artifacts without signing when codeSign is omitted', async () => {
++    const controller = createXCTestAgentController({
++      target: {
++        kind: 'device',
++        id: 'device-123',
++      },
++    });
++
++    await controller.prepare();
++
++    let buildArgs: string[] = [];
++    for (const call of mocks.spawn.mock.calls) {
++      const [file, args] = call;
++      if (file !== 'xcodebuild') {
++        continue;
++      }
++      if (args?.[0] !== 'build-for-testing') {
++        continue;
++      }
++
++      buildArgs = args ?? [];
++      break;
++    }
++
++    expect(buildArgs).toContain('CODE_SIGNING_ALLOWED=NO');
++    expect(buildArgs).toContain('CODE_SIGNING_REQUIRED=NO');
++    expect(buildArgs).toContain('CODE_SIGN_IDENTITY=');
++    expect(buildArgs).toContain('DEVELOPMENT_TEAM=');
++    expect(buildArgs).not.toContain('-allowProvisioningUpdates');
++    expect(buildArgs).not.toContain('CODE_SIGN_STYLE=Automatic');
++  });
++
+   it('starts the agent lazily, waits for readiness, and configures permissions', async () => {
+     const controller = createXCTestAgentController({
+       port: 49152,
+diff --git a/src/instance.ts b/src/instance.ts
+index 55b53a4e393010dc4f5e57717481f198e3d96ac0..47560b890562fef03f3e99e7c0cc1861b8e3b675 100644
+--- a/src/instance.ts
++++ b/src/instance.ts
+@@ -227,7 +227,7 @@ export const getApplePhysicalDevicePlatformInstance = async (
+     );
+   }
+ 
+-  const xctestAgent = permissionsEnabled && config.device.codeSign
++  const xctestAgent = permissionsEnabled
+     ? createXCTestAgentController({
+         appBundleId: config.bundleId,
+         target: {
+@@ -249,10 +249,6 @@ export const getApplePhysicalDevicePlatformInstance = async (
+         await xctestAgent.dispose();
+       }
+     }
+-  } else if (permissionsEnabled) {
+-    iosInstanceLogger.info(
+-      'Skipping XCTest agent for physical device (no codeSign config provided)',
+-    );
+   }
+ 
+   return {
 diff --git a/src/xcrun/devicectl.ts b/src/xcrun/devicectl.ts
 index 6269a237e15f83ea9bb574255cec99fd6ce09d0c..521951e5aa376f5ffeb6ae7f992f0e76df540313 100644
 --- a/src/xcrun/devicectl.ts
@@ -238,7 +362,7 @@ index 6269a237e15f83ea9bb574255cec99fd6ce09d0c..521951e5aa376f5ffeb6ae7f992f0e76
  };
  
 diff --git a/src/xctest-agent.ts b/src/xctest-agent.ts
-index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d53e0f6f3a 100644
+index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322fab9a3ed 100644
 --- a/src/xctest-agent.ts
 +++ b/src/xctest-agent.ts
 @@ -29,6 +29,9 @@ const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
@@ -251,6 +375,15 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d5
  const XCTEST_AGENT_STARTUP_TIMEOUT_MS = 120_000;
  const XCTEST_AGENT_SHUTDOWN_TIMEOUT_MS = 5_000;
  const XCTEST_AGENT_STARTUP_POLL_INTERVAL_MS = 250;
+@@ -46,7 +49,7 @@ type XCTestAgentTarget =
+   | {
+       kind: 'device';
+       id: string;
+-      codeSign: ApplePhysicalDeviceCodeSign;
++      codeSign?: ApplePhysicalDeviceCodeSign;
+     };
+ 
+ export type XCTestAgentCapability = {
 @@ -125,6 +128,34 @@ const getXCTestAgentDerivedDataPath = (target: XCTestAgentTarget): string => {
    return path.join(getXCTestAgentBuildRoot(), target.kind);
  };
@@ -286,6 +419,29 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d5
  const getXCTestAgentBuildManifestPath = (derivedDataPath: string): string =>
    path.join(derivedDataPath, 'build-manifest.json');
  
+@@ -146,7 +177,7 @@ const getXCTestAgentRunDestination = (target: XCTestAgentTarget): string => {
+ const getXCTestAgentBuildSigningArgs = (
+   target: XCTestAgentTarget
+ ): string[] => {
+-  if (target.kind === 'simulator') {
++  if (target.kind === 'simulator' || !target.codeSign) {
+     return [
+       'CODE_SIGNING_ALLOWED=NO',
+       'CODE_SIGNING_REQUIRED=NO',
+@@ -460,10 +491,10 @@ const shouldReuseBuildArtifacts = (
+ 
+   if (target.kind === 'device') {
+     if (
+-      manifest.codeSign?.teamId !== target.codeSign.teamId ||
+-      manifest.codeSign?.signingIdentity !== target.codeSign.signingIdentity ||
++      manifest.codeSign?.teamId !== target.codeSign?.teamId ||
++      manifest.codeSign?.signingIdentity !== target.codeSign?.signingIdentity ||
+       manifest.codeSign?.provisioningProfile !==
+-        target.codeSign.provisioningProfile
++        target.codeSign?.provisioningProfile
+     ) {
+       return false;
+     }
 @@ -724,6 +755,24 @@ export const createXCTestAgentController = (options: {
        return;
      }
@@ -311,7 +467,18 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d5
      const buildInputsHash = getProjectInputsHash();
  
      xctestAgentLogger.debug(
-@@ -841,12 +890,23 @@ export const createXCTestAgentController = (options: {
+@@ -786,7 +835,9 @@ export const createXCTestAgentController = (options: {
+       getXCTestAgentBuildDestination(target),
+       '-derivedDataPath',
+       preparedDerivedDataPath,
+-      ...(target.kind === 'device' ? ['-allowProvisioningUpdates'] : []),
++      ...(target.kind === 'device' && target.codeSign
++        ? ['-allowProvisioningUpdates']
++        : []),
+       ...getXCTestAgentBuildSigningArgs(target),
+     ]);
+ 
+@@ -841,12 +892,23 @@ export const createXCTestAgentController = (options: {
        target.kind
      );
      xctestAgentLogger.debug('Using XCTest agent port %d', port);
