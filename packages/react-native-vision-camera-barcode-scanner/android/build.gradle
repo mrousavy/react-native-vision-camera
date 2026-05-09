@@ -35,6 +35,17 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["VisionCameraBarcodeScanner_" + name]).toInteger()
 }
 
+def isWindowsOs() {
+  return System.properties["os.name"].toLowerCase().contains("windows")
+}
+
+// Windows: CMake/Ninja default next to this module (often deep under node_modules), exceeding
+// path limits. Relocate under root android/build (standard Gradle output, already gitignored).
+if (isWindowsOs()) {
+  def safeName = project.name.replace(":", "_")
+  project.buildDir = new File(rootProject.buildDir, "externalNativeModules/${safeName}")
+}
+
 android {
   namespace "com.margelo.nitro.camera.barcodescanner"
 
@@ -67,6 +78,9 @@ android {
   externalNativeBuild {
     cmake {
       path "CMakeLists.txt"
+      if (isWindowsOs()) {
+        buildStagingDirectory = new File(project.buildDir, "cxx")
+      }
     }
   }
 
@@ -150,3 +164,19 @@ dependencies {
   implementation project(":react-native-vision-camera")
 }
 
+// Gradle 9 validates task dependencies: JS bundle tasks read New Architecture codegen
+// outputs from libraries. Wire bundle tasks to this module's codegen when present.
+gradle.projectsEvaluated {
+  def codegenTask = tasks.findByName("generateCodegenArtifactsFromSchema")
+  if (codegenTask != null) {
+    rootProject.subprojects.each { sub ->
+      if (sub.plugins.hasPlugin("com.android.application")) {
+        sub.tasks.matching { t ->
+          t.name.startsWith("createBundle") && t.name.endsWith("JsAndAssets")
+        }.configureEach { t ->
+          t.dependsOn(codegenTask)
+        }
+      }
+    }
+  }
+}
