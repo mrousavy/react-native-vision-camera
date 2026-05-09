@@ -402,3 +402,76 @@ jobs:
 
       - name: Verify iOS app artifact
         run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+
+      - name: Upload iOS app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 7
+
+  test-ios:
+    name: Test iOS
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      - detect-changes
+      - prepare-devicefarm-assets
+      - build-ios
+    if: ${{ needs.detect-changes.outputs.run_ios == 'true' }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Download iOS app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
+
+      - name: Verify iOS app artifact
+        run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::633665345122:role/GitHubDeviceFarmRole
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+
+      - name: Upload IPA to AWS Device Farm
+        id: upload-ipa
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+          upload-type: IOS_APP
+          content-type: application/octet-stream
+          upload-name: simple-camera-${{ github.run_id }}-${{ github.run_attempt }}.ipa
+
+      - name: Schedule Device Farm iOS Automated Test
+        id: run-test
+        uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
+        with:
+          run-settings-json: |
+            {
+              "name": "GitHubAction-${{ github.workflow }}-ios_${{ github.run_id }}_${{ github.run_attempt }}",
+              "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
+              "appArn": "${{ steps.upload-ipa.outputs['upload-arn'] }}",
+              "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN }}",
+              "test": {
+                "type": "APPIUM_NODE",
+                "testPackageArn": "${{ needs.prepare-devicefarm-assets.outputs.test_package_arn }}",
+                "testSpecArn": "${{ needs.prepare-devicefarm-assets.outputs.ios_test_spec_arn }}"
+              }
+            }
+          artifact-types: ALL
+
+      - name: Collect iOS Device Farm results
+        if: always()
+        uses: ./.github/actions/collect-devicefarm-results
+        with:
+          artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          platform: ios
