@@ -498,8 +498,17 @@ jobs:
           name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
 
+      - name: Download Harness XCTest UI runner IPA artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
+
       - name: Verify iOS app artifact
         run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
+
+      - name: Verify Harness XCTest UI runner IPA artifact
+        run: test -f ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
