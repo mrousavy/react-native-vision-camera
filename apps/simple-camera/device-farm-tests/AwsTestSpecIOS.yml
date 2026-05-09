@@ -48,7 +48,18 @@ phases:
         : > "$HARNESS_SIGNING_ENV"
 
         echo "Available code signing identities:"
-        security find-identity -v -p codesigning || true
+        SIGNING_IDENTITIES="$WORKING_DIRECTORY/codesigning-identities.txt"
+        security find-identity -v -p codesigning > "$SIGNING_IDENTITIES" || true
+        cat "$SIGNING_IDENTITIES"
+
+        SIGNING_IDENTITY="$(
+          awk -F '"' '
+            /"Apple Development:/ || /"iPhone Developer:/ {
+              print $2
+              exit
+            }
+          ' "$SIGNING_IDENTITIES"
+        )"
 
         echo "Device Farm app path: ${DEVICEFARM_APP_PATH:-<unset>}"
 
@@ -62,13 +73,25 @@ phases:
         fi
 
         TEAM_ID=""
+        if [ -n "$SIGNING_IDENTITY" ]; then
+          TEAM_ID="$(printf '%s\n' "$SIGNING_IDENTITY" | sed -n 's/.*(\([A-Z0-9][A-Z0-9]*\)).*/\1/p')"
+          if [ -n "$TEAM_ID" ]; then
+            echo "Using signing identity from keychain: ${SIGNING_IDENTITY}"
+          else
+            echo "Could not parse team ID from signing identity: ${SIGNING_IDENTITY}"
+          fi
+        fi
+
         if [ -n "$APP_PROFILE" ] && [ -f "$APP_PROFILE" ]; then
           APP_PROFILE_PLIST="$(mktemp)"
           if security cms -D -i "$APP_PROFILE" > "$APP_PROFILE_PLIST" 2>/dev/null; then
-            TEAM_ID="$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
+            APP_PROFILE_TEAM_ID="$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
             APP_PROFILE_NAME="$(/usr/libexec/PlistBuddy -c "Print :Name" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
             APP_PROFILE_ID="$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$APP_PROFILE_PLIST" 2>/dev/null || true)"
-            echo "Device Farm app profile: ${APP_PROFILE_NAME:-unknown} team=${TEAM_ID:-unknown} app=${APP_PROFILE_ID:-unknown}"
+            echo "Device Farm app profile: ${APP_PROFILE_NAME:-unknown} team=${APP_PROFILE_TEAM_ID:-unknown} app=${APP_PROFILE_ID:-unknown}"
+            if [ -z "$TEAM_ID" ]; then
+              TEAM_ID="$APP_PROFILE_TEAM_ID"
+            fi
           fi
           rm -f "$APP_PROFILE_PLIST"
         fi
@@ -107,7 +130,12 @@ phases:
 
         if [ -n "$TEAM_ID" ]; then
           echo "Using iOS signing team for Harness XCTest agent: ${TEAM_ID}"
-          echo "HARNESS_IOS_DEVELOPMENT_TEAM=$TEAM_ID" >> "$HARNESS_SIGNING_ENV"
+          {
+            echo "HARNESS_IOS_DEVELOPMENT_TEAM=$TEAM_ID"
+            if [ -n "$SIGNING_IDENTITY" ]; then
+              echo "HARNESS_IOS_CODE_SIGN_IDENTITY=$SIGNING_IDENTITY"
+            fi
+          } >> "$HARNESS_SIGNING_ENV"
         else
           echo "No iOS development team found for Harness XCTest agent signing."
         fi
