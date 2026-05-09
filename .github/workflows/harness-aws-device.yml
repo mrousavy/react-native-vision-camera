@@ -58,16 +58,17 @@ env:
   HARNESS_AWS_REGION: us-west-2
   HARNESS_DEVICE_FARM_PROJECT_ARN: arn:aws:devicefarm:us-west-2:633665345122:project:210b1942-012b-4653-9673-f3ff91c5e649
   HARNESS_XCODE_VERSION: "26.2"
+  HARNESS_PROJECT_ROOT: apps/simple-camera
   HARNESS_ANDROID_APP_BUILD_OUTPUT: apps/simple-camera/android/app/build/outputs/apk/debug/app-debug.apk
   HARNESS_IOS_APP_BUILD_OUTPUT: apps/simple-camera/ios/build/devicefarm/SimpleCamera.ipa
   HARNESS_IOS_DERIVED_DATA_OUTPUT: apps/simple-camera/ios/build/devicefarm/DerivedData
+  HARNESS_IOS_IPA_ARTIFACT_NAME: harness-ios-ipa
   HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT: devicefarm-test-package.zip
   HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
   HARNESS_ANDROID_DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'arm64-v8a' }}
-  # Name of the device pool on AWS to pick Android devices from.
-  # (iOS pool config lives alongside the `test-ios` job and will be restored
-  # when iOS Device Farm testing is re-enabled — see `build-ios`.)
+  # Name of the device pools on AWS to pick devices from.
   HARNESS_DEVICE_FARM_ANDROID_DEVICE_POOL_ARN: LatestFlagshipsDynamic
+  HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN: iPhonePool
 
 jobs:
   detect-changes:
@@ -127,12 +128,11 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - detect-changes
-    # iOS Device Farm testing is temporarily disabled (see `test-ios`/`build-ios` jobs),
-    # so this only needs to run when Android testing is scheduled.
-    if: ${{ needs.detect-changes.outputs.run_android == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_android == 'true' || needs.detect-changes.outputs.run_ios == 'true' }}
     outputs:
       test_package_arn: ${{ steps.upload-test-package.outputs.upload-arn }}
       android_test_spec_arn: ${{ steps.upload-android-test-spec.outputs.upload-arn }}
+      ios_test_spec_arn: ${{ steps.upload-ios-test-spec.outputs.upload-arn }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -174,6 +174,18 @@ jobs:
           upload-type: APPIUM_NODE_TEST_SPEC
           content-type: application/octet-stream
           upload-name: AwsTestSpecAndroid-${{ github.run_id }}-${{ github.run_attempt }}.yml
+
+      - name: Upload Device Farm iOS test spec
+        if: ${{ needs.detect-changes.outputs.run_ios == 'true' }}
+        id: upload-ios-test-spec
+        uses: ./.github/actions/upload-devicefarm-artifact
+        with:
+          project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          file-path: apps/simple-camera/device-farm-tests/AwsTestSpecIOS.yml
+          upload-type: APPIUM_NODE_TEST_SPEC
+          content-type: application/octet-stream
+          upload-name: AwsTestSpecIOS-${{ github.run_id }}-${{ github.run_attempt }}.yml
 
   test-android:
     name: Test Android
