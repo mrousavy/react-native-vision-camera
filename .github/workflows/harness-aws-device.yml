@@ -65,6 +65,8 @@ env:
   HARNESS_IOS_IPA_ARTIFACT_NAME: harness-ios-ipa
   HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME: harness-xctest-agent-ipa
   HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH: apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentUITests.ipa
+  HARNESS_IOS_XCTEST_UI_TEST_PACKAGE_OUTPUT: apps/simple-camera/ios/build/devicefarm/HarnessXCTestUITestPackage.zip
+  HARNESS_DEVICE_FARM_REPO_ARCHIVE_NAME: react-native-vision-camera.zip
   HARNESS_DEVICE_FARM_TEST_PACKAGE_OUTPUT: devicefarm-test-package.zip
   HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
   HARNESS_ANDROID_DEVICE_ARCH: ${{ github.event.inputs.device_arch || 'arm64-v8a' }}
@@ -185,7 +187,7 @@ jobs:
           project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
           aws-region: ${{ env.HARNESS_AWS_REGION }}
           file-path: apps/simple-camera/device-farm-tests/AwsTestSpecIOS.yml
-          upload-type: APPIUM_NODE_TEST_SPEC
+          upload-type: XCTEST_UI_TEST_SPEC
           content-type: application/octet-stream
           upload-name: AwsTestSpecIOS-${{ github.run_id }}-${{ github.run_attempt }}.yml
 
@@ -295,16 +297,6 @@ jobs:
           platform: android
           test-step-outcome: ${{ steps.run-test.outcome }}
 
-  # iOS testing on AWS Device Farm is temporarily disabled.
-  # Device Farm has no UI operator to tap through runtime permission dialogs
-  # (Camera, Microphone, Location, etc.), so the app hangs on first launch.
-  # Unlike Android, there is no equivalent to `adb shell pm grant` for iOS, so
-  # we depend on an upcoming React Native Harness feature to pre-grant iOS
-  # permissions. Until that ships, we still build the iOS app here as a
-  # compile-only smoke test (and to keep the DerivedData/Pods caches warm), but
-  # we do NOT schedule any Device Farm run.
-  # TODO: Re-enable iOS Device Farm testing once Harness ships iOS permission
-  # pre-granting.
   build-ios:
     name: Build iOS
     runs-on: macos-latest
@@ -510,6 +502,38 @@ jobs:
       - name: Verify Harness XCTest UI runner IPA artifact
         run: test -f ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
 
+      - name: Create XCTest UI test package
+        run: |
+          set -euo pipefail
+
+          PACKAGE_PATH="${{ env.HARNESS_IOS_XCTEST_UI_TEST_PACKAGE_OUTPUT }}"
+          PACKAGE_ROOT="$(mktemp -d)"
+          REPO_ARCHIVE="$PACKAGE_ROOT/${{ env.HARNESS_DEVICE_FARM_REPO_ARCHIVE_NAME }}"
+          RUNNER_IPA="$PACKAGE_ROOT/$(basename "${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}")"
+
+          rm -f "$PACKAGE_PATH"
+          mkdir -p "$(dirname "$PACKAGE_PATH")"
+
+          git archive \
+            --format=zip \
+            --output "$REPO_ARCHIVE" \
+            HEAD
+
+          cp "${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}" "$RUNNER_IPA"
+
+          (
+            cd "$PACKAGE_ROOT"
+            zip -qry "$GITHUB_WORKSPACE/$PACKAGE_PATH" \
+              "$(basename "$RUNNER_IPA")" \
+              "${{ env.HARNESS_DEVICE_FARM_REPO_ARCHIVE_NAME }}"
+          )
+
+          unzip -tq "$PACKAGE_PATH"
+          unzip -l "$PACKAGE_PATH"
+
+      - name: Verify XCTest UI test package
+        run: test -f ${{ env.HARNESS_IOS_XCTEST_UI_TEST_PACKAGE_OUTPUT }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -527,16 +551,16 @@ jobs:
           content-type: application/octet-stream
           upload-name: simple-camera-${{ github.run_id }}-${{ github.run_attempt }}.ipa
 
-      - name: Upload Harness XCTest UI runner IPA to AWS Device Farm
-        id: upload-xctest-runner
+      - name: Upload XCTest UI test package to AWS Device Farm
+        id: upload-xctest-ui-package
         uses: ./.github/actions/upload-devicefarm-artifact
         with:
           project-arn: ${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}
           aws-region: ${{ env.HARNESS_AWS_REGION }}
-          file-path: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
-          upload-type: IOS_APP
-          content-type: application/octet-stream
-          upload-name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}-${{ github.run_id }}-${{ github.run_attempt }}.ipa
+          file-path: ${{ env.HARNESS_IOS_XCTEST_UI_TEST_PACKAGE_OUTPUT }}
+          upload-type: XCTEST_UI_TEST_PACKAGE
+          content-type: application/zip
+          upload-name: harness-xctest-ui-package-${{ github.run_id }}-${{ github.run_attempt }}.zip
 
       - name: Schedule Device Farm iOS Automated Test
         id: run-test
@@ -548,14 +572,9 @@ jobs:
               "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
               "appArn": "${{ steps.upload-ipa.outputs['upload-arn'] }}",
               "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_IOS_DEVICE_POOL_ARN }}",
-              "configuration": {
-                "auxiliaryApps": [
-                  "${{ steps.upload-xctest-runner.outputs['upload-arn'] }}"
-                ]
-              },
               "test": {
-                "type": "APPIUM_NODE",
-                "testPackageArn": "${{ needs.prepare-devicefarm-assets.outputs.test_package_arn }}",
+                "type": "XCTEST_UI",
+                "testPackageArn": "${{ steps.upload-xctest-ui-package.outputs['upload-arn'] }}",
                 "testSpecArn": "${{ needs.prepare-devicefarm-assets.outputs.ios_test_spec_arn }}"
               }
             }

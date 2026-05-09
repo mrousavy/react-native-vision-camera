@@ -7,38 +7,115 @@ phases:
     commands:
       - devicefarm-cli use node 20
       - node -v
+      - xcodebuild -version
       - curl -fsSL https://bun.com/install | bash
-      - ~/.bun/bin/bun install
       - xcrun devicectl list devices
+
+      # The XCTEST_UI package contains the Harness XCTest runner IPA and a
+      # repo archive. Unpack the repo so the Node/Bun Harness tests can run.
+      - |
+        set -euo pipefail
+
+        REPO_ARCHIVE="$DEVICEFARM_XCTEST_BUILD_DIRECTORY/react-native-vision-camera.zip"
+        HARNESS_REPO_ROOT="$WORKING_DIRECTORY/react-native-vision-camera"
+
+        test -f "$REPO_ARCHIVE"
+        rm -rf "$HARNESS_REPO_ROOT"
+        mkdir -p "$HARNESS_REPO_ROOT"
+        unzip -q "$REPO_ARCHIVE" -d "$HARNESS_REPO_ROOT"
+
+        cd "$HARNESS_REPO_ROOT"
+        ~/.bun/bin/bun install --frozen-lockfile
 
   test:
     commands:
       - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
       - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
 
-      # Resolve host IPv6 for Metro. On macOS runners ipv4 won't work, as confirmed by AWS support.
-      # AWS specifically recommends using the utun interfaces for this, which is what we do here. 
-      # If we fail to resolve an IP address, we error out, as without this the tests won't be able to connect to Metro at all.
+      # Resolve host IPv6 for Metro. On macOS runners IPv4 won't work, as
+      # confirmed by AWS support. AWS recommends utun interfaces for this.
       - |
+        set -euo pipefail
+
         METRO_HOST_IP="$(ifconfig utun1 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}')"
         if [ -z "$METRO_HOST_IP" ]; then
           METRO_HOST_IP="$(ifconfig utun0 2>/dev/null | awk '/inet6 / {ip=$2} END {print ip}')"
         fi
+
         METRO_HOST_IP="${METRO_HOST_IP%%%*}"
-        [ -n "$METRO_HOST_IP" ] || { echo "Failed to resolve Metro host IPv6." >&2; exit 1; }
+        if [ -z "$METRO_HOST_IP" ]; then
+          echo "Failed to resolve Metro host IPv6." >&2
+          exit 1
+        fi
+
         echo "Using Metro host IPv6 for iOS harness: ${METRO_HOST_IP}"
         echo "$METRO_HOST_IP" > "$WORKING_DIRECTORY/metro-host-ip.txt"
 
-      # Find the physical device connected to this runner we want to run the test on:
-      - IOS_DEVICE_UDID="${DEVICEFARM_DEVICE_UDID:-${DEVICEFARM_DEVICE_NAME:-}}"
-      - IOS_DEVICES_JSON="$(mktemp)"
-      - xcrun devicectl list devices --json-output "$IOS_DEVICES_JSON"
-      - IOS_DEVICE_NAME="$(node -e "const fs=require('node:fs');const payload=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const devices=payload?.result?.devices ?? [];const udid=process.env.IOS_DEVICE_UDID || '';const matchedByUdid=devices.find((d)=>d?.identifier===udid);const selected=matchedByUdid ?? devices[0] ?? null;const name=selected?.deviceProperties?.name ?? '';if(!name){process.exit(1)};process.stdout.write(name);" "$IOS_DEVICES_JSON")"
-      - 'echo "Resolved Device Farm iOS device for harness: ${IOS_DEVICE_NAME} (${IOS_DEVICE_UDID:-unknown-udid})"'
+      # Find the physical device connected to this runner.
+      - |
+        set -euo pipefail
 
-      # Actually run the test:
-      - cd apps/simple-camera
-      - set -o pipefail; HARNESS_METRO_BIND_HOST="::" HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" HARNESS_IOS_DEVICE_NAME="$IOS_DEVICE_NAME" HARNESS_DETECT_NATIVE_CRASHES=false CI=true JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness -- --harnessRunner ios --reporters=default --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
+        IOS_DEVICE_UDID="${DEVICEFARM_DEVICE_UDID:-${DEVICEFARM_DEVICE_NAME:-}}"
+        IOS_DEVICES_JSON="$(mktemp)"
+        xcrun devicectl list devices --json-output "$IOS_DEVICES_JSON"
+
+        IOS_DEVICE_NAME="$(
+          IOS_DEVICE_UDID="$IOS_DEVICE_UDID" node - "$IOS_DEVICES_JSON" <<'NODE'
+        const fs = require('node:fs')
+
+        const jsonPath = process.argv[2]
+        const rawJson = fs.readFileSync(jsonPath, 'utf8')
+        const payload = JSON.parse(rawJson)
+        const devices = payload.result.devices
+        const udid = process.env.IOS_DEVICE_UDID || ''
+
+        let selected = null
+        for (const device of devices) {
+          if (device.identifier === udid) {
+            selected = device
+            break
+          }
+        }
+
+        if (selected == null && devices.length > 0) {
+          selected = devices[0]
+        }
+
+        if (selected == null) {
+          process.exit(1)
+        }
+
+        const name = selected.deviceProperties.name
+        if (!name) {
+          process.exit(1)
+        }
+
+        process.stdout.write(name)
+        NODE
+        )"
+
+        echo "$IOS_DEVICE_NAME" > "$WORKING_DIRECTORY/ios-device-name.txt"
+        echo "Resolved Device Farm iOS device for harness: ${IOS_DEVICE_NAME} (${IOS_DEVICE_UDID:-unknown-udid})"
+
+      # Actually run the JS Harness tests. Harness owns the XCTest agent
+      # lifecycle, but uses AWS's generated .xctestrun instead of building one.
+      - |
+        set -o pipefail
+
+        cd "$WORKING_DIRECTORY/react-native-vision-camera/apps/simple-camera"
+
+        HARNESS_IOS_XCTESTRUN_FILE="$DEVICEFARM_XCUITESTRUN_FILE" \
+          HARNESS_IOS_XCTEST_DERIVED_DATA_PATH="$DEVICEFARM_DERIVED_DATA_PATH" \
+          HARNESS_METRO_BIND_HOST="::" \
+          HARNESS_IOS_METRO_HOST="$(cat "$WORKING_DIRECTORY/metro-host-ip.txt")" \
+          HARNESS_IOS_DEVICE_NAME="$(cat "$WORKING_DIRECTORY/ios-device-name.txt")" \
+          HARNESS_DETECT_NATIVE_CRASHES=false \
+          CI=true \
+          JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" \
+          ~/.bun/bin/bun run test:harness -- \
+            --harnessRunner ios \
+            --reporters=default \
+            --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
   - $WORKING_DIRECTORY

@@ -1,0 +1,186 @@
+diff --git a/dist/xctest-agent.js b/dist/xctest-agent.js
+index 837e6a141ddedeadff87b2c5b7e891d248323019..e28ac2bb10281b560a846d588a98525a93e31d8f 100644
+--- a/dist/xctest-agent.js
++++ b/dist/xctest-agent.js
+@@ -14,6 +14,8 @@ const XCTEST_AGENT_PROJECT_NAME = 'HarnessXCTestAgent';
+ const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
+ const XCTEST_AGENT_PORT_ENV = 'HARNESS_XCTEST_AGENT_PORT';
+ const XCTEST_AGENT_TARGET_BUNDLE_ID_ENV = 'HARNESS_XCTEST_AGENT_TARGET_BUNDLE_ID';
++const XCTEST_AGENT_XCTESTRUN_FILE_ENV = 'HARNESS_IOS_XCTESTRUN_FILE';
++const XCTEST_AGENT_DERIVED_DATA_PATH_ENV = 'HARNESS_IOS_XCTEST_DERIVED_DATA_PATH';
+ const XCTEST_AGENT_STARTUP_TIMEOUT_MS = 120_000;
+ const XCTEST_AGENT_SHUTDOWN_TIMEOUT_MS = 5_000;
+ const XCTEST_AGENT_STARTUP_POLL_INTERVAL_MS = 250;
+@@ -44,6 +46,25 @@ const getXCTestAgentCacheRoot = () => {
+ const getXCTestAgentDerivedDataPath = (target) => {
+     return path.join(getXCTestAgentBuildRoot(), target.kind);
+ };
++const getEnvironmentPath = (name) => {
++    const value = process.env[name]?.trim();
++    if (!value) {
++        return null;
++    }
++    return value;
++};
++const getExternalXCTestRunFilePath = () => {
++    return getEnvironmentPath(XCTEST_AGENT_XCTESTRUN_FILE_ENV);
++};
++const getExternalDerivedDataPath = () => {
++    return getEnvironmentPath(XCTEST_AGENT_DERIVED_DATA_PATH_ENV);
++};
++const assertExternalXCTestRunFileExists = (filePath) => {
++    if (fs.existsSync(filePath)) {
++        return;
++    }
++    throw new Error(`Missing external XCTest run file at ${filePath}. Check ${XCTEST_AGENT_XCTESTRUN_FILE_ENV}.`);
++};
+ const getXCTestAgentBuildManifestPath = (derivedDataPath) => path.join(derivedDataPath, 'build-manifest.json');
+ const getXCTestAgentCacheManifestPath = (derivedDataPath) => path.join(derivedDataPath, 'cache.json');
+ const getXCTestAgentBuildDestination = (target) => {
+@@ -427,6 +448,17 @@ export const createXCTestAgentController = (options) => {
+         if (prepared) {
+             return;
+         }
++        const externalXCTestRunFilePath = getExternalXCTestRunFilePath();
++        if (externalXCTestRunFilePath) {
++            assertExternalXCTestRunFileExists(externalXCTestRunFilePath);
++            const externalDerivedDataPath = getExternalDerivedDataPath();
++            if (externalDerivedDataPath) {
++                preparedDerivedDataPath = externalDerivedDataPath;
++            }
++            prepared = true;
++            xctestAgentLogger.info('Using external XCTest run file for %s target: %s', target.kind, externalXCTestRunFilePath);
++            return;
++        }
+         const buildInputsHash = getProjectInputsHash();
+         xctestAgentLogger.debug('verifying checked-in XCTest agent project for %s', target.kind);
+         xctestAgentLogger.info('Using checked-in XCTest agent project for %s target', target.kind);
+@@ -499,12 +531,22 @@ export const createXCTestAgentController = (options) => {
+         xctestAgentLogger.debug('starting XCTest agent for %s', target.kind);
+         xctestAgentLogger.info('Starting XCTest agent session for %s target', target.kind);
+         xctestAgentLogger.debug('Using XCTest agent port %d', port);
++        const externalXCTestRunFilePath = getExternalXCTestRunFilePath();
++        let xcodebuildRunInputArgs;
++        if (externalXCTestRunFilePath) {
++            xcodebuildRunInputArgs = ['-xctestrun', externalXCTestRunFilePath];
++        }
++        else {
++            xcodebuildRunInputArgs = [
++                '-project',
++                getXCTestAgentProjectFilePath(),
++                '-scheme',
++                XCTEST_AGENT_SCHEME_NAME,
++            ];
++        }
+         const xcodebuildArgs = [
+             'test-without-building',
+-            '-project',
+-            getXCTestAgentProjectFilePath(),
+-            '-scheme',
+-            XCTEST_AGENT_SCHEME_NAME,
++            ...xcodebuildRunInputArgs,
+             '-destination',
+             getXCTestAgentRunDestination(target),
+             '-parallel-testing-enabled',
+diff --git a/src/xctest-agent.ts b/src/xctest-agent.ts
+index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..9716c1beb6d210b9ca39b2139ce5b1d53e0f6f3a 100644
+--- a/src/xctest-agent.ts
++++ b/src/xctest-agent.ts
+@@ -29,6 +29,9 @@ const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
+ const XCTEST_AGENT_PORT_ENV = 'HARNESS_XCTEST_AGENT_PORT';
+ const XCTEST_AGENT_TARGET_BUNDLE_ID_ENV =
+   'HARNESS_XCTEST_AGENT_TARGET_BUNDLE_ID';
++const XCTEST_AGENT_XCTESTRUN_FILE_ENV = 'HARNESS_IOS_XCTESTRUN_FILE';
++const XCTEST_AGENT_DERIVED_DATA_PATH_ENV =
++  'HARNESS_IOS_XCTEST_DERIVED_DATA_PATH';
+ const XCTEST_AGENT_STARTUP_TIMEOUT_MS = 120_000;
+ const XCTEST_AGENT_SHUTDOWN_TIMEOUT_MS = 5_000;
+ const XCTEST_AGENT_STARTUP_POLL_INTERVAL_MS = 250;
+@@ -125,6 +128,34 @@ const getXCTestAgentDerivedDataPath = (target: XCTestAgentTarget): string => {
+   return path.join(getXCTestAgentBuildRoot(), target.kind);
+ };
+ 
++const getEnvironmentPath = (name: string): string | null => {
++  const value = process.env[name]?.trim();
++
++  if (!value) {
++    return null;
++  }
++
++  return value;
++};
++
++const getExternalXCTestRunFilePath = (): string | null => {
++  return getEnvironmentPath(XCTEST_AGENT_XCTESTRUN_FILE_ENV);
++};
++
++const getExternalDerivedDataPath = (): string | null => {
++  return getEnvironmentPath(XCTEST_AGENT_DERIVED_DATA_PATH_ENV);
++};
++
++const assertExternalXCTestRunFileExists = (filePath: string) => {
++  if (fs.existsSync(filePath)) {
++    return;
++  }
++
++  throw new Error(
++    `Missing external XCTest run file at ${filePath}. Check ${XCTEST_AGENT_XCTESTRUN_FILE_ENV}.`
++  );
++};
++
+ const getXCTestAgentBuildManifestPath = (derivedDataPath: string): string =>
+   path.join(derivedDataPath, 'build-manifest.json');
+ 
+@@ -724,6 +755,24 @@ export const createXCTestAgentController = (options: {
+       return;
+     }
+ 
++    const externalXCTestRunFilePath = getExternalXCTestRunFilePath();
++    if (externalXCTestRunFilePath) {
++      assertExternalXCTestRunFileExists(externalXCTestRunFilePath);
++
++      const externalDerivedDataPath = getExternalDerivedDataPath();
++      if (externalDerivedDataPath) {
++        preparedDerivedDataPath = externalDerivedDataPath;
++      }
++
++      prepared = true;
++      xctestAgentLogger.info(
++        'Using external XCTest run file for %s target: %s',
++        target.kind,
++        externalXCTestRunFilePath
++      );
++      return;
++    }
++
+     const buildInputsHash = getProjectInputsHash();
+ 
+     xctestAgentLogger.debug(
+@@ -841,12 +890,23 @@ export const createXCTestAgentController = (options: {
+       target.kind
+     );
+     xctestAgentLogger.debug('Using XCTest agent port %d', port);
++    const externalXCTestRunFilePath = getExternalXCTestRunFilePath();
++    let xcodebuildRunInputArgs: string[];
++
++    if (externalXCTestRunFilePath) {
++      xcodebuildRunInputArgs = ['-xctestrun', externalXCTestRunFilePath];
++    } else {
++      xcodebuildRunInputArgs = [
++        '-project',
++        getXCTestAgentProjectFilePath(),
++        '-scheme',
++        XCTEST_AGENT_SCHEME_NAME,
++      ];
++    }
++
+     const xcodebuildArgs = [
+       'test-without-building',
+-      '-project',
+-      getXCTestAgentProjectFilePath(),
+-      '-scheme',
+-      XCTEST_AGENT_SCHEME_NAME,
++      ...xcodebuildRunInputArgs,
+       '-destination',
+       getXCTestAgentRunDestination(target),
+       '-parallel-testing-enabled',
