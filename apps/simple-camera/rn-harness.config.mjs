@@ -90,7 +90,7 @@ const androidDevice = useEmulator
 const iosDevice = isCI
   ? applePhysicalDevice(iosPhysicalDeviceName, {
     codeSign: {
-      teamId: 'idislikethisrightnow'
+      teamId: 'LC6XSNN25D'
     }
   })
   : appleSimulator(iosSimulatorName, iosSimulatorVersion)
