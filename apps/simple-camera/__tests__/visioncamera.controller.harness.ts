@@ -10,6 +10,7 @@ describe('VisionCamera - Controller', () => {
   let backDevice: CameraDevice
 
   beforeAll(async () => {
+    await VisionCamera.requestCameraPermission();
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
