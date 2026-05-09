@@ -90,9 +90,15 @@ index afe05044f103f10ecdb057ee0ec58f9425f96981..34d4cefc4d43a8433a235a3bee7eabfa
  };
  export const isAppRunning = async (identifier, bundleId) => {
 diff --git a/dist/xctest-agent.js b/dist/xctest-agent.js
-index 837e6a141ddedeadff87b2c5b7e891d248323019..f7da367648a9a0dd699bf27abcad264e171d71fc 100644
+index 837e6a141ddedeadff87b2c5b7e891d248323019..a162650411edbcba340f7e2a9ca07a0d3b7fe366 100644
 --- a/dist/xctest-agent.js
 +++ b/dist/xctest-agent.js
+@@ -1,4 +1,4 @@
+-import { createHarnessArtifactDirectory, getHarnessCacheRootPath, getAvailablePort, logger, spawn, } from '@react-native-harness/tools';
++import { createHarnessArtifactDirectory, getHarnessCacheRootPath, getAvailablePort, logger, spawn, SubprocessError, } from '@react-native-harness/tools';
+ import fs from 'node:fs';
+ import { createHash } from 'node:crypto';
+ import { PassThrough, pipeline } from 'node:stream';
 @@ -14,6 +14,8 @@ const XCTEST_AGENT_PROJECT_NAME = 'HarnessXCTestAgent';
  const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
  const XCTEST_AGENT_PORT_ENV = 'HARNESS_XCTEST_AGENT_PORT';
@@ -151,7 +157,15 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..f7da367648a9a0dd699bf27abcad264e
              return false;
          }
      }
-@@ -427,6 +448,17 @@ export const createXCTestAgentController = (options) => {
+@@ -402,6 +423,7 @@ export const createXCTestAgentController = (options) => {
+         runnerName: `xctest-agent-${target.kind}`,
+     });
+     const xcodebuildLogPath = path.join(logArtifacts.directoryPath, 'xcodebuild.log');
++    const xcodebuildBuildLogPath = path.join(logArtifacts.directoryPath, 'xcodebuild-build.log');
+     let preparedDerivedDataPath = getXCTestAgentDerivedDataPath(target);
+     let prepared = false;
+     let agentProcess = null;
+@@ -427,6 +449,17 @@ export const createXCTestAgentController = (options) => {
          if (prepared) {
              return;
          }
@@ -169,7 +183,16 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..f7da367648a9a0dd699bf27abcad264e
          const buildInputsHash = getProjectInputsHash();
          xctestAgentLogger.debug('verifying checked-in XCTest agent project for %s', target.kind);
          xctestAgentLogger.info('Using checked-in XCTest agent project for %s target', target.kind);
-@@ -462,7 +494,9 @@ export const createXCTestAgentController = (options) => {
+@@ -452,7 +485,7 @@ export const createXCTestAgentController = (options) => {
+         fs.mkdirSync(preparedDerivedDataPath, { recursive: true });
+         xctestAgentLogger.debug('building XCTest agent for %s', target.kind);
+         xctestAgentLogger.info('Building XCTest agent for %s target', target.kind);
+-        await spawn('xcodebuild', [
++        const xcodebuildBuildArgs = [
+             'build-for-testing',
+             '-project',
+             getXCTestAgentProjectFilePath(),
+@@ -462,9 +495,37 @@ export const createXCTestAgentController = (options) => {
              getXCTestAgentBuildDestination(target),
              '-derivedDataPath',
              preparedDerivedDataPath,
@@ -178,9 +201,38 @@ index 837e6a141ddedeadff87b2c5b7e891d248323019..f7da367648a9a0dd699bf27abcad264e
 +                ? ['-allowProvisioningUpdates']
 +                : []),
              ...getXCTestAgentBuildSigningArgs(target),
-         ]);
+-        ]);
++        ];
++        const buildProcess = spawn('xcodebuild', xcodebuildBuildArgs);
++        void attachProcessOutputLog({
++            command: ['xcodebuild', ...xcodebuildBuildArgs].join(' '),
++            logFilePath: xcodebuildBuildLogPath,
++            process: buildProcess,
++        });
++        xctestAgentLogger.info('Saving XCTest agent build xcodebuild logs to %s', xcodebuildBuildLogPath);
++        try {
++            await buildProcess;
++        }
++        catch (error) {
++            if (error instanceof SubprocessError) {
++                fs.appendFileSync(xcodebuildBuildLogPath, [
++                    '',
++                    `exitCode=${error.exitCode ?? 'unknown'}`,
++                    '',
++                    '[captured stdout]',
++                    error.stdout ?? '',
++                    '',
++                    '[captured stderr]',
++                    error.stderr ?? '',
++                    '',
++                ].join('\n'), 'utf8');
++            }
++            throw error;
++        }
          if (target.kind === 'simulator') {
-@@ -499,12 +533,22 @@ export const createXCTestAgentController = (options) => {
+             const cacheContext = await getSimulatorCacheContext(target, buildInputsHash);
+             const xctestrunRelativePath = getXCTestRunRelativePath(preparedDerivedDataPath);
+@@ -499,12 +560,22 @@ export const createXCTestAgentController = (options) => {
          xctestAgentLogger.debug('starting XCTest agent for %s', target.kind);
          xctestAgentLogger.info('Starting XCTest agent session for %s target', target.kind);
          xctestAgentLogger.debug('Using XCTest agent port %d', port);
@@ -362,10 +414,18 @@ index 6269a237e15f83ea9bb574255cec99fd6ce09d0c..521951e5aa376f5ffeb6ae7f992f0e76
  };
  
 diff --git a/src/xctest-agent.ts b/src/xctest-agent.ts
-index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322fab9a3ed 100644
+index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..2b77ef96176bc69dc4ab825f0bc0fb4ac035e81d 100644
 --- a/src/xctest-agent.ts
 +++ b/src/xctest-agent.ts
-@@ -29,6 +29,9 @@ const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
+@@ -4,6 +4,7 @@ import {
+   getAvailablePort,
+   logger,
+   spawn,
++  SubprocessError,
+   type Subprocess,
+ } from '@react-native-harness/tools';
+ import fs from 'node:fs';
+@@ -29,6 +30,9 @@ const XCTEST_AGENT_SCHEME_NAME = 'HarnessXCTestAgent';
  const XCTEST_AGENT_PORT_ENV = 'HARNESS_XCTEST_AGENT_PORT';
  const XCTEST_AGENT_TARGET_BUNDLE_ID_ENV =
    'HARNESS_XCTEST_AGENT_TARGET_BUNDLE_ID';
@@ -375,7 +435,7 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
  const XCTEST_AGENT_STARTUP_TIMEOUT_MS = 120_000;
  const XCTEST_AGENT_SHUTDOWN_TIMEOUT_MS = 5_000;
  const XCTEST_AGENT_STARTUP_POLL_INTERVAL_MS = 250;
-@@ -46,7 +49,7 @@ type XCTestAgentTarget =
+@@ -46,7 +50,7 @@ type XCTestAgentTarget =
    | {
        kind: 'device';
        id: string;
@@ -384,7 +444,7 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
      };
  
  export type XCTestAgentCapability = {
-@@ -125,6 +128,34 @@ const getXCTestAgentDerivedDataPath = (target: XCTestAgentTarget): string => {
+@@ -125,6 +129,34 @@ const getXCTestAgentDerivedDataPath = (target: XCTestAgentTarget): string => {
    return path.join(getXCTestAgentBuildRoot(), target.kind);
  };
  
@@ -419,7 +479,7 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
  const getXCTestAgentBuildManifestPath = (derivedDataPath: string): string =>
    path.join(derivedDataPath, 'build-manifest.json');
  
-@@ -146,7 +177,7 @@ const getXCTestAgentRunDestination = (target: XCTestAgentTarget): string => {
+@@ -146,7 +178,7 @@ const getXCTestAgentRunDestination = (target: XCTestAgentTarget): string => {
  const getXCTestAgentBuildSigningArgs = (
    target: XCTestAgentTarget
  ): string[] => {
@@ -428,7 +488,7 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
      return [
        'CODE_SIGNING_ALLOWED=NO',
        'CODE_SIGNING_REQUIRED=NO',
-@@ -460,10 +491,10 @@ const shouldReuseBuildArtifacts = (
+@@ -460,10 +492,10 @@ const shouldReuseBuildArtifacts = (
  
    if (target.kind === 'device') {
      if (
@@ -442,7 +502,18 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
      ) {
        return false;
      }
-@@ -724,6 +755,24 @@ export const createXCTestAgentController = (options: {
+@@ -688,6 +720,10 @@ export const createXCTestAgentController = (options: {
+     logArtifacts.directoryPath,
+     'xcodebuild.log'
+   );
++  const xcodebuildBuildLogPath = path.join(
++    logArtifacts.directoryPath,
++    'xcodebuild-build.log'
++  );
+   let preparedDerivedDataPath = getXCTestAgentDerivedDataPath(target);
+   let prepared = false;
+   let agentProcess: Subprocess | null = null;
+@@ -724,6 +760,24 @@ export const createXCTestAgentController = (options: {
        return;
      }
  
@@ -467,7 +538,16 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
      const buildInputsHash = getProjectInputsHash();
  
      xctestAgentLogger.debug(
-@@ -786,7 +835,9 @@ export const createXCTestAgentController = (options: {
+@@ -776,7 +830,7 @@ export const createXCTestAgentController = (options: {
+ 
+     xctestAgentLogger.debug('building XCTest agent for %s', target.kind);
+     xctestAgentLogger.info('Building XCTest agent for %s target', target.kind);
+-    await spawn('xcodebuild', [
++    const xcodebuildBuildArgs = [
+       'build-for-testing',
+       '-project',
+       getXCTestAgentProjectFilePath(),
+@@ -786,9 +840,45 @@ export const createXCTestAgentController = (options: {
        getXCTestAgentBuildDestination(target),
        '-derivedDataPath',
        preparedDerivedDataPath,
@@ -476,9 +556,46 @@ index cdbb3187bcfc07ac812dd7d5990e9d23220dfdf6..76e2b70c976d4d12189a5611a62f0322
 +        ? ['-allowProvisioningUpdates']
 +        : []),
        ...getXCTestAgentBuildSigningArgs(target),
-     ]);
+-    ]);
++    ];
++    const buildProcess = spawn('xcodebuild', xcodebuildBuildArgs);
++    void attachProcessOutputLog({
++      command: ['xcodebuild', ...xcodebuildBuildArgs].join(' '),
++      logFilePath: xcodebuildBuildLogPath,
++      process: buildProcess,
++    });
++    xctestAgentLogger.info(
++      'Saving XCTest agent build xcodebuild logs to %s',
++      xcodebuildBuildLogPath
++    );
++
++    try {
++      await buildProcess;
++    } catch (error) {
++      if (error instanceof SubprocessError) {
++        fs.appendFileSync(
++          xcodebuildBuildLogPath,
++          [
++            '',
++            `exitCode=${error.exitCode ?? 'unknown'}`,
++            '',
++            '[captured stdout]',
++            error.stdout ?? '',
++            '',
++            '[captured stderr]',
++            error.stderr ?? '',
++            '',
++          ].join('\n'),
++          'utf8'
++        );
++      }
++
++      throw error;
++    }
  
-@@ -841,12 +892,23 @@ export const createXCTestAgentController = (options: {
+     if (target.kind === 'simulator') {
+       const cacheContext = await getSimulatorCacheContext(
+@@ -841,12 +931,23 @@ export const createXCTestAgentController = (options: {
        target.kind
      );
      xctestAgentLogger.debug('Using XCTest agent port %d', port);

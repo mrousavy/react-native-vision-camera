@@ -153,6 +153,7 @@ phases:
 
         cd apps/simple-camera
 
+        set +e
         HARNESS_METRO_BIND_HOST="::" \
           HARNESS_IOS_METRO_HOST="$(cat "$HARNESS_METRO_HOST_FILE")" \
           HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
@@ -163,6 +164,15 @@ phases:
             --harnessRunner ios \
             --reporters=default \
             --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
+        HARNESS_EXIT="${PIPESTATUS[0]}"
+        set -e
+
+        if [ -d ".harness" ]; then
+          rm -rf "$HARNESS_ARTIFACTS/harness-directory"
+          cp -R ".harness" "$HARNESS_ARTIFACTS/harness-directory"
+        fi
+
+        exit "$HARNESS_EXIT"
 
 artifacts:
   - $WORKING_DIRECTORY/harness-artifacts
