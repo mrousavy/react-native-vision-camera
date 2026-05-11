@@ -137,9 +137,6 @@ phases:
           echo "Using iOS signing team for Harness XCTest agent: ${TEAM_ID}"
           {
             printf "HARNESS_IOS_DEVELOPMENT_TEAM=%q\n" "$TEAM_ID"
-            if [ -n "$SIGNING_IDENTITY_HASH" ]; then
-              printf "HARNESS_IOS_CODE_SIGN_IDENTITY=%q\n" "$SIGNING_IDENTITY_HASH"
-            fi
           } >> "$HARNESS_SIGNING_ENV"
         else
           echo "No iOS development team found for Harness XCTest agent signing."
