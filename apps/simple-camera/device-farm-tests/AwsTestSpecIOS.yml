@@ -52,13 +52,18 @@ phases:
         security find-identity -v -p codesigning > "$SIGNING_IDENTITIES" || true
         cat "$SIGNING_IDENTITIES"
 
-        SIGNING_IDENTITY="$(
-          awk -F '"' '
+        SIGNING_IDENTITY_LINE="$(
+          awk '
             /"Apple Development:/ || /"iPhone Developer:/ {
-              print $2
+              print
               exit
             }
           ' "$SIGNING_IDENTITIES"
+        )"
+        SIGNING_IDENTITY_HASH="$(printf '%s\n' "$SIGNING_IDENTITY_LINE" | awk '{print $2}')"
+        SIGNING_IDENTITY="$(
+          printf '%s\n' "$SIGNING_IDENTITY_LINE" |
+            sed -n 's/.*"\(.*\)".*/\1/p'
         )"
 
         echo "Device Farm app path: ${DEVICEFARM_APP_PATH:-<unset>}"
@@ -76,7 +81,7 @@ phases:
         if [ -n "$SIGNING_IDENTITY" ]; then
           TEAM_ID="$(printf '%s\n' "$SIGNING_IDENTITY" | sed -n 's/.*(\([A-Z0-9][A-Z0-9]*\)).*/\1/p')"
           if [ -n "$TEAM_ID" ]; then
-            echo "Using signing identity from keychain: ${SIGNING_IDENTITY}"
+            echo "Using signing identity from keychain: ${SIGNING_IDENTITY} (${SIGNING_IDENTITY_HASH:-unknown hash})"
           else
             echo "Could not parse team ID from signing identity: ${SIGNING_IDENTITY}"
           fi
@@ -132,8 +137,8 @@ phases:
           echo "Using iOS signing team for Harness XCTest agent: ${TEAM_ID}"
           {
             printf "HARNESS_IOS_DEVELOPMENT_TEAM=%q\n" "$TEAM_ID"
-            if [ -n "$SIGNING_IDENTITY" ]; then
-              printf "HARNESS_IOS_CODE_SIGN_IDENTITY=%q\n" "$SIGNING_IDENTITY"
+            if [ -n "$SIGNING_IDENTITY_HASH" ]; then
+              printf "HARNESS_IOS_CODE_SIGN_IDENTITY=%q\n" "$SIGNING_IDENTITY_HASH"
             fi
           } >> "$HARNESS_SIGNING_ENV"
         else
