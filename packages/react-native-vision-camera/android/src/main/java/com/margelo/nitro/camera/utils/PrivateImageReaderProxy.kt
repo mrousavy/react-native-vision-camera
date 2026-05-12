@@ -53,6 +53,7 @@ class PrivateImageReaderProxy : ImageReaderProxy {
 
   override fun close() {
     imageReader.close()
+    imageReaderThread.quitSafely()
   }
 
   override fun getHeight(): Int {

@@ -29,18 +29,19 @@ class DepthImageReaderProxy : ImageReaderProxy {
     }
   }
 
-  override fun acquireLatestImage(): ImageProxy {
-    val image = imageReader.acquireLatestImage()
+  override fun acquireLatestImage(): ImageProxy? {
+    val image = imageReader.acquireLatestImage() ?: return null
     return DepthImageProxy(image)
   }
 
-  override fun acquireNextImage(): ImageProxy {
-    val image = imageReader.acquireNextImage()
+  override fun acquireNextImage(): ImageProxy? {
+    val image = imageReader.acquireNextImage() ?: return null
     return DepthImageProxy(image)
   }
 
   override fun close() {
     imageReader.close()
+    imageReaderThread.quitSafely()
   }
 
   override fun getHeight(): Int {
