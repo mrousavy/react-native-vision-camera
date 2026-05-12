@@ -238,6 +238,147 @@ describe('VisionCamera - Frame', () => {
     expect(counter.getBlocking()).toBeGreaterThanOrEqual(3)
   })
 
+  // Verifies that `targetResolution` actually drives the frame pipeline — the
+  // other frame tests only assert width/height > 0, so a regression that
+  // snaps every request to a default resolution would slip through.
+  it('streams frames at the device\'s maximum supported frame resolution', async () => {
+    const supported = backDevice.getSupportedResolutions('stream')
+    expect(supported.length).toBeGreaterThan(0)
+    const max = supported.reduce((a, b) =>
+      a.width * a.height > b.width * b.height ? a : b,
+    )
+
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: max,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [{ resolutionBias: frameOutput }],
+      },
+    ])
+
+    let receivedWidth = 0
+    let receivedHeight = 0
+    let sessionError: Error | undefined
+    const report = (w: number, h: number) => {
+      receivedWidth = w
+      receivedHeight = h
+    }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const w = frame.width
+      const h = frame.height
+      scheduleOnRN(report, w, h)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(
+        () => (receivedWidth > 0 && receivedHeight > 0) || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+
+      const requestedShortEdge = Math.min(max.width, max.height)
+      const requestedLongEdge = Math.max(max.width, max.height)
+      const streamedShortEdge = Math.min(receivedWidth, receivedHeight)
+      const streamedLongEdge = Math.max(receivedWidth, receivedHeight)
+      console.log(
+        `max device stream res=${max.width}x${max.height} streamed=${receivedWidth}x${receivedHeight}`,
+      )
+      expect(streamedShortEdge).toBe(requestedShortEdge)
+      expect(streamedLongEdge).toBe(requestedLongEdge)
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('streams frames at the device\'s minimum supported frame resolution', async () => {
+    const supported = backDevice.getSupportedResolutions('stream')
+    expect(supported.length).toBeGreaterThan(0)
+    const min = supported.reduce((a, b) =>
+      a.width * a.height < b.width * b.height ? a : b,
+    )
+
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: min,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [{ resolutionBias: frameOutput }],
+      },
+    ])
+
+    let receivedWidth = 0
+    let receivedHeight = 0
+    let sessionError: Error | undefined
+    const report = (w: number, h: number) => {
+      receivedWidth = w
+      receivedHeight = h
+    }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const w = frame.width
+      const h = frame.height
+      scheduleOnRN(report, w, h)
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(
+        () => (receivedWidth > 0 && receivedHeight > 0) || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+
+      const requestedShortEdge = Math.min(min.width, min.height)
+      const requestedLongEdge = Math.max(min.width, min.height)
+      const streamedShortEdge = Math.min(receivedWidth, receivedHeight)
+      const streamedLongEdge = Math.max(receivedWidth, receivedHeight)
+      console.log(
+        `min device stream res=${min.width}x${min.height} streamed=${receivedWidth}x${receivedHeight}`,
+      )
+      expect(streamedShortEdge).toBe(requestedShortEdge)
+      expect(streamedLongEdge).toBe(requestedLongEdge)
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
   // TODO: Re-enable this test once the Android CameraX ImageAnalysis pipeline surfaces
   //       dropped-frame notifications. Today HybridFrameOutput.setOnFrameDroppedCallback
   //       is a no-op on Android (see the `TODO: CameraX does not have a way to figure
