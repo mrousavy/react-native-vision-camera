@@ -14,7 +14,6 @@ import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraOutputSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
-import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.barcodescanner.extensions.toMLBarcodeScannerOptions
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.surfaceRotation
@@ -34,7 +33,7 @@ class HybridBarcodeScannerOutput(
       field = value
       imageAnalysis?.targetRotation = value.surfaceRotation
     }
-  override val currentResolution: Size?
+  override val currentResolution: com.margelo.nitro.camera.Size?
     get() = imageAnalysis?.resolutionInfo?.resolution?.toSize()
   override val mirrorMode: MirrorMode = MirrorMode.AUTO
   private var imageAnalysis: ImageAnalysis? = null
