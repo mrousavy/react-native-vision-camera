@@ -11,6 +11,10 @@ permissions:
   contents: read
   pull-requests: read
 
+# In PRs, this has the same head_ref and cancels in-progress runs.
+# On main, this has no head_ref, so it uses run_id - which is unique
+# per run, making cancel-in-progress useless and allowing parallel runs
+# for the main branch.
 concurrency:
   group: harness-aws-device-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
