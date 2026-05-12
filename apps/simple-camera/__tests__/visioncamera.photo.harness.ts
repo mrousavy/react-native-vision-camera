@@ -259,7 +259,7 @@ describe('VisionCamera - Photo', () => {
       targetResolution: max,
       containerFormat: 'jpeg',
       quality: 0.8,
-      qualityPrioritization: 'balanced',
+      qualityPrioritization: 'quality',
     })
     await session.configure([
       {
