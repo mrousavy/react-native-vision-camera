@@ -12,8 +12,8 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: harness-aws-device-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
+  group: harness-aws-device-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:

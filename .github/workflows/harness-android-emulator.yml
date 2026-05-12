@@ -1,8 +1,8 @@
 name: Harness Android Emulator
 
 concurrency:
-  group: harness-android-emulator-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
+  group: harness-android-emulator-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
