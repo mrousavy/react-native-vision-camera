@@ -215,23 +215,17 @@ class HybridCameraController(
 
   override fun enableTorchWithStrength(strength: Double): Promise<Unit> {
     return Promise.async {
-      // 1. Validate strength
       require(strength in 0.0..1.0) {
         "Torch `strength` is not within 0.0 to 1.0 range! (Received: $strength)"
       }
 
-      // 2. CameraX's setTorchStrengthLevel accepts a level in [1, getMaxTorchStrengthLevel()] —
-      //    anything outside that range fails with IllegalArgumentException, and any value at all
-      //    fails with UnsupportedOperationException on devices that don't support strength control.
-      //    Map our [0.0, 1.0] strength onto [1, maxLevel] linearly. (A naive `1 + strength * maxLevel`
-      //    overshoots to `maxLevel + 1` at the top of the range.)
+      // Extrapolate `[0, 1]` to `[1, maxTorchStrengthLevel]`
       val maxLevel = camera.cameraInfo.maxTorchStrengthLevel
       require(maxLevel > 0) {
         "Cannot configure torch strength - this CameraDevice does not support it!"
       }
       val normalizedStrength = (strength * (maxLevel - 1) + 1).toInt().coerceIn(1, maxLevel)
 
-      // 3. Apply level + enable torch.
       camera.cameraControl
         .setTorchStrengthLevel(normalizedStrength)
         .await()

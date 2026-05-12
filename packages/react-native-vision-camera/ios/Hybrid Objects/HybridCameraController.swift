@@ -301,14 +301,11 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func enableTorchWithStrength(strength: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) {
-      // 1. Ensure we have a torch
       guard self.captureDevice.hasTorch else {
         throw RuntimeError.error(
           withMessage: "Cannot enable torch - this CameraDevice does not have a `torch`!"
         )
       }
-
-      // 2. Ensure strength is within range
       guard strength >= 0 && strength <= 1 else {
         throw RuntimeError.error(
           withMessage:
@@ -316,9 +313,8 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
         )
       }
 
-      // 3. Apply level. AVCaptureDevice.setTorchModeOn(level:) accepts (0, AVCaptureMaxAvailableTorchLevel]
-      //    and throws NSInvalidArgumentException (uncatchable from Swift) for level == 0.
-      //    Floor strength=0 at a tiny positive value so JS callers can request "minimum brightness".
+      // `setTorchModeOn(level:)`` accepts (0, AVCaptureMaxAvailableTorchLevel],
+      // but throws if we pass `0` - so we use at least `0.001`.
       let level = max(Float(strength), 0.001)
       try self.captureDevice.setTorchModeOn(level: level)
     }
