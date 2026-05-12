@@ -280,9 +280,7 @@ describe('VisionCamera - Frame', () => {
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
-      const w = frame.width
-      const h = frame.height
-      scheduleOnRN(report, w, h)
+      scheduleOnRN(report, frame.width, frame.height)
       frame.dispose()
     })
 
@@ -349,9 +347,7 @@ describe('VisionCamera - Frame', () => {
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
-      const w = frame.width
-      const h = frame.height
-      scheduleOnRN(report, w, h)
+      scheduleOnRN(report, frame.width, frame.height)
       frame.dispose()
     })
 

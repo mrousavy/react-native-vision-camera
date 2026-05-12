@@ -483,8 +483,7 @@ describe('VisionCamera - Multi-Output', () => {
     const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
     yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
-      const planar = frame.isPlanar
-      scheduleOnRN(reportYuv, planar)
+      scheduleOnRN(reportYuv, frame.isPlanar)
       frame.dispose()
     })
 
@@ -530,8 +529,7 @@ describe('VisionCamera - Multi-Output', () => {
       )
       rgbRuntime.setOnFrameCallback(rgbFrameOutput, (frame) => {
         'worklet'
-        const planar = frame.isPlanar
-        scheduleOnRN(reportRgb, planar)
+        scheduleOnRN(reportRgb, frame.isPlanar)
         frame.dispose()
       })
 

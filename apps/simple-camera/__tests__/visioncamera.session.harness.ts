@@ -395,8 +395,7 @@ describe('VisionCamera - Session', () => {
     const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
     yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
-      const planar = frame.isPlanar
-      scheduleOnRN(reportYuv, planar)
+      scheduleOnRN(reportYuv, frame.isPlanar)
       frame.dispose()
     })
 
@@ -438,8 +437,7 @@ describe('VisionCamera - Session', () => {
       )
       rgbRuntime.setOnFrameCallback(rgbFrameOutput, (frame) => {
         'worklet'
-        const planar = frame.isPlanar
-        scheduleOnRN(reportRgb, planar)
+        scheduleOnRN(reportRgb, frame.isPlanar)
         frame.dispose()
       })
 
