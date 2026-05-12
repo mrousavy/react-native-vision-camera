@@ -301,9 +301,9 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func enableTorchWithStrength(strength: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) {
-      guard self.captureDevice.hasTorch else {
+      guard self.device.supportsTorchStrength else {
         throw RuntimeError.error(
-          withMessage: "Cannot enable torch - this CameraDevice does not have a `torch`!"
+          withMessage: "Cannot enable torch - this CameraDevice does not support setting torch strength! (See `device.supportsTorchStrength`)"
         )
       }
       let minStrength = self.captureDevice.minTorchStrength
