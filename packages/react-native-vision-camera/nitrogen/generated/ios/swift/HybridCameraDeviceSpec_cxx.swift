@@ -400,6 +400,20 @@ open class HybridCameraDeviceSpec_cxx {
     }
   }
   
+  public final var minTorchStrength: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.minTorchStrength
+    }
+  }
+  
+  public final var maxTorchStrength: Double {
+    @inline(__always)
+    get {
+      return self.__implementation.maxTorchStrength
+    }
+  }
+  
   public final var supportsLowLightBoost: Bool {
     @inline(__always)
     get {

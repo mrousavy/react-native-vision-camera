@@ -174,17 +174,22 @@ describe('VisionCamera - Controller', () => {
 
     try {
       // Min strength (dimmest level the device supports)
-      await controller.enableTorchWithStrength(0.0)
+      await controller.enableTorchWithStrength(backDevice.minTorchStrength)
       expect(controller.torchMode).toBe('on')
 
-      // Max strength — the case that catches the off-by-one in CameraX's
-      // strength mapping (a naive `1 + strength * maxLevel` overshoots to
-      // `maxLevel + 1` and `setTorchStrengthLevel` throws IllegalArgumentException).
-      await controller.enableTorchWithStrength(1.0)
+      // Max strength — the case that caught the off-by-one in the original
+      // CameraX strength mapping (a naive `1 + strength * maxLevel`
+      // overshoots to `maxLevel + 1` and `setTorchStrengthLevel` throws
+      // IllegalArgumentException). Must round-trip without throwing.
+      await controller.enableTorchWithStrength(backDevice.maxTorchStrength)
       expect(controller.torchMode).toBe('on')
+      expect(controller.torchStrength).toBe(backDevice.maxTorchStrength)
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
+      // When the torch is physically off, strength must report 0 on both
+      // platforms (the value should not stay at the previously-configured level).
+      expect(controller.torchStrength).toBe(0.0)
     } finally {
       await session.stop()
     }

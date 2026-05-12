@@ -159,6 +159,14 @@ abstract class HybridCameraDeviceSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
+  abstract val minTorchStrength: Double
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val maxTorchStrength: Double
+  
+  @get:DoNotStrip
+  @get:Keep
   abstract val supportsLowLightBoost: Boolean
   
   @get:DoNotStrip

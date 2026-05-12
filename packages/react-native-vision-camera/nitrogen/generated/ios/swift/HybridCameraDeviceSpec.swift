@@ -43,6 +43,8 @@ public protocol HybridCameraDeviceSpec_protocol: HybridObject {
   var hasFlash: Bool { get }
   var hasTorch: Bool { get }
   var supportsTorchStrength: Bool { get }
+  var minTorchStrength: Double { get }
+  var maxTorchStrength: Double { get }
   var supportsLowLightBoost: Bool { get }
   var minZoom: Double { get }
   var maxZoom: Double { get }

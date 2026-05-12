@@ -71,7 +71,8 @@ class HybridCameraController(
   override val torchStrength: Double
     get() =
       camera.cameraInfo.torchStrengthLevel.value
-        ?.toDouble() ?: 1.0
+        ?.toDouble() ?: 0.0
+
   override val torchMode: TorchMode
     get() = TorchMode.fromTorchState(camera.cameraInfo.torchState.value ?: TorchState.OFF)
 
@@ -215,19 +216,8 @@ class HybridCameraController(
 
   override fun enableTorchWithStrength(strength: Double): Promise<Unit> {
     return Promise.async {
-      require(strength in 0.0..1.0) {
-        "Torch `strength` is not within 0.0 to 1.0 range! (Received: $strength)"
-      }
-
-      // Extrapolate `[0, 1]` to `[1, maxTorchStrengthLevel]`
-      val maxLevel = camera.cameraInfo.maxTorchStrengthLevel
-      require(maxLevel > 0) {
-        "Cannot configure torch strength - this CameraDevice does not support it!"
-      }
-      val normalizedStrength = (strength * (maxLevel - 1) + 1).toInt().coerceIn(1, maxLevel)
-
       camera.cameraControl
-        .setTorchStrengthLevel(normalizedStrength)
+        .setTorchStrengthLevel(strength.toInt())
         .await()
       camera.cameraControl
         .enableTorch(true)

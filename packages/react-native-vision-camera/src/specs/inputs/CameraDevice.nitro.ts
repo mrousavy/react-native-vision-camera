@@ -515,6 +515,37 @@ export interface CameraDevice
    * @see {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
    */
   readonly supportsTorchStrength: boolean
+  /**
+   * Gets the minimum supported value for the {@linkcode strength}
+   * parameter in
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)},
+   * or `0` if {@linkcode supportsTorchStrength} is false.
+   *
+   * @discussion
+   * On iOS this is always `0` — the torch's strength is a
+   * continuous value in `[0, 1]`. On Android this is `1` — the
+   * dimmest discrete brightness level the hardware exposes.
+   *
+   * @see {@linkcode supportsTorchStrength}
+   * @see {@linkcode maxTorchStrength}
+   */
+  readonly minTorchStrength: number
+  /**
+   * Gets the maximum supported value for the {@linkcode strength}
+   * parameter in
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)},
+   * or `0` if {@linkcode supportsTorchStrength} is false.
+   *
+   * @discussion
+   * On iOS this is always `1` — the torch's strength is a
+   * continuous value in `[0, 1]`. On Android this is the device's
+   * maximum discrete brightness level (e.g. `5` on a device that
+   * exposes 5 levels).
+   *
+   * @see {@linkcode supportsTorchStrength}
+   * @see {@linkcode minTorchStrength}
+   */
+  readonly maxTorchStrength: number
 
   // pragma MARK: Low Light Boost
   /**

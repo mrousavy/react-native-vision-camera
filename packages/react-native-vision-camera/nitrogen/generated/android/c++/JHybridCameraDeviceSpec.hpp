@@ -83,6 +83,8 @@ namespace margelo::nitro::camera {
     bool getHasFlash() override;
     bool getHasTorch() override;
     bool getSupportsTorchStrength() override;
+    double getMinTorchStrength() override;
+    double getMaxTorchStrength() override;
     bool getSupportsLowLightBoost() override;
     double getMinZoom() override;
     double getMaxZoom() override;

@@ -201,6 +201,15 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
     return device.hasTorch
   }
 
+  var minTorchStrength: Double {
+    // We use a tiny value larger than 0, because 0 is not a valid torch level, it'd be "off".
+    return 0.001
+  }
+
+  var maxTorchStrength: Double {
+    return 1.0
+  }
+
   var supportsLowLightBoost: Bool {
     return device.isLowLightBoostSupported
   }

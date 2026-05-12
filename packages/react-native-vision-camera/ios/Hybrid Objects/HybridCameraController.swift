@@ -306,17 +306,14 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
           withMessage: "Cannot enable torch - this CameraDevice does not have a `torch`!"
         )
       }
-      guard strength >= 0 && strength <= 1 else {
-        throw RuntimeError.error(
-          withMessage:
-            "Torch `strength` is not within 0.0 to 1.0 range! (Received: \(strength))"
+      // On iOS, `strength` has to be greater than 0 (>= 0.001),
+      // and smaller than or equal to `1.0`.
+      guard strength > 0 && strength <= 1.0 else {
+        throw RuntimeError(
+          "`strength` is not within the device's `minTorchStrength` and `maxTorchStrength` range! (Received: \(strength), `device.minTorchStrength`: 0.001, `device.maxTorchStrength`: 1.0"
         )
       }
-
-      // `setTorchModeOn(level:)`` accepts (0, AVCaptureMaxAvailableTorchLevel],
-      // but throws if we pass `0` - so we use at least `0.001`.
-      let level = max(Float(strength), 0.001)
-      try self.captureDevice.setTorchModeOn(level: level)
+      try self.captureDevice.setTorchModeOn(level: Float(strength))
     }
   }
 
@@ -347,11 +344,9 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       // 1. Ensure exposureBias is within range
       let device = self.captureDevice
       let exposure = Float(exposure)
-      guard exposure >= device.minExposureTargetBias && exposure <= device.maxExposureTargetBias
-      else {
-        throw RuntimeError.error(
-          withMessage:
-            "`exposure` is not within the device's `minExposureBias` and `maxExposureBias` range! (Received: \(exposure), `device.minExposureBias`: \(device.minExposureTargetBias), `device.maxExposureBias`: \(device.maxExposureTargetBias)"
+      guard exposure >= device.minExposureTargetBias && exposure <= device.maxExposureTargetBias else {
+        throw RuntimeError(
+          "`exposure` is not within the device's `minExposureBias` and `maxExposureBias` range! (Received: \(exposure), `device.minExposureBias`: \(device.minExposureTargetBias), `device.maxExposureBias`: \(device.maxExposureTargetBias)"
         )
       }
 

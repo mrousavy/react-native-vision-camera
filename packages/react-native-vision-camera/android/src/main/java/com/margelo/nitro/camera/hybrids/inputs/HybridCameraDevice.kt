@@ -172,6 +172,19 @@ class HybridCameraDevice(
   override val supportsTorchStrength: Boolean
     get() = cameraInfo.isTorchStrengthSupported
 
+  override val minTorchStrength: Double
+    get() {
+      if (!supportsTorchStrength) return 0.0
+      // Torch Strength ranges [1, maxTorchStrengthLevel]
+      return 1.0
+    }
+
+  override val maxTorchStrength: Double
+    get() {
+      if (!supportsTorchStrength) return 0.0
+      return cameraInfo.maxTorchStrengthLevel.toDouble()
+    }
+
   override val supportsLowLightBoost: Boolean
     get() = cameraInfo.isLowLightBoostSupported
 
