@@ -275,7 +275,7 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       onSubjectAreaDidChange: onSubjectAreaChanged)
   }
 
-  func setTorchMode(mode: TorchMode, strength: Double?) -> Promise<Void> {
+  func setTorchMode(mode: TorchMode) -> Promise<Void> {
     return captureDevice.withLock(queue) {
       // 1. Ensure we have a torch
       if !self.captureDevice.hasTorch {
@@ -294,18 +294,26 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       case .off:
         self.captureDevice.torchMode = .off
       case .on:
-        if let strength {
-          // 3. We have a custom strength level too! Set that
-          guard strength >= 0 && strength <= 1 else {
-            throw RuntimeError.error(
-              withMessage:
-                "Torch `strength` is not within 0.0 to 1.0 range! (Received: \(strength))")
-          }
-          try self.captureDevice.setTorchModeOn(level: Float(strength))
-        } else {
-          self.captureDevice.torchMode = .on
-        }
+        self.captureDevice.torchMode = .on
       }
+    }
+  }
+
+  func enableTorchWithStrength(strength: Double) -> Promise<Void> {
+    return captureDevice.withLock(queue) {
+      guard self.device.supportsTorchStrength else {
+        throw RuntimeError.error(
+          withMessage: "Cannot enable torch - this CameraDevice does not support setting torch strength! (See `device.supportsTorchStrength`)"
+        )
+      }
+      let minStrength = self.captureDevice.minTorchStrength
+      let maxStrength = self.captureDevice.maxTorchStrength
+      guard strength >= minStrength && strength <= maxStrength else {
+        throw RuntimeError(
+          "`strength` is not within the device's `minTorchStrength` and `maxTorchStrength` range! (Received: \(strength), `device.minTorchStrength`: \(minStrength), `device.maxTorchStrength`: \(maxStrength)"
+        )
+      }
+      try self.captureDevice.setTorchModeOn(level: Float(strength))
     }
   }
 
@@ -336,11 +344,9 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       // 1. Ensure exposureBias is within range
       let device = self.captureDevice
       let exposure = Float(exposure)
-      guard exposure >= device.minExposureTargetBias && exposure <= device.maxExposureTargetBias
-      else {
-        throw RuntimeError.error(
-          withMessage:
-            "`exposure` is not within the device's `minExposureBias` and `maxExposureBias` range! (Received: \(exposure), `device.minExposureBias`: \(device.minExposureTargetBias), `device.maxExposureBias`: \(device.maxExposureTargetBias)"
+      guard exposure >= device.minExposureTargetBias && exposure <= device.maxExposureTargetBias else {
+        throw RuntimeError(
+          "`exposure` is not within the device's `minExposureBias` and `maxExposureBias` range! (Received: \(exposure), `device.minExposureBias`: \(device.minExposureTargetBias), `device.maxExposureBias`: \(device.maxExposureTargetBias)"
         )
       }
 

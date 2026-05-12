@@ -44,7 +44,8 @@ public protocol HybridCameraControllerSpec_protocol: HybridObject {
   func setZoom(zoom: Double) throws -> Promise<Void>
   func startZoomAnimation(zoom: Double, rate: Double) throws -> Promise<Void>
   func cancelZoomAnimation() throws -> Promise<Void>
-  func setTorchMode(mode: TorchMode, strength: Double?) throws -> Promise<Void>
+  func setTorchMode(mode: TorchMode) throws -> Promise<Void>
+  func enableTorchWithStrength(strength: Double) throws -> Promise<Void>
   func setExposureBias(exposure: Double) throws -> Promise<Void>
   func setFocusLocked(lensPosition: Double) throws -> Promise<Void>
   func lockCurrentFocus() throws -> Promise<Void>

@@ -134,14 +134,62 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      // TODO: Add setTorchMode('on', STRENGTH) test when we expose something like
-      //       CameraDevice.supportsTorchStrength - currently this might throw on
-      //       some phones without a way to check upfront if it supports setting strength!
       await controller.setTorchMode('on')
       expect(controller.torchMode).toBe('on')
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('enables torch at min/max strength when the device supports it', async () => {
+    if (!backDevice.hasTorch) {
+      console.log('[SKIP] torch strength: device has no torch')
+      return
+    }
+    if (!backDevice.supportsTorchStrength) {
+      console.log(
+        '[SKIP] torch strength: device does not support custom strength',
+      )
+      return
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+    await session.start()
+
+    try {
+      // Min strength (dimmest level the device supports)
+      await controller.enableTorchWithStrength(backDevice.minTorchStrength)
+      expect(controller.torchMode).toBe('on')
+
+      // Max strength — the case that caught the off-by-one in the original
+      // CameraX strength mapping (a naive `1 + strength * maxLevel`
+      // overshoots to `maxLevel + 1` and `setTorchStrengthLevel` throws
+      // IllegalArgumentException). Must round-trip without throwing.
+      await controller.enableTorchWithStrength(backDevice.maxTorchStrength)
+      expect(controller.torchMode).toBe('on')
+      expect(controller.torchStrength).toBe(backDevice.maxTorchStrength)
+
+      await controller.setTorchMode('off')
+      expect(controller.torchMode).toBe('off')
+      // When the torch is physically off, strength must report 0 on both
+      // platforms (the value should not stay at the previously-configured level).
+      expect(controller.torchStrength).toBe(0.0)
     } finally {
       await session.stop()
     }

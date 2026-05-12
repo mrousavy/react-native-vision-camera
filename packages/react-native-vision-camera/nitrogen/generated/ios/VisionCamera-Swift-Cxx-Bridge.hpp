@@ -546,21 +546,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.value();
   }
   
-  // pragma MARK: std::optional<double>
-  /**
-   * Specialized version of `std::optional<double>`.
-   */
-  using std__optional_double_ = std::optional<double>;
-  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
-    return std::optional<double>(value);
-  }
-  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.value();
-  }
-  
   // pragma MARK: std::shared_ptr<HybridCameraControllerSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridCameraControllerSpec>`.
@@ -915,6 +900,21 @@ namespace margelo::nitro::camera::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridCameraVideoOutputSpec>
   using std__weak_ptr_HybridCameraVideoOutputSpec_ = std::weak_ptr<HybridCameraVideoOutputSpec>;
   inline std__weak_ptr_HybridCameraVideoOutputSpec_ weakify_std__shared_ptr_HybridCameraVideoOutputSpec_(const std::shared_ptr<HybridCameraVideoOutputSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: std::optional<double>
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
+    return std::optional<double>(value);
+  }
+  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.value();
+  }
   
   // pragma MARK: std::optional<RecorderFileType>
   /**

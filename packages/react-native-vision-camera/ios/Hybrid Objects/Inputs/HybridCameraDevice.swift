@@ -196,6 +196,19 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
     return device.hasTorch
   }
 
+  var supportsTorchStrength: Bool {
+    // On iOS any device with a torch also supports custom torch level/strength
+    return device.hasTorch
+  }
+
+  var minTorchStrength: Double {
+    return device.minTorchStrength
+  }
+
+  var maxTorchStrength: Double {
+    return device.maxTorchStrength
+  }
+
   var supportsLowLightBoost: Bool {
     return device.isLowLightBoostSupported
   }

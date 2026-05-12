@@ -436,16 +436,28 @@ open class HybridCameraControllerSpec_cxx {
   }
   
   @inline(__always)
-  public final func setTorchMode(mode: Int32, strength: bridge.std__optional_double_) -> bridge.Result_std__shared_ptr_Promise_void___ {
+  public final func setTorchMode(mode: Int32) -> bridge.Result_std__shared_ptr_Promise_void___ {
     do {
-      let __result = try self.__implementation.setTorchMode(mode: margelo.nitro.camera.TorchMode(rawValue: mode)!, strength: { () -> Double? in
-        if bridge.has_value_std__optional_double_(strength) {
-          let __unwrapped = bridge.get_std__optional_double_(strength)
-          return __unwrapped
-        } else {
-          return nil
-        }
-      }())
+      let __result = try self.__implementation.setTorchMode(mode: margelo.nitro.camera.TorchMode(rawValue: mode)!)
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
+        let __promise = bridge.create_std__shared_ptr_Promise_void__()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve() })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_void___(__exceptionPtr)
+    }
+  }
+  
+  @inline(__always)
+  public final func enableTorchWithStrength(strength: Double) -> bridge.Result_std__shared_ptr_Promise_void___ {
+    do {
+      let __result = try self.__implementation.enableTorchWithStrength(strength: strength)
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_void__ in
         let __promise = bridge.create_std__shared_ptr_Promise_void__()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_void__(__promise)
