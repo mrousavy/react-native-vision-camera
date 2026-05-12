@@ -17,7 +17,7 @@ import { deferred, withTimeout } from './test-utils'
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-describe('VisionCamera - Combined Outputs', () => {
+describe('VisionCamera - Multi-Output', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
 
