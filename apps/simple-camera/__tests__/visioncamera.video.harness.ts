@@ -63,7 +63,9 @@ describe('VisionCamera - Video', () => {
       )
       await sleep(1500)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null, { timeout: 10_000 })
+      await waitUntil(() => finishedPath != null || recordingError != null, {
+        timeout: 10_000,
+      })
 
       expect(recordingError).toBe(undefined)
       expect(finishedReason).toBe('stopped')
@@ -90,18 +92,22 @@ describe('VisionCamera - Video', () => {
 
     const recorder = await videoOutput.createRecorder({})
     let finished = false
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         () => {
           finished = true
         },
         (error) => {
-          throw error
+          recordingError = error
         },
       )
       await sleep(1000)
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 10_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 10_000,
+      })
+      expect(recordingError).toBe(undefined)
     } finally {
       await session.stop()
     }
@@ -124,16 +130,22 @@ describe('VisionCamera - Video', () => {
     await session.start()
     const recorder = await videoOutput.createRecorder({})
     let finished = false
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         () => {
           finished = true
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
       )
       await sleep(1000)
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 10_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 10_000,
+      })
+      expect(recordingError).toBe(undefined)
     } finally {
       await session.stop()
     }
@@ -156,14 +168,20 @@ describe('VisionCamera - Video', () => {
 
     const recorder = await videoOutput.createRecorder({ maxDuration: 1 })
     let finishedReason: RecordingFinishedReason | undefined
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         (_path, reason) => {
           finishedReason = reason
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
       )
-      await waitUntil(() => finishedReason != null, { timeout: 15_000 })
+      await waitUntil(() => finishedReason != null || recordingError != null, {
+        timeout: 15_000,
+      })
+      expect(recordingError).toBe(undefined)
       expect(finishedReason).toBe('max-duration-reached')
     } finally {
       await session.stop()
@@ -186,19 +204,26 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
 
-    // Limit must be above per-GOP / moov-atom overhead, and the timeout
-    // must tolerate near-static simulator feeds compressing well below
-    // `targetBitRate`.
+    // Limit is above per-GOP / moov-atom overhead so the OS doesn't silently
+    // ignore it. At 720p HEVC even a near-static feed produces >=200 kbps
+    // from sensor noise, so 500 KB lands well within 30 s on real hardware -
+    // a longer timeout would just hide a real bug.
     const recorder = await videoOutput.createRecorder({ maxFileSize: 500_000 })
     let finishedReason: RecordingFinishedReason | undefined
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         (_path, reason) => {
           finishedReason = reason
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
       )
-      await waitUntil(() => finishedReason != null, { timeout: 60_000 })
+      await waitUntil(() => finishedReason != null || recordingError != null, {
+        timeout: 30_000,
+      })
+      expect(recordingError).toBe(undefined)
       expect(finishedReason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
@@ -224,12 +249,15 @@ describe('VisionCamera - Video', () => {
     let paused = false
     let resumed = false
     let finished = false
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         () => {
           finished = true
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
         () => {
           paused = true
         },
@@ -239,14 +267,23 @@ describe('VisionCamera - Video', () => {
       )
       await sleep(500)
       await recorder.pauseRecording()
-      await waitUntil(() => paused, { timeout: 5_000 })
+      await waitUntil(() => paused || recordingError != null, {
+        timeout: 5_000,
+      })
+      expect(recordingError).toBe(undefined)
 
       await recorder.resumeRecording()
-      await waitUntil(() => resumed, { timeout: 5_000 })
+      await waitUntil(() => resumed || recordingError != null, {
+        timeout: 5_000,
+      })
+      expect(recordingError).toBe(undefined)
       await sleep(500)
 
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 10_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 10_000,
+      })
+      expect(recordingError).toBe(undefined)
 
       expect(paused).toBe(true)
       expect(resumed).toBe(true)
@@ -309,12 +346,15 @@ describe('VisionCamera - Video', () => {
 
     const recorder = await videoOutput.createRecorder({})
     let finished = false
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         () => {
           finished = true
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
       )
       expect(recorder.filePath.length).toBeGreaterThan(0)
       await sleep(300)
@@ -322,7 +362,10 @@ describe('VisionCamera - Video', () => {
       const midSize = recorder.recordedFileSize
       await sleep(900)
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 10_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 10_000,
+      })
+      expect(recordingError).toBe(undefined)
       console.log(
         `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
       )
@@ -369,7 +412,9 @@ describe('VisionCamera - Video', () => {
       await sleep(500)
 
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 15_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 15_000,
+      })
       expect(recordingError).toBe(undefined)
     } finally {
       await session.stop()
@@ -397,16 +442,22 @@ describe('VisionCamera - Video', () => {
     await session.start()
     const recorder = await videoOutput.createRecorder({})
     let finished = false
+    let recordingError: Error | undefined
     try {
       await recorder.startRecording(
         () => {
           finished = true
         },
-        () => {},
+        (error) => {
+          recordingError = error
+        },
       )
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finished, { timeout: 10_000 })
+      await waitUntil(() => finished || recordingError != null, {
+        timeout: 10_000,
+      })
+      expect(recordingError).toBe(undefined)
     } finally {
       await session.stop()
     }
@@ -453,7 +504,9 @@ describe('VisionCamera - Video', () => {
       )
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null, { timeout: 10_000 })
+      await waitUntil(() => finishedPath != null || recordingError != null, {
+        timeout: 10_000,
+      })
 
       expect(recordingError).toBe(undefined)
       expect(finishedPath).toContain(customPath)
@@ -501,7 +554,9 @@ describe('VisionCamera - Video', () => {
       )
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null, { timeout: 10_000 })
+      await waitUntil(() => finishedPath != null || recordingError != null, {
+        timeout: 10_000,
+      })
 
       // If the recording finished without error, the nested directories
       // had to be created on the fly - otherwise the encoder couldn't
