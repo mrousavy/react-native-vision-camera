@@ -569,6 +569,96 @@ describe('VisionCamera - Video', () => {
     ).toBe(true)
   })
 
+  // Verifies that `targetResolution` actually drives the video pipeline.
+  // We can't introspect the captured MP4's dimensions from JS today, so the
+  // best signal is `videoOutput.currentResolution` once the output has been
+  // bound to the configured session.
+  it("records at the device's maximum supported video resolution", async () => {
+    const supported = backDevice.getSupportedResolutions('video')
+    expect(supported.length).toBeGreaterThan(0)
+    const max = supported.reduce((a, b) =>
+      a.width * a.height > b.width * b.height ? a : b,
+    )
+
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: max,
+      enableAudio: false,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [{ resolutionBias: videoOutput }],
+      },
+    ])
+    await session.start()
+    try {
+      // iOS only populates the connection's format description once the
+      // session is actually streaming, so wait briefly.
+      await waitUntil(() => videoOutput.currentResolution != null, {
+        timeout: 10_000,
+      })
+
+      const reported = videoOutput.currentResolution
+      expect(reported).toBeDefined()
+
+      const requestedShortEdge = Math.min(max.width, max.height)
+      const requestedLongEdge = Math.max(max.width, max.height)
+      const reportedShortEdge = Math.min(reported!.width, reported!.height)
+      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      console.log(
+        `max device video res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height}`,
+      )
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it("records at the device's minimum supported video resolution", async () => {
+    const supported = backDevice.getSupportedResolutions('video')
+    expect(supported.length).toBeGreaterThan(0)
+    const min = supported.reduce((a, b) =>
+      a.width * a.height < b.width * b.height ? a : b,
+    )
+
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: min,
+      enableAudio: false,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [{ resolutionBias: videoOutput }],
+      },
+    ])
+    await session.start()
+    try {
+      await waitUntil(() => videoOutput.currentResolution != null, {
+        timeout: 10_000,
+      })
+
+      const reported = videoOutput.currentResolution
+      expect(reported).toBeDefined()
+
+      const requestedShortEdge = Math.min(min.width, min.height)
+      const requestedLongEdge = Math.max(min.width, min.height)
+      const reportedShortEdge = Math.min(reported!.width, reported!.height)
+      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      console.log(
+        `min device video res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height}`,
+      )
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
+    } finally {
+      await session.stop()
+    }
+  })
+
   it('returns supported video codecs on iOS after the output is attached', async () => {
     if (Platform.OS !== 'ios') {
       console.log('[SKIP] getSupportedVideoCodecs: iOS only')

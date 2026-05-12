@@ -21,6 +21,10 @@ class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewVie
       // as its orientation is always driven by the `orientationManager`.
     }
   }
+  var currentResolution: Size? {
+    guard let connection = previewLayer.connection else { return nil }
+    return connection.inputStreamResolution
+  }
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule {

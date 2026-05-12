@@ -22,6 +22,7 @@ import com.margelo.nitro.camera.VideoOutputSettings
 import com.margelo.nitro.camera.extensions.converters.fromMirrorMode
 import com.margelo.nitro.camera.extensions.converters.toDynamicRange
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
+import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.getClosestAspectRatio
 import com.margelo.nitro.camera.extensions.surfaceRotation
 import com.margelo.nitro.camera.extensions.toQualitySelector
@@ -42,6 +43,8 @@ class HybridVideoOutput(
       field = value
       videoCapture?.targetRotation = value.surfaceRotation
     }
+  override val currentResolution: Size?
+    get() = videoCapture?.resolutionInfo?.resolution?.toSize()
 
   private val context: Context
     get() = NitroModules.applicationContext ?: throw Error("No ApplicationContext!")

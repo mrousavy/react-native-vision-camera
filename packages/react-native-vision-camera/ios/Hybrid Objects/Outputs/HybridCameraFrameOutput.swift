@@ -30,6 +30,10 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
       }
     }
   }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .video) else { return nil }
+    return connection.inputStreamResolution
+  }
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule {

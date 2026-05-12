@@ -459,7 +459,9 @@ describe('VisionCamera - Constraints', () => {
       expect(config.isPhotoHDREnabled).toBe(true)
     }
     if (chosenStabilizationMode != null) {
-      expect(config.selectedVideoStabilizationMode).toBe(chosenStabilizationMode)
+      expect(config.selectedVideoStabilizationMode).toBe(
+        chosenStabilizationMode,
+      )
     }
     if (hasHdr) {
       expect(config.selectedVideoDynamicRange?.bitDepth).toBe('hdr-10-bit')

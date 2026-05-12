@@ -349,7 +349,11 @@ describe('VisionCamera - Session', () => {
       )
       await new Promise<void>((resolve) => setTimeout(resolve, 500))
       await secondRecorder.stopRecording()
-      await withTimeout(secondFinished.promise, 15_000, 'second recording finish')
+      await withTimeout(
+        secondFinished.promise,
+        15_000,
+        'second recording finish',
+      )
 
       expect(sessionError).toBe(undefined)
     } finally {
@@ -392,7 +396,9 @@ describe('VisionCamera - Session', () => {
     const reportYuv = (planar: boolean) => {
       yuvIsPlanar = planar
     }
-    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
+    const yuvRuntime = workletsProvider.createRuntimeForThread(
+      yuvFrameOutput.thread,
+    )
     yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
       scheduleOnRN(reportYuv, frame.isPlanar)

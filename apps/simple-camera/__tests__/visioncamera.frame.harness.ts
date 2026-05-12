@@ -241,7 +241,7 @@ describe('VisionCamera - Frame', () => {
   // Verifies that `targetResolution` actually drives the frame pipeline — the
   // other frame tests only assert width/height > 0, so a regression that
   // snaps every request to a default resolution would slip through.
-  it('streams frames at the device\'s maximum supported frame resolution', async () => {
+  it("streams frames at the device's maximum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
     expect(supported.length).toBeGreaterThan(0)
     const max = supported.reduce((a, b) =>
@@ -296,8 +296,17 @@ describe('VisionCamera - Frame', () => {
       const requestedLongEdge = Math.max(max.width, max.height)
       const streamedShortEdge = Math.min(receivedWidth, receivedHeight)
       const streamedLongEdge = Math.max(receivedWidth, receivedHeight)
+
+      // currentResolution should match what's actually being streamed.
+      const reported = frameOutput.currentResolution
+      expect(reported).toBeDefined()
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        streamedShortEdge,
+      )
+      expect(Math.max(reported!.width, reported!.height)).toBe(streamedLongEdge)
+
       console.log(
-        `max device stream res=${max.width}x${max.height} streamed=${receivedWidth}x${receivedHeight}`,
+        `max device stream res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height} streamed=${receivedWidth}x${receivedHeight}`,
       )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
@@ -308,7 +317,7 @@ describe('VisionCamera - Frame', () => {
     }
   })
 
-  it('streams frames at the device\'s minimum supported frame resolution', async () => {
+  it("streams frames at the device's minimum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
     expect(supported.length).toBeGreaterThan(0)
     const min = supported.reduce((a, b) =>
@@ -363,8 +372,16 @@ describe('VisionCamera - Frame', () => {
       const requestedLongEdge = Math.max(min.width, min.height)
       const streamedShortEdge = Math.min(receivedWidth, receivedHeight)
       const streamedLongEdge = Math.max(receivedWidth, receivedHeight)
+
+      const reported = frameOutput.currentResolution
+      expect(reported).toBeDefined()
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        streamedShortEdge,
+      )
+      expect(Math.max(reported!.width, reported!.height)).toBe(streamedLongEdge)
+
       console.log(
-        `min device stream res=${min.width}x${min.height} streamed=${receivedWidth}x${receivedHeight}`,
+        `min device stream res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height} streamed=${receivedWidth}x${receivedHeight}`,
       )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
