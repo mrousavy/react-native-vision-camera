@@ -408,6 +408,7 @@ export interface CameraController
   /**
    * Sets the torch to the specified {@linkcode mode}.
    *
+   * @discussion
    * To enable the torch with a specific brightness level,
    * use {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}
    * instead.
@@ -421,8 +422,11 @@ export interface CameraController
    * {@linkcode strength} value.
    *
    * @discussion
-   * This method always turns on the torch, but allows using a custom torch strength - if
-   * you simply want to enable the torch, use {@linkcode setTorchMode | setTorchMode('on')}
+   * This method always turns on the torch, but in contrast to {@linkcode setTorchMode | setTorchMode(...)}
+   * (which always uses the default torch strength, often just the maximum), allows you to choose
+   * a custom torch strength level - often useful for dimming the torch slightly rather than using
+   * full strength. On some devices, this also allows using a higher torch strength than the default.
+   * If you simply want to enable the torch, use {@linkcode setTorchMode | setTorchMode('on')}
    * instead.
    *
    * To turn the torch off again, use {@linkcode setTorchMode | setTorchMode('off')}.
