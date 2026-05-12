@@ -21,7 +21,7 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
     }
     self.captureDevice = hybridDevice.device
     self.device = device
-    // TODO: Use our own queue here?
+    // TODO: Is it best practice to use the same `queue` as our HybridCameraSession?
     self.queue = queue
   }
 
