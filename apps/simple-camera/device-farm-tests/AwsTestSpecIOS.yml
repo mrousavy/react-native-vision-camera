@@ -70,6 +70,7 @@ phases:
           HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
           HARNESS_DETECT_NATIVE_CRASHES=false \
           CI=true \
+          FORCE_COLOR=1 \
           JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" \
           ~/.bun/bin/bun run test:harness -- \
             --harnessRunner ios \

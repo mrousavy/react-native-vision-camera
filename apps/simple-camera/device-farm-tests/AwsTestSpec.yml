@@ -22,7 +22,7 @@ phases:
       - HARNESS_JUNIT="$WORKING_DIRECTORY/harness-results.junit.xml"
       - HARNESS_LOG="$WORKING_DIRECTORY/harness-output.log"
       - cd apps/simple-camera
-      - set -o pipefail; HARNESS_ANDROID_DEVICE_MANUFACTURER="$MANUFACTURER" HARNESS_ANDROID_DEVICE_MODEL="$MODEL" CI=true JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness:android -- --reporters=default --reporters=jest-junit --verbose 2>&1 | tee "$HARNESS_LOG"
+      - set -o pipefail; HARNESS_ANDROID_DEVICE_MANUFACTURER="$MANUFACTURER" HARNESS_ANDROID_DEVICE_MODEL="$MODEL" CI=true FORCE_COLOR=1 JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" ~/.bun/bin/bun run test:harness:android -- --reporters=default --reporters=jest-junit --verbose 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
   - $WORKING_DIRECTORY
