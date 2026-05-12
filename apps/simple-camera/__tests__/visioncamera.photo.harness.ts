@@ -263,29 +263,40 @@ describe('VisionCamera - Photo', () => {
     let willBegin = 0
     let willCapture = 0
     let didCapture = 0
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
-    const photo = await photoOutput.capturePhoto(
-      { flashMode: 'off', enableShutterSound: false },
-      {
-        onWillBeginCapture: () => {
-          willBegin++
+    try {
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {
+          onWillBeginCapture: () => {
+            willBegin++
+          },
+          onWillCapturePhoto: () => {
+            willCapture++
+          },
+          onDidCapturePhoto: () => {
+            didCapture++
+          },
         },
-        onWillCapturePhoto: () => {
-          willCapture++
-        },
-        onDidCapturePhoto: () => {
-          didCapture++
-        },
-      },
-    )
-    // Wait for the callbacks to drain BEFORE we stop the session, otherwise
-    // pending callback invocations can be dropped.
-    await waitUntil(
-      () => willBegin >= 1 && willCapture >= 1 && didCapture >= 1,
-      { timeout: 5_000 },
-    )
-    photo.dispose()
-    await session.stop()
+      )
+      // Wait for the callbacks to drain BEFORE we stop the session, otherwise
+      // pending callback invocations can be dropped.
+      await waitUntil(
+        () =>
+          (willBegin >= 1 && willCapture >= 1 && didCapture >= 1) ||
+          sessionError != null,
+        { timeout: 5_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      photo.dispose()
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
 
     expect(willBegin).toBe(1)
     expect(willCapture).toBe(1)

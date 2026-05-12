@@ -47,9 +47,13 @@ describe('VisionCamera - Frame', () => {
     ])
 
     let framesReceived = 0
+    let sessionError: Error | undefined
     const onFrameReceived = () => {
       framesReceived++
     }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -60,9 +64,13 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => framesReceived >= 3, { timeout: 15_000 })
+      await waitUntil(() => framesReceived >= 3 || sessionError != null, {
+        timeout: 15_000,
+      })
+      expect(sessionError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
       await session.stop()
     }
     expect(framesReceived).toBeGreaterThanOrEqual(3)
@@ -90,11 +98,15 @@ describe('VisionCamera - Frame', () => {
     let reportedWidth = 0
     let reportedHeight = 0
     let reportedPlanes = -1
+    let sessionError: Error | undefined
     const report = (w: number, h: number, planes: number) => {
       reportedWidth = w
       reportedHeight = h
       reportedPlanes = planes
     }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -112,11 +124,14 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => reportedWidth > 0 && reportedHeight > 0, {
-        timeout: 15_000,
-      })
+      await waitUntil(
+        () => (reportedWidth > 0 && reportedHeight > 0) || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
       await session.stop()
     }
     console.log(
@@ -147,9 +162,13 @@ describe('VisionCamera - Frame', () => {
     ])
 
     let frameCount = 0
+    let sessionError: Error | undefined
     const onFrame = () => {
       frameCount++
     }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -160,9 +179,13 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => frameCount >= 1, { timeout: 15_000 })
+      await waitUntil(() => frameCount >= 1 || sessionError != null, {
+        timeout: 15_000,
+      })
+      expect(sessionError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
       await session.stop()
     }
   })
@@ -187,6 +210,10 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const counter = createSynchronizable(0)
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -197,9 +224,14 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => counter.getBlocking() >= 3, { timeout: 15_000 })
+      await waitUntil(
+        () => counter.getBlocking() >= 3 || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
       await session.stop()
     }
     expect(counter.getBlocking()).toBeGreaterThanOrEqual(3)
