@@ -10,13 +10,13 @@ import type { CameraOutput } from './CameraOutput.nitro'
  * as to a {@linkcode PreviewView} as a target.
  *
  * @example
- * Creating a {@linkcode CameraPreviewOutput} via the Hooks API:
+ * Creating a `CameraPreviewOutput` via the Hooks API:
  * ```ts
  * const previewOutput = usePreviewOutput()
  * ```
  *
  * @example
- * Creating a {@linkcode CameraPreviewOutput} via the Imperative API:
+ * Creating a `CameraPreviewOutput` via the Imperative API:
  * ```ts
  * const previewOutput = VisionCamera.createPreviewOutput()
  * ```
