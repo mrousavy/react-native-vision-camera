@@ -74,7 +74,8 @@ phases:
           ~/.bun/bin/bun run test:harness -- \
             --harnessRunner ios \
             --reporters=default \
-            --reporters=jest-junit 2>&1 | tee "$HARNESS_LOG"
+            --reporters=jest-junit \
+            --verbose 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
   - $WORKING_DIRECTORY/harness-artifacts
