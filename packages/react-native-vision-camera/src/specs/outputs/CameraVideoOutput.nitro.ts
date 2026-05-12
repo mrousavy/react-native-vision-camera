@@ -190,8 +190,17 @@ export interface RecorderSettings {
  * @see {@linkcode Recorder}
  * @see {@linkcode useVideoOutput | useVideoOutput(...)}
  * @example
+ * Creating a {@linkcode CameraVideoOutput} via the Hooks API:
  * ```ts
  * const videoOutput = useVideoOutput({})
+ * ```
+ *
+ * @example
+ * Creating a {@linkcode CameraVideoOutput} via the Imperative API:
+ * ```ts
+ * const videoOutput = VisionCamera.createVideoOutput({
+ *   targetResolution: CommonResolutions.FHD_16_9,
+ * })
  * ```
  */
 export interface CameraVideoOutput extends CameraOutput {

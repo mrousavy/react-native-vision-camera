@@ -245,8 +245,20 @@ export interface PhotoFile {
  * @see {@linkcode CapturePhotoSettings}
  * @see {@linkcode usePhotoOutput | usePhotoOutput(...)}
  * @example
+ * Creating a {@linkcode CameraPhotoOutput} via the Hooks API:
  * ```ts
  * const photoOutput = usePhotoOutput({})
+ * ```
+ *
+ * @example
+ * Creating a {@linkcode CameraPhotoOutput} via the Imperative API:
+ * ```ts
+ * const photoOutput = VisionCamera.createPhotoOutput({
+ *   targetResolution: CommonResolutions.UHD_4_3,
+ *   containerFormat: 'native',
+ *   quality: 0.9,
+ *   qualityPrioritization: 'balanced',
+ * })
  * ```
  */
 export interface CameraPhotoOutput extends CameraOutput {

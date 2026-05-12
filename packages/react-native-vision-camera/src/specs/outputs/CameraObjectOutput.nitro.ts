@@ -31,12 +31,21 @@ export interface ObjectOutputOptions {
  * @see {@linkcode useObjectOutput | useObjectOutput(...)}
  * @platform iOS
  * @example
+ * Creating a {@linkcode CameraObjectOutput} via the Hooks API:
  * ```ts
  * const objectOutput = useObjectOutput({
  *   types: ['qr-code'],
  *   onObjectsScanned(objects) {
  *     console.log(`Scanned ${objects.length} objects!`)
  *   }
+ * })
+ * ```
+ *
+ * @example
+ * Creating a {@linkcode CameraObjectOutput} via the Imperative API:
+ * ```ts
+ * const objectOutput = VisionCamera.createObjectOutput({
+ *   enabledObjectTypes: ['qr-code'],
  * })
  * ```
  */
