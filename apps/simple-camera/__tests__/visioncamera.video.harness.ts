@@ -13,6 +13,7 @@ import type {
   RecordingFinishedReason,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+import { deferred, withTimeout } from './test-utils'
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
@@ -47,29 +48,22 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let finishedPath: string | undefined
-    let finishedReason: RecordingFinishedReason | undefined
-    let recordingError: Error | undefined
+    const finished = deferred<{
+      path: string
+      reason: RecordingFinishedReason
+    }>()
 
     try {
       await recorder.startRecording(
-        (filePath, reason) => {
-          finishedPath = filePath
-          finishedReason = reason
-        },
-        (error) => {
-          recordingError = error
-        },
+        (path, reason) => finished.resolve({ path, reason }),
+        finished.reject,
       )
       await sleep(1500)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null || recordingError != null, {
-        timeout: 10_000,
-      })
+      const result = await withTimeout(finished.promise, 10_000, 'finish')
 
-      expect(recordingError).toBe(undefined)
-      expect(finishedReason).toBe('stopped')
-      expect(finishedPath?.length ?? 0).toBeGreaterThan(0)
+      expect(result.reason).toBe('stopped')
+      expect(result.path.length).toBeGreaterThan(0)
     } finally {
       await session.stop()
     }
@@ -91,23 +85,12 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let finished = false
-    let recordingError: Error | undefined
+    const finished = deferred()
     try {
-      await recorder.startRecording(
-        () => {
-          finished = true
-        },
-        (error) => {
-          recordingError = error
-        },
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
       await sleep(1000)
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 10_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
       await session.stop()
     }
@@ -129,23 +112,12 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
     const recorder = await videoOutput.createRecorder({})
-    let finished = false
-    let recordingError: Error | undefined
+    const finished = deferred()
     try {
-      await recorder.startRecording(
-        () => {
-          finished = true
-        },
-        (error) => {
-          recordingError = error
-        },
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
       await sleep(1000)
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 10_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
       await session.stop()
     }
@@ -167,22 +139,14 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({ maxDuration: 1 })
-    let finishedReason: RecordingFinishedReason | undefined
-    let recordingError: Error | undefined
+    const finished = deferred<RecordingFinishedReason>()
     try {
       await recorder.startRecording(
-        (_path, reason) => {
-          finishedReason = reason
-        },
-        (error) => {
-          recordingError = error
-        },
+        (_path, reason) => finished.resolve(reason),
+        finished.reject,
       )
-      await waitUntil(() => finishedReason != null || recordingError != null, {
-        timeout: 15_000,
-      })
-      expect(recordingError).toBe(undefined)
-      expect(finishedReason).toBe('max-duration-reached')
+      const reason = await withTimeout(finished.promise, 15_000, 'maxDuration')
+      expect(reason).toBe('max-duration-reached')
     } finally {
       await session.stop()
     }
@@ -209,22 +173,14 @@ describe('VisionCamera - Video', () => {
     // from sensor noise, so 500 KB lands well within 30 s on real hardware -
     // a longer timeout would just hide a real bug.
     const recorder = await videoOutput.createRecorder({ maxFileSize: 500_000 })
-    let finishedReason: RecordingFinishedReason | undefined
-    let recordingError: Error | undefined
+    const finished = deferred<RecordingFinishedReason>()
     try {
       await recorder.startRecording(
-        (_path, reason) => {
-          finishedReason = reason
-        },
-        (error) => {
-          recordingError = error
-        },
+        (_path, reason) => finished.resolve(reason),
+        finished.reject,
       )
-      await waitUntil(() => finishedReason != null || recordingError != null, {
-        timeout: 30_000,
-      })
-      expect(recordingError).toBe(undefined)
-      expect(finishedReason).toBe('max-file-size-reached')
+      const reason = await withTimeout(finished.promise, 30_000, 'maxFileSize')
+      expect(reason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
     }
@@ -246,47 +202,31 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let paused = false
-    let resumed = false
-    let finished = false
-    let recordingError: Error | undefined
+    const paused = deferred()
+    const resumed = deferred()
+    const finished = deferred()
     try {
       await recorder.startRecording(
-        () => {
-          finished = true
-        },
+        () => finished.resolve(),
         (error) => {
-          recordingError = error
+          // Any recording error must abort whichever wait is active.
+          paused.reject(error)
+          resumed.reject(error)
+          finished.reject(error)
         },
-        () => {
-          paused = true
-        },
-        () => {
-          resumed = true
-        },
+        () => paused.resolve(),
+        () => resumed.resolve(),
       )
       await sleep(500)
       await recorder.pauseRecording()
-      await waitUntil(() => paused || recordingError != null, {
-        timeout: 5_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(paused.promise, 5_000, 'pause')
 
       await recorder.resumeRecording()
-      await waitUntil(() => resumed || recordingError != null, {
-        timeout: 5_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(resumed.promise, 5_000, 'resume')
       await sleep(500)
 
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 10_000,
-      })
-      expect(recordingError).toBe(undefined)
-
-      expect(paused).toBe(true)
-      expect(resumed).toBe(true)
+      await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
       await session.stop()
     }
@@ -345,27 +285,16 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let finished = false
-    let recordingError: Error | undefined
+    const finished = deferred()
     try {
-      await recorder.startRecording(
-        () => {
-          finished = true
-        },
-        (error) => {
-          recordingError = error
-        },
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
       expect(recorder.filePath.length).toBeGreaterThan(0)
       await sleep(300)
       const midDuration = recorder.recordedDuration
       const midSize = recorder.recordedFileSize
       await sleep(900)
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 10_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(finished.promise, 10_000, 'finish')
       console.log(
         `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
       )
@@ -393,17 +322,9 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let finished = false
-    let recordingError: Error | undefined
+    const finished = deferred()
     try {
-      await recorder.startRecording(
-        () => {
-          finished = true
-        },
-        (error) => {
-          recordingError = error
-        },
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
       await sleep(500)
 
       await session.stop()
@@ -412,10 +333,7 @@ describe('VisionCamera - Video', () => {
       await sleep(500)
 
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 15_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(finished.promise, 15_000, 'finish')
     } finally {
       await session.stop()
     }
@@ -441,23 +359,12 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
     const recorder = await videoOutput.createRecorder({})
-    let finished = false
-    let recordingError: Error | undefined
+    const finished = deferred()
     try {
-      await recorder.startRecording(
-        () => {
-          finished = true
-        },
-        (error) => {
-          recordingError = error
-        },
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finished || recordingError != null, {
-        timeout: 10_000,
-      })
-      expect(recordingError).toBe(undefined)
+      await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
       await session.stop()
     }
@@ -491,25 +398,17 @@ describe('VisionCamera - Video', () => {
     const recorder = await videoOutput.createRecorder({ filePath: customPath })
     expect(recorder.filePath).toContain(customPath)
 
-    let finishedPath: string | undefined
-    let recordingError: Error | undefined
+    const finished = deferred<string>()
     try {
       await recorder.startRecording(
-        (filePath) => {
-          finishedPath = filePath
-        },
-        (error) => {
-          recordingError = error
-        },
+        (filePath) => finished.resolve(filePath),
+        finished.reject,
       )
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null || recordingError != null, {
-        timeout: 10_000,
-      })
+      const path = await withTimeout(finished.promise, 10_000, 'finish')
 
-      expect(recordingError).toBe(undefined)
-      expect(finishedPath).toContain(customPath)
+      expect(path).toContain(customPath)
     } finally {
       await session.stop()
     }
@@ -541,28 +440,19 @@ describe('VisionCamera - Video', () => {
     const recorder = await videoOutput.createRecorder({ filePath: customPath })
     expect(recorder.filePath).toContain(customPath)
 
-    let finishedPath: string | undefined
-    let recordingError: Error | undefined
+    const finished = deferred<string>()
     try {
       await recorder.startRecording(
-        (filePath) => {
-          finishedPath = filePath
-        },
-        (error) => {
-          recordingError = error
-        },
+        (filePath) => finished.resolve(filePath),
+        finished.reject,
       )
       await sleep(800)
       await recorder.stopRecording()
-      await waitUntil(() => finishedPath != null || recordingError != null, {
-        timeout: 10_000,
-      })
-
-      // If the recording finished without error, the nested directories
+      // If the recording finishes without error, the nested directories
       // had to be created on the fly - otherwise the encoder couldn't
       // have written any bytes.
-      expect(recordingError).toBe(undefined)
-      expect(finishedPath).toContain(customPath)
+      const path = await withTimeout(finished.promise, 10_000, 'finish')
+      expect(path).toContain(customPath)
     } finally {
       await session.stop()
     }
