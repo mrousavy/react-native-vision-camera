@@ -342,7 +342,7 @@ describe('VisionCamera - Multi-Output', () => {
       quality: 0.8,
       qualityPrioritization: 'balanced',
     })
-    const firstVideo = VisionCamera.createVideoOutput({
+    const firstVideoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
@@ -370,7 +370,7 @@ describe('VisionCamera - Multi-Output', () => {
         input: backDevice,
         outputs: [
           { output: photoOutput, mirrorMode: 'auto' },
-          { output: firstVideo, mirrorMode: 'auto' },
+          { output: firstVideoOutput, mirrorMode: 'auto' },
           { output: frameOutput, mirrorMode: 'auto' },
         ],
         constraints: [],
@@ -387,7 +387,7 @@ describe('VisionCamera - Multi-Output', () => {
     await session.start()
 
     try {
-      const secondVideo = VisionCamera.createVideoOutput({
+      const secondVideoOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.FHD_16_9,
         enableAudio: false,
       })
@@ -397,7 +397,7 @@ describe('VisionCamera - Multi-Output', () => {
           input: backDevice,
           outputs: [
             { output: photoOutput, mirrorMode: 'auto' },
-            { output: secondVideo, mirrorMode: 'auto' },
+            { output: secondVideoOutput, mirrorMode: 'auto' },
             { output: frameOutput, mirrorMode: 'auto' },
           ],
           constraints: [],
@@ -405,7 +405,7 @@ describe('VisionCamera - Multi-Output', () => {
       ])
 
       // The replacement video output records.
-      const recorder = await secondVideo.createRecorder({})
+      const recorder = await secondVideoOutput.createRecorder({})
       const finished = deferred()
       await recorder.startRecording(() => finished.resolve(), finished.reject)
       await sleep(500)
@@ -449,7 +449,7 @@ describe('VisionCamera - Multi-Output', () => {
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
-    const yuvFrame = VisionCamera.createFrameOutput({
+    const yuvFrameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'yuv',
       enablePreviewSizedOutputBuffers: false,
@@ -470,7 +470,7 @@ describe('VisionCamera - Multi-Output', () => {
         outputs: [
           { output: photoOutput, mirrorMode: 'auto' },
           { output: videoOutput, mirrorMode: 'auto' },
-          { output: yuvFrame, mirrorMode: 'auto' },
+          { output: yuvFrameOutput, mirrorMode: 'auto' },
         ],
         constraints: [],
       },
@@ -480,8 +480,8 @@ describe('VisionCamera - Multi-Output', () => {
     const reportYuv = (planar: boolean) => {
       yuvIsPlanar = planar
     }
-    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrame.thread)
-    yuvRuntime.setOnFrameCallback(yuvFrame, (frame) => {
+    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
+    yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
       const planar = frame.isPlanar
       scheduleOnRN(reportYuv, planar)
@@ -497,9 +497,9 @@ describe('VisionCamera - Multi-Output', () => {
       expect(sessionError).toBe(undefined)
       expect(yuvIsPlanar).toBe(true)
 
-      yuvRuntime.setOnFrameCallback(yuvFrame, undefined)
+      yuvRuntime.setOnFrameCallback(yuvFrameOutput, undefined)
 
-      const rgbFrame = VisionCamera.createFrameOutput({
+      const rgbFrameOutput = VisionCamera.createFrameOutput({
         targetResolution: CommonResolutions.VGA_16_9,
         pixelFormat: 'rgb',
         enablePreviewSizedOutputBuffers: false,
@@ -515,7 +515,7 @@ describe('VisionCamera - Multi-Output', () => {
           outputs: [
             { output: photoOutput, mirrorMode: 'auto' },
             { output: videoOutput, mirrorMode: 'auto' },
-            { output: rgbFrame, mirrorMode: 'auto' },
+            { output: rgbFrameOutput, mirrorMode: 'auto' },
           ],
           constraints: [],
         },
@@ -526,9 +526,9 @@ describe('VisionCamera - Multi-Output', () => {
         rgbIsPlanar = planar
       }
       const rgbRuntime = workletsProvider.createRuntimeForThread(
-        rgbFrame.thread,
+        rgbFrameOutput.thread,
       )
-      rgbRuntime.setOnFrameCallback(rgbFrame, (frame) => {
+      rgbRuntime.setOnFrameCallback(rgbFrameOutput, (frame) => {
         'worklet'
         const planar = frame.isPlanar
         scheduleOnRN(reportRgb, planar)
@@ -559,7 +559,7 @@ describe('VisionCamera - Multi-Output', () => {
         await recorder.stopRecording()
         await withTimeout(finished.promise, 15_000, 'finish')
       } finally {
-        rgbRuntime.setOnFrameCallback(rgbFrame, undefined)
+        rgbRuntime.setOnFrameCallback(rgbFrameOutput, undefined)
       }
     } finally {
       errorSub.remove()

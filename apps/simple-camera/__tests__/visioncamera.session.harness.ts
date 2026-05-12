@@ -255,13 +255,13 @@ describe('VisionCamera - Session', () => {
     await session.start()
 
     try {
-      const first = await firstPhotoOutput.capturePhoto(
+      const firstPhoto = await firstPhotoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      expect(first.width).toBeGreaterThan(0)
-      expect(first.height).toBeGreaterThan(0)
-      first.dispose()
+      expect(firstPhoto.width).toBeGreaterThan(0)
+      expect(firstPhoto.height).toBeGreaterThan(0)
+      firstPhoto.dispose()
 
       const secondPhotoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
@@ -278,13 +278,13 @@ describe('VisionCamera - Session', () => {
         },
       ])
 
-      const second = await secondPhotoOutput.capturePhoto(
+      const secondPhoto = await secondPhotoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      expect(second.width).toBeGreaterThan(0)
-      expect(second.height).toBeGreaterThan(0)
-      second.dispose()
+      expect(secondPhoto.width).toBeGreaterThan(0)
+      expect(secondPhoto.height).toBeGreaterThan(0)
+      secondPhoto.dispose()
 
       expect(sessionError).toBe(undefined)
     } finally {
