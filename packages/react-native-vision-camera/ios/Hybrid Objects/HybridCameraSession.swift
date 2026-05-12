@@ -353,7 +353,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
     }
     if let initialExposure = initialExposureBias {
       let clamped = max(
-        min(Float(initialExposure), device.maxExposureTargetBias), device.maxExposureTargetBias)
+        min(Float(initialExposure), device.maxExposureTargetBias), device.minExposureTargetBias)
       device.setExposureTargetBias(clamped)
     }
   }
