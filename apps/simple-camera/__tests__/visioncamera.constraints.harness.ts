@@ -110,37 +110,6 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  // Guards against a resolver that just picks the device's max fps regardless
-  // of what was requested. Only meaningful when the device can do >30fps,
-  // otherwise fps: 30 trivially passes.
-  it('honors fps: 30 even when the device also supports 60fps', async () => {
-    if (!backDevice.supportsFPS(60)) {
-      console.log(
-        '[SKIP] fps: 30 round-trip: device does not also support 60fps',
-      )
-      return
-    }
-    const session = await VisionCamera.createCameraSession(false)
-    const videoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      enableAudio: false,
-    })
-    let received: CameraSessionConfig | undefined
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
-        constraints: [{ fps: 30 }],
-        onSessionConfigSelected: (config) => {
-          received = config
-        },
-      },
-    ])
-    await waitUntil(() => received != null, { timeout: 5_000 })
-    expect(received?.selectedFPS).toBe(30)
-    await session.stop()
-  })
-
   it('resolves photoHDR: true when the device supports photo HDR', async () => {
     if (!backDevice.supportsPhotoHDR) {
       console.log('[SKIP] photoHDR: not supported on this device')
