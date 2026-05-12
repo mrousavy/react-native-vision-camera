@@ -246,9 +246,10 @@ describe('VisionCamera - Controller', () => {
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
-      // When the torch is physically off, strength must report 0 on both
-      // platforms (the value should not stay at the previously-configured level).
-      expect(controller.torchStrength).toBe(0.0)
+      // torchStrength reports the last-configured level even when the torch is
+      // off — that's what both AVCaptureDevice.torchLevel and CameraX's
+      // torchStrengthLevel return.
+      expect(controller.torchStrength).toBe(backDevice.maxTorchStrength)
     } finally {
       await session.stop()
     }
@@ -348,14 +349,16 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
+      // AVCaptureDevice quantizes the requested bias to a discrete rational
+      // step, so the readback may differ from the request by a tiny epsilon.
       await controller.setExposureBias(backDevice.maxExposureBias)
-      expect(controller.exposureBias).toBe(backDevice.maxExposureBias)
+      expect(controller.exposureBias).toBeCloseTo(backDevice.maxExposureBias, 4)
 
       await controller.setExposureBias(backDevice.minExposureBias)
-      expect(controller.exposureBias).toBe(backDevice.minExposureBias)
+      expect(controller.exposureBias).toBeCloseTo(backDevice.minExposureBias, 4)
 
       await controller.setExposureBias(0)
-      expect(controller.exposureBias).toBe(0)
+      expect(controller.exposureBias).toBeCloseTo(0, 4)
     } finally {
       await session.stop()
     }
@@ -424,7 +427,7 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      expect(controller.exposureBias).toBe(initial)
+      expect(controller.exposureBias).toBeCloseTo(initial, 4)
     } finally {
       await session.stop()
     }

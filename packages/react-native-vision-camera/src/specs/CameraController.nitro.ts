@@ -382,13 +382,13 @@ export interface CameraController
 
   // pragma MARK: Flash
   /**
-   * Get the current Torch's brightness strength, or `0`
-   * if the torch is currently off.
+   * Get the Torch's configured brightness strength.
    *
-   * When the torch is on, this is a value within the
-   * `[device.minTorchStrength, device.maxTorchStrength]` range —
-   * see {@linkcode CameraDevice.minTorchStrength} and
-   * {@linkcode CameraDevice.maxTorchStrength}.
+   * The {@linkcode torchStrength} is a value within the
+   * `[device.minTorchStrength, device.maxTorchStrength]` range.
+   *
+   * When the Torch is {@linkcode TorchMode | 'on'}, this strength
+   * will be used.
    *
    * The torch's strength can be configured via
    * {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}
