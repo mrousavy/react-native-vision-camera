@@ -366,4 +366,61 @@ describe('VisionCamera - Constraints', () => {
       `resolutionBias video-first: nativePixelFormat=${videoFirst.nativePixelFormat} binned=${videoFirst.isBinned}`,
     )
   })
+
+  it('reconfigures the running session with a different constraint set', async () => {
+    if (!backDevice.supportsFPS(60)) {
+      console.log(
+        '[SKIP] reconfigure with new constraints: fps: 60 not supported',
+      )
+      return
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    let firstConfig: CameraSessionConfig | undefined
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [{ fps: 30 }],
+        onSessionConfigSelected: (config) => {
+          firstConfig = config
+        },
+      },
+    ])
+    await waitUntil(() => firstConfig != null, { timeout: 5_000 })
+    expect(firstConfig?.selectedFPS).toBe(30)
+
+    await session.start()
+
+    try {
+      let secondConfig: CameraSessionConfig | undefined
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [{ fps: 60 }],
+          onSessionConfigSelected: (config) => {
+            secondConfig = config
+          },
+        },
+      ])
+      await waitUntil(() => secondConfig != null, { timeout: 5_000 })
+      expect(secondConfig?.selectedFPS).toBe(60)
+
+      expect(sessionError).toBe(undefined)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
 })
