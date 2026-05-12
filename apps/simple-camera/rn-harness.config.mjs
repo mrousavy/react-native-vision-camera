@@ -31,8 +31,9 @@ const androidDeviceMode =
 const iosBundleId =
   process.env.HARNESS_IOS_BUNDLE_ID ?? 'com.margelo.nitro.camera.example.simple'
 const iosSimulatorName = process.env.HARNESS_IOS_SIMULATOR ?? 'iPhone 16 Pro'
-const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.0'
-const iosPhysicalDeviceName = process.env.HARNESS_IOS_DEVICE_NAME ?? 'iPhone'
+const iosSimulatorVersion = process.env.HARNESS_IOS_SIMULATOR_VERSION ?? '18.5'
+const iosPhysicalDeviceIdentifier =
+  process.env.HARNESS_IOS_DEVICE_ID?.trim() || 'iPhone'
 const iosMetroHostInput = process.env.HARNESS_IOS_METRO_HOST?.trim() ?? ''
 const iosMetroPort = process.env.HARNESS_IOS_METRO_PORT ?? '8081'
 
@@ -88,7 +89,11 @@ const androidDevice = useEmulator
   : physicalAndroidDevice(androidPhysicalManufacturer, androidPhysicalModel)
 
 const iosDevice = isCI
-  ? applePhysicalDevice(iosPhysicalDeviceName)
+  ? applePhysicalDevice(iosPhysicalDeviceIdentifier, {
+      codeSign: {
+        teamId: 'TheTeamHereDoesntMatterOnCiButWeHaveToPassItStillIthink',
+      },
+    })
   : appleSimulator(iosSimulatorName, iosSimulatorVersion)
 
 const config = {
@@ -115,6 +120,7 @@ const config = {
   detectNativeCrashes,
   resetEnvironmentBetweenTestFiles: true,
   forwardClientLogs: true,
+  permissions: true
 }
 
 export default config
