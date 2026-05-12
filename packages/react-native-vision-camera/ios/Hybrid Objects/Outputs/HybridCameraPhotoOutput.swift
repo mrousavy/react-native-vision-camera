@@ -32,7 +32,17 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
     }
   }
   var currentResolution: Size? {
-    return output.connections.first?.currentResolution
+    // Reads back what `configure(config:)` pinned via
+    // `output.maxPhotoDimensions = format.supportedMaxPhotoDimensions.nearest(...)`.
+    if #available(iOS 16.0, *) {
+      let dims = output.maxPhotoDimensions
+      return Size(width: Double(dims.width), height: Double(dims.height))
+    }
+    guard let device = output.connections.first?.deviceInput?.device else {
+      return nil
+    }
+    let dims = device.activeFormat.highResolutionStillImageDimensions
+    return Size(width: Double(dims.width), height: Double(dims.height))
   }
 
   var streamType: StreamType = .photo

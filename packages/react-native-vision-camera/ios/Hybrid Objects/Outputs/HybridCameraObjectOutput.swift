@@ -24,7 +24,8 @@ class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput
     }
   }
   var currentResolution: Size? {
-    return output.connections.first?.currentResolution
+    guard let connection = output.connection(with: .metadataObject) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

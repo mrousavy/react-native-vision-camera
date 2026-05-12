@@ -22,7 +22,8 @@ class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewVie
     }
   }
   var currentResolution: Size? {
-    return previewLayer.connection?.currentResolution
+    guard let connection = previewLayer.connection else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

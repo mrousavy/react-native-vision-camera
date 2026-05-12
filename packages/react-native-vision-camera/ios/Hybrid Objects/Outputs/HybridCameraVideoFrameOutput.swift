@@ -34,7 +34,8 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
     }
   }
   var currentResolution: Size? {
-    return output.connections.first?.currentResolution
+    guard let connection = output.connection(with: .video) else { return nil }
+    return connection.inputStreamResolution
   }
 
   // TODO: Support setting custom `targetBitRate`

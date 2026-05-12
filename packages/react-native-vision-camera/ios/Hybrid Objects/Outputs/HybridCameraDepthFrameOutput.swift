@@ -32,7 +32,8 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
     }
   }
   var currentResolution: Size? {
-    return output.connections.first?.currentResolution
+    guard let connection = output.connection(with: .depthData) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .depthVideo
