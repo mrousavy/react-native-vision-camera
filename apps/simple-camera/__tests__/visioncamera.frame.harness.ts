@@ -241,7 +241,7 @@ describe('VisionCamera - Frame', () => {
   // Verifies that `targetResolution` actually drives the frame pipeline — the
   // other frame tests only assert width/height > 0, so a regression that
   // snaps every request to a default resolution would slip through.
-  it('streams frames at the device\'s maximum supported frame resolution', async () => {
+  it("streams frames at the device's maximum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
     expect(supported.length).toBeGreaterThan(0)
     const max = supported.reduce((a, b) =>
@@ -308,7 +308,7 @@ describe('VisionCamera - Frame', () => {
     }
   })
 
-  it('streams frames at the device\'s minimum supported frame resolution', async () => {
+  it("streams frames at the device's minimum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
     expect(supported.length).toBeGreaterThan(0)
     const min = supported.reduce((a, b) =>

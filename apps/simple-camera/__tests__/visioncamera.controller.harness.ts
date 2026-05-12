@@ -72,12 +72,8 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await expect(
-        controller.setZoom(controller.maxZoom + 1),
-      ).rejects.toThrow()
-      await expect(
-        controller.setZoom(controller.minZoom - 1),
-      ).rejects.toThrow()
+      await expect(controller.setZoom(controller.maxZoom + 1)).rejects.toThrow()
+      await expect(controller.setZoom(controller.minZoom - 1)).rejects.toThrow()
     } finally {
       await session.stop()
     }

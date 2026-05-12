@@ -247,7 +247,7 @@ describe('VisionCamera - Photo', () => {
   // Verifies that `targetResolution` actually drives the output — without these,
   // a regression that snaps every request to a default smaller format would
   // pass all the other photo tests (they only assert width/height > 0).
-  it('captures at the device\'s maximum supported photo resolution', async () => {
+  it("captures at the device's maximum supported photo resolution", async () => {
     const supported = backDevice.getSupportedResolutions('photo')
     expect(supported.length).toBeGreaterThan(0)
     const max = supported.reduce((a, b) =>
@@ -289,7 +289,7 @@ describe('VisionCamera - Photo', () => {
     }
   })
 
-  it('captures at the device\'s minimum supported photo resolution', async () => {
+  it("captures at the device's minimum supported photo resolution", async () => {
     const supported = backDevice.getSupportedResolutions('photo')
     expect(supported.length).toBeGreaterThan(0)
     const min = supported.reduce((a, b) =>

@@ -141,10 +141,7 @@ describe('VisionCamera - Multi-Output', () => {
       // Start recording while frames are still streaming.
       const recorder = await videoOutput.createRecorder({})
       const finished = deferred()
-      await recorder.startRecording(
-        () => finished.resolve(),
-        finished.reject,
-      )
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
 
       // Capture a photo while video is being recorded and frames are still streaming.
       const framesAtPhoto = framesReceived
@@ -480,7 +477,9 @@ describe('VisionCamera - Multi-Output', () => {
     const reportYuv = (planar: boolean) => {
       yuvIsPlanar = planar
     }
-    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
+    const yuvRuntime = workletsProvider.createRuntimeForThread(
+      yuvFrameOutput.thread,
+    )
     yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
       scheduleOnRN(reportYuv, frame.isPlanar)

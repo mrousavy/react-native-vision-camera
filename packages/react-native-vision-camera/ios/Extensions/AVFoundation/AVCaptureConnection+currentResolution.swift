@@ -18,7 +18,8 @@ extension AVCaptureConnection {
    */
   var currentResolution: Size? {
     guard let port = inputPorts.first,
-          let formatDescription = port.formatDescription else {
+      let formatDescription = port.formatDescription
+    else {
       return nil
     }
     let dims = CMVideoFormatDescriptionGetDimensions(formatDescription)
