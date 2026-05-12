@@ -341,6 +341,57 @@ describe('VisionCamera - Video', () => {
     }
   })
 
+  it('keeps a persistent recording running while switching the input device', async () => {
+    const frontDevice = factory.getDefaultCamera('front')
+    if (frontDevice == null) {
+      console.log(
+        '[SKIP] persistent recorder device switch: no front camera available',
+      )
+      return
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+      enablePersistentRecorder: true,
+    })
+
+    // 1. Configure with the back camera
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    const recorder = await videoOutput.createRecorder({})
+    const finished = deferred()
+    try {
+      // 2. Start recording on the back camera
+      await recorder.startRecording(() => finished.resolve(), finished.reject)
+      await sleep(500)
+
+      // 3. Reconfigure the running session with the front camera — the
+      //    persistent recorder must keep running across the input switch.
+      await session.configure([
+        {
+          input: frontDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      await sleep(500)
+
+      // 4. Stop the recording — the file should contain footage from both cameras.
+      await recorder.stopRecording()
+      await withTimeout(finished.promise, 15_000, 'finish')
+    } finally {
+      await session.stop()
+    }
+  })
+
   it('records with enableHigherResolutionCodecs on Android', async () => {
     if (Platform.OS !== 'android') {
       console.log('[SKIP] enableHigherResolutionCodecs: Android only')
