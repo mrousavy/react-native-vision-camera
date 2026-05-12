@@ -367,6 +367,113 @@ describe('VisionCamera - Constraints', () => {
     )
   })
 
+  // Combines every supported "headline" constraint (photo HDR, video
+  // stabilization, video HDR, fps: 60) into one configure() call to make sure
+  // the resolver doesn't drop or trample a higher-priority constraint when
+  // other constraints are also stacked on. Ordered priority: photoHDR (photo
+  // path) > videoStabilizationMode (orthogonal) > videoDynamicRange (may force
+  // lower fps) > fps: 60 (lowest — yields to HDR on devices that can't do both).
+  it('combines photoHDR, video stabilization, video HDR, and fps: 60 constraints together', async () => {
+    const constraints: Constraint[] = []
+    const requested: string[] = []
+
+    if (backDevice.supportsPhotoHDR) {
+      constraints.push({ photoHDR: true })
+      requested.push('photoHDR')
+    }
+
+    let chosenStabilizationMode: 'cinematic' | 'standard' | undefined
+    for (const mode of ['cinematic', 'standard'] as const) {
+      if (backDevice.supportsVideoStabilizationMode(mode)) {
+        chosenStabilizationMode = mode
+        constraints.push({ videoStabilizationMode: mode })
+        requested.push(`stabilization:${mode}`)
+        break
+      }
+    }
+
+    const hasHdr = backDevice.supportedVideoDynamicRanges.some(
+      (d) => d.bitDepth === 'hdr-10-bit',
+    )
+    if (hasHdr) {
+      constraints.push({ videoDynamicRange: CommonDynamicRanges.ANY_HDR })
+      requested.push('hdr-10-bit')
+    }
+
+    const wants60 = backDevice.supportsFPS(60)
+    if (wants60) {
+      constraints.push({ fps: 60 })
+      requested.push('fps:60')
+    }
+
+    if (constraints.length === 0) {
+      console.log(
+        '[SKIP] combined constraints: device supports none of the gated capabilities',
+      )
+      return
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+
+    let received: CameraSessionConfig | undefined
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [
+          { output: photoOutput, mirrorMode: 'auto' },
+          { output: videoOutput, mirrorMode: 'auto' },
+        ],
+        constraints,
+        onSessionConfigSelected: (config) => {
+          received = config
+        },
+      },
+    ])
+    await waitUntil(() => received != null, { timeout: 5_000 })
+
+    const config = received
+    if (config == null) throw new Error('no config')
+
+    console.log(
+      `combined constraints requested=[${requested.join(', ')}] resolved: ` +
+        `fps=${config.selectedFPS} ` +
+        `videoDR=${config.selectedVideoDynamicRange?.bitDepth} ` +
+        `videoStab=${config.selectedVideoStabilizationMode} ` +
+        `photoHDR=${config.isPhotoHDREnabled}`,
+    )
+
+    // Each constraint must be honored on its own axis. Constraints are
+    // independent axes — none should be silently dropped just because others
+    // are also present.
+    if (backDevice.supportsPhotoHDR) {
+      expect(config.isPhotoHDREnabled).toBe(true)
+    }
+    if (chosenStabilizationMode != null) {
+      expect(config.selectedVideoStabilizationMode).toBe(chosenStabilizationMode)
+    }
+    if (hasHdr) {
+      expect(config.selectedVideoDynamicRange?.bitDepth).toBe('hdr-10-bit')
+    }
+    // fps: 60 is the lowest-priority entry and may legitimately fall back to
+    // 30 on devices that can't do HDR at 60fps. Log the resolved value but
+    // don't strict-assert.
+    if (wants60 && !hasHdr) {
+      expect(config.selectedFPS).toBe(60)
+    }
+
+    await session.stop()
+  })
+
   it('reconfigures the running session with a different constraint set', async () => {
     if (!backDevice.supportsFPS(60)) {
       console.log(
