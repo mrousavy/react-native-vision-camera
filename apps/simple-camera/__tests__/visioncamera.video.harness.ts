@@ -186,7 +186,10 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
 
-    const recorder = await videoOutput.createRecorder({ maxFileSize: 200_000 })
+    // Limit must be above per-GOP / moov-atom overhead, and the timeout
+    // must tolerate near-static simulator feeds compressing well below
+    // `targetBitRate`.
+    const recorder = await videoOutput.createRecorder({ maxFileSize: 500_000 })
     let finishedReason: RecordingFinishedReason | undefined
     try {
       await recorder.startRecording(
@@ -195,7 +198,7 @@ describe('VisionCamera - Video', () => {
         },
         () => {},
       )
-      await waitUntil(() => finishedReason != null, { timeout: 20_000 })
+      await waitUntil(() => finishedReason != null, { timeout: 60_000 })
       expect(finishedReason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
