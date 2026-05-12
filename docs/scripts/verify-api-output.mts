@@ -515,7 +515,7 @@ function main(): void {
   assertFileContains(cameraPhotoOutputPath, '> [!NOTE] Note')
   const saveToFileAsyncSection = getMethodSectionBody(
     photoPageText,
-    'saveToFileAsync()',
+    'saveToFileAsync(...)',
   )
   if (saveToFileAsyncSection == null) {
     throw new Error('Expected Photo.saveToFileAsync() section to be present.')
