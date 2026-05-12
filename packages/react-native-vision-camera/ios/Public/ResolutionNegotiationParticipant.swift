@@ -1,5 +1,5 @@
 //
-//  ResolutionNegotionParticipant.swift
+//  ResolutionNegotiationParticipant.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 08.04.26.
@@ -24,17 +24,17 @@ public indirect enum ResolutionRule {
 ///
 /// The desired target resolution is accessed when negotiating
 /// resolutions across all outputs conforming to the
-/// `ResolutionNegotionParticipant` protocol.
+/// `ResolutionNegotiationParticipant` protocol.
 ///
 /// This is required for using a Resolution Bias Constraint
 /// for the given Camera Output, so the Camera pipeline can
 /// internally figure out a most suitable resolution for all
 /// outputs.
-public protocol ResolutionNegotionParticipant {
+public protocol ResolutionNegotiationParticipant {
   /**
-   * Get the target Resolution of this `ResolutionNegotionParticipant`.
+   * Get the target Resolution of this `ResolutionNegotiationParticipant`.
    * This will be used for finding a suitable Format and negotiated
-   * between other `ResolutionNegotionParticipant`, possibly influenced
+   * between other `ResolutionNegotiationParticipant`, possibly influenced
    * by Resolution Bias Constraints.
    */
   var targetResolution: ResolutionRule { get }
