@@ -417,40 +417,27 @@ export interface CameraController
    */
   setTorchMode(mode: TorchMode): Promise<void>
   /**
-   * Enables the torch at a custom {@linkcode strength} brightness level.
+   * Sets the {@linkcode torchStrength} to the given
+   * {@linkcode strength} value.
    *
-   * The valid range for {@linkcode strength} is
-   * `[device.minTorchStrength, device.maxTorchStrength]`, which differs
-   * by platform:
-   * - On iOS, {@linkcode strength} is a continuous value in `[0, 1]`.
-   * - On Android, {@linkcode strength} is a discrete level in
-   *   `[1, device.maxTorchStrength]` - fractional values are floored
-   *   to the nearest integer level.
+   * @discussion
+   * This method always turns on the torch, but allows using a custom torch strength - if
+   * you simply want to enable the torch, use {@linkcode setTorchMode | setTorchMode('on')}
+   * instead.
    *
-   * To turn the torch off again, call
-   * {@linkcode setTorchMode | setTorchMode('off')}.
+   * To turn the torch off again, use {@linkcode setTorchMode | setTorchMode('off')}.
    *
-   * @throws If {@linkcode strength} is outside the
-   *   `[device.minTorchStrength, device.maxTorchStrength]` range.
-   * @throws If the {@linkcode device} does not support configuring
-   *   torch strength (see {@linkcode CameraDevice.supportsTorchStrength}).
-   *   To turn the torch on at the system default brightness, use
-   *   {@linkcode setTorchMode | setTorchMode('on')} instead.
-   *
+   * @throws If the {@linkcode device} does not support setting torch strength (see {@linkcode CameraDevice.supportsTorchStrength})
+   * @throws If the {@linkcode device} does not support this {@linkcode strength} value (see {@linkcode CameraDevice.minTorchStrength} / {@linkcode CameraDevice.maxTorchStrength})
    * @example
-   * Enable torch at maximum brightness:
+   * Set Torch to maximum strength:
    * ```ts
    * const controller = ...
-   * const device = controller.device
-   * if (device.supportsTorchStrength) {
-   *   await controller.enableTorchWithStrength(device.maxTorchStrength)
-   * } else if (device.hasTorch) {
-   *   await controller.setTorchMode('on')
+   * if (controller.device.supportsTorchStrength) {
+   *   const maxStrength = controller.device.maxTorchStrength
+   *   await controller.enableTorchWithStrength(maxStrength)
    * }
    * ```
-   *
-   * @see {@linkcode CameraDevice.minTorchStrength}
-   * @see {@linkcode CameraDevice.maxTorchStrength}
    */
   enableTorchWithStrength(strength: number): Promise<void>
 
@@ -470,7 +457,7 @@ export interface CameraController
    */
   readonly exposureBias: number
   /**
-   * Sets the {@linkcode CameraController.exposureBias | exposureBias} to the given
+   * Sets the {@linkcode exposureBias} to the given
    * {@linkcode exposure} bias value.
    *
    * A positive value (like `1`) means over-exposed ("brighter"),
