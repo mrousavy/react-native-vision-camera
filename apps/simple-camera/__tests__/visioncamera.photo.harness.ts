@@ -270,16 +270,24 @@ describe('VisionCamera - Photo', () => {
     ])
     await session.start()
     try {
+      const requestedShortEdge = Math.min(max.width, max.height)
+      const requestedLongEdge = Math.max(max.width, max.height)
+
+      // currentResolution must reflect the resolved output size before we
+      // even take the picture.
+      const reported = photoOutput.currentResolution
+      expect(reported).toBeDefined()
+      expect(Math.min(reported!.width, reported!.height)).toBe(requestedShortEdge)
+      expect(Math.max(reported!.width, reported!.height)).toBe(requestedLongEdge)
+
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      const requestedShortEdge = Math.min(max.width, max.height)
-      const requestedLongEdge = Math.max(max.width, max.height)
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `max device res=${max.width}x${max.height} captured=${photo.width}x${photo.height}`,
+        `max device res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
@@ -312,16 +320,22 @@ describe('VisionCamera - Photo', () => {
     ])
     await session.start()
     try {
+      const requestedShortEdge = Math.min(min.width, min.height)
+      const requestedLongEdge = Math.max(min.width, min.height)
+
+      const reported = photoOutput.currentResolution
+      expect(reported).toBeDefined()
+      expect(Math.min(reported!.width, reported!.height)).toBe(requestedShortEdge)
+      expect(Math.max(reported!.width, reported!.height)).toBe(requestedLongEdge)
+
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      const requestedShortEdge = Math.min(min.width, min.height)
-      const requestedLongEdge = Math.max(min.width, min.height)
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `min device res=${min.width}x${min.height} captured=${photo.width}x${photo.height}`,
+        `min device res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
