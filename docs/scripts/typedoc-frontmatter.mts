@@ -17,6 +17,7 @@ import {
   orderPlatformLabelsWithOrder,
 } from '../src/lib/shared/platforms-core.ts'
 import { annotateProjectOwnTypeLevelDocumentation } from '../src/lib/typedoc/inherited-type-level-comments.ts'
+import { getMemberCallSuffix } from '../src/lib/typedoc/member-heading.ts'
 import {
   createHybridInterfaceResolver,
   getDirectHybridParentName,
@@ -173,11 +174,10 @@ function getMemberHeadingTitle(
     return null
   }
 
-  const hasSignatures =
-    Array.isArray(reflection.signatures) && reflection.signatures.length > 0
+  const callSuffix = getMemberCallSuffix(reflection)
   const isOptional = reflection.flags?.isOptional === true
 
-  return `${reflection.name}${hasSignatures ? '()' : ''}${isOptional ? '?' : ''}`
+  return `${reflection.name}${callSuffix}${isOptional ? '?' : ''}`
 }
 
 function collectMemberPlatformsByHeading(
