@@ -150,7 +150,9 @@ describe('VisionCamera - Controller', () => {
       return
     }
     if (!backDevice.supportsTorchStrength) {
-      console.log('[SKIP] torch strength: device does not support custom strength')
+      console.log(
+        '[SKIP] torch strength: device does not support custom strength',
+      )
       return
     }
     const session = await VisionCamera.createCameraSession(false)
