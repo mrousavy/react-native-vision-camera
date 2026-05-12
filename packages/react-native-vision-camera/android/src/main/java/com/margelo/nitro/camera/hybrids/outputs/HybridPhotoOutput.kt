@@ -17,6 +17,7 @@ import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.PhotoFile
 import com.margelo.nitro.camera.PhotoOutputOptions
 import com.margelo.nitro.camera.QualityPrioritization
+import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.extensions.converters.toCaptureMode
 import com.margelo.nitro.camera.extensions.converters.toFlashMode
 import com.margelo.nitro.camera.extensions.converters.toOutputFormat
@@ -47,6 +48,8 @@ class HybridPhotoOutput(
       field = value
       imageCapture?.targetRotation = value.surfaceRotation
     }
+  override val currentResolution: Size?
+    get() = imageCapture?.resolutionInfo?.resolution?.toSize()
 
   private val coroutineScope = CoroutineScope(Dispatchers.Default)
   private var imageCapture: ImageCapture? = null

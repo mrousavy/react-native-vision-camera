@@ -23,6 +23,9 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
   let requiresDepthFormat: Bool = false
   let mediaType: MediaType = .video
   var outputOrientation: CameraOrientation = .up
+  var currentResolution: Size? {
+    return output.connections.first?.currentResolution
+  }
 
   let streamType: StreamType = .video
   var targetResolution: ResolutionRule {

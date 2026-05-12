@@ -33,6 +33,9 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
       try? connection.setOrientation(outputOrientation)
     }
   }
+  var currentResolution: Size? {
+    return output.connections.first?.currentResolution
+  }
 
   // TODO: Support setting custom `targetBitRate`
   init(options: VideoOutputOptions) {

@@ -23,6 +23,9 @@ class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput
       try? connection.setOrientation(outputOrientation)
     }
   }
+  var currentResolution: Size? {
+    return output.connections.first?.currentResolution
+  }
 
   var streamType: StreamType = .video
   var targetResolution: ResolutionRule = .any

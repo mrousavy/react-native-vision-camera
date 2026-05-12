@@ -31,6 +31,9 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
       try? connection.setOrientation(outputOrientation)
     }
   }
+  var currentResolution: Size? {
+    return output.connections.first?.currentResolution
+  }
 
   var streamType: StreamType = .photo
   var targetResolution: ResolutionRule {
