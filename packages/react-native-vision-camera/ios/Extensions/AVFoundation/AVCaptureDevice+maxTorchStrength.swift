@@ -12,7 +12,7 @@ extension AVCaptureDevice {
   ///
   /// `AVCaptureDevice.setTorchModeOn(level:)` accepts values up to
   /// `AVCaptureMaxAvailableTorchLevel`, which is always `1.0`.
-  var maxTorchStrength: Float {
+  var maxTorchStrength: Double {
     return 1.0
   }
 }

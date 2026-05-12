@@ -308,7 +308,7 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       }
       let minStrength = self.captureDevice.minTorchStrength
       let maxStrength = self.captureDevice.maxTorchStrength
-      guard strength >= Double(minStrength) && strength <= Double(maxStrength) else {
+      guard strength >= minStrength && strength <= maxStrength else {
         throw RuntimeError(
           "`strength` is not within the device's `minTorchStrength` and `maxTorchStrength` range! (Received: \(strength), `device.minTorchStrength`: \(minStrength), `device.maxTorchStrength`: \(maxStrength)"
         )

@@ -15,7 +15,7 @@ extension AVCaptureDevice {
   /// lowest usable brightness is just above `0`. We expose a small positive floor
   /// rather than `0` so that callers can pass this value directly to
   /// `setTorchModeOn(level:)` without tripping that exception.
-  var minTorchStrength: Float {
+  var minTorchStrength: Double {
     return 0.001
   }
 }
