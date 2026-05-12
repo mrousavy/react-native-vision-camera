@@ -1,8 +1,10 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraOrientation } from '../common-types/CameraOrientation'
+import type { Constraint } from '../common-types/Constraint'
 import type { MediaType } from '../common-types/MediaType'
 import type { Size } from '../common-types/Size'
 import type { CameraSession } from '../session/CameraSession.nitro'
+import type { PhotoOutputOptions } from './CameraPhotoOutput.nitro'
 
 /**
  * A {@linkcode CameraOutput} is the base-class of all
@@ -40,17 +42,18 @@ export interface CameraOutput
   outputOrientation: CameraOrientation
   /**
    * The resolution that the underlying capture pipeline has resolved
-   * this {@linkcode CameraOutput} to, in sensor-native (un-rotated) pixels.
-   *
-   * Returns `undefined` until the output has been attached to a
-   * configured {@linkcode CameraSession}. Once bound, the value reflects
-   * what the platform actually selected — which may differ from the
-   * requested {@linkcode Size} when no exact match exists.
+   * this {@linkcode CameraOutput} to, in sensor-native (un-rotated) pixels,
+   * or `undefined` if the output has not yet been connected to a
+   * {@linkcode CameraSession}.
    *
    * @discussion
-   * Width/height are pre-rotation sensor dimensions. The final
-   * user-visible orientation is applied separately via {@linkcode outputOrientation}.
+   * The selected {@linkcode Size} may differ from the requested
+   * {@linkcode Size} (e.g. from {@linkcode PhotoOutputOptions.targetResolution}),
+   * as the {@linkcode CameraSession} negotiates resolutions across
+   * attached {@linkcode CameraOutput}s, connected {@linkcode CameraDevice}
+   * capabilities, and enabled {@linkcode Constraint}s.
    *
+   * @discussion
    * For outputs that are not pixel-based (e.g. metadata-only outputs),
    * this reports the resolution of the upstream video stream feeding
    * the output, or `undefined` if no video input is attached.
