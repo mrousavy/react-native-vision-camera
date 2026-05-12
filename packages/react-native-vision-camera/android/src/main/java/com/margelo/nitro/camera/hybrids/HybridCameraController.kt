@@ -69,9 +69,13 @@ class HybridCameraController(
     get() = zoom * camera.cameraInfo.intrinsicZoomRatio
 
   override val torchStrength: Double
-    get() =
-      camera.cameraInfo.torchStrengthLevel.value
+    get() {
+      // If the torch is off, we must return `0`.
+      // The `torchStrengthLevel` uses a cached value, so it never goes to `0`.
+      if (camera.cameraInfo.torchState.value != TorchState.ON) return 0.0
+      return camera.cameraInfo.torchStrengthLevel.value
         ?.toDouble() ?: 0.0
+    }
 
   override val torchMode: TorchMode
     get() = TorchMode.fromTorchState(camera.cameraInfo.torchState.value ?: TorchState.OFF)
