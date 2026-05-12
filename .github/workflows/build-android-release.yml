@@ -1,0 +1,45 @@
+name: Build Android (Release)
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    paths:
+      - '.github/workflows/build-android-release.yml'
+
+jobs:
+  build_release:
+    name: Build Android Example App (release, new architecture)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: bun install
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          java-package: jdk
+
+      - name: Run Gradle Build for apps/simple-camera/android/
+        working-directory: apps/simple-camera/android
+        run: |
+          ./gradlew clean :app:assembleRelease --no-daemon --no-build-cache
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: apps/simple-camera/android/app/build/outputs/apk/release/app-release.apk
+          asset_name: "SimpleCamera-${{ github.event.release.tag_name }}.apk"
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Stop Gradle Daemon
+        working-directory: apps/simple-camera/android
+        run: ./gradlew --stop
