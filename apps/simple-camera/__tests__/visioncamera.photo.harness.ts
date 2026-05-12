@@ -277,8 +277,12 @@ describe('VisionCamera - Photo', () => {
       // even take the picture.
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(requestedShortEdge)
-      expect(Math.max(reported!.width, reported!.height)).toBe(requestedLongEdge)
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        requestedShortEdge,
+      )
+      expect(Math.max(reported!.width, reported!.height)).toBe(
+        requestedLongEdge,
+      )
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
@@ -325,8 +329,12 @@ describe('VisionCamera - Photo', () => {
 
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(requestedShortEdge)
-      expect(Math.max(reported!.width, reported!.height)).toBe(requestedLongEdge)
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        requestedShortEdge,
+      )
+      expect(Math.max(reported!.width, reported!.height)).toBe(
+        requestedLongEdge,
+      )
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },

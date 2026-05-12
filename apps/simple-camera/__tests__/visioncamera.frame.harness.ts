@@ -300,7 +300,9 @@ describe('VisionCamera - Frame', () => {
       // currentResolution should match what's actually being streamed.
       const reported = frameOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(streamedShortEdge)
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        streamedShortEdge,
+      )
       expect(Math.max(reported!.width, reported!.height)).toBe(streamedLongEdge)
 
       console.log(
@@ -373,7 +375,9 @@ describe('VisionCamera - Frame', () => {
 
       const reported = frameOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(streamedShortEdge)
+      expect(Math.min(reported!.width, reported!.height)).toBe(
+        streamedShortEdge,
+      )
       expect(Math.max(reported!.width, reported!.height)).toBe(streamedLongEdge)
 
       console.log(

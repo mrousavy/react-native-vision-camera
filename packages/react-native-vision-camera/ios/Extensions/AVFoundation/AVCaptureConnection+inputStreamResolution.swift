@@ -9,7 +9,7 @@ import AVFoundation
 import CoreMedia
 import NitroModules
 
-public extension AVCaptureConnection {
+extension AVCaptureConnection {
   /**
    * Returns the resolution of the stream currently flowing through this
    * connection's first input port, in sensor-native (un-rotated) pixels.
@@ -21,7 +21,7 @@ public extension AVCaptureConnection {
    * Returns `nil` until the session is configured and the port has a
    * format description attached.
    */
-  var inputStreamResolution: Size? {
+  public var inputStreamResolution: Size? {
     guard let port = inputPorts.first,
       let formatDescription = port.formatDescription
     else {
