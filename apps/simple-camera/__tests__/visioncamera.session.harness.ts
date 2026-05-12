@@ -233,7 +233,7 @@ describe('VisionCamera - Session', () => {
     if (device == null) return
 
     const session = await VisionCamera.createCameraSession(false)
-    const firstPhoto = VisionCamera.createPhotoOutput({
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
       containerFormat: 'jpeg',
       quality: 0.8,
@@ -248,14 +248,14 @@ describe('VisionCamera - Session', () => {
     await session.configure([
       {
         input: device,
-        outputs: [{ output: firstPhoto, mirrorMode: 'auto' }],
+        outputs: [{ output: firstPhotoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
     ])
     await session.start()
 
     try {
-      const first = await firstPhoto.capturePhoto(
+      const first = await firstPhotoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
@@ -263,7 +263,7 @@ describe('VisionCamera - Session', () => {
       expect(first.height).toBeGreaterThan(0)
       first.dispose()
 
-      const secondPhoto = VisionCamera.createPhotoOutput({
+      const secondPhotoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
         containerFormat: 'jpeg',
         quality: 0.5,
@@ -273,12 +273,12 @@ describe('VisionCamera - Session', () => {
       await session.configure([
         {
           input: device,
-          outputs: [{ output: secondPhoto, mirrorMode: 'auto' }],
+          outputs: [{ output: secondPhotoOutput, mirrorMode: 'auto' }],
           constraints: [],
         },
       ])
 
-      const second = await secondPhoto.capturePhoto(
+      const second = await secondPhotoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
@@ -298,7 +298,7 @@ describe('VisionCamera - Session', () => {
     if (device == null) return
 
     const session = await VisionCamera.createCameraSession(false)
-    const firstVideo = VisionCamera.createVideoOutput({
+    const firstVideoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
@@ -311,14 +311,14 @@ describe('VisionCamera - Session', () => {
     await session.configure([
       {
         input: device,
-        outputs: [{ output: firstVideo, mirrorMode: 'auto' }],
+        outputs: [{ output: firstVideoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
     ])
     await session.start()
 
     try {
-      const firstRecorder = await firstVideo.createRecorder({})
+      const firstRecorder = await firstVideoOutput.createRecorder({})
       const firstFinished = deferred()
       await firstRecorder.startRecording(
         () => firstFinished.resolve(),
@@ -328,7 +328,7 @@ describe('VisionCamera - Session', () => {
       await firstRecorder.stopRecording()
       await withTimeout(firstFinished.promise, 15_000, 'first recording finish')
 
-      const secondVideo = VisionCamera.createVideoOutput({
+      const secondVideoOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.FHD_16_9,
         enableAudio: false,
       })
@@ -336,12 +336,12 @@ describe('VisionCamera - Session', () => {
       await session.configure([
         {
           input: device,
-          outputs: [{ output: secondVideo, mirrorMode: 'auto' }],
+          outputs: [{ output: secondVideoOutput, mirrorMode: 'auto' }],
           constraints: [],
         },
       ])
 
-      const secondRecorder = await secondVideo.createRecorder({})
+      const secondRecorder = await secondVideoOutput.createRecorder({})
       const secondFinished = deferred()
       await secondRecorder.startRecording(
         () => secondFinished.resolve(),
@@ -363,7 +363,7 @@ describe('VisionCamera - Session', () => {
     if (device == null) return
 
     const session = await VisionCamera.createCameraSession(false)
-    const yuvFrame = VisionCamera.createFrameOutput({
+    const yuvFrameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
       pixelFormat: 'yuv',
       enablePreviewSizedOutputBuffers: false,
@@ -381,19 +381,19 @@ describe('VisionCamera - Session', () => {
     await session.configure([
       {
         input: device,
-        outputs: [{ output: yuvFrame, mirrorMode: 'auto' }],
+        outputs: [{ output: yuvFrameOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
     ])
 
     // YUV is planar; RGB is not. We use frame.isPlanar to verify the swap
     // actually swung the pipeline over to the new pixel format.
-    let yuvPlanar: boolean | undefined
+    let yuvIsPlanar: boolean | undefined
     const reportYuv = (planar: boolean) => {
-      yuvPlanar = planar
+      yuvIsPlanar = planar
     }
-    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrame.thread)
-    yuvRuntime.setOnFrameCallback(yuvFrame, (frame) => {
+    const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrameOutput.thread)
+    yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
       const planar = frame.isPlanar
       scheduleOnRN(reportYuv, planar)
@@ -403,15 +403,15 @@ describe('VisionCamera - Session', () => {
     await session.start()
 
     try {
-      await waitUntil(() => yuvPlanar != null || sessionError != null, {
+      await waitUntil(() => yuvIsPlanar != null || sessionError != null, {
         timeout: 15_000,
       })
       expect(sessionError).toBe(undefined)
-      expect(yuvPlanar).toBe(true)
+      expect(yuvIsPlanar).toBe(true)
 
-      yuvRuntime.setOnFrameCallback(yuvFrame, undefined)
+      yuvRuntime.setOnFrameCallback(yuvFrameOutput, undefined)
 
-      const rgbFrame = VisionCamera.createFrameOutput({
+      const rgbFrameOutput = VisionCamera.createFrameOutput({
         targetResolution: CommonResolutions.VGA_16_9,
         pixelFormat: 'rgb',
         enablePreviewSizedOutputBuffers: false,
@@ -424,19 +424,19 @@ describe('VisionCamera - Session', () => {
       await session.configure([
         {
           input: device,
-          outputs: [{ output: rgbFrame, mirrorMode: 'auto' }],
+          outputs: [{ output: rgbFrameOutput, mirrorMode: 'auto' }],
           constraints: [],
         },
       ])
 
-      let rgbPlanar: boolean | undefined
+      let rgbIsPlanar: boolean | undefined
       const reportRgb = (planar: boolean) => {
-        rgbPlanar = planar
+        rgbIsPlanar = planar
       }
       const rgbRuntime = workletsProvider.createRuntimeForThread(
-        rgbFrame.thread,
+        rgbFrameOutput.thread,
       )
-      rgbRuntime.setOnFrameCallback(rgbFrame, (frame) => {
+      rgbRuntime.setOnFrameCallback(rgbFrameOutput, (frame) => {
         'worklet'
         const planar = frame.isPlanar
         scheduleOnRN(reportRgb, planar)
@@ -444,13 +444,13 @@ describe('VisionCamera - Session', () => {
       })
 
       try {
-        await waitUntil(() => rgbPlanar != null || sessionError != null, {
+        await waitUntil(() => rgbIsPlanar != null || sessionError != null, {
           timeout: 15_000,
         })
         expect(sessionError).toBe(undefined)
-        expect(rgbPlanar).toBe(false)
+        expect(rgbIsPlanar).toBe(false)
       } finally {
-        rgbRuntime.setOnFrameCallback(rgbFrame, undefined)
+        rgbRuntime.setOnFrameCallback(rgbFrameOutput, undefined)
       }
     } finally {
       errorSub.remove()

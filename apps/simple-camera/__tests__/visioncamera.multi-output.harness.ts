@@ -231,7 +231,7 @@ describe('VisionCamera - Multi-Output', () => {
 
   it('replaces the photo output while a video + frame output are also attached', async () => {
     const session = await VisionCamera.createCameraSession(false)
-    const firstPhoto = VisionCamera.createPhotoOutput({
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
       containerFormat: 'jpeg',
       quality: 0.8,
@@ -264,7 +264,7 @@ describe('VisionCamera - Multi-Output', () => {
       {
         input: backDevice,
         outputs: [
-          { output: firstPhoto, mirrorMode: 'auto' },
+          { output: firstPhotoOutput, mirrorMode: 'auto' },
           { output: videoOutput, mirrorMode: 'auto' },
           { output: frameOutput, mirrorMode: 'auto' },
         ],
@@ -282,7 +282,7 @@ describe('VisionCamera - Multi-Output', () => {
     await session.start()
 
     try {
-      const secondPhoto = VisionCamera.createPhotoOutput({
+      const secondPhotoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
         containerFormat: 'jpeg',
         quality: 0.5,
@@ -293,7 +293,7 @@ describe('VisionCamera - Multi-Output', () => {
         {
           input: backDevice,
           outputs: [
-            { output: secondPhoto, mirrorMode: 'auto' },
+            { output: secondPhotoOutput, mirrorMode: 'auto' },
             { output: videoOutput, mirrorMode: 'auto' },
             { output: frameOutput, mirrorMode: 'auto' },
           ],
@@ -302,7 +302,7 @@ describe('VisionCamera - Multi-Output', () => {
       ])
 
       // The replacement photo output captures.
-      const photo = await secondPhoto.capturePhoto(
+      const photo = await secondPhotoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
@@ -476,9 +476,9 @@ describe('VisionCamera - Multi-Output', () => {
       },
     ])
 
-    let yuvPlanar: boolean | undefined
+    let yuvIsPlanar: boolean | undefined
     const reportYuv = (planar: boolean) => {
-      yuvPlanar = planar
+      yuvIsPlanar = planar
     }
     const yuvRuntime = workletsProvider.createRuntimeForThread(yuvFrame.thread)
     yuvRuntime.setOnFrameCallback(yuvFrame, (frame) => {
@@ -491,11 +491,11 @@ describe('VisionCamera - Multi-Output', () => {
     await session.start()
 
     try {
-      await waitUntil(() => yuvPlanar != null || sessionError != null, {
+      await waitUntil(() => yuvIsPlanar != null || sessionError != null, {
         timeout: 15_000,
       })
       expect(sessionError).toBe(undefined)
-      expect(yuvPlanar).toBe(true)
+      expect(yuvIsPlanar).toBe(true)
 
       yuvRuntime.setOnFrameCallback(yuvFrame, undefined)
 
@@ -521,9 +521,9 @@ describe('VisionCamera - Multi-Output', () => {
         },
       ])
 
-      let rgbPlanar: boolean | undefined
+      let rgbIsPlanar: boolean | undefined
       const reportRgb = (planar: boolean) => {
-        rgbPlanar = planar
+        rgbIsPlanar = planar
       }
       const rgbRuntime = workletsProvider.createRuntimeForThread(
         rgbFrame.thread,
@@ -536,11 +536,11 @@ describe('VisionCamera - Multi-Output', () => {
       })
 
       try {
-        await waitUntil(() => rgbPlanar != null || sessionError != null, {
+        await waitUntil(() => rgbIsPlanar != null || sessionError != null, {
           timeout: 15_000,
         })
         expect(sessionError).toBe(undefined)
-        expect(rgbPlanar).toBe(false)
+        expect(rgbIsPlanar).toBe(false)
 
         // The untouched photo output still captures.
         const photo = await photoOutput.capturePhoto(
