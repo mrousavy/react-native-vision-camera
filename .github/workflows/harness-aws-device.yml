@@ -12,7 +12,7 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: harness-aws-device-${{ github.ref_name == 'main' && github.run_id || github.ref }}
+  group: harness-aws-device-${{ github.ref }}
   cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 on:
