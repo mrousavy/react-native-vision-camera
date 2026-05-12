@@ -147,10 +147,10 @@ export interface RecorderSettings {
    * The absolute path (including file name and extension) where
    * the recording file should be written to, or `undefined` to
    * create a file in the device's temporary directory.
-   * 
+   *
    * All parent directories in this {@linkcode filePath} will
    * be automatically created if they do not yet exist.
-   * 
+   *
    * @default undefined
    */
   filePath?: string
@@ -192,7 +192,7 @@ export interface RecorderSettings {
  * @example
  * Creating a `CameraVideoOutput` via the Hooks API:
  * ```ts
- * const videoOutput = useVideoOutput({})
+ * const videoOutput = useVideoOutput()
  * ```
  *
  * @example

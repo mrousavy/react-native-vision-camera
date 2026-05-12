@@ -247,7 +247,7 @@ export interface PhotoFile {
  * @example
  * Creating a `CameraPhotoOutput` via the Hooks API:
  * ```ts
- * const photoOutput = usePhotoOutput({})
+ * const photoOutput = usePhotoOutput()
  * ```
  *
  * @example
