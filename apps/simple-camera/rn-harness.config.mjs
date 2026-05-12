@@ -120,7 +120,7 @@ const config = {
   detectNativeCrashes,
   resetEnvironmentBetweenTestFiles: true,
   forwardClientLogs: true,
-  permissions: true
+  permissions: true,
 }
 
 export default config

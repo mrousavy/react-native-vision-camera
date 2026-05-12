@@ -23,8 +23,8 @@ describe('VisionCamera - Video', () => {
   let backDevice: CameraDevice
 
   beforeAll(async () => {
-    await VisionCamera.requestCameraPermission();
-    await VisionCamera.requestMicrophonePermission();
+    await VisionCamera.requestCameraPermission()
+    await VisionCamera.requestMicrophonePermission()
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     expect(VisionCamera.microphonePermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()

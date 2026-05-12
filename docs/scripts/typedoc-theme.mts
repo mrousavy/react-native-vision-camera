@@ -326,10 +326,9 @@ class VisionCameraThemeContext extends MarkdownThemeContext {
     }
 
     this.partials.memberTitle = (model) =>
-      originalPartials.memberTitle(model).replace(
-        '()',
-        getMemberCallSuffix(model),
-      )
+      originalPartials
+        .memberTitle(model)
+        .replace('()', getMemberCallSuffix(model))
 
     this.partials.accessor = (model, options) =>
       this.renderAccessor(model, options)

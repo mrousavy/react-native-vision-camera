@@ -7,7 +7,7 @@ describe('VisionCamera - Session', () => {
   let factory: CameraDeviceFactory
 
   beforeAll(async () => {
-    await VisionCamera.requestCameraPermission();
+    await VisionCamera.requestCameraPermission()
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
   })
