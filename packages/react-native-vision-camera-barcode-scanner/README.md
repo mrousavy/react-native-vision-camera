@@ -12,10 +12,9 @@ VisionCamera Barcode Scanner depends on VisionCamera Core.
 # Make sure VisionCamera Core is installed.
 ```
 
-## iOS requirements
+## Minimum Requirements
 
-- Assumed native dependency: `GoogleMLKit/BarcodeScanning` `8.0.0`
-- Minimum supported iOS version: `15.5`
+The `GoogleMLKit/BarcodeScanning` dependency (version `8.0.0`) requires a minimum iOS target version of 15.5. Adjust in your `Podfile` if needed.
 
 Then, update your native project:
 
