@@ -411,33 +411,19 @@ jobs:
         run: |
           set -euo pipefail
 
-          PLATFORM_PACKAGE_JSON="$(node -p "require.resolve('@react-native-harness/platform-apple/package.json')")"
-          PLATFORM_APPLE_ROOT="$(dirname "$PLATFORM_PACKAGE_JSON")"
-
-          DERIVED_DATA="apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentDerivedData"
+          PROJECT_ROOT="apps/simple-camera"
+          DERIVED_DATA="$PROJECT_ROOT/.harness/xctest-agent/device"
           IPA_PATH="apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentUITests.ipa"
-          PROJECT_PATH="$PLATFORM_APPLE_ROOT/xctest-agent/HarnessXCTestAgent.xcodeproj"
-
           PAYLOAD_ROOT="$(mktemp -d)"
           PAYLOAD_DIR="$PAYLOAD_ROOT/Payload"
 
           rm -rf "$DERIVED_DATA" "$IPA_PATH"
-          mkdir -p "$DERIVED_DATA" "$(dirname "$IPA_PATH")" "$PAYLOAD_DIR"
+          mkdir -p "$(dirname "$IPA_PATH")" "$PAYLOAD_DIR"
 
-          xcodebuild \
-            -project "$PROJECT_PATH" \
-            -scheme HarnessXCTestAgent \
-            -configuration Debug \
-            -sdk iphoneos \
-            -destination generic/platform=iOS \
-            -derivedDataPath "$DERIVED_DATA" \
-            -showBuildTimingSummary \
-            build-for-testing \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY= \
-            DEVELOPMENT_TEAM= \
-            COMPILER_INDEX_STORE_ENABLE=NO | xcbeautify --renderer github-actions
+          (
+            cd "$PROJECT_ROOT"
+            node ../../node_modules/react-native-harness/bin.js xctest build --destination device
+          )
 
           RUNNER_APP="$(find "$DERIVED_DATA/Build/Products/Debug-iphoneos" -maxdepth 1 -type d -name '*UITests-Runner.app' -print -quit)"
           test -n "$RUNNER_APP"
