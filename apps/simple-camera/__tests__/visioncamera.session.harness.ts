@@ -1,12 +1,7 @@
-import {
-  beforeAll,
-  describe,
-  expect,
-  it,
-  waitUntil,
-} from 'react-native-harness'
+import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type { CameraDeviceFactory } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+import { deferred, withTimeout } from './test-utils'
 
 describe('VisionCamera - Session', () => {
   let factory: CameraDeviceFactory
@@ -29,32 +24,35 @@ describe('VisionCamera - Session', () => {
         qualityPrioritization: 'balanced',
       })
 
-      let started = false
-      let stopped = false
-      const startSub = session.addOnStartedListener(() => {
-        started = true
+      const started = deferred()
+      const stopped = deferred()
+      const startSub = session.addOnStartedListener(started.resolve)
+      const stopSub = session.addOnStoppedListener(stopped.resolve)
+      const errorSub = session.addOnErrorListener((error) => {
+        started.reject(error)
+        stopped.reject(error)
       })
-      const stopSub = session.addOnStoppedListener(() => {
-        stopped = true
-      })
 
-      const controllers = await session.configure([
-        {
-          input: device,
-          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
-          constraints: [],
-        },
-      ])
-      expect(controllers.length).toBe(1)
-      expect(controllers[0]?.device.id).toBe(device.id)
+      try {
+        const controllers = await session.configure([
+          {
+            input: device,
+            outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+            constraints: [],
+          },
+        ])
+        expect(controllers.length).toBe(1)
+        expect(controllers[0]?.device.id).toBe(device.id)
 
-      await session.start()
-      await waitUntil(() => started, { timeout: 10_000 })
-      await session.stop()
-      await waitUntil(() => stopped, { timeout: 10_000 })
-
-      startSub.remove()
-      stopSub.remove()
+        await session.start()
+        await withTimeout(started.promise, 10_000, 'session start')
+        await session.stop()
+        await withTimeout(stopped.promise, 10_000, 'session stop')
+      } finally {
+        startSub.remove()
+        stopSub.remove()
+        errorSub.remove()
+      }
       console.log(
         `session ok: ${device.position}:${device.id} (${device.localizedName})`,
       )
@@ -75,31 +73,43 @@ describe('VisionCamera - Session', () => {
 
     let startedCount = 0
     let stoppedCount = 0
+    const started = deferred()
+    const stopped = deferred()
     const startSub = session.addOnStartedListener(() => {
       startedCount++
+      started.resolve()
     })
     const stopSub = session.addOnStoppedListener(() => {
       stoppedCount++
+      stopped.resolve()
+    })
+    const errorSub = session.addOnErrorListener((error) => {
+      started.reject(error)
+      stopped.reject(error)
     })
 
-    await session.configure([
-      {
-        input: device,
-        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
-        constraints: [],
-      },
-    ])
+    try {
+      await session.configure([
+        {
+          input: device,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
 
-    await session.start()
-    await waitUntil(() => startedCount === 1, { timeout: 10_000 })
-    await session.stop()
-    await waitUntil(() => stoppedCount === 1, { timeout: 10_000 })
+      await session.start()
+      await withTimeout(started.promise, 10_000, 'session start')
 
-    expect(startedCount).toBe(1)
-    expect(stoppedCount).toBe(1)
+      await session.stop()
+      await withTimeout(stopped.promise, 10_000, 'session stop')
 
-    startSub.remove()
-    stopSub.remove()
+      expect(startedCount).toBe(1)
+      expect(stoppedCount).toBe(1)
+    } finally {
+      startSub.remove()
+      stopSub.remove()
+      errorSub.remove()
+    }
   })
 
   it('stops delivering events after a listener subscription is removed', async () => {
@@ -130,24 +140,27 @@ describe('VisionCamera - Session', () => {
 
     // Second listener we keep attached so we can observe that the session
     // actually started before requesting a stop.
-    let actuallyStarted = false
-    const secondStartSub = session.addOnStartedListener(() => {
-      actuallyStarted = true
+    const started = deferred()
+    const stopped = deferred()
+    const secondStartSub = session.addOnStartedListener(started.resolve)
+    const stopSub = session.addOnStoppedListener(stopped.resolve)
+    const errorSub = session.addOnErrorListener((error) => {
+      started.reject(error)
+      stopped.reject(error)
     })
 
-    let stopped = false
-    const stopSub = session.addOnStoppedListener(() => {
-      stopped = true
-    })
+    try {
+      await session.start()
+      await withTimeout(started.promise, 10_000, 'session start')
+      await session.stop()
+      await withTimeout(stopped.promise, 10_000, 'session stop')
 
-    await session.start()
-    await waitUntil(() => actuallyStarted, { timeout: 10_000 })
-    await session.stop()
-    await waitUntil(() => stopped, { timeout: 10_000 })
-
-    expect(startedAfterRemove).toBe(0)
-    secondStartSub.remove()
-    stopSub.remove()
+      expect(startedAfterRemove).toBe(0)
+    } finally {
+      secondStartSub.remove()
+      stopSub.remove()
+      errorSub.remove()
+    }
   })
 
   it('registers an onError listener without throwing', async () => {
@@ -245,14 +258,17 @@ describe('VisionCamera - Session', () => {
     expect(controllers[0]?.device.id).toBe(back.id)
     expect(controllers[1]?.device.id).toBe(front.id)
 
-    let started = false
-    const sub = session.addOnStartedListener(() => {
-      started = true
-    })
-    await session.start()
-    await waitUntil(() => started, { timeout: 15_000 })
-    await session.stop()
-    sub.remove()
+    const started = deferred()
+    const sub = session.addOnStartedListener(started.resolve)
+    const errorSub = session.addOnErrorListener(started.reject)
+    try {
+      await session.start()
+      await withTimeout(started.promise, 15_000, 'session start')
+      await session.stop()
+    } finally {
+      sub.remove()
+      errorSub.remove()
+    }
   })
 
   it('configures, starts and stops a multi-cam session for every supported device combination', async () => {
@@ -294,14 +310,17 @@ describe('VisionCamera - Session', () => {
         expect(controllers[i]?.device.id).toBe(combination[i]?.id)
       }
 
-      let started = false
-      const sub = session.addOnStartedListener(() => {
-        started = true
-      })
-      await session.start()
-      await waitUntil(() => started, { timeout: 15_000 })
-      await session.stop()
-      sub.remove()
+      const started = deferred()
+      const sub = session.addOnStartedListener(started.resolve)
+      const errorSub = session.addOnErrorListener(started.reject)
+      try {
+        await session.start()
+        await withTimeout(started.promise, 15_000, 'session start')
+        await session.stop()
+      } finally {
+        sub.remove()
+        errorSub.remove()
+      }
 
       const description = combination
         .map((d) => `${d.position}:${d.id}`)
