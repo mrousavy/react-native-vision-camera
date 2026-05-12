@@ -419,10 +419,7 @@ export interface CameraController
    * To turn the torch off again, call
    * {@linkcode setTorchMode | setTorchMode('off')}.
    *
-   * @param strength The torch brightness, in the range `0.0` to `1.0`.
-   *
    * @throws If {@linkcode strength} is less than `0` or greater than `1`.
-   * @throws If the {@linkcode device} does not have a torch (see {@linkcode CameraDevice.hasTorch}).
    * @throws If the {@linkcode device} does not support configuring
    * torch strength (see {@linkcode CameraDevice.supportsTorchStrength}).
    * To turn the torch on at the system default brightness, use
@@ -433,8 +430,6 @@ export interface CameraController
    * const controller = ...
    * if (controller.device.supportsTorchStrength) {
    *   await controller.enableTorchWithStrength(0.5)
-   * } else if (controller.device.hasTorch) {
-   *   await controller.setTorchMode('on')
    * }
    * ```
    */
