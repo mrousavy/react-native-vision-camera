@@ -162,7 +162,11 @@ abstract class HybridCameraControllerSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun setTorchMode(mode: TorchMode, strength: Double?): Promise<Unit>
+  abstract fun setTorchMode(mode: TorchMode): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun enableTorchWithStrength(strength: Double): Promise<Unit>
   
   @DoNotStrip
   @Keep

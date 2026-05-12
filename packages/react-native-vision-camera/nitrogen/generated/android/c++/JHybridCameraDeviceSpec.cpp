@@ -308,6 +308,11 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
+  bool JHybridCameraDeviceSpec::getSupportsTorchStrength() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getSupportsTorchStrength");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
   bool JHybridCameraDeviceSpec::getSupportsLowLightBoost() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getSupportsLowLightBoost");
     auto __result = method(_javaPart);

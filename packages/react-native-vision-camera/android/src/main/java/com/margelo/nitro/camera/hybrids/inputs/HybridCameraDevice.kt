@@ -169,6 +169,9 @@ class HybridCameraDevice(
   override val hasTorch: Boolean
     get() = cameraInfo.hasFlashUnit()
 
+  override val supportsTorchStrength: Boolean
+    get() = cameraInfo.isTorchStrengthSupported
+
   override val supportsLowLightBoost: Boolean
     get() = cameraInfo.isLowLightBoostSupported
 

@@ -330,9 +330,24 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  std::shared_ptr<Promise<void>> JHybridCameraControllerSpec::setTorchMode(TorchMode mode, std::optional<double> strength) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JTorchMode> /* mode */, jni::alias_ref<jni::JDouble> /* strength */)>("setTorchMode");
-    auto __result = method(_javaPart, JTorchMode::fromCpp(mode), strength.has_value() ? jni::JDouble::valueOf(strength.value()) : nullptr);
+  std::shared_ptr<Promise<void>> JHybridCameraControllerSpec::setTorchMode(TorchMode mode) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JTorchMode> /* mode */)>("setTorchMode");
+    auto __result = method(_javaPart, JTorchMode::fromCpp(mode));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraControllerSpec::enableTorchWithStrength(double strength) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(double /* strength */)>("enableTorchWithStrength");
+    auto __result = method(_javaPart, strength);
     return [&]() {
       auto __promise = Promise<void>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {

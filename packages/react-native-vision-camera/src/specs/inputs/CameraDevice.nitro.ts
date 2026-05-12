@@ -489,9 +489,42 @@ export interface CameraDevice
    * In almost all cases, {@linkcode hasTorch} is the
    * same as {@linkcode hasFlash}.
    *
+   * Use {@linkcode supportsTorchStrength} to find out whether
+   * the torch additionally accepts a custom brightness level
+   * via {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}.
+   *
    * @see {@linkcode CameraController.setTorchMode | setTorchMode(...)}
+   * @see {@linkcode supportsTorchStrength}
    */
   readonly hasTorch: boolean
+  /**
+   * Whether this {@linkcode CameraDevice} supports configuring
+   * a custom torch brightness level via
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}.
+   *
+   * Many devices with a {@linkcode hasTorch | torch} can only
+   * toggle the torch on or off and do not expose a brightness
+   * level — calling
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   * on such a device will fail. Use
+   * {@linkcode CameraController.setTorchMode | setTorchMode('on')}
+   * instead to turn the torch on at the system default level.
+   *
+   * @discussion
+   * On iOS, {@linkcode supportsTorchStrength} mirrors
+   * {@linkcode hasTorch} — any device that has a torch also
+   * supports adjusting its brightness via
+   * `AVCaptureDevice.setTorchModeOn(level:)`.
+   *
+   * On Android, this flag is gated by CameraX's
+   * `CameraInfo.isTorchStrengthSupported()`. Some devices
+   * with a flash unit still return `false` here, because not
+   * every Camera2 implementation exposes the torch-strength API.
+   *
+   * @see {@linkcode hasTorch}
+   * @see {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   */
+  readonly supportsTorchStrength: boolean
 
   // pragma MARK: Low Light Boost
   /**

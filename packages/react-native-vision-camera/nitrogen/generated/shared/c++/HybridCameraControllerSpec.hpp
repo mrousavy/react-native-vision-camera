@@ -49,7 +49,6 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "FocusOptions.hpp"
 #include "ListenerSubscription.hpp"
 #include <functional>
-#include <optional>
 #include "WhiteBalanceTemperatureAndTint.hpp"
 
 namespace margelo::nitro::camera {
@@ -114,7 +113,8 @@ namespace margelo::nitro::camera {
       virtual std::shared_ptr<Promise<void>> setZoom(double zoom) = 0;
       virtual std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) = 0;
       virtual std::shared_ptr<Promise<void>> cancelZoomAnimation() = 0;
-      virtual std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode, std::optional<double> strength) = 0;
+      virtual std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode) = 0;
+      virtual std::shared_ptr<Promise<void>> enableTorchWithStrength(double strength) = 0;
       virtual std::shared_ptr<Promise<void>> setExposureBias(double exposure) = 0;
       virtual std::shared_ptr<Promise<void>> setFocusLocked(double lensPosition) = 0;
       virtual std::shared_ptr<Promise<void>> lockCurrentFocus() = 0;

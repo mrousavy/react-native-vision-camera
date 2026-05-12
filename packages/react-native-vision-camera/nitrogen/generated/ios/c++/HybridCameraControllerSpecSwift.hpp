@@ -248,8 +248,16 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode, std::optional<double> strength) override {
-      auto __result = _swiftPart.setTorchMode(static_cast<int>(mode), strength);
+    inline std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode) override {
+      auto __result = _swiftPart.setTorchMode(static_cast<int>(mode));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> enableTorchWithStrength(double strength) override {
+      auto __result = _swiftPart.enableTorchWithStrength(std::forward<decltype(strength)>(strength));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

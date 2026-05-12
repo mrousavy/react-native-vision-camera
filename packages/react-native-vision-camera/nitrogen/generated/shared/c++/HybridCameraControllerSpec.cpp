@@ -47,6 +47,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridMethod("startZoomAnimation", &HybridCameraControllerSpec::startZoomAnimation);
       prototype.registerHybridMethod("cancelZoomAnimation", &HybridCameraControllerSpec::cancelZoomAnimation);
       prototype.registerHybridMethod("setTorchMode", &HybridCameraControllerSpec::setTorchMode);
+      prototype.registerHybridMethod("enableTorchWithStrength", &HybridCameraControllerSpec::enableTorchWithStrength);
       prototype.registerHybridMethod("setExposureBias", &HybridCameraControllerSpec::setExposureBias);
       prototype.registerHybridMethod("setFocusLocked", &HybridCameraControllerSpec::setFocusLocked);
       prototype.registerHybridMethod("lockCurrentFocus", &HybridCameraControllerSpec::lockCurrentFocus);

@@ -85,7 +85,8 @@ namespace margelo::nitro::camera {
     std::shared_ptr<Promise<void>> setZoom(double zoom) override;
     std::shared_ptr<Promise<void>> startZoomAnimation(double zoom, double rate) override;
     std::shared_ptr<Promise<void>> cancelZoomAnimation() override;
-    std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode, std::optional<double> strength) override;
+    std::shared_ptr<Promise<void>> setTorchMode(TorchMode mode) override;
+    std::shared_ptr<Promise<void>> enableTorchWithStrength(double strength) override;
     std::shared_ptr<Promise<void>> setExposureBias(double exposure) override;
     std::shared_ptr<Promise<void>> setFocusLocked(double lensPosition) override;
     std::shared_ptr<Promise<void>> lockCurrentFocus() override;

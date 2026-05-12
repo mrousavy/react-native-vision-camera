@@ -46,6 +46,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("supportsWhiteBalanceLocking", &HybridCameraDeviceSpec::getSupportsWhiteBalanceLocking);
       prototype.registerHybridGetter("hasFlash", &HybridCameraDeviceSpec::getHasFlash);
       prototype.registerHybridGetter("hasTorch", &HybridCameraDeviceSpec::getHasTorch);
+      prototype.registerHybridGetter("supportsTorchStrength", &HybridCameraDeviceSpec::getSupportsTorchStrength);
       prototype.registerHybridGetter("supportsLowLightBoost", &HybridCameraDeviceSpec::getSupportsLowLightBoost);
       prototype.registerHybridGetter("minZoom", &HybridCameraDeviceSpec::getMinZoom);
       prototype.registerHybridGetter("maxZoom", &HybridCameraDeviceSpec::getMaxZoom);

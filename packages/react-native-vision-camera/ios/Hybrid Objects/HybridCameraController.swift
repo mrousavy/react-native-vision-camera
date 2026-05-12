@@ -275,7 +275,7 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       onSubjectAreaDidChange: onSubjectAreaChanged)
   }
 
-  func setTorchMode(mode: TorchMode, strength: Double?) -> Promise<Void> {
+  func setTorchMode(mode: TorchMode) -> Promise<Void> {
     return captureDevice.withLock(queue) {
       // 1. Ensure we have a torch
       if !self.captureDevice.hasTorch {
@@ -294,18 +294,33 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       case .off:
         self.captureDevice.torchMode = .off
       case .on:
-        if let strength {
-          // 3. We have a custom strength level too! Set that
-          guard strength >= 0 && strength <= 1 else {
-            throw RuntimeError.error(
-              withMessage:
-                "Torch `strength` is not within 0.0 to 1.0 range! (Received: \(strength))")
-          }
-          try self.captureDevice.setTorchModeOn(level: Float(strength))
-        } else {
-          self.captureDevice.torchMode = .on
-        }
+        self.captureDevice.torchMode = .on
       }
+    }
+  }
+
+  func enableTorchWithStrength(strength: Double) -> Promise<Void> {
+    return captureDevice.withLock(queue) {
+      // 1. Ensure we have a torch
+      guard self.captureDevice.hasTorch else {
+        throw RuntimeError.error(
+          withMessage: "Cannot enable torch - this CameraDevice does not have a `torch`!"
+        )
+      }
+
+      // 2. Ensure strength is within range
+      guard strength >= 0 && strength <= 1 else {
+        throw RuntimeError.error(
+          withMessage:
+            "Torch `strength` is not within 0.0 to 1.0 range! (Received: \(strength))"
+        )
+      }
+
+      // 3. Apply level. AVCaptureDevice.setTorchModeOn(level:) accepts (0, AVCaptureMaxAvailableTorchLevel]
+      //    and throws NSInvalidArgumentException (uncatchable from Swift) for level == 0.
+      //    Floor strength=0 at a tiny positive value so JS callers can request "minimum brightness".
+      let level = max(Float(strength), 0.001)
+      try self.captureDevice.setTorchModeOn(level: level)
     }
   }
 

@@ -386,29 +386,59 @@ export interface CameraController
    * from `0.0` (weakest) to `1.0` (brightest).
    *
    * The torch's strength can be configured via
-   * {@linkcode setTorchMode | setTorchMode('on', ...)}.
+   * {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}
+   * on devices that support custom torch brightness
+   * (see {@linkcode CameraDevice.supportsTorchStrength}).
    */
   readonly torchStrength: number
   /**
    * Get the current {@linkcode TorchMode}.
    *
    * The torch can be enabled or disabled via
-   * {@linkcode setTorchMode | setTorchMode(...)}.
+   * {@linkcode setTorchMode | setTorchMode(...)}, or enabled
+   * at a custom brightness level via
+   * {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}.
    */
   readonly torchMode: TorchMode
   /**
    * Sets the torch to the specified {@linkcode mode}.
    *
-   * - When {@linkcode mode} == {@linkcode TorchMode | 'on'},
-   * you can pass {@linkcode strength} to configure the Torch's
-   * strength, from `0.0` to `1.0`.
-   * - When {@linkcode mode} != {@linkcode TorchMode | 'on'},
-   * the {@linkcode strength} parameter is ignored.
+   * To enable the torch with a specific brightness level,
+   * use {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}
+   * instead.
    *
-   * @throws If the {@linkcode device} does not have a torch (see {@linkcode CameraDevice.hasTorch})
-   * @throws If {@linkcode strength} is less than `0` or greater than `1`.
+   * @throws If the {@linkcode device} does not have a torch (see {@linkcode CameraDevice.hasTorch}).
+   * @see {@linkcode enableTorchWithStrength | enableTorchWithStrength(...)}
    */
-  setTorchMode(mode: TorchMode, strength?: number): Promise<void>
+  setTorchMode(mode: TorchMode): Promise<void>
+  /**
+   * Enables the torch at a custom {@linkcode strength} brightness
+   * level, from `0.0` (the lowest brightness the device supports)
+   * to `1.0` (full brightness).
+   *
+   * To turn the torch off again, call
+   * {@linkcode setTorchMode | setTorchMode('off')}.
+   *
+   * @param strength The torch brightness, in the range `0.0` to `1.0`.
+   *
+   * @throws If {@linkcode strength} is less than `0` or greater than `1`.
+   * @throws If the {@linkcode device} does not have a torch (see {@linkcode CameraDevice.hasTorch}).
+   * @throws If the {@linkcode device} does not support configuring
+   * torch strength (see {@linkcode CameraDevice.supportsTorchStrength}).
+   * To turn the torch on at the system default brightness, use
+   * {@linkcode setTorchMode | setTorchMode('on')} instead.
+   *
+   * @example
+   * ```ts
+   * const controller = ...
+   * if (controller.device.supportsTorchStrength) {
+   *   await controller.enableTorchWithStrength(0.5)
+   * } else if (controller.device.hasTorch) {
+   *   await controller.setTorchMode('on')
+   * }
+   * ```
+   */
+  enableTorchWithStrength(strength: number): Promise<void>
 
   // pragma MARK: Exposure
   /**

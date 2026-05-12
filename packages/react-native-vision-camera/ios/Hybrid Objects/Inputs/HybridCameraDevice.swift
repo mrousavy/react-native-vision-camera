@@ -196,6 +196,12 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
     return device.hasTorch
   }
 
+  var supportsTorchStrength: Bool {
+    // On iOS any device with a torch also accepts a custom brightness level
+    // via AVCaptureDevice.setTorchModeOn(level:), so this mirrors `hasTorch`.
+    return device.hasTorch
+  }
+
   var supportsLowLightBoost: Bool {
     return device.isLowLightBoostSupported
   }
