@@ -37,12 +37,13 @@ cd ios && pod install
 
 ..and get started by [setting up permissions](https://visioncamera.margelo.com/docs)!
 
-### Documentation
+### Links
 
 - [Documentation Website](https://visioncamera.margelo.com)
 - [Documentation LLMs.txt](https://visioncamera.margelo.com/llms.txt)
 - [Community Discord](https://margelo.com/discord)
 - [Example App](./apps/simple-camera/)
+- [AWS Device Farm Tests](https://us-west-2.console.aws.amazon.com/devicefarm/home#/mobile/projects/210b1942-012b-4653-9673-f3ff91c5e649/runs) (sign in via the [AWS Access Portal](https://d-9267d6576e.awsapps.com/start) first)
 
 ### VisionCamera V4
 
