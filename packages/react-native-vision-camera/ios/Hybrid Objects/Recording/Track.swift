@@ -25,7 +25,7 @@ final class Track {
 
   /**
    Gets whether the track has been marked as finished or not.
-  
+
    A track is finished when stop() was called, and a buffer with a later timestamp
    than the one from the stop() call arrives.
    */
