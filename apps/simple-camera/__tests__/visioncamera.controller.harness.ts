@@ -633,10 +633,10 @@ describe('VisionCamera - Controller', () => {
       // iOS reports 'custom' for manual duration/ISO; Android may report
       // 'locked'. Accept either so the test stays stable across platforms.
       await controller.setExposureLocked(duration, iso)
-      expect(['custom', 'locked']).toContain(controller.exposureMode)
+      expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
 
       await controller.lockCurrentExposure()
-      expect(['custom', 'locked']).toContain(controller.exposureMode)
+      expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
     } finally {
       await session.stop()
     }
