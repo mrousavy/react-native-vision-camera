@@ -52,11 +52,6 @@ enum ConstraintResolver {
     // Build the full constraint list: user constraints first (highest priority),
     // then inferred internal constraints (lowest priority).
     var constraints: [InternalConstraint] = userConstraints.map { .userConstraint($0) }
-    constraints.append(.preferredAutoFocusSystem(.phaseDetection))
-    if outputs.contains(where: { $0.streamType == .photo }) {
-      constraints.append(.preferHighQualityPrioritization)
-      constraints.append(.preferHighestPhotoQuality)
-    }
 
     // Hard requirements: filter out formats that are not possible at all.
     let formats = try filterFormats(device.formats, outputs: outputs, isMultiCam: isMultiCam)
