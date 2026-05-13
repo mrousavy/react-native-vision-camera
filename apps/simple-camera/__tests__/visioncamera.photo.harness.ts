@@ -1,4 +1,3 @@
-import { Platform } from 'react-native'
 import {
   beforeAll,
   describe,
@@ -654,7 +653,21 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  it('exposes depth delivery support flags without throwing', async () => {
+  it('reports supportsDepthDataDelivery on a depth-capable device', async () => {
+    // `supportsDepthDataDelivery` is a per-output property that flips to `true`
+    // once the photo output is bound to a device that can produce depth data.
+    // The default back wide-angle on most phones does not — depth-capable
+    // devices are typically TrueDepth (front) or LiDAR/Dual virtual cameras.
+    // Pick whichever device on the system happens to support depth.
+    const depthDevice = factory.cameraDevices.find(
+      (d) => d.type === 'true-depth' || d.type === 'lidar-depth' || d.type === 'dual',
+    )
+    if (depthDevice == null) {
+      console.log(
+        '[SKIP] supportsDepthDataDelivery: no depth-capable device on this system',
+      )
+      return
+    }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -664,7 +677,7 @@ describe('VisionCamera - Photo', () => {
     })
     await session.configure([
       {
-        input: backDevice,
+        input: depthDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
@@ -672,10 +685,6 @@ describe('VisionCamera - Photo', () => {
     console.log(
       `photoOutput support flags: depthData=${photoOutput.supportsDepthDataDelivery} calibrationData=${photoOutput.supportsCameraCalibrationDataDelivery}`,
     )
-    if (Platform.OS === 'ios' && !photoOutput.supportsDepthDataDelivery) {
-      console.log(
-        '[SKIP] supportsDepthDataDelivery: not supported for this device/output combination',
-      )
-    }
+    expect(photoOutput.supportsDepthDataDelivery).toBe(true)
   })
 })

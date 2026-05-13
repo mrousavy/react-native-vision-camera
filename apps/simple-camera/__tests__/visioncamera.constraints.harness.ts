@@ -171,8 +171,16 @@ describe('VisionCamera - Constraints', () => {
   })
 
   it('resolves a video stabilization constraint when supported', async () => {
-    if (!backDevice.supportsVideoStabilizationMode('cinematic')) {
-      console.log('[SKIP] videoStabilizationMode: "cinematic" not supported')
+    // The resolver downgrades stabilization modes (cinematic → standard → off)
+    // when the requested one isn't supported, so picking the most demanding
+    // mode the device exposes gives the test the most coverage.
+    const stabDevice = factory.cameraDevices.find((d) =>
+      d.supportsVideoStabilizationMode('cinematic'),
+    )
+    if (stabDevice == null) {
+      console.log(
+        '[SKIP] videoStabilizationMode: no device on this system supports "cinematic"',
+      )
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -183,7 +191,7 @@ describe('VisionCamera - Constraints', () => {
     let received: CameraSessionConfig | undefined
     await session.configure([
       {
-        input: backDevice,
+        input: stabDevice,
         outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
         constraints: [{ videoStabilizationMode: 'cinematic' }],
         onSessionConfigSelected: (config) => {
@@ -197,9 +205,12 @@ describe('VisionCamera - Constraints', () => {
   })
 
   it('resolves a preview stabilization constraint when supported', async () => {
-    if (!backDevice.supportsPreviewStabilizationMode('preview-optimized')) {
+    const stabDevice = factory.cameraDevices.find((d) =>
+      d.supportsPreviewStabilizationMode('preview-optimized'),
+    )
+    if (stabDevice == null) {
       console.log(
-        '[SKIP] previewStabilizationMode: "preview-optimized" not supported',
+        '[SKIP] previewStabilizationMode: no device on this system supports "preview-optimized"',
       )
       return
     }
@@ -208,7 +219,7 @@ describe('VisionCamera - Constraints', () => {
     let received: CameraSessionConfig | undefined
     await session.configure([
       {
-        input: backDevice,
+        input: stabDevice,
         outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
         constraints: [{ previewStabilizationMode: 'preview-optimized' }],
         onSessionConfigSelected: (config) => {
