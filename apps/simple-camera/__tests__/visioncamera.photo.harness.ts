@@ -660,7 +660,10 @@ describe('VisionCamera - Photo', () => {
     // devices are typically TrueDepth (front) or LiDAR/Dual virtual cameras.
     // Pick whichever device on the system happens to support depth.
     const depthDevice = factory.cameraDevices.find(
-      (d) => d.type === 'true-depth' || d.type === 'lidar-depth' || d.type === 'dual',
+      (d) =>
+        d.type === 'true-depth' ||
+        d.type === 'lidar-depth' ||
+        d.type === 'dual',
     )
     if (depthDevice == null) {
       console.log(
