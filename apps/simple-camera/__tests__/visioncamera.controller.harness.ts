@@ -555,9 +555,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('rejects manual focus locking when the device does not support it', async () => {
-    if (backDevice.supportsFocusLocking) {
-      console.log('[SKIP] focus locking: supported on this device')
+  it('locks focus to a specific lens position when the device supports it', async () => {
+    if (!backDevice.supportsFocusLocking) {
+      console.log('[SKIP] focus locking: not supported on this device')
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -578,16 +578,23 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await expect(controller.setFocusLocked(0.5)).rejects.toThrow()
-      await expect(controller.lockCurrentFocus()).rejects.toThrow()
+      // Lock focus at a specific lens position. AVCaptureDevice quantizes
+      // lensPosition to discrete steps, so use a loose tolerance on readback.
+      await controller.setFocusLocked(0.5)
+      expect(controller.focusMode).toBe('locked')
+      expect(controller.lensPosition).toBeCloseTo(0.5, 1)
+
+      // Lock at whatever the current value is.
+      await controller.lockCurrentFocus()
+      expect(controller.focusMode).toBe('locked')
     } finally {
       await session.stop()
     }
   })
 
-  it('rejects manual exposure locking when the device does not support it', async () => {
-    if (backDevice.supportsExposureLocking) {
-      console.log('[SKIP] exposure locking: supported on this device')
+  it('locks exposure to a specific duration/ISO when the device supports it', async () => {
+    if (!backDevice.supportsExposureLocking) {
+      console.log('[SKIP] exposure locking: not supported on this device')
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -608,16 +615,25 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await expect(controller.setExposureLocked(1 / 60, 100)).rejects.toThrow()
-      await expect(controller.lockCurrentExposure()).rejects.toThrow()
+      // Pick a mid-range duration/ISO the device must accept. Hardware
+      // quantizes both, so only assert mode here.
+      const duration =
+        (controller.minExposureDuration + controller.maxExposureDuration) / 2
+      const iso = (controller.minISO + controller.maxISO) / 2
+
+      await controller.setExposureLocked(duration, iso)
+      expect(controller.exposureMode).toBe('locked')
+
+      await controller.lockCurrentExposure()
+      expect(controller.exposureMode).toBe('locked')
     } finally {
       await session.stop()
     }
   })
 
-  it('rejects manual white-balance locking when the device does not support it', async () => {
-    if (backDevice.supportsWhiteBalanceLocking) {
-      console.log('[SKIP] white-balance locking: supported on this device')
+  it('locks white-balance to specific gains when the device supports it', async () => {
+    if (!backDevice.supportsWhiteBalanceLocking) {
+      console.log('[SKIP] white-balance locking: not supported on this device')
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -638,14 +654,17 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await expect(
-        controller.setWhiteBalanceLocked({
-          redGain: 1,
-          greenGain: 1,
-          blueGain: 1,
-        }),
-      ).rejects.toThrow()
-      await expect(controller.lockCurrentWhiteBalance()).rejects.toThrow()
+      // Use neutral 1.0 gains — guaranteed to be inside the [1, maxGain]
+      // range every supported device exposes.
+      await controller.setWhiteBalanceLocked({
+        redGain: 1,
+        greenGain: 1,
+        blueGain: 1,
+      })
+      expect(controller.whiteBalanceMode).toBe('locked')
+
+      await controller.lockCurrentWhiteBalance()
+      expect(controller.whiteBalanceMode).toBe('locked')
     } finally {
       await session.stop()
     }
