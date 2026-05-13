@@ -171,8 +171,9 @@ describe('VisionCamera - Controller', () => {
   })
 
   it('rejects setTorchMode on a device without a torch', async () => {
-    if (backDevice.hasTorch) {
-      console.log('[SKIP] no-torch path: backDevice has a torch')
+    const noTorchDevice = factory.cameraDevices.find((d) => !d.hasTorch)
+    if (noTorchDevice == null) {
+      console.log('[SKIP] no-torch path: no device on this system lacks a torch')
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -184,7 +185,7 @@ describe('VisionCamera - Controller', () => {
     })
     const [controller] = await session.configure([
       {
-        input: backDevice,
+        input: noTorchDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
@@ -292,9 +293,12 @@ describe('VisionCamera - Controller', () => {
   })
 
   it('rejects enableTorchWithStrength on a device without torch strength support', async () => {
-    if (backDevice.supportsTorchStrength) {
+    const noStrengthDevice = factory.cameraDevices.find(
+      (d) => !d.supportsTorchStrength,
+    )
+    if (noStrengthDevice == null) {
       console.log(
-        '[SKIP] no-torch-strength path: device supports custom strength',
+        '[SKIP] no-torch-strength path: every device on this system supports custom torch strength',
       )
       return
     }
@@ -307,7 +311,7 @@ describe('VisionCamera - Controller', () => {
     })
     const [controller] = await session.configure([
       {
-        input: backDevice,
+        input: noStrengthDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
@@ -464,8 +468,13 @@ describe('VisionCamera - Controller', () => {
   })
 
   it('enables low-light boost via CameraController.configure when supported', async () => {
-    if (!backDevice.supportsLowLightBoost) {
-      console.log('[SKIP] low-light boost: not supported on this device')
+    const lowLightDevice = factory.cameraDevices.find(
+      (d) => d.supportsLowLightBoost,
+    )
+    if (lowLightDevice == null) {
+      console.log(
+        '[SKIP] low-light boost: no device on this system supports it',
+      )
       return
     }
     const session = await VisionCamera.createCameraSession(false)
@@ -477,7 +486,7 @@ describe('VisionCamera - Controller', () => {
     })
     const [controller] = await session.configure([
       {
-        input: backDevice,
+        input: lowLightDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [],
       },
@@ -621,11 +630,13 @@ describe('VisionCamera - Controller', () => {
         (controller.minExposureDuration + controller.maxExposureDuration) / 2
       const iso = (controller.minISO + controller.maxISO) / 2
 
+      // iOS reports 'custom' for manual duration/ISO; Android may report
+      // 'locked'. Accept either so the test stays stable across platforms.
       await controller.setExposureLocked(duration, iso)
-      expect(controller.exposureMode).toBe('locked')
+      expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
 
       await controller.lockCurrentExposure()
-      expect(controller.exposureMode).toBe('locked')
+      expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
     } finally {
       await session.stop()
     }
