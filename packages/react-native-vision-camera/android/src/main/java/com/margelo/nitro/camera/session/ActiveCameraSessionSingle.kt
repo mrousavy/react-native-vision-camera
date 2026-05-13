@@ -54,12 +54,16 @@ class ActiveCameraSessionSingle(
       // error state changed!
       if (error != null) {
         // We encountered an error!
-        val throwable = Error(error.reason, error.cause)
-        listener.onError(throwable)
-
-        // If it's a recoverable error, we can treat it like an interruption
-        if (error.type == CameraState.ErrorType.RECOVERABLE) {
-          listener.onInterruptionStarted()
+        // RECOVERABLE Errors are treated as interruptions,
+        // as CameraX automatically retries.
+        when (error.type) {
+          CameraState.ErrorType.CRITICAL -> {
+            val throwable = Error(error.reason, error.cause)
+            listener.onError(throwable)
+          }
+          CameraState.ErrorType.RECOVERABLE -> {
+            listener.onInterruptionStarted()
+          }
         }
       } else {
         // Error encounter is now over!
