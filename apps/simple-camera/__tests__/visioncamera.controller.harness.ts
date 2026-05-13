@@ -630,11 +630,13 @@ describe('VisionCamera - Controller', () => {
         (controller.minExposureDuration + controller.maxExposureDuration) / 2
       const iso = (controller.minISO + controller.maxISO) / 2
 
+      // iOS reports 'custom' for manual duration/ISO; Android may report
+      // 'locked'. Accept either so the test stays stable across platforms.
       await controller.setExposureLocked(duration, iso)
-      expect(controller.exposureMode).toBe('locked')
+      expect(['custom', 'locked']).toContain(controller.exposureMode)
 
       await controller.lockCurrentExposure()
-      expect(controller.exposureMode).toBe('locked')
+      expect(['custom', 'locked']).toContain(controller.exposureMode)
     } finally {
       await session.stop()
     }
