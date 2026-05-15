@@ -10,9 +10,11 @@ import CoreGraphics
 
 enum FrameCoordinateSystemConverter {
   /**
-   * Returns a matrix that maps a point in the given `pixelBuffer` to a
-   * normalized camera point `(cx, cy) ∈ [0, 1]²`, applying `orientation`
-   * and `isMirrored`.
+   * Get a Matrix that can convert a point in the
+   * given `pixelBuffer` to normalized Camera coordinates
+   * (`(cx, cy) ∈ [0, 1]²`).
+   * The `orientation` and `isMirrored` flags affect the
+   * Matrix if the `Frame` needs those to be adjusted.
    */
   static func getFrameToCameraMatrix(
     pixelBuffer: CVPixelBuffer,
