@@ -256,8 +256,8 @@ describe('VisionCamera - Photo', () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: max,
-      containerFormat: 'jpeg',
-      quality: 0.8,
+      containerFormat: 'native',
+      quality: 1,
       qualityPrioritization: 'quality',
     })
     await session.configure([
@@ -282,6 +282,14 @@ describe('VisionCamera - Photo', () => {
       expect(Math.max(reported!.width, reported!.height)).toBe(
         requestedLongEdge,
       )
+
+      // Prepare default settings on the Photo Output before capturing.
+      // This is kinda required for max res capture on iOS as otherwise
+      // the pipeline is not ready for 48MP+ capture (possibly a race
+      // condition inside AVFoundation?) and would give us binned (eg 24MP)
+      // photos instead - maybe because it tries to give a photo quickly while
+      // 48MP is still being warmed up? No idea. Bad DX imo.
+      await photoOutput.prepareSettings([{}])
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
