@@ -1,4 +1,4 @@
-import { type LayoutChangeEvent, Platform, StyleSheet } from 'react-native'
+import { type LayoutChangeEvent, StyleSheet } from 'react-native'
 import {
   afterEach,
   beforeAll,
@@ -402,12 +402,9 @@ describe('VisionCamera - Coordinates', () => {
       const mp = previewRef.createMeteringPoint(viewCenter.x, viewCenter.y)
 
       // relativeX/Y is documented to echo the view coordinate the user
-      // tapped. On Android the native side scales by pixelRatio before
-      // storing, so compare after applying the same scale.
-      const pixelRatio =
-        Platform.OS === 'android' ? mp.relativeX / viewCenter.x : 1
-      expect(mp.relativeX).toBeCloseTo(viewCenter.x * pixelRatio, 0)
-      expect(mp.relativeY).toBeCloseTo(viewCenter.y * pixelRatio, 0)
+      // tapped.
+      expect(mp.relativeX).toBeCloseTo(viewCenter.x, 0)
+      expect(mp.relativeY).toBeCloseTo(viewCenter.y, 0)
 
       // normalizedX/Y are the camera-space coords after orientation /
       // cropping / scaling, and per MeteringPoint.nitro.ts must be in [0, 1].
