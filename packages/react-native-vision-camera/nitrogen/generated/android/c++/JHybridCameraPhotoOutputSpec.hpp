@@ -63,6 +63,7 @@ namespace margelo::nitro::camera {
     // Methods
     std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> capturePhoto(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) override;
     std::shared_ptr<Promise<PhotoFile>> capturePhotoToFile(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) override;
+    std::shared_ptr<Promise<void>> prepareSettings(const std::vector<CapturePhotoSettings>& settings) override;
 
   private:
     jni::global_ref<JHybridCameraPhotoOutputSpec::JavaPart> _javaPart;

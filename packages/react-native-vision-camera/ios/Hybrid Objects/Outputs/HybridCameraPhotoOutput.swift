@@ -185,4 +185,11 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
       return PhotoFile(filePath: filePath)
     }
   }
+
+  func prepareSettings(settings: [CapturePhotoSettings]) throws -> Promise<Void> {
+    return Promise.async {
+      let captureSettings = try settings.map { try $0.toAVCapturePhotoSettings(for: self.output, withOptions: self.options) }
+      try await self.output.setPreparedPhotoSettingsArray(captureSettings)
+    }
+  }
 }
