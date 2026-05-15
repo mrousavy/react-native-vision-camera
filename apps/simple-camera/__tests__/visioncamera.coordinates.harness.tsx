@@ -1,4 +1,3 @@
-import React from 'react'
 import { type LayoutChangeEvent, Platform, StyleSheet } from 'react-native'
 import {
   afterEach,
