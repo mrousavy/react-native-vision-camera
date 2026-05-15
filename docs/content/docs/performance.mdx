@@ -115,6 +115,27 @@ const photoOutput = usePhotoOutput({
 })
 ```
 
+### Prepare Photo Settings
+
+Some photo captures require the native Camera pipeline to allocate additional buffers or reconfigure parts of the photo render path before the capture can be serviced efficiently.
+On iOS, this can especially matter for expensive captures such as maximum-resolution photos, RAW photos, depth data, flash captures, or [`qualityPrioritization`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#qualityprioritization) set to [`'quality'`](/api/react-native-vision-camera/type-aliases/QualityPrioritization).
+
+If you already know which [`CapturePhotoSettings`](/api/react-native-vision-camera/interfaces/CapturePhotoSettings) you are going to use, call [`prepareSettings(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#preparesettings) before the actual capture:
+
+```ts
+await photoOutput.prepareSettings([
+  { flashMode: 'off' }
+])
+
+const photo = await photoOutput.capturePhoto(
+  { flashMode: 'off' },
+  {}
+)
+```
+
+Preparing settings is optional, but it allows VisionCamera to warm up the native photo pipeline for the exact settings you plan to capture with.
+On Android, [`prepareSettings(...)`](/api/react-native-vision-camera/hybrid-objects/CameraPhotoOutput#preparesettings) is a no-op.
+
 ### Snapshot Capture
 
 If photo capture is still too slow for your use-case, consider capturing a Snapshot via [`takeSnapshot()`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#takesnapshot) instead:
