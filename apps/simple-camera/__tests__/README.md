@@ -42,6 +42,7 @@ Tests are split by domain. Each file tests one slice of the imperative
 | [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `enablePreviewSizedOutputBuffers` |
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
+| [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts) | `Frame.convertFramePointToCameraPoint` / `convertCameraPointToFramePoint`, `PreviewView.convertViewPointToCameraPoint` / `convertCameraPointToViewPoint`, `PreviewView.createMeteringPoint`, `convertScannedObjectCoordinatesToViewCoordinates`, end-to-end Frame → Camera → View round-trip |
 
 Pick the file that best matches what you're testing. If you're reproducing a
 bug that spans multiple outputs, put it in the file most central to the
@@ -292,8 +293,18 @@ If your PR fails CI, the fastest way to debug is:
 
 ## High-level components / hooks (`<Camera>`, `useCamera()`, etc.)
 
-Tests for higher-level React components and hooks are **not yet in scope
-here**. They'll live alongside the imperative tests when added — same
-principles, same folder.
+Tests for the high-level `<Camera>` component and the `useCamera()` /
+similar React hooks are **not yet in scope here**. They'll live alongside
+the imperative tests when added — same principles, same folder.
+
+**Exception: mounting native Hybrid views to exercise their ref methods is
+allowed.** Some imperative APIs (e.g. `PreviewView.convertViewPointToCameraPoint`,
+`PreviewView.createMeteringPoint`) can only be reached through a mounted,
+laid-out view. Those tests may `render(<NativePreviewView ... />)` from
+`react-native-harness`, capture the ref via `hybridRef`, and call the methods
+directly — see [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts)
+for the pattern. Keep the wrapper minimal: no `<Camera>`, no `useCamera()`,
+no `usePreviewOutput()` — drive the session imperatively as everywhere else
+in this folder, and only the view is rendered.
 
 [react-native-harness]: https://github.com/margelo/react-native-harness
