@@ -406,14 +406,8 @@ describe('VisionCamera - Coordinates', () => {
       // storing, so compare after applying the same scale.
       const pixelRatio =
         Platform.OS === 'android' ? mp.relativeX / viewCenter.x : 1
-      const expectedRelativeX = viewCenter.x * pixelRatio
-      const expectedRelativeY = viewCenter.y * pixelRatio
-      expect(Math.abs(mp.relativeX - expectedRelativeX)).toBeLessThanOrEqual(
-        COORD_EPSILON,
-      )
-      expect(Math.abs(mp.relativeY - expectedRelativeY)).toBeLessThanOrEqual(
-        COORD_EPSILON,
-      )
+      expect(mp.relativeX).toBeCloseTo(viewCenter.x * pixelRatio, 0)
+      expect(mp.relativeY).toBeCloseTo(viewCenter.y * pixelRatio, 0)
 
       // normalizedX/Y are the camera-space coords after orientation /
       // cropping / scaling, and per MeteringPoint.nitro.ts must be in [0, 1].
@@ -424,9 +418,9 @@ describe('VisionCamera - Coordinates', () => {
 
       // The center of the view should map to (approximately) the center of
       // the camera's normalized coord system, since cover/contain crops are
-      // symmetric around the center.
-      expect(Math.abs(mp.normalizedX - 0.5)).toBeLessThanOrEqual(0.05)
-      expect(Math.abs(mp.normalizedY - 0.5)).toBeLessThanOrEqual(0.05)
+      // symmetric around the center. numDigits=1 tolerates |x - 0.5| < 0.05.
+      expect(mp.normalizedX).toBeCloseTo(0.5, 1)
+      expect(mp.normalizedY).toBeCloseTo(0.5, 1)
       console.log(
         `metering point at view center: relative=(${mp.relativeX}, ${mp.relativeY}) normalized=(${mp.normalizedX}, ${mp.normalizedY})`,
       )
