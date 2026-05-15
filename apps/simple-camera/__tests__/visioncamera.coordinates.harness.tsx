@@ -521,19 +521,13 @@ describe('VisionCamera - Coordinates', () => {
         previewRef.convertCameraPointToViewPoint(frameCenterCamera)
       const viewCenter: Point = { x: w / 2, y: h / 2 }
 
-      // We allow up to ~10% drift on each axis to absorb the aspect-ratio
-      // crop in `resizeMode='cover'` and the fact that the camera sensor
-      // is wider than tall (or vice versa) — the frame center always
-      // corresponds to the center of the visible region. A regression
-      // like #3871 produces drift of half the view dimension or more.
-      const xTolerance = w * 0.1
-      const yTolerance = h * 0.1
-      expect(Math.abs(projected.x - viewCenter.x)).toBeLessThanOrEqual(
-        xTolerance,
-      )
-      expect(Math.abs(projected.y - viewCenter.y)).toBeLessThanOrEqual(
-        yTolerance,
-      )
+      // toBeCloseTo(_, -2) tolerates |projected - center| < 50 (dp), which
+      // is loose enough to absorb sub-pixel round-trip drift from two
+      // affine transforms and the `resizeMode='cover'` aspect-ratio crop,
+      // and tight enough to catch the #3871 regression — which produces
+      // drift of half the view dimension or more.
+      expect(projected.x).toBeCloseTo(viewCenter.x, -2)
+      expect(projected.y).toBeCloseTo(viewCenter.y, -2)
       console.log(
         `frame.orientation=${observedOrientation} frame-center camera=${JSON.stringify(frameCenterCamera)} -> view=${JSON.stringify(projected)} (view center ${JSON.stringify(viewCenter)})`,
       )

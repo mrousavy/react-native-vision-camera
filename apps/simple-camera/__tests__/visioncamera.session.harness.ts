@@ -223,7 +223,7 @@ describe('VisionCamera - Session', () => {
         constraints: [],
       },
     ])
-    expect(controllers.length).toBe(1)
+    expect(controllers).toHaveLength(1)
 
     await session.stop()
   })
@@ -548,10 +548,9 @@ describe('VisionCamera - Session', () => {
       }))
 
       const controllers = await session.configure(connections)
-      expect(controllers.length).toBe(combination.length)
-      for (let i = 0; i < combination.length; i++) {
-        expect(controllers[i]?.device.id).toBe(combination[i]?.id)
-      }
+      expect(controllers.map((c) => c.device.id)).toEqual(
+        combination.map((d) => d.id),
+      )
 
       const started = deferred()
       const sub = session.addOnStartedListener(started.resolve)

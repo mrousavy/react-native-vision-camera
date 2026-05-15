@@ -158,7 +158,7 @@ describe('VisionCamera - Devices', () => {
         factory.supportedMultiCamDeviceCombinations.length,
       ).toBeGreaterThanOrEqual(1)
     } else {
-      expect(factory.supportedMultiCamDeviceCombinations.length).toBe(0)
+      expect(factory.supportedMultiCamDeviceCombinations).toHaveLength(0)
     }
   })
 
@@ -170,11 +170,11 @@ describe('VisionCamera - Devices', () => {
       )
       return
     }
-    const knownIds = new Set(factory.cameraDevices.map((d) => d.id))
+    const knownIds = factory.cameraDevices.map((d) => d.id)
     for (const combination of combinations) {
       expect(combination.length).toBeGreaterThan(0)
       for (const device of combination) {
-        expect(knownIds.has(device.id)).toBe(true)
+        expect(knownIds).toContain(device.id)
       }
     }
   })
