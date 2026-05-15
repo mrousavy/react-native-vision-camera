@@ -1,9 +1,5 @@
 import React from 'react'
-import {
-  type LayoutChangeEvent,
-  Platform,
-  StyleSheet,
-} from 'react-native'
+import { type LayoutChangeEvent, Platform, StyleSheet } from 'react-native'
 import {
   afterEach,
   beforeAll,
@@ -201,7 +197,9 @@ describe('VisionCamera - Coordinates', () => {
         expect(Math.abs(s.x - first.x)).toBeLessThanOrEqual(COORD_EPSILON)
         expect(Math.abs(s.y - first.y)).toBeLessThanOrEqual(COORD_EPSILON)
       }
-      console.log(`frame center camera point samples: ${JSON.stringify(samples)}`)
+      console.log(
+        `frame center camera point samples: ${JSON.stringify(samples)}`,
+      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -416,7 +414,8 @@ describe('VisionCamera - Coordinates', () => {
       // relativeX/Y is documented to echo the view coordinate the user
       // tapped. On Android the native side scales by pixelRatio before
       // storing, so compare after applying the same scale.
-      const pixelRatio = Platform.OS === 'android' ? mp.relativeX / viewCenter.x : 1
+      const pixelRatio =
+        Platform.OS === 'android' ? mp.relativeX / viewCenter.x : 1
       const expectedRelativeX = viewCenter.x * pixelRatio
       const expectedRelativeY = viewCenter.y * pixelRatio
       expect(Math.abs(mp.relativeX - expectedRelativeX)).toBeLessThanOrEqual(
@@ -526,18 +525,16 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      await waitUntil(
-        () => frameCenterCamera != null || sessionError != null,
-        { timeout: 15_000 },
-      )
+      await waitUntil(() => frameCenterCamera != null || sessionError != null, {
+        timeout: 15_000,
+      })
       expect(sessionError).toBe(undefined)
       if (previewRef == null) throw new Error('no preview ref')
       if (frameCenterCamera == null) throw new Error('no frame center sample')
 
       const { width: w, height: h } = await layout.promise
-      const projected = previewRef.convertCameraPointToViewPoint(
-        frameCenterCamera,
-      )
+      const projected =
+        previewRef.convertCameraPointToViewPoint(frameCenterCamera)
       const viewCenter: Point = { x: w / 2, y: h / 2 }
 
       // We allow up to ~10% drift on each axis to absorb the aspect-ratio
@@ -569,7 +566,7 @@ describe('VisionCamera - Coordinates', () => {
   //       ScannedObject today is via `CameraObjectOutput`, which depends
   //       on a real QR code being visible to the rear camera — not
   //       reliable on AWS Device Farm or a closed test rig.
-  it.skip('converts a ScannedObject\'s bounding box into view coordinates (iOS only)', async () => {
+  it.skip("converts a ScannedObject's bounding box into view coordinates (iOS only)", async () => {
     if (Platform.OS !== 'ios') {
       console.log(
         '[SKIP] convertScannedObjectCoordinatesToViewCoordinates: iOS only',
