@@ -430,14 +430,8 @@ describe('VisionCamera - Coordinates', () => {
     }
   })
 
-  // The exact scenario from issue #3871: a Frame Processor reports a point
-  // in frame coordinates (e.g. a barcode bounding box), the app converts
-  // it to camera coords inside the worklet, posts it back to JS, and uses
-  // the PreviewView to convert camera coords to view coords for overlay
-  // rendering. The frame center must land at the view center regardless
-  // of `frame.orientation`. If a regression makes one platform ignore
-  // orientation/mirroring metadata, this catches it.
-  it('round-trips Frame center -> Camera -> View center end-to-end (repro for #3871)', async () => {
+  // Repro for https://github.com/mrousavy/react-native-vision-camera/issues/3871
+  it('round-trips Frame center -> Camera -> View center end-to-end', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     const frameOutput = VisionCamera.createFrameOutput({
@@ -524,8 +518,9 @@ describe('VisionCamera - Coordinates', () => {
       // toBeCloseTo(_, -2) tolerates |projected - center| < 50 (dp), which
       // is loose enough to absorb sub-pixel round-trip drift from two
       // affine transforms and the `resizeMode='cover'` aspect-ratio crop,
-      // and tight enough to catch the #3871 regression — which produces
-      // drift of half the view dimension or more.
+      // and tight enough to catch a regression where one platform ignores
+      // orientation/mirroring metadata — which produces drift of half the
+      // view dimension or more.
       expect(projected.x).toBeCloseTo(viewCenter.x, -2)
       expect(projected.y).toBeCloseTo(viewCenter.y, -2)
       console.log(
