@@ -10,51 +10,50 @@ import CoreGraphics
 
 enum FrameCoordinateSystemConverter {
   /**
-   * Get a Matrix that maps a point in the given `pixelBuffer` to a normalized
-   * camera point `(cx, cy) ∈ [0, 1]²`, applying `orientation` and `isMirrored`.
-   *
-   * Each orientation maps the frame pixel `(x, y)` to:
-   * - `.up`    → (    x/w,     y/h)
-   * - `.down`  → (1 - x/w, 1 - y/h)
-   * - `.left`  → (    y/h, 1 - x/w)
-   * - `.right` → (1 - y/h,     x/w)
-   *
-   * Implemented as a direct affine matrix per orientation rather than chained
-   * `.scaledBy().translatedBy().rotated()` calls — those translate in pixel
-   * space (the scale is post-pended) so `(1, 0)` shifts by one pixel, not by
-   * the full width. Issue #3871.
+   * Returns a matrix that maps a point in the given `pixelBuffer` to a
+   * normalized camera point `(cx, cy) ∈ [0, 1]²`, applying `orientation`
+   * and `isMirrored`.
    */
   static func getFrameToCameraMatrix(
     pixelBuffer: CVPixelBuffer,
     orientation: CameraOrientation,
     isMirrored: Bool
   ) -> CGAffineTransform {
-    let w = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
-    let h = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
+    var matrix = CGAffineTransform.identity
 
-    // CGAffineTransform applies as `cx = a*x + c*y + tx`, `cy = b*x + d*y + ty`.
-    var matrix: CGAffineTransform
+    // 1. Counter-rotate by the orientation to get it up-right
     switch orientation {
     case .up:
-      matrix = CGAffineTransform(a: 1 / w, b: 0, c: 0, d: 1 / h, tx: 0, ty: 0)
+      break
     case .down:
-      matrix = CGAffineTransform(a: -1 / w, b: 0, c: 0, d: -1 / h, tx: 1, ty: 1)
+      matrix =
+        matrix
+        .translatedBy(x: 1, y: 1)
+        .rotated(by: .pi)
     case .left:
-      matrix = CGAffineTransform(a: 0, b: -1 / w, c: 1 / h, d: 0, tx: 0, ty: 1)
+      matrix =
+        matrix
+        .translatedBy(x: 1, y: 0)
+        .rotated(by: .pi / 2)
     case .right:
-      matrix = CGAffineTransform(a: 0, b: 1 / w, c: -1 / h, d: 0, tx: 1, ty: 0)
+      matrix =
+        matrix
+        .translatedBy(x: 0, y: 1)
+        .rotated(by: -.pi / 2)
     }
 
+    // 2. If the Frame is mirrored, counter-mirror our Matrix
     if isMirrored {
-      // Mirror in normalized output space: `(cx, cy) → (1 - cx, cy)`. For an
-      // affine `[a c tx; b d ty]`, post-composing flips the signs of `a` and
-      // `c` and replaces `tx` with `1 - tx`.
-      matrix = CGAffineTransform(
-        a: -matrix.a, b: matrix.b,
-        c: -matrix.c, d: matrix.d,
-        tx: 1 - matrix.tx, ty: matrix.ty
-      )
+      let mirror = CGAffineTransform.identity
+        .translatedBy(x: 1, y: 0)
+        .scaledBy(x: -1, y: 1)
+      matrix = mirror.concatenating(matrix)
     }
+
+    // 3. Our Matrix is in [0, 1], so let's scale it to [0, width|height] now
+    let width = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
+    let height = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
+    matrix = matrix.scaledBy(x: 1 / width, y: 1 / height)
 
     return matrix
   }
