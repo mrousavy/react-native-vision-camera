@@ -25,10 +25,6 @@ import { provider as workletsProvider } from 'react-native-vision-camera-worklet
 import { scheduleOnRN } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
 
-// Tolerance for floating-point coordinate round-trips. Native conversions go
-// through 3x3 affine matrices, so a few sub-pixel ULPs of error are normal.
-const COORD_EPSILON = 0.5
-
 describe('VisionCamera - Coordinates', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -121,12 +117,11 @@ describe('VisionCamera - Coordinates', () => {
       const r = report
       if (r == null) throw new Error('no report')
       for (const { input, roundTripped } of r.points) {
-        expect(Math.abs(roundTripped.x - input.x)).toBeLessThanOrEqual(
-          COORD_EPSILON,
-        )
-        expect(Math.abs(roundTripped.y - input.y)).toBeLessThanOrEqual(
-          COORD_EPSILON,
-        )
+        // toBeCloseTo(expected, 0) tolerates |received - expected| < 0.5 —
+        // tight enough to catch a regression, loose enough to ride out
+        // sub-pixel ULPs from the 3x3 affine matrix round-trip.
+        expect(roundTripped.x).toBeCloseTo(input.x, 0)
+        expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
       console.log(
         `frame ${r.width}x${r.height} round-trip points: ${JSON.stringify(r.points)}`,
@@ -193,8 +188,8 @@ describe('VisionCamera - Coordinates', () => {
         // Camera coordinates are opaque between platforms (iOS normalizes
         // to [0,1], Android stays in sensor-pixel space). All we assert is
         // that for a stationary device, the result doesn't move.
-        expect(Math.abs(s.x - first.x)).toBeLessThanOrEqual(COORD_EPSILON)
-        expect(Math.abs(s.y - first.y)).toBeLessThanOrEqual(COORD_EPSILON)
+        expect(s.x).toBeCloseTo(first.x, 0)
+        expect(s.y).toBeCloseTo(first.y, 0)
       }
       console.log(
         `frame center camera point samples: ${JSON.stringify(samples)}`,
@@ -273,12 +268,8 @@ describe('VisionCamera - Coordinates', () => {
         const cameraPoint = previewRef.convertViewPointToCameraPoint(input)
         const roundTripped =
           previewRef.convertCameraPointToViewPoint(cameraPoint)
-        expect(Math.abs(roundTripped.x - input.x)).toBeLessThanOrEqual(
-          COORD_EPSILON,
-        )
-        expect(Math.abs(roundTripped.y - input.y)).toBeLessThanOrEqual(
-          COORD_EPSILON,
-        )
+        expect(roundTripped.x).toBeCloseTo(input.x, 0)
+        expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
       console.log(`preview round-trip ok on ${w}x${h}`)
     } finally {
@@ -343,8 +334,8 @@ describe('VisionCamera - Coordinates', () => {
       const viewCenter: Point = { x: w / 2, y: h / 2 }
       const cameraPoint = previewRef.convertViewPointToCameraPoint(viewCenter)
       const back = previewRef.convertCameraPointToViewPoint(cameraPoint)
-      expect(Math.abs(back.x - viewCenter.x)).toBeLessThanOrEqual(COORD_EPSILON)
-      expect(Math.abs(back.y - viewCenter.y)).toBeLessThanOrEqual(COORD_EPSILON)
+      expect(back.x).toBeCloseTo(viewCenter.x, 0)
+      expect(back.y).toBeCloseTo(viewCenter.y, 0)
       console.log(
         `preview center round-trip: ${JSON.stringify(viewCenter)} -> ${JSON.stringify(cameraPoint)} -> ${JSON.stringify(back)}`,
       )
