@@ -1,9 +1,53 @@
 import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
+  CameraController,
   CameraDevice,
   CameraDeviceFactory,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+
+function expectDeviceTorchStrengthRange(device: CameraDevice): void {
+  if (device.supportsTorchStrength) {
+    expect(device.hasTorch).toBe(true)
+    expect(device.minTorchStrength).toBeGreaterThan(0)
+    expect(device.maxTorchStrength).toBeGreaterThanOrEqual(
+      device.minTorchStrength,
+    )
+  } else {
+    expect(device.minTorchStrength).toBe(0)
+    expect(device.maxTorchStrength).toBe(0)
+  }
+}
+
+function expectTorchStrengthInRange(
+  controller: CameraController,
+  device: CameraDevice,
+): number {
+  expect(device.supportsTorchStrength).toBe(true)
+  const strength = controller.torchStrength
+  expect(strength).toBeGreaterThanOrEqual(device.minTorchStrength)
+  expect(strength).toBeLessThanOrEqual(device.maxTorchStrength)
+  return strength
+}
+
+function expectTorchStrengthOffValue(
+  controller: CameraController,
+  device: CameraDevice,
+): number {
+  const strength = controller.torchStrength
+  if (!device.supportsTorchStrength) {
+    expect(strength).toBe(0)
+    return strength
+  }
+
+  // Native APIs differ in what they expose while the torch is off:
+  // some report an inactive sentinel `0`, others keep reporting the
+  // configured/default level. Anything else is invalid.
+  if (strength === 0) return strength
+  expect(strength).toBeGreaterThanOrEqual(device.minTorchStrength)
+  expect(strength).toBeLessThanOrEqual(device.maxTorchStrength)
+  return strength
+}
 
 describe('VisionCamera - Controller', () => {
   let factory: CameraDeviceFactory
@@ -17,6 +61,12 @@ describe('VisionCamera - Controller', () => {
     expect(back).toBeDefined()
     if (back == null) throw new Error('no back camera')
     backDevice = back
+  })
+
+  it('reports coherent torch strength capabilities for every device', () => {
+    for (const device of factory.cameraDevices) {
+      expectDeviceTorchStrengthRange(device)
+    }
   })
 
   it('sets zoom to min, max, and mid values', async () => {
@@ -137,11 +187,12 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('sets torchMode on/off when the device has a torch', async () => {
+  it('sets torchMode on/off independently from torchStrength', async () => {
     if (!backDevice.hasTorch) {
       console.log('[SKIP] torch: device has no torch')
       return
     }
+    expectDeviceTorchStrengthRange(backDevice)
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -160,11 +211,21 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
+      await controller.setTorchMode('off')
+      expect(controller.torchMode).toBe('off')
+      expectTorchStrengthOffValue(controller, backDevice)
+
       await controller.setTorchMode('on')
       expect(controller.torchMode).toBe('on')
+      if (backDevice.supportsTorchStrength) {
+        expectTorchStrengthInRange(controller, backDevice)
+      } else {
+        expect(controller.torchStrength).toBe(0)
+      }
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
+      expectTorchStrengthOffValue(controller, backDevice)
     } finally {
       await session.stop()
     }
@@ -202,7 +263,7 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('enables torch at min/max strength when the device supports it', async () => {
+  it('enables torch at supported custom strength boundaries', async () => {
     if (!backDevice.hasTorch) {
       console.log('[SKIP] torch strength: device has no torch')
       return
@@ -213,6 +274,7 @@ describe('VisionCamera - Controller', () => {
       )
       return
     }
+    expectDeviceTorchStrengthRange(backDevice)
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -231,41 +293,20 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      // Min strength (dimmest level the device supports)
       await controller.enableTorchWithStrength(backDevice.minTorchStrength)
       expect(controller.torchMode).toBe('on')
+      const minReadback = expectTorchStrengthInRange(controller, backDevice)
 
-      // Max strength — the case that caught the off-by-one in the original
-      // CameraX strength mapping (a naive `1 + strength * maxLevel`
-      // overshoots to `maxLevel + 1` and `setTorchStrengthLevel` throws
-      // IllegalArgumentException). Must round-trip without throwing.
-      //
-      // torchStrength is asserted within range rather than equal to the
-      // requested value because iOS's `AVCaptureDevice.torchLevel` reflects
-      // actual hardware brightness, which the system silently caps under
-      // thermal pressure (typical on CI device farms running back-to-back).
-      // CameraX's `torchStrengthLevel` echoes the requested value, but the
-      // shared assertion has to tolerate iOS's hardware-state semantics.
+      // Max strength catches off-by-one mappings where Android's native
+      // [1, maxTorchStrengthLevel] range is accidentally treated as [0, 1].
       await controller.enableTorchWithStrength(backDevice.maxTorchStrength)
       expect(controller.torchMode).toBe('on')
-      expect(controller.torchStrength).toBeGreaterThanOrEqual(
-        backDevice.minTorchStrength,
-      )
-      expect(controller.torchStrength).toBeLessThanOrEqual(
-        backDevice.maxTorchStrength,
-      )
+      const maxReadback = expectTorchStrengthInRange(controller, backDevice)
+      expect(maxReadback).toBeGreaterThanOrEqual(minReadback)
 
       await controller.setTorchMode('off')
       expect(controller.torchMode).toBe('off')
-      // torchStrength reports the last-configured level even when the torch is
-      // off — that's what both AVCaptureDevice.torchLevel and CameraX's
-      // torchStrengthLevel return.
-      expect(controller.torchStrength).toBeGreaterThanOrEqual(
-        backDevice.minTorchStrength,
-      )
-      expect(controller.torchStrength).toBeLessThanOrEqual(
-        backDevice.maxTorchStrength,
-      )
+      expectTorchStrengthOffValue(controller, backDevice)
     } finally {
       await session.stop()
     }
@@ -278,6 +319,7 @@ describe('VisionCamera - Controller', () => {
       )
       return
     }
+    expectDeviceTorchStrengthRange(backDevice)
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -321,6 +363,7 @@ describe('VisionCamera - Controller', () => {
       )
       return
     }
+    expectDeviceTorchStrengthRange(noStrengthDevice)
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -339,7 +382,9 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
+      expect(controller.torchStrength).toBe(0)
       await expect(controller.enableTorchWithStrength(0.5)).rejects.toThrow()
+      expect(controller.torchStrength).toBe(0)
     } finally {
       await session.stop()
     }
