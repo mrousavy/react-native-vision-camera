@@ -128,9 +128,35 @@ would let you turn it into a hard requirement.
 
 ### 3. Test behavior, not types
 
-Nitro Modules enforce types at the bridge already. Skip `typeof x === 'number'`
-or `Array.isArray(devices)` assertions — they only add noise. Assert things
-that require the device actually doing camera work.
+Nitrogen and TypeScript enforce types at compile time and Nitro Modules
+enforce them at the bridge. Type-shape assertions like `typeof x === 'number'`
+or `Array.isArray(devices)` are pure noise — if a number came back as a
+string, the bridge would have already thrown.
+
+Assert things that require the camera to actually do work:
+
+- **The operation completes without throwing** on the happy path —
+  `await session.configure(...)`, `await photoOutput.capturePhoto(...)`,
+  `await recorder.stop()` returning at all is a meaningful assertion.
+- **The operation throws when it should** on the false path — e.g. calling
+  `session.start()` before `configure()`, capturing from a disposed output,
+  requesting an unsupported `targetResolution`. Use
+  `await expect(...).rejects.toThrow()`.
+- **The result has the right semantic value**, not the right type — a
+  captured `Photo` has `width > 0` and `height > 0`, a video file's size on
+  disk is `> 0`, the returned controller list has `length === connections.length`.
+- **API contracts between fields hold** — e.g. if `device.hasFlash` is false
+  then `capturePhoto({ flashMode: 'on' })` must reject; if a connection has
+  `mirrorMode: 'auto'`, the resulting `Photo.isMirrored` reflects the device's
+  front/back position. These cross-field invariants are exactly what types
+  can't catch and what real bugs ship as.
+- **Lifecycle and listeners fire in the right order** —
+  `addOnStartedListener` resolves after `start()`, `addOnStoppedListener`
+  after `stop()`, recording callbacks after `recorder.stop()`. Wait on the
+  listener, don't poll `isRunning`.
+
+If your test would still pass with the implementation stubbed to
+`throw new Error('TODO')`, you're testing the type system, not the camera.
 
 ### 4. Prefer callbacks over polled state
 
