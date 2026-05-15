@@ -265,6 +265,8 @@ describe('VisionCamera - Photo', () => {
         input: backDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [{ resolutionBias: photoOutput }],
+        initialZoom: backDevice.minZoom,
+        initialExposureBias: 0,
       },
     ])
     await session.start()
