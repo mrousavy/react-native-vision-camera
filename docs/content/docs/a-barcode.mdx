@@ -63,7 +63,7 @@ console.log(barcode.displayValue) // "MyNetwork"
 
 #### Corner Points and Bounding Box
 
-A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s precise location in the Camera can be accessed via [`boundingBox`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#boundingbox) (a rectangle covering the barcode), or [`cornerPoints`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#cornerpoints) (points for each corner):
+A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s precise location in the Frame's coordinate system can be accessed via [`boundingBox`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#boundingbox) (a rectangle covering the barcode), or [`cornerPoints`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#cornerpoints) (points for each corner):
 
 ```ts
 const barcode = ...

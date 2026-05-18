@@ -1,4 +1,4 @@
-import { type LayoutChangeEvent, StyleSheet } from 'react-native'
+import { type LayoutChangeEvent, Platform, StyleSheet } from 'react-native'
 import {
   afterEach,
   beforeAll,

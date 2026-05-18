@@ -5,7 +5,7 @@ description: Understanding Camera Coordinate Systems and converting between Prev
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
-The Camera operates in a custom coordinate system, which is often normalized from `0.0` to `1.0`.
+The Camera operates in an platform-native coordinate system, which is normalized (`0.0` ... `1.0`) on some platforms, or uses sensor-coordinates on other platforms.
 It does not have a concept of orientation, scaling or mirroring - which is why coordinate system conversions are required.
 
 ### Preview Coordinate System
@@ -26,7 +26,7 @@ To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) 
 ```ts
 const preview = ...
 const cameraPoint = { x: 0.5, y: 0.5 }
-const viewPoint = previewView.convertCameraPointToViewPoint(cameraPoint)
+const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
 console.log(viewPoint) // { x: 196, y: 379.5 }
 ```
 
@@ -37,7 +37,7 @@ To convert all coordinates in a [`ScannedObject`](/api/react-native-vision-camer
 ```ts
 const preview = ...
 const scannedObject = ...
-const viewScannedObject = previewView.convertScannedObjectCoordinatesToViewCoordinates(scannedObject)
+const viewScannedObject = preview.convertScannedObjectCoordinatesToViewCoordinates(scannedObject)
 ```
 
 #### MeteringPoint
@@ -82,7 +82,7 @@ const frame = ...
 const preview = ...
 const framePoint = { x: frame.width / 2, y: frame.height / 2 }
 const cameraPoint = frame.convertFramePointToCameraPoint(framePoint)
-const viewPoint = previewView.convertCameraPointToViewPoint(cameraPoint)
+const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
 console.log(viewPoint) // { x: 196, y: 379.5 }
 ```
 
