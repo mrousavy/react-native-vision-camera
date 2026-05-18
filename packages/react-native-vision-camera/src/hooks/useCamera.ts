@@ -24,7 +24,6 @@ import { useCameraControllerConfiguration } from './internal/useCameraController
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
 import { useListenerSubscription } from './internal/useListenerSubscription'
-import { useStableCallback } from './internal/useStableCallback'
 import { useCameraDevices } from './useCameraDevices'
 import { useOrientation } from './useOrientation'
 
@@ -313,15 +312,6 @@ export function useCamera({
     onSubjectAreaChanged,
   )
 
-  // 8. On unmount, dispose the controller & session.
-  const cleanup = useStableCallback(() => {
-    controller?.dispose()
-    session?.dispose()
-  })
-  useEffect(() => {
-    return () => cleanup()
-  }, [cleanup])
-
-  // 9. Give the user the controller
+  // 8. Give the user the controller
   return controller
 }
