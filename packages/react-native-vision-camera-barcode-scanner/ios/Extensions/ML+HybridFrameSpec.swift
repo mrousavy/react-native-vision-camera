@@ -23,4 +23,12 @@ extension HybridFrameSpec_protocol {
     image.orientation = self.orientation.toUIImageOrientation(isMirrored: self.isMirrored)
     return image
   }
+
+  func getBarcodeCoordinateSystemConverter() -> BarcodeCoordinateSystemConverter {
+    return BarcodeCoordinateSystemConverter(
+      width: self.width,
+      height: self.height,
+      orientation: self.orientation,
+      isMirrored: self.isMirrored)
+  }
 }

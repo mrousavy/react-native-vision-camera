@@ -21,6 +21,8 @@ namespace margelo::nitro::camera::barcodescanner {
       prototype.registerHybridGetter("rawBytes", &HybridBarcodeSpec::getRawBytes);
       prototype.registerHybridGetter("rawValue", &HybridBarcodeSpec::getRawValue);
       prototype.registerHybridGetter("valueType", &HybridBarcodeSpec::getValueType);
+      prototype.registerHybridMethod("convertBarcodePointToCameraPoint", &HybridBarcodeSpec::convertBarcodePointToCameraPoint);
+      prototype.registerHybridMethod("convertCameraPointToBarcodePoint", &HybridBarcodeSpec::convertCameraPointToBarcodePoint);
     });
   }
 

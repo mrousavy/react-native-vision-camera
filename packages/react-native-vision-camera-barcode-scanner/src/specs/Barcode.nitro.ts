@@ -1,5 +1,4 @@
 import type { HybridObject } from 'react-native-nitro-modules'
-import type { Frame } from 'react-native-vision-camera'
 import type { createBarcodeScannerOutput } from '../factory'
 import type { BarcodeFormat } from './BarcodeFormat'
 import type { BarcodeScanner } from './BarcodeScanner.nitro'
@@ -37,12 +36,18 @@ export interface Barcode
 
   /**
    * Get the {@linkcode Barcode}'s bounding box, relative
-   * to the input {@linkcode Frame}'s coordinates.
+   * to MLKit's Barcode coordinate system for the input image.
+   *
+   * Use {@linkcode convertBarcodePointToCameraPoint} to convert
+   * the bounding box's corners to Camera coordinates.
    */
   readonly boundingBox: Rect
   /**
    * Get the {@linkcode Barcode}'s corner points, relative
-   * to the input {@linkcode Frame}'s coordinates.
+   * to MLKit's Barcode coordinate system for the input image.
+   *
+   * Use {@linkcode convertBarcodePointToCameraPoint} to convert
+   * corner points to Camera coordinates.
    */
   readonly cornerPoints: Point[]
   /**
@@ -62,4 +67,21 @@ export interface Barcode
    * @see {@linkcode BarcodeValueType}
    */
   readonly valueType: BarcodeValueType
+
+  /**
+   * Converts the given {@linkcode barcodePoint} in this
+   * {@linkcode Barcode}'s coordinate system into a {@linkcode Point}
+   * in Camera coordinates.
+   *
+   * The resulting Camera point can be passed to
+   * `PreviewView.convertCameraPointToViewPoint(...)` to draw overlays
+   * in Preview View coordinates.
+   */
+  convertBarcodePointToCameraPoint(barcodePoint: Point): Point
+  /**
+   * Converts the given {@linkcode cameraPoint} in Camera coordinates
+   * into a {@linkcode Point} in this {@linkcode Barcode}'s coordinate
+   * system.
+   */
+  convertCameraPointToBarcodePoint(cameraPoint: Point): Point
 }

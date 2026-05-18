@@ -68,7 +68,8 @@ namespace margelo::nitro::camera::barcodescanner {
 
     public:
       // Methods
-      
+      virtual Point convertBarcodePointToCameraPoint(const Point& barcodePoint) = 0;
+      virtual Point convertCameraPointToBarcodePoint(const Point& cameraPoint) = 0;
 
     protected:
       // Hybrid Setup

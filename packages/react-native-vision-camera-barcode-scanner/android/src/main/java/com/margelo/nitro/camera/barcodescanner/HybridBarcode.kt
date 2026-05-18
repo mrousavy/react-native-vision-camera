@@ -7,6 +7,7 @@ import com.margelo.nitro.core.ArrayBuffer
 
 class HybridBarcode(
   private val barcode: Barcode,
+  private val coordinateConverter: BarcodeCoordinateSystemConverter,
 ) : HybridBarcodeSpec() {
   override val format: BarcodeFormat
     get() = BarcodeFormat.fromMLBarcodeFormat(barcode.format)
@@ -32,4 +33,12 @@ class HybridBarcode(
     get() = barcode.rawValue
   override val valueType: BarcodeValueType
     get() = BarcodeValueType.fromMLBarcodeValueType(barcode.valueType)
+
+  override fun convertBarcodePointToCameraPoint(barcodePoint: Point): Point {
+    return coordinateConverter.convertBarcodePointToCameraPoint(barcodePoint)
+  }
+
+  override fun convertCameraPointToBarcodePoint(cameraPoint: Point): Point {
+    return coordinateConverter.convertCameraPointToBarcodePoint(cameraPoint)
+  }
 }

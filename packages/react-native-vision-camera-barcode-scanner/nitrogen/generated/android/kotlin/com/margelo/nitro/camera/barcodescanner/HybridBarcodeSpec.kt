@@ -55,7 +55,13 @@ abstract class HybridBarcodeSpec: HybridObject() {
   abstract val valueType: BarcodeValueType
 
   // Methods
+  @DoNotStrip
+  @Keep
+  abstract fun convertBarcodePointToCameraPoint(barcodePoint: Point): Point
   
+  @DoNotStrip
+  @Keep
+  abstract fun convertCameraPointToBarcodePoint(cameraPoint: Point): Point
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

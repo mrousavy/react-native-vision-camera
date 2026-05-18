@@ -5,6 +5,7 @@ import androidx.camera.core.ExperimentalGetImage
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.margelo.nitro.camera.HybridFrameSpec
+import com.margelo.nitro.camera.barcodescanner.extensions.getBarcodeCoordinateSystemConverter
 import com.margelo.nitro.camera.barcodescanner.extensions.toInputImage
 import com.margelo.nitro.camera.barcodescanner.extensions.toMLBarcodeScannerOptions
 import com.margelo.nitro.core.Promise
@@ -17,10 +18,11 @@ class HybridBarcodeScanner(
   @OptIn(ExperimentalGetImage::class)
   override fun scanCodes(frame: HybridFrameSpec): Array<HybridBarcodeSpec> {
     val image = frame.toInputImage()
+    val coordinateConverter = frame.getBarcodeCoordinateSystemConverter()
     val task = scanner.process(image)
     val barcodes = Tasks.await(task)
     return barcodes
-      .map { HybridBarcode(it) }
+      .map { HybridBarcode(it, coordinateConverter) }
       .toTypedArray()
   }
 
@@ -28,12 +30,13 @@ class HybridBarcodeScanner(
     val promise = Promise<Array<HybridBarcodeSpec>>()
 
     val image = frame.toInputImage()
+    val coordinateConverter = frame.getBarcodeCoordinateSystemConverter()
     scanner
       .process(image)
       .addOnSuccessListener { barcodes ->
         val hybridBarcodes =
           barcodes
-            .map { HybridBarcode(it) }
+            .map { HybridBarcode(it, coordinateConverter) }
             .toTypedArray<HybridBarcodeSpec>()
         promise.resolve(hybridBarcodes)
       }.addOnFailureListener { error ->

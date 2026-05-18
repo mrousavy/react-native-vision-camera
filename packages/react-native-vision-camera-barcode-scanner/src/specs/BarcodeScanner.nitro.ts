@@ -20,10 +20,10 @@ export interface BarcodeScanner
    * given {@linkcode Frame}.
    *
    * All coordinates in the {@linkcode Barcode} are
-   * relative to the {@linkcode Frame}'s coordinate system.
+   * relative to MLKit's Barcode coordinate system for the input image.
    *
    * You can convert {@linkcode Barcode} coordinates to Camera coordinates using
-   * {@linkcode Frame.convertFramePointToCameraPoint | Frame.convertFramePointToCameraPoint(...)},
+   * {@linkcode Barcode.convertBarcodePointToCameraPoint | Barcode.convertBarcodePointToCameraPoint(...)},
    * and then convert the Camera coordinates to Preview View coordinates using
    * {@linkcode PreviewViewMethods.convertCameraPointToViewPoint | PreviewViewMethods.convertCameraPointToViewPoint(...)}.
    *
@@ -37,7 +37,7 @@ export interface BarcodeScanner
    * for (const barcode of barcodes) {
    *   console.log('Barcode value:', barcode.rawValue)
    *   for (const point of barcode.cornerPoints) {
-   *     const cameraPoint = frame.convertFramePointToCameraPoint(point)
+   *     const cameraPoint = barcode.convertBarcodePointToCameraPoint(point)
    *     const previewPoint = previewView.convertCameraPointToViewPoint(cameraPoint)
    *     console.log('Corner Point:', previewPoint)
    *   }

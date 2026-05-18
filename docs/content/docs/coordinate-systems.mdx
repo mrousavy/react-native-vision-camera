@@ -5,7 +5,7 @@ description: Understanding Camera Coordinate Systems and converting between Prev
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
-The Camera operates in an platform-native coordinate system, which is normalized (`0.0` ... `1.0`) on some platforms, or uses sensor-coordinates on other platforms.
+The Camera operates in a platform-native coordinate system, which is normalized (`0.0` ... `1.0`) on some platforms, or uses sensor-coordinates on other platforms.
 It does not have a concept of orientation, scaling or mirroring - which is why coordinate system conversions are required.
 
 ### Preview Coordinate System
@@ -18,7 +18,7 @@ For example, [`convertViewPointToCameraPoint(...)`](/api/react-native-vision-cam
 const preview = ...
 const viewPoint = { x: 196, y: 379.5 }
 const cameraPoint = preview.convertViewPointToCameraPoint(viewPoint)
-console.log(viewPoint) // { x: 0.5, y: 0.5 }
+console.log(cameraPoint)
 ```
 
 To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) to View coordinates, use [`convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
@@ -61,7 +61,7 @@ To convert from a [`Point`](/api/react-native-vision-camera/interfaces/Point) in
 const frame = ...
 const framePoint = { x: frame.width / 2, y: frame.height / 2 }
 const cameraPoint = frame.convertFramePointToCameraPoint(framePoint)
-console.log(viewPoint) // { x: 0.5, y: 0.5 }
+console.log(cameraPoint)
 ```
 
 To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) to [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) coordinates, use [`convertCameraPointToFramePoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertcamerapointtoframepoint):
@@ -70,7 +70,7 @@ To convert a Camera [`Point`](/api/react-native-vision-camera/interfaces/Point) 
 const frame = ...
 const cameraPoint = { x: 0.5, y: 0.5 }
 const framePoint = frame.convertCameraPointToFramePoint(cameraPoint)
-console.log(viewPoint) // { x: 360, y: 640 }
+console.log(framePoint)
 ```
 
 #### Convert from Frame coordinates to Preview View coordinates
@@ -87,3 +87,45 @@ console.log(viewPoint) // { x: 196, y: 379.5 }
 ```
 
 This is useful if your Frame Processor detects an object in a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) and you want to display a visual indicator or bounding box in the Preview View.
+
+### Barcode Coordinate System
+
+[`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)s from [`react-native-vision-camera-barcode-scanner`](/api/react-native-vision-camera-barcode-scanner) use MLKit's Barcode coordinate system for the input image. Use [`Barcode.convertBarcodePointToCameraPoint(...)`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#convertbarcodepointtocamerapoint) to convert Barcode points to Camera coordinates:
+
+```ts
+const barcode = ...
+const preview = ...
+const barcodePoint = barcode.cornerPoints[0]
+const cameraPoint = barcode.convertBarcodePointToCameraPoint(barcodePoint)
+const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
+console.log(viewPoint)
+```
+
+For rectangles, convert all four corners into View coordinates first, then calculate the final View-space bounds:
+
+```ts
+const barcode = ...
+const preview = ...
+const bounds = barcode.boundingBox
+const barcodePoints =
+  barcode.cornerPoints.length > 0
+    ? barcode.cornerPoints
+    : [
+        { x: bounds.left, y: bounds.top },
+        { x: bounds.right, y: bounds.top },
+        { x: bounds.right, y: bounds.bottom },
+        { x: bounds.left, y: bounds.bottom },
+      ]
+
+const viewPoints = barcodePoints.map((barcodePoint) => {
+  const cameraPoint = barcode.convertBarcodePointToCameraPoint(barcodePoint)
+  return preview.convertCameraPointToViewPoint(cameraPoint)
+})
+
+const viewBox = {
+  left: Math.min(...viewPoints.map((point) => point.x)),
+  right: Math.max(...viewPoints.map((point) => point.x)),
+  top: Math.min(...viewPoints.map((point) => point.y)),
+  bottom: Math.max(...viewPoints.map((point) => point.y)),
+}
+```

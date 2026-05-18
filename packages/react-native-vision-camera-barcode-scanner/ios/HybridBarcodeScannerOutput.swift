@@ -67,14 +67,26 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
       onError(RuntimeError.error(withMessage: "Failed to convert CMSampleBuffer to MLImage!"))
       return
     }
+    guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
+      isScanning = false
+      onError(RuntimeError.error(withMessage: "CMSampleBuffer does not contain an image buffer!"))
+      return
+    }
     image.orientation = outputOrientation.toUIImageOrientation()
+    let coordinateConverter = BarcodeCoordinateSystemConverter(
+      width: Double(CVPixelBufferGetWidth(imageBuffer)),
+      height: Double(CVPixelBufferGetHeight(imageBuffer)),
+      orientation: outputOrientation,
+      isMirrored: false)
     // start scanning
     scanner.process(image) { [weak self] barcodes, error in
       guard let self else { return }
       self.isScanning = false
       if let barcodes {
         // scanned x barcodes!
-        let hybridBarcodes: [any HybridBarcodeSpec] = barcodes.map { HybridBarcode(barcode: $0) }
+        let hybridBarcodes: [any HybridBarcodeSpec] = barcodes.map {
+          HybridBarcode(barcode: $0, coordinateConverter: coordinateConverter)
+        }
         self.onBarcodeScanned(hybridBarcodes)
       }
       if let error {

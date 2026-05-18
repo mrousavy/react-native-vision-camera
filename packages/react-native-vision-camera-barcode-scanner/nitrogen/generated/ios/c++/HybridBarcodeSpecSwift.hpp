@@ -109,7 +109,22 @@ namespace margelo::nitro::camera::barcodescanner {
 
   public:
     // Methods
-    
+    inline Point convertBarcodePointToCameraPoint(const Point& barcodePoint) override {
+      auto __result = _swiftPart.convertBarcodePointToCameraPoint(std::forward<decltype(barcodePoint)>(barcodePoint));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline Point convertCameraPointToBarcodePoint(const Point& cameraPoint) override {
+      auto __result = _swiftPart.convertCameraPointToBarcodePoint(std::forward<decltype(cameraPoint)>(cameraPoint));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
 
   private:
     VisionCameraBarcodeScanner::HybridBarcodeSpec_cxx _swiftPart;

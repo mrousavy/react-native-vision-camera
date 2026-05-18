@@ -119,6 +119,15 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__weak_ptr_HybridBarcodeSpec_ = std::weak_ptr<HybridBarcodeSpec>;
   inline std__weak_ptr_HybridBarcodeSpec_ weakify_std__shared_ptr_HybridBarcodeSpec_(const std::shared_ptr<HybridBarcodeSpec>& strong) noexcept { return strong; }
   
+  // pragma MARK: Result<Point>
+  using Result_Point_ = Result<Point>;
+  inline Result_Point_ create_Result_Point_(const Point& value) noexcept {
+    return Result<Point>::withValue(value);
+  }
+  inline Result_Point_ create_Result_Point_(const std::exception_ptr& error) noexcept {
+    return Result<Point>::withError(error);
+  }
+  
   // pragma MARK: std::vector<std::shared_ptr<HybridBarcodeSpec>>
   /**
    * Specialized version of `std::vector<std::shared_ptr<HybridBarcodeSpec>>`.

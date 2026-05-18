@@ -19,7 +19,8 @@ public protocol HybridBarcodeSpec_protocol: HybridObject {
   var valueType: BarcodeValueType { get }
 
   // Methods
-  
+  func convertBarcodePointToCameraPoint(barcodePoint: Point) throws -> Point
+  func convertCameraPointToBarcodePoint(cameraPoint: Point) throws -> Point
 }
 
 public extension HybridBarcodeSpec_protocol {

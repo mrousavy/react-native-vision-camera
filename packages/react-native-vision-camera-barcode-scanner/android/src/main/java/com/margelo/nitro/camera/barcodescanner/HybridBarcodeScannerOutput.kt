@@ -96,12 +96,13 @@ class HybridBarcodeScannerOutput(
       }
       // TODO: Support MirrorMode?
       val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+      val coordinateConverter = BarcodeCoordinateSystemConverter(imageProxy)
       scanner
         .process(inputImage)
         .addOnSuccessListener { barcodes ->
           val hybridBarcodes =
             barcodes
-              .map { HybridBarcode(it) }
+              .map { HybridBarcode(it, coordinateConverter) }
               .toTypedArray<HybridBarcodeSpec>()
           options.onBarcodeScanned(hybridBarcodes)
         }.addOnFailureListener { error ->

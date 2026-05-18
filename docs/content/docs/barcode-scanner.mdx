@@ -102,6 +102,29 @@ function App() {
 The code example above are configured to detect **all** [`BarcodeFormat`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat)s.
 To improve performance, you should narrow [`barcodeFormats`](/api/react-native-vision-camera-barcode-scanner/interfaces/BarcodeScannerOptions#barcodeformats) down to only the formats you need - for example [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) - which is a common Barcode Format, or [`'qr-code'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) for square QR codes.
 
+### Coordinate System
+
+[`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode) coordinates are in MLKit's Barcode coordinate system for the input image. To draw a Barcode overlay on top of a [`PreviewView`](/api/react-native-vision-camera/interfaces/PreviewView), convert each Barcode point to Camera coordinates first, then convert the Camera point to View coordinates:
+
+```tsx
+const barcode = ...
+const preview = ...
+const points =
+  barcode.cornerPoints.length > 0
+    ? barcode.cornerPoints
+    : [
+        { x: barcode.boundingBox.left, y: barcode.boundingBox.top },
+        { x: barcode.boundingBox.right, y: barcode.boundingBox.top },
+        { x: barcode.boundingBox.right, y: barcode.boundingBox.bottom },
+        { x: barcode.boundingBox.left, y: barcode.boundingBox.bottom },
+      ]
+
+const viewPoints = points.map((point) => {
+  const cameraPoint = barcode.convertBarcodePointToCameraPoint(point)
+  return preview.convertCameraPointToViewPoint(cameraPoint)
+})
+```
+
 ### Test it
 
 To verify your [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) works, try scanning this example [`'code-128'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) Barcode:

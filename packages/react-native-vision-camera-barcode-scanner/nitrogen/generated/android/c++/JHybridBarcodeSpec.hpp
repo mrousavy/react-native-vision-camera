@@ -60,7 +60,8 @@ namespace margelo::nitro::camera::barcodescanner {
 
   public:
     // Methods
-    
+    Point convertBarcodePointToCameraPoint(const Point& barcodePoint) override;
+    Point convertCameraPointToBarcodePoint(const Point& cameraPoint) override;
 
   private:
     jni::global_ref<JHybridBarcodeSpec::JavaPart> _javaPart;

@@ -10,9 +10,11 @@ import NitroModules
 
 final class HybridBarcode: HybridBarcodeSpec {
   private let barcode: Barcode
+  private let coordinateConverter: BarcodeCoordinateSystemConverter
 
-  init(barcode: Barcode) {
+  init(barcode: Barcode, coordinateConverter: BarcodeCoordinateSystemConverter) {
     self.barcode = barcode
+    self.coordinateConverter = coordinateConverter
     super.init()
   }
 
@@ -58,5 +60,13 @@ final class HybridBarcode: HybridBarcodeSpec {
 
   var valueType: BarcodeValueType {
     return BarcodeValueType(fromMLKitValueType: barcode.valueType)
+  }
+
+  func convertBarcodePointToCameraPoint(barcodePoint: Point) throws -> Point {
+    return coordinateConverter.convertBarcodePointToCameraPoint(barcodePoint)
+  }
+
+  func convertCameraPointToBarcodePoint(cameraPoint: Point) throws -> Point {
+    return coordinateConverter.convertCameraPointToBarcodePoint(cameraPoint)
   }
 }

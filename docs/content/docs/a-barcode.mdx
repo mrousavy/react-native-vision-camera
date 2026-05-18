@@ -63,27 +63,42 @@ console.log(barcode.displayValue) // "MyNetwork"
 
 #### Corner Points and Bounding Box
 
-A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s precise location in the Frame's coordinate system can be accessed via [`boundingBox`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#boundingbox) (a rectangle covering the barcode), or [`cornerPoints`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#cornerpoints) (points for each corner):
+A [`Barcode`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode)'s precise location in MLKit's Barcode coordinate system for the input image can be accessed via [`boundingBox`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#boundingbox) (a rectangle covering the barcode), or [`cornerPoints`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#cornerpoints) (points for each corner):
 
 ```ts
 const barcode = ...
-console.log(barcode.boundingBox) // { left: 0.421, right: 0.278, top: 0.345, bottom: 0.597 }
-console.log(barcode.cornerPoints) // [{ x: 0.421, y: 0.345 }, ...]
+console.log(barcode.boundingBox) // { left: 120, right: 540, top: 80, bottom: 260 }
+console.log(barcode.cornerPoints) // [{ x: 120, y: 80 }, ...]
 ```
 
 #### Converting Barcode coordinates to View coordinates
 
-These coordinates are always relative to the [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) this code was detected in.
-To convert the coordinates to Preview View coordinates, first convert them to Camera coordinates using [`Frame.convertFramePointToCameraPoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertframepointtocamerapoint), and then [`PreviewView.convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
+To convert Barcode coordinates to Preview View coordinates, first convert them to Camera coordinates using [`Barcode.convertBarcodePointToCameraPoint(...)`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/Barcode#convertbarcodepointtocamerapoint), and then use [`PreviewView.convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
 
 ```ts
 const barcode = ...
-const frame = ...
 const preview = ...
-for (const barcodePoint of barcode.cornerPoints) {
-  const cameraPoint = frame.convertFramePointToCameraPoint(barcodePoint)
-  const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
-  console.log(viewPoint)
+const bounds = barcode.boundingBox
+const barcodePoints =
+  barcode.cornerPoints.length > 0
+    ? barcode.cornerPoints
+    : [
+        { x: bounds.left, y: bounds.top },
+        { x: bounds.right, y: bounds.top },
+        { x: bounds.right, y: bounds.bottom },
+        { x: bounds.left, y: bounds.bottom },
+      ]
+
+const viewPoints = barcodePoints.map((barcodePoint) => {
+  const cameraPoint = barcode.convertBarcodePointToCameraPoint(barcodePoint)
+  return preview.convertCameraPointToViewPoint(cameraPoint)
+})
+
+const viewBox = {
+  left: Math.min(...viewPoints.map((point) => point.x)),
+  right: Math.max(...viewPoints.map((point) => point.x)),
+  top: Math.min(...viewPoints.map((point) => point.y)),
+  bottom: Math.max(...viewPoints.map((point) => point.y)),
 }
 ```
 

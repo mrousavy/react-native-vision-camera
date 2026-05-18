@@ -4,7 +4,6 @@ import type { ViewProps } from 'react-native'
 import {
   Camera,
   type CameraDevice,
-  type Frame,
   useCameraDevice,
 } from 'react-native-vision-camera'
 import type { Barcode } from '../specs/Barcode.nitro'
@@ -34,12 +33,13 @@ export interface CodeScannerOptions extends BarcodeScannerOutputOptions {
  * using the default rear {@linkcode CameraDevice}.
  *
  * @discussion
- * All {@linkcode Barcode} coordinates are in the {@linkcode Frame}'s
- * coordinate system. If you need to convert {@linkcode Barcode}
- * coordinates to view coordinates, either use
+ * All {@linkcode Barcode} coordinates are in MLKit's Barcode
+ * coordinate system for the input image. If you need to convert
+ * {@linkcode Barcode} coordinates to view coordinates, either use
  * {@linkcode useBarcodeScannerOutput | useBarcodeScannerOutput(...)}
  * or {@linkcode useBarcodeScanner | useBarcodeScanner(...)} directly,
- * and convert coordinates using your Preview View yourself.
+ * convert Barcode coordinates to Camera coordinates, and then
+ * convert those using your Preview View.
  *
  * See {@linkcode BarcodeScanner.scanCodes | scanCodes(...)} for more
  * information about coordinate system conversions.

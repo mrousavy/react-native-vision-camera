@@ -195,5 +195,27 @@ open class HybridBarcodeSpec_cxx {
   }
 
   // Methods
+  @inline(__always)
+  public final func convertBarcodePointToCameraPoint(barcodePoint: Point) -> bridge.Result_Point_ {
+    do {
+      let __result = try self.__implementation.convertBarcodePointToCameraPoint(barcodePoint: barcodePoint)
+      let __resultCpp = __result
+      return bridge.create_Result_Point_(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_Point_(__exceptionPtr)
+    }
+  }
   
+  @inline(__always)
+  public final func convertCameraPointToBarcodePoint(cameraPoint: Point) -> bridge.Result_Point_ {
+    do {
+      let __result = try self.__implementation.convertCameraPointToBarcodePoint(cameraPoint: cameraPoint)
+      let __resultCpp = __result
+      return bridge.create_Result_Point_(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_Point_(__exceptionPtr)
+    }
+  }
 }

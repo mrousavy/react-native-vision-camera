@@ -106,6 +106,15 @@ namespace margelo::nitro::camera::barcodescanner {
   }
 
   // Methods
-  
+  Point JHybridBarcodeSpec::convertBarcodePointToCameraPoint(const Point& barcodePoint) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPoint>(jni::alias_ref<JPoint> /* barcodePoint */)>("convertBarcodePointToCameraPoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(barcodePoint));
+    return __result->toCpp();
+  }
+  Point JHybridBarcodeSpec::convertCameraPointToBarcodePoint(const Point& cameraPoint) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPoint>(jni::alias_ref<JPoint> /* cameraPoint */)>("convertCameraPointToBarcodePoint");
+    auto __result = method(_javaPart, JPoint::fromCpp(cameraPoint));
+    return __result->toCpp();
+  }
 
 } // namespace margelo::nitro::camera::barcodescanner
