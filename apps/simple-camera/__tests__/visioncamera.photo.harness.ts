@@ -247,17 +247,18 @@ describe('VisionCamera - Photo', () => {
   // a regression that snaps every request to a default smaller format would
   // pass all the other photo tests (they only assert width/height > 0).
   it("captures at the device's maximum supported photo resolution", async () => {
-    const supported = backDevice.getSupportedResolutions('photo')
-    expect(supported.length).toBeGreaterThan(0)
-    const max = supported.reduce((a, b) =>
+    const supportedPhotoResolutions =
+      backDevice.getSupportedResolutions('photo')
+    expect(supportedPhotoResolutions.length).toBeGreaterThan(0)
+    const maxPhotoResolution = supportedPhotoResolutions.reduce((a, b) =>
       a.width * a.height > b.width * b.height ? a : b,
     )
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
-      targetResolution: max,
-      containerFormat: 'jpeg',
-      quality: 0.8,
+      targetResolution: maxPhotoResolution,
+      containerFormat: 'native',
+      quality: 1,
       qualityPrioritization: 'quality',
     })
     await session.configure([
@@ -265,12 +266,20 @@ describe('VisionCamera - Photo', () => {
         input: backDevice,
         outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
         constraints: [{ resolutionBias: photoOutput }],
+        initialZoom: backDevice.minZoom,
+        initialExposureBias: 0,
       },
     ])
     await session.start()
     try {
-      const requestedShortEdge = Math.min(max.width, max.height)
-      const requestedLongEdge = Math.max(max.width, max.height)
+      const requestedShortEdge = Math.min(
+        maxPhotoResolution.width,
+        maxPhotoResolution.height,
+      )
+      const requestedLongEdge = Math.max(
+        maxPhotoResolution.width,
+        maxPhotoResolution.height,
+      )
 
       // currentResolution must reflect the resolved output size before we
       // even take the picture.
@@ -283,6 +292,14 @@ describe('VisionCamera - Photo', () => {
         requestedLongEdge,
       )
 
+      // Prepare default settings on the Photo Output before capturing.
+      // This is kinda required for max res capture on iOS as otherwise
+      // the pipeline is not ready for 48MP+ capture (possibly a race
+      // condition inside AVFoundation?) and would give us binned (eg 24MP)
+      // photos instead - maybe because it tries to give a photo quickly while
+      // 48MP is still being warmed up? No idea. Bad DX imo.
+      await photoOutput.prepareSettings([{}])
+
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {},
@@ -290,7 +307,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `max device res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
@@ -301,15 +318,16 @@ describe('VisionCamera - Photo', () => {
   })
 
   it("captures at the device's minimum supported photo resolution", async () => {
-    const supported = backDevice.getSupportedResolutions('photo')
-    expect(supported.length).toBeGreaterThan(0)
-    const min = supported.reduce((a, b) =>
+    const supportedPhotoResolutions =
+      backDevice.getSupportedResolutions('photo')
+    expect(supportedPhotoResolutions.length).toBeGreaterThan(0)
+    const minPhotoResolution = supportedPhotoResolutions.reduce((a, b) =>
       a.width * a.height < b.width * b.height ? a : b,
     )
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
-      targetResolution: min,
+      targetResolution: minPhotoResolution,
       containerFormat: 'jpeg',
       quality: 0.8,
       qualityPrioritization: 'balanced',
@@ -323,8 +341,14 @@ describe('VisionCamera - Photo', () => {
     ])
     await session.start()
     try {
-      const requestedShortEdge = Math.min(min.width, min.height)
-      const requestedLongEdge = Math.max(min.width, min.height)
+      const requestedShortEdge = Math.min(
+        minPhotoResolution.width,
+        minPhotoResolution.height,
+      )
+      const requestedLongEdge = Math.max(
+        minPhotoResolution.width,
+        minPhotoResolution.height,
+      )
 
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
@@ -342,7 +366,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `min device res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)

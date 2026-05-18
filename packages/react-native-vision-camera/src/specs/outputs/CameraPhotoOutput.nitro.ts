@@ -326,4 +326,36 @@ export interface CameraPhotoOutput extends CameraOutput {
     settings: CapturePhotoSettings,
     callbacks: CapturePhotoCallbacks,
   ): Promise<PhotoFile>
+
+  /**
+   * Asynchronously prepares the {@linkcode CameraPhotoOutput}
+   * with the given {@linkcode settings} array to improve capture
+   * responsiveness for subsequent {@linkcode capturePhoto | capturePhoto(...)}
+   * calls when called with any of the same {@linkcode CapturePhotoSettings}
+   * that have been prepared via this method.
+   *
+   * @discussion
+   * It is recommended to always call this with a few common
+   * settings you expect to be used for {@linkcode capturePhoto | capturePhoto(...)}
+   * later on.
+   *
+   * It is perfectly fine to not call {@linkcode prepareSettings | prepareSettings(...)}
+   * when using Photo capture, but {@linkcode capturePhoto | capturePhoto(...)} may
+   * allocate buffers that cause higher latency on initial calls when aiming for quality.
+   *
+   * On Android, this method is no-op.
+   *
+   * @example
+   * ```ts
+   * const photoOutput = usePhotoOutput({})
+   *
+   * useEffect(() => {
+   *   photoOutput.prepareSettings([
+   *     { flashMode: 'off', enableDistortionCorrection: true },
+   *     { flashMode: 'on', enableDistortionCorrection: false },
+   *   ])
+   * }, [])
+   * ```
+   */
+  prepareSettings(settings: CapturePhotoSettings[]): Promise<void>
 }

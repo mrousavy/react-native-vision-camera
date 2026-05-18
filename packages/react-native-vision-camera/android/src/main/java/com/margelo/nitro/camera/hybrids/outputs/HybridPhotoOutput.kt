@@ -289,4 +289,8 @@ class HybridPhotoOutput(
       return@async PhotoFile(file.absolutePath)
     }
   }
+
+  override fun prepareSettings(settings: Array<CapturePhotoSettings>): Promise<Unit> {
+    return Promise.resolved()
+  }
 }

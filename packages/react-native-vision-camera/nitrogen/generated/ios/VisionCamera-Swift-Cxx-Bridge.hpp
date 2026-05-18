@@ -20,6 +20,8 @@ namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
 namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConnection; }
+// Forward declaration of `CapturePhotoSettings` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoSettings; }
 // Forward declaration of `ColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class ColorRange; }
 // Forward declaration of `ColorSpace` to properly resolve imports.
@@ -255,6 +257,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "CameraOutputConfiguration.hpp"
 #include "CameraSessionConfiguration.hpp"
 #include "CameraSessionConnection.hpp"
+#include "CapturePhotoSettings.hpp"
 #include "ColorRange.hpp"
 #include "ColorSpace.hpp"
 #include "DepthPixelFormat.hpp"
@@ -2458,6 +2461,17 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_PhotoFile create_Func_void_PhotoFile(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_PhotoFile_Wrapper wrap_Func_void_PhotoFile(Func_void_PhotoFile value) noexcept {
     return Func_void_PhotoFile_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<CapturePhotoSettings>
+  /**
+   * Specialized version of `std::vector<CapturePhotoSettings>`.
+   */
+  using std__vector_CapturePhotoSettings_ = std::vector<CapturePhotoSettings>;
+  inline std::vector<CapturePhotoSettings> create_std__vector_CapturePhotoSettings_(size_t size) noexcept {
+    std::vector<CapturePhotoSettings> vector;
+    vector.reserve(size);
+    return vector;
   }
   
   // pragma MARK: Result<std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>>>

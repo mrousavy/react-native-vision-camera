@@ -30,6 +30,7 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 #include "CapturePhotoSettings.hpp"
 #include "CapturePhotoCallbacks.hpp"
 #include "PhotoFile.hpp"
+#include <vector>
 #include "HybridCameraOutputSpec.hpp"
 
 namespace margelo::nitro::camera {
@@ -66,6 +67,7 @@ namespace margelo::nitro::camera {
       // Methods
       virtual std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> capturePhoto(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) = 0;
       virtual std::shared_ptr<Promise<PhotoFile>> capturePhotoToFile(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) = 0;
+      virtual std::shared_ptr<Promise<void>> prepareSettings(const std::vector<CapturePhotoSettings>& settings) = 0;
 
     protected:
       // Hybrid Setup

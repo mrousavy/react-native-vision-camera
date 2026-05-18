@@ -165,8 +165,6 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
         for: self.output, withOptions: self.options)
       // 3. Perform capture
       output.capturePhoto(with: captureSettings, delegate: delegate)
-      // 4. Prepare settings for next photo capture so it'll be faster
-      output.setPreparedPhotoSettingsArray([captureSettings])
       return promise
     } catch {
       // Something failed - e.g. creating Photo settings!
@@ -183,6 +181,15 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
       let filePath = try await photo.saveToTemporaryFileAsync()
         .await()
       return PhotoFile(filePath: filePath)
+    }
+  }
+
+  func prepareSettings(settings: [CapturePhotoSettings]) throws -> Promise<Void> {
+    return Promise.async {
+      let captureSettings = try settings.map {
+        try $0.toAVCapturePhotoSettings(for: self.output, withOptions: self.options)
+      }
+      try await self.output.setPreparedPhotoSettingsArray(captureSettings)
     }
   }
 }
