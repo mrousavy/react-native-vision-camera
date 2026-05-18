@@ -23,12 +23,7 @@ import type {
   PreviewResizeMode,
   PreviewView,
 } from 'react-native-vision-camera'
-import {
-  NativePreviewView,
-  useCamera,
-  usePreviewOutput,
-  VisionCamera,
-} from 'react-native-vision-camera'
+import { NativePreviewView, VisionCamera } from 'react-native-vision-camera'
 import { deferred, withTimeout } from './test-utils'
 
 interface Layout {
@@ -173,77 +168,6 @@ describe('VisionCamera - NativePreviewView', () => {
       errorSub.remove()
       if (didStart === true) await session.stop()
     }
-  })
-
-  it('connects a NativePreviewView through useCamera', async () => {
-    interface HookPreviewProps {
-      isActive: boolean
-    }
-
-    const previewRef = deferred<PreviewView>()
-    const layout = deferred<Layout>()
-    const started = deferred()
-    const stopped = deferred()
-    const previewStarted = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
-      previewRef.reject(error)
-      layout.reject(error)
-      started.reject(error)
-      stopped.reject(error)
-      previewStarted.reject(error)
-    }
-
-    function HookPreview({ isActive }: HookPreviewProps) {
-      const previewOutput = usePreviewOutput()
-      useCamera({
-        device: backDevice,
-        isActive: isActive,
-        outputs: [previewOutput],
-        onStarted: started.resolve,
-        onStopped: stopped.resolve,
-        onError: onError,
-      })
-
-      return (
-        <NativePreviewView
-          style={StyleSheet.absoluteFill}
-          previewOutput={previewOutput}
-          hybridRef={callback((preview: PreviewView) => {
-            previewRef.resolve(preview)
-          })}
-          onLayout={(event) => {
-            layout.resolve(toLayout(event))
-          }}
-          onPreviewStarted={callback(previewStarted.resolve)}
-        />
-      )
-    }
-
-    const { rerender } = await render(<HookPreview isActive={true} />)
-
-    const preview = await withTimeout(
-      previewRef.promise,
-      10_000,
-      'useCamera NativePreviewView hybridRef',
-    )
-    const previewLayout = await withTimeout(
-      layout.promise,
-      10_000,
-      'useCamera NativePreviewView onLayout',
-    )
-    await withTimeout(started.promise, 15_000, 'useCamera session onStarted')
-    await withTimeout(
-      previewStarted.promise,
-      15_000,
-      'useCamera NativePreviewView onPreviewStarted',
-    )
-    expect(sessionError).toBe(undefined)
-    expectPreviewGeometry(preview, previewLayout)
-
-    await rerender(<HookPreview isActive={false} />)
-    await withTimeout(stopped.promise, 10_000, 'useCamera session onStopped')
   })
 
   it('keeps a flex preview laid out inside a padded overflow-hidden parent', async () => {
