@@ -1,18 +1,10 @@
-import {
-  createRef,
-  type ReactElement,
-  type Ref,
-  useEffect,
-  useState,
-} from 'react'
+import { createRef } from 'react'
 import {
   type LayoutChangeEvent,
   PixelRatio,
   Platform,
-  type StyleProp,
   StyleSheet,
   View,
-  type ViewStyle,
 } from 'react-native'
 import {
   afterEach,
@@ -33,35 +25,21 @@ import type {
 import { Camera, VisionCamera } from 'react-native-vision-camera'
 import { deferred, withTimeout } from './test-utils'
 
-type Layout = {
+interface Layout {
   x: number
   y: number
   width: number
   height: number
 }
 
-type CameraHarnessProps = {
-  cameraRef: Ref<CameraRef>
-  device: CameraDevice
-  isActive: boolean
-  style: StyleProp<ViewStyle>
-  resizeMode?: PreviewResizeMode
-  implementationMode?: PreviewImplementationMode
-  onLayout?: (event: LayoutChangeEvent) => void
-  onStarted?: () => void
-  onStopped?: () => void
-  onPreviewStarted?: () => void
-  onPreviewStopped?: () => void
-  onError?: (error: Error) => void
-}
-
 function toLayout(event: LayoutChangeEvent): Layout {
-  const { x, y, width, height } = event.nativeEvent.layout
-  return { x, y, width, height }
-}
-
-function expectNear(received: number, expected: number, tolerance = 1) {
-  expect(Math.abs(received - expected)).toBeLessThanOrEqual(tolerance)
+  const layout = event.nativeEvent.layout
+  return {
+    x: layout.x,
+    y: layout.y,
+    width: layout.width,
+    height: layout.height,
+  }
 }
 
 function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
@@ -85,7 +63,7 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
-async function expectAndroidSnapshotDimensions(
+async function expectPreviewSnapshotDimensionsToMatchLayout(
   camera: CameraRef,
   layout: Layout,
 ) {
@@ -101,88 +79,14 @@ async function expectAndroidSnapshotDimensions(
 
     const expectedWidth = PixelRatio.getPixelSizeForLayoutSize(layout.width)
     const expectedHeight = PixelRatio.getPixelSizeForLayoutSize(layout.height)
-    expectNear(snapshot.width, expectedWidth, 2)
-    expectNear(snapshot.height, expectedHeight, 2)
+    expect(snapshot.width).toBeCloseTo(expectedWidth, 0)
+    expect(snapshot.height).toBeCloseTo(expectedHeight, 0)
     console.log(
       `preview snapshot ${snapshot.width}x${snapshot.height} for layout ${layout.width}x${layout.height}`,
     )
   } finally {
     snapshot.dispose()
   }
-}
-
-function CameraInPaddedContainer({
-  cameraRef,
-  device,
-  isActive,
-  style,
-  resizeMode,
-  implementationMode,
-  onLayout,
-  onStarted,
-  onStopped,
-  onPreviewStarted,
-  onPreviewStopped,
-  onError,
-}: CameraHarnessProps): ReactElement {
-  return (
-    <View style={styles.issuePaddedContainer}>
-      <Camera
-        ref={cameraRef}
-        device={device}
-        isActive={isActive}
-        style={style}
-        resizeMode={resizeMode}
-        implementationMode={implementationMode}
-        onLayout={onLayout}
-        onStarted={onStarted}
-        onStopped={onStopped}
-        onPreviewStarted={onPreviewStarted}
-        onPreviewStopped={onPreviewStopped}
-        onError={onError}
-      />
-    </View>
-  )
-}
-
-function ConditionalCameraInPaddedContainer({
-  cameraRef,
-  device,
-  isActive,
-  style,
-  onLayout,
-  onStarted,
-  onStopped,
-  onPreviewStarted,
-  onPreviewStopped,
-  onError,
-}: CameraHarnessProps): ReactElement {
-  const [showCamera, setShowCamera] = useState(false)
-
-  useEffect(() => {
-    setShowCamera(true)
-  }, [])
-
-  return (
-    <View style={styles.issuePaddedContainer}>
-      {showCamera ? (
-        <Camera
-          ref={cameraRef}
-          device={device}
-          isActive={isActive}
-          style={style}
-          onLayout={onLayout}
-          onStarted={onStarted}
-          onStopped={onStopped}
-          onPreviewStarted={onPreviewStarted}
-          onPreviewStopped={onPreviewStopped}
-          onError={onError}
-        />
-      ) : (
-        <View style={styles.placeholder} />
-      )}
-    </View>
-  )
 }
 
 describe('VisionCamera - Preview', () => {
@@ -245,7 +149,7 @@ describe('VisionCamera - Preview', () => {
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
     expectPreviewGeometry(camera, cameraLayout)
-    await expectAndroidSnapshotDimensions(camera, cameraLayout)
+    await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
 
     await rerender(
       <Camera
@@ -276,19 +180,21 @@ describe('VisionCamera - Preview', () => {
     }
 
     const { rerender } = await render(
-      <CameraInPaddedContainer
-        cameraRef={cameraRef}
-        device={backDevice}
-        isActive={true}
-        style={styles.issueFlexCamera}
-        onLayout={(event) => {
-          layout.resolve(toLayout(event))
-        }}
-        onStarted={started.resolve}
-        onStopped={stopped.resolve}
-        onPreviewStarted={previewStarted.resolve}
-        onError={onError}
-      />,
+      <View style={styles.issuePaddedContainer}>
+        <Camera
+          ref={cameraRef}
+          device={backDevice}
+          isActive={true}
+          style={styles.issueFlexCamera}
+          onLayout={(event) => {
+            layout.resolve(toLayout(event))
+          }}
+          onStarted={started.resolve}
+          onStopped={stopped.resolve}
+          onPreviewStarted={previewStarted.resolve}
+          onError={onError}
+        />
+      </View>,
     )
 
     const cameraLayout = await withTimeout(
@@ -303,24 +209,26 @@ describe('VisionCamera - Preview', () => {
       'padded Camera onPreviewStarted',
     )
     expect(sessionError).toBe(undefined)
-    expectNear(cameraLayout.x, 0)
-    expectNear(cameraLayout.y, PADDING_TOP)
+    expect(cameraLayout.x).toBeCloseTo(0, 0)
+    expect(cameraLayout.y).toBeCloseTo(PADDING_TOP, 0)
     expect(cameraLayout.height).toBeGreaterThan(0)
 
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
     expectPreviewGeometry(camera, cameraLayout)
-    await expectAndroidSnapshotDimensions(camera, cameraLayout)
+    await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
 
     await rerender(
-      <CameraInPaddedContainer
-        cameraRef={cameraRef}
-        device={backDevice}
-        isActive={false}
-        style={styles.issueFlexCamera}
-        onStopped={stopped.resolve}
-        onError={onError}
-      />,
+      <View style={styles.issuePaddedContainer}>
+        <Camera
+          ref={cameraRef}
+          device={backDevice}
+          isActive={false}
+          style={styles.issueFlexCamera}
+          onStopped={stopped.resolve}
+          onError={onError}
+        />
+      </View>,
     )
     await withTimeout(stopped.promise, 10_000, 'padded Camera onStopped')
   })
@@ -342,19 +250,27 @@ describe('VisionCamera - Preview', () => {
       }
 
       const { rerender } = await render(
-        <ConditionalCameraInPaddedContainer
-          cameraRef={cameraRef}
-          device={backDevice}
-          isActive={true}
-          style={styles.issueFlexCamera}
-          onLayout={(event) => {
-            layout.resolve(toLayout(event))
-          }}
-          onStarted={started.resolve}
-          onStopped={stopped.resolve}
-          onPreviewStarted={previewStarted.resolve}
-          onError={onError}
-        />,
+        <View style={styles.issuePaddedContainer}>
+          <View style={styles.placeholder} />
+        </View>,
+      )
+
+      await rerender(
+        <View style={styles.issuePaddedContainer}>
+          <Camera
+            ref={cameraRef}
+            device={backDevice}
+            isActive={true}
+            style={styles.issueFlexCamera}
+            onLayout={(event) => {
+              layout.resolve(toLayout(event))
+            }}
+            onStarted={started.resolve}
+            onStopped={stopped.resolve}
+            onPreviewStarted={previewStarted.resolve}
+            onError={onError}
+          />
+        </View>,
       )
 
       const cameraLayout = await withTimeout(
@@ -373,23 +289,25 @@ describe('VisionCamera - Preview', () => {
         `conditional Camera onPreviewStarted attempt ${attempt}`,
       )
       expect(sessionError).toBe(undefined)
-      expectNear(cameraLayout.x, 0)
-      expectNear(cameraLayout.y, PADDING_TOP)
+      expect(cameraLayout.x).toBeCloseTo(0, 0)
+      expect(cameraLayout.y).toBeCloseTo(PADDING_TOP, 0)
 
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectAndroidSnapshotDimensions(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
 
       await rerender(
-        <ConditionalCameraInPaddedContainer
-          cameraRef={cameraRef}
-          device={backDevice}
-          isActive={false}
-          style={styles.issueFlexCamera}
-          onStopped={stopped.resolve}
-          onError={onError}
-        />,
+        <View style={styles.issuePaddedContainer}>
+          <Camera
+            ref={cameraRef}
+            device={backDevice}
+            isActive={false}
+            style={styles.issueFlexCamera}
+            onStopped={stopped.resolve}
+            onError={onError}
+          />
+        </View>,
       )
       await withTimeout(
         stopped.promise,
@@ -473,19 +391,19 @@ describe('VisionCamera - Preview', () => {
     )
     expect(sessionError).toBe(undefined)
 
-    expectNear(wrapper.width, FIXED_CAMERA_WIDTH)
-    expectNear(wrapper.height, FIXED_CAMERA_HEIGHT)
-    expectNear(wrapper.x, (root.width - FIXED_CAMERA_WIDTH) / 2)
-    expectNear(wrapper.y, (root.height - FIXED_CAMERA_HEIGHT) / 2)
-    expectNear(camera.x, 0)
-    expectNear(camera.y, 0)
-    expectNear(camera.width, FIXED_CAMERA_WIDTH)
-    expectNear(camera.height, FIXED_CAMERA_HEIGHT)
+    expect(wrapper.width).toBeCloseTo(FIXED_CAMERA_WIDTH, 0)
+    expect(wrapper.height).toBeCloseTo(FIXED_CAMERA_HEIGHT, 0)
+    expect(wrapper.x).toBeCloseTo((root.width - FIXED_CAMERA_WIDTH) / 2, 0)
+    expect(wrapper.y).toBeCloseTo((root.height - FIXED_CAMERA_HEIGHT) / 2, 0)
+    expect(camera.x).toBeCloseTo(0, 0)
+    expect(camera.y).toBeCloseTo(0, 0)
+    expect(camera.width).toBeCloseTo(FIXED_CAMERA_WIDTH, 0)
+    expect(camera.height).toBeCloseTo(FIXED_CAMERA_HEIGHT, 0)
 
     const cameraRefValue = cameraRef.current
     if (cameraRefValue == null) throw new Error('no Camera ref')
     expectPreviewGeometry(cameraRefValue, camera)
-    await expectAndroidSnapshotDimensions(cameraRefValue, camera)
+    await expectPreviewSnapshotDimensionsToMatchLayout(cameraRefValue, camera)
 
     await rerender(
       <View style={styles.centeredRoot}>
@@ -559,7 +477,7 @@ describe('VisionCamera - Preview', () => {
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectAndroidSnapshotDimensions(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
 
       await rerender(
         <Camera
@@ -645,7 +563,7 @@ describe('VisionCamera - Preview', () => {
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectAndroidSnapshotDimensions(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
 
       await rerender(
         <Camera
