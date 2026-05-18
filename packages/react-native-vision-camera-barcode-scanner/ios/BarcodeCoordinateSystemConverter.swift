@@ -5,67 +5,40 @@
 //  Created by Marc Rousavy on 18.05.26.
 //
 
-import CoreGraphics
 import Foundation
 import VisionCamera
 
 final class BarcodeCoordinateSystemConverter {
-  private let barcodeToCameraMatrix: CGAffineTransform
-  private let cameraToBarcodeMatrix: CGAffineTransform
+  private let barcodeWidth: Double
+  private let barcodeHeight: Double
 
   init(
     width: Double,
     height: Double,
     orientation: CameraOrientation,
-    isMirrored: Bool
+    isMirrored _: Bool
   ) {
-    var matrix = CGAffineTransform.identity
-
+    // ML Kit returns barcode geometry in the detected image's view coordinate system,
+    // so orientation/mirroring are already reflected in the Barcode coordinates.
     switch orientation {
-    case .up:
-      break
-    case .down:
-      matrix =
-        matrix
-        .translatedBy(x: 1, y: 1)
-        .rotated(by: .pi)
-    case .left:
-      matrix =
-        matrix
-        .translatedBy(x: 1, y: 0)
-        .rotated(by: .pi / 2)
-    case .right:
-      matrix =
-        matrix
-        .translatedBy(x: 0, y: 1)
-        .rotated(by: -.pi / 2)
+    case .up, .down:
+      self.barcodeWidth = width
+      self.barcodeHeight = height
+    case .left, .right:
+      self.barcodeWidth = height
+      self.barcodeHeight = width
     }
-
-    if isMirrored {
-      let mirror = CGAffineTransform.identity
-        .translatedBy(x: 1, y: 0)
-        .scaledBy(x: -1, y: 1)
-      matrix = mirror.concatenating(matrix)
-    }
-
-    matrix = matrix.scaledBy(x: 1 / width, y: 1 / height)
-
-    self.barcodeToCameraMatrix = matrix
-    self.cameraToBarcodeMatrix = matrix.inverted()
   }
 
   func convertBarcodePointToCameraPoint(_ barcodePoint: Point) -> Point {
-    return barcodePoint.applying(barcodeToCameraMatrix)
+    return Point(
+      x: barcodePoint.x / barcodeWidth,
+      y: barcodePoint.y / barcodeHeight)
   }
 
   func convertCameraPointToBarcodePoint(_ cameraPoint: Point) -> Point {
-    return cameraPoint.applying(cameraToBarcodeMatrix)
-  }
-}
-
-extension Point {
-  fileprivate func applying(_ transform: CGAffineTransform) -> Point {
-    let point = CGPoint(x: x, y: y).applying(transform)
-    return Point(x: point.x, y: point.y)
+    return Point(
+      x: cameraPoint.x * barcodeWidth,
+      y: cameraPoint.y * barcodeHeight)
   }
 }
