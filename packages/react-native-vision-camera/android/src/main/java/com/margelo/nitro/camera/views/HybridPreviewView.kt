@@ -182,6 +182,7 @@ class HybridPreviewView(
 
   override fun onChanged(value: PreviewView.StreamState) {
     val isPreviewing = value == PreviewView.StreamState.STREAMING
+    updateCameraSpaceToViewPixelsMatrix()
     if (this.isPreviewing != isPreviewing) {
       if (isPreviewing) {
         Log.i(TAG, "PreviewView started!")
@@ -192,7 +193,6 @@ class HybridPreviewView(
       }
     }
     this.isPreviewing = isPreviewing
-    updateCameraSpaceToViewPixelsMatrix()
   }
 
   // This matrix maps CameraX sensor coordinates to Android view pixels.
