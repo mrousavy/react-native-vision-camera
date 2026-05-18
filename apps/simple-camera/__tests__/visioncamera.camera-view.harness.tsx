@@ -838,6 +838,101 @@ describe('VisionCamera - Camera View', () => {
     }
   })
 
+  it('replaces an active Camera view with another active Camera view in one update', async () => {
+    const firstRef = createRef<CameraRef>()
+    const secondRef = createRef<CameraRef>()
+    const firstLayout = deferred<Layout>()
+    const secondLayout = deferred<Layout>()
+    const firstStarted = deferred()
+    const firstPreviewStarted = deferred()
+    const secondStarted = deferred()
+    const secondPreviewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      firstLayout.reject(error)
+      secondLayout.reject(error)
+      firstStarted.reject(error)
+      firstPreviewStarted.reject(error)
+      secondStarted.reject(error)
+      secondPreviewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        key="first"
+        ref={firstRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onLayout={(event) => {
+          firstLayout.resolve(toLayout(event))
+        }}
+        onStarted={firstStarted.resolve}
+        onPreviewStarted={firstPreviewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const firstCameraLayout = await withTimeout(
+      firstLayout.promise,
+      10_000,
+      'first replaced Camera onLayout',
+    )
+    await withTimeout(
+      firstStarted.promise,
+      15_000,
+      'first replaced Camera onStarted',
+    )
+    await withTimeout(
+      firstPreviewStarted.promise,
+      15_000,
+      'first replaced Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const firstCamera = firstRef.current
+    if (firstCamera == null) throw new Error('no first Camera ref')
+    expectPreviewGeometry(firstCamera, firstCameraLayout)
+
+    await rerender(
+      <Camera
+        key="second"
+        ref={secondRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onLayout={(event) => {
+          secondLayout.resolve(toLayout(event))
+        }}
+        onStarted={secondStarted.resolve}
+        onPreviewStarted={secondPreviewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const secondCameraLayout = await withTimeout(
+      secondLayout.promise,
+      10_000,
+      'second replaced Camera onLayout',
+    )
+    await withTimeout(
+      secondStarted.promise,
+      15_000,
+      'second replaced Camera onStarted',
+    )
+    await withTimeout(
+      secondPreviewStarted.promise,
+      15_000,
+      'second replaced Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const secondCamera = secondRef.current
+    if (secondCamera == null) throw new Error('no second Camera ref')
+    expectPreviewGeometry(secondCamera, secondCameraLayout)
+  })
+
   it('switches active state between two mounted Camera views', async () => {
     const firstRef = createRef<CameraRef>()
     const secondRef = createRef<CameraRef>()
