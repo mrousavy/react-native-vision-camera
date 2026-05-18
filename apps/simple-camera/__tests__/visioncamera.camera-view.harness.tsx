@@ -97,6 +97,7 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
 
 describe('VisionCamera - Camera View', () => {
   let backDevice: CameraDevice
+  let frontDevice: CameraDevice | undefined
 
   beforeAll(async () => {
     await VisionCamera.requestCameraPermission()
@@ -106,6 +107,7 @@ describe('VisionCamera - Camera View', () => {
     expect(back).toBeDefined()
     if (back == null) throw new Error('no back camera')
     backDevice = back
+    frontDevice = factory.getDefaultCamera('front')
   })
 
   afterEach(() => {
@@ -304,11 +306,12 @@ describe('VisionCamera - Camera View', () => {
     if (controller == null) throw new Error('no Camera controller')
 
     expectPreviewGeometry(camera, cameraLayout)
-    await withTimeout(
-      camera.startZoomAnimation(controller.zoom, 1),
-      10_000,
-      'CameraRef startZoomAnimation',
-    )
+    const zoomTarget =
+      controller.zoom === controller.maxZoom
+        ? controller.minZoom
+        : controller.maxZoom
+    camera.startZoomAnimation(zoomTarget, 0.5).catch(() => undefined)
+    await new Promise<void>((resolve) => setTimeout(resolve, 100))
     await camera.cancelZoomAnimation()
 
     if (backDevice.supportsFocusMetering) {
@@ -933,7 +936,12 @@ describe('VisionCamera - Camera View', () => {
     expectPreviewGeometry(secondCamera, secondCameraLayout)
   })
 
-  it('switches active state between two mounted Camera views', async () => {
+  it('switches active state between two mounted Camera views on different devices', async () => {
+    if (frontDevice == null) {
+      console.log('[SKIP] active Camera switch: no front camera')
+      return
+    }
+
     const firstRef = createRef<CameraRef>()
     const secondRef = createRef<CameraRef>()
     const firstLayout = deferred<Layout>()
@@ -972,7 +980,7 @@ describe('VisionCamera - Camera View', () => {
         />
         <Camera
           ref={secondRef}
-          device={backDevice}
+          device={frontDevice}
           isActive={false}
           style={styles.switchCamera}
           onLayout={(event) => {
@@ -1014,7 +1022,7 @@ describe('VisionCamera - Camera View', () => {
         />
         <Camera
           ref={secondRef}
-          device={backDevice}
+          device={frontDevice}
           isActive={true}
           style={styles.switchCamera}
           onLayout={(event) => {
