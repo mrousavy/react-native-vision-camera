@@ -158,6 +158,7 @@ describe('VisionCamera - Preview', () => {
         isActive={false}
         style={StyleSheet.absoluteFill}
         onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
         onError={onError}
       />,
     )
@@ -226,6 +227,7 @@ describe('VisionCamera - Preview', () => {
           isActive={false}
           style={styles.issueFlexCamera}
           onStopped={stopped.resolve}
+          onPreviewStarted={previewStarted.resolve}
           onError={onError}
         />
       </View>,
@@ -305,6 +307,7 @@ describe('VisionCamera - Preview', () => {
             isActive={false}
             style={styles.issueFlexCamera}
             onStopped={stopped.resolve}
+            onPreviewStarted={previewStarted.resolve}
             onError={onError}
           />
         </View>,
@@ -414,6 +417,7 @@ describe('VisionCamera - Preview', () => {
             isActive={false}
             style={styles.fixedCamera}
             onStopped={stopped.resolve}
+            onPreviewStarted={previewStarted.resolve}
             onError={onError}
           />
         </View>
@@ -487,6 +491,7 @@ describe('VisionCamera - Preview', () => {
           style={StyleSheet.absoluteFill}
           resizeMode={resizeMode}
           onStopped={stopped.resolve}
+          onPreviewStarted={previewStarted.resolve}
           onError={onError}
         />,
       )
@@ -573,6 +578,7 @@ describe('VisionCamera - Preview', () => {
           style={StyleSheet.absoluteFill}
           implementationMode={implementationMode}
           onStopped={stopped.resolve}
+          onPreviewStarted={previewStarted.resolve}
           onError={onError}
         />,
       )
@@ -635,6 +641,7 @@ describe('VisionCamera - Preview', () => {
         isActive={false}
         style={StyleSheet.absoluteFill}
         onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
         onPreviewStopped={previewStopped.resolve}
         onError={onError}
       />,
