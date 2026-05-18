@@ -332,7 +332,7 @@ export interface CameraPhotoOutput extends CameraOutput {
    * with the given {@linkcode settings} array to improve capture
    * responsiveness for subsequent {@linkcode capturePhoto | capturePhoto(...)}
    * calls when called with any of the same {@linkcode CapturePhotoSettings}
-   * as prepared via this method.
+   * that have been prepared via this method.
    *
    * @discussion
    * It is recommended to always call this with a few common
@@ -341,7 +341,7 @@ export interface CameraPhotoOutput extends CameraOutput {
    *
    * It is perfectly fine to not call {@linkcode prepareSettings | prepareSettings(...)}
    * when using Photo capture, but {@linkcode capturePhoto | capturePhoto(...)} may
-   * allocate buffers that cause latency on initial calls.
+   * allocate buffers that cause higher latency on initial calls when aiming for quality.
    *
    * On Android, this method is no-op.
    *
