@@ -63,6 +63,10 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
+function pointDistance(a: Point, b: Point) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+}
+
 async function expectPreviewSnapshotDimensionsToMatchLayout(
   camera: CameraRef,
   layout: Layout,
@@ -89,7 +93,7 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
   }
 }
 
-describe('VisionCamera - Preview', () => {
+describe('VisionCamera - Camera View', () => {
   let backDevice: CameraDevice
 
   beforeAll(async () => {
@@ -318,7 +322,6 @@ describe('VisionCamera - Preview', () => {
         `conditional Camera onStopped attempt ${attempt}`,
       )
       cleanup()
-      console.log(`conditional preview layout attempt ${attempt} passed`)
     }
   })
 
@@ -426,10 +429,8 @@ describe('VisionCamera - Preview', () => {
     await withTimeout(stopped.promise, 10_000, 'fixed Camera onStopped')
   })
 
-  it('supports cover and contain resizeMode previews', async () => {
-    const resizeModes: PreviewResizeMode[] = ['cover', 'contain']
-
-    for (const resizeMode of resizeModes) {
+  it('starts a new Camera view after the previous one unmounts', async () => {
+    for (let attempt = 1; attempt <= 2; attempt++) {
       const cameraRef = createRef<CameraRef>()
       const layout = deferred<Layout>()
       const started = deferred()
@@ -450,7 +451,6 @@ describe('VisionCamera - Preview', () => {
           device={backDevice}
           isActive={true}
           style={StyleSheet.absoluteFill}
-          resizeMode={resizeMode}
           onLayout={(event) => {
             layout.resolve(toLayout(event))
           }}
@@ -459,6 +459,200 @@ describe('VisionCamera - Preview', () => {
           onPreviewStarted={previewStarted.resolve}
           onError={onError}
         />,
+      )
+
+      const cameraLayout = await withTimeout(
+        layout.promise,
+        10_000,
+        `remounted Camera onLayout attempt ${attempt}`,
+      )
+      await withTimeout(
+        started.promise,
+        15_000,
+        `remounted Camera onStarted attempt ${attempt}`,
+      )
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        `remounted Camera onPreviewStarted attempt ${attempt}`,
+      )
+      expect(sessionError).toBe(undefined)
+
+      const camera = cameraRef.current
+      if (camera == null) throw new Error('no Camera ref')
+      expectPreviewGeometry(camera, cameraLayout)
+
+      await rerender(
+        <Camera
+          ref={cameraRef}
+          device={backDevice}
+          isActive={false}
+          style={StyleSheet.absoluteFill}
+          onStopped={stopped.resolve}
+          onPreviewStarted={previewStarted.resolve}
+          onError={onError}
+        />,
+      )
+      await withTimeout(
+        stopped.promise,
+        10_000,
+        `remounted Camera onStopped attempt ${attempt}`,
+      )
+      cleanup()
+    }
+  })
+
+  it('switches active state between two mounted Camera views', async () => {
+    const firstRef = createRef<CameraRef>()
+    const secondRef = createRef<CameraRef>()
+    const firstLayout = deferred<Layout>()
+    const secondLayout = deferred<Layout>()
+    const firstStarted = deferred()
+    const firstStopped = deferred()
+    const firstPreviewStarted = deferred()
+    const secondStarted = deferred()
+    const secondPreviewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      firstLayout.reject(error)
+      secondLayout.reject(error)
+      firstStarted.reject(error)
+      firstStopped.reject(error)
+      firstPreviewStarted.reject(error)
+      secondStarted.reject(error)
+      secondPreviewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <View style={styles.switchRoot}>
+        <Camera
+          ref={firstRef}
+          device={backDevice}
+          isActive={true}
+          style={styles.switchCamera}
+          onLayout={(event) => {
+            firstLayout.resolve(toLayout(event))
+          }}
+          onStarted={firstStarted.resolve}
+          onStopped={firstStopped.resolve}
+          onPreviewStarted={firstPreviewStarted.resolve}
+          onError={onError}
+        />
+        <Camera
+          ref={secondRef}
+          device={backDevice}
+          isActive={false}
+          style={styles.switchCamera}
+          onLayout={(event) => {
+            secondLayout.resolve(toLayout(event))
+          }}
+          onStarted={secondStarted.resolve}
+          onPreviewStarted={secondPreviewStarted.resolve}
+          onError={onError}
+        />
+      </View>,
+    )
+
+    const firstCameraLayout = await withTimeout(
+      firstLayout.promise,
+      10_000,
+      'first Camera onLayout',
+    )
+    await withTimeout(firstStarted.promise, 15_000, 'first Camera onStarted')
+    await withTimeout(
+      firstPreviewStarted.promise,
+      15_000,
+      'first Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+    const firstCamera = firstRef.current
+    if (firstCamera == null) throw new Error('no first Camera ref')
+    expectPreviewGeometry(firstCamera, firstCameraLayout)
+
+    await rerender(
+      <View style={styles.switchRoot}>
+        <Camera
+          ref={firstRef}
+          device={backDevice}
+          isActive={false}
+          style={styles.switchCamera}
+          onStopped={firstStopped.resolve}
+          onPreviewStarted={firstPreviewStarted.resolve}
+          onError={onError}
+        />
+        <Camera
+          ref={secondRef}
+          device={backDevice}
+          isActive={true}
+          style={styles.switchCamera}
+          onLayout={(event) => {
+            secondLayout.resolve(toLayout(event))
+          }}
+          onStarted={secondStarted.resolve}
+          onPreviewStarted={secondPreviewStarted.resolve}
+          onError={onError}
+        />
+      </View>,
+    )
+
+    await withTimeout(firstStopped.promise, 10_000, 'first Camera onStopped')
+    const secondCameraLayout = await withTimeout(
+      secondLayout.promise,
+      10_000,
+      'second Camera onLayout',
+    )
+    await withTimeout(secondStarted.promise, 15_000, 'second Camera onStarted')
+    await withTimeout(
+      secondPreviewStarted.promise,
+      15_000,
+      'second Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+    const secondCamera = secondRef.current
+    if (secondCamera == null) throw new Error('no second Camera ref')
+    expectPreviewGeometry(secondCamera, secondCameraLayout)
+  })
+
+  it('supports cover and contain resizeMode previews', async () => {
+    const resizeModes: PreviewResizeMode[] = ['cover', 'contain']
+    let coverTopLeft: Point | undefined
+    let containTopLeft: Point | undefined
+
+    for (const resizeMode of resizeModes) {
+      const cameraRef = createRef<CameraRef>()
+      const layout = deferred<Layout>()
+      const started = deferred()
+      const stopped = deferred()
+      const previewStarted = deferred()
+      let sessionError: Error | undefined
+      const onError = (error: Error) => {
+        sessionError = error
+        layout.reject(error)
+        started.reject(error)
+        stopped.reject(error)
+        previewStarted.reject(error)
+      }
+
+      const { rerender } = await render(
+        <View style={styles.centeredRoot}>
+          <View style={styles.fixedCameraWrapper}>
+            <Camera
+              ref={cameraRef}
+              device={backDevice}
+              isActive={true}
+              style={styles.fixedCamera}
+              resizeMode={resizeMode}
+              onLayout={(event) => {
+                layout.resolve(toLayout(event))
+              }}
+              onStarted={started.resolve}
+              onStopped={stopped.resolve}
+              onPreviewStarted={previewStarted.resolve}
+              onError={onError}
+            />
+          </View>
+        </View>,
       )
 
       const cameraLayout = await withTimeout(
@@ -482,18 +676,25 @@ describe('VisionCamera - Preview', () => {
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
       await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+      const topLeft = camera.convertViewPointToCameraPoint({ x: 0, y: 0 })
+      if (resizeMode === 'cover') coverTopLeft = topLeft
+      else containTopLeft = topLeft
 
       await rerender(
-        <Camera
-          ref={cameraRef}
-          device={backDevice}
-          isActive={false}
-          style={StyleSheet.absoluteFill}
-          resizeMode={resizeMode}
-          onStopped={stopped.resolve}
-          onPreviewStarted={previewStarted.resolve}
-          onError={onError}
-        />,
+        <View style={styles.centeredRoot}>
+          <View style={styles.fixedCameraWrapper}>
+            <Camera
+              ref={cameraRef}
+              device={backDevice}
+              isActive={false}
+              style={styles.fixedCamera}
+              resizeMode={resizeMode}
+              onStopped={stopped.resolve}
+              onPreviewStarted={previewStarted.resolve}
+              onError={onError}
+            />
+          </View>
+        </View>,
       )
       await withTimeout(
         stopped.promise,
@@ -501,8 +702,12 @@ describe('VisionCamera - Preview', () => {
         `${resizeMode} preview onStopped`,
       )
       cleanup()
-      console.log(`${resizeMode} preview layout passed`)
     }
+
+    if (coverTopLeft == null) throw new Error('missing cover top-left point')
+    if (containTopLeft == null)
+      throw new Error('missing contain top-left point')
+    expect(pointDistance(coverTopLeft, containTopLeft)).toBeGreaterThan(0.001)
   })
 
   it('supports both Android preview implementation modes', async () => {
@@ -588,7 +793,6 @@ describe('VisionCamera - Preview', () => {
         `${implementationMode} preview onStopped`,
       )
       cleanup()
-      console.log(`${implementationMode} preview layout passed`)
     }
   })
 
@@ -688,6 +892,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   placeholder: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  switchRoot: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  switchCamera: {
     flex: 1,
     backgroundColor: 'black',
   },
