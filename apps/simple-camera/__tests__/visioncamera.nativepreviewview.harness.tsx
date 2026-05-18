@@ -23,7 +23,12 @@ import type {
   PreviewResizeMode,
   PreviewView,
 } from 'react-native-vision-camera'
-import { NativePreviewView, VisionCamera } from 'react-native-vision-camera'
+import {
+  NativePreviewView,
+  useCamera,
+  usePreviewOutput,
+  VisionCamera,
+} from 'react-native-vision-camera'
 import { deferred, withTimeout } from './test-utils'
 
 interface Layout {
@@ -84,9 +89,6 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
     const expectedHeight = PixelRatio.getPixelSizeForLayoutSize(layout.height)
     expect(snapshot.width).toBeCloseTo(expectedWidth, 0)
     expect(snapshot.height).toBeCloseTo(expectedHeight, 0)
-    console.log(
-      `native preview snapshot ${snapshot.width}x${snapshot.height} for layout ${layout.width}x${layout.height}`,
-    )
   } finally {
     snapshot.dispose()
   }
@@ -171,6 +173,77 @@ describe('VisionCamera - NativePreviewView', () => {
       errorSub.remove()
       if (didStart === true) await session.stop()
     }
+  })
+
+  it('connects a NativePreviewView through useCamera', async () => {
+    interface HookPreviewProps {
+      isActive: boolean
+    }
+
+    const previewRef = deferred<PreviewView>()
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const stopped = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      previewRef.reject(error)
+      layout.reject(error)
+      started.reject(error)
+      stopped.reject(error)
+      previewStarted.reject(error)
+    }
+
+    function HookPreview({ isActive }: HookPreviewProps) {
+      const previewOutput = usePreviewOutput()
+      useCamera({
+        device: backDevice,
+        isActive: isActive,
+        outputs: [previewOutput],
+        onStarted: started.resolve,
+        onStopped: stopped.resolve,
+        onError: onError,
+      })
+
+      return (
+        <NativePreviewView
+          style={StyleSheet.absoluteFill}
+          previewOutput={previewOutput}
+          hybridRef={callback((preview: PreviewView) => {
+            previewRef.resolve(preview)
+          })}
+          onLayout={(event) => {
+            layout.resolve(toLayout(event))
+          }}
+          onPreviewStarted={callback(previewStarted.resolve)}
+        />
+      )
+    }
+
+    const { rerender } = await render(<HookPreview isActive={true} />)
+
+    const preview = await withTimeout(
+      previewRef.promise,
+      10_000,
+      'useCamera NativePreviewView hybridRef',
+    )
+    const previewLayout = await withTimeout(
+      layout.promise,
+      10_000,
+      'useCamera NativePreviewView onLayout',
+    )
+    await withTimeout(started.promise, 15_000, 'useCamera session onStarted')
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'useCamera NativePreviewView onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+    expectPreviewGeometry(preview, previewLayout)
+
+    await rerender(<HookPreview isActive={false} />)
+    await withTimeout(stopped.promise, 10_000, 'useCamera session onStopped')
   })
 
   it('keeps a flex preview laid out inside a padded overflow-hidden parent', async () => {
@@ -419,6 +492,168 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
+  it('updates geometry when the preview layout changes while running', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    const previewRef = deferred<PreviewView>()
+    const firstLayout = deferred<Layout>()
+    const secondLayout = deferred<Layout>()
+    const previewStarted = deferred()
+    const errorSub = session.addOnErrorListener((error) => {
+      previewRef.reject(error)
+      firstLayout.reject(error)
+      secondLayout.reject(error)
+      previewStarted.reject(error)
+    })
+    let didStart = false
+
+    try {
+      const { rerender } = await render(
+        <View style={styles.centeredRoot}>
+          <NativePreviewView
+            style={[styles.resizablePreview, styles.tallPreview]}
+            previewOutput={previewOutput}
+            hybridRef={callback((preview: PreviewView) => {
+              previewRef.resolve(preview)
+            })}
+            onLayout={(event) => {
+              firstLayout.resolve(toLayout(event))
+            }}
+            onPreviewStarted={callback(previewStarted.resolve)}
+          />
+        </View>,
+      )
+
+      const preview = await withTimeout(
+        previewRef.promise,
+        10_000,
+        'resizable NativePreviewView hybridRef',
+      )
+      const first = await withTimeout(
+        firstLayout.promise,
+        10_000,
+        'resizable NativePreviewView first onLayout',
+      )
+
+      await session.start()
+      didStart = true
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'resizable NativePreviewView onPreviewStarted',
+      )
+
+      expect(first.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
+      expect(first.height).toBeCloseTo(FIXED_PREVIEW_HEIGHT, 0)
+      expectPreviewGeometry(preview, first)
+
+      await rerender(
+        <View style={styles.centeredRoot}>
+          <NativePreviewView
+            style={[styles.resizablePreview, styles.widePreview]}
+            previewOutput={previewOutput}
+            hybridRef={callback((preview: PreviewView) => {
+              previewRef.resolve(preview)
+            })}
+            onLayout={(event) => {
+              secondLayout.resolve(toLayout(event))
+            }}
+            onPreviewStarted={callback(previewStarted.resolve)}
+          />
+        </View>,
+      )
+
+      const second = await withTimeout(
+        secondLayout.promise,
+        10_000,
+        'resizable NativePreviewView second onLayout',
+      )
+      expect(second.width).toBeCloseTo(WIDE_PREVIEW_WIDTH, 0)
+      expect(second.height).toBeCloseTo(WIDE_PREVIEW_HEIGHT, 0)
+      expectPreviewGeometry(preview, second)
+      await expectPreviewSnapshotDimensionsToMatchLayout(preview, second)
+    } finally {
+      errorSub.remove()
+      if (didStart === true) await session.stop()
+    }
+  })
+
+  it('starts a new NativePreviewView after the previous one unmounts', async () => {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const session = await VisionCamera.createCameraSession(false)
+      const previewOutput = VisionCamera.createPreviewOutput()
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+
+      const previewRef = deferred<PreviewView>()
+      const layout = deferred<Layout>()
+      const previewStarted = deferred()
+      const errorSub = session.addOnErrorListener((error) => {
+        previewRef.reject(error)
+        layout.reject(error)
+        previewStarted.reject(error)
+      })
+      let didStart = false
+
+      try {
+        await render(
+          <NativePreviewView
+            style={StyleSheet.absoluteFill}
+            previewOutput={previewOutput}
+            hybridRef={callback((preview: PreviewView) => {
+              previewRef.resolve(preview)
+            })}
+            onLayout={(event) => {
+              layout.resolve(toLayout(event))
+            }}
+            onPreviewStarted={callback(previewStarted.resolve)}
+          />,
+        )
+
+        const preview = await withTimeout(
+          previewRef.promise,
+          10_000,
+          `remounted NativePreviewView hybridRef attempt ${attempt}`,
+        )
+        const previewLayout = await withTimeout(
+          layout.promise,
+          10_000,
+          `remounted NativePreviewView onLayout attempt ${attempt}`,
+        )
+
+        await session.start()
+        didStart = true
+        await withTimeout(
+          previewStarted.promise,
+          15_000,
+          `remounted NativePreviewView onPreviewStarted attempt ${attempt}`,
+        )
+
+        expectPreviewGeometry(preview, previewLayout)
+        cleanup()
+        await session.stop()
+        didStart = false
+      } finally {
+        errorSub.remove()
+        if (didStart === true) await session.stop()
+        cleanup()
+      }
+    }
+  })
+
   it('switches a running session between two mounted NativePreviewViews', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const firstPreviewOutput = VisionCamera.createPreviewOutput()
@@ -644,6 +879,75 @@ describe('VisionCamera - NativePreviewView', () => {
 
       expectPreviewGeometry(firstPreview, firstPreviewLayout)
       expectPreviewGeometry(secondPreview, secondPreviewLayout)
+    } finally {
+      errorSub.remove()
+      if (didStart === true) await session.stop()
+    }
+  })
+
+  it('attaches native gesture controllers to a NativePreviewView', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+
+    const tapGesture = VisionCamera.createTapToFocusGestureController()
+    const zoomGesture = VisionCamera.createZoomGestureController()
+    tapGesture.controller = controller
+    zoomGesture.controller = controller
+
+    const previewRef = deferred<PreviewView>()
+    const layout = deferred<Layout>()
+    const previewStarted = deferred()
+    const errorSub = session.addOnErrorListener((error) => {
+      previewRef.reject(error)
+      layout.reject(error)
+      previewStarted.reject(error)
+    })
+    let didStart = false
+
+    try {
+      await render(
+        <NativePreviewView
+          style={StyleSheet.absoluteFill}
+          previewOutput={previewOutput}
+          gestureControllers={[tapGesture, zoomGesture]}
+          hybridRef={callback((preview: PreviewView) => {
+            previewRef.resolve(preview)
+          })}
+          onLayout={(event) => {
+            layout.resolve(toLayout(event))
+          }}
+          onPreviewStarted={callback(previewStarted.resolve)}
+        />,
+      )
+
+      const preview = await withTimeout(
+        previewRef.promise,
+        10_000,
+        'gesture NativePreviewView hybridRef',
+      )
+      const previewLayout = await withTimeout(
+        layout.promise,
+        10_000,
+        'gesture NativePreviewView onLayout',
+      )
+
+      await session.start()
+      didStart = true
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'gesture NativePreviewView onPreviewStarted',
+      )
+
+      expectPreviewGeometry(preview, previewLayout)
     } finally {
       errorSub.remove()
       if (didStart === true) await session.stop()
@@ -891,6 +1195,8 @@ describe('VisionCamera - NativePreviewView', () => {
 const PADDING_TOP = 82
 const FIXED_PREVIEW_WIDTH = 150
 const FIXED_PREVIEW_HEIGHT = 300
+const WIDE_PREVIEW_WIDTH = 260
+const WIDE_PREVIEW_HEIGHT = 180
 
 const styles = StyleSheet.create({
   centeredRoot: {
@@ -907,6 +1213,17 @@ const styles = StyleSheet.create({
     width: FIXED_PREVIEW_WIDTH,
     height: FIXED_PREVIEW_HEIGHT,
     backgroundColor: 'black',
+  },
+  resizablePreview: {
+    backgroundColor: 'black',
+  },
+  tallPreview: {
+    width: FIXED_PREVIEW_WIDTH,
+    height: FIXED_PREVIEW_HEIGHT,
+  },
+  widePreview: {
+    width: WIDE_PREVIEW_WIDTH,
+    height: WIDE_PREVIEW_HEIGHT,
   },
   issuePaddedContainer: {
     flex: 1,

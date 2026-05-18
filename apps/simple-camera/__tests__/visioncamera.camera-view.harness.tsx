@@ -14,6 +14,7 @@ import {
   expect,
   it,
   render,
+  waitUntil,
 } from 'react-native-harness'
 import type {
   CameraDevice,
@@ -22,7 +23,11 @@ import type {
   PreviewImplementationMode,
   PreviewResizeMode,
 } from 'react-native-vision-camera'
-import { Camera, VisionCamera } from 'react-native-vision-camera'
+import {
+  Camera,
+  CommonResolutions,
+  VisionCamera,
+} from 'react-native-vision-camera'
 import { deferred, withTimeout } from './test-utils'
 
 interface Layout {
@@ -85,9 +90,6 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
     const expectedHeight = PixelRatio.getPixelSizeForLayoutSize(layout.height)
     expect(snapshot.width).toBeCloseTo(expectedWidth, 0)
     expect(snapshot.height).toBeCloseTo(expectedHeight, 0)
-    console.log(
-      `preview snapshot ${snapshot.width}x${snapshot.height} for layout ${layout.width}x${layout.height}`,
-    )
   } finally {
     snapshot.dispose()
   }
@@ -167,6 +169,359 @@ describe('VisionCamera - Camera View', () => {
       />,
     )
     await withTimeout(stopped.promise, 10_000, 'Camera onStopped')
+  })
+
+  it('runs preview with a photo output attached and captures a JPEG', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const stopped = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      layout.reject(error)
+      started.reject(error)
+      stopped.reject(error)
+      previewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        outputs={[photoOutput]}
+        style={StyleSheet.absoluteFill}
+        onLayout={(event) => {
+          layout.resolve(toLayout(event))
+        }}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const cameraLayout = await withTimeout(
+      layout.promise,
+      10_000,
+      'photo Camera onLayout',
+    )
+    await withTimeout(started.promise, 15_000, 'photo Camera onStarted')
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'photo Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const camera = cameraRef.current
+    if (camera == null) throw new Error('no Camera ref')
+    expectPreviewGeometry(camera, cameraLayout)
+
+    const photo = await photoOutput.capturePhoto(
+      { flashMode: 'off', enableShutterSound: false },
+      {},
+    )
+    try {
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      expect(photo.containerFormat).toBe('jpeg')
+      expect(photo.isRawPhoto).toBe(false)
+    } finally {
+      photo.dispose()
+    }
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        outputs={[photoOutput]}
+        style={StyleSheet.absoluteFill}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(stopped.promise, 10_000, 'photo Camera onStopped')
+  })
+
+  it('runs CameraRef controller methods while preview is ready', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const stopped = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      layout.reject(error)
+      started.reject(error)
+      stopped.reject(error)
+      previewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onLayout={(event) => {
+          layout.resolve(toLayout(event))
+        }}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const cameraLayout = await withTimeout(
+      layout.promise,
+      10_000,
+      'ref methods Camera onLayout',
+    )
+    await withTimeout(started.promise, 15_000, 'ref methods Camera onStarted')
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'ref methods Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const camera = cameraRef.current
+    if (camera == null) throw new Error('no Camera ref')
+    const controller = camera.controller
+    if (controller == null) throw new Error('no Camera controller')
+
+    expectPreviewGeometry(camera, cameraLayout)
+    await withTimeout(
+      camera.startZoomAnimation(controller.zoom, 1),
+      10_000,
+      'CameraRef startZoomAnimation',
+    )
+    await camera.cancelZoomAnimation()
+
+    if (backDevice.supportsFocusMetering) {
+      const center: Point = {
+        x: cameraLayout.width / 2,
+        y: cameraLayout.height / 2,
+      }
+      await camera.focusTo(center, {
+        modes: ['AF'],
+        responsiveness: 'snappy',
+      })
+      await camera.resetFocus()
+    } else {
+      console.log(
+        '[SKIP] CameraRef focusTo: device does not support focus metering',
+      )
+    }
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(stopped.promise, 10_000, 'ref methods Camera onStopped')
+  })
+
+  it('applies controller props through the high-level Camera view', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const targetZoom = Math.min(
+      Math.max(backDevice.minZoom, 1.5),
+      backDevice.maxZoom,
+    )
+    const targetExposure = backDevice.supportsExposureBias
+      ? Math.min(
+          Math.max(1, backDevice.minExposureBias),
+          backDevice.maxExposureBias,
+        )
+      : undefined
+    const torchMode = backDevice.hasTorch ? 'on' : 'off'
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const stopped = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      layout.reject(error)
+      started.reject(error)
+      stopped.reject(error)
+      previewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onLayout={(event) => {
+          layout.resolve(toLayout(event))
+        }}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const cameraLayout = await withTimeout(
+      layout.promise,
+      10_000,
+      'controller props Camera onLayout',
+    )
+    await withTimeout(
+      started.promise,
+      15_000,
+      'controller props Camera onStarted',
+    )
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'controller props Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const camera = cameraRef.current
+    if (camera == null) throw new Error('no Camera ref')
+    const controller = camera.controller
+    if (controller == null) throw new Error('no Camera controller')
+    expectPreviewGeometry(camera, cameraLayout)
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        zoom={targetZoom}
+        exposure={targetExposure}
+        torchMode={torchMode}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    await waitUntil(() => Math.abs(controller.zoom - targetZoom) < 0.0001, {
+      timeout: 10_000,
+    })
+    expect(controller.zoom).toBeCloseTo(targetZoom, 4)
+
+    if (targetExposure != null) {
+      await waitUntil(
+        () => Math.abs(controller.exposureBias - targetExposure) < 0.0001,
+        { timeout: 10_000 },
+      )
+      expect(controller.exposureBias).toBeCloseTo(targetExposure, 4)
+    }
+
+    if (backDevice.hasTorch) {
+      await waitUntil(() => controller.torchMode === 'on', { timeout: 10_000 })
+      expect(controller.torchMode).toBe('on')
+    } else {
+      expect(controller.torchMode).toBe('off')
+    }
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(
+      stopped.promise,
+      10_000,
+      'controller props Camera onStopped',
+    )
+  })
+
+  it('mounts with native tap-to-focus and zoom gestures enabled', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const stopped = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      layout.reject(error)
+      started.reject(error)
+      stopped.reject(error)
+      previewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        enableNativeTapToFocusGesture={true}
+        enableNativeZoomGesture={true}
+        onLayout={(event) => {
+          layout.resolve(toLayout(event))
+        }}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    const cameraLayout = await withTimeout(
+      layout.promise,
+      10_000,
+      'gesture Camera onLayout',
+    )
+    await withTimeout(started.promise, 15_000, 'gesture Camera onStarted')
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'gesture Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    const camera = cameraRef.current
+    if (camera == null) throw new Error('no Camera ref')
+    expectPreviewGeometry(camera, cameraLayout)
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        enableNativeTapToFocusGesture={true}
+        enableNativeZoomGesture={true}
+        onStopped={stopped.resolve}
+        onPreviewStarted={previewStarted.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(stopped.promise, 10_000, 'gesture Camera onStopped')
   })
 
   it('keeps a flex preview laid out inside a padded overflow-hidden parent', async () => {
@@ -434,18 +789,16 @@ describe('VisionCamera - Camera View', () => {
       const cameraRef = createRef<CameraRef>()
       const layout = deferred<Layout>()
       const started = deferred()
-      const stopped = deferred()
       const previewStarted = deferred()
       let sessionError: Error | undefined
       const onError = (error: Error) => {
         sessionError = error
         layout.reject(error)
         started.reject(error)
-        stopped.reject(error)
         previewStarted.reject(error)
       }
 
-      const { rerender } = await render(
+      await render(
         <Camera
           ref={cameraRef}
           device={backDevice}
@@ -455,7 +808,6 @@ describe('VisionCamera - Camera View', () => {
             layout.resolve(toLayout(event))
           }}
           onStarted={started.resolve}
-          onStopped={stopped.resolve}
           onPreviewStarted={previewStarted.resolve}
           onError={onError}
         />,
@@ -482,22 +834,6 @@ describe('VisionCamera - Camera View', () => {
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
 
-      await rerender(
-        <Camera
-          ref={cameraRef}
-          device={backDevice}
-          isActive={false}
-          style={StyleSheet.absoluteFill}
-          onStopped={stopped.resolve}
-          onPreviewStarted={previewStarted.resolve}
-          onError={onError}
-        />,
-      )
-      await withTimeout(
-        stopped.promise,
-        10_000,
-        `remounted Camera onStopped attempt ${attempt}`,
-      )
       cleanup()
     }
   })
