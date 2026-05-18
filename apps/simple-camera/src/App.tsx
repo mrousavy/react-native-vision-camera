@@ -5,6 +5,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { VisionCamera } from 'react-native-vision-camera'
+import { BarcodeScreen } from './screens/BarcodeScreen'
 import { CameraScreen } from './screens/CameraScreen'
 import { PermissionsScreen } from './screens/PermissionsScreen'
 import { PhotoScreen } from './screens/PhotoScreen'
@@ -35,6 +36,12 @@ const RootStack = createNativeStackNavigator({
       options: {
         animation: 'none',
         presentation: 'transparentModal',
+      },
+    },
+    Barcode: {
+      screen: BarcodeScreen,
+      options: {
+        orientation: 'portrait_up',
       },
     },
   },

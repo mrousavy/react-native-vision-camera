@@ -16,6 +16,7 @@ import { CameraSelectorButton } from '../components/CameraSelectorButton'
 import { CameraView } from '../components/CameraView'
 import { CaptureButton } from '../components/CaptureButton'
 import { FullOverlay } from '../components/FullOverlay'
+import { IconButton } from '../components/IconButton'
 import { Row } from '../components/Row'
 import { useIsActive } from '../hooks/useIsActive'
 import { useSafeAreaPadding } from '../hooks/useSafeAreaPadding'
@@ -248,6 +249,10 @@ export function CameraScreen() {
 
       <FullOverlay style={safePadding}>
         <Row>
+          <IconButton
+            iconName="barcode"
+            onPress={() => navigation.navigate('Barcode')}
+          />
           <View style={styles.flex} />
           <CameraSelectorButton
             devices={devices}
