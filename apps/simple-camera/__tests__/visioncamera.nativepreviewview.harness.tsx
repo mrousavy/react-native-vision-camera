@@ -126,7 +126,6 @@ describe('VisionCamera - NativePreviewView', () => {
       layout.reject(error)
       previewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -155,7 +154,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -166,7 +164,7 @@ describe('VisionCamera - NativePreviewView', () => {
       await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -189,7 +187,6 @@ describe('VisionCamera - NativePreviewView', () => {
       layout.reject(error)
       previewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -220,7 +217,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -234,7 +230,7 @@ describe('VisionCamera - NativePreviewView', () => {
       await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -258,7 +254,6 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
-      let didStart = false
 
       try {
         const { rerender } = await render(
@@ -295,7 +290,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         await session.start()
-        didStart = true
         await withTimeout(
           previewStarted.promise,
           15_000,
@@ -311,7 +305,7 @@ describe('VisionCamera - NativePreviewView', () => {
         )
       } finally {
         errorSub.remove()
-        if (didStart === true) await session.stop()
+        await session.stop()
         cleanup()
       }
     }
@@ -340,7 +334,6 @@ describe('VisionCamera - NativePreviewView', () => {
       previewLayout.reject(error)
       previewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -393,7 +386,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -412,7 +404,7 @@ describe('VisionCamera - NativePreviewView', () => {
       await expectPreviewSnapshotDimensionsToMatchLayout(preview, layout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -437,7 +429,6 @@ describe('VisionCamera - NativePreviewView', () => {
       secondLayout.reject(error)
       previewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       const { rerender } = await render(
@@ -468,7 +459,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -506,7 +496,7 @@ describe('VisionCamera - NativePreviewView', () => {
       await expectPreviewSnapshotDimensionsToMatchLayout(preview, second)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -530,7 +520,6 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
-      let didStart = false
 
       try {
         await render(
@@ -559,7 +548,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         await session.start()
-        didStart = true
         await withTimeout(
           previewStarted.promise,
           15_000,
@@ -568,11 +556,9 @@ describe('VisionCamera - NativePreviewView', () => {
 
         expectPreviewGeometry(preview, previewLayout)
         cleanup()
-        await session.stop()
-        didStart = false
       } finally {
         errorSub.remove()
-        if (didStart === true) await session.stop()
+        await session.stop()
         cleanup()
       }
     }
@@ -604,7 +590,6 @@ describe('VisionCamera - NativePreviewView', () => {
       firstPreviewStarted.reject(error)
       secondPreviewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -656,7 +641,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         firstPreviewStarted.promise,
         15_000,
@@ -679,7 +663,7 @@ describe('VisionCamera - NativePreviewView', () => {
       expectPreviewGeometry(secondPreview, secondPreviewLayout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -737,7 +721,6 @@ describe('VisionCamera - NativePreviewView', () => {
       firstPreviewStarted.reject(error)
       secondPreviewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -789,7 +772,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         firstPreviewStarted.promise,
         15_000,
@@ -805,7 +787,7 @@ describe('VisionCamera - NativePreviewView', () => {
       expectPreviewGeometry(secondPreview, secondPreviewLayout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -834,7 +816,6 @@ describe('VisionCamera - NativePreviewView', () => {
       layout.reject(error)
       previewStarted.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -864,7 +845,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -874,7 +854,7 @@ describe('VisionCamera - NativePreviewView', () => {
       expectPreviewGeometry(preview, previewLayout)
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 
@@ -902,7 +882,6 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
-      let didStart = false
 
       try {
         await render(
@@ -936,7 +915,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         await session.start()
-        didStart = true
         await withTimeout(
           previewStarted.promise,
           15_000,
@@ -953,7 +931,7 @@ describe('VisionCamera - NativePreviewView', () => {
         else containTopLeft = topLeft
       } finally {
         errorSub.remove()
-        if (didStart === true) await session.stop()
+        await session.stop()
         cleanup()
       }
     }
@@ -994,7 +972,6 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
-      let didStart = false
 
       try {
         await render(
@@ -1024,7 +1001,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         await session.start()
-        didStart = true
         await withTimeout(
           previewStarted.promise,
           15_000,
@@ -1038,7 +1014,7 @@ describe('VisionCamera - NativePreviewView', () => {
         )
       } finally {
         errorSub.remove()
-        if (didStart === true) await session.stop()
+        await session.stop()
         cleanup()
       }
     }
@@ -1065,7 +1041,6 @@ describe('VisionCamera - NativePreviewView', () => {
       previewStarted.reject(error)
       previewStopped.reject(error)
     })
-    let didStart = false
 
     try {
       await render(
@@ -1095,7 +1070,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.start()
-      didStart = true
       await withTimeout(
         previewStarted.promise,
         15_000,
@@ -1103,7 +1077,6 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       await session.stop()
-      didStart = false
       await withTimeout(
         previewStopped.promise,
         10_000,
@@ -1111,7 +1084,7 @@ describe('VisionCamera - NativePreviewView', () => {
       )
     } finally {
       errorSub.remove()
-      if (didStart === true) await session.stop()
+      await session.stop()
     }
   })
 })
