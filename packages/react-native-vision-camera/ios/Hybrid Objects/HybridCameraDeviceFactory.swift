@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
+final class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
   override init() {
     self.discoverySession = AVCaptureDevice.DiscoverySession(
       deviceTypes: AVCaptureDevice.DeviceType.all,

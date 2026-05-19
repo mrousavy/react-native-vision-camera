@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCameraOutput {
+final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCameraOutput {
   private let delegate: DepthFrameDelegate
   private let queue: DispatchQueue
   private let queueSpecificKey = DispatchSpecificKey<Void>()

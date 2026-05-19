@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraSession: HybridCameraSessionSpec {
+final class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
   private static let queue: DispatchQueue = DispatchQueue(
     label: "com.margelo.camera.session",

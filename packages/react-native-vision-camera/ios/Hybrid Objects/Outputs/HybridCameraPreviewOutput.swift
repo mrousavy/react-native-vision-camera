@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewViewOutput {
+final class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewViewOutput {
   let mediaType: MediaType = .video
   let previewLayer: AVCaptureVideoPreviewLayer
   private let orientationManager = HybridInterfaceOrientationManager()

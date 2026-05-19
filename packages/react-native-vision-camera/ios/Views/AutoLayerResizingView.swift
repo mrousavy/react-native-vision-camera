@@ -9,7 +9,7 @@ import AVFoundation
 import Foundation
 
 /// A view that auto-resizes its sublayers each time
-class AutoLayerResizingView: UIView {
+final class AutoLayerResizingView: UIView {
   override func layoutSubviews() {
     super.layoutSubviews()
     layer.sublayers?.forEach { layer in

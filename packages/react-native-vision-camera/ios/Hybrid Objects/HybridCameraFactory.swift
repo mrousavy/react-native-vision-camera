@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class VisionCamera: HybridCameraFactorySpec {
+final class VisionCamera: HybridCameraFactorySpec {
   var cameraPermissionStatus: PermissionStatus {
     let status = AVCaptureDevice.authorizationStatus(for: .video)
     return PermissionStatus(avStatus: status)

@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput {
+final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput {
   private let queue = DispatchQueue(label: "com.margelo.camera.object-scanner")
   private let delegate: MetadataDelegate
   private let options: ObjectOutputOptions

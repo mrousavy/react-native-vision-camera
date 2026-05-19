@@ -9,7 +9,7 @@ import Foundation
 import NitroImage
 import NitroModules
 
-class HybridFrameConverter: HybridFrameConverterSpec {
+final class HybridFrameConverter: HybridFrameConverterSpec {
   func convertFrameToImage(frame: any HybridFrameSpec) throws -> any HybridImageSpec {
     guard let frame = frame as? any NativeFrame else {
       throw RuntimeError.error(withMessage: "The given `Frame` is not of type `NativeFrame`!")
