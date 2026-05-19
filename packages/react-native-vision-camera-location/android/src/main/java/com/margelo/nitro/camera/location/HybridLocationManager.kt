@@ -131,6 +131,11 @@ class HybridLocationManager(
     }
   }
 
+  override fun dispose() {
+    super.dispose()
+    stopUpdating()
+  }
+
   /**
    * Maps VisionCamera core `PermissionStatus` to VisionCamera location [PermissionStatus]
    * by casting the numbers.
