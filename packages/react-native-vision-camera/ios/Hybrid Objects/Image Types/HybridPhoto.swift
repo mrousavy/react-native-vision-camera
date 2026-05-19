@@ -111,9 +111,7 @@ final class HybridPhoto: HybridPhotoSpec, NativePhoto {
     guard let data = photo.fileDataRepresentation() else {
       throw RuntimeError.error(withMessage: "Failed to get file data representation of Photo!")
     }
-    guard let url = URL(string: path) else {
-      throw RuntimeError.error(withMessage: "The given path \"\(path)\" is not a valid URL!")
-    }
+    let url = URL(fileURLWithPath: path)
     try data.write(to: url)
   }
 
@@ -128,7 +126,7 @@ final class HybridPhoto: HybridPhotoSpec, NativePhoto {
       // 1. Create temp path
       let fileType = try self.containerFormat.toUTType()
       let file = try URL.createTempURL(fileType: fileType)
-      let path = file.absoluteString
+      let path = file.path
       // 2. Save image
       try self.saveImage(to: path)
       // 3. Return path

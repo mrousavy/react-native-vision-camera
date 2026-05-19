@@ -53,7 +53,7 @@ class HybridVideoRecorder: HybridRecorderSpec {
     return Double(videoOutput.recordedFileSize)
   }
   var filePath: String {
-    return fileURL.absoluteString
+    return fileURL.path
   }
 
   func startRecording(
@@ -96,7 +96,7 @@ class HybridVideoRecorder: HybridRecorderSpec {
             return
           }
           // Recording finished!
-          onRecordingFinished(url.absoluteString, reason)
+          onRecordingFinished(url.path, reason)
         },
         onRecordingError: { error in
           if !isResolved {

@@ -88,7 +88,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
   }
 
   var filePath: String {
-    return fileURL.absoluteString
+    return fileURL.path
   }
 
   func initializeVideoTrack(withSettings settings: [String: Any]) throws {

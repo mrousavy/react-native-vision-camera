@@ -62,7 +62,7 @@ export interface Recorder
    * Start the Video recording to a temporary file.
    *
    * This Promise resolves once the Recording has been successfully started,
-   * and returns the temporary file URL it is currently recording to.
+   * and returns the temporary file path it is currently recording to.
    * @param onRecordingFinished Called when the Recording has successfully finished
    * via a {@linkcode stopRecording | stopRecording()} call, or when the max
    * duration/file-size has been reached. See {@linkcode RecordingFinishedReason}
