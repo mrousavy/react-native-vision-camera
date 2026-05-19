@@ -645,7 +645,7 @@ describe('VisionCamera - Coordinates', () => {
 
       if (r.orientation === 'up') {
         console.log(
-          '[SKIP] #3878 rectangle projection: frame orientation is up',
+          '[SKIP] oriented rectangle projection: frame orientation is up',
         )
         return
       }
@@ -657,7 +657,7 @@ describe('VisionCamera - Coordinates', () => {
       }
 
       console.log(
-        `#3878 rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
+        `oriented rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
       )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
