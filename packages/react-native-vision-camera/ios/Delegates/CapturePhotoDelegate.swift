@@ -18,21 +18,6 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let callbacks: CapturePhotoCallbacks
   private var didResolve = false
 
-  private func reportUnsupportedCallback(_ callbackName: String, error: (any Error)? = nil) {
-    let message = "\(callbackName) is not supported by VisionCamera yet."
-    if let error {
-      logger.error("\(message) Error: \(error)")
-    } else {
-      logger.error("\(message)")
-    }
-    assertionFailure(message)
-
-    if !didResolve {
-      onError(error ?? RuntimeError.error(withMessage: message))
-      didResolve = true
-    }
-  }
-
   init(
     onCaptured: @escaping (AVCapturePhoto, MediaSampleMetadata) -> Void,
     onError: @escaping (any Error) -> Void,
@@ -110,7 +95,9 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?,
     error: (any Error)?
   ) {
-    reportUnsupportedCallback("didFinishCapturingDeferredPhotoProxy", error: error)
+    logger.warning(
+      "AVCapturePhotoCaptureDelegate.didFinishCapturingDeferredPhotoProxy was called, but is not implemented by VisionCamera."
+    )
   }
 
   func photoOutput(
@@ -118,7 +105,9 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL,
     resolvedSettings: AVCaptureResolvedPhotoSettings
   ) {
-    reportUnsupportedCallback("didFinishRecordingLivePhotoMovieForEventualFileAt")
+    logger.warning(
+      "AVCapturePhotoCaptureDelegate.didFinishRecordingLivePhotoMovieForEventualFileAt was called, but is not implemented by VisionCamera."
+    )
   }
 
   func photoOutput(
@@ -126,6 +115,8 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings,
     error: (any Error)?
   ) {
-    reportUnsupportedCallback("didFinishProcessingLivePhotoToMovieFileAt", error: error)
+    logger.warning(
+      "AVCapturePhotoCaptureDelegate.didFinishProcessingLivePhotoToMovieFileAt was called, but is not implemented by VisionCamera."
+    )
   }
 }
