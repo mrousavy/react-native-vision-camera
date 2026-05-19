@@ -7,7 +7,6 @@
 
 import AVFoundation
 import Foundation
-import NitroModules
 
 final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   // Statically cache delegates because the AVCaptureOutput only captures them weakly
@@ -95,28 +94,6 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?,
     error: (any Error)?
   ) {
-    logger.warning(
-      "AVCapturePhotoCaptureDelegate.didFinishCapturingDeferredPhotoProxy was called, but is not implemented by VisionCamera."
-    )
-  }
-
-  func photoOutput(
-    _ output: AVCapturePhotoOutput,
-    didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL,
-    resolvedSettings: AVCaptureResolvedPhotoSettings
-  ) {
-    logger.warning(
-      "AVCapturePhotoCaptureDelegate.didFinishRecordingLivePhotoMovieForEventualFileAt was called, but is not implemented by VisionCamera."
-    )
-  }
-
-  func photoOutput(
-    _ output: AVCapturePhotoOutput, didFinishProcessingLivePhotoToMovieFileAt outputFileURL: URL,
-    duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings,
-    error: (any Error)?
-  ) {
-    logger.warning(
-      "AVCapturePhotoCaptureDelegate.didFinishProcessingLivePhotoToMovieFileAt was called, but is not implemented by VisionCamera."
-    )
+    logger.warning("didFinishCapturingDeferredPhotoProxy is not implemented!")
   }
 }
