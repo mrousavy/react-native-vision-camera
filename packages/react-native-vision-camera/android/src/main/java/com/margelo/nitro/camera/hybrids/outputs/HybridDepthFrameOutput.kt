@@ -46,7 +46,7 @@ class HybridDepthFrameOutput(
       field = value
       updateAnalyzer()
     }
-  private var onFrame: ((HybridDepthSpec) -> Boolean)? = null
+  private var onDepthFrame: ((HybridDepthSpec) -> Boolean)? = null
     set(value) {
       field = value
       updateAnalyzer()
@@ -85,13 +85,13 @@ class HybridDepthFrameOutput(
   }
 
   /**
-   * Sets or removes the ImageAnalyzer, depending on `onFrame`.
+   * Sets or removes the ImageAnalyzer, depending on `onDepthFrame`.
    */
   private fun updateAnalyzer() {
     val imageAnalysis = imageAnalysis ?: return
-    val onFrame = onFrame
+    val onDepthFrame = this.onDepthFrame
 
-    if (onFrame != null) {
+    if (onDepthFrame != null) {
       imageAnalysis.setAnalyzer(executor) { image ->
         // This represents the Image's orientation relative to the
         // Frame Output. If `enablePhysicalBufferRotation` is true,
@@ -101,7 +101,7 @@ class HybridDepthFrameOutput(
         val orientation = image.orientation
         val isMirrored = mirrorMode == MirrorMode.ON
         val frame = HybridDepthFrame(image, orientation, isMirrored)
-        onFrame(frame)
+        onDepthFrame(frame)
       }
     } else {
       imageAnalysis.clearAnalyzer()
@@ -110,7 +110,7 @@ class HybridDepthFrameOutput(
 
   override fun setOnDepthFrameCallback(onDepthFrame: ((HybridDepthSpec) -> Boolean)?) {
     require(executor.isRunningOnExecutor) { "setOnDepthFrameCallback(...) must be called on the DepthFrameOutput's `thread`!" }
-    this.onFrame = onFrame
+    this.onDepthFrame = onDepthFrame
   }
 
   override fun setOnDepthFrameDroppedCallback(onDepthFrameDropped: ((FrameDroppedReason) -> Unit)?) {
