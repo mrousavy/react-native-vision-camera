@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import NitroModules
 
 final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   // Statically cache delegates because the AVCaptureOutput only captures them weakly
@@ -16,6 +17,21 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let onError: (any Error) -> Void
   private let callbacks: CapturePhotoCallbacks
   private var didResolve = false
+
+  private func reportUnsupportedCallback(_ callbackName: String, error: (any Error)? = nil) {
+    let message = "\(callbackName) is not supported by VisionCamera yet."
+    if let error {
+      logger.error("\(message) Error: \(error)")
+    } else {
+      logger.error("\(message)")
+    }
+    assertionFailure(message)
+
+    if !didResolve {
+      onError(error ?? RuntimeError.error(withMessage: message))
+      didResolve = true
+    }
+  }
 
   init(
     onCaptured: @escaping (AVCapturePhoto, MediaSampleMetadata) -> Void,
@@ -94,7 +110,7 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?,
     error: (any Error)?
   ) {
-    fatalError("didFinishCapturingDeferredPhotoProxy: is not yet implemented!")
+    reportUnsupportedCallback("didFinishCapturingDeferredPhotoProxy", error: error)
   }
 
   func photoOutput(
@@ -102,7 +118,7 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL,
     resolvedSettings: AVCaptureResolvedPhotoSettings
   ) {
-    fatalError("didFinishRecordingLivePhotoMovieForEventualFileAt: is not yet implemented!")
+    reportUnsupportedCallback("didFinishRecordingLivePhotoMovieForEventualFileAt")
   }
 
   func photoOutput(
@@ -110,6 +126,6 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings,
     error: (any Error)?
   ) {
-    fatalError("didFinishProcessingLivePhotoToMovieFileAt: is not yet implemented!")
+    reportUnsupportedCallback("didFinishProcessingLivePhotoToMovieFileAt", error: error)
   }
 }
