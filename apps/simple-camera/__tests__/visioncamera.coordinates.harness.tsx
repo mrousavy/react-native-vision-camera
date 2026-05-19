@@ -534,7 +534,7 @@ describe('VisionCamera - Coordinates', () => {
   // image space, while Frame.convertFramePointToCameraPoint consumes raw
   // buffer-space points. The center-only test above cannot catch an
   // off-center rectangle drifting after orientation is applied.
-  // See mrousavy/react-native-vision-camera#3878 for one overlay example.
+  // See https://github.com/mrousavy/react-native-vision-camera/pull/3878.
   it('maps oriented Frame rectangles into the same Camera bounds', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
