@@ -147,6 +147,7 @@ export interface RecorderSettings {
    * The absolute path (including file name and extension) where
    * the recording file should be written to, or `undefined` to
    * create a file in the device's temporary directory.
+   * Pass a filesystem path, not a `file://` URL.
    *
    * All parent directories in this {@linkcode filePath} will
    * be automatically created if they do not yet exist.
@@ -232,6 +233,8 @@ export interface CameraVideoOutput extends CameraOutput {
    *
    * The {@linkcode Recorder} will record to the configured
    * file path, or to a temporary file if no path was provided.
+   * The {@linkcode Recorder}'s file paths are filesystem paths,
+   * not `file://` URLs.
    * It can only record once.
    *
    * If you want to create a second recording,

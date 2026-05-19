@@ -55,6 +55,9 @@ export interface Recorder
   /**
    * Returns the absolute path to the file that this {@linkcode Recorder}
    * is recording- or will record- to.
+   *
+   * This is a filesystem path (for example `/var/mobile/.../video.mp4`
+   * or `/data/user/0/.../video.mp4`), not a `file://` URL.
    */
   readonly filePath: string
 
@@ -62,7 +65,10 @@ export interface Recorder
    * Start the Video recording to a temporary file.
    *
    * This Promise resolves once the Recording has been successfully started,
-   * and returns the temporary file URL it is currently recording to.
+   * and returns the temporary file path it is currently recording to.
+   *
+   * The path passed to `onRecordingFinished` is a filesystem path, not a
+   * `file://` URL.
    * @param onRecordingFinished Called when the Recording has successfully finished
    * via a {@linkcode stopRecording | stopRecording()} call, or when the max
    * duration/file-size has been reached. See {@linkcode RecordingFinishedReason}
