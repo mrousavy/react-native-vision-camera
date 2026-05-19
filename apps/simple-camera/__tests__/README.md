@@ -153,6 +153,12 @@ Assert things that require the camera to actually do work:
   `mirrorMode: 'auto'`, the resulting `Photo.isMirrored` reflects the device's
   front/back position. These cross-field invariants are exactly what types
   can't catch and what real bugs ship as.
+- **Approximate numeric values use matcher tolerances** — for coordinates,
+  dimensions, timestamps, or similar floating-point values, prefer
+  `expect(actual).toBeCloseTo(expected, digits)` over manual
+  `Math.abs(actual - expected)` assertions. The matcher is shorter, keeps the
+  expected value visible in failures, and matches the style used throughout
+  the coordinate tests.
 - **Lifecycle and listeners fire in the right order** —
   `addOnStartedListener` resolves after `start()`, `addOnStoppedListener`
   after `stop()`, recording callbacks after `recorder.stop()`. Wait on the

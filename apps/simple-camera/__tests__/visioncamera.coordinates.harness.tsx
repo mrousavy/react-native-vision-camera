@@ -651,9 +651,7 @@ describe('VisionCamera - Coordinates', () => {
       }
 
       for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
-        expect(
-          Math.abs(r.reported[edge] - r.expected[edge]),
-        ).toBeLessThanOrEqual(1)
+        expect(r.reported[edge]).toBeCloseTo(r.expected[edge], 0)
       }
 
       console.log(
