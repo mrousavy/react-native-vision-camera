@@ -106,7 +106,7 @@ jobs:
               - 'apps/simple-camera/device-farm-tests/AwsTestSpecIOS.yml'
               - 'packages/**/*.@(swift|mm)'
             shared:
-              - 'apps/simple-camera/__tests__/vision-camera.harness.ts'
+              - 'apps/simple-camera/__tests__/**'
               - 'apps/simple-camera/src/**'
               - 'apps/simple-camera/rn-harness.config.mjs'
               - 'apps/simple-camera/package.json'
