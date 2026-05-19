@@ -43,6 +43,8 @@ Tests are split by domain. Each file tests one slice of the imperative
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
 | [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts) | `Frame.convertFramePointToCameraPoint` / `convertCameraPointToFramePoint`, `PreviewView.convertViewPointToCameraPoint` / `convertCameraPointToViewPoint`, `PreviewView.createMeteringPoint`, `convertScannedObjectCoordinatesToViewCoordinates`, end-to-end Frame → Camera → View round-trip |
+| [visioncamera.nativepreviewview.harness.tsx](visioncamera.nativepreviewview.harness.tsx) | Bare `NativePreviewView` lifecycle, layout-sensitive preview regression coverage, `resizeMode`, Android `implementationMode`, gesture controllers, multi-preview mounting, `PreviewView` ref methods, Android `takeSnapshot()` dimensions |
+| [visioncamera.camera-view.harness.tsx](visioncamera.camera-view.harness.tsx) | High-level `<Camera>` preview lifecycle, layout-sensitive preview regression coverage, photo output integration, controller props, native gestures, `CameraRef` methods, Android `implementationMode` / `takeSnapshot()` dimensions |
 
 Pick the file that best matches what you're testing. If you're reproducing a
 bug that spans multiple outputs, put it in the file most central to the
@@ -293,18 +295,21 @@ If your PR fails CI, the fastest way to debug is:
 
 ## High-level components / hooks (`<Camera>`, `useCamera()`, etc.)
 
-Tests for the high-level `<Camera>` component and the `useCamera()` /
-similar React hooks are **not yet in scope here**. They'll live alongside
-the imperative tests when added — same principles, same folder.
+High-level component tests live alongside the imperative suites when the API
+surface is React rendering, layout, or component convenience behavior. Keep
+them focused: render the smallest component tree that reproduces the behavior,
+wait on real lifecycle events, and assert through the public ref or callbacks.
 
-**Exception: mounting native Hybrid views to exercise their ref methods is
-allowed.** Some imperative APIs (e.g. `PreviewView.convertViewPointToCameraPoint`,
+For layout regressions, prefer geometry and native ref assertions over golden
+screenshots. Device Farm camera feeds are not stable visual fixtures.
+
+Mounting native Hybrid views to exercise their ref methods is still allowed.
+Some imperative APIs (e.g. `PreviewView.convertViewPointToCameraPoint`,
 `PreviewView.createMeteringPoint`) can only be reached through a mounted,
 laid-out view. Those tests may `render(<NativePreviewView ... />)` from
 `react-native-harness`, capture the ref via `hybridRef`, and call the methods
-directly — see [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts)
-for the pattern. Keep the wrapper minimal: no `<Camera>`, no `useCamera()`,
-no `usePreviewOutput()` — drive the session imperatively as everywhere else
-in this folder, and only the view is rendered.
+directly — see [visioncamera.nativepreviewview.harness.tsx](visioncamera.nativepreviewview.harness.tsx)
+and [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts)
+for the imperative pattern.
 
 [react-native-harness]: https://github.com/margelo/react-native-harness
