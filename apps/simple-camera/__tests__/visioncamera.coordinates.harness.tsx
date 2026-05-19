@@ -641,7 +641,7 @@ describe('VisionCamera - Coordinates', () => {
       })
       expect(sessionError).toBe(undefined)
       const r = report
-      if (r == null) throw new Error('no box projection report')
+      if (r == null) throw new Error('no rectangle projection report')
 
       if (r.orientation === 'up') {
         console.log(
