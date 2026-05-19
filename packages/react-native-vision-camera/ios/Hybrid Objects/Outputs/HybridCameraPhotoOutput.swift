@@ -9,7 +9,7 @@ import Foundation
 import NitroImage
 import NitroModules
 
-class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
+final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
   private let options: PhotoOutputOptions
   let mediaType: MediaType = .video
   let requiresAudioInput: Bool = false

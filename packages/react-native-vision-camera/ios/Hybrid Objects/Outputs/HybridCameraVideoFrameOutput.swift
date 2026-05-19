@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOutput, RecorderDelegate {
+final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOutput, RecorderDelegate {
   private let delegate: FrameDelegate
   private let options: VideoOutputOptions
   private let queue: DispatchQueue

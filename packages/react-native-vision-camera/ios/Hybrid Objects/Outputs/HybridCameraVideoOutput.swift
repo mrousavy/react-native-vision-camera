@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
+final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
   private let queue = DispatchQueue(label: "com.margelo.camera.video")
   private let options: VideoOutputOptions
   private let fileType: RecorderFileType

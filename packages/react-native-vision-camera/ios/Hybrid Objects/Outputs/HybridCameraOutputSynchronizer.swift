@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraOutputSynchronizer: HybridCameraOutputSynchronizerSpec {
+final class HybridCameraOutputSynchronizer: HybridCameraOutputSynchronizerSpec {
   private let delegate: SynchronizedOutputDelegate
   private let queue: DispatchQueue
   private let synchronizer: AVCaptureDataOutputSynchronizer

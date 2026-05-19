@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridVideoRecorder: HybridRecorderSpec {
+final class HybridVideoRecorder: HybridRecorderSpec {
   private let videoOutput: AVCaptureMovieFileOutput
   private let queue: DispatchQueue
   private let fileURL: URL
