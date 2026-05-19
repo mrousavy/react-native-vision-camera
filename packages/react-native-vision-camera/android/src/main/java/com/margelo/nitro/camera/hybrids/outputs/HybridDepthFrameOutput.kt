@@ -119,5 +119,6 @@ class HybridDepthFrameOutput(
 
   override fun dispose() {
     super.dispose()
+    imageAnalysis?.clearAnalyzer()
   }
 }

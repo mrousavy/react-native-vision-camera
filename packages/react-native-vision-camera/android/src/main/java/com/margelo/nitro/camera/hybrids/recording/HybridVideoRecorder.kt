@@ -150,5 +150,7 @@ class HybridVideoRecorder(
 
   override fun dispose() {
     super.dispose()
+    recording?.close()
+    recording = null
   }
 }
