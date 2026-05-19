@@ -8,7 +8,7 @@ export function useMemoizedArray<T>(
   array: T[],
   maxComparisonLength: number = 10,
 ): T[] {
-  if (array.length >= maxComparisonLength) {
+  if (array.length > maxComparisonLength) {
     throw new Error(
       `useMemoizedArray: Array's length (${array.length}) is greater than maxComparisonLength (${maxComparisonLength})! Cannot compare dependencies. Increase maxComparisonLength to a greater static value, and try again.`,
     )
