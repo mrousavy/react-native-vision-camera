@@ -130,5 +130,5 @@
     "@react-native-harness/platform-apple@1.2.0-rc.1": "patches/@react-native-harness%2Fplatform-apple@1.2.0-rc.1.patch",
     "@react-native-harness/cli@1.2.0-rc.1": "patches/@react-native-harness%2Fcli@1.2.0-rc.1.patch"
   },
-  "version": "5.0.9"
+  "version": "5.0.10"
 }
