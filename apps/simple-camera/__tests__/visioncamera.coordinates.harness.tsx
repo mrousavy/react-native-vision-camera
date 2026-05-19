@@ -530,6 +530,140 @@ describe('VisionCamera - Coordinates', () => {
     }
   })
 
+  // Analyzer coordinates may be reported in the Frame's intended/oriented
+  // image space, while Frame.convertFramePointToCameraPoint consumes raw
+  // buffer-space points. The center-only test above cannot catch an
+  // off-center rectangle drifting after orientation is applied.
+  // See https://github.com/mrousavy/react-native-vision-camera/pull/3878.
+  it('maps oriented Frame rectangles into the same Camera bounds', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'yuv',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    type Bounds = {
+      left: number
+      top: number
+      right: number
+      bottom: number
+    }
+    type ProjectionReport = {
+      orientation: string
+      expected: Bounds
+      reported: Bounds
+    }
+    let report: ProjectionReport | undefined
+    const onReport = (r: ProjectionReport) => {
+      report = r
+    }
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      const w = frame.width
+      const h = frame.height
+
+      const orientedWidth =
+        frame.orientation === 'left' || frame.orientation === 'right' ? h : w
+      const orientedHeight =
+        frame.orientation === 'left' || frame.orientation === 'right' ? w : h
+      const box = {
+        left: orientedWidth * 0.34,
+        top: orientedHeight * 0.29,
+        right: orientedWidth * 0.62,
+        bottom: orientedHeight * 0.57,
+      }
+      const orientedCorners: Point[] = [
+        { x: box.left, y: box.top },
+        { x: box.right, y: box.top },
+        { x: box.right, y: box.bottom },
+        { x: box.left, y: box.bottom },
+      ]
+
+      const orientedPointToFramePoint = (point: Point): Point => {
+        switch (frame.orientation) {
+          case 'right':
+            return { x: w - point.y, y: point.x }
+          case 'left':
+            return { x: point.y, y: h - point.x }
+          case 'down':
+            return { x: w - point.x, y: h - point.y }
+          default:
+            return point
+        }
+      }
+      const getCameraBounds = (points: Point[]): Bounds => {
+        const cameraPoints = points.map((point) =>
+          frame.convertFramePointToCameraPoint(point),
+        )
+        const xs = cameraPoints.map((point) => point.x)
+        const ys = cameraPoints.map((point) => point.y)
+        return {
+          left: Math.min(...xs),
+          top: Math.min(...ys),
+          right: Math.max(...xs),
+          bottom: Math.max(...ys),
+        }
+      }
+
+      scheduleOnRN(onReport, {
+        orientation: frame.orientation,
+        expected: getCameraBounds(
+          orientedCorners.map(orientedPointToFramePoint),
+        ),
+        reported: getCameraBounds(orientedCorners),
+      })
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await waitUntil(() => report != null || sessionError != null, {
+        timeout: 15_000,
+      })
+      expect(sessionError).toBe(undefined)
+      const r = report
+      if (r == null) throw new Error('no rectangle projection report')
+
+      if (r.orientation === 'up') {
+        console.log(
+          '[SKIP] oriented rectangle projection: frame orientation is up',
+        )
+        return
+      }
+
+      for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
+        expect(r.reported[edge]).toBeCloseTo(r.expected[edge], 0)
+      }
+
+      console.log(
+        `oriented rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
+      )
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
   // TODO: Re-enable once we have a way to produce a ScannedObject without a
   //       real on-device scan (e.g. a `createMockScannedObject` factory or
   //       a CI-friendly QR fixture). On iOS, the only way to obtain a

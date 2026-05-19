@@ -153,6 +153,12 @@ Assert things that require the camera to actually do work:
   `mirrorMode: 'auto'`, the resulting `Photo.isMirrored` reflects the device's
   front/back position. These cross-field invariants are exactly what types
   can't catch and what real bugs ship as.
+- **Approximate numeric values use matcher tolerances** — for coordinates,
+  dimensions, timestamps, or similar floating-point values, prefer
+  `expect(actual).toBeCloseTo(expected, digits)` over manual
+  `Math.abs(actual - expected)` assertions. The matcher is shorter, keeps the
+  expected value visible in failures, and matches the style used throughout
+  the coordinate tests.
 - **Lifecycle and listeners fire in the right order** —
   `addOnStartedListener` resolves after `start()`, `addOnStoppedListener`
   after `stop()`, recording callbacks after `recorder.stop()`. Wait on the
@@ -200,6 +206,28 @@ camera`, `getSupportedVideoCodecs`, etc.) and Android-only features
 `if (Platform.OS !== 'ios') { console.log('[SKIP] ...: iOS only'); return }`
 guard. Do not branch on `Platform.OS` to mask behavioral differences that
 should be identical across platforms — flag those as bugs.
+
+### 9. Keep assertions compact and diagnostic
+
+Tests should read like a small executable spec for one behavior. A few patterns
+keep them simpler without making them weaker:
+
+- **Name the invariant, not the implementation detail.** Prefer local names
+  like `expectedBounds`, `reportedBounds`, `roundTripped`, or `capturedPhoto`
+  over names that describe temporary mechanics.
+- **Use matcher assertions instead of boolean arithmetic.** Prefer
+  `toBeCloseTo`, `toHaveLength`, `toContain`, `toEqual`, and
+  `rejects.toThrow` over manually computing booleans and asserting on those.
+- **Loop over repeated dimensions or cases.** For edges, axes, formats, or
+  corner points, a tiny inline array plus one expectation is clearer than four
+  copy-pasted assertions that can drift.
+- **Keep local math behind local names.** Small functions inside an `it` block
+  are fine when they name a one-off transform or assertion, such as
+  `getBounds(...)`. Do not extract shared setup helpers; the camera session
+  still needs to be built inline.
+- **Log the facts needed to debug a CI failure.** One final `console.log`
+  with orientation, resolution, or compared values is useful. Per-frame or
+  per-step logs usually make Harness output harder to read.
 
 ---
 
