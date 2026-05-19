@@ -15,3 +15,18 @@ extension Array where Element: Equatable {
     return result
   }
 }
+
+extension Array where Element: Hashable {
+  func withoutDuplicates() -> [Element] {
+    var seen = Set<Element>()
+    seen.reserveCapacity(count)
+
+    var result: [Element] = []
+    result.reserveCapacity(count)
+
+    for element in self where seen.insert(element).inserted {
+      result.append(element)
+    }
+    return result
+  }
+}
