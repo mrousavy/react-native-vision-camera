@@ -146,5 +146,6 @@ class HybridFrameOutput(
 
   override fun dispose() {
     super.dispose()
+    imageAnalysis?.clearAnalyzer()
   }
 }
