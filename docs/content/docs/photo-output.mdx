@@ -100,4 +100,6 @@ const { filePath } = await photoOutput.capturePhotoToFile(
 )
 ```
 
+`filePath` is a plain filesystem path, not a `file://` URL. If another library expects a URI, prepend `file://` at the call site.
+
 See [`CapturePhotoSettings`](/api/react-native-vision-camera/interfaces/CapturePhotoSettings) for a full list of configuration options, and [`CapturePhotoCallbacks`](/api/react-native-vision-camera/interfaces/CapturePhotoCallbacks) for a full list of callbacks for the capture method.

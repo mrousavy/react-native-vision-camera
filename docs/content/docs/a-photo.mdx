@@ -53,6 +53,8 @@ const photo = ...
 const path = await photo.saveToTemporaryFileAsync()
 ```
 
+Photo file paths are plain filesystem paths, not `file://` URLs. If another library expects a URI, prepend `file://` at the call site.
+
 #### Saving to the Camera Roll
 
 After a [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo) has been saved to a file, you can save it to the user's Camera Roll using a library like [@react-native-camera-roll/camera-roll](https://github.com/react-native-cameraroll/react-native-cameraroll) or [expo-media-library](https://docs.expo.dev/versions/latest/sdk/media-library/).

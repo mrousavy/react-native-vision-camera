@@ -154,12 +154,15 @@ export interface Photo
    * Must contain a full path name including filename
    * and extension. All parent directories must exist,
    * but the file itself must not exist.
+   * This must be a filesystem path, not a `file://` URL.
    */
   saveToFileAsync(path: string): Promise<void>
   /**
    * Asynchronously saves this {@linkcode Photo} to
    * a temporary file using this {@linkcode containerFormat},
    * and returns the path it was saved at.
+   *
+   * The returned value is a filesystem path, not a `file://` URL.
    */
   saveToTemporaryFileAsync(): Promise<string>
   /**

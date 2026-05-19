@@ -230,6 +230,7 @@ export interface CapturePhotoSettings {
 export interface PhotoFile {
   /**
    * The path of the file.
+   * This is a filesystem path, not a `file://` URL.
    */
   filePath: string
 }

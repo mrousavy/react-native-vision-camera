@@ -57,6 +57,8 @@ const interval = setInterval(() => {
 
 The [`Recorder`](/api/react-native-vision-camera/hybrid-objects/Recorder) also exposes metadata about its state - like [`isRecording`](/api/react-native-vision-camera/hybrid-objects/Recorder#isrecording), [`isPaused`](/api/react-native-vision-camera/hybrid-objects/Recorder#ispaused) and [`filePath`](/api/react-native-vision-camera/hybrid-objects/Recorder#filepath).
 
+`filePath` and the value passed to `onRecordingFinished` are plain filesystem paths instead of `file://` URLs; if another library expects a URI, prepend `file://` at the call site.
+
 ### Pausing/Resuming
 
 To pause/resume Video Recordings, use [`Recorder.pauseRecording()`](/api/react-native-vision-camera/hybrid-objects/Recorder#pauserecording)/[`Recorder.resumeRecording()`](/api/react-native-vision-camera/hybrid-objects/Recorder#resumerecording), which also fires the `onRecordingPaused`/`onRecordingResumed` callbacks previously passed to the [`Recorder.startRecording(...)`](/api/react-native-vision-camera/hybrid-objects/Recorder#startrecording) function:
