@@ -147,4 +147,8 @@ class HybridVideoRecorder(
       this.recordedFileSize = 0.0
     }
   }
+
+  override fun dispose() {
+    super.dispose()
+  }
 }

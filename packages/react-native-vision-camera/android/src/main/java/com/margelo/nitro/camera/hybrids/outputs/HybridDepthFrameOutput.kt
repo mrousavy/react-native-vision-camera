@@ -116,4 +116,8 @@ class HybridDepthFrameOutput(
   override fun setOnDepthFrameDroppedCallback(onDepthFrameDropped: ((FrameDroppedReason) -> Unit)?) {
     // TODO: CameraX does not have a way to figure out if a Frame has been dropped or not.
   }
+
+  override fun dispose() {
+    super.dispose()
+  }
 }

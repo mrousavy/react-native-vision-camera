@@ -123,4 +123,8 @@ class HybridCameraDeviceFactory(
       return null
     }
   }
+
+  override fun dispose() {
+    super.dispose()
+  }
 }
