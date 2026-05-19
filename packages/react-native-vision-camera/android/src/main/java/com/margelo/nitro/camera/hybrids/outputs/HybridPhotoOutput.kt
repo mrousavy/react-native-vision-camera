@@ -31,6 +31,7 @@ import com.margelo.nitro.camera.hybrids.instances.HybridPhoto
 import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.public.NativeLocation
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.core.resolved
 import com.margelo.nitro.image.HybridImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
