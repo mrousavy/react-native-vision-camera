@@ -73,6 +73,7 @@ class HybridBarcodeScannerOutput(
   }
 
   override fun dispose() {
+    super.dispose()
     scanner.close()
     executor.close()
   }

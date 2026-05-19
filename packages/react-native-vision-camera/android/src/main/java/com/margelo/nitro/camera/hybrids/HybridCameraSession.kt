@@ -149,6 +149,7 @@ class HybridCameraSession(
   }
 
   override fun dispose() {
+    super.dispose()
     Log.i(TAG, "Destroying CameraSession...")
     Promise.async(uiScope) {
       lifecycleOwner.destroy()
