@@ -31,12 +31,9 @@ export function useCameraSession({
   // session teardown
   useEffect(() => {
     return () => {
-      if (session == null) return
-      const unload = async () => {
-        await session.stop()
-        await session.configure([])
-      }
-      unload()
+      // remove all connections
+      session?.stop()
+      session?.configure([])
     }
   }, [session])
 
