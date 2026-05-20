@@ -287,8 +287,10 @@ describe('VisionCamera - Photo', () => {
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
       if (reported == null) throw new Error('no reported photo resolution')
-      expect(Math.min(reported.width, reported.height)).toBe(requestedShortEdge)
-      expect(Math.max(reported.width, reported.height)).toBe(requestedLongEdge)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
 
       // Prepare default settings on the Photo Output before capturing.
       // This is kinda required for max res capture on iOS as otherwise
@@ -351,8 +353,10 @@ describe('VisionCamera - Photo', () => {
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
       if (reported == null) throw new Error('no reported photo resolution')
-      expect(Math.min(reported.width, reported.height)).toBe(requestedShortEdge)
-      expect(Math.max(reported.width, reported.height)).toBe(requestedLongEdge)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
@@ -602,9 +606,11 @@ describe('VisionCamera - Photo', () => {
         case 'on':
           expect(photo.isMirrored).toBe(true)
           break
-        case 'auto':
-          expect(photo.isMirrored).toBe(backDevice.position === 'front')
+        case 'auto': {
+          const expectedMirrored = backDevice.position === 'front'
+          expect(photo.isMirrored).toBe(expectedMirrored)
           break
+        }
       }
       photo.dispose()
       await session.stop()

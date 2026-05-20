@@ -388,10 +388,12 @@ describe('VisionCamera - NativePreviewView', () => {
         'fixed NativePreviewView onPreviewStarted',
       )
 
+      const expectedWrapperX = (root.width - FIXED_PREVIEW_WIDTH) / 2
+      const expectedWrapperY = (root.height - FIXED_PREVIEW_HEIGHT) / 2
       expect(wrapper.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
       expect(wrapper.height).toBeCloseTo(FIXED_PREVIEW_HEIGHT, 0)
-      expect(wrapper.x).toBeCloseTo((root.width - FIXED_PREVIEW_WIDTH) / 2, 0)
-      expect(wrapper.y).toBeCloseTo((root.height - FIXED_PREVIEW_HEIGHT) / 2, 0)
+      expect(wrapper.x).toBeCloseTo(expectedWrapperX, 0)
+      expect(wrapper.y).toBeCloseTo(expectedWrapperY, 0)
       expect(layout.x).toBeCloseTo(0, 0)
       expect(layout.y).toBeCloseTo(0, 0)
       expect(layout.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
@@ -698,10 +700,11 @@ describe('VisionCamera - NativePreviewView', () => {
         constraints: [],
       },
     ])
-    expect(controllers.map((controller) => controller.device.id)).toEqual([
-      firstDevice.id,
-      secondDevice.id,
-    ])
+    const controllerDeviceIds = controllers.map(
+      (controller) => controller.device.id,
+    )
+    const expectedDeviceIds = [firstDevice.id, secondDevice.id]
+    expect(controllerDeviceIds).toEqual(expectedDeviceIds)
 
     const firstRef = deferred<PreviewView>()
     const secondRef = deferred<PreviewView>()

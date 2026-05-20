@@ -301,8 +301,10 @@ describe('VisionCamera - Frame', () => {
       const reported = frameOutput.currentResolution
       expect(reported).toBeDefined()
       if (reported == null) throw new Error('no reported frame resolution')
-      expect(Math.min(reported.width, reported.height)).toBe(streamedShortEdge)
-      expect(Math.max(reported.width, reported.height)).toBe(streamedLongEdge)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(streamedShortEdge)
+      expect(reportedLongEdge).toBe(streamedLongEdge)
 
       console.log(
         `max device stream res=${max.width}x${max.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,
@@ -375,8 +377,10 @@ describe('VisionCamera - Frame', () => {
       const reported = frameOutput.currentResolution
       expect(reported).toBeDefined()
       if (reported == null) throw new Error('no reported frame resolution')
-      expect(Math.min(reported.width, reported.height)).toBe(streamedShortEdge)
-      expect(Math.max(reported.width, reported.height)).toBe(streamedLongEdge)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(streamedShortEdge)
+      expect(reportedLongEdge).toBe(streamedLongEdge)
 
       console.log(
         `min device stream res=${min.width}x${min.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,

@@ -543,10 +543,12 @@ describe('VisionCamera - Camera View', () => {
     )
     expect(sessionError).toBe(undefined)
 
+    const expectedWrapperX = (root.width - FIXED_CAMERA_WIDTH) / 2
+    const expectedWrapperY = (root.height - FIXED_CAMERA_HEIGHT) / 2
     expect(wrapper.width).toBeCloseTo(FIXED_CAMERA_WIDTH, 0)
     expect(wrapper.height).toBeCloseTo(FIXED_CAMERA_HEIGHT, 0)
-    expect(wrapper.x).toBeCloseTo((root.width - FIXED_CAMERA_WIDTH) / 2, 0)
-    expect(wrapper.y).toBeCloseTo((root.height - FIXED_CAMERA_HEIGHT) / 2, 0)
+    expect(wrapper.x).toBeCloseTo(expectedWrapperX, 0)
+    expect(wrapper.y).toBeCloseTo(expectedWrapperY, 0)
     expect(camera.x).toBeCloseTo(0, 0)
     expect(camera.y).toBeCloseTo(0, 0)
     expect(camera.width).toBeCloseTo(FIXED_CAMERA_WIDTH, 0)

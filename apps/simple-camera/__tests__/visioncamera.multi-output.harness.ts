@@ -14,6 +14,9 @@ import { provider as workletsProvider } from 'react-native-vision-camera-worklet
 import { scheduleOnRN } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
 
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
+
 describe('VisionCamera - Multi-Output', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -209,9 +212,11 @@ describe('VisionCamera - Multi-Output', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
+      await sleep(500)
 
       await session.stop()
       await session.start()
+      await sleep(500)
 
       await recorder.stopRecording()
       await withTimeout(finished.promise, 15_000, 'finish')
@@ -305,6 +310,7 @@ describe('VisionCamera - Multi-Output', () => {
       const recorder = await videoOutput.createRecorder({})
       const finished = deferred()
       await recorder.startRecording(() => finished.resolve(), finished.reject)
+      await sleep(500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 15_000, 'finish')
 
@@ -398,6 +404,7 @@ describe('VisionCamera - Multi-Output', () => {
       const recorder = await secondVideoOutput.createRecorder({})
       const finished = deferred()
       await recorder.startRecording(() => finished.resolve(), finished.reject)
+      await sleep(500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 15_000, 'finish')
 
@@ -544,6 +551,7 @@ describe('VisionCamera - Multi-Output', () => {
         const recorder = await videoOutput.createRecorder({})
         const finished = deferred()
         await recorder.startRecording(() => finished.resolve(), finished.reject)
+        await sleep(500)
         await recorder.stopRecording()
         await withTimeout(finished.promise, 15_000, 'finish')
       } finally {

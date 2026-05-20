@@ -72,8 +72,10 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
-      await expect(controller.setZoom(controller.maxZoom + 1)).rejects.toThrow()
-      await expect(controller.setZoom(controller.minZoom - 1)).rejects.toThrow()
+      const tooHighZoom = controller.maxZoom + 1
+      const tooLowZoom = controller.minZoom - 1
+      await expect(controller.setZoom(tooHighZoom)).rejects.toThrow()
+      await expect(controller.setZoom(tooLowZoom)).rejects.toThrow()
     } finally {
       await session.stop()
     }
@@ -303,13 +305,15 @@ describe('VisionCamera - Controller', () => {
     try {
       // Above max — the case that catches the off-by-one in any future
       // [0, 1] -> [1, maxLevel] mapping on Android.
+      const tooHighTorchStrength = backDevice.maxTorchStrength + 1
       await expect(
-        controller.enableTorchWithStrength(backDevice.maxTorchStrength + 1),
+        controller.enableTorchWithStrength(tooHighTorchStrength),
       ).rejects.toThrow()
       // Below min — `0` on iOS triggers Apple's NSException without the
       // internal floor, and `0` on Android is outside CameraX's [1, max].
+      const tooLowTorchStrength = backDevice.minTorchStrength - 1
       await expect(
-        controller.enableTorchWithStrength(backDevice.minTorchStrength - 1),
+        controller.enableTorchWithStrength(tooLowTorchStrength),
       ).rejects.toThrow()
     } finally {
       await session.stop()
@@ -413,11 +417,13 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
+      const tooHighExposureBias = backDevice.maxExposureBias + 1
+      const tooLowExposureBias = backDevice.minExposureBias - 1
       await expect(
-        controller.setExposureBias(backDevice.maxExposureBias + 1),
+        controller.setExposureBias(tooHighExposureBias),
       ).rejects.toThrow()
       await expect(
-        controller.setExposureBias(backDevice.minExposureBias - 1),
+        controller.setExposureBias(tooLowExposureBias),
       ).rejects.toThrow()
     } finally {
       await session.stop()

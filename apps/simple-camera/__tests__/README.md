@@ -129,6 +129,8 @@ Disposing HybridObjects in JS makes the object no longer usable - any subsequent
 
 Tests must only wait on events they actually depend on (`session.addOnStartedListener`, `onRecordingFinished`, a frame counter, a `CompletableDeferred`). Sleeping a random number of milliseconds "so the camera settles" introduces flakiness and masks real regressions. If you catch yourself writing `await sleep(500)` to "make it work", treat it as a bug to fix, not a patch to keep.
 
+The exception is when elapsed wall-clock time is part of the behavior under test. Video recording tests may sleep briefly after `startRecording()` because they intentionally need the recorder to produce a non-empty clip, collect stats, exercise pause/resume over time, or observe that `cancelRecording()` does not later emit `onRecordingFinished`. Keep those sleeps short, local to the recording phase, and make the reason obvious from the surrounding test. Do not use sleeps to wait for session, preview, frame, or listener lifecycle state.
+
 ### 8. Platform guards
 
 Pure iOS-only features (`CameraObjectOutput`, `continuity camera`, `getSupportedVideoCodecs`, etc.) or Android-only features (`CameraExtension`, etc.) should start with a `if (Platform.OS !== 'ios') { console.log('[SKIP] ...: iOS only'); return }` guard. Do not branch on `Platform.OS` to mask behavioral differences that should be identical across platforms — flag those as bugs.
@@ -143,7 +145,7 @@ Tests should read like a small executable spec for one behavior. A few patterns 
 - **Name the invariant, not the implementation detail.** Prefer local names like `expectedBounds`, `reportedBounds`, `roundTripped`, or `capturedPhoto` over names that describe temporary mechanics.
 - **Use matcher assertions instead of boolean arithmetic.** Prefer `toBeCloseTo`, `toHaveLength`, `toContain`, `toEqual`, and `rejects.toThrow` over manually computing booleans inline and asserting on those - this makes it easier to read tests, especially when they fail in CI outputs.
 - **Loop over repeated dimensions or cases.** For edges, axes, formats, or corner points, a tiny inline array plus one expectation is clearer than four copy-pasted assertions that can drift.
-- **Keep local math behind local names.** Small functions inside an `it` block are fine when they name a one-off transform or assertion, such as `getBounds(...)`. Do not extract shared setup helpers; the camera session still needs to be built inline.
+- **Keep local math behind local names.** Small functions inside an `it` block are fine when they name a one-off transform or assertion, such as `getBounds(...)`. Do not put arithmetic, boolean expressions, `map(...)`, or other transformations directly inside `expect(...)`; assign them to descriptive local names first. Do not collapse multiple facts into one computed assertion like `expect(a + b).toBeGreaterThan(0)` — assert `a` and `b` separately so CI failures identify the broken value. Do not extract shared setup helpers; the camera session still needs to be built inline.
 - **Log the facts needed to debug a CI failure.** One final `console.log` with orientation, resolution, or compared values is useful. Per-frame or per-step logs usually make Harness output harder to read.
 
 ## Running the tests
