@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A [LifecycleOwner] that binds to the [context]'s lifecycle and has an additional
@@ -37,16 +38,22 @@ class CustomLifecycle(
 
   init {
     context.addLifecycleEventListener(this)
-    runOnUI {
-      moveTo(Lifecycle.State.CREATED)
+    launchOnUI {
+      if (!destroyed && lifecycleRegistry.currentState < Lifecycle.State.CREATED) {
+        moveTo(Lifecycle.State.CREATED)
+      }
     }
   }
 
-  private fun runOnUI(closure: () -> Unit) {
+  private fun launchOnUI(closure: () -> Unit) {
     uiScope.launch { closure() }
   }
 
-  fun setActive(active: Boolean) {
+  private suspend fun runOnUI(closure: () -> Unit) {
+    withContext(Dispatchers.Main.immediate) { closure() }
+  }
+
+  suspend fun setActive(active: Boolean) {
     isActive = active
     updateLifecycle()
   }
@@ -54,34 +61,45 @@ class CustomLifecycle(
   fun destroy() {
     destroyed = true
     context.removeLifecycleEventListener(this)
-    runOnUI {
+    launchOnUI {
       moveTo(Lifecycle.State.DESTROYED)
     }
   }
 
   override fun onHostResume() {
-    updateLifecycle()
+    scheduleLifecycleUpdate()
   }
 
   override fun onHostPause() {
-    updateLifecycle()
+    scheduleLifecycleUpdate()
   }
 
   override fun onHostDestroy() {
     destroy()
   }
 
-  private fun updateLifecycle() {
-    runOnUI {
-      if (destroyed) return@runOnUI
-      val newState =
-        when (context.lifecycleState) {
-          LifecycleState.BEFORE_CREATE -> Lifecycle.State.INITIALIZED
-          LifecycleState.BEFORE_RESUME -> if (isActive) Lifecycle.State.STARTED else Lifecycle.State.CREATED
-          LifecycleState.RESUMED -> if (isActive) Lifecycle.State.RESUMED else Lifecycle.State.CREATED
-        }
-      moveTo(newState)
+  private fun scheduleLifecycleUpdate() {
+    launchOnUI {
+      updateLifecycleNow()
     }
+  }
+
+  private suspend fun updateLifecycle() {
+    runOnUI {
+      updateLifecycleNow()
+    }
+  }
+
+  @UiThread
+  private fun updateLifecycleNow() {
+    if (destroyed) return
+    val newState =
+      when (context.lifecycleState) {
+        LifecycleState.BEFORE_CREATE -> Lifecycle.State.INITIALIZED
+        LifecycleState.BEFORE_RESUME -> if (isActive) Lifecycle.State.STARTED else Lifecycle.State.CREATED
+        LifecycleState.RESUMED -> if (isActive) Lifecycle.State.RESUMED else Lifecycle.State.CREATED
+      }
+    moveTo(newState)
   }
 
   @UiThread

@@ -28,7 +28,6 @@ import com.margelo.nitro.camera.session.toConfig
 import com.margelo.nitro.camera.utils.CustomLifecycle
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.core.resolved
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -139,13 +138,15 @@ class HybridCameraSession(
   }
 
   override fun start(): Promise<Unit> {
-    lifecycleOwner.setActive(true)
-    return Promise.resolved()
+    return Promise.async(uiScope) {
+      lifecycleOwner.setActive(true)
+    }
   }
 
   override fun stop(): Promise<Unit> {
-    lifecycleOwner.setActive(false)
-    return Promise.resolved()
+    return Promise.async(uiScope) {
+      lifecycleOwner.setActive(false)
+    }
   }
 
   override fun dispose() {
