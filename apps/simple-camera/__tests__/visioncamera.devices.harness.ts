@@ -3,7 +3,7 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
 } from 'react-native-vision-camera'
-import { VisionCamera } from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 describe('VisionCamera - Devices', () => {
   let factory: CameraDeviceFactory
@@ -175,6 +175,50 @@ describe('VisionCamera - Devices', () => {
       for (const device of combination) {
         expect(knownIds).toContain(device.id)
       }
+    }
+  })
+
+  it('reports supportsOutput consistently with the photoOutput.containerFormat', async () => {
+    // Cross-field invariant: `device.supportsOutput(output)` is the public
+    // upfront probe that high-level APIs (e.g. `<Camera>`) use to decide
+    // whether a given output can be attached to a device. If it returns
+    // `true`, `session.configure([{ input: device, outputs: [{ output }] }])`
+    // must succeed without throwing.
+    //
+    // Bug: today the implementation does not consider
+    // `PhotoOutputOptions.containerFormat`. On iOS front cameras DNG / RAW
+    // capture is not supported, but `supportsOutput` still returns `true`
+    // for a photo output created with `containerFormat: 'dng'`, and
+    // `session.configure(...)` then throws at session-build time.
+    const front = factory.getDefaultCamera('front')
+    expect(front).toBeDefined()
+    if (front == null) throw new Error('no front camera')
+
+    const dngPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'dng',
+      quality: 1,
+      qualityPrioritization: 'quality',
+    })
+
+    if (!front.supportsOutput(dngPhotoOutput)) {
+      console.log(
+        '[SKIP] supportsOutput dng on front: device honestly reports unsupported',
+      )
+      return
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    try {
+      await session.configure([
+        {
+          input: front,
+          outputs: [{ output: dngPhotoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+    } finally {
+      await session.stop()
     }
   })
 
