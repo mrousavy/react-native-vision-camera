@@ -177,7 +177,6 @@ describe('VisionCamera - Session', () => {
   it('registers an onError listener without throwing', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const subscription = session.addOnErrorListener(() => {})
-    expect(subscription.remove).toBeDefined()
     subscription.remove()
   })
 

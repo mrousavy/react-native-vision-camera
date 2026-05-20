@@ -582,7 +582,6 @@ describe('VisionCamera - Controller', () => {
 
     try {
       const subscription = controller.addSubjectAreaChangedListener(() => {})
-      expect(subscription.remove).toBeDefined()
       subscription.remove()
     } finally {
       await session.stop()

@@ -580,13 +580,14 @@ describe('VisionCamera - Video', () => {
 
       const reported = videoOutput.currentResolution
       expect(reported).toBeDefined()
+      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(max.width, max.height)
       const requestedLongEdge = Math.max(max.width, max.height)
-      const reportedShortEdge = Math.min(reported!.width, reported!.height)
-      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
       console.log(
-        `max device video res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height}`,
+        `max device video res=${max.width}x${max.height} reported=${reported.width}x${reported.height}`,
       )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
@@ -622,13 +623,14 @@ describe('VisionCamera - Video', () => {
 
       const reported = videoOutput.currentResolution
       expect(reported).toBeDefined()
+      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(min.width, min.height)
       const requestedLongEdge = Math.max(min.width, min.height)
-      const reportedShortEdge = Math.min(reported!.width, reported!.height)
-      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
       console.log(
-        `min device video res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height}`,
+        `min device video res=${min.width}x${min.height} reported=${reported.width}x${reported.height}`,
       )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)

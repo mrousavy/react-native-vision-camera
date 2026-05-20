@@ -56,7 +56,8 @@ describe('VisionCamera - Photo', () => {
     expect(photo.isRawPhoto).toBe(false)
 
     const image = await photo.toImageAsync()
-    expect(image).toBeDefined()
+    expect(image.width).toBeGreaterThan(0)
+    expect(image.height).toBeGreaterThan(0)
     image.dispose()
     photo.dispose()
 
@@ -285,12 +286,9 @@ describe('VisionCamera - Photo', () => {
       // even take the picture.
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(
-        requestedShortEdge,
-      )
-      expect(Math.max(reported!.width, reported!.height)).toBe(
-        requestedLongEdge,
-      )
+      if (reported == null) throw new Error('no reported photo resolution')
+      expect(Math.min(reported.width, reported.height)).toBe(requestedShortEdge)
+      expect(Math.max(reported.width, reported.height)).toBe(requestedLongEdge)
 
       // Prepare default settings on the Photo Output before capturing.
       // This is kinda required for max res capture on iOS as otherwise
@@ -307,7 +305,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
@@ -352,12 +350,9 @@ describe('VisionCamera - Photo', () => {
 
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(
-        requestedShortEdge,
-      )
-      expect(Math.max(reported!.width, reported!.height)).toBe(
-        requestedLongEdge,
-      )
+      if (reported == null) throw new Error('no reported photo resolution')
+      expect(Math.min(reported.width, reported.height)).toBe(requestedShortEdge)
+      expect(Math.max(reported.width, reported.height)).toBe(requestedLongEdge)
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
@@ -366,7 +361,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)

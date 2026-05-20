@@ -69,7 +69,6 @@ describe('VisionCamera - Devices', () => {
 
   it('subscribes and unsubscribes a devices-changed listener', () => {
     const subscription = factory.addOnCameraDevicesChangedListener(() => {})
-    expect(subscription.remove).toBeDefined()
     subscription.remove()
     subscription.remove()
   })
