@@ -13,19 +13,17 @@ val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      val hardwareBuffer = image?.hardwareBuffer
-      if (hardwareBuffer != null) {
-        try {
-          return true
-        } finally {
-          // This is only a Java wrapper for the AHardwareBuffer - we need to
-          // close() it to reduce the ref count by one - this does not force
-          // destroy the native AHardwareBuffer unless it was the last ref.
-          hardwareBuffer.close()
-        }
+      image?.hardwareBuffer?.use {
+        // We have a buffer - return true
+        return true
       }
     }
-    return planes.size >= 1
+    if (planes.size >= 1) {
+      // We have CPU accessible planes
+      return true
+    }
+    // We have nothing.
+    return false
   }
 
 data class DisposableArrayBuffer(
@@ -36,8 +34,7 @@ data class DisposableArrayBuffer(
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    val hardwareBuffer = image?.hardwareBuffer
-    if (hardwareBuffer != null) {
+    image?.hardwareBuffer?.use { hardwareBuffer ->
       try {
         // Fast Path: We have a GPU-accessible Buffer
         val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
@@ -46,12 +43,6 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
         }
       } catch (e: Throwable) {
         Log.e("ImageProxy", "Failed to wrap zero-copy HardwareBuffer! Falling back to ByteBuffer copy...", e)
-      } finally {
-        // This is only a Java wrapper for the AHardwareBuffer - we need to
-        // close() it to reduce the ref count by one - this does not force
-        // destroy the native AHardwareBuffer unless it was the last ref.
-        // ArrayBuffer.wrap(..) already consumed it into native, so it's fine to close now.
-        hardwareBuffer.close()
       }
     }
   }
