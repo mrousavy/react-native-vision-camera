@@ -31,71 +31,55 @@ class CustomLifecycle(
 
   @Volatile private var isActive: Boolean = false
 
-  @Volatile private var destroyed = false
+  @Volatile private var isDestroyed = false
 
   override val lifecycle: Lifecycle
     get() = lifecycleRegistry
 
   init {
     context.addLifecycleEventListener(this)
-    launchOnUI {
-      if (!destroyed && lifecycleRegistry.currentState < Lifecycle.State.CREATED) {
-        moveTo(Lifecycle.State.CREATED)
-      }
+    uiScope.launch {
+      updateLifecycle()
     }
-  }
-
-  private fun launchOnUI(closure: () -> Unit) {
-    uiScope.launch { closure() }
-  }
-
-  private suspend fun runOnUI(closure: () -> Unit) {
-    withContext(Dispatchers.Main.immediate) { closure() }
   }
 
   suspend fun setActive(active: Boolean) {
     isActive = active
-    updateLifecycle()
+    withContext(Dispatchers.Main.immediate) {
+      updateLifecycle()
+    }
   }
 
   fun destroy() {
-    destroyed = true
+    isDestroyed = true
     context.removeLifecycleEventListener(this)
-    launchOnUI {
+    uiScope.launch {
       moveTo(Lifecycle.State.DESTROYED)
     }
   }
 
   override fun onHostResume() {
-    scheduleLifecycleUpdate()
+    uiScope.launch {
+      updateLifecycle()
+    }
   }
 
   override fun onHostPause() {
-    scheduleLifecycleUpdate()
+    uiScope.launch {
+      updateLifecycle()
+    }
   }
 
   override fun onHostDestroy() {
     destroy()
   }
 
-  private fun scheduleLifecycleUpdate() {
-    launchOnUI {
-      updateLifecycleNow()
-    }
-  }
-
-  private suspend fun updateLifecycle() {
-    runOnUI {
-      updateLifecycleNow()
-    }
-  }
-
   @UiThread
-  private fun updateLifecycleNow() {
-    if (destroyed) return
+  private fun updateLifecycle() {
+    if (isDestroyed) return
     val newState =
       when (context.lifecycleState) {
-        LifecycleState.BEFORE_CREATE -> Lifecycle.State.INITIALIZED
+        LifecycleState.BEFORE_CREATE -> Lifecycle.State.CREATED
         LifecycleState.BEFORE_RESUME -> if (isActive) Lifecycle.State.STARTED else Lifecycle.State.CREATED
         LifecycleState.RESUMED -> if (isActive) Lifecycle.State.RESUMED else Lifecycle.State.CREATED
       }
