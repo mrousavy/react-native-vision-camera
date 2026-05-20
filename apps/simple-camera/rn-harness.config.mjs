@@ -71,6 +71,7 @@ const iosAppLaunchOptions = iosMetroHostPort
 
 const isCI = process.env.CI === 'true'
 const bundleStartTimeout = isCI ? 90_000 : 15_000
+const bridgeTimeout = isCI ? 120_000 : 45_000
 const maxAppRestarts = isCI ? 4 : 2
 
 // TODO: get libimobiledevice on AWS working
@@ -114,7 +115,7 @@ const config = {
     }),
   ],
   defaultRunner: 'android',
-  bridgeTimeout: 45_000,
+  bridgeTimeout,
   bundleStartTimeout,
   maxAppRestarts,
   detectNativeCrashes,

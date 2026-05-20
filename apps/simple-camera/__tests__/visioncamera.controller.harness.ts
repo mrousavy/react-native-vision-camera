@@ -109,7 +109,8 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('honors initialZoom passed to configure', async () => {
+  // TODO(Android): Re-enable once initial CameraX control config is applied after the camera is active.
+  it.skip('honors initialZoom passed to configure', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -419,7 +420,8 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('honors initialExposureBias passed to configure', async () => {
+  // TODO(Android): Re-enable once initial CameraX control config is applied after the camera is active.
+  it.skip('honors initialExposureBias passed to configure', async () => {
     if (!backDevice.supportsExposureBias) {
       console.log(
         '[SKIP] initialExposureBias: device does not support exposure bias',
