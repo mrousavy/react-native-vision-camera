@@ -50,26 +50,24 @@ class CustomLifecycle(
     }
   }
 
+  @UiThread
   fun destroy() {
     isDestroyed = true
     context.removeLifecycleEventListener(this)
-    uiScope.launch {
-      moveTo(Lifecycle.State.DESTROYED)
-    }
+    moveTo(Lifecycle.State.DESTROYED)
   }
 
+  @UiThread
   override fun onHostResume() {
-    uiScope.launch {
-      updateLifecycle()
-    }
+    updateLifecycle()
   }
 
+  @UiThread
   override fun onHostPause() {
-    uiScope.launch {
-      updateLifecycle()
-    }
+    updateLifecycle()
   }
 
+  @UiThread
   override fun onHostDestroy() {
     destroy()
   }
