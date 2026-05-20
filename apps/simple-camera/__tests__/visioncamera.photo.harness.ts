@@ -63,6 +63,42 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
+  it('checks and reads a native Photo pixel buffer in-memory', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'native',
+      quality: 1,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+    try {
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      try {
+        expect(photo.width).toBeGreaterThan(0)
+        expect(photo.height).toBeGreaterThan(0)
+        expect(photo.hasPixelBuffer).toBe(true)
+
+        const pixelBuffer = photo.getPixelBuffer()
+        expect(pixelBuffer.byteLength).toBeGreaterThan(0)
+      } finally {
+        photo.dispose()
+      }
+    } finally {
+      await session.stop()
+    }
+  })
+
   it('saves a JPEG Photo to a temporary file after converting it to an Image', async () => {
     // Regression: on Android, `toImageAsync()` goes through CameraX's
     // `jpegImageToJpegByteArray`, which advances the JPEG plane's `ByteBuffer`

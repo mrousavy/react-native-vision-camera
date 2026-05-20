@@ -77,6 +77,85 @@ describe('VisionCamera - Frame', () => {
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
+  it('gets pixel buffers and releases native buffers from native frames', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    let buffersReceived = 0
+    let bufferError: string | undefined
+    let sessionError: Error | undefined
+    const report = (
+      hasPixelBuffer: boolean,
+      hasNativeBuffer: boolean,
+      errorMessage?: string,
+    ) => {
+      if (errorMessage != null) {
+        bufferError = errorMessage
+      } else if (hasPixelBuffer && hasNativeBuffer) {
+        buffersReceived++
+      }
+    }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      try {
+        const pixelBuffer = frame.getPixelBuffer()
+        const hasPixelBuffer = pixelBuffer.byteLength > 0
+        const nativeBuffer = frame.getNativeBuffer()
+        let hasNativeBuffer = false
+        try {
+          hasNativeBuffer = nativeBuffer.pointer !== 0n
+        } finally {
+          nativeBuffer.release()
+        }
+        scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
+      } catch (e) {
+        const message =
+          typeof e === 'object' && e != null && 'message' in e
+            ? String(e.message)
+            : `${e}`
+        scheduleOnRN(report, false, false, message)
+      } finally {
+        frame.dispose()
+      }
+    })
+
+    await session.start()
+    try {
+      await waitUntil(
+        () =>
+          buffersReceived >= 3 || bufferError != null || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(bufferError).toBe(undefined)
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+    expect(buffersReceived).toBeGreaterThanOrEqual(3)
+  })
+
   it('delivers YUV frames with planar access when streaming in yuv', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
