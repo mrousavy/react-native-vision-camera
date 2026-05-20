@@ -14,13 +14,15 @@ val ImageProxy.hasPixelBuffer: Boolean
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       val hardwareBuffer = image?.hardwareBuffer
-      try {
-        return true
-      } finally {
-        // This is only a Java wrapper for the AHardwareBuffer - we need to
-        // close() it to reduce the ref count by one - this does not force
-        // destroy the native AHardwareBuffer unless it was the last ref.
-        hardwareBuffer?.close()
+      if (hardwareBuffer != null) {
+        try {
+          return true
+        } finally {
+          // This is only a Java wrapper for the AHardwareBuffer - we need to
+          // close() it to reduce the ref count by one - this does not force
+          // destroy the native AHardwareBuffer unless it was the last ref.
+          hardwareBuffer.close()
+        }
       }
     }
     return planes.size >= 1
