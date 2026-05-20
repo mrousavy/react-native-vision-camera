@@ -168,7 +168,8 @@ jobs:
             ~/.gradle/wrapper
             apps/simple-camera/android/.gradle
             apps/simple-camera/android/app/.cxx
-          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'bun.lock') }}
+            packages/**/android/.cxx
+          key: ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'packages/**/android/**/*.gradle*', 'packages/**/android/gradle.properties', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-gradle-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-
             ${{ runner.os }}-gradle-
@@ -178,7 +179,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
-          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**/*.gradle*', 'packages/**/android/gradle.properties', 'packages/**/android/CMakeLists.txt', 'packages/**/android/src/**', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'package.json', 'bun.lock') }}
 
       - name: Build Android app
         if: steps.cache-apk-restore.outputs.cache-hit != 'true'
@@ -190,7 +191,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
-          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'bun.lock') }}
+          key: harness-android-apk-${{ env.HARNESS_ANDROID_DEVICE_ARCH }}-${{ hashFiles('apps/simple-camera/android/**/*.gradle*', 'apps/simple-camera/android/**/gradle-wrapper.properties', 'apps/simple-camera/android/app/src/**', 'packages/**/android/**/*.gradle*', 'packages/**/android/gradle.properties', 'packages/**/android/CMakeLists.txt', 'packages/**/android/src/**', 'packages/**/CMakeLists.txt', 'packages/**/*.cmake', 'packages/**/cpp/**', 'packages/**/nitrogen/generated/**', 'apps/simple-camera/package.json', 'package.json', 'bun.lock') }}
 
       - name: Verify Android app artifact
         run: test -f ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
