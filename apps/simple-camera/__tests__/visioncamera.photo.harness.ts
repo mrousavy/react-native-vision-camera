@@ -619,7 +619,7 @@ describe('VisionCamera - Photo', () => {
   it('captures a Photo from the default front camera', async () => {
     const front = factory.getDefaultCamera('front')
     expect(front).toBeDefined()
-    if (front == null) return
+    if (front == null) throw new Error('no front camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({

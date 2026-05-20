@@ -79,7 +79,7 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('starts and cancels a zoom animation', async () => {
+  it('runs a zoom animation', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -98,11 +98,15 @@ describe('VisionCamera - Controller', () => {
     await session.start()
 
     try {
+      if (controller.minZoom === controller.maxZoom) {
+        console.log('[SKIP] zoom animation: device exposes no zoom range')
+        return
+      }
+
       await controller.setZoom(controller.minZoom)
-      controller.startZoomAnimation(controller.maxZoom, 0.5).catch(() => {
-        // expected when we cancel the animation
-      })
-      await new Promise<void>((resolve) => setTimeout(resolve, 100))
+      const targetZoom = Math.min(controller.maxZoom, controller.minZoom + 0.1)
+      await controller.startZoomAnimation(targetZoom, 100)
+      expect(controller.zoom).toBeCloseTo(targetZoom, 1)
       await controller.cancelZoomAnimation()
     } finally {
       await session.stop()

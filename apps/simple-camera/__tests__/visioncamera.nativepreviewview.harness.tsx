@@ -62,10 +62,6 @@ function expectPreviewGeometry(preview: PreviewView, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
-function pointDistance(a: Point, b: Point) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-}
-
 async function expectPreviewSnapshotDimensionsToMatchLayout(
   preview: PreviewView,
   layout: Layout,
@@ -939,7 +935,15 @@ describe('VisionCamera - NativePreviewView', () => {
     if (coverTopLeft == null) throw new Error('missing cover top-left point')
     if (containTopLeft == null)
       throw new Error('missing contain top-left point')
-    expect(pointDistance(coverTopLeft, containTopLeft)).toBeGreaterThan(0.001)
+    const roundedCoverTopLeft = {
+      x: Number(coverTopLeft.x.toFixed(3)),
+      y: Number(coverTopLeft.y.toFixed(3)),
+    }
+    const roundedContainTopLeft = {
+      x: Number(containTopLeft.x.toFixed(3)),
+      y: Number(containTopLeft.y.toFixed(3)),
+    }
+    expect(roundedCoverTopLeft).not.toEqual(roundedContainTopLeft)
   })
 
   it('supports both Android preview implementation modes', async () => {

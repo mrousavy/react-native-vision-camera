@@ -70,7 +70,8 @@ describe('VisionCamera - Session', () => {
 
   it('fires onStarted/onStopped exactly once per lifecycle', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -123,7 +124,8 @@ describe('VisionCamera - Session', () => {
 
   it('stops delivering events after a listener subscription is removed', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -189,7 +191,8 @@ describe('VisionCamera - Session', () => {
 
   it('reconfigures a running session with a new output set', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -230,7 +233,8 @@ describe('VisionCamera - Session', () => {
 
   it('replaces the photo output with one of a different config while running', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const firstPhotoOutput = VisionCamera.createPhotoOutput({
@@ -295,7 +299,8 @@ describe('VisionCamera - Session', () => {
 
   it('replaces the video output with one of a different config while running', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const firstVideoOutput = VisionCamera.createVideoOutput({
@@ -324,7 +329,6 @@ describe('VisionCamera - Session', () => {
         () => firstFinished.resolve(),
         firstFinished.reject,
       )
-      await new Promise<void>((resolve) => setTimeout(resolve, 500))
       await firstRecorder.stopRecording()
       await withTimeout(firstFinished.promise, 15_000, 'first recording finish')
 
@@ -347,7 +351,6 @@ describe('VisionCamera - Session', () => {
         () => secondFinished.resolve(),
         secondFinished.reject,
       )
-      await new Promise<void>((resolve) => setTimeout(resolve, 500))
       await secondRecorder.stopRecording()
       await withTimeout(
         secondFinished.promise,
@@ -364,7 +367,8 @@ describe('VisionCamera - Session', () => {
 
   it('replaces the frame output with one of a different pixel format while running', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const yuvFrameOutput = VisionCamera.createFrameOutput({
@@ -469,7 +473,11 @@ describe('VisionCamera - Session', () => {
     }
     const back = factory.getDefaultCamera('back')
     const front = factory.getDefaultCamera('front')
-    if (back == null || front == null) return
+    expect(back).toBeDefined()
+    expect(front).toBeDefined()
+    if (back == null || front == null) {
+      throw new Error('missing default camera for multi-cam session')
+    }
 
     const session = await VisionCamera.createCameraSession(true)
     const backPhoto = VisionCamera.createPhotoOutput({

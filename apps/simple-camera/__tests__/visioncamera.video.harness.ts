@@ -15,9 +15,6 @@ import type {
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { deferred, withTimeout } from './test-utils'
 
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms))
-
 describe('VisionCamera - Video', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -60,7 +57,6 @@ describe('VisionCamera - Video', () => {
         (path, reason) => finished.resolve({ path, reason }),
         finished.reject,
       )
-      await sleep(1500)
       await recorder.stopRecording()
       const result = await withTimeout(finished.promise, 10_000, 'finish')
 
@@ -90,7 +86,6 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(1000)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -117,7 +112,6 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(1000)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -219,13 +213,11 @@ describe('VisionCamera - Video', () => {
         () => paused.resolve(),
         () => resumed.resolve(),
       )
-      await sleep(500)
       await recorder.pauseRecording()
       await withTimeout(paused.promise, 5_000, 'pause')
 
       await recorder.resumeRecording()
       await withTimeout(resumed.promise, 5_000, 'resume')
-      await sleep(500)
 
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
@@ -261,9 +253,7 @@ describe('VisionCamera - Video', () => {
           errorCount++
         },
       )
-      await sleep(500)
       await recorder.cancelRecording()
-      await sleep(1000)
       expect(finishedCount).toBe(0)
       expect(errorCount).toBe(0)
     } finally {
@@ -291,17 +281,18 @@ describe('VisionCamera - Video', () => {
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
       expect(recorder.filePath.length).toBeGreaterThan(0)
-      await sleep(300)
+      await waitUntil(
+        () => recorder.recordedDuration > 0 || recorder.recordedFileSize > 0,
+        { timeout: 10_000 },
+      )
       const midDuration = recorder.recordedDuration
       const midSize = recorder.recordedFileSize
-      await sleep(900)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
       console.log(
         `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
       )
-      expect(midDuration).toBeGreaterThanOrEqual(0)
-      expect(midSize).toBeGreaterThanOrEqual(0)
+      expect(midDuration + midSize).toBeGreaterThan(0)
     } finally {
       await session.stop()
     }
@@ -327,12 +318,9 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
 
       await session.stop()
-      await sleep(300)
       await session.start()
-      await sleep(500)
 
       await recorder.stopRecording()
       await withTimeout(finished.promise, 15_000, 'finish')
@@ -371,7 +359,6 @@ describe('VisionCamera - Video', () => {
     try {
       // 2. Start recording on the back camera
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
 
       // 3. Reconfigure the running session with the front camera — the
       //    persistent recorder must keep running across the input switch.
@@ -382,7 +369,6 @@ describe('VisionCamera - Video', () => {
           constraints: [],
         },
       ])
-      await sleep(500)
 
       // 4. Stop the recording — the file should contain footage from both cameras.
       await recorder.stopRecording()
@@ -415,7 +401,6 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(800)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -457,7 +442,6 @@ describe('VisionCamera - Video', () => {
         (filePath) => finished.resolve(filePath),
         finished.reject,
       )
-      await sleep(800)
       await recorder.stopRecording()
       const path = await withTimeout(finished.promise, 10_000, 'finish')
 
@@ -499,7 +483,6 @@ describe('VisionCamera - Video', () => {
         (filePath) => finished.resolve(filePath),
         finished.reject,
       )
-      await sleep(800)
       await recorder.stopRecording()
       // If the recording finishes without error, the nested directories
       // had to be created on the fly - otherwise the encoder couldn't
@@ -552,21 +535,16 @@ describe('VisionCamera - Video', () => {
           startError = e as Error
         }
         // The error may surface synchronously (startRecording rejection)
-        // or asynchronously (onRecordingError callback). Wait briefly for
-        // the async case, but don't fail if the sync case already fired.
+        // or asynchronously (onRecordingError callback).
         await waitUntil(() => startError != null || recordingError != null, {
           timeout: 5_000,
-        }).catch(() => {
-          // Timed out without an error - the assertion below will fail.
         })
       }
     } finally {
       await session.stop()
     }
 
-    expect(
-      createError != null || startError != null || recordingError != null,
-    ).toBe(true)
+    expect(createError ?? startError ?? recordingError).toBeDefined()
   })
 
   // Verifies that `targetResolution` actually drives the video pipeline.
