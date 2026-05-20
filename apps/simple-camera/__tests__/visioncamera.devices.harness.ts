@@ -43,7 +43,7 @@ describe('VisionCamera - Devices', () => {
   it('returns the same device when calling getCameraForId with a known id', () => {
     const first = factory.cameraDevices[0]
     expect(first).toBeDefined()
-    if (first == null) return
+    if (first == null) throw new Error('no cameras')
 
     const looked = factory.getCameraForId(first.id)
     expect(looked).toBeDefined()
@@ -59,10 +59,8 @@ describe('VisionCamera - Devices', () => {
 
   it('returns an array from getSupportedExtensions for the default back camera', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) {
-      console.log('[SKIP] getSupportedExtensions: no back device')
-      return
-    }
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
     const extensions = await factory.getSupportedExtensions(device)
     console.log(
       `back camera extensions: ${extensions.map((e) => e.type).join(', ') || '(none)'}`,
@@ -71,7 +69,6 @@ describe('VisionCamera - Devices', () => {
 
   it('subscribes and unsubscribes a devices-changed listener', () => {
     const subscription = factory.addOnCameraDevicesChangedListener(() => {})
-    expect(subscription.remove).toBeDefined()
     subscription.remove()
     subscription.remove()
   })
@@ -136,7 +133,8 @@ describe('VisionCamera - Devices', () => {
 
   it('returns non-empty getSupportedResolutions for photo/video streams on a back device', () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
     const photoResolutions = device.getSupportedResolutions('photo')
     const videoResolutions = device.getSupportedResolutions('video')
     expect(photoResolutions.length).toBeGreaterThan(0)
@@ -145,7 +143,8 @@ describe('VisionCamera - Devices', () => {
 
   it('gets and sets userPreferredCamera', () => {
     const back = factory.getDefaultCamera('back')
-    if (back == null) return
+    expect(back).toBeDefined()
+    if (back == null) throw new Error('no back camera')
     const previous = factory.userPreferredCamera
     factory.userPreferredCamera = back
     expect(factory.userPreferredCamera?.id).toBe(back.id)
