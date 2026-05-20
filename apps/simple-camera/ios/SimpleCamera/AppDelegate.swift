@@ -23,9 +23,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let launchArgJsLocation = valueForLaunchArgument("-RCT_jsLocation")
     let launchArgPackagerScheme = valueForLaunchArgument("-RCT_packager_scheme")
 
-    // react-native internally reads from UserDefaults when constructing the metro url, so we store it there.
-    // This is needed for harness e2e tests running on AWS device farm where we need to pass a custom metro ipv6.
-    // This is passed in apps/simple-camera/rn-harness.config.mjs as part of the launch args.
+    // React Native reads these UserDefaults when constructing the debug Metro URL.
+    // This is only for Harness runs on AWS Device Farm, where the physical iOS
+    // device needs a custom IPv6 Metro host passed through launch arguments from
+    // apps/simple-camera/rn-harness.config.mjs.
+    // Release builds still use the prebundled JS bundle in bundleURL(), so these
+    // values do not affect release app startup.
     if let jsLocation = launchArgJsLocation {
       defaults.set(jsLocation, forKey: "RCT_jsLocation")
     }
