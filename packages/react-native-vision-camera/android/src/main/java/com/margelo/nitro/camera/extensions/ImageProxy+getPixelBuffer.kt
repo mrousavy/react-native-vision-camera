@@ -13,7 +13,15 @@ val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      if (image?.hardwareBuffer != null) return true
+      val hardwareBuffer = image?.hardwareBuffer
+      try {
+        return true
+      } finally {
+        // This is only a Java wrapper for the AHardwareBuffer - we need to
+        // close() it to reduce the ref count by one - this does not force
+        // destroy the native AHardwareBuffer unless it was the last ref.
+        hardwareBuffer?.close()
+      }
     }
     return planes.size >= 1
   }
@@ -36,6 +44,12 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
         }
       } catch (e: Throwable) {
         Log.e("ImageProxy", "Failed to wrap zero-copy HardwareBuffer! Falling back to ByteBuffer copy...", e)
+      } finally {
+        // This is only a Java wrapper for the AHardwareBuffer - we need to
+        // close() it to reduce the ref count by one - this does not force
+        // destroy the native AHardwareBuffer unless it was the last ref.
+        // ArrayBuffer.wrap(..) already consumed it into native, so it's fine to close now.
+        hardwareBuffer.close()
       }
     }
   }

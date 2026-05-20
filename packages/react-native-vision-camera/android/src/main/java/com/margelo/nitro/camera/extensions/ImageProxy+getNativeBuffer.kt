@@ -15,14 +15,21 @@ fun ImageProxy.getNativeBuffer(): NativeBuffer {
   val hardwareBuffer =
     image?.hardwareBuffer
       ?: throw Error("Frame does not have a HardwareBuffer!")
-  val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
-  var wasReleased = false
-  val release = {
-    if (wasReleased) {
-      throw Error("Tried to release NativeBuffer twice!")
+  try {
+    val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
+    var wasReleased = false
+    val release = {
+      if (wasReleased) {
+        throw Error("Tried to release NativeBuffer twice!")
+      }
+      NativeBufferHelper.releaseHardwareBufferPointer(pointer)
+      wasReleased = true
     }
-    NativeBufferHelper.releaseHardwareBufferPointer(pointer)
-    wasReleased = true
+    NativeBuffer(pointer.toULong(), release)
+  } finally {
+    // This is only a Java wrapper for the AHardwareBuffer - we need to
+    // close() it to reduce the ref count by one - this does not force
+    // destroy the native AHardwareBuffer unless it was the last ref.
+    hardwareBuffer.close()
   }
-  return NativeBuffer(pointer.toULong(), release)
 }
