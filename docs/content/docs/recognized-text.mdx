@@ -1,0 +1,77 @@
+---
+title: Recognized Text
+description: Understanding recognized text, text blocks, lines, elements and coordinates
+---
+
+[`RecognizedText`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText) contains the text recognized by [Text Recognition](text-recognition) - either via the [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view, the Text Recognition [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput), or a [`TextRecognizer`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer) inside a Frame Processor.
+
+### Complete Text
+
+The [`text`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText#text) property contains the complete recognized text for the frame:
+
+```ts
+const result = ...
+console.log(result.text)
+```
+
+If no text is recognized, [`text`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText#text) is an empty string and [`blocks`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText#blocks) is an empty array.
+
+### Blocks, Lines and Elements
+
+[`RecognizedText`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText) keeps ML Kit's recognized text hierarchy.
+It contains [`TextBlock`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock)s, each block contains [`TextLine`](/api/react-native-vision-camera-text-recognition/interfaces/TextLine)s, and each line contains [`TextElement`](/api/react-native-vision-camera-text-recognition/interfaces/TextElement)s:
+
+```ts
+const result = ...
+
+for (const block of result.blocks) {
+  console.log(`Block: ${block.text}`)
+
+  for (const line of block.lines) {
+    console.log(`Line: ${line.text}`)
+
+    for (const element of line.elements) {
+      console.log(`Element: ${element.text}`)
+    }
+  }
+}
+```
+
+### Recognized Languages
+
+[`TextBlock`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock), [`TextLine`](/api/react-native-vision-camera-text-recognition/interfaces/TextLine), and [`TextElement`](/api/react-native-vision-camera-text-recognition/interfaces/TextElement) expose [`recognizedLanguages`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock#recognizedlanguages) as BCP-47 language codes.
+ML Kit can leave this list empty when it cannot identify a language for that piece of text:
+
+```ts
+const block = ...
+console.log(block.recognizedLanguages) // ["en"]
+```
+
+### Corner Points and Bounding Box
+
+[`TextBlock`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock), [`TextLine`](/api/react-native-vision-camera-text-recognition/interfaces/TextLine), and [`TextElement`](/api/react-native-vision-camera-text-recognition/interfaces/TextElement) expose [`boundingBox`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock#boundingbox) and [`cornerPoints`](/api/react-native-vision-camera-text-recognition/interfaces/TextBlock#cornerpoints) for their recognized text:
+
+```ts
+const block = ...
+console.log(block.boundingBox) // { left: 0.421, right: 0.278, top: 0.345, bottom: 0.597 }
+console.log(block.cornerPoints) // [{ x: 0.421, y: 0.345 }, ...]
+```
+
+#### Converting text coordinates to View coordinates
+
+When a [`TextRecognizer`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer) recognizes a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame), the recognized text coordinates are relative to that frame.
+To convert them to Preview View coordinates, first convert them to Camera coordinates using [`Frame.convertFramePointToCameraPoint(...)`](/api/react-native-vision-camera/hybrid-objects/Frame#convertframepointtocamerapoint), and then [`PreviewView.convertCameraPointToViewPoint(...)`](/api/react-native-vision-camera/interfaces/PreviewViewMethods#convertcamerapointtoviewpoint):
+
+```ts
+const result = recognizer.recognizeText(frame)
+const block = result.blocks[0]
+
+for (const textPoint of block.cornerPoints) {
+  const cameraPoint = frame.convertFramePointToCameraPoint(textPoint)
+  const viewPoint = preview.convertCameraPointToViewPoint(cameraPoint)
+  console.log(viewPoint)
+}
+```
+
+> [!TIP]
+> See ["Coordinate Systems"](coordinate-systems) for more information about Camera and Preview coordinate systems.

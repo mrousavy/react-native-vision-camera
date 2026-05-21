@@ -8,6 +8,9 @@ PODS:
     - MLKitBarcodeScanning (~> 7.0.0)
   - GoogleMLKit/MLKitCore (8.0.0):
     - MLKitCommon (~> 13.0.0)
+  - GoogleMLKit/TextRecognition (8.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognition (~> 6.0.0)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
@@ -37,6 +40,13 @@ PODS:
     - GoogleUtilities/Logger (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
+  - MLKitTextRecognition (6.0.0):
+    - MLKitCommon (~> 13.0)
+    - MLKitTextRecognitionCommon (= 5.0.0)
+    - MLKitVision (~> 9.0)
+  - MLKitTextRecognitionCommon (5.0.0):
+    - MLKitCommon (~> 13.0)
+    - MLKitVision (~> 9.0)
   - MLKitVision (9.0.0):
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
@@ -2421,6 +2431,32 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
+  - VisionCameraTextRecognition (5.0.10):
+    - GoogleMLKit/TextRecognition (= 8.0.0)
+    - hermes-engine
+    - NitroModules
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - VisionCamera
+    - Yoga
   - VisionCameraWorklets (5.0.10):
     - hermes-engine
     - NitroModules
@@ -2540,6 +2576,7 @@ DEPENDENCIES:
   - VisionCameraBarcodeScanner (from `../../../node_modules/react-native-vision-camera-barcode-scanner`)
   - VisionCameraLocation (from `../../../node_modules/react-native-vision-camera-location`)
   - VisionCameraResizer (from `../../../node_modules/react-native-vision-camera-resizer`)
+  - VisionCameraTextRecognition (from `../../../node_modules/react-native-vision-camera-text-recognition`)
   - VisionCameraWorklets (from `../../../node_modules/react-native-vision-camera-worklets`)
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2553,6 +2590,8 @@ SPEC REPOS:
     - MLImage
     - MLKitBarcodeScanning
     - MLKitCommon
+    - MLKitTextRecognition
+    - MLKitTextRecognitionCommon
     - MLKitVision
     - nanopb
     - PromisesObjC
@@ -2737,6 +2776,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native-vision-camera-location"
   VisionCameraResizer:
     :path: "../../../node_modules/react-native-vision-camera-resizer"
+  VisionCameraTextRecognition:
+    :path: "../../../node_modules/react-native-vision-camera-text-recognition"
   VisionCameraWorklets:
     :path: "../../../node_modules/react-native-vision-camera-worklets"
   Yoga:
@@ -2753,6 +2794,8 @@ SPEC CHECKSUMS:
   MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
   MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
   MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
+  MLKitTextRecognition: 072488cfd29f1726733378661881f88db74ba3dc
+  MLKitTextRecognitionCommon: 228502b9dc61ea9cfb6199ebafef3baa842e2043
   MLKitVision: fa8dea9012ac59497c79ddbe9ebf32051047ac4c
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroImage: bf3c19ea96629e5ab1665f61d720efc0df53377a
@@ -2843,6 +2886,7 @@ SPEC CHECKSUMS:
   VisionCameraBarcodeScanner: d79d90ba1468bc49c599df838b8d2e613eaf3cd4
   VisionCameraLocation: adef45c1ec427061031c3aff965c8baa8adaeff1
   VisionCameraResizer: d770ffee9d08a8fb44638ccf6f44007565ae9a96
+  VisionCameraTextRecognition: c3ffd2d62f5da447a06921826130c4c8def53cf4
   VisionCameraWorklets: be7917d60b2a42c4efba03ad2c4ad7da8d7578d2
   Yoga: 0a3b1e85da3524bdc3e0161818c8881ad363f97b
 

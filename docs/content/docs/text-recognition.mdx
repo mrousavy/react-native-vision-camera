@@ -1,0 +1,116 @@
+---
+title: Text Recognition
+description: Recognizing text with the Text Recognition view, output or plugin
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+
+Text Recognition uses [ML Kit](https://developers.google.com/ml-kit) to recognize text in Camera frames.
+It ships a simple [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view, a Text Recognizer Frame Processor Plugin, and a Text Recognition [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) via the [react-native-vision-camera-text-recognition](/api/react-native-vision-camera-text-recognition) library.
+
+Text Recognition works on both iOS and Android.
+The first version recognizes Latin-script text.
+
+> [!DEPENDENCY]
+> Text Recognition requires [react-native-vision-camera-text-recognition](/api/react-native-vision-camera-text-recognition) to be installed.
+
+### Using Text Recognition
+
+<Tabs items={["<TextRecognitionCamera /> (view)", "CameraOutput", "Frame Processor Plugin"]} groupId="text-recognition-api-style" persist>
+<Tab value="<TextRecognitionCamera /> (view)">
+The [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view recognizes text with the default rear Camera:
+
+```tsx
+function App() {
+  const isFocused = useIsFocused()
+
+  return (
+    <TextRecognitionCamera
+      style={{ flex: 1 }}
+      isActive={isFocused}
+      onTextRecognized={(result) => {
+        console.log(`Recognized text: ${result.text}`)
+      }}
+      onError={(error) => {
+        console.error(`Error recognizing text:`, error)
+      }}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="CameraOutput">
+For more control around the [`<Camera />`](/api/react-native-vision-camera/views/Camera) or [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession), create a Text Recognition [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) via [`useTextRecognitionOutput(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognitionOutput), and attach it to a session:
+
+```tsx
+function App() {
+  // [!code ++:9]
+  const textOutput = useTextRecognitionOutput({
+    onTextRecognized(result) {
+      console.log(`Recognized text: ${result.text}`)
+    },
+    onError(error) {
+      console.error(`Failed to recognize text!`, error)
+    },
+  })
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+      // [!code ++]
+      outputs={[textOutput]}
+    />
+  )
+}
+```
+</Tab>
+<Tab value="Frame Processor Plugin">
+For full control over recognition and coordinate system conversions, create a [`TextRecognizer`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer) via [`useTextRecognizer(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognizer), and call [`recognizeText(...)`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer#recognizetext) inside a Frame Processor (see ["The Frame Output"](frame-output)):
+
+```tsx
+function App() {
+  // [!code ++]
+  const recognizer = useTextRecognizer()
+  const frameOutput = useFrameOutput({
+    onFrame(frame) {
+      'worklet'
+      // [!code ++]
+      const result = recognizer.recognizeText(frame)
+      console.log(`Recognized text: ${result.text}`)
+      frame.dispose()
+    },
+  })
+
+  return (
+    <Camera
+      style={{ flex: 1 }}
+      isActive={true}
+      device="back"
+      outputs={[frameOutput]}
+    />
+  )
+}
+```
+</Tab>
+</Tabs>
+
+### Output Resolution
+
+[`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) and [`useTextRecognitionOutput(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognitionOutput) accept an [`outputResolution`](/api/react-native-vision-camera-text-recognition/interfaces/TextRecognitionOutputOptions#outputresolution) option.
+The default [`'preview'`](/api/react-native-vision-camera-text-recognition/type-aliases/TextRecognitionOutputResolution) mode prefers lower-latency preview-sized buffers.
+Use [`'full'`](/api/react-native-vision-camera-text-recognition/type-aliases/TextRecognitionOutputResolution) when small or distant text needs more detail.
+
+When you use a [`TextRecognizer`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer) inside a Frame Processor, recognition uses the input [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s resolution instead.
+
+### Recognition Results
+
+Every recognition callback returns [`RecognizedText`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText).
+The top-level [`text`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText#text) property contains the complete recognized text, and [`blocks`](/api/react-native-vision-camera-text-recognition/interfaces/RecognizedText#blocks) contains block, line, and element locations.
+For frames without recognized text, `text` is an empty string and `blocks` is an empty array.
+
+The [`TextRecognizer`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer) also exposes [`recognizeTextAsync(...)`](/api/react-native-vision-camera-text-recognition/hybrid-objects/TextRecognizer#recognizetextasync) when recognition should resolve asynchronously.
+
+> [!TIP]
+> See ["Recognized Text"](recognized-text) for more information about recognized text, languages, and coordinates.

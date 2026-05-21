@@ -37,6 +37,7 @@
     "react-native-vision-camera-location": "../../packages/react-native-vision-camera-location",
     "react-native-vision-camera-resizer": "../../packages/react-native-vision-camera-resizer",
     "react-native-vision-camera-skia": "../../packages/react-native-vision-camera-skia",
+    "react-native-vision-camera-text-recognition": "../../packages/react-native-vision-camera-text-recognition",
     "react-native-vision-camera-worklets": "../../packages/react-native-vision-camera-worklets",
     "react-native-worklets": "0.8.1"
   },

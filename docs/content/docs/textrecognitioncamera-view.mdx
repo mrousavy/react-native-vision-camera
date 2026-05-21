@@ -1,0 +1,34 @@
+---
+title: <TextRecognitionCamera />
+description: Using the <TextRecognitionCamera /> View
+---
+
+The [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view component recognizes Latin-script text using [ML Kit](https://developers.google.com/ml-kit).
+It uses the default rear Camera and forwards recognition results through [`onTextRecognized`](/api/react-native-vision-camera-text-recognition/interfaces/TextRecognitionOutputOptions#ontextrecognized).
+
+> [!DEPENDENCY]
+> The [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) requires [react-native-vision-camera-text-recognition](/api/react-native-vision-camera-text-recognition) to be installed.
+
+### Using the `<TextRecognitionCamera />`
+
+```tsx
+function App() {
+  return (
+    <TextRecognitionCamera
+      style={{ flex: 1 }}
+      isActive={true}
+      onTextRecognized={(result) => {
+        console.log(`Recognized text: ${result.text}`)
+      }}
+      onError={(error) => {
+        console.error(`Error recognizing text:`, error)
+      }}
+    />
+  )
+}
+```
+
+Use [`useTextRecognitionOutput(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognitionOutput) with your own [`<Camera />`](/api/react-native-vision-camera/views/Camera) when you need another Camera device, more outputs, or custom Preview coordinate conversions.
+
+> [!TIP]
+> See ["Text Recognition"](text-recognition) for more information.
