@@ -177,6 +177,32 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
+  it('does not leak OperationCanceledException when setTorchMode is called on an inactive session', async () => {
+    if (!backDevice.hasTorch) {
+      console.log('[SKIP] torch inactive session: device has no torch')
+      return
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+    await session.start()
+    await session.stop()
+
+    await expect(controller.setTorchMode('off')).resolves.toBeDefined()
+  })
+
   it('rejects setTorchMode on a device without a torch', async () => {
     const noTorchDevice = factory.cameraDevices.find((d) => !d.hasTorch)
     if (noTorchDevice == null) {
