@@ -53,6 +53,50 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
+  it('setZoom called between configure() and start() does not reject', async () => {
+    // Reproduces an unhandled-rejection bug surfaced by `<Camera>`'s
+    // useZoomUpdater hook on Android.
+    //
+    // useZoomUpdater (src/hooks/internal/useZoomUpdater.ts:16) calls
+    // `controller.setZoom(zoom)` synchronously inside a useEffect that runs on
+    // first mount, before the user's `<Camera isActive>` toggle has caused the
+    // session to start. The returned promise is discarded (no `.catch`), so on
+    // Android the CameraX `Camera is not active` rejection bubbles up as an
+    // Unhandled Promise Rejection that the consumer cannot intercept
+    // (`<Camera onError>` only receives `CameraRuntimeError`s).
+    //
+    // At the imperative level, the equivalent timing is: configure the
+    // session (which returns a controller), then call `controller.setZoom`
+    // before `session.start()` resolves. That call should not reject with an
+    // inactive-camera error. Either the implementation must defer the request
+    // until the controller is connected (preferred), or the rejection should
+    // be a typed, catchable runtime error.
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+
+    // setZoom issued before start(); CameraX has not reached the active
+    // state yet, so this is the moment the bug fires.
+    await expect(
+      controller.setZoom(controller.minZoom),
+    ).resolves.not.toThrow()
+
+    await session.start()
+    await session.stop()
+  })
+
   it('rejects setZoom outside the device zoom range', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
