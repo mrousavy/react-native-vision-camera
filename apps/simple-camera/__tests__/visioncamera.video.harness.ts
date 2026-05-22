@@ -415,7 +415,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(800)
+      await sleep(1500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
