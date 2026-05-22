@@ -10,9 +10,14 @@ import type {
   CameraDeviceFactory,
   FrameDroppedReason,
 } from 'react-native-vision-camera'
-import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+import {
+  CommonResolutions,
+  type Frame,
+  VisionCamera,
+} from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
+import { deferred, withTimeout } from './test-utils'
 
 describe('VisionCamera - Frame', () => {
   let factory: CameraDeviceFactory
@@ -96,64 +101,59 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    let buffersReceived = 0
-    let bufferError: string | undefined
-    let sessionError: Error | undefined
-    const report = (
-      hasPixelBuffer: boolean,
-      hasNativeBuffer: boolean,
-      errorMessage?: string,
-    ) => {
-      if (errorMessage != null) {
-        bufferError = errorMessage
-      } else if (hasPixelBuffer && hasNativeBuffer) {
-        buffersReceived++
-      }
+    const reportError = (errorMessage: string) => {
+      expect(() => {
+        throw new Error(errorMessage)
+      }).not.toThrow()
     }
     const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+      expect(() => {
+        throw error
+      }).not.toThrow()
     })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    const frames = createSynchronizable<Frame[]>([])
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const pixelBuffer = frame.getPixelBuffer()
-        const hasPixelBuffer = pixelBuffer.byteLength > 0
-        const nativeBuffer = frame.getNativeBuffer()
-        let hasNativeBuffer = false
-        try {
-          hasNativeBuffer = nativeBuffer.pointer !== 0n
-        } finally {
-          nativeBuffer.release()
+        const currentFrames = frames.getBlocking()
+        if (currentFrames.length >= 3) {
+          // We already captured 3 Frames - drop the rest.
+          frame.dispose()
+          return
         }
-        scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
+        // Capture this Frame in our array which we use later
+        frames.setBlocking([...currentFrames, frame])
       } catch (e) {
-        const message =
-          typeof e === 'object' && e != null && 'message' in e
-            ? String(e.message)
-            : `${e}`
-        scheduleOnRN(report, false, false, message)
-      } finally {
-        frame.dispose()
+        const errorMessage = String(e)
+        scheduleOnRN(reportError, errorMessage)
       }
     })
 
+    // Start streaming frames into `frames`
     await session.start()
     try {
-      await waitUntil(
-        () =>
-          buffersReceived >= 3 || bufferError != null || sessionError != null,
-        { timeout: 15_000 },
-      )
-      expect(sessionError).toBe(undefined)
-      expect(bufferError).toBe(undefined)
+      // Wait until we have streamed 3 `frames`
+      await waitUntil(() => frames.getBlocking().length >= 3, {
+        timeout: 5_000,
+      })
+      // Ensure all 3 `frames` have a PixelBuffer
+      for (const frame of frames.getBlocking()) {
+        const pixelBuffer = frame.getPixelBuffer()
+        expect(pixelBuffer.byteLength).toBeGreaterThan(0)
+        const nativeBuffer = frame.getNativeBuffer()
+        expect(nativeBuffer.pointer).not.toBe(0n)
+        nativeBuffer.release()
+      }
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
+      for (const frame of frames.getDirty()) {
+        frame.dispose()
+      }
     }
-    expect(buffersReceived).toBeGreaterThanOrEqual(3)
   })
 
   it('delivers YUV frames with planar access when streaming in yuv', async () => {
