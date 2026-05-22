@@ -1,12 +1,9 @@
 package com.margelo.nitro.camera.extensions
 
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
-import java.util.concurrent.Future
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -20,10 +17,12 @@ suspend fun <T> ListenableFuture<T>.await(): T {
   return suspendCancellableCoroutine { continuation ->
     addListener(
       {
-        try {
-          continuation.resume(getCompleted())
-        } catch (error: Throwable) {
-          continuation.resumeWithException(error)
+        if (continuation.isActive) {
+          try {
+            continuation.resume(getCompleted())
+          } catch (error: Throwable) {
+            continuation.resumeWithException(error)
+          }
         }
       },
       directExecutor,
@@ -35,22 +34,7 @@ suspend fun <T> ListenableFuture<T>.await(): T {
   }
 }
 
-suspend fun <T> Future<T>.await(): T {
-  if (this is ListenableFuture<*>) {
-    @Suppress("UNCHECKED_CAST")
-    return (this as ListenableFuture<T>).await()
-  }
-
-  if (this.isDone) {
-    return getCompleted()
-  }
-
-  return withContext(Dispatchers.Default) {
-    return@withContext getCompleted()
-  }
-}
-
-private fun <T> Future<T>.getCompleted(): T {
+private fun <T> ListenableFuture<T>.getCompleted(): T {
   return try {
     get()
   } catch (error: ExecutionException) {
