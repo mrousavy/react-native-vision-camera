@@ -1,15 +1,43 @@
 package com.margelo.nitro.camera.extensions
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.concurrent.Future
+import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
-suspend fun <T> Future<T>.await(): T {
-  if (this.isDone) {
-    // Throws if error, Throws if cancelled, returns if T
-    return this.get()
+private val directExecutor = Executor { runnable -> runnable.run() }
+
+suspend fun <T> ListenableFuture<T>.await(): T {
+  if (isDone) {
+    return getCompleted()
   }
-  return withContext(Dispatchers.Default) {
-    return@withContext get()
+
+  return suspendCancellableCoroutine { continuation ->
+    addListener(
+      {
+        if (continuation.isActive) {
+          try {
+            continuation.resume(getCompleted())
+          } catch (error: Throwable) {
+            continuation.resumeWithException(error)
+          }
+        }
+      },
+      directExecutor,
+    )
+
+    continuation.invokeOnCancellation {
+      cancel(true)
+    }
+  }
+}
+
+private fun <T> ListenableFuture<T>.getCompleted(): T {
+  return try {
+    get()
+  } catch (error: ExecutionException) {
+    throw error.cause ?: error
   }
 }
