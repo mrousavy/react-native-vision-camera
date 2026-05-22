@@ -13,7 +13,6 @@ final class HybridTextRecognitionOutput: HybridCameraOutputSpec, NativeCameraOut
   private let recognizer: TextRecognizer
   private let onTextRecognized: (_ result: RecognizedText) -> Void
   private let onError: (_ error: Error) -> Void
-  private var isRecognizing = false
   private var delegate: TextRecognitionDelegate? = nil
   private let queue: DispatchQueue
   let output: AVCaptureVideoDataOutput
@@ -44,8 +43,9 @@ final class HybridTextRecognitionOutput: HybridCameraOutputSpec, NativeCameraOut
     super.init()
 
     // set delegate
-    self.delegate = TextRecognitionDelegate(onSampleBuffer: { [weak self] buffer in
-      self?.recognize(buffer)
+    self.delegate = TextRecognitionDelegate(onSampleBuffer: {
+      [weak self] buffer, cameraPosition in
+      self?.recognize(buffer, cameraPosition: cameraPosition)
     })
     self.output.setSampleBufferDelegate(delegate, queue: queue)
     self.output.alwaysDiscardsLateVideoFrames = true
@@ -55,28 +55,23 @@ final class HybridTextRecognitionOutput: HybridCameraOutputSpec, NativeCameraOut
     }
   }
 
-  private func recognize(_ buffer: CMSampleBuffer) {
-    if isRecognizing { return }
-
+  private func recognize(
+    _ buffer: CMSampleBuffer,
+    cameraPosition: AVCaptureDevice.Position
+  ) {
     // prepare MLImage
-    isRecognizing = true
     guard let image = MLImage(sampleBuffer: buffer) else {
-      isRecognizing = false
       onError(RuntimeError.error(withMessage: "Failed to convert CMSampleBuffer to MLImage!"))
       return
     }
-    image.orientation = outputOrientation.toUIImageOrientation()
+    image.orientation = imageOrientation(cameraPosition: cameraPosition)
+
     // start recognizing
-    recognizer.process(image) { [weak self] text, error in
-      guard let self else { return }
-      self.isRecognizing = false
-      if let text {
-        self.onTextRecognized(text.toRecognizedText())
-      }
-      if let error {
-        // error
-        self.onError(error)
-      }
+    do {
+      let text = try recognizer.results(in: image)
+      onTextRecognized(text.toRecognizedText())
+    } catch {
+      onError(error)
     }
   }
 
@@ -85,5 +80,19 @@ final class HybridTextRecognitionOutput: HybridCameraOutputSpec, NativeCameraOut
       return
     }
     connection.preferredVideoStabilizationMode = .off
+  }
+
+  private func imageOrientation(cameraPosition: AVCaptureDevice.Position) -> UIImage.Orientation {
+    let isFrontCamera = cameraPosition == .front
+    switch outputOrientation {
+    case .up:
+      return isFrontCamera ? .leftMirrored : .right
+    case .right:
+      return isFrontCamera ? .downMirrored : .up
+    case .down:
+      return isFrontCamera ? .rightMirrored : .left
+    case .left:
+      return isFrontCamera ? .upMirrored : .down
+    }
   }
 }
