@@ -13,9 +13,17 @@ val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      if (image?.hardwareBuffer != null) return true
+      image?.hardwareBuffer?.use {
+        // We have a buffer - return true
+        return true
+      }
     }
-    return planes.size >= 1
+    if (planes.size >= 1) {
+      // We have CPU accessible planes
+      return true
+    }
+    // We have nothing.
+    return false
   }
 
 data class DisposableArrayBuffer(
@@ -26,8 +34,7 @@ data class DisposableArrayBuffer(
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    val hardwareBuffer = image?.hardwareBuffer
-    if (hardwareBuffer != null) {
+    image?.hardwareBuffer?.use { hardwareBuffer ->
       try {
         // Fast Path: We have a GPU-accessible Buffer
         val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)

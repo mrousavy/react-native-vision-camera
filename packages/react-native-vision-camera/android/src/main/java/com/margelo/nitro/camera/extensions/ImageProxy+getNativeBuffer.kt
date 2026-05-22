@@ -15,14 +15,16 @@ fun ImageProxy.getNativeBuffer(): NativeBuffer {
   val hardwareBuffer =
     image?.hardwareBuffer
       ?: throw Error("Frame does not have a HardwareBuffer!")
-  val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
-  var wasReleased = false
-  val release = {
-    if (wasReleased) {
-      throw Error("Tried to release NativeBuffer twice!")
+  return hardwareBuffer.use { hardwareBuffer ->
+    val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
+    var wasReleased = false
+    val release = {
+      if (wasReleased) {
+        throw Error("Tried to release NativeBuffer twice!")
+      }
+      NativeBufferHelper.releaseHardwareBufferPointer(pointer)
+      wasReleased = true
     }
-    NativeBufferHelper.releaseHardwareBufferPointer(pointer)
-    wasReleased = true
+    NativeBuffer(pointer.toULong(), release)
   }
-  return NativeBuffer(pointer.toULong(), release)
 }
