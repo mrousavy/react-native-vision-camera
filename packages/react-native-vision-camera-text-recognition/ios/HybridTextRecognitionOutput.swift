@@ -88,11 +88,11 @@ final class HybridTextRecognitionOutput: HybridCameraOutputSpec, NativeCameraOut
     case .up:
       return isFrontCamera ? .leftMirrored : .right
     case .right:
-      return isFrontCamera ? .downMirrored : .up
+      return isFrontCamera ? .upMirrored : .down
     case .down:
       return isFrontCamera ? .rightMirrored : .left
     case .left:
-      return isFrontCamera ? .upMirrored : .down
+      return isFrontCamera ? .downMirrored : .up
     }
   }
 }
