@@ -8,6 +8,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.LowLightBoostState
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.TorchState
+import com.google.common.util.concurrent.ListenableFuture
 import com.margelo.nitro.camera.CameraControllerConfiguration
 import com.margelo.nitro.camera.ExposureMode
 import com.margelo.nitro.camera.FocusMode
@@ -30,7 +31,6 @@ import com.margelo.nitro.camera.hybrids.metering.HybridMeteringPoint
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolve
 import com.margelo.nitro.core.resolved
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 class HybridCameraController(
@@ -98,7 +98,7 @@ class HybridCameraController(
 
   override fun configure(config: CameraControllerConfiguration): Promise<Unit> {
     return Promise.async {
-      val futures = mutableListOf<Future<*>>()
+      val futures = mutableListOf<ListenableFuture<*>>()
 
       // `enableLowLightBoost={...}`
       if (config.enableLowLightBoost != null) {
