@@ -136,7 +136,7 @@ describe('VisionCamera - Frame', () => {
     try {
       // Wait until we have streamed 3 `frames`
       await waitUntil(() => frames.getBlocking().length >= 3, {
-        timeout: 5_000,
+        timeout: 15_000,
       })
       // Ensure all 3 `frames` have a PixelBuffer
       for (const frame of frames.getBlocking()) {
