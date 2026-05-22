@@ -29,6 +29,8 @@ function App() {
 ```
 
 Use [`useTextRecognitionOutput(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognitionOutput) with your own [`<Camera />`](/api/react-native-vision-camera/views/Camera) when you need another Camera device, more outputs, or custom Preview coordinate conversions.
+When you use your own Camera, keep [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) set to [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource) so Text Recognition follows the physical phone orientation even if the app UI is locked.
+The [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view already uses VisionCamera's default device orientation behavior.
 
 > [!TIP]
 > See ["Text Recognition"](text-recognition) for more information.

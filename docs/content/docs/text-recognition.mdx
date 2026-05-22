@@ -60,6 +60,8 @@ function App() {
       isActive={true}
       device="back"
       // [!code ++]
+      orientationSource="device"
+      // [!code ++]
       outputs={[textOutput]}
     />
   )
@@ -88,6 +90,7 @@ function App() {
       style={{ flex: 1 }}
       isActive={true}
       device="back"
+      orientationSource="device"
       outputs={[frameOutput]}
     />
   )
@@ -95,6 +98,26 @@ function App() {
 ```
 </Tab>
 </Tabs>
+
+### Orientation
+
+Text Recognition needs the Camera's output orientation to match how the phone is physically held.
+When you attach [`useTextRecognitionOutput(...)`](/api/react-native-vision-camera-text-recognition/functions/useTextRecognitionOutput) or a Text Recognizer Frame Processor to your own [`<Camera />`](/api/react-native-vision-camera/views/Camera), keep [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) set to [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource):
+
+```tsx
+<Camera
+  isActive={true}
+  device="back"
+  orientationSource="device"
+  outputs={[textOutput]}
+/>
+```
+
+Device orientation keeps recognition aligned with the physical phone orientation even when the app UI is locked to portrait.
+The [`<TextRecognitionCamera />`](/api/react-native-vision-camera-text-recognition/views/TextRecognitionCamera) view uses VisionCamera's default device orientation behavior.
+
+> [!TIP]
+> See ["Orientation"](orientation) for more information about device, interface and custom output orientation.
 
 ### Output Resolution
 
