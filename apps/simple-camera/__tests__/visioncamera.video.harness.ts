@@ -60,7 +60,7 @@ describe('VisionCamera - Video', () => {
         (path, reason) => finished.resolve({ path, reason }),
         finished.reject,
       )
-      await sleep(1500)
+      await sleep(1_000)
       await recorder.stopRecording()
       const result = await withTimeout(finished.promise, 10_000, 'finish')
 
@@ -90,7 +90,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(1000)
+      await sleep(500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -117,7 +117,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(1000)
+      await sleep(500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -219,13 +219,13 @@ describe('VisionCamera - Video', () => {
         () => paused.resolve(),
         () => resumed.resolve(),
       )
-      await sleep(500)
+      await sleep(300)
       await recorder.pauseRecording()
       await withTimeout(paused.promise, 5_000, 'pause')
 
       await recorder.resumeRecording()
       await withTimeout(resumed.promise, 5_000, 'resume')
-      await sleep(500)
+      await sleep(300)
 
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
@@ -261,9 +261,9 @@ describe('VisionCamera - Video', () => {
           errorCount++
         },
       )
-      await sleep(500)
+      await sleep(300)
       await recorder.cancelRecording()
-      await sleep(1000)
+      await sleep(500)
       expect(finishedCount).toBe(0)
       expect(errorCount).toBe(0)
     } finally {
@@ -291,17 +291,19 @@ describe('VisionCamera - Video', () => {
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
       expect(recorder.filePath.length).toBeGreaterThan(0)
-      await sleep(300)
+      await waitUntil(
+        () => recorder.recordedDuration > 0 && recorder.recordedFileSize > 0,
+        { timeout: 10_000 },
+      )
       const midDuration = recorder.recordedDuration
       const midSize = recorder.recordedFileSize
-      await sleep(900)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
       console.log(
         `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
       )
-      expect(midDuration).toBeGreaterThanOrEqual(0)
-      expect(midSize).toBeGreaterThanOrEqual(0)
+      expect(midDuration).toBeGreaterThan(0)
+      expect(midSize).toBeGreaterThan(0)
     } finally {
       await session.stop()
     }
@@ -330,7 +332,6 @@ describe('VisionCamera - Video', () => {
       await sleep(500)
 
       await session.stop()
-      await sleep(300)
       await session.start()
       await sleep(500)
 
@@ -415,7 +416,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(1500)
+      await sleep(500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -457,7 +458,7 @@ describe('VisionCamera - Video', () => {
         (filePath) => finished.resolve(filePath),
         finished.reject,
       )
-      await sleep(800)
+      await sleep(500)
       await recorder.stopRecording()
       const path = await withTimeout(finished.promise, 10_000, 'finish')
 
@@ -499,7 +500,7 @@ describe('VisionCamera - Video', () => {
         (filePath) => finished.resolve(filePath),
         finished.reject,
       )
-      await sleep(800)
+      await sleep(500)
       await recorder.stopRecording()
       // If the recording finishes without error, the nested directories
       // had to be created on the fly - otherwise the encoder couldn't
@@ -552,21 +553,17 @@ describe('VisionCamera - Video', () => {
           startError = e as Error
         }
         // The error may surface synchronously (startRecording rejection)
-        // or asynchronously (onRecordingError callback). Wait briefly for
-        // the async case, but don't fail if the sync case already fired.
+        // or asynchronously (onRecordingError callback).
         await waitUntil(() => startError != null || recordingError != null, {
           timeout: 5_000,
-        }).catch(() => {
-          // Timed out without an error - the assertion below will fail.
         })
       }
     } finally {
       await session.stop()
     }
 
-    expect(
-      createError != null || startError != null || recordingError != null,
-    ).toBe(true)
+    const recordingFailure = createError ?? startError ?? recordingError
+    expect(recordingFailure).toBeDefined()
   })
 
   // Verifies that `targetResolution` actually drives the video pipeline.
@@ -602,13 +599,14 @@ describe('VisionCamera - Video', () => {
 
       const reported = videoOutput.currentResolution
       expect(reported).toBeDefined()
+      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(max.width, max.height)
       const requestedLongEdge = Math.max(max.width, max.height)
-      const reportedShortEdge = Math.min(reported!.width, reported!.height)
-      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
       console.log(
-        `max device video res=${max.width}x${max.height} reported=${reported!.width}x${reported!.height}`,
+        `max device video res=${max.width}x${max.height} reported=${reported.width}x${reported.height}`,
       )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
@@ -644,13 +642,14 @@ describe('VisionCamera - Video', () => {
 
       const reported = videoOutput.currentResolution
       expect(reported).toBeDefined()
+      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(min.width, min.height)
       const requestedLongEdge = Math.max(min.width, min.height)
-      const reportedShortEdge = Math.min(reported!.width, reported!.height)
-      const reportedLongEdge = Math.max(reported!.width, reported!.height)
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
       console.log(
-        `min device video res=${min.width}x${min.height} reported=${reported!.width}x${reported!.height}`,
+        `min device video res=${min.width}x${min.height} reported=${reported.width}x${reported.height}`,
       )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)

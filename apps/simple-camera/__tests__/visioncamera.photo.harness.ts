@@ -56,7 +56,8 @@ describe('VisionCamera - Photo', () => {
     expect(photo.isRawPhoto).toBe(false)
 
     const image = await photo.toImageAsync()
-    expect(image).toBeDefined()
+    expect(image.width).toBeGreaterThan(0)
+    expect(image.height).toBeGreaterThan(0)
     image.dispose()
     photo.dispose()
 
@@ -328,12 +329,11 @@ describe('VisionCamera - Photo', () => {
       // even take the picture.
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(
-        requestedShortEdge,
-      )
-      expect(Math.max(reported!.width, reported!.height)).toBe(
-        requestedLongEdge,
-      )
+      if (reported == null) throw new Error('no reported photo resolution')
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
 
       // Prepare default settings on the Photo Output before capturing.
       // This is kinda required for max res capture on iOS as otherwise
@@ -350,7 +350,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
@@ -395,12 +395,11 @@ describe('VisionCamera - Photo', () => {
 
       const reported = photoOutput.currentResolution
       expect(reported).toBeDefined()
-      expect(Math.min(reported!.width, reported!.height)).toBe(
-        requestedShortEdge,
-      )
-      expect(Math.max(reported!.width, reported!.height)).toBe(
-        requestedLongEdge,
-      )
+      if (reported == null) throw new Error('no reported photo resolution')
+      const reportedShortEdge = Math.min(reported.width, reported.height)
+      const reportedLongEdge = Math.max(reported.width, reported.height)
+      expect(reportedShortEdge).toBe(requestedShortEdge)
+      expect(reportedLongEdge).toBe(requestedLongEdge)
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
@@ -409,7 +408,7 @@ describe('VisionCamera - Photo', () => {
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
       console.log(
-        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported!.width}x${reported!.height} captured=${photo.width}x${photo.height}`,
+        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
       )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
@@ -650,9 +649,11 @@ describe('VisionCamera - Photo', () => {
         case 'on':
           expect(photo.isMirrored).toBe(true)
           break
-        case 'auto':
-          expect(photo.isMirrored).toBe(backDevice.position === 'front')
+        case 'auto': {
+          const expectedMirrored = backDevice.position === 'front'
+          expect(photo.isMirrored).toBe(expectedMirrored)
           break
+        }
       }
       photo.dispose()
       await session.stop()
@@ -662,7 +663,7 @@ describe('VisionCamera - Photo', () => {
   it('captures a Photo from the default front camera', async () => {
     const front = factory.getDefaultCamera('front')
     expect(front).toBeDefined()
-    if (front == null) return
+    if (front == null) throw new Error('no front camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({

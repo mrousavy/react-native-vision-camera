@@ -62,10 +62,6 @@ function expectPreviewGeometry(preview: PreviewView, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
-function pointDistance(a: Point, b: Point) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-}
-
 async function expectPreviewSnapshotDimensionsToMatchLayout(
   preview: PreviewView,
   layout: Layout,
@@ -392,10 +388,12 @@ describe('VisionCamera - NativePreviewView', () => {
         'fixed NativePreviewView onPreviewStarted',
       )
 
+      const expectedWrapperX = (root.width - FIXED_PREVIEW_WIDTH) / 2
+      const expectedWrapperY = (root.height - FIXED_PREVIEW_HEIGHT) / 2
       expect(wrapper.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
       expect(wrapper.height).toBeCloseTo(FIXED_PREVIEW_HEIGHT, 0)
-      expect(wrapper.x).toBeCloseTo((root.width - FIXED_PREVIEW_WIDTH) / 2, 0)
-      expect(wrapper.y).toBeCloseTo((root.height - FIXED_PREVIEW_HEIGHT) / 2, 0)
+      expect(wrapper.x).toBeCloseTo(expectedWrapperX, 0)
+      expect(wrapper.y).toBeCloseTo(expectedWrapperY, 0)
       expect(layout.x).toBeCloseTo(0, 0)
       expect(layout.y).toBeCloseTo(0, 0)
       expect(layout.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
@@ -702,10 +700,11 @@ describe('VisionCamera - NativePreviewView', () => {
         constraints: [],
       },
     ])
-    expect(controllers.map((controller) => controller.device.id)).toEqual([
-      firstDevice.id,
-      secondDevice.id,
-    ])
+    const controllerDeviceIds = controllers.map(
+      (controller) => controller.device.id,
+    )
+    const expectedDeviceIds = [firstDevice.id, secondDevice.id]
+    expect(controllerDeviceIds).toEqual(expectedDeviceIds)
 
     const firstRef = deferred<PreviewView>()
     const secondRef = deferred<PreviewView>()
@@ -939,7 +938,15 @@ describe('VisionCamera - NativePreviewView', () => {
     if (coverTopLeft == null) throw new Error('missing cover top-left point')
     if (containTopLeft == null)
       throw new Error('missing contain top-left point')
-    expect(pointDistance(coverTopLeft, containTopLeft)).toBeGreaterThan(0.001)
+    const roundedCoverTopLeft = {
+      x: Number(coverTopLeft.x.toFixed(3)),
+      y: Number(coverTopLeft.y.toFixed(3)),
+    }
+    const roundedContainTopLeft = {
+      x: Number(containTopLeft.x.toFixed(3)),
+      y: Number(containTopLeft.y.toFixed(3)),
+    }
+    expect(roundedCoverTopLeft).not.toEqual(roundedContainTopLeft)
   })
 
   it('supports both Android preview implementation modes', async () => {

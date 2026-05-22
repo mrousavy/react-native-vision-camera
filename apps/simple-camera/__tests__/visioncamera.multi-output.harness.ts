@@ -215,7 +215,6 @@ describe('VisionCamera - Multi-Output', () => {
       await sleep(500)
 
       await session.stop()
-      await sleep(300)
       await session.start()
       await sleep(500)
 
