@@ -145,6 +145,7 @@ describe('VisionCamera - Photo', () => {
 
     const path = await photo.saveToTemporaryFileAsync()
     expect(path.length).toBeGreaterThan(0)
+    expect(path).toMatch(/\.(jpeg|jpg)$/)
     photo.dispose()
 
     await session.stop()
@@ -716,6 +717,8 @@ describe('VisionCamera - Photo', () => {
     )
     expect(file1.filePath.length).toBeGreaterThan(0)
     expect(file2.filePath.length).toBeGreaterThan(0)
+    expect(file1.filePath).toMatch(/\.(jpeg|jpg)$/)
+    expect(file2.filePath).toMatch(/\.(jpeg|jpg)$/)
     expect(file1.filePath).not.toBe(file2.filePath)
 
     await session.stop()
