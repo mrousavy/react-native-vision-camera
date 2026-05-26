@@ -31,7 +31,7 @@ data class VideoDynamicRangeConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       videoDynamicRange
     ).contentDeepHashCode()
   }

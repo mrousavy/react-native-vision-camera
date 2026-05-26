@@ -31,7 +31,7 @@ data class PhotoFile(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       filePath
     ).contentDeepHashCode()
   }

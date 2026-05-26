@@ -31,7 +31,7 @@ data class PixelFormatConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       pixelFormat
     ).contentDeepHashCode()
   }

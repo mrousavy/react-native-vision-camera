@@ -55,7 +55,7 @@ data class FrameOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       targetResolution,
       enablePreviewSizedOutputBuffers,
       allowDeferredStart,

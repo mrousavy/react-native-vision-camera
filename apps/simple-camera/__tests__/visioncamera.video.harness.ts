@@ -448,7 +448,7 @@ describe('VisionCamera - Video', () => {
     // We can't hard-code `/tmp/...` because iOS app sandboxes and Android
     // app contexts both use platform-specific dynamic paths.
     const probe = await videoOutput.createRecorder({})
-    const probePath = probe.filePath.replace(/^file:\/\//, '')
+    const probePath = probe.filePath
     const tempDir = probePath.substring(0, probePath.lastIndexOf('/'))
     const ext = Platform.OS === 'ios' ? 'mov' : 'mp4'
     const customPath = `${tempDir}/visioncamera-custom-${Date.now()}.${ext}`
@@ -488,7 +488,7 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const probe = await videoOutput.createRecorder({})
-    const probePath = probe.filePath.replace(/^file:\/\//, '')
+    const probePath = probe.filePath
     const tempDir = probePath.substring(0, probePath.lastIndexOf('/'))
     const ext = Platform.OS === 'ios' ? 'mov' : 'mp4'
     // Use multiple non-existent nested folders so the test fails if the

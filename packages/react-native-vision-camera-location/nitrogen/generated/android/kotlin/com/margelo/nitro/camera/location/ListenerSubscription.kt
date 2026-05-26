@@ -35,7 +35,7 @@ data class ListenerSubscription(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       remove
     ).contentDeepHashCode()
   }

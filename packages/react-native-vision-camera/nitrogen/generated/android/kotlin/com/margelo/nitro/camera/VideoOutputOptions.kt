@@ -51,7 +51,7 @@ data class VideoOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       targetResolution,
       enableAudio,
       enablePersistentRecorder,

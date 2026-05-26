@@ -43,7 +43,7 @@ data class Rect(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       left,
       right,
       top,

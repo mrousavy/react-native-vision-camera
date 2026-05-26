@@ -59,7 +59,7 @@ data class CapturePhotoSettings(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       flashMode,
       enableShutterSound,
       enableDepthData,

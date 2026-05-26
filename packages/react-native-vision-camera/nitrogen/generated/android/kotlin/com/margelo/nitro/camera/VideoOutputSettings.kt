@@ -31,7 +31,7 @@ data class VideoOutputSettings(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       codec
     ).contentDeepHashCode()
   }

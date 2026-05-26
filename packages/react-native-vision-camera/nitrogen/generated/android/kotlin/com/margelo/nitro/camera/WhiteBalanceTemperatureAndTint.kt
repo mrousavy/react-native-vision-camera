@@ -35,7 +35,7 @@ data class WhiteBalanceTemperatureAndTint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       temperature,
       tint
     ).contentDeepHashCode()

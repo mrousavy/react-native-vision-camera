@@ -39,7 +39,7 @@ data class CameraControllerConfiguration(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       enableLowLightBoost,
       enableSmoothAutoFocus,
       enableDistortionCorrection

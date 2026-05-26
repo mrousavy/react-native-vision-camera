@@ -47,7 +47,7 @@ data class CapturePhotoCallbacks(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       onWillBeginCapture,
       onWillCapturePhoto,
       onDidCapturePhoto,

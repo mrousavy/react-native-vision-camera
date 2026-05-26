@@ -39,7 +39,7 @@ data class NativeBuffer(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       pointer,
       release
     ).contentDeepHashCode()

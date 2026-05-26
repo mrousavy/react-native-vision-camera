@@ -31,7 +31,7 @@ data class PhotoHDRConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       photoHDR
     ).contentDeepHashCode()
   }

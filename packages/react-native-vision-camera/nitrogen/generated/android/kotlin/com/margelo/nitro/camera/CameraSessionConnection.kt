@@ -55,7 +55,7 @@ data class CameraSessionConnection(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       input,
       outputs,
       constraints,

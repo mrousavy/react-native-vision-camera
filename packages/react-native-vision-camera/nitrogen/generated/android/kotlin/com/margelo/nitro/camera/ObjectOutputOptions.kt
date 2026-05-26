@@ -31,7 +31,7 @@ data class ObjectOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       enabledObjectTypes
     ).contentDeepHashCode()
   }

@@ -31,7 +31,7 @@ data class ResolutionBiasConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       resolutionBias
     ).contentDeepHashCode()
   }
