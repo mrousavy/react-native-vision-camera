@@ -39,7 +39,7 @@ data class LocationManagerOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       accuracy,
       distanceFilter,
       updateInterval

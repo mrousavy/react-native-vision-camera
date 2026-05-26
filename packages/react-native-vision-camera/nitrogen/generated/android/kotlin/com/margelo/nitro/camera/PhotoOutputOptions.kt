@@ -47,7 +47,7 @@ data class PhotoOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       targetResolution,
       containerFormat,
       quality,

@@ -39,7 +39,7 @@ data class DynamicRange(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       bitDepth,
       colorSpace,
       colorRange

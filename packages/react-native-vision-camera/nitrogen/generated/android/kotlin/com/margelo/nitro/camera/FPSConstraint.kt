@@ -31,7 +31,7 @@ data class FPSConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       fps
     ).contentDeepHashCode()
   }

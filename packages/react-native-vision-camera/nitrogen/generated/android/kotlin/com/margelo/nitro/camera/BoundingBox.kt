@@ -43,7 +43,7 @@ data class BoundingBox(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       x,
       y,
       width,

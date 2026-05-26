@@ -47,7 +47,7 @@ data class BarcodeScannerOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       barcodeFormats,
       outputResolution,
       onBarcodeScanned,

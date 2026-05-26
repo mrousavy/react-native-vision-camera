@@ -32,8 +32,8 @@
         "react": "19.2.3",
         "react-native": "0.84.0",
         "react-native-gesture-handler": "^2.30.0",
-        "react-native-nitro-image": "0.14.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-image": "0.15.0",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-reanimated": "4.3.0",
         "react-native-safe-area-context": "^5.7.0",
         "react-native-screens": "^4.24.0",
@@ -104,11 +104,11 @@
       "version": "5.0.10",
       "devDependencies": {
         "@types/react": "19.2.14",
-        "nitrogen": "0.35.6",
+        "nitrogen": "0.35.7",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-image": "0.14.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-image": "0.15.0",
+        "react-native-nitro-modules": "0.35.7",
         "typescript": "5.9.3",
       },
       "peerDependencies": {
@@ -123,10 +123,10 @@
       "version": "5.0.10",
       "devDependencies": {
         "@types/react": "19.2.14",
-        "nitrogen": "0.35.6",
+        "nitrogen": "0.35.7",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-vision-camera": "*",
         "typescript": "5.9.3",
       },
@@ -142,10 +142,10 @@
       "version": "5.0.10",
       "devDependencies": {
         "@types/react": "19.2.14",
-        "nitrogen": "0.35.6",
+        "nitrogen": "0.35.7",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-vision-camera": "*",
         "typescript": "5.9.3",
       },
@@ -161,10 +161,10 @@
       "version": "5.0.10",
       "devDependencies": {
         "@types/react": "19.2.14",
-        "nitrogen": "0.35.6",
+        "nitrogen": "0.35.7",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-vision-camera": "*",
         "typescript": "5.9.3",
       },
@@ -183,7 +183,7 @@
         "@types/react": "19.2.14",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-reanimated": "4.3.0",
         "react-native-vision-camera": "*",
         "react-native-vision-camera-worklets": "*",
@@ -205,10 +205,10 @@
       "version": "5.0.10",
       "devDependencies": {
         "@types/react": "19.2.14",
-        "nitrogen": "0.35.6",
+        "nitrogen": "0.35.7",
         "react": "19.2.3",
         "react-native": "0.84.0",
-        "react-native-nitro-modules": "0.35.6",
+        "react-native-nitro-modules": "0.35.7",
         "react-native-vision-camera": "*",
         "react-native-worklets": "0.8.1",
         "typescript": "5.9.3",
@@ -2217,7 +2217,7 @@
 
     "next-themes": ["next-themes@0.4.6", "", { "peerDependencies": { "react": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc", "react-dom": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc" } }, "sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA=="],
 
-    "nitrogen": ["nitrogen@0.35.6", "", { "dependencies": { "chalk": "^5.3.0", "react-native-nitro-modules": "^0.35.6", "ts-morph": "^27.0.0", "yargs": "^18.0.0", "zod": "^4.0.5" }, "bin": { "nitrogen": "lib/index.js" } }, "sha512-fUoyqCEQugl49L/lp/v3LceZt8jwL/gqfLhWsxRPxr1pOTnBhyrcEJ2dAJvHl10h7JxaswP6YCnVZMZmjJavKg=="],
+    "nitrogen": ["nitrogen@0.35.7", "", { "dependencies": { "chalk": "^5.3.0", "react-native-nitro-modules": "^0.35.7", "ts-morph": "^28.0.0", "yargs": "^18.0.0", "zod": "^4.0.5" }, "bin": { "nitrogen": "lib/index.js" } }, "sha512-+uXdeK1NhUfXW562qCAnN/mMzVuEUw1K58V1oelhBBQMBTZlTvfO4yTbCFX76XjOeRnbMrPosqIGSGQh3hz1MQ=="],
 
     "nocache": ["nocache@3.0.4", "", {}, "sha512-WDD0bdg9mbq6F4mRxEYcPWwfA1vxd0mrvKOyxI7Xj/atfRHVeutzuWByG//jfm4uPzp0y4Kj051EORCBSQMycw=="],
 
@@ -2403,9 +2403,9 @@
 
     "react-native-is-edge-to-edge": ["react-native-is-edge-to-edge@1.3.1", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-NIXU/iT5+ORyCc7p0z2nnlkouYKX425vuU1OEm6bMMtWWR9yvb+Xg5AZmImTKoF9abxCPqrKC3rOZsKzUYgYZA=="],
 
-    "react-native-nitro-image": ["react-native-nitro-image@0.14.0", "", { "peerDependencies": { "react": "*", "react-native": "*", "react-native-nitro-modules": "*" } }, "sha512-yLBm+SC/bdssO5XJhYOxVf6UeFfcUoRLwR1YXPJpNZyv65aHPijDg/nklJ/spAonWEl4yfPpATGSqo8mvVEjlQ=="],
+    "react-native-nitro-image": ["react-native-nitro-image@0.15.0", "", { "peerDependencies": { "react": "*", "react-native": "*", "react-native-nitro-modules": "*" } }, "sha512-amzxT/jWNXhv+C9ZqYr24JkteQDBZGlt37mx0KQdGqhiQbfGhH6f43ojXGpYY+xk8vtpfmmGAwlf60IExrLEfA=="],
 
-    "react-native-nitro-modules": ["react-native-nitro-modules@0.35.6", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-3Cb7s+O5tpZ6RdIiPOB/wi3IMfBxD6tl6VDF8gJ5zvM/BEGTWxwMMLjzmWmsYPKekdbYBznF6qp2d2SxixPy8g=="],
+    "react-native-nitro-modules": ["react-native-nitro-modules@0.35.7", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-3EiU27EmnxTlD3pAXR2OBWeDg7+9tdjKrNQOPX08rFX5hJPNIT/h1i2PjvTUieOypCGTEi9nW/SNBtK3F+4HYg=="],
 
     "react-native-reanimated": ["react-native-reanimated@4.3.0", "", { "dependencies": { "react-native-is-edge-to-edge": "^1.3.1", "semver": "^7.7.3" }, "peerDependencies": { "react": "*", "react-native": "0.81 - 0.85", "react-native-worklets": "0.8.x" } }, "sha512-HOTTPdKtddXTOsmQxDASXEwLS3lqEHrKERD3XOgzSqWJ7L3x81Pnx7mTcKx1FKdkgomMug/XSmm1C6Z7GIowxA=="],
 
@@ -3305,6 +3305,8 @@
 
     "next/postcss": ["postcss@8.4.31", "", { "dependencies": { "nanoid": "^3.3.6", "picocolors": "^1.0.0", "source-map-js": "^1.0.2" } }, "sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ=="],
 
+    "nitrogen/ts-morph": ["ts-morph@28.0.0", "", { "dependencies": { "@ts-morph/common": "~0.29.0", "code-block-writer": "^13.0.3" } }, "sha512-Wp3tnZ2bzwxyTZMtgWVzXDfm7lB1Drz+y9DmmYH/L702PQhPyVrp3pkou3yIz4qjS14GY9kcpmLiOOMvl8oG1g=="],
+
     "npm-run-path/path-key": ["path-key@4.0.0", "", {}, "sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ=="],
 
     "nypm/citty": ["citty@0.2.1", "", {}, "sha512-kEV95lFBhQgtogAPlQfJJ0WGVSokvLr/UEoFPiKKOXF7pl98HfUVUD0ejsuTCld/9xH9vogSywZ5KqHzXrZpqg=="],
@@ -3911,6 +3913,8 @@
 
     "metro/yargs/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
 
+    "nitrogen/ts-morph/@ts-morph/common": ["@ts-morph/common@0.29.0", "", { "dependencies": { "minimatch": "^10.0.1", "path-browserify": "^1.0.1", "tinyglobby": "^0.2.14" } }, "sha512-35oUmphHbJvQ/+UTwFNme/t2p3FoKiGJ5auTjjpNTop2dyREspirjMy82PLSC1pnDJ8ah1GU98hwpVt64YXQsg=="],
+
     "ora/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
 
     "pkg-dir/find-up/locate-path": ["locate-path@5.0.0", "", { "dependencies": { "p-locate": "^4.1.0" } }, "sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g=="],
@@ -4180,6 +4184,8 @@
     "metro/yargs/cliui/wrap-ansi": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
 
     "metro/yargs/string-width/emoji-regex": ["emoji-regex@8.0.0", "", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
+    "nitrogen/ts-morph/@ts-morph/common/minimatch": ["minimatch@10.2.2", "", { "dependencies": { "brace-expansion": "^5.0.2" } }, "sha512-+G4CpNBxa5MprY+04MbgOw1v7So6n5JY166pFi9KfYwT78fxScCeSNQSNzp6dpPSW2rONOps6Ocam1wFhCgoVw=="],
 
     "pkg-dir/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
 

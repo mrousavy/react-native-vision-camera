@@ -31,7 +31,7 @@ data class BarcodeScannerOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       barcodeFormats
     ).contentDeepHashCode()
   }

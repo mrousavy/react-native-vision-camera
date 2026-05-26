@@ -35,7 +35,7 @@ data class Size(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       width,
       height
     ).contentDeepHashCode()

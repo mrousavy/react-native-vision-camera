@@ -35,7 +35,7 @@ data class Point(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       x,
       y
     ).contentDeepHashCode()

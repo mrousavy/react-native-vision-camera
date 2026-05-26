@@ -35,7 +35,7 @@ data class Range(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       min,
       max
     ).contentDeepHashCode()

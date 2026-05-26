@@ -47,7 +47,7 @@ data class DepthFrameOutputOptions(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       enableFiltering,
       targetResolution,
       enablePhysicalBufferRotation,

@@ -31,7 +31,7 @@ data class BinnedConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       binned
     ).contentDeepHashCode()
   }

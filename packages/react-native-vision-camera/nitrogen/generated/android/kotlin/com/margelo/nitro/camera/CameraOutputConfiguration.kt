@@ -35,7 +35,7 @@ data class CameraOutputConfiguration(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       mirrorMode,
       output
     ).contentDeepHashCode()

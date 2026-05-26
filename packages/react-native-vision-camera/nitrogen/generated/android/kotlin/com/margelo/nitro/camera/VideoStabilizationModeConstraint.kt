@@ -31,7 +31,7 @@ data class VideoStabilizationModeConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       videoStabilizationMode
     ).contentDeepHashCode()
   }

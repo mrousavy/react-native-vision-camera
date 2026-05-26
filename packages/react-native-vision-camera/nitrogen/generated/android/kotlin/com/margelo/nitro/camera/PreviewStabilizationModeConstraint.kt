@@ -31,7 +31,7 @@ data class PreviewStabilizationModeConstraint(
   }
 
   override fun hashCode(): Int {
-    return arrayOf(
+    return arrayOf<Any?>(
       previewStabilizationMode
     ).contentDeepHashCode()
   }
