@@ -50,7 +50,8 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    expect(recorder.filePath).toMatch(/\.(mov|mp4)$/)
+    // File paths must start with "/" and end with ".mov" or ".mp4".
+    expect(recorder.filePath).toMatch(/^\/.*\.(mov|mp4)$/)
     const finished = deferred<{
       path: string
       reason: RecordingFinishedReason
@@ -67,7 +68,8 @@ describe('VisionCamera - Video', () => {
 
       expect(result.reason).toBe('stopped')
       expect(result.path.length).toBeGreaterThan(0)
-      expect(result.path).toMatch(/\.(mov|mp4)$/)
+      // File paths must start with "/" and end with ".mov" or ".mp4".
+      expect(result.path).toMatch(/^\/.*\.(mov|mp4)$/)
     } finally {
       await session.stop()
     }
