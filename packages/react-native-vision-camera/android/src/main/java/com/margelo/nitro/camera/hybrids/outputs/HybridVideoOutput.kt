@@ -150,7 +150,7 @@ class HybridVideoOutput(
           File(settings.filePath)
         } else {
           // Create .mp4 file in temp directory
-          File.createTempFile("VisionCamera_", "mp4")
+          File.createTempFile("VisionCamera_", ".mp4")
         }
       // Create all parent directories if they don't exist yet.
       file.parentFile?.mkdirs()
