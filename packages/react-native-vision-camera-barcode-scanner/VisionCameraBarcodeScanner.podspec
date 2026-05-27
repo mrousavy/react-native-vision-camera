@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   load 'nitrogen/generated/ios/VisionCameraBarcodeScanner+autolinking.rb'
   add_nitrogen_files(s)
 
-  s.dependency 'GoogleMLKit/BarcodeScanning', '8.0.0'
+  s.dependency 'GoogleMLKit/BarcodeScanning', '9.0.0'
   s.dependency 'VisionCamera'
   s.dependency 'React-jsi'
   s.dependency 'React-callinvoker'

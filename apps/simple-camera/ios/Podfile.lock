@@ -3,11 +3,11 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleMLKit/BarcodeScanning (8.0.0):
+  - GoogleMLKit/BarcodeScanning (9.0.0):
     - GoogleMLKit/MLKitCore
-    - MLKitBarcodeScanning (~> 7.0.0)
-  - GoogleMLKit/MLKitCore (8.0.0):
-    - MLKitCommon (~> 13.0.0)
+    - MLKitBarcodeScanning (~> 8.0.0)
+  - GoogleMLKit/MLKitCore (9.0.0):
+    - MLKitCommon (~> 14.0.0)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
@@ -26,23 +26,23 @@ PODS:
   - hermes-engine (250829098.0.7):
     - hermes-engine/Pre-built (= 250829098.0.7)
   - hermes-engine/Pre-built (250829098.0.7)
-  - MLImage (1.0.0-beta7)
-  - MLKitBarcodeScanning (7.0.0):
-    - MLKitCommon (~> 13.0)
-    - MLKitVision (~> 9.0)
-  - MLKitCommon (13.0.0):
+  - MLImage (1.0.0-beta8)
+  - MLKitBarcodeScanning (8.0.0):
+    - MLKitCommon (~> 14.0)
+    - MLKitVision (~> 10.0)
+  - MLKitCommon (14.0.0):
     - GoogleDataTransport (~> 10.0)
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GoogleUtilities/Logger (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-  - MLKitVision (9.0.0):
+  - MLKitVision (10.0.0):
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-    - MLImage (= 1.0.0-beta7)
-    - MLKitCommon (~> 13.0)
+    - MLImage (= 1.0.0-beta8)
+    - MLKitCommon (~> 14.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -2346,7 +2346,7 @@ PODS:
     - ReactNativeDependencies
     - Yoga
   - VisionCameraBarcodeScanner (5.0.11):
-    - GoogleMLKit/BarcodeScanning (= 8.0.0)
+    - GoogleMLKit/BarcodeScanning (= 9.0.0)
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2745,15 +2745,15 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   FBLazyVector: c12d2108050e27952983d565a232f6f7b1ad5e69
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleMLKit: ddd51d7dff36ff28defa69afedd9cdce684fd857
+  GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 338e680ddbc265eedeca6897afcdeab60e0af645
-  MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
-  MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
-  MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
-  MLKitVision: fa8dea9012ac59497c79ddbe9ebf32051047ac4c
+  MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
+  MLKitBarcodeScanning: 39de223e7b1b8a8fbf10816a536dd292d8a39343
+  MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
+  MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroImage: bba2b17c2776d4d6ae255a3949bf4ad1d77bdc8c
   NitroModules: 62af0d110a4aa4f4027e6ee18f5dea25f759ed83
@@ -2840,7 +2840,7 @@ SPEC CHECKSUMS:
   RNVectorIcons: af977c18ed27deba54ed038b439fca2911a08cfc
   RNWorklets: e72cc4f0a1ffc40ca93479b191f0f33191d0dd97
   VisionCamera: c49d44d170b1cfa2039c86a1f76c9c1b0ffb7ca2
-  VisionCameraBarcodeScanner: ac53d06ca3bf3a1eba73fd9b27fdd7926f9c3812
+  VisionCameraBarcodeScanner: fc24c9f1a09ba2abbb57e7c1d2b8084a89ae3a5e
   VisionCameraLocation: b943fcb5233dae5e35c33c3aff9757fbb0ad2068
   VisionCameraResizer: bb0383518ce068f99b8b815fc2e40a9457eec2b6
   VisionCameraWorklets: c6d8b275868895fba37a6a18aeca0d89f4753b54
