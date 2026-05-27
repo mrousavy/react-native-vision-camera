@@ -84,7 +84,7 @@ open class HybridFrameSpec_cxx {
     }
   }
 
-  
+
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -127,63 +127,77 @@ open class HybridFrameSpec_cxx {
       return self.__implementation.timestamp
     }
   }
-  
+
   public final var isValid: Bool {
     @inline(__always)
     get {
       return self.__implementation.isValid
     }
   }
-  
+
   public final var width: Double {
     @inline(__always)
     get {
       return self.__implementation.width
     }
   }
-  
+
   public final var height: Double {
     @inline(__always)
     get {
       return self.__implementation.height
     }
   }
-  
+
   public final var bytesPerRow: Double {
     @inline(__always)
     get {
       return self.__implementation.bytesPerRow
     }
   }
-  
+
   public final var pixelFormat: Int32 {
     @inline(__always)
     get {
       return self.__implementation.pixelFormat.rawValue
     }
   }
-  
+
   public final var orientation: Int32 {
     @inline(__always)
     get {
       return self.__implementation.orientation.rawValue
     }
   }
-  
+
   public final var isMirrored: Bool {
     @inline(__always)
     get {
       return self.__implementation.isMirrored
     }
   }
-  
+
   public final var isPlanar: Bool {
     @inline(__always)
     get {
       return self.__implementation.isPlanar
     }
   }
-  
+
+  public final var hasPixelBuffer: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.hasPixelBuffer
+    }
+  }
+
+  public final var hasNativeBuffer: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.hasNativeBuffer
+    }
+  }
+
   public final var cameraIntrinsicMatrix: bridge.std__optional_std__vector_double__ {
     @inline(__always)
     get {
@@ -224,7 +238,7 @@ open class HybridFrameSpec_cxx {
       return bridge.create_Result_std__vector_std__shared_ptr_HybridFramePlaneSpec___(__exceptionPtr)
     }
   }
-  
+
   @inline(__always)
   public final func getPixelBuffer() -> bridge.Result_std__shared_ptr_ArrayBuffer__ {
     do {
@@ -236,7 +250,7 @@ open class HybridFrameSpec_cxx {
       return bridge.create_Result_std__shared_ptr_ArrayBuffer__(__exceptionPtr)
     }
   }
-  
+
   @inline(__always)
   public final func getNativeBuffer() -> bridge.Result_NativeBuffer_ {
     do {
@@ -248,7 +262,7 @@ open class HybridFrameSpec_cxx {
       return bridge.create_Result_NativeBuffer_(__exceptionPtr)
     }
   }
-  
+
   @inline(__always)
   public final func convertCameraPointToFramePoint(cameraPoint: Point) -> bridge.Result_Point_ {
     do {
@@ -260,7 +274,7 @@ open class HybridFrameSpec_cxx {
       return bridge.create_Result_Point_(__exceptionPtr)
     }
   }
-  
+
   @inline(__always)
   public final func convertFramePointToCameraPoint(framePoint: Point) -> bridge.Result_Point_ {
     do {

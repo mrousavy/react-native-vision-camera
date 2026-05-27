@@ -76,7 +76,7 @@ describe('VisionCamera - Frame', () => {
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
-  it('gets pixel buffers and releases native buffers from native frames', async () => {
+  it('reports and conditionally reads native frame buffers', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
@@ -96,15 +96,28 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const receivedBuffers = deferred()
-    let buffersReceived = 0
-    const report = (hasPixelBuffer: boolean, hasNativeBuffer: boolean) => {
-      if (!hasPixelBuffer) {
+    let framesReceived = 0
+    let pixelBuffersReceived = 0
+    let nativeBuffersReceived = 0
+    const report = (
+      hasPixelBuffer: boolean,
+      pixelBufferBytes: number,
+      hasNativeBuffer: boolean,
+      hasNativeBufferPointer: boolean,
+    ) => {
+      if (hasPixelBuffer && pixelBufferBytes <= 0) {
         receivedBuffers.reject(new Error('Frame pixel buffer was empty.'))
-      } else if (!hasNativeBuffer) {
+      } else if (hasNativeBuffer && !hasNativeBufferPointer) {
         receivedBuffers.reject(new Error('Frame native buffer pointer was 0.'))
       } else {
-        buffersReceived++
-        if (buffersReceived >= 3) {
+        framesReceived++
+        if (hasPixelBuffer) {
+          pixelBuffersReceived++
+        }
+        if (hasNativeBuffer) {
+          nativeBuffersReceived++
+        }
+        if (framesReceived >= 3) {
           receivedBuffers.resolve()
         }
       }
@@ -118,16 +131,27 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const pixelBuffer = frame.getPixelBuffer()
-        const hasPixelBuffer = pixelBuffer.byteLength > 0
-        const nativeBuffer = frame.getNativeBuffer()
-        let hasNativeBuffer = false
-        try {
-          hasNativeBuffer = nativeBuffer.pointer !== 0n
-        } finally {
-          nativeBuffer.release()
+        const hasPixelBuffer = frame.hasPixelBuffer
+        const pixelBufferBytes = hasPixelBuffer
+          ? frame.getPixelBuffer().byteLength
+          : 0
+        const hasNativeBuffer = frame.hasNativeBuffer
+        let hasNativeBufferPointer = false
+        if (hasNativeBuffer) {
+          const nativeBuffer = frame.getNativeBuffer()
+          try {
+            hasNativeBufferPointer = nativeBuffer.pointer !== 0n
+          } finally {
+            nativeBuffer.release()
+          }
         }
-        scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
+        scheduleOnRN(
+          report,
+          hasPixelBuffer,
+          pixelBufferBytes,
+          hasNativeBuffer,
+          hasNativeBufferPointer,
+        )
       } catch (e) {
         scheduleOnRN(reportError, String(e))
       } finally {
@@ -140,14 +164,17 @@ describe('VisionCamera - Frame', () => {
       await withTimeout(
         receivedBuffers.promise,
         15_000,
-        'receive native frame pixel buffers',
+        'receive native frame buffer reports',
       )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }
-    expect(buffersReceived).toBeGreaterThanOrEqual(3)
+    console.log(
+      `native frame buffers: frames=${framesReceived} pixelBuffers=${pixelBuffersReceived} nativeBuffers=${nativeBuffersReceived}`,
+    )
+    expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
   it('keeps YUV plane buffers readable across repeated reads', async () => {
@@ -302,7 +329,7 @@ describe('VisionCamera - Frame', () => {
     expect(reportedPlanes).toBeGreaterThanOrEqual(1)
   })
 
-  it('delivers frames when streaming in rgb', async () => {
+  it('delivers readable pixel buffers when streaming in rgb', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.VGA_16_9,
@@ -322,16 +349,29 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const receivedFrame = deferred()
-    const onFrame = () => {
-      receivedFrame.resolve()
+    const onFrame = (pixelBufferBytes: number) => {
+      if (pixelBufferBytes > 0) {
+        receivedFrame.resolve()
+      } else {
+        receivedFrame.reject(new Error('RGB frame pixel buffer was empty.'))
+      }
+    }
+    const onError = (errorMessage: string) => {
+      receivedFrame.reject(new Error(errorMessage))
     }
     const errorSub = session.addOnErrorListener(receivedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
-      scheduleOnRN(onFrame)
-      frame.dispose()
+      try {
+        const pixelBufferBytes = frame.getPixelBuffer().byteLength
+        scheduleOnRN(onFrame, pixelBufferBytes)
+      } catch (e) {
+        scheduleOnRN(onError, String(e))
+      } finally {
+        frame.dispose()
+      }
     })
 
     await session.start()

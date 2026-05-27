@@ -7,6 +7,7 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
+import java.nio.ByteBuffer
 
 val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
@@ -30,6 +31,23 @@ data class DisposableArrayBuffer(
   val dispose: () -> Unit,
 )
 
+private fun ByteBuffer.wrapOrCopyIntoArrayBuffer(): DisposableArrayBuffer {
+  val buffer = readableBytes()
+  if (buffer.isDirect) {
+    val arrayBuffer = ArrayBuffer.wrap(buffer)
+    return DisposableArrayBuffer(arrayBuffer) {
+      // no release
+    }
+  }
+
+  val directBuffer = DirectByteBufferPool.Shared.acquire(buffer.remaining())
+  directBuffer.put(buffer)
+  val arrayBuffer = ArrayBuffer.wrap(directBuffer)
+  return DisposableArrayBuffer(arrayBuffer) {
+    DirectByteBufferPool.Shared.release(directBuffer)
+  }
+}
+
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -47,12 +65,8 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   }
   when {
     planes.size == 1 -> {
-      // Medium Path: We can wrap a single plane as a ByteBuffer
-      val byteBuffer = planes.single().buffer.readableBytes()
-      val arrayBuffer = ArrayBuffer.wrap(byteBuffer)
-      return DisposableArrayBuffer(arrayBuffer) {
-        // no release
-      }
+      // Medium Path: We can wrap a single direct plane as a ByteBuffer, or copy it into one if needed.
+      return planes.single().buffer.wrapOrCopyIntoArrayBuffer()
     }
     planes.size > 1 -> {
       // Slow Path: We have to copy all planes into a new ByteBuffer.

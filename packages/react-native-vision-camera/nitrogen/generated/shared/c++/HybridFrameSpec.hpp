@@ -70,6 +70,8 @@ namespace margelo::nitro::camera {
       virtual CameraOrientation getOrientation() = 0;
       virtual bool getIsMirrored() = 0;
       virtual bool getIsPlanar() = 0;
+      virtual bool getHasPixelBuffer() = 0;
+      virtual bool getHasNativeBuffer() = 0;
       virtual std::optional<std::vector<double>> getCameraIntrinsicMatrix() = 0;
 
     public:

@@ -251,6 +251,21 @@ export interface Frame
   readonly isPlanar: boolean
 
   /**
+   * Get whether this {@linkcode Frame} has a readable pixel buffer
+   * attached to it.
+   *
+   * @see {@linkcode getPixelBuffer | getPixelBuffer()}
+   */
+  readonly hasPixelBuffer: boolean
+  /**
+   * Get whether this {@linkcode Frame} has a native buffer
+   * attached to it.
+   *
+   * @see {@linkcode getNativeBuffer | getNativeBuffer()}
+   */
+  readonly hasNativeBuffer: boolean
+
+  /**
    * Returns each plane of a **planar** Frame (see {@linkcode isPlanar}).
    * If this Frame is **non-planar**, this method returns an empty array (`[]`).
    *

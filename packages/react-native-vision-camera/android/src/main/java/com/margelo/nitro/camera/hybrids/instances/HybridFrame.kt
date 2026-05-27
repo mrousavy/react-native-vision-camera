@@ -12,6 +12,8 @@ import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.convertPoint
 import com.margelo.nitro.camera.extensions.getNativeBuffer
 import com.margelo.nitro.camera.extensions.getPixelBuffer
+import com.margelo.nitro.camera.extensions.hasNativeBuffer
+import com.margelo.nitro.camera.extensions.hasPixelBuffer
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.extensions.pixelFormat
 import com.margelo.nitro.camera.public.NativeFrame
@@ -50,6 +52,10 @@ class HybridFrame(
     get() = image.pixelFormat
   override val isPlanar: Boolean
     get() = image.planes.size > 1
+  override val hasPixelBuffer: Boolean
+    get() = image.hasPixelBuffer
+  override val hasNativeBuffer: Boolean
+    get() = image.hasNativeBuffer
 
   // TODO: Implement `cameraIntrinsicMatrix`
   override val cameraIntrinsicMatrix: DoubleArray?

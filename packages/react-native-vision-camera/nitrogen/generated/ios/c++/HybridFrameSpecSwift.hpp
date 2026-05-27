@@ -112,6 +112,12 @@ namespace margelo::nitro::camera {
     inline bool getIsPlanar() noexcept override {
       return _swiftPart.isPlanar();
     }
+    inline bool getHasPixelBuffer() noexcept override {
+      return _swiftPart.hasPixelBuffer();
+    }
+    inline bool getHasNativeBuffer() noexcept override {
+      return _swiftPart.hasNativeBuffer();
+    }
     inline std::optional<std::vector<double>> getCameraIntrinsicMatrix() noexcept override {
       auto __result = _swiftPart.getCameraIntrinsicMatrix();
       return __result;
