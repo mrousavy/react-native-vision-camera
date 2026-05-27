@@ -31,7 +31,7 @@
     "react-native-safe-area-context": "^5.7.0",
     "react-native-screens": "^4.24.0",
     "react-native-vector-icons": "^10.3.0",
-    "react-native-video": "6.19.1",
+    "react-native-video": "6.19.2",
     "react-native-vision-camera": "../../packages/react-native-vision-camera",
     "react-native-vision-camera-barcode-scanner": "../../packages/react-native-vision-camera-barcode-scanner",
     "react-native-vision-camera-location": "../../packages/react-native-vision-camera-location",
