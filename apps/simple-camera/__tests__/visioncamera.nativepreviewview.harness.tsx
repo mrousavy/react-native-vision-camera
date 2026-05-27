@@ -67,7 +67,6 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
   layout: Layout,
 ) {
   if (Platform.OS !== 'android') {
-    console.log('[SKIP] takeSnapshot dimensions: Android only')
     return
   }
 
@@ -665,19 +664,17 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
-  it('mounts two NativePreviewViews from two preview outputs in one multi-cam session', async () => {
+  it('mounts two NativePreviewViews from two preview outputs in one multi-cam session', async (context) => {
     if (VisionCamera.supportsMultiCamSessions === false) {
-      console.log('[SKIP] two NativePreviewViews: multi-cam not supported')
-      return
+      return context.skip('two NativePreviewViews: multi-cam not supported')
     }
     const combination = factory.supportedMultiCamDeviceCombinations.find(
       (devices) => devices.length >= 2,
     )
     if (combination == null) {
-      console.log(
-        '[SKIP] two NativePreviewViews: no multi-cam combination with two devices',
+      return context.skip(
+        'two NativePreviewViews: no multi-cam combination with two devices',
       )
-      return
     }
 
     const firstDevice = combination[0]
@@ -949,10 +946,9 @@ describe('VisionCamera - NativePreviewView', () => {
     expect(roundedCoverTopLeft).not.toEqual(roundedContainTopLeft)
   })
 
-  it('supports both Android preview implementation modes', async () => {
+  it('supports both Android preview implementation modes', async (context) => {
     if (Platform.OS !== 'android') {
-      console.log('[SKIP] implementationMode: Android only')
-      return
+      return context.skip('implementationMode: Android only')
     }
 
     const implementationModes: PreviewImplementationMode[] = [

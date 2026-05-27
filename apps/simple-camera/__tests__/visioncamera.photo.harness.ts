@@ -64,7 +64,7 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  it('checks and reads a native Photo pixel buffer in-memory', async () => {
+  it('checks and reads a native Photo pixel buffer in-memory', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -89,10 +89,9 @@ describe('VisionCamera - Photo', () => {
         expect(photo.width).toBeGreaterThan(0)
         expect(photo.height).toBeGreaterThan(0)
         if (!photo.hasPixelBuffer) {
-          console.log(
-            '[SKIP] Photo pixel buffer: captured native photo has no pixel buffer',
+          return context.skip(
+            'Photo pixel buffer: captured native photo has no pixel buffer',
           )
-          return
         }
 
         const pixelBuffer = photo.getPixelBuffer()
@@ -221,11 +220,6 @@ describe('VisionCamera - Photo', () => {
 
   it('captures with each qualityPrioritization the device supports', async () => {
     const priorities: QualityPrioritization[] = ['quality', 'balanced']
-    if (backDevice.supportsSpeedQualityPrioritization) {
-      priorities.push('speed')
-    } else {
-      console.log('[SKIP] qualityPrioritization: speed not supported on device')
-    }
 
     for (const qualityPrioritization of priorities) {
       const session = await VisionCamera.createCameraSession(false)
@@ -251,6 +245,37 @@ describe('VisionCamera - Photo', () => {
       photo.dispose()
       await session.stop()
     }
+  })
+
+  it('captures with speed qualityPrioritization when supported', async (context) => {
+    if (!backDevice.supportsSpeedQualityPrioritization) {
+      return context.skip(
+        'qualityPrioritization: speed not supported on device',
+      )
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'speed',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+    const photo = await photoOutput.capturePhoto(
+      { flashMode: 'off', enableShutterSound: false },
+      {},
+    )
+    expect(photo.width).toBeGreaterThan(0)
+    photo.dispose()
+    await session.stop()
   })
 
   it('captures at several target resolutions', async () => {
@@ -480,12 +505,11 @@ describe('VisionCamera - Photo', () => {
     expect(didCapture).toBe(1)
   })
 
-  it('delivers a preview image when previewImageTargetSize is set and the device supports it', async () => {
+  it('delivers a preview image when previewImageTargetSize is set and the device supports it', async (context) => {
     if (!backDevice.supportsPreviewImage) {
-      console.log(
-        '[SKIP] onPreviewImageAvailable: device has no preview image support',
+      return context.skip(
+        'onPreviewImageAvailable: device has no preview image support',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -522,11 +546,6 @@ describe('VisionCamera - Photo', () => {
 
   it('captures with each flashMode the device supports', async () => {
     const modes: FlashMode[] = ['off', 'auto']
-    if (backDevice.hasFlash) {
-      modes.push('on')
-    } else {
-      console.log('[SKIP] flashMode on: device has no flash')
-    }
 
     for (const flashMode of modes) {
       const session = await VisionCamera.createCameraSession(false)
@@ -552,6 +571,35 @@ describe('VisionCamera - Photo', () => {
       photo.dispose()
       await session.stop()
     }
+  })
+
+  it('captures with flashMode on when the device has flash', async (context) => {
+    if (!backDevice.hasFlash) {
+      return context.skip('flashMode on: device has no flash')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+    const photo = await photoOutput.capturePhoto(
+      { flashMode: 'on', enableShutterSound: false },
+      {},
+    )
+    expect(photo.width).toBeGreaterThan(0)
+    photo.dispose()
+    await session.stop()
   })
 
   it('toggles enableShutterSound and enableRedEyeReduction without error', async () => {
@@ -585,10 +633,9 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  it('applies enableDistortionCorrection when the device supports it', async () => {
+  it('applies enableDistortionCorrection when the device supports it', async (context) => {
     if (!backDevice.supportsDistortionCorrection) {
-      console.log('[SKIP] enableDistortionCorrection: not supported on device')
-      return
+      return context.skip('enableDistortionCorrection: not supported on device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -726,7 +773,7 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
-  it('reports supportsDepthDataDelivery on a depth-capable device', async () => {
+  it('reports supportsDepthDataDelivery on a depth-capable device', async (context) => {
     // `supportsDepthDataDelivery` is a per-output property that flips to `true`
     // once the photo output is bound to a device that can produce depth data.
     // The default back wide-angle on most phones does not — depth-capable
@@ -739,10 +786,9 @@ describe('VisionCamera - Photo', () => {
         d.type === 'dual',
     )
     if (depthDevice == null) {
-      console.log(
-        '[SKIP] supportsDepthDataDelivery: no depth-capable device on this system',
+      return context.skip(
+        'supportsDepthDataDelivery: no depth-capable device on this system',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({

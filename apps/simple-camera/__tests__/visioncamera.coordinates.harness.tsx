@@ -644,10 +644,9 @@ describe('VisionCamera - Coordinates', () => {
       if (r == null) throw new Error('no rectangle projection report')
 
       if (r.orientation === 'up') {
-        console.log(
-          '[SKIP] oriented rectangle projection: frame orientation is up',
+        return context.skip(
+          'oriented rectangle projection: frame orientation is up',
         )
-        return
       }
 
       for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
@@ -670,12 +669,11 @@ describe('VisionCamera - Coordinates', () => {
   //       ScannedObject today is via `CameraObjectOutput`, which depends
   //       on a real QR code being visible to the rear camera — not
   //       reliable on AWS Device Farm or a closed test rig.
-  it.skip("converts a ScannedObject's bounding box into view coordinates (iOS only)", async () => {
+  it.skip("converts a ScannedObject's bounding box into view coordinates (iOS only)", async (context) => {
     if (Platform.OS !== 'ios') {
-      console.log(
-        '[SKIP] convertScannedObjectCoordinatesToViewCoordinates: iOS only',
+      return context.skip(
+        'convertScannedObjectCoordinatesToViewCoordinates: iOS only',
       )
-      return
     }
     // Pending API: a way to mint a ScannedObject without a live scan.
   })

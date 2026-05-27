@@ -72,7 +72,6 @@ async function expectPreviewSnapshotDimensionsToMatchLayout(
   layout: Layout,
 ) {
   if (Platform.OS !== 'android') {
-    console.log('[SKIP] takeSnapshot dimensions: Android only')
     return
   }
 
@@ -830,10 +829,9 @@ describe('VisionCamera - Camera View', () => {
     expect(roundedCoverTopLeft).not.toEqual(roundedContainTopLeft)
   })
 
-  it('supports both Android preview implementation modes', async () => {
+  it('supports both Android preview implementation modes', async (context) => {
     if (Platform.OS !== 'android') {
-      console.log('[SKIP] implementationMode: Android only')
-      return
+      return context.skip('implementationMode: Android only')
     }
 
     const implementationModes: PreviewImplementationMode[] = [

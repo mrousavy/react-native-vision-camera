@@ -25,13 +25,12 @@ describe('VisionCamera - Devices', () => {
     expect(hasFront).toBe(true)
   })
 
-  it('logs external cameras when present (optional)', () => {
+  it('logs external cameras when present (optional)', (context) => {
     const external = factory.cameraDevices.filter(
       (d) => d.position === 'external',
     )
     if (external.length === 0) {
-      console.log('[SKIP] external cameras: none available on this device')
-      return
+      return context.skip('external cameras: none available on this device')
     }
     for (const device of external) {
       console.log(
@@ -161,13 +160,12 @@ describe('VisionCamera - Devices', () => {
     }
   })
 
-  it('every device in a supportedMultiCamDeviceCombinations combination is also present in cameraDevices', () => {
+  it('every device in a supportedMultiCamDeviceCombinations combination is also present in cameraDevices', (context) => {
     const combinations = factory.supportedMultiCamDeviceCombinations
     if (combinations.length === 0) {
-      console.log(
-        '[SKIP] supportedMultiCamDeviceCombinations device lookup: no combinations on this platform',
+      return context.skip(
+        'supportedMultiCamDeviceCombinations device lookup: no combinations on this platform',
       )
-      return
     }
     const knownIds = factory.cameraDevices.map((d) => d.id)
     for (const combination of combinations) {

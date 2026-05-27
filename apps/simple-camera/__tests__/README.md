@@ -79,15 +79,20 @@ Each atomic test must tear down any non-trivial objects properly to avoid leakin
 Cameras differ. A failing hard requirement is a real bug; a missing soft feature is a device limitation and should not fail the test.
 
 - **Hard requirement** — checked with `expect(...)`, makes the test fail. Examples: a back camera exists; a photo output produces a photo with `width > 0`; `session.configure` returns one controller per connection, or an API contract holds up to it's promise.
-- **Soft requirement** — gated by the matching capability flag and a `console.log('[SKIP] <what>: <reason>')` early-return when not supported. The skip log is deliberately visible in CI so we can see what the current test device can't cover and pick a different device if needed.
+- **Soft requirement** — gated by the matching capability flag and `context.skip('<what>: <reason>')` when not supported. Harness reports this as a real skipped test with the reason in the run summary and JUnit output, so do not use `console.log(...)` plus `return` for runtime camera capability gaps.
 
 ```ts
-if (!backDevice.supportsPhotoHDR) {
-  console.log('[SKIP] photoHDR: not supported on this device')
-  return
-}
-// hard-assert HDR behavior from here on
+it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
+  if (!backDevice.supportsPhotoHDR) {
+    return context.skip('photoHDR: not supported on this device')
+  }
+  // hard-assert HDR behavior from here on
+})
 ```
+
+Use the guard form above instead of `context.skip(condition, reason)` when a nullable value needs to be narrowed afterwards. Keep the `return` so TypeScript understands the rest of the test only runs when the capability exists. If only one optional case inside a matrix is unsupported, split that case into its own `it(...)` so the always-supported cases still run and the optional case is reported as skipped.
+
+Only call `context.skip(...)` from the `it(...)` body or code that intentionally skips that whole test. Do not hide it inside a shared helper for optional sub-assertions, because it aborts the entire `it(...)`. If a shared cross-platform test has an Android-only extra assertion, let that helper return without logging on iOS; if the Android-only behavior deserves skip accounting, make it a dedicated `it(...)`.
 
 Capability flags live on
 - `CameraDevice` (`hasFlash`, `hasTorch`, `supportsFocusMetering`, `supportsExposureBias`, `supportsPhotoHDR`, `supportsFPS(n)`, `supportsVideoStabilizationMode('cinematic')`, etc.),
@@ -133,7 +138,7 @@ The exception is when elapsed wall-clock time is part of the behavior under test
 
 ### 8. Platform guards
 
-Pure iOS-only features (`CameraObjectOutput`, `continuity camera`, `getSupportedVideoCodecs`, etc.) or Android-only features (`CameraExtension`, etc.) should start with a `if (Platform.OS !== 'ios') { console.log('[SKIP] ...: iOS only'); return }` guard. Do not branch on `Platform.OS` to mask behavioral differences that should be identical across platforms — flag those as bugs.
+Pure iOS-only features (`CameraObjectOutput`, `continuity camera`, `getSupportedVideoCodecs`, etc.) or Android-only features (`CameraExtension`, etc.) should start with a `return context.skip('...: iOS only')` / `return context.skip('...: Android only')` platform guard. Do not branch on `Platform.OS` to mask behavioral differences that should be identical across platforms — flag those as bugs.
 If a behavior should be supported on both platforms, write one shared test. If that makes CI red on one platform, keep the failure visible until the platform discrepancy is fixed.
 Do not guard features that expose runtime availability checks behind such flags - e.g. `setFocusLocked(...)` can be probed with `device.supportsManualFocus` - even if this natively is always `false` on Android, this allows us to automatically run the test in the future once we add focus locking support to Android too.
 Also do not guard features that are technically possible to implement on the other platform, but not yet implemented due to a TODO behind such feature flags. `setFocusLocked` would be such a case. In these situations, it's expected to have the test red on the missing platform until it's implemented - kinda like a task list for the maintainers.
@@ -200,7 +205,7 @@ The AWS Device Farm run is the source of truth: it's a real phone, a real SoC, a
 If your PR fails CI, the fastest way to debug is:
 
 1. Download the `harness output log` artifact from the failed workflow run. It contains the full JS console output per test.
-2. Grep for `[SKIP]` to see which soft requirements were skipped — that tells you what your test device lacks.
+2. Inspect the Harness/JUnit skipped-test summary to see which soft requirements were skipped — the skip reason tells you what your test device lacks.
 3. Grep for `FAIL` to see which `it` blocks failed and their stack traces.
 4. Open the JUnit XML artifact in your IDE's JUnit viewer for a structured summary.
 
