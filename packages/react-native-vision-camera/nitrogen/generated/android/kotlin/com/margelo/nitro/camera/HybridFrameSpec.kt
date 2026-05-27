@@ -29,47 +29,47 @@ abstract class HybridFrameSpec: HybridObject() {
   @get:DoNotStrip
   @get:Keep
   abstract val timestamp: Double
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val isValid: Boolean
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val width: Double
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val height: Double
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val bytesPerRow: Double
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val pixelFormat: PixelFormat
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val orientation: CameraOrientation
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val isMirrored: Boolean
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val isPlanar: Boolean
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val hasPixelBuffer: Boolean
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val hasNativeBuffer: Boolean
-
+  
   @get:DoNotStrip
   @get:Keep
   abstract val cameraIntrinsicMatrix: DoubleArray?
@@ -78,19 +78,19 @@ abstract class HybridFrameSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun getPlanes(): Array<HybridFramePlaneSpec>
-
+  
   @DoNotStrip
   @Keep
   abstract fun getPixelBuffer(): ArrayBuffer
-
+  
   @DoNotStrip
   @Keep
   abstract fun getNativeBuffer(): NativeBuffer
-
+  
   @DoNotStrip
   @Keep
   abstract fun convertCameraPointToFramePoint(cameraPoint: Point): Point
-
+  
   @DoNotStrip
   @Keep
   abstract fun convertFramePointToCameraPoint(framePoint: Point): Point
