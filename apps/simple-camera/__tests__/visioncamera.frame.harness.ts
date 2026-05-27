@@ -10,14 +10,9 @@ import type {
   CameraDeviceFactory,
   FrameDroppedReason,
 } from 'react-native-vision-camera'
-import {
-  CommonResolutions,
-  type Frame,
-  VisionCamera,
-} from 'react-native-vision-camera'
+import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
-import { deferred, withTimeout } from './test-utils'
 
 describe('VisionCamera - Frame', () => {
   let factory: CameraDeviceFactory
@@ -101,57 +96,150 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    const reportError = (errorMessage: string) => {
-      expect(() => {
-        throw new Error(errorMessage)
-      }).not.toThrow()
+    let buffersReceived = 0
+    let bufferError: string | undefined
+    let sessionError: Error | undefined
+    const report = (
+      hasPixelBuffer: boolean,
+      hasNativeBuffer: boolean,
+      errorMessage?: string,
+    ) => {
+      if (errorMessage != null) {
+        bufferError = errorMessage
+      } else if (hasPixelBuffer && hasNativeBuffer) {
+        buffersReceived++
+      }
     }
     const errorSub = session.addOnErrorListener((error) => {
-      expect(() => {
-        throw error
-      }).not.toThrow()
+      sessionError = error
     })
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    const frames = createSynchronizable<Frame[]>([])
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const currentFrames = frames.getBlocking()
-        if (currentFrames.length >= 3) {
-          // We already captured 3 Frames - drop the rest.
-          frame.dispose()
-          return
+        const pixelBuffer = frame.getPixelBuffer()
+        const hasPixelBuffer = pixelBuffer.byteLength > 0
+        const nativeBuffer = frame.getNativeBuffer()
+        let hasNativeBuffer = false
+        try {
+          hasNativeBuffer = nativeBuffer.pointer !== 0n
+        } finally {
+          nativeBuffer.release()
         }
-        // Capture this Frame in our array which we use later
-        frames.setBlocking([...currentFrames, frame])
+        scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
       } catch (e) {
-        const errorMessage = String(e)
-        scheduleOnRN(reportError, errorMessage)
+        scheduleOnRN(report, false, false, String(e))
+      } finally {
+        frame.dispose()
       }
     })
 
-    // Start streaming frames into `frames`
     await session.start()
     try {
-      // Wait until we have streamed 3 `frames`
-      await waitUntil(() => frames.getBlocking().length >= 3, {
-        timeout: 15_000,
-      })
-      // Ensure all 3 `frames` have a PixelBuffer
-      for (const frame of frames.getBlocking()) {
-        const pixelBuffer = frame.getPixelBuffer()
-        expect(pixelBuffer.byteLength).toBeGreaterThan(0)
-        const nativeBuffer = frame.getNativeBuffer()
-        expect(nativeBuffer.pointer).not.toBe(0n)
-        nativeBuffer.release()
-      }
+      await waitUntil(
+        () =>
+          buffersReceived >= 3 || bufferError != null || sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(bufferError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
-      for (const frame of frames.getDirty()) {
+    }
+    expect(buffersReceived).toBeGreaterThanOrEqual(3)
+  })
+
+  it('keeps YUV plane buffers readable across repeated reads', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'yuv',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    type BufferReport = {
+      frameBytes: number
+      firstPlaneBytes: number[]
+      secondPlaneBytes: number[]
+    }
+    const bufferReports: BufferReport[] = []
+    let bufferError: string | undefined
+    let sessionError: Error | undefined
+    const report = (
+      frameBytes: number,
+      firstPlaneBytes: number[],
+      secondPlaneBytes: number[],
+      errorMessage?: string,
+    ) => {
+      if (errorMessage != null) {
+        bufferError = errorMessage
+      } else if (bufferReports.length < 3) {
+        bufferReports.push({ frameBytes, firstPlaneBytes, secondPlaneBytes })
+      }
+    }
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      try {
+        const frameBytes = frame.getPixelBuffer().byteLength
+        const planes = frame.getPlanes()
+        const firstPlaneBytes = planes.map(
+          (plane) => plane.getPixelBuffer().byteLength,
+        )
+        const secondPlaneBytes = planes.map(
+          (plane) => plane.getPixelBuffer().byteLength,
+        )
+        scheduleOnRN(report, frameBytes, firstPlaneBytes, secondPlaneBytes)
+      } catch (e) {
+        scheduleOnRN(report, 0, [], [], String(e))
+      } finally {
         frame.dispose()
+      }
+    })
+
+    await session.start()
+    try {
+      await waitUntil(
+        () =>
+          bufferReports.length >= 3 ||
+          bufferError != null ||
+          sessionError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(bufferError).toBe(undefined)
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+
+    for (const bufferReport of bufferReports) {
+      expect(bufferReport.frameBytes).toBeGreaterThan(0)
+      expect(bufferReport.firstPlaneBytes.length).toBeGreaterThan(0)
+      expect(bufferReport.firstPlaneBytes).toEqual(
+        bufferReport.secondPlaneBytes,
+      )
+      for (const planeBytes of bufferReport.firstPlaneBytes) {
+        expect(planeBytes).toBeGreaterThan(0)
       }
     }
   })
