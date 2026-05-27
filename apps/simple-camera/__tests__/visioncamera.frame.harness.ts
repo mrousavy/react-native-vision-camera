@@ -95,36 +95,35 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    const receivedBuffers = deferred()
+    type NativeFrameBufferReport =
+      | { state: 'skip'; reason: string }
+      | { state: 'error'; errorMessage: string }
+      | { state: 'success' }
+
+    type NativeFrameBufferResult =
+      | { state: 'skip'; reason: string }
+      | { state: 'success'; frames: number }
+
+    const receivedBuffers = deferred<NativeFrameBufferResult>()
     let buffersReceived = 0
-    let unsupportedReason: string | undefined
-    const report = (
-      hasPixelBuffer: boolean,
-      pixelBufferBytes: number,
-      hasNativeBuffer: boolean,
-      hasNativeBufferPointer: boolean,
-    ) => {
-      if (!hasPixelBuffer) {
-        unsupportedReason =
-          'native frame buffers: device does not expose readable pixel buffers'
-        receivedBuffers.resolve()
-      } else if (!hasNativeBuffer) {
-        unsupportedReason =
-          'native frame buffers: device does not expose native buffers'
-        receivedBuffers.resolve()
-      } else if (pixelBufferBytes <= 0) {
-        receivedBuffers.reject(new Error('Frame pixel buffer was empty.'))
-      } else if (!hasNativeBufferPointer) {
-        receivedBuffers.reject(new Error('Frame native buffer pointer was 0.'))
-      } else {
-        buffersReceived++
-        if (buffersReceived >= 3) {
-          receivedBuffers.resolve()
-        }
+    const report = (frameBufferReport: NativeFrameBufferReport) => {
+      switch (frameBufferReport.state) {
+        case 'skip':
+          receivedBuffers.resolve(frameBufferReport)
+          break
+        case 'error':
+          receivedBuffers.reject(new Error(frameBufferReport.errorMessage))
+          break
+        case 'success':
+          buffersReceived++
+          if (buffersReceived >= 3) {
+            receivedBuffers.resolve({
+              state: 'success',
+              frames: buffersReceived,
+            })
+          }
+          break
       }
-    }
-    const reportError = (errorMessage: string) => {
-      receivedBuffers.reject(new Error(errorMessage))
     }
     const errorSub = session.addOnErrorListener(receivedBuffers.reject)
 
@@ -132,29 +131,54 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const hasPixelBuffer = frame.hasPixelBuffer
-        const pixelBufferBytes = hasPixelBuffer
-          ? frame.getPixelBuffer().byteLength
-          : 0
-        const hasNativeBuffer = frame.hasNativeBuffer
-        let hasNativeBufferPointer = false
-        if (hasNativeBuffer) {
-          const nativeBuffer = frame.getNativeBuffer()
-          try {
-            hasNativeBufferPointer = nativeBuffer.pointer !== 0n
-          } finally {
-            nativeBuffer.release()
-          }
+        if (!frame.hasPixelBuffer) {
+          scheduleOnRN(report, {
+            state: 'skip',
+            reason:
+              'native frame buffers: device does not expose readable pixel buffers',
+          })
+          return
         }
-        scheduleOnRN(
-          report,
-          hasPixelBuffer,
-          pixelBufferBytes,
-          hasNativeBuffer,
-          hasNativeBufferPointer,
-        )
+
+        const pixelBufferBytes = frame.getPixelBuffer().byteLength
+        if (pixelBufferBytes <= 0) {
+          scheduleOnRN(report, {
+            state: 'error',
+            errorMessage: 'Frame pixel buffer was empty.',
+          })
+          return
+        }
+
+        if (!frame.hasNativeBuffer) {
+          scheduleOnRN(report, {
+            state: 'skip',
+            reason:
+              'native frame buffers: device does not expose native buffers',
+          })
+          return
+        }
+
+        const nativeBuffer = frame.getNativeBuffer()
+        try {
+          if (nativeBuffer.pointer === 0n) {
+            scheduleOnRN(report, {
+              state: 'error',
+              errorMessage: 'Frame native buffer pointer was 0.',
+            })
+            return
+          }
+        } finally {
+          nativeBuffer.release()
+        }
+
+        scheduleOnRN(report, {
+          state: 'success',
+        })
       } catch (e) {
-        scheduleOnRN(reportError, String(e))
+        scheduleOnRN(report, {
+          state: 'error',
+          errorMessage: String(e),
+        })
       } finally {
         frame.dispose()
       }
@@ -162,20 +186,20 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await withTimeout(
+      const result = await withTimeout(
         receivedBuffers.promise,
         15_000,
         'receive native frame buffer reports',
       )
+      if (result.state === 'skip') {
+        return context.skip(result.reason)
+      }
+      expect(result.frames).toBeGreaterThanOrEqual(3)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }
-    if (unsupportedReason != null) {
-      return context.skip(unsupportedReason)
-    }
-    expect(buffersReceived).toBeGreaterThanOrEqual(3)
   })
 
   it('keeps YUV plane buffers readable across repeated reads', async () => {
