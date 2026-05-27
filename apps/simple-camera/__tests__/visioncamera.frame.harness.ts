@@ -76,7 +76,7 @@ describe('VisionCamera - Frame', () => {
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
-  it('reports and conditionally reads native frame buffers', async () => {
+  it('reports and conditionally reads native frame buffers', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
@@ -96,28 +96,29 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const receivedBuffers = deferred()
-    let framesReceived = 0
-    let pixelBuffersReceived = 0
-    let nativeBuffersReceived = 0
+    let buffersReceived = 0
+    let unsupportedReason: string | undefined
     const report = (
       hasPixelBuffer: boolean,
       pixelBufferBytes: number,
       hasNativeBuffer: boolean,
       hasNativeBufferPointer: boolean,
     ) => {
-      if (hasPixelBuffer && pixelBufferBytes <= 0) {
+      if (!hasPixelBuffer) {
+        unsupportedReason =
+          'native frame buffers: device does not expose readable pixel buffers'
+        receivedBuffers.resolve()
+      } else if (!hasNativeBuffer) {
+        unsupportedReason =
+          'native frame buffers: device does not expose native buffers'
+        receivedBuffers.resolve()
+      } else if (pixelBufferBytes <= 0) {
         receivedBuffers.reject(new Error('Frame pixel buffer was empty.'))
-      } else if (hasNativeBuffer && !hasNativeBufferPointer) {
+      } else if (!hasNativeBufferPointer) {
         receivedBuffers.reject(new Error('Frame native buffer pointer was 0.'))
       } else {
-        framesReceived++
-        if (hasPixelBuffer) {
-          pixelBuffersReceived++
-        }
-        if (hasNativeBuffer) {
-          nativeBuffersReceived++
-        }
-        if (framesReceived >= 3) {
+        buffersReceived++
+        if (buffersReceived >= 3) {
           receivedBuffers.resolve()
         }
       }
@@ -171,10 +172,10 @@ describe('VisionCamera - Frame', () => {
       errorSub.remove()
       await session.stop()
     }
-    console.log(
-      `native frame buffers: frames=${framesReceived} pixelBuffers=${pixelBuffersReceived} nativeBuffers=${nativeBuffersReceived}`,
-    )
-    expect(framesReceived).toBeGreaterThanOrEqual(3)
+    if (unsupportedReason != null) {
+      return context.skip(unsupportedReason)
+    }
+    expect(buffersReceived).toBeGreaterThanOrEqual(3)
   })
 
   it('keeps YUV plane buffers readable across repeated reads', async () => {
