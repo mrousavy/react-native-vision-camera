@@ -7,7 +7,6 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
-import java.nio.ByteBuffer
 
 val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
@@ -49,7 +48,7 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   when {
     planes.size == 1 -> {
       // Medium Path: We can wrap a single plane as a ByteBuffer
-      val byteBuffer = planes.single().buffer
+      val byteBuffer = planes.single().buffer.readableBytes()
       val arrayBuffer = ArrayBuffer.wrap(byteBuffer)
       return DisposableArrayBuffer(arrayBuffer) {
         // no release
@@ -57,12 +56,12 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
     }
     planes.size > 1 -> {
       // Slow Path: We have to copy all planes into a new ByteBuffer.
-      val totalBytes = planes.sumOf { plane -> plane.buffer.capacity() }
+      val buffers = planes.map { plane -> plane.buffer.readableBytes() }
+      val totalBytes = buffers.sumOf { buffer -> buffer.remaining() }
       val byteBuffer = DirectByteBufferPool.Shared.acquire(totalBytes)
-      for (plane in planes) {
-        byteBuffer.put(plane.buffer)
+      for (buffer in buffers) {
+        byteBuffer.put(buffer)
       }
-      byteBuffer.rewind()
       val arrayBuffer = ArrayBuffer.wrap(byteBuffer)
       return DisposableArrayBuffer(arrayBuffer) {
         DirectByteBufferPool.Shared.release(byteBuffer)
