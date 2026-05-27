@@ -35,7 +35,7 @@
     "lint-all": "bun lint-cpp && bun lint-swift && bun lint-kotlin && bun lint-js"
   },
   "devDependencies": {
-    "jest-junit": "^16.0.0",
+    "jest-junit": "^17.0.0",
     "@biomejs/biome": "^2.4.16",
     "@tsconfig/react-native": "^3.0.9",
     "@types/bun": "^1.3.14",
