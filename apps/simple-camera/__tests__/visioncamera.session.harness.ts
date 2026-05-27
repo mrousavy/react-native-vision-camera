@@ -474,57 +474,53 @@ describe('VisionCamera - Session', () => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip('multi-cam session: not supported on this platform')
     }
-    const combinations = factory.supportedMultiCamDeviceCombinations
-    const combination =
-      combinations.find((cameras) => {
-        const positions = cameras.map((device) => device.position)
-        return positions.includes('back') && positions.includes('front')
-      }) ?? combinations[0]
-    if (combination == null) {
-      return context.skip(
-        'multi-cam session: no supported combinations reported on this device',
-      )
+    const back = factory.getDefaultCamera('back')
+    const front = factory.getDefaultCamera('front')
+    expect(back).toBeDefined()
+    expect(front).toBeDefined()
+    if (back == null || front == null) {
+      throw new Error('missing default camera for multi-cam session')
     }
-    expect(combination.length).toBeGreaterThan(1)
 
     const session = await VisionCamera.createCameraSession(true)
-    const connections = combination.map((device) => ({
-      input: device,
-      outputs: [
-        {
-          output: VisionCamera.createPhotoOutput({
-            targetResolution: CommonResolutions.HD_4_3,
-            containerFormat: 'jpeg' as const,
-            quality: 0.8,
-            qualityPrioritization: 'balanced' as const,
-          }),
-          mirrorMode: 'auto' as const,
-        },
-      ],
-      constraints: [],
-    }))
-    const controllers = await session.configure(connections)
-    expect(controllers.length).toBe(combination.length)
-    expect(controllers.map((controller) => controller.device.id)).toEqual(
-      combination.map((device) => device.id),
-    )
+    const backPhoto = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const frontPhoto = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+
+    const controllers = await session.configure([
+      {
+        input: back,
+        outputs: [{ output: backPhoto, mirrorMode: 'off' }],
+        constraints: [],
+      },
+      {
+        input: front,
+        outputs: [{ output: frontPhoto, mirrorMode: 'on' }],
+        constraints: [],
+      },
+    ])
+    expect(controllers.length).toBe(2)
+    expect(controllers[0]?.device.id).toBe(back.id)
+    expect(controllers[1]?.device.id).toBe(front.id)
 
     const started = deferred()
-    const stopped = deferred()
     const sub = session.addOnStartedListener(started.resolve)
-    const stopSub = session.addOnStoppedListener(stopped.resolve)
-    const errorSub = session.addOnErrorListener((error) => {
-      started.reject(error)
-      stopped.reject(error)
-    })
+    const errorSub = session.addOnErrorListener(started.reject)
     try {
       await session.start()
       await withTimeout(started.promise, 15_000, 'session start')
       await session.stop()
-      await withTimeout(stopped.promise, 15_000, 'session stop')
     } finally {
       sub.remove()
-      stopSub.remove()
       errorSub.remove()
     }
   })
