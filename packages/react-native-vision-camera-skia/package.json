@@ -52,7 +52,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@shopify/react-native-skia": "2.4.21",
+    "@shopify/react-native-skia": "2.6.4",
     "@types/react": "19.2.14",
     "react": "19.2.3",
     "react-native": "0.84.0",
