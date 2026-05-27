@@ -26,7 +26,7 @@
     "react-native": "0.84.0",
     "react-native-gesture-handler": "^2.30.0",
     "react-native-nitro-image": "0.15.0",
-    "react-native-nitro-modules": "0.35.7",
+    "react-native-nitro-modules": "0.35.9",
     "react-native-reanimated": "4.3.0",
     "react-native-safe-area-context": "^5.7.0",
     "react-native-screens": "^4.24.0",
