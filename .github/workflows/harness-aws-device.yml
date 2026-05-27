@@ -61,7 +61,7 @@ env:
   USE_CCACHE: 1
   HARNESS_AWS_REGION: us-west-2
   HARNESS_DEVICE_FARM_PROJECT_ARN: arn:aws:devicefarm:us-west-2:633665345122:project:210b1942-012b-4653-9673-f3ff91c5e649
-  HARNESS_XCODE_VERSION: "26.2"
+  HARNESS_XCODE_VERSION: "26.5"
   HARNESS_PROJECT_ROOT: apps/simple-camera
   HARNESS_ANDROID_APP_BUILD_OUTPUT: apps/simple-camera/android/app/build/outputs/apk/debug/app-debug.apk
   HARNESS_IOS_APP_BUILD_OUTPUT: apps/simple-camera/ios/build/devicefarm/SimpleCamera.ipa

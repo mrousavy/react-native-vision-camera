@@ -25,8 +25,8 @@ jobs:
           bundler-cache: true
           working-directory: apps/simple-camera
 
-      - name: Select Xcode 26.2
-        run: sudo xcode-select -s "/Applications/Xcode_26.2.app/Contents/Developer"
+      - name: Select Xcode 26.5
+        run: sudo xcode-select -s "/Applications/Xcode_26.5.app/Contents/Developer"
       - name: Install Pods
         working-directory: apps/simple-camera
         run: bun pods
