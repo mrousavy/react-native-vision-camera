@@ -251,6 +251,34 @@ export interface Frame
   readonly isPlanar: boolean
 
   /**
+   * Get whether this {@linkcode Frame} has a readable Pixel Buffer
+   * attached to it.
+   *
+   * @discussion
+   * Usually a {@linkcode Frame} has an application-accessible Pixel Buffer
+   * if its {@linkcode pixelFormat} is application-accessible - aka
+   * every {@linkcode PixelFormat} except for {@linkcode PixelFormat | 'private'}.
+   * On iOS, every Frame has an application-accessible Pixel Buffer.
+   *
+   * @see {@linkcode getPixelBuffer | getPixelBuffer()}
+   */
+  readonly hasPixelBuffer: boolean
+  /**
+   * Get whether this {@linkcode Frame} has a Native Buffer
+   * attached to it.
+   *
+   * @discussion
+   * Usually a {@linkcode Frame} has a Native Buffer if
+   * its {@linkcode pixelFormat} is application-accessible - aka
+   * every {@linkcode PixelFormat} except for {@linkcode PixelFormat | 'private'}.
+   * On iOS, every Frame has a Native Buffer.
+   *
+   * @see {@linkcode getNativeBuffer | getNativeBuffer()}
+   * @see {@linkcode NativeBuffer}
+   */
+  readonly hasNativeBuffer: boolean
+
+  /**
    * Returns each plane of a **planar** Frame (see {@linkcode isPlanar}).
    * If this Frame is **non-planar**, this method returns an empty array (`[]`).
    *
@@ -275,7 +303,16 @@ export interface Frame
    * Once the {@linkcode Frame} gets invalidated ({@linkcode isValid} == false),
    * this ArrayBuffer is no longer safe to access.
    *
-   * @throws If this Frame is invalid ({@linkcode isValid}).
+   * @throws If this Frame is invalid ({@linkcode isValid}) or
+   * {@linkcode hasPixelBuffer | hasPixelBuffer} is false.
+   *
+   * @example
+   * ```ts
+   * if (frame.hasPixelBuffer) {
+   *   const pixelBuffer = frame.getPixelBuffer()
+   *   console.log(`Frame has ${pixelBuffer.byteLength} bytes.`)
+   * }
+   * ```
    */
   getPixelBuffer(): ArrayBuffer
 
@@ -289,6 +326,17 @@ export interface Frame
    * The {@linkcode NativeBuffer} must be released
    * again by its consumer via {@linkcode NativeBuffer.release | release()},
    * otherwise the Camera pipeline might stall.
+   *
+   * @throws If {@linkcode hasNativeBuffer | hasNativeBuffer} is false.
+   *
+   * @example
+   * ```ts
+   * if (frame.hasNativeBuffer) {
+   *   const nativeBuffer = frame.getNativeBuffer()
+   *   console.log(`Native Buffer pointer: ${nativeBuffer.pointer}`)
+   *   nativeBuffer.release()
+   * }
+   * ```
    */
   getNativeBuffer(): NativeBuffer
 

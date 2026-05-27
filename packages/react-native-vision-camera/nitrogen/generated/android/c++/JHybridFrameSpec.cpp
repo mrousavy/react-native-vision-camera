@@ -112,6 +112,16 @@ namespace margelo::nitro::camera {
     auto __result = method(_javaPart);
     return static_cast<bool>(__result);
   }
+  bool JHybridFrameSpec::getHasPixelBuffer() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getHasPixelBuffer");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
+  bool JHybridFrameSpec::getHasNativeBuffer() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jboolean()>("getHasNativeBuffer");
+    auto __result = method(_javaPart);
+    return static_cast<bool>(__result);
+  }
   std::optional<std::vector<double>> JHybridFrameSpec::getCameraIntrinsicMatrix() {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayDouble>()>("getCameraIntrinsicMatrix");
     auto __result = method(_javaPart);

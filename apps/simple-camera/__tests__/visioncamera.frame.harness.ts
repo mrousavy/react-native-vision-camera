@@ -76,7 +76,7 @@ describe('VisionCamera - Frame', () => {
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
-  it('gets pixel buffers and releases native buffers from native frames', async () => {
+  it('reports and conditionally reads native frame buffers', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
@@ -95,22 +95,35 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    const receivedBuffers = deferred()
+    type NativeFrameBufferReport =
+      | { state: 'skip'; reason: string }
+      | { state: 'error'; errorMessage: string }
+      | { state: 'success' }
+
+    type NativeFrameBufferResult =
+      | { state: 'skip'; reason: string }
+      | { state: 'success'; frames: number }
+
+    const receivedBuffers = deferred<NativeFrameBufferResult>()
     let buffersReceived = 0
-    const report = (hasPixelBuffer: boolean, hasNativeBuffer: boolean) => {
-      if (!hasPixelBuffer) {
-        receivedBuffers.reject(new Error('Frame pixel buffer was empty.'))
-      } else if (!hasNativeBuffer) {
-        receivedBuffers.reject(new Error('Frame native buffer pointer was 0.'))
-      } else {
-        buffersReceived++
-        if (buffersReceived >= 3) {
-          receivedBuffers.resolve()
-        }
+    const report = (frameBufferReport: NativeFrameBufferReport) => {
+      switch (frameBufferReport.state) {
+        case 'skip':
+          receivedBuffers.resolve(frameBufferReport)
+          break
+        case 'error':
+          receivedBuffers.reject(new Error(frameBufferReport.errorMessage))
+          break
+        case 'success':
+          buffersReceived++
+          if (buffersReceived >= 3) {
+            receivedBuffers.resolve({
+              state: 'success',
+              frames: buffersReceived,
+            })
+          }
+          break
       }
-    }
-    const reportError = (errorMessage: string) => {
-      receivedBuffers.reject(new Error(errorMessage))
     }
     const errorSub = session.addOnErrorListener(receivedBuffers.reject)
 
@@ -118,18 +131,54 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const pixelBuffer = frame.getPixelBuffer()
-        const hasPixelBuffer = pixelBuffer.byteLength > 0
+        if (!frame.hasPixelBuffer) {
+          scheduleOnRN(report, {
+            state: 'skip',
+            reason:
+              'native frame buffers: device does not expose readable pixel buffers',
+          })
+          return
+        }
+
+        const pixelBufferBytes = frame.getPixelBuffer().byteLength
+        if (pixelBufferBytes <= 0) {
+          scheduleOnRN(report, {
+            state: 'error',
+            errorMessage: 'Frame pixel buffer was empty.',
+          })
+          return
+        }
+
+        if (!frame.hasNativeBuffer) {
+          scheduleOnRN(report, {
+            state: 'skip',
+            reason:
+              'native frame buffers: device does not expose native buffers',
+          })
+          return
+        }
+
         const nativeBuffer = frame.getNativeBuffer()
-        let hasNativeBuffer = false
         try {
-          hasNativeBuffer = nativeBuffer.pointer !== 0n
+          if (nativeBuffer.pointer === 0n) {
+            scheduleOnRN(report, {
+              state: 'error',
+              errorMessage: 'Frame native buffer pointer was 0.',
+            })
+            return
+          }
         } finally {
           nativeBuffer.release()
         }
-        scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
+
+        scheduleOnRN(report, {
+          state: 'success',
+        })
       } catch (e) {
-        scheduleOnRN(reportError, String(e))
+        scheduleOnRN(report, {
+          state: 'error',
+          errorMessage: String(e),
+        })
       } finally {
         frame.dispose()
       }
@@ -137,17 +186,20 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await withTimeout(
+      const result = await withTimeout(
         receivedBuffers.promise,
         15_000,
-        'receive native frame pixel buffers',
+        'receive native frame buffer reports',
       )
+      if (result.state === 'skip') {
+        return context.skip(result.reason)
+      }
+      expect(result.frames).toBeGreaterThanOrEqual(3)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }
-    expect(buffersReceived).toBeGreaterThanOrEqual(3)
   })
 
   it('keeps YUV plane buffers readable across repeated reads', async () => {
@@ -302,7 +354,7 @@ describe('VisionCamera - Frame', () => {
     expect(reportedPlanes).toBeGreaterThanOrEqual(1)
   })
 
-  it('delivers frames when streaming in rgb', async () => {
+  it('delivers readable pixel buffers when streaming in rgb', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.VGA_16_9,
@@ -322,16 +374,29 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const receivedFrame = deferred()
-    const onFrame = () => {
-      receivedFrame.resolve()
+    const onFrame = (pixelBufferBytes: number) => {
+      if (pixelBufferBytes > 0) {
+        receivedFrame.resolve()
+      } else {
+        receivedFrame.reject(new Error('RGB frame pixel buffer was empty.'))
+      }
+    }
+    const onError = (errorMessage: string) => {
+      receivedFrame.reject(new Error(errorMessage))
     }
     const errorSub = session.addOnErrorListener(receivedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
-      scheduleOnRN(onFrame)
-      frame.dispose()
+      try {
+        const pixelBufferBytes = frame.getPixelBuffer().byteLength
+        scheduleOnRN(onFrame, pixelBufferBytes)
+      } catch (e) {
+        scheduleOnRN(onError, String(e))
+      } finally {
+        frame.dispose()
+      }
     })
 
     await session.start()

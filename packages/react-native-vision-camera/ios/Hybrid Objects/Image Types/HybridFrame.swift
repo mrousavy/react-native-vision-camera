@@ -74,6 +74,14 @@ final class HybridFrame: HybridFrameSpec, NativeFrame, LazyLockableBuffer {
     return CVPixelBufferIsPlanar(pixelBuffer)
   }
 
+  var hasPixelBuffer: Bool {
+    return pixelBuffer != nil
+  }
+
+  var hasNativeBuffer: Bool {
+    return pixelBuffer != nil
+  }
+
   var pixelFormat: PixelFormat {
     guard let pixelBuffer else {
       return .unknown

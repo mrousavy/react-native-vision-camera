@@ -7,6 +7,18 @@ import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.NativeBuffer
 import com.margelo.nitro.camera.utils.NativeBufferHelper
 
+val ImageProxy.hasNativeBuffer: Boolean
+  @OptIn(ExperimentalGetImage::class)
+  get() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+      return false
+    }
+    image?.hardwareBuffer?.use {
+      return true
+    }
+    return false
+  }
+
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getNativeBuffer(): NativeBuffer {
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
