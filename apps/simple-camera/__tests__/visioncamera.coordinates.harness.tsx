@@ -535,7 +535,7 @@ describe('VisionCamera - Coordinates', () => {
   // buffer-space points. The center-only test above cannot catch an
   // off-center rectangle drifting after orientation is applied.
   // See https://github.com/mrousavy/react-native-vision-camera/pull/3878.
-  it('maps oriented Frame rectangles into the same Camera bounds', async () => {
+  it('maps oriented Frame rectangles into the same Camera bounds', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
