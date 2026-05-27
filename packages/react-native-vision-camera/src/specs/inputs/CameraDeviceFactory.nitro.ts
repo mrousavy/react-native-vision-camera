@@ -34,6 +34,17 @@ export interface CameraDeviceFactory
    * This list always contains a subset of {@linkcode cameraDevices}, often
    * less.
    *
+   * Each inner array contains one or more logical {@linkcode CameraDevice}s.
+   * On iOS, a combination can contain a single virtual {@linkcode CameraDevice}
+   * such as a Dual- or Triple-Camera, because that device is backed by multiple
+   * physical Cameras. You can inspect those physical Cameras via
+   * {@linkcode CameraDevice.physicalDevices | physicalDevices}, but pass the
+   * returned {@linkcode CameraDevice}s directly to
+   * {@linkcode CameraSession.configure | configure(...)}.
+   *
+   * If you need multiple independent inputs, choose a combination with at least
+   * two {@linkcode CameraDevice}s.
+   *
    * @discussion
    * For example, on many platforms only a {@linkcode CameraPosition | 'front'}
    * and a {@linkcode CameraPosition | 'back'} {@linkcode CameraDevice} are

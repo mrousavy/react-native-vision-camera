@@ -476,43 +476,42 @@ describe('VisionCamera - Session', () => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip('multi-cam session: not supported on this platform')
     }
-    const back = factory.getDefaultCamera('back')
-    const front = factory.getDefaultCamera('front')
-    expect(back).toBeDefined()
-    expect(front).toBeDefined()
-    if (back == null || front == null) {
-      throw new Error('missing default camera for multi-cam session')
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    if (combinations.length === 0) {
+      return context.skip(
+        'multi-cam session: no combinations reported on this device',
+      )
+    }
+    const combination =
+      combinations.find((devices) => devices.length >= 2) ?? combinations[0]
+    if (combination == null) {
+      throw new Error('missing multi-cam device combination')
     }
 
     const session = await VisionCamera.createCameraSession(true)
-    const backPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const frontPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
+    const connections = combination.map((device) => ({
+      input: device,
+      outputs: [
+        {
+          output: VisionCamera.createPhotoOutput({
+            targetResolution: CommonResolutions.HD_4_3,
+            containerFormat: 'jpeg' as const,
+            quality: 0.8,
+            qualityPrioritization: 'balanced' as const,
+          }),
+          mirrorMode: 'auto' as const,
+        },
+      ],
+      constraints: [],
+    }))
 
-    const controllers = await session.configure([
-      {
-        input: back,
-        outputs: [{ output: backPhoto, mirrorMode: 'off' }],
-        constraints: [],
-      },
-      {
-        input: front,
-        outputs: [{ output: frontPhoto, mirrorMode: 'on' }],
-        constraints: [],
-      },
-    ])
-    expect(controllers.length).toBe(2)
-    expect(controllers[0]?.device.id).toBe(back.id)
-    expect(controllers[1]?.device.id).toBe(front.id)
+    const controllers = await session.configure(connections)
+    expect(controllers).toHaveLength(combination.length)
+    const controllerDeviceIds = controllers.map(
+      (controller) => controller.device.id,
+    )
+    const expectedDeviceIds = combination.map((device) => device.id)
+    expect(controllerDeviceIds).toEqual(expectedDeviceIds)
 
     const started = deferred()
     const sub = session.addOnStartedListener(started.resolve)
@@ -546,7 +545,9 @@ describe('VisionCamera - Session', () => {
       // The previous test covers actual lifecycle; this one covers the full
       // configure-time compatibility surface.
       for (const combination of combinations) {
-        expect(combination.length).toBeGreaterThan(1)
+        // iOS can report a singleton virtual camera (for example a Dual- or
+        // Triple-Camera) as a supported multi-cam device set.
+        expect(combination.length).toBeGreaterThan(0)
         const connections = combination.map((device) => ({
           input: device,
           outputs: [

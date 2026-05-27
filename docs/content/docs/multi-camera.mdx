@@ -21,6 +21,8 @@ if (VisionCamera.supportsMultiCamSessions) {
 
 Due to hardware constraints, not every [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice) can be paired with every other [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice), therefore VisionCamera exposes a list of supported device combinations via [`supportedMultiCamDeviceCombinations`](/api/react-native-vision-camera/hybrid-objects/CameraDeviceFactory#supportedmulticamdevicecombinations) upfront:
 
+A combination contains one or more logical [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevice)s. On iOS, a combination can contain a single virtual Camera, such as a Dual- or Triple-Camera, because that one Camera is backed by multiple physical Cameras. Pass the returned Cameras directly to [`configure(...)`](/api/react-native-vision-camera/hybrid-objects/CameraSession#configure), and use [`physicalDevices`](/api/react-native-vision-camera/hybrid-objects/CameraDevice#physicaldevices) only for inspection. If you need multiple independent previews, choose a combination with at least two Cameras.
+
 ```ts
 const deviceFactory = await VisionCamera.createDeviceFactory()
 const frontAndBackCombination =
