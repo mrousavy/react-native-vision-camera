@@ -30,7 +30,7 @@ describe('VisionCamera - Devices', () => {
       (d) => d.position === 'external',
     )
     if (external.length === 0) {
-      context.skip('external cameras: none available on this device')
+      return context.skip('external cameras: none available on this device')
     }
     for (const device of external) {
       console.log(
@@ -163,7 +163,7 @@ describe('VisionCamera - Devices', () => {
   it('every device in a supportedMultiCamDeviceCombinations combination is also present in cameraDevices', (context) => {
     const combinations = factory.supportedMultiCamDeviceCombinations
     if (combinations.length === 0) {
-      context.skip(
+      return context.skip(
         'supportedMultiCamDeviceCombinations device lookup: no combinations on this platform',
       )
     }

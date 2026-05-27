@@ -349,7 +349,9 @@ describe('VisionCamera - Video', () => {
   it('keeps a persistent recording running while switching the input device', async (context) => {
     const frontDevice = factory.getDefaultCamera('front')
     if (frontDevice == null) {
-      context.skip('persistent recorder device switch: no front camera available')
+      return context.skip(
+        'persistent recorder device switch: no front camera available',
+      )
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -396,7 +398,7 @@ describe('VisionCamera - Video', () => {
 
   it('records with enableHigherResolutionCodecs on Android', async (context) => {
     if (Platform.OS !== 'android') {
-      context.skip('enableHigherResolutionCodecs: Android only')
+      return context.skip('enableHigherResolutionCodecs: Android only')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -660,7 +662,7 @@ describe('VisionCamera - Video', () => {
 
   it('returns supported video codecs on iOS after the output is attached', async (context) => {
     if (Platform.OS !== 'ios') {
-      context.skip('getSupportedVideoCodecs: iOS only')
+      return context.skip('getSupportedVideoCodecs: iOS only')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({

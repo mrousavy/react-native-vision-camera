@@ -84,13 +84,15 @@ Cameras differ. A failing hard requirement is a real bug; a missing soft feature
 ```ts
 it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
   if (!backDevice.supportsPhotoHDR) {
-    context.skip('photoHDR: not supported on this device')
+    return context.skip('photoHDR: not supported on this device')
   }
   // hard-assert HDR behavior from here on
 })
 ```
 
-Use the guard form above instead of `context.skip(condition, reason)` when a nullable value needs to be narrowed afterwards. If only one optional case inside a matrix is unsupported, split that case into its own `it(...)` so the always-supported cases still run and the optional case is reported as skipped.
+Use the guard form above instead of `context.skip(condition, reason)` when a nullable value needs to be narrowed afterwards. Keep the `return` so TypeScript understands the rest of the test only runs when the capability exists. If only one optional case inside a matrix is unsupported, split that case into its own `it(...)` so the always-supported cases still run and the optional case is reported as skipped.
+
+Only call `context.skip(...)` from the `it(...)` body or code that intentionally skips that whole test. Do not hide it inside a shared helper for optional sub-assertions, because it aborts the entire `it(...)`. If a shared cross-platform test has an Android-only extra assertion, let that helper return without logging on iOS; if the Android-only behavior deserves skip accounting, make it a dedicated `it(...)`.
 
 Capability flags live on
 - `CameraDevice` (`hasFlash`, `hasTorch`, `supportsFocusMetering`, `supportsExposureBias`, `supportsPhotoHDR`, `supportsFPS(n)`, `supportsVideoStabilizationMode('cinematic')`, etc.),
@@ -136,7 +138,7 @@ The exception is when elapsed wall-clock time is part of the behavior under test
 
 ### 8. Platform guards
 
-Pure iOS-only features (`CameraObjectOutput`, `continuity camera`, `getSupportedVideoCodecs`, etc.) or Android-only features (`CameraExtension`, etc.) should start with a `context.skip('...: iOS only')` / `context.skip('...: Android only')` platform guard. Do not branch on `Platform.OS` to mask behavioral differences that should be identical across platforms — flag those as bugs.
+Pure iOS-only features (`CameraObjectOutput`, `continuity camera`, `getSupportedVideoCodecs`, etc.) or Android-only features (`CameraExtension`, etc.) should start with a `return context.skip('...: iOS only')` / `return context.skip('...: Android only')` platform guard. Do not branch on `Platform.OS` to mask behavioral differences that should be identical across platforms — flag those as bugs.
 If a behavior should be supported on both platforms, write one shared test. If that makes CI red on one platform, keep the failure visible until the platform discrepancy is fixed.
 Do not guard features that expose runtime availability checks behind such flags - e.g. `setFocusLocked(...)` can be probed with `device.supportsManualFocus` - even if this natively is always `false` on Android, this allows us to automatically run the test in the future once we add focus locking support to Android too.
 Also do not guard features that are technically possible to implement on the other platform, but not yet implemented due to a TODO behind such feature flags. `setFocusLocked` would be such a case. In these situations, it's expected to have the test red on the missing platform until it's implemented - kinda like a task list for the maintainers.

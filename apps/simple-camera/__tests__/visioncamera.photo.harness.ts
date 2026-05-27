@@ -89,7 +89,7 @@ describe('VisionCamera - Photo', () => {
         expect(photo.width).toBeGreaterThan(0)
         expect(photo.height).toBeGreaterThan(0)
         if (!photo.hasPixelBuffer) {
-          context.skip(
+          return context.skip(
             'Photo pixel buffer: captured native photo has no pixel buffer',
           )
         }
@@ -249,7 +249,9 @@ describe('VisionCamera - Photo', () => {
 
   it('captures with speed qualityPrioritization when supported', async (context) => {
     if (!backDevice.supportsSpeedQualityPrioritization) {
-      context.skip('qualityPrioritization: speed not supported on device')
+      return context.skip(
+        'qualityPrioritization: speed not supported on device',
+      )
     }
 
     const session = await VisionCamera.createCameraSession(false)
@@ -505,7 +507,7 @@ describe('VisionCamera - Photo', () => {
 
   it('delivers a preview image when previewImageTargetSize is set and the device supports it', async (context) => {
     if (!backDevice.supportsPreviewImage) {
-      context.skip(
+      return context.skip(
         'onPreviewImageAvailable: device has no preview image support',
       )
     }
@@ -573,7 +575,7 @@ describe('VisionCamera - Photo', () => {
 
   it('captures with flashMode on when the device has flash', async (context) => {
     if (!backDevice.hasFlash) {
-      context.skip('flashMode on: device has no flash')
+      return context.skip('flashMode on: device has no flash')
     }
 
     const session = await VisionCamera.createCameraSession(false)
@@ -633,7 +635,7 @@ describe('VisionCamera - Photo', () => {
 
   it('applies enableDistortionCorrection when the device supports it', async (context) => {
     if (!backDevice.supportsDistortionCorrection) {
-      context.skip('enableDistortionCorrection: not supported on device')
+      return context.skip('enableDistortionCorrection: not supported on device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -784,7 +786,7 @@ describe('VisionCamera - Photo', () => {
         d.type === 'dual',
     )
     if (depthDevice == null) {
-      context.skip(
+      return context.skip(
         'supportsDepthDataDelivery: no depth-capable device on this system',
       )
     }

@@ -86,7 +86,7 @@ describe('VisionCamera - Constraints', () => {
 
   it('resolves a fps: 60 constraint if the device supports it', async (context) => {
     if (!backDevice.supportsFPS(60)) {
-      context.skip('fps: 60 not supported on this device')
+      return context.skip('fps: 60 not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -111,7 +111,7 @@ describe('VisionCamera - Constraints', () => {
 
   it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
     if (!backDevice.supportsPhotoHDR) {
-      context.skip('photoHDR: not supported on this device')
+      return context.skip('photoHDR: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -141,7 +141,7 @@ describe('VisionCamera - Constraints', () => {
       (d) => d.bitDepth === 'hdr-10-bit',
     )
     if (!hasHdr) {
-      context.skip('video HDR: no HDR dynamic range on this device')
+      return context.skip('video HDR: no HDR dynamic range on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -175,7 +175,7 @@ describe('VisionCamera - Constraints', () => {
       d.supportsVideoStabilizationMode('cinematic'),
     )
     if (stabDevice == null) {
-      context.skip(
+      return context.skip(
         'videoStabilizationMode: no device on this system supports "cinematic"',
       )
     }
@@ -205,7 +205,7 @@ describe('VisionCamera - Constraints', () => {
       d.supportsPreviewStabilizationMode('preview-optimized'),
     )
     if (stabDevice == null) {
-      context.skip(
+      return context.skip(
         'previewStabilizationMode: no device on this system supports "preview-optimized"',
       )
     }
@@ -249,7 +249,7 @@ describe('VisionCamera - Constraints', () => {
     await waitUntil(() => received != null, { timeout: 5_000 })
     if (received?.isBinned !== true) {
       await session.stop()
-      context.skip(
+      return context.skip(
         `binned: true: device resolved to isBinned=${received?.isBinned}`,
       )
     }
@@ -262,7 +262,9 @@ describe('VisionCamera - Constraints', () => {
       (f) => f !== 'unknown',
     )
     if (candidate == null) {
-      context.skip('pixelFormat constraint: device has no non-unknown formats')
+      return context.skip(
+        'pixelFormat constraint: device has no non-unknown formats',
+      )
     }
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
@@ -392,7 +394,7 @@ describe('VisionCamera - Constraints', () => {
     )
 
     if (chosenStabilizationMode == null || !hasHdr) {
-      context.skip(
+      return context.skip(
         'priority ordering: device lacks stabilization and/or HDR support',
       )
     }
@@ -440,7 +442,9 @@ describe('VisionCamera - Constraints', () => {
 
   it('reconfigures the running session with a different constraint set', async (context) => {
     if (!backDevice.supportsFPS(60)) {
-      context.skip('reconfigure with new constraints: fps: 60 not supported')
+      return context.skip(
+        'reconfigure with new constraints: fps: 60 not supported',
+      )
     }
 
     const session = await VisionCamera.createCameraSession(false)

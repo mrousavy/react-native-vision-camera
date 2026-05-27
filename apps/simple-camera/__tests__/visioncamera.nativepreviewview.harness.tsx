@@ -33,10 +33,6 @@ interface Layout {
   height: number
 }
 
-type SkipContext = {
-  skip: (note?: string) => never
-}
-
 function toLayout(event: LayoutChangeEvent): Layout {
   const layout = event.nativeEvent.layout
   return {
@@ -67,12 +63,11 @@ function expectPreviewGeometry(preview: PreviewView, layout: Layout) {
 }
 
 async function expectPreviewSnapshotDimensionsToMatchLayout(
-  context: SkipContext,
   preview: PreviewView,
   layout: Layout,
 ) {
   if (Platform.OS !== 'android') {
-    context.skip('takeSnapshot dimensions: Android only')
+    return
   }
 
   const snapshot = await preview.takeSnapshot()
@@ -107,7 +102,7 @@ describe('VisionCamera - NativePreviewView', () => {
     cleanup()
   })
 
-  it('starts a bare NativePreviewView and exposes ref methods', async (context) => {
+  it('starts a bare NativePreviewView and exposes ref methods', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     await session.configure([
@@ -161,18 +156,14 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       expectPreviewGeometry(preview, previewLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(
-        context,
-        preview,
-        previewLayout,
-      )
+      await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
     } finally {
       errorSub.remove()
       await session.stop()
     }
   })
 
-  it('keeps a flex preview laid out inside a padded overflow-hidden parent', async (context) => {
+  it('keeps a flex preview laid out inside a padded overflow-hidden parent', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     await session.configure([
@@ -231,18 +222,14 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(previewLayout.y).toBeCloseTo(PADDING_TOP, 0)
       expect(previewLayout.height).toBeGreaterThan(0)
       expectPreviewGeometry(preview, previewLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(
-        context,
-        preview,
-        previewLayout,
-      )
+      await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
     } finally {
       errorSub.remove()
       await session.stop()
     }
   })
 
-  it('survives repeated conditional placeholder-to-preview mounts in a padded parent', async (context) => {
+  it('survives repeated conditional placeholder-to-preview mounts in a padded parent', async () => {
     for (let attempt = 1; attempt <= 5; attempt++) {
       const session = await VisionCamera.createCameraSession(false)
       const previewOutput = VisionCamera.createPreviewOutput()
@@ -308,7 +295,6 @@ describe('VisionCamera - NativePreviewView', () => {
         expect(previewLayout.y).toBeCloseTo(PADDING_TOP, 0)
         expectPreviewGeometry(preview, previewLayout)
         await expectPreviewSnapshotDimensionsToMatchLayout(
-          context,
           preview,
           previewLayout,
         )
@@ -320,7 +306,7 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
-  it('keeps a fixed 150x300 preview centered on first mount', async (context) => {
+  it('keeps a fixed 150x300 preview centered on first mount', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     await session.configure([
@@ -412,14 +398,14 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(layout.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
       expect(layout.height).toBeCloseTo(FIXED_PREVIEW_HEIGHT, 0)
       expectPreviewGeometry(preview, layout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(context, preview, layout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(preview, layout)
     } finally {
       errorSub.remove()
       await session.stop()
     }
   })
 
-  it('updates geometry when the preview layout changes while running', async (context) => {
+  it('updates geometry when the preview layout changes while running', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     await session.configure([
@@ -504,7 +490,7 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(second.width).toBeCloseTo(WIDE_PREVIEW_WIDTH, 0)
       expect(second.height).toBeCloseTo(WIDE_PREVIEW_HEIGHT, 0)
       expectPreviewGeometry(preview, second)
-      await expectPreviewSnapshotDimensionsToMatchLayout(context, preview, second)
+      await expectPreviewSnapshotDimensionsToMatchLayout(preview, second)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -680,13 +666,13 @@ describe('VisionCamera - NativePreviewView', () => {
 
   it('mounts two NativePreviewViews from two preview outputs in one multi-cam session', async (context) => {
     if (VisionCamera.supportsMultiCamSessions === false) {
-      context.skip('two NativePreviewViews: multi-cam not supported')
+      return context.skip('two NativePreviewViews: multi-cam not supported')
     }
     const combination = factory.supportedMultiCamDeviceCombinations.find(
       (devices) => devices.length >= 2,
     )
     if (combination == null) {
-      context.skip(
+      return context.skip(
         'two NativePreviewViews: no multi-cam combination with two devices',
       )
     }
@@ -868,7 +854,7 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
-  it('supports cover and contain resizeMode previews', async (context) => {
+  it('supports cover and contain resizeMode previews', async () => {
     const resizeModes: PreviewResizeMode[] = ['cover', 'contain']
     let coverTopLeft: Point | undefined
     let containTopLeft: Point | undefined
@@ -933,7 +919,6 @@ describe('VisionCamera - NativePreviewView', () => {
 
         expectPreviewGeometry(preview, previewLayout)
         await expectPreviewSnapshotDimensionsToMatchLayout(
-          context,
           preview,
           previewLayout,
         )
@@ -963,7 +948,7 @@ describe('VisionCamera - NativePreviewView', () => {
 
   it('supports both Android preview implementation modes', async (context) => {
     if (Platform.OS !== 'android') {
-      context.skip('implementationMode: Android only')
+      return context.skip('implementationMode: Android only')
     }
 
     const implementationModes: PreviewImplementationMode[] = [
@@ -1027,7 +1012,6 @@ describe('VisionCamera - NativePreviewView', () => {
 
         expectPreviewGeometry(preview, previewLayout)
         await expectPreviewSnapshotDimensionsToMatchLayout(
-          context,
           preview,
           previewLayout,
         )
