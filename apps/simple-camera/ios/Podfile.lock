@@ -1630,7 +1630,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-vector-icons-ionicons (12.4.1)
+  - react-native-vector-icons-ionicons (13.1.2)
   - react-native-video (6.19.2):
     - hermes-engine
     - RCTRequired
@@ -2749,7 +2749,7 @@ SPEC CHECKSUMS:
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  hermes-engine: 338e680ddbc265eedeca6897afcdeab60e0af645
+  hermes-engine: 920b960b432920e2d1b387e9a77de7cf8636fa69
   MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
   MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
   MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
@@ -2766,7 +2766,7 @@ SPEC CHECKSUMS:
   React: 7ef36630d07638043a134a7dd2ec17e0be10fc3c
   React-callinvoker: af4e8fe1d60ab63dd8d74c2a68988064c2848954
   React-Core: c0fb1df65eb0ed7a8633841831f05f93c3eb3aff
-  React-Core-prebuilt: 4978df8b63170d68b35f64f5e070d67e24e67184
+  React-Core-prebuilt: bcb786d173273fe9f5057958ca86f20781da9971
   React-CoreModules: 7dfe7962360355f1547c85ab52e1fc4b57f17127
   React-cxxreact: 9e9c7f1710bc58abebf924813b5e825b99adb8e5
   React-debug: 38389b86e3570558ec73dd4cbc0cd2f2eec47a51
@@ -2798,7 +2798,7 @@ SPEC CHECKSUMS:
   react-native-menu: 17321e8d0d15af018c56ae7e4e42268ef297f6c3
   react-native-safe-area-context: 29044d05d61f2c60d0828c373bd0ebe17eed58d0
   react-native-skia: bd98485c5d19b8fb749db4b8aff338d324f24e6c
-  react-native-vector-icons-ionicons: 7bc32eadb4d24c93252430b49f25b8be000e2340
+  react-native-vector-icons-ionicons: 6831196cf1486bfd26b715d749c5c9a7d67bc0eb
   react-native-video: 7d8b2953c75b8a13bbb726103ec7a0b71784b9c3
   React-NativeModulesApple: 14a8919451154ede904f2bca84b27703a09028ba
   React-networking: 46c0037f9202c1919493b78662a47cbe13022fdd
@@ -2833,7 +2833,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 625d2f6d9d5ef01acc9dfe2b5385504bbffd2ad0
   ReactCodegen: e6f176b40e56d6fa6d441baf3bc2e351172a41a6
   ReactCommon: cc0e38600f82487c5fe5d29150abb6fa9d981986
-  ReactNativeDependencies: 15a6a8ab2c09e708aea8edc0a7f90a8a112aef63
+  ReactNativeDependencies: 99dbeb1a1271e9120ae8f07f7cb2fb1970de0646
   RNGestureHandler: 6d378fd1aa991c7ab62a4215ee6cc417895a6954
   RNReanimated: 9c65860a356274f39a796983d10ff58ce828ac9c
   RNScreens: 088d923c4327c63c9f8c942cae17a9d038f47d97
