@@ -2,25 +2,36 @@ import type {
   Item as PageTreeItem,
   Node as PageTreeNode,
 } from 'fumadocs-core/page-tree'
-import type { PageTreeBuilderContext, SourceConfig } from 'fumadocs-core/source'
+import type {
+  ContentStorage,
+  ContentStorageMetaFile,
+  ContentStoragePageFile,
+  PageData,
+  PageTreeBuilderContext,
+} from 'fumadocs-core/source'
 
-export type PageDataWithTitle = {
+export type PageDataWithTitle = PageData & {
   title?: string
 }
 
-export type PageDataWithHybridParent = {
+export type PageDataWithHybridParent = PageData & {
   hybridParent?: string
 }
+
+export type PageDataStorage<Data extends PageData = PageData> = ContentStorage<
+  ContentStoragePageFile<string | undefined, Data>,
+  ContentStorageMetaFile
+>
 
 export function getNodeNameAsString(name: PageTreeNode['name']): string {
   return typeof name === 'string' ? name : ''
 }
 
-export function readPageData<Config extends SourceConfig>(
-  context: PageTreeBuilderContext<Config>,
+export function readPageData<Storage extends PageDataStorage>(
+  context: PageTreeBuilderContext<Storage>,
   item: PageTreeItem,
-): Config['pageData'] | null {
-  const filePath = item.$ref?.file
+): Storage['$inferPage']['data'] | null {
+  const filePath = item.$ref
   if (typeof filePath !== 'string' || filePath.length === 0) {
     return null
   }
@@ -34,15 +45,15 @@ export function readPageData<Config extends SourceConfig>(
 }
 
 export function readPageTitle<
-  Config extends SourceConfig & { pageData: PageDataWithTitle },
->(context: PageTreeBuilderContext<Config>, item: PageTreeItem): string | null {
+  Storage extends PageDataStorage<PageDataWithTitle>,
+>(context: PageTreeBuilderContext<Storage>, item: PageTreeItem): string | null {
   const title = readPageData(context, item)?.title
   return typeof title === 'string' && title.length > 0 ? title : null
 }
 
 export function readHybridParent<
-  Config extends SourceConfig & { pageData: PageDataWithHybridParent },
->(context: PageTreeBuilderContext<Config>, item: PageTreeItem): string | null {
+  Storage extends PageDataStorage<PageDataWithHybridParent>,
+>(context: PageTreeBuilderContext<Storage>, item: PageTreeItem): string | null {
   const hybridParent = readPageData(context, item)?.hybridParent
   return typeof hybridParent === 'string' && hybridParent.length > 0
     ? hybridParent
@@ -50,8 +61,8 @@ export function readHybridParent<
 }
 
 export function readStablePageTitle<
-  Config extends SourceConfig & { pageData: PageDataWithTitle },
->(context: PageTreeBuilderContext<Config>, item: PageTreeItem): string | null {
+  Storage extends PageDataStorage<PageDataWithTitle>,
+>(context: PageTreeBuilderContext<Storage>, item: PageTreeItem): string | null {
   const title = readPageTitle(context, item)
   if (title != null) {
     return title

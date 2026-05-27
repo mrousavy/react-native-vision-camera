@@ -5,10 +5,9 @@ import type {
   Root as PageTreeRoot,
 } from 'fumadocs-core/page-tree'
 import type {
-  LoaderConfig,
   LoaderPlugin,
+  PageData,
   PageTreeBuilderContext,
-  SourceConfig,
 } from 'fumadocs-core/source'
 import {
   API_SECTION_NAME_BY_KEY,
@@ -18,19 +17,17 @@ import {
 } from '@/lib/shared/api-reference.shared'
 import {
   getNodeNameAsString,
+  type PageDataStorage,
   type PageDataWithHybridParent,
   type PageDataWithTitle,
   readHybridParent,
   readStablePageTitle,
 } from '@/lib/source/page-tree'
 
-type ApiReferencePageData = PageDataWithTitle & PageDataWithHybridParent
-type ApiReferenceSourceConfig = SourceConfig & {
-  pageData: ApiReferencePageData
-}
-type ApiReferenceLoaderConfig = LoaderConfig & {
-  source: ApiReferenceSourceConfig
-}
+type ApiReferencePageData = PageData &
+  PageDataWithTitle &
+  PageDataWithHybridParent
+type ApiReferenceStorage = PageDataStorage<ApiReferencePageData>
 
 function withCanonicalSectionName(folder: PageTreeFolder): PageTreeFolder {
   const folderName = getNodeNameAsString(folder.name)
@@ -108,9 +105,9 @@ function reorderSectionFolders(folder: PageTreeFolder): PageTreeFolder {
 }
 
 function nestHybridObjectChildren<
-  Config extends ApiReferenceSourceConfig = ApiReferenceSourceConfig,
+  Storage extends ApiReferenceStorage = ApiReferenceStorage,
 >(
-  context: PageTreeBuilderContext<Config>,
+  context: PageTreeBuilderContext<Storage>,
   folder: PageTreeFolder,
 ): PageTreeFolder {
   const pageNodes = folder.children.filter(
@@ -189,7 +186,8 @@ function nestHybridObjectChildren<
   const createHybridNodeId = (seed: string): string => {
     hybridNodeCounter += 1
     const safeSeed = seed.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    return `${context.idPrefix}-hybrid-${safeSeed}-${hybridNodeCounter}`
+    const idPrefix = context.options.idPrefix ?? 'api-reference'
+    return `${idPrefix}-hybrid-${safeSeed}-${hybridNodeCounter}`
   }
 
   const createNode = (
@@ -270,8 +268,8 @@ function nestHybridObjectChildren<
 }
 
 function transformApiTreeNode<
-  Config extends ApiReferenceSourceConfig = ApiReferenceSourceConfig,
->(context: PageTreeBuilderContext<Config>, node: PageTreeNode): PageTreeNode {
+  Storage extends ApiReferenceStorage = ApiReferenceStorage,
+>(context: PageTreeBuilderContext<Storage>, node: PageTreeNode): PageTreeNode {
   if (node.type !== 'folder') {
     return node
   }
@@ -291,12 +289,12 @@ function transformApiTreeNode<
 }
 
 export function createApiReferenceTreePlugin<
-  Config extends ApiReferenceLoaderConfig = ApiReferenceLoaderConfig,
->(): LoaderPlugin<Config> {
+  Storage extends ApiReferenceStorage = ApiReferenceStorage,
+>(): LoaderPlugin<Storage> {
   return {
     name: 'api-reference-tree',
     transformPageTree: {
-      root(this: PageTreeBuilderContext<Config['source']>, node: PageTreeRoot) {
+      root(this: PageTreeBuilderContext<Storage>, node: PageTreeRoot) {
         return {
           ...node,
           children: node.children.map((child) =>

@@ -4,24 +4,19 @@ import type {
   Root as PageTreeRoot,
 } from 'fumadocs-core/page-tree'
 import type {
-  LoaderConfig,
   LoaderPlugin,
+  PageData,
   PageTreeBuilderContext,
-  SourceConfig,
 } from 'fumadocs-core/source'
 import { createElement } from 'react'
 import {
   type PageDataWithPlatforms,
   readSinglePlatformFromPageData,
 } from '@/lib/platforms'
-import { readPageData } from '@/lib/source/page-tree'
+import { type PageDataStorage, readPageData } from '@/lib/source/page-tree'
 
-type PlatformSourceConfig = SourceConfig & {
-  pageData: PageDataWithPlatforms
-}
-type PlatformLoaderConfig = LoaderConfig & {
-  source: PlatformSourceConfig
-}
+type PlatformPageData = PageData & PageDataWithPlatforms
+type PlatformStorage = PageDataStorage<PlatformPageData>
 
 const SIDEBAR_ITEM_CONTENT_CLASS = 'api-sidebar-item-content'
 const SIDEBAR_ITEM_LABEL_CLASS = 'api-sidebar-item-label'
@@ -40,8 +35,8 @@ function withSidebarPlatformLabel(
 }
 
 function withPlatformLabelOnItem<
-  Config extends PlatformSourceConfig = PlatformSourceConfig,
->(context: PageTreeBuilderContext<Config>, item: PageTreeItem): PageTreeItem {
+  Storage extends PlatformStorage = PlatformStorage,
+>(context: PageTreeBuilderContext<Storage>, item: PageTreeItem): PageTreeItem {
   const platform = readSinglePlatformFromPageData(readPageData(context, item))
   if (platform == null) {
     return item
@@ -53,9 +48,10 @@ function withPlatformLabelOnItem<
   }
 }
 
-function withPlatformLabels<
-  Config extends PlatformSourceConfig = PlatformSourceConfig,
->(context: PageTreeBuilderContext<Config>, node: PageTreeNode): PageTreeNode {
+function withPlatformLabels<Storage extends PlatformStorage = PlatformStorage>(
+  context: PageTreeBuilderContext<Storage>,
+  node: PageTreeNode,
+): PageTreeNode {
   if (node.type === 'page') {
     return withPlatformLabelOnItem(context, node)
   }
@@ -76,12 +72,12 @@ function withPlatformLabels<
 }
 
 export function createPlatformLabelPlugin<
-  Config extends PlatformLoaderConfig = PlatformLoaderConfig,
->(): LoaderPlugin<Config> {
+  Storage extends PlatformStorage = PlatformStorage,
+>(): LoaderPlugin<Storage> {
   return {
     name: 'page-tree-platform-labels',
     transformPageTree: {
-      root(this: PageTreeBuilderContext<Config['source']>, node: PageTreeRoot) {
+      root(this: PageTreeBuilderContext<Storage>, node: PageTreeRoot) {
         return {
           ...node,
           children: node.children.map((child) =>
