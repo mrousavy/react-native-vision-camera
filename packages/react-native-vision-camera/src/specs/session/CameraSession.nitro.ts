@@ -120,6 +120,11 @@ export interface CameraSession
    * simultaneously. See {@linkcode CameraDeviceFactory.supportedMultiCamDeviceCombinations}
    * for a full list of supported combinations.
    *
+   * @note Some supported combinations can contain a single virtual
+   * {@linkcode CameraDevice}, such as an iOS Dual- or Triple-Camera. Pass the
+   * returned devices directly to {@linkcode configure | configure(...)} instead
+   * of expanding virtual devices via {@linkcode CameraDevice.physicalDevices}.
+   *
    * @param connections The list of connections from one _input_ to
    * multiple _outputs_. If this {@linkcode CameraSession} was created
    * as a multi-cam session (see {@linkcode CameraFactory.createCameraSession | createCameraSession(enableMultiCam)}),
