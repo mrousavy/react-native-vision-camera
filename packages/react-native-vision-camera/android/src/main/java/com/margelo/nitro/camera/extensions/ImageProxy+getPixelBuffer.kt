@@ -10,30 +10,26 @@ import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
 
-private val HardwareBuffer.isCpuReadable: Boolean
+val HardwareBuffer.isCpuReadable: Boolean
   @RequiresApi(Build.VERSION_CODES.O)
   get() {
     val readableUsageFlags = HardwareBuffer.USAGE_CPU_READ_RARELY or HardwareBuffer.USAGE_CPU_READ_OFTEN
     return (usage and readableUsageFlags) != 0L
   }
 
-@OptIn(ExperimentalGetImage::class)
-private inline fun <T : Any> ImageProxy.withReadableHardwareBuffer(block: (HardwareBuffer) -> T): T? {
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return null
-  val hardwareBuffer = image?.hardwareBuffer ?: return null
-  return hardwareBuffer.use { buffer ->
-    if (buffer.isCpuReadable) {
-      block(buffer)
-    } else {
-      null
-    }
-  }
-}
-
 val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
   get() {
-    return withReadableHardwareBuffer { true } ?: planes.isNotEmpty()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      image?.hardwareBuffer?.use { hardwareBuffer ->
+        if (hardwareBuffer.isCpuReadable) {
+          // We have CPU-readable GPU-backed Pixel Data.
+          return true
+        }
+      }
+    }
+    // We have CPU-accessible planes.
+    return planes.isNotEmpty()
   }
 
 data class DisposableArrayBuffer(
@@ -60,14 +56,16 @@ private fun ByteBuffer.wrapOrCopyIntoArrayBuffer(): DisposableArrayBuffer {
 
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
-  withReadableHardwareBuffer { hardwareBuffer ->
-    // Fast Path: We have a CPU-readable HardwareBuffer.
-    val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
-    DisposableArrayBuffer(arrayBuffer) {
-      // no release
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    image?.hardwareBuffer?.use { hardwareBuffer ->
+      if (hardwareBuffer.isCpuReadable) {
+        // Fast Path: We have a CPU-readable HardwareBuffer.
+        val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
+        return DisposableArrayBuffer(arrayBuffer) {
+          // no release
+        }
+      }
     }
-  }?.let { arrayBuffer ->
-    return arrayBuffer
   }
 
   return when {
