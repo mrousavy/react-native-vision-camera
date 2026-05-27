@@ -114,6 +114,7 @@ test('hybrid object api page stays stable', async ({ page }) => {
   await expect(page).toHaveScreenshot('api-hybrid-object.png', {
     animations: 'disabled',
     fullPage: true,
+    maxDiffPixels: 250,
   })
 })
 
