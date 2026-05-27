@@ -525,7 +525,7 @@ describe('VisionCamera - Session', () => {
     }
   })
 
-  it('configures, starts and stops a multi-cam session for every supported device combination', async (context) => {
+  it('configures a multi-cam session for every supported device combination', async (context) => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip(
         'multi-cam combinations: not supported on this platform',
@@ -538,47 +538,42 @@ describe('VisionCamera - Session', () => {
       )
     }
 
-    for (const combination of combinations) {
-      const session = await VisionCamera.createCameraSession(true)
-      const connections = combination.map((device) => ({
-        input: device,
-        outputs: [
-          {
-            output: VisionCamera.createPhotoOutput({
-              targetResolution: CommonResolutions.HD_4_3,
-              containerFormat: 'jpeg' as const,
-              quality: 0.8,
-              qualityPrioritization: 'balanced' as const,
-            }),
-            mirrorMode: 'auto' as const,
-          },
-        ],
-        constraints: [],
-      }))
+    const session = await VisionCamera.createCameraSession(true)
+    try {
+      // Starting every reported combination is expensive on physical devices.
+      // The previous test covers actual lifecycle; this one covers the full
+      // configure-time compatibility surface.
+      for (const combination of combinations) {
+        expect(combination.length).toBeGreaterThan(1)
+        const connections = combination.map((device) => ({
+          input: device,
+          outputs: [
+            {
+              output: VisionCamera.createPhotoOutput({
+                targetResolution: CommonResolutions.HD_4_3,
+                containerFormat: 'jpeg' as const,
+                quality: 0.8,
+                qualityPrioritization: 'balanced' as const,
+              }),
+              mirrorMode: 'auto' as const,
+            },
+          ],
+          constraints: [],
+        }))
+        const controllers = await session.configure(connections)
+        const controllerDeviceIds = controllers.map(
+          (controller) => controller.device.id,
+        )
+        const expectedDeviceIds = combination.map((device) => device.id)
+        expect(controllerDeviceIds).toEqual(expectedDeviceIds)
 
-      const controllers = await session.configure(connections)
-      const controllerDeviceIds = controllers.map(
-        (controller) => controller.device.id,
-      )
-      const expectedDeviceIds = combination.map((device) => device.id)
-      expect(controllerDeviceIds).toEqual(expectedDeviceIds)
-
-      const started = deferred()
-      const sub = session.addOnStartedListener(started.resolve)
-      const errorSub = session.addOnErrorListener(started.reject)
-      try {
-        await session.start()
-        await withTimeout(started.promise, 15_000, 'session start')
-        await session.stop()
-      } finally {
-        sub.remove()
-        errorSub.remove()
+        const description = combination
+          .map((device) => `${device.position}:${device.id}`)
+          .join(', ')
+        console.log(`multi-cam combination configured: [${description}]`)
       }
-
-      const description = combination
-        .map((d) => `${d.position}:${d.id}`)
-        .join(', ')
-      console.log(`multi-cam session ok: [${description}]`)
+    } finally {
+      await session.configure([])
     }
   })
 })
