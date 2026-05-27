@@ -13,6 +13,7 @@ import type {
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
+import { deferred, withTimeout } from './test-utils'
 
 describe('VisionCamera - Frame', () => {
   let factory: CameraDeviceFactory
@@ -47,14 +48,15 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
+    const receivedFrames = deferred()
     let framesReceived = 0
-    let sessionError: Error | undefined
     const onFrameReceived = () => {
       framesReceived++
+      if (framesReceived >= 3) {
+        receivedFrames.resolve()
+      }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const errorSub = session.addOnErrorListener(receivedFrames.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -65,10 +67,7 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => framesReceived >= 3 || sessionError != null, {
-        timeout: 15_000,
-      })
-      expect(sessionError).toBe(undefined)
+      await withTimeout(receivedFrames.promise, 15_000, 'receive frames')
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -96,23 +95,24 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
+    const receivedBuffers = deferred()
     let buffersReceived = 0
-    let bufferError: string | undefined
-    let sessionError: Error | undefined
-    const report = (
-      hasPixelBuffer: boolean,
-      hasNativeBuffer: boolean,
-      errorMessage?: string,
-    ) => {
-      if (errorMessage != null) {
-        bufferError = errorMessage
-      } else if (hasPixelBuffer && hasNativeBuffer) {
+    const report = (hasPixelBuffer: boolean, hasNativeBuffer: boolean) => {
+      if (!hasPixelBuffer) {
+        receivedBuffers.reject(new Error('Frame pixel buffer was empty.'))
+      } else if (!hasNativeBuffer) {
+        receivedBuffers.reject(new Error('Frame native buffer pointer was 0.'))
+      } else {
         buffersReceived++
+        if (buffersReceived >= 3) {
+          receivedBuffers.resolve()
+        }
       }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const reportError = (errorMessage: string) => {
+      receivedBuffers.reject(new Error(errorMessage))
+    }
+    const errorSub = session.addOnErrorListener(receivedBuffers.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -129,7 +129,7 @@ describe('VisionCamera - Frame', () => {
         }
         scheduleOnRN(report, hasPixelBuffer, hasNativeBuffer)
       } catch (e) {
-        scheduleOnRN(report, false, false, String(e))
+        scheduleOnRN(reportError, String(e))
       } finally {
         frame.dispose()
       }
@@ -137,13 +137,11 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(
-        () =>
-          buffersReceived >= 3 || bufferError != null || sessionError != null,
-        { timeout: 15_000 },
+      await withTimeout(
+        receivedBuffers.promise,
+        15_000,
+        'receive native frame pixel buffers',
       )
-      expect(sessionError).toBe(undefined)
-      expect(bufferError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -176,24 +174,24 @@ describe('VisionCamera - Frame', () => {
       firstPlaneBytes: number[]
       secondPlaneBytes: number[]
     }
+    const receivedBufferReports = deferred<BufferReport[]>()
     const bufferReports: BufferReport[] = []
-    let bufferError: string | undefined
-    let sessionError: Error | undefined
     const report = (
       frameBytes: number,
       firstPlaneBytes: number[],
       secondPlaneBytes: number[],
-      errorMessage?: string,
     ) => {
-      if (errorMessage != null) {
-        bufferError = errorMessage
-      } else if (bufferReports.length < 3) {
+      if (bufferReports.length < 3) {
         bufferReports.push({ frameBytes, firstPlaneBytes, secondPlaneBytes })
+        if (bufferReports.length >= 3) {
+          receivedBufferReports.resolve(bufferReports)
+        }
       }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const reportError = (errorMessage: string) => {
+      receivedBufferReports.reject(new Error(errorMessage))
+    }
+    const errorSub = session.addOnErrorListener(receivedBufferReports.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -209,30 +207,27 @@ describe('VisionCamera - Frame', () => {
         )
         scheduleOnRN(report, frameBytes, firstPlaneBytes, secondPlaneBytes)
       } catch (e) {
-        scheduleOnRN(report, 0, [], [], String(e))
+        scheduleOnRN(reportError, String(e))
       } finally {
         frame.dispose()
       }
     })
 
     await session.start()
+    let reports: BufferReport[] = []
     try {
-      await waitUntil(
-        () =>
-          bufferReports.length >= 3 ||
-          bufferError != null ||
-          sessionError != null,
-        { timeout: 15_000 },
+      reports = await withTimeout(
+        receivedBufferReports.promise,
+        15_000,
+        'read YUV frame pixel buffers',
       )
-      expect(sessionError).toBe(undefined)
-      expect(bufferError).toBe(undefined)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }
 
-    for (const bufferReport of bufferReports) {
+    for (const bufferReport of reports) {
       expect(bufferReport.frameBytes).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes.length).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes).toEqual(
@@ -266,15 +261,16 @@ describe('VisionCamera - Frame', () => {
     let reportedWidth = 0
     let reportedHeight = 0
     let reportedPlanes = -1
-    let sessionError: Error | undefined
+    const reportedFrame = deferred()
     const report = (w: number, h: number, planes: number) => {
       reportedWidth = w
       reportedHeight = h
       reportedPlanes = planes
+      if (reportedWidth > 0 && reportedHeight > 0) {
+        reportedFrame.resolve()
+      }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const errorSub = session.addOnErrorListener(reportedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -292,11 +288,7 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(
-        () => (reportedWidth > 0 && reportedHeight > 0) || sessionError != null,
-        { timeout: 15_000 },
-      )
-      expect(sessionError).toBe(undefined)
+      await withTimeout(reportedFrame.promise, 15_000, 'receive YUV frame')
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -329,14 +321,11 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    let frameCount = 0
-    let sessionError: Error | undefined
+    const receivedFrame = deferred()
     const onFrame = () => {
-      frameCount++
+      receivedFrame.resolve()
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const errorSub = session.addOnErrorListener(receivedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -347,10 +336,7 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => frameCount >= 1 || sessionError != null, {
-        timeout: 15_000,
-      })
-      expect(sessionError).toBe(undefined)
+      await withTimeout(receivedFrame.promise, 15_000, 'receive RGB frame')
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -378,10 +364,8 @@ describe('VisionCamera - Frame', () => {
     ])
 
     const counter = createSynchronizable(0)
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const sessionFailed = deferred<never>()
+    const errorSub = session.addOnErrorListener(sessionFailed.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -392,11 +376,10 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(
-        () => counter.getBlocking() >= 3 || sessionError != null,
-        { timeout: 15_000 },
-      )
-      expect(sessionError).toBe(undefined)
+      await Promise.race([
+        waitUntil(() => counter.getBlocking() >= 3, { timeout: 15_000 }),
+        sessionFailed.promise,
+      ])
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -435,14 +418,15 @@ describe('VisionCamera - Frame', () => {
 
     let receivedWidth = 0
     let receivedHeight = 0
-    let sessionError: Error | undefined
+    const receivedFrame = deferred()
     const report = (w: number, h: number) => {
       receivedWidth = w
       receivedHeight = h
+      if (receivedWidth > 0 && receivedHeight > 0) {
+        receivedFrame.resolve()
+      }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const errorSub = session.addOnErrorListener(receivedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -453,11 +437,11 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(
-        () => (receivedWidth > 0 && receivedHeight > 0) || sessionError != null,
-        { timeout: 15_000 },
+      await withTimeout(
+        receivedFrame.promise,
+        15_000,
+        'receive maximum resolution frame',
       )
-      expect(sessionError).toBe(undefined)
 
       const requestedShortEdge = Math.min(max.width, max.height)
       const requestedLongEdge = Math.max(max.width, max.height)
@@ -512,14 +496,15 @@ describe('VisionCamera - Frame', () => {
 
     let receivedWidth = 0
     let receivedHeight = 0
-    let sessionError: Error | undefined
+    const receivedFrame = deferred()
     const report = (w: number, h: number) => {
       receivedWidth = w
       receivedHeight = h
+      if (receivedWidth > 0 && receivedHeight > 0) {
+        receivedFrame.resolve()
+      }
     }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const errorSub = session.addOnErrorListener(receivedFrame.reject)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -530,11 +515,11 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(
-        () => (receivedWidth > 0 && receivedHeight > 0) || sessionError != null,
-        { timeout: 15_000 },
+      await withTimeout(
+        receivedFrame.promise,
+        15_000,
+        'receive minimum resolution frame',
       )
-      expect(sessionError).toBe(undefined)
 
       const requestedShortEdge = Math.min(min.width, min.height)
       const requestedLongEdge = Math.max(min.width, min.height)
