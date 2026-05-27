@@ -470,10 +470,9 @@ describe('VisionCamera - Session', () => {
     }
   })
 
-  it('supports a multi-cam session when the platform allows it', async () => {
+  it('supports a multi-cam session when the platform allows it', async (context) => {
     if (!VisionCamera.supportsMultiCamSessions) {
-      console.log('[SKIP] multi-cam session: not supported on this platform')
-      return
+      context.skip('multi-cam session: not supported on this platform')
     }
     const back = factory.getDefaultCamera('back')
     const front = factory.getDefaultCamera('front')
@@ -526,19 +525,15 @@ describe('VisionCamera - Session', () => {
     }
   })
 
-  it('configures, starts and stops a multi-cam session for every supported device combination', async () => {
+  it('configures, starts and stops a multi-cam session for every supported device combination', async (context) => {
     if (!VisionCamera.supportsMultiCamSessions) {
-      console.log(
-        '[SKIP] multi-cam combinations: not supported on this platform',
-      )
-      return
+      context.skip('multi-cam combinations: not supported on this platform')
     }
     const combinations = factory.supportedMultiCamDeviceCombinations
     if (combinations.length === 0) {
-      console.log(
-        '[SKIP] multi-cam combinations: no combinations reported on this device',
+      context.skip(
+        'multi-cam combinations: no combinations reported on this device',
       )
-      return
     }
 
     for (const combination of combinations) {

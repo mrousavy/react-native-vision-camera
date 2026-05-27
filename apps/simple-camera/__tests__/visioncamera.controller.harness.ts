@@ -81,7 +81,7 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('runs a zoom animation', async () => {
+  it('runs a zoom animation', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -101,8 +101,7 @@ describe('VisionCamera - Controller', () => {
 
     try {
       if (controller.minZoom === controller.maxZoom) {
-        console.log('[SKIP] zoom animation: device exposes no zoom range')
-        return
+        context.skip('zoom animation: device exposes no zoom range')
       }
 
       await controller.setZoom(controller.minZoom)
@@ -144,10 +143,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('sets torchMode on/off when the device has a torch', async () => {
+  it('sets torchMode on/off when the device has a torch', async (context) => {
     if (!backDevice.hasTorch) {
-      console.log('[SKIP] torch: device has no torch')
-      return
+      context.skip('torch: device has no torch')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -177,13 +175,10 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('rejects setTorchMode on a device without a torch', async () => {
+  it('rejects setTorchMode on a device without a torch', async (context) => {
     const noTorchDevice = factory.cameraDevices.find((d) => !d.hasTorch)
     if (noTorchDevice == null) {
-      console.log(
-        '[SKIP] no-torch path: no device on this system lacks a torch',
-      )
-      return
+      context.skip('no-torch path: no device on this system lacks a torch')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -209,16 +204,12 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('enables torch at min/max strength when the device supports it', async () => {
+  it('enables torch at min/max strength when the device supports it', async (context) => {
     if (!backDevice.hasTorch) {
-      console.log('[SKIP] torch strength: device has no torch')
-      return
+      context.skip('torch strength: device has no torch')
     }
     if (!backDevice.supportsTorchStrength) {
-      console.log(
-        '[SKIP] torch strength: device does not support custom strength',
-      )
-      return
+      context.skip('torch strength: device does not support custom strength')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -278,12 +269,11 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('rejects enableTorchWithStrength outside the device range', async () => {
+  it('rejects enableTorchWithStrength outside the device range', async (context) => {
     if (!backDevice.hasTorch || !backDevice.supportsTorchStrength) {
-      console.log(
-        '[SKIP] torch strength out-of-range: device does not support custom strength',
+      context.skip(
+        'torch strength out-of-range: device does not support custom strength',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -320,15 +310,14 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('rejects enableTorchWithStrength on a device without torch strength support', async () => {
+  it('rejects enableTorchWithStrength on a device without torch strength support', async (context) => {
     const noStrengthDevice = factory.cameraDevices.find(
       (d) => !d.supportsTorchStrength,
     )
     if (noStrengthDevice == null) {
-      console.log(
-        '[SKIP] no-torch-strength path: every device on this system supports custom torch strength',
+      context.skip(
+        'no-torch-strength path: every device on this system supports custom torch strength',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -354,10 +343,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('sets exposure bias to min/max when the device supports it', async () => {
+  it('sets exposure bias to min/max when the device supports it', async (context) => {
     if (!backDevice.supportsExposureBias) {
-      console.log('[SKIP] exposureBias: not supported on this device')
-      return
+      context.skip('exposureBias: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -392,12 +380,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('rejects setExposureBias outside the device range', async () => {
+  it('rejects setExposureBias outside the device range', async (context) => {
     if (!backDevice.supportsExposureBias) {
-      console.log(
-        '[SKIP] exposureBias out-of-range: not supported on this device',
-      )
-      return
+      context.skip('exposureBias out-of-range: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -431,12 +416,11 @@ describe('VisionCamera - Controller', () => {
   })
 
   // TODO(Android): Re-enable once initial CameraX control config is applied after the camera is active.
-  it.skip('honors initialExposureBias passed to configure', async () => {
+  it.skip('honors initialExposureBias passed to configure', async (context) => {
     if (!backDevice.supportsExposureBias) {
-      console.log(
-        '[SKIP] initialExposureBias: device does not support exposure bias',
+      context.skip(
+        'initialExposureBias: device does not support exposure bias',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -464,10 +448,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('runs focusTo and resetFocus when the device supports focus metering', async () => {
+  it('runs focusTo and resetFocus when the device supports focus metering', async (context) => {
     if (!backDevice.supportsFocusMetering) {
-      console.log('[SKIP] focusTo: device does not support focus metering')
-      return
+      context.skip('focusTo: device does not support focus metering')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -498,15 +481,12 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('enables low-light boost via CameraController.configure when supported', async () => {
+  it('enables low-light boost via CameraController.configure when supported', async (context) => {
     const lowLightDevice = factory.cameraDevices.find(
       (d) => d.supportsLowLightBoost,
     )
     if (lowLightDevice == null) {
-      console.log(
-        '[SKIP] low-light boost: no device on this system supports it',
-      )
-      return
+      context.skip('low-light boost: no device on this system supports it')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -594,10 +574,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('locks focus to a specific lens position when the device supports it', async () => {
+  it('locks focus to a specific lens position when the device supports it', async (context) => {
     if (!backDevice.supportsFocusLocking) {
-      console.log('[SKIP] focus locking: not supported on this device')
-      return
+      context.skip('focus locking: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -631,10 +610,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('locks exposure to a specific duration/ISO when the device supports it', async () => {
+  it('locks exposure to a specific duration/ISO when the device supports it', async (context) => {
     if (!backDevice.supportsExposureLocking) {
-      console.log('[SKIP] exposure locking: not supported on this device')
-      return
+      context.skip('exposure locking: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -672,10 +650,9 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('locks white-balance to specific gains when the device supports it', async () => {
+  it('locks white-balance to specific gains when the device supports it', async (context) => {
     if (!backDevice.supportsWhiteBalanceLocking) {
-      console.log('[SKIP] white-balance locking: not supported on this device')
-      return
+      context.skip('white-balance locking: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({

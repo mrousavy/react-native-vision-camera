@@ -84,10 +84,9 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves a fps: 60 constraint if the device supports it', async () => {
+  it('resolves a fps: 60 constraint if the device supports it', async (context) => {
     if (!backDevice.supportsFPS(60)) {
-      console.log('[SKIP] fps: 60 not supported on this device')
-      return
+      context.skip('fps: 60 not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -110,10 +109,9 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves photoHDR: true when the device supports photo HDR', async () => {
+  it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
     if (!backDevice.supportsPhotoHDR) {
-      console.log('[SKIP] photoHDR: not supported on this device')
-      return
+      context.skip('photoHDR: not supported on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -138,13 +136,12 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves a HDR video dynamic range when the device supports it', async () => {
+  it('resolves a HDR video dynamic range when the device supports it', async (context) => {
     const hasHdr = backDevice.supportedVideoDynamicRanges.some(
       (d) => d.bitDepth === 'hdr-10-bit',
     )
     if (!hasHdr) {
-      console.log('[SKIP] video HDR: no HDR dynamic range on this device')
-      return
+      context.skip('video HDR: no HDR dynamic range on this device')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -170,7 +167,7 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves a video stabilization constraint when supported', async () => {
+  it('resolves a video stabilization constraint when supported', async (context) => {
     // The resolver downgrades stabilization modes (cinematic → standard → off)
     // when the requested one isn't supported, so picking the most demanding
     // mode the device exposes gives the test the most coverage.
@@ -178,10 +175,9 @@ describe('VisionCamera - Constraints', () => {
       d.supportsVideoStabilizationMode('cinematic'),
     )
     if (stabDevice == null) {
-      console.log(
-        '[SKIP] videoStabilizationMode: no device on this system supports "cinematic"',
+      context.skip(
+        'videoStabilizationMode: no device on this system supports "cinematic"',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
@@ -204,15 +200,14 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves a preview stabilization constraint when supported', async () => {
+  it('resolves a preview stabilization constraint when supported', async (context) => {
     const stabDevice = factory.cameraDevices.find((d) =>
       d.supportsPreviewStabilizationMode('preview-optimized'),
     )
     if (stabDevice == null) {
-      console.log(
-        '[SKIP] previewStabilizationMode: no device on this system supports "preview-optimized"',
+      context.skip(
+        'previewStabilizationMode: no device on this system supports "preview-optimized"',
       )
-      return
     }
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
@@ -232,7 +227,7 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('resolves a binned: true constraint when supported', async () => {
+  it('resolves a binned: true constraint when supported', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -253,25 +248,21 @@ describe('VisionCamera - Constraints', () => {
     ])
     await waitUntil(() => received != null, { timeout: 5_000 })
     if (received?.isBinned !== true) {
-      console.log(
-        `[SKIP] binned: true: device resolved to isBinned=${received?.isBinned}`,
-      )
       await session.stop()
-      return
+      context.skip(
+        `binned: true: device resolved to isBinned=${received?.isBinned}`,
+      )
     }
     expect(received.isBinned).toBe(true)
     await session.stop()
   })
 
-  it('honors a pixelFormat constraint matching a supported device format', async () => {
+  it('honors a pixelFormat constraint matching a supported device format', async (context) => {
     const candidate = backDevice.supportedPixelFormats.find(
       (f) => f !== 'unknown',
     )
     if (candidate == null) {
-      console.log(
-        '[SKIP] pixelFormat constraint: device has no non-unknown formats',
-      )
-      return
+      context.skip('pixelFormat constraint: device has no non-unknown formats')
     }
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
@@ -388,7 +379,7 @@ describe('VisionCamera - Constraints', () => {
   // instead of the last" or "priority order is silently reversed", without
   // depending on which feature combinations the AWS Device Farm device happens
   // to support together.
-  it('honors constraint priority ordering between stabilization and HDR', async () => {
+  it('honors constraint priority ordering between stabilization and HDR', async (context) => {
     let chosenStabilizationMode: 'cinematic' | 'standard' | undefined
     for (const mode of ['cinematic', 'standard'] as const) {
       if (backDevice.supportsVideoStabilizationMode(mode)) {
@@ -401,10 +392,9 @@ describe('VisionCamera - Constraints', () => {
     )
 
     if (chosenStabilizationMode == null || !hasHdr) {
-      console.log(
-        '[SKIP] priority ordering: device lacks stabilization and/or HDR support',
+      context.skip(
+        'priority ordering: device lacks stabilization and/or HDR support',
       )
-      return
     }
 
     const videoOutput = VisionCamera.createVideoOutput({
@@ -448,12 +438,9 @@ describe('VisionCamera - Constraints', () => {
     )
   })
 
-  it('reconfigures the running session with a different constraint set', async () => {
+  it('reconfigures the running session with a different constraint set', async (context) => {
     if (!backDevice.supportsFPS(60)) {
-      console.log(
-        '[SKIP] reconfigure with new constraints: fps: 60 not supported',
-      )
-      return
+      context.skip('reconfigure with new constraints: fps: 60 not supported')
     }
 
     const session = await VisionCamera.createCameraSession(false)

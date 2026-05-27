@@ -36,6 +36,10 @@ interface Layout {
   height: number
 }
 
+type SkipContext = {
+  skip: (note?: string) => never
+}
+
 function toLayout(event: LayoutChangeEvent): Layout {
   const layout = event.nativeEvent.layout
   return {
@@ -68,12 +72,12 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
 }
 
 async function expectPreviewSnapshotDimensionsToMatchLayout(
+  context: SkipContext,
   camera: CameraRef,
   layout: Layout,
 ) {
   if (Platform.OS !== 'android') {
-    console.log('[SKIP] takeSnapshot dimensions: Android only')
-    return
+    context.skip('takeSnapshot dimensions: Android only')
   }
 
   const snapshot = await camera.takeSnapshot()
@@ -107,7 +111,7 @@ describe('VisionCamera - Camera View', () => {
     cleanup()
   })
 
-  it('starts the high-level Camera preview and exposes preview/controller ref methods', async () => {
+  it('starts the high-level Camera preview and exposes preview/controller ref methods', async (context) => {
     const cameraRef = createRef<CameraRef>()
     const layout = deferred<Layout>()
     const started = deferred()
@@ -150,7 +154,11 @@ describe('VisionCamera - Camera View', () => {
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
     expectPreviewGeometry(camera, cameraLayout)
-    await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+    await expectPreviewSnapshotDimensionsToMatchLayout(
+      context,
+      camera,
+      cameraLayout,
+    )
 
     await rerender(
       <Camera
@@ -315,7 +323,7 @@ describe('VisionCamera - Camera View', () => {
     await withTimeout(stopped.promise, 10_000, 'gesture Camera onStopped')
   })
 
-  it('keeps a flex preview laid out inside a padded overflow-hidden parent', async () => {
+  it('keeps a flex preview laid out inside a padded overflow-hidden parent', async (context) => {
     const cameraRef = createRef<CameraRef>()
     const layout = deferred<Layout>()
     const started = deferred()
@@ -367,7 +375,11 @@ describe('VisionCamera - Camera View', () => {
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
     expectPreviewGeometry(camera, cameraLayout)
-    await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+    await expectPreviewSnapshotDimensionsToMatchLayout(
+      context,
+      camera,
+      cameraLayout,
+    )
 
     await rerender(
       <View style={styles.issuePaddedContainer}>
@@ -385,7 +397,7 @@ describe('VisionCamera - Camera View', () => {
     await withTimeout(stopped.promise, 10_000, 'padded Camera onStopped')
   })
 
-  it('survives repeated conditional placeholder-to-preview mounts in a padded parent', async () => {
+  it('survives repeated conditional placeholder-to-preview mounts in a padded parent', async (context) => {
     for (let attempt = 1; attempt <= 5; attempt++) {
       const cameraRef = createRef<CameraRef>()
       const layout = deferred<Layout>()
@@ -447,7 +459,11 @@ describe('VisionCamera - Camera View', () => {
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(
+        context,
+        camera,
+        cameraLayout,
+      )
 
       await rerender(
         <View style={styles.issuePaddedContainer}>
@@ -471,7 +487,7 @@ describe('VisionCamera - Camera View', () => {
     }
   })
 
-  it('keeps a fixed 150x300 preview centered on first mount', async () => {
+  it('keeps a fixed 150x300 preview centered on first mount', async (context) => {
     const cameraRef = createRef<CameraRef>()
     const rootLayout = deferred<Layout>()
     const wrapperLayout = deferred<Layout>()
@@ -557,7 +573,11 @@ describe('VisionCamera - Camera View', () => {
     const cameraRefValue = cameraRef.current
     if (cameraRefValue == null) throw new Error('no Camera ref')
     expectPreviewGeometry(cameraRefValue, camera)
-    await expectPreviewSnapshotDimensionsToMatchLayout(cameraRefValue, camera)
+    await expectPreviewSnapshotDimensionsToMatchLayout(
+      context,
+      cameraRefValue,
+      camera,
+    )
 
     await rerender(
       <View style={styles.centeredRoot}>
@@ -726,7 +746,7 @@ describe('VisionCamera - Camera View', () => {
     expectPreviewGeometry(secondCamera, secondCameraLayout)
   })
 
-  it('supports cover and contain resizeMode previews', async () => {
+  it('supports cover and contain resizeMode previews', async (context) => {
     const resizeModes: PreviewResizeMode[] = ['cover', 'contain']
     let coverTopLeft: Point | undefined
     let containTopLeft: Point | undefined
@@ -787,7 +807,11 @@ describe('VisionCamera - Camera View', () => {
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(
+        context,
+        camera,
+        cameraLayout,
+      )
       const topLeft = camera.convertViewPointToCameraPoint({ x: 0, y: 0 })
       if (resizeMode === 'cover') coverTopLeft = topLeft
       else containTopLeft = topLeft
@@ -830,10 +854,9 @@ describe('VisionCamera - Camera View', () => {
     expect(roundedCoverTopLeft).not.toEqual(roundedContainTopLeft)
   })
 
-  it('supports both Android preview implementation modes', async () => {
+  it('supports both Android preview implementation modes', async (context) => {
     if (Platform.OS !== 'android') {
-      console.log('[SKIP] implementationMode: Android only')
-      return
+      context.skip('implementationMode: Android only')
     }
 
     const implementationModes: PreviewImplementationMode[] = [
@@ -893,7 +916,11 @@ describe('VisionCamera - Camera View', () => {
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(camera, cameraLayout)
+      await expectPreviewSnapshotDimensionsToMatchLayout(
+        context,
+        camera,
+        cameraLayout,
+      )
 
       await rerender(
         <Camera
