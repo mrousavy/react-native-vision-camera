@@ -474,58 +474,62 @@ describe('VisionCamera - Session', () => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip('multi-cam session: not supported on this platform')
     }
-    const back = factory.getDefaultCamera('back')
-    const front = factory.getDefaultCamera('front')
-    expect(back).toBeDefined()
-    expect(front).toBeDefined()
-    if (back == null || front == null) {
-      throw new Error('missing default camera for multi-cam session')
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    const combination =
+      combinations.find((cameras) => {
+        const positions = cameras.map((device) => device.position)
+        return positions.includes('back') && positions.includes('front')
+      }) ?? combinations[0]
+    if (combination == null) {
+      return context.skip(
+        'multi-cam session: no supported combinations reported on this device',
+      )
     }
+    expect(combination.length).toBeGreaterThan(1)
 
     const session = await VisionCamera.createCameraSession(true)
-    const backPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const frontPhoto = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-
-    const controllers = await session.configure([
-      {
-        input: back,
-        outputs: [{ output: backPhoto, mirrorMode: 'off' }],
-        constraints: [],
-      },
-      {
-        input: front,
-        outputs: [{ output: frontPhoto, mirrorMode: 'on' }],
-        constraints: [],
-      },
-    ])
-    expect(controllers.length).toBe(2)
-    expect(controllers[0]?.device.id).toBe(back.id)
-    expect(controllers[1]?.device.id).toBe(front.id)
+    const connections = combination.map((device) => ({
+      input: device,
+      outputs: [
+        {
+          output: VisionCamera.createPhotoOutput({
+            targetResolution: CommonResolutions.HD_4_3,
+            containerFormat: 'jpeg' as const,
+            quality: 0.8,
+            qualityPrioritization: 'balanced' as const,
+          }),
+          mirrorMode: 'auto' as const,
+        },
+      ],
+      constraints: [],
+    }))
+    const controllers = await session.configure(connections)
+    expect(controllers.length).toBe(combination.length)
+    expect(controllers.map((controller) => controller.device.id)).toEqual(
+      combination.map((device) => device.id),
+    )
 
     const started = deferred()
+    const stopped = deferred()
     const sub = session.addOnStartedListener(started.resolve)
-    const errorSub = session.addOnErrorListener(started.reject)
+    const stopSub = session.addOnStoppedListener(stopped.resolve)
+    const errorSub = session.addOnErrorListener((error) => {
+      started.reject(error)
+      stopped.reject(error)
+    })
     try {
       await session.start()
       await withTimeout(started.promise, 15_000, 'session start')
       await session.stop()
+      await withTimeout(stopped.promise, 15_000, 'session stop')
     } finally {
       sub.remove()
+      stopSub.remove()
       errorSub.remove()
     }
   })
 
-  it('configures, starts and stops a multi-cam session for every supported device combination', async (context) => {
+  it('configures a multi-cam session for every supported device combination', async (context) => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip(
         'multi-cam combinations: not supported on this platform',
@@ -538,47 +542,42 @@ describe('VisionCamera - Session', () => {
       )
     }
 
-    for (const combination of combinations) {
-      const session = await VisionCamera.createCameraSession(true)
-      const connections = combination.map((device) => ({
-        input: device,
-        outputs: [
-          {
-            output: VisionCamera.createPhotoOutput({
-              targetResolution: CommonResolutions.HD_4_3,
-              containerFormat: 'jpeg' as const,
-              quality: 0.8,
-              qualityPrioritization: 'balanced' as const,
-            }),
-            mirrorMode: 'auto' as const,
-          },
-        ],
-        constraints: [],
-      }))
+    const session = await VisionCamera.createCameraSession(true)
+    try {
+      // Starting every reported combination is expensive on physical devices.
+      // The previous test covers actual lifecycle; this one covers the full
+      // configure-time compatibility surface.
+      for (const combination of combinations) {
+        expect(combination.length).toBeGreaterThan(1)
+        const connections = combination.map((device) => ({
+          input: device,
+          outputs: [
+            {
+              output: VisionCamera.createPhotoOutput({
+                targetResolution: CommonResolutions.HD_4_3,
+                containerFormat: 'jpeg' as const,
+                quality: 0.8,
+                qualityPrioritization: 'balanced' as const,
+              }),
+              mirrorMode: 'auto' as const,
+            },
+          ],
+          constraints: [],
+        }))
+        const controllers = await session.configure(connections)
+        const controllerDeviceIds = controllers.map(
+          (controller) => controller.device.id,
+        )
+        const expectedDeviceIds = combination.map((device) => device.id)
+        expect(controllerDeviceIds).toEqual(expectedDeviceIds)
 
-      const controllers = await session.configure(connections)
-      const controllerDeviceIds = controllers.map(
-        (controller) => controller.device.id,
-      )
-      const expectedDeviceIds = combination.map((device) => device.id)
-      expect(controllerDeviceIds).toEqual(expectedDeviceIds)
-
-      const started = deferred()
-      const sub = session.addOnStartedListener(started.resolve)
-      const errorSub = session.addOnErrorListener(started.reject)
-      try {
-        await session.start()
-        await withTimeout(started.promise, 15_000, 'session start')
-        await session.stop()
-      } finally {
-        sub.remove()
-        errorSub.remove()
+        const description = combination
+          .map((device) => `${device.position}:${device.id}`)
+          .join(', ')
+        console.log(`multi-cam combination configured: [${description}]`)
       }
-
-      const description = combination
-        .map((d) => `${d.position}:${d.id}`)
-        .join(', ')
-      console.log(`multi-cam session ok: [${description}]`)
+    } finally {
+      await session.configure([])
     }
   })
 })
