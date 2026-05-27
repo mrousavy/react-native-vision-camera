@@ -2106,7 +2106,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNReanimated (4.3.0):
+  - RNReanimated (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2128,11 +2128,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNReanimated/apple (= 4.3.0)
-    - RNReanimated/common (= 4.3.0)
+    - RNReanimated/apple (= 4.4.0)
+    - RNReanimated/common (= 4.4.0)
     - RNWorklets
     - Yoga
-  - RNReanimated/apple (4.3.0):
+  - RNReanimated/apple (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2156,7 +2156,7 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNReanimated/common (4.3.0):
+  - RNReanimated/common (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2249,7 +2249,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets (0.8.1):
+  - RNWorklets (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2271,10 +2271,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/apple (= 0.8.1)
-    - RNWorklets/common (= 0.8.1)
+    - RNWorklets/apple (= 0.9.1)
+    - RNWorklets/common (= 0.9.1)
     - Yoga
-  - RNWorklets/apple (0.8.1):
+  - RNWorklets/apple (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2297,7 +2297,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets/common (0.8.1):
+  - RNWorklets/common (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2835,10 +2835,10 @@ SPEC CHECKSUMS:
   ReactCommon: cc0e38600f82487c5fe5d29150abb6fa9d981986
   ReactNativeDependencies: 15a6a8ab2c09e708aea8edc0a7f90a8a112aef63
   RNGestureHandler: 6d378fd1aa991c7ab62a4215ee6cc417895a6954
-  RNReanimated: 9c65860a356274f39a796983d10ff58ce828ac9c
+  RNReanimated: 8754aaca94448c4121190f200c29cfdd90017405
   RNScreens: 088d923c4327c63c9f8c942cae17a9d038f47d97
   RNVectorIcons: af977c18ed27deba54ed038b439fca2911a08cfc
-  RNWorklets: e72cc4f0a1ffc40ca93479b191f0f33191d0dd97
+  RNWorklets: 8779f2d1161436d52cf3f6060219d8f7c82a665c
   VisionCamera: c49d44d170b1cfa2039c86a1f76c9c1b0ffb7ca2
   VisionCameraBarcodeScanner: ac53d06ca3bf3a1eba73fd9b27fdd7926f9c3812
   VisionCameraLocation: b943fcb5233dae5e35c33c3aff9757fbb0ad2068
