@@ -61,7 +61,7 @@
     "react-native-worklets": "0.8.1",
     "react-native-vision-camera": "*",
     "react-native-vision-camera-worklets": "*",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "react": "*",

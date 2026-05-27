@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
@@ -10,9 +12,13 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "config/**/*.ts",
@@ -20,5 +26,11 @@
     "scripts/**/*.mts",
     "src/lib/shared/platforms-core.ts"
   ],
-  "exclude": [".next", ".source", "content/api", "node_modules", "test-results"]
+  "exclude": [
+    ".next",
+    ".source",
+    "content/api",
+    "node_modules",
+    "test-results"
+  ]
 }

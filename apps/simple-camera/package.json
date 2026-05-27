@@ -54,7 +54,7 @@
     "@react-native/typescript-config": "0.84.0",
     "@types/react": "19.2.14",
     "react-native-harness": "1.3.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": ">=20"

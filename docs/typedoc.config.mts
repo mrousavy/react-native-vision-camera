@@ -16,20 +16,31 @@ const blockTags: Array<`@${string}`> = [
 ]
 
 const compilerOptions = {
-  baseUrl: docsRoot,
   // Package mode uses each package's tsconfig; disable composite/file-list checks
   // so cross-package source imports resolve in monorepo CI environments.
   composite: false,
   rootDir: repoRoot,
   paths: {
     'react-native-vision-camera': [
-      '../packages/react-native-vision-camera/src/index.ts',
+      path.join(
+        repoRoot,
+        'packages',
+        'react-native-vision-camera',
+        'src',
+        'index.ts',
+      ),
     ],
     'react-native-vision-camera/*': [
-      '../packages/react-native-vision-camera/src/*',
+      path.join(repoRoot, 'packages', 'react-native-vision-camera', 'src', '*'),
     ],
     'react-native-vision-camera-*': [
-      '../packages/react-native-vision-camera-*/src/index.ts',
+      path.join(
+        repoRoot,
+        'packages',
+        'react-native-vision-camera-*',
+        'src',
+        'index.ts',
+      ),
     ],
   },
 }

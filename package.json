@@ -45,7 +45,7 @@
     "release-it": "^19.2.4"
   },
   "peerDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "release-it": {
     "npm": {
