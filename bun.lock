@@ -38,7 +38,7 @@
         "react-native-safe-area-context": "^5.7.0",
         "react-native-screens": "^4.24.0",
         "react-native-vector-icons": "^10.3.0",
-        "react-native-video": "6.19.1",
+        "react-native-video": "6.19.2",
         "react-native-vision-camera": "../../packages/react-native-vision-camera",
         "react-native-vision-camera-barcode-scanner": "../../packages/react-native-vision-camera-barcode-scanner",
         "react-native-vision-camera-location": "../../packages/react-native-vision-camera-location",
@@ -2417,7 +2417,7 @@
 
     "react-native-vector-icons": ["react-native-vector-icons@10.3.0", "", { "dependencies": { "prop-types": "^15.7.2", "yargs": "^16.1.1" }, "bin": { "fa5-upgrade": "bin/fa5-upgrade.sh", "fa6-upgrade": "bin/fa6-upgrade.sh", "fa-upgrade.sh": "bin/fa-upgrade.sh", "generate-icon": "bin/generate-icon.js" } }, "sha512-IFQ0RE57819hOUdFvgK4FowM5aMXg7C7XKsuGLevqXkkIJatc3QopN0wYrb2IrzUgmdpfP+QVIbI3S6h7M0btw=="],
 
-    "react-native-video": ["react-native-video@6.19.1", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-Tbiyt0JMirVHc4XzGIANjs3SaNjFXQO2qe+buvY7xMJjlyCekkDjJqD9YtlaEloJD2PGWhoPytEXB6gVT7T6lw=="],
+    "react-native-video": ["react-native-video@6.19.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-gh5dBMGSHywKr8+p4azRXrFQgT+QTmS1tI4sz6kVRjSENORfsrGGLQzmyo/7S9m+ZOTLWQJ3h8ONaXxR4F2Fcw=="],
 
     "react-native-vision-camera": ["react-native-vision-camera@workspace:packages/react-native-vision-camera"],
 

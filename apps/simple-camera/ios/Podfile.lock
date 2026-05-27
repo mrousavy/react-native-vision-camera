@@ -1631,7 +1631,7 @@ PODS:
     - ReactNativeDependencies
     - Yoga
   - react-native-vector-icons-ionicons (12.4.1)
-  - react-native-video (6.19.1):
+  - react-native-video (6.19.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1643,7 +1643,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-video/Video (= 6.19.1)
+    - react-native-video/Video (= 6.19.2)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1654,7 +1654,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-video/Fabric (6.19.1):
+  - react-native-video/Fabric (6.19.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1676,7 +1676,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-video/Video (6.19.1):
+  - react-native-video/Video (6.19.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2799,7 +2799,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 29044d05d61f2c60d0828c373bd0ebe17eed58d0
   react-native-skia: a9c0ab55f18fa812b0db161c333e8bff4d739bb9
   react-native-vector-icons-ionicons: 7bc32eadb4d24c93252430b49f25b8be000e2340
-  react-native-video: 8cfc70ca7f8f99906233b1a65a8b3c937fb32c1a
+  react-native-video: 7d8b2953c75b8a13bbb726103ec7a0b71784b9c3
   React-NativeModulesApple: 14a8919451154ede904f2bca84b27703a09028ba
   React-networking: 46c0037f9202c1919493b78662a47cbe13022fdd
   React-oscompat: b924b8609d06899f00ab1aa813b0cde9c5e12771
