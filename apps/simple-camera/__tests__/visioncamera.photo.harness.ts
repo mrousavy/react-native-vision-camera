@@ -602,6 +602,50 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
+  it('prepares flash variants before capturing a photo', async () => {
+    const preparedFlashModes: FlashMode[] = ['off', 'auto']
+    if (backDevice.hasFlash) {
+      preparedFlashModes.push('on')
+    } else {
+      console.log('[SKIP] prepareSettings flashMode on: device has no flash')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.UHD_4_3,
+      containerFormat: 'native',
+      quality: 0.95,
+      qualityPrioritization: 'quality',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [{ resolutionBias: photoOutput }],
+      },
+    ])
+    await session.start()
+
+    try {
+      await photoOutput.prepareSettings(
+        preparedFlashModes.map((flashMode) => ({
+          flashMode,
+          enableShutterSound: false,
+        })),
+      )
+
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+    } finally {
+      await session.stop()
+    }
+  })
+
   it('toggles enableShutterSound and enableRedEyeReduction without error', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
