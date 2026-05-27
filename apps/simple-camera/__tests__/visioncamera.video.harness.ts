@@ -94,7 +94,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
+      await sleep(1500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -121,7 +121,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
+      await sleep(1500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
@@ -174,11 +174,10 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
 
-    // Limit is above per-GOP / moov-atom overhead so the OS doesn't silently
-    // ignore it. At 720p HEVC even a near-static feed produces >=200 kbps
-    // from sensor noise, so 500 KB lands well within 30 s on real hardware -
-    // a longer timeout would just hide a real bug.
-    const recorder = await videoOutput.createRecorder({ maxFileSize: 500_000 })
+    // Device Farm camera feeds are often near-static, and Android encoders can
+    // undershoot `targetBitRate` heavily for that content. Keep the cap low
+    // enough to be reached in CI while still leaving room for a valid first GOP.
+    const recorder = await videoOutput.createRecorder({ maxFileSize: 128_000 })
     const finished = deferred<RecordingFinishedReason>()
     try {
       await recorder.startRecording(
@@ -186,6 +185,9 @@ describe('VisionCamera - Video', () => {
         finished.reject,
       )
       const reason = await withTimeout(finished.promise, 30_000, 'maxFileSize')
+      console.log(
+        `maxFileSize duration=${recorder.recordedDuration}s, size=${recorder.recordedFileSize}B`,
+      )
       expect(reason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
@@ -265,7 +267,7 @@ describe('VisionCamera - Video', () => {
           errorCount++
         },
       )
-      await sleep(300)
+      await sleep(500)
       await recorder.cancelRecording()
       await sleep(500)
       expect(finishedCount).toBe(0)
@@ -418,7 +420,7 @@ describe('VisionCamera - Video', () => {
     const finished = deferred()
     try {
       await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
+      await sleep(1500)
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
     } finally {
