@@ -92,7 +92,7 @@ it('resolves photoHDR: true when the device supports photo HDR', async (context)
 
 Use the guard form above instead of `context.skip(condition, reason)` when a nullable value needs to be narrowed afterwards. Keep the `return` so TypeScript understands the rest of the test only runs when the capability exists. If only one optional case inside a matrix is unsupported, split that case into its own `it(...)` so the always-supported cases still run and the optional case is reported as skipped.
 
-Only call `context.skip(...)` from the `it(...)` body or code that intentionally skips that whole test. Do not hide it inside a shared helper for optional sub-assertions, because it aborts the entire `it(...)`. If a shared cross-platform test has an Android-only extra assertion, let that helper return without logging on iOS; if the Android-only behavior deserves skip accounting, make it a dedicated `it(...)`.
+Only call `context.skip(...)` from the `it(...)` body or code that intentionally skips that whole test. Do not hide it inside a shared helper for optional sub-assertions, because it aborts the entire `it(...)`. If a cross-platform test has an Android-only or iOS-only assertion, split that behavior into a dedicated `it(...)` with its own platform skip.
 
 Capability flags live on
 - `CameraDevice` (`hasFlash`, `hasTorch`, `supportsFocusMetering`, `supportsExposureBias`, `supportsPhotoHDR`, `supportsFPS(n)`, `supportsVideoStabilizationMode('cinematic')`, etc.),
@@ -214,6 +214,8 @@ Ideally, run the Harness tests on a real phone and stream native logs (`adb logc
 ## High-level components / hooks (`<Camera>`, `useCamera()`, etc.)
 
 High-level component tests live alongside the imperative suites when the API surface is React rendering, layout, or component convenience behavior. Keep them focused: render the smallest component tree that reproduces the behavior, wait on real lifecycle events, and assert through the public ref or callbacks.
+
+Detailed preview rendering, layout, snapshot, resize-mode, and implementation-mode coverage belongs in `visioncamera.nativepreviewview.harness.tsx`. `visioncamera.camera-view.harness.tsx` should stay focused on the high-level `<Camera>` wrapper: `isActive`, lifecycle callbacks, ref exposure, output wiring, high-level gesture props, and React mount/unmount behavior.
 
 The goal is to have the imperative API tests cover everything, and the high-level components tests should just cover their abstractions or base features (which under the hood use the same imperative API) - but not repeat the whole tests from the imperative API again.
 For example; we don't need to test if a `CameraVideoOutput` properly stops recording once `maxFileSize` is reached both the imperative API tests, as well as in the `<Camera>`/`useCamera()` high-level APIs. Instead, only do such specific tests in the imperative API tests (as this is much more narrow and is easier to debug in CI), and keep high-level tests _high-level_ - e.g. ensuring the Camera can start, ensuring React lifecycle/unmounting/remounting works, ensuring `<Camera>` renders properly, ensuring it tears the session down and starts again when rendering a new one, ensuring `isActive` works, ensuring it attaches outputs when the `outputs={[...]}` array updates, testing the `ref` methods, etc etc.

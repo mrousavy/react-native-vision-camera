@@ -62,28 +62,6 @@ function expectPreviewGeometry(preview: PreviewView, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
-async function expectPreviewSnapshotDimensionsToMatchLayout(
-  preview: PreviewView,
-  layout: Layout,
-) {
-  if (Platform.OS !== 'android') {
-    return
-  }
-
-  const snapshot = await preview.takeSnapshot()
-  try {
-    expect(snapshot.width).toBeGreaterThan(0)
-    expect(snapshot.height).toBeGreaterThan(0)
-
-    const expectedWidth = PixelRatio.getPixelSizeForLayoutSize(layout.width)
-    const expectedHeight = PixelRatio.getPixelSizeForLayoutSize(layout.height)
-    expect(snapshot.width).toBeCloseTo(expectedWidth, 0)
-    expect(snapshot.height).toBeCloseTo(expectedHeight, 0)
-  } finally {
-    snapshot.dispose()
-  }
-}
-
 describe('VisionCamera - NativePreviewView', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -156,7 +134,85 @@ describe('VisionCamera - NativePreviewView', () => {
       )
 
       expectPreviewGeometry(preview, previewLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('matches takeSnapshot dimensions to the NativePreviewView layout on Android', async (context) => {
+    if (Platform.OS !== 'android') {
+      return context.skip('takeSnapshot dimensions: Android only')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    const previewRef = deferred<PreviewView>()
+    const layout = deferred<Layout>()
+    const previewStarted = deferred()
+    const errorSub = session.addOnErrorListener((error) => {
+      previewRef.reject(error)
+      layout.reject(error)
+      previewStarted.reject(error)
+    })
+
+    try {
+      await render(
+        <NativePreviewView
+          style={StyleSheet.absoluteFill}
+          previewOutput={previewOutput}
+          hybridRef={callback((preview: PreviewView) => {
+            previewRef.resolve(preview)
+          })}
+          onLayout={(event) => {
+            layout.resolve(toLayout(event))
+          }}
+          onPreviewStarted={callback(previewStarted.resolve)}
+        />,
+      )
+
+      const preview = await withTimeout(
+        previewRef.promise,
+        10_000,
+        'snapshot NativePreviewView hybridRef',
+      )
+      const previewLayout = await withTimeout(
+        layout.promise,
+        10_000,
+        'snapshot NativePreviewView onLayout',
+      )
+
+      await session.start()
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'snapshot NativePreviewView onPreviewStarted',
+      )
+
+      const snapshot = await preview.takeSnapshot()
+      try {
+        expect(snapshot.width).toBeGreaterThan(0)
+        expect(snapshot.height).toBeGreaterThan(0)
+
+        const expectedWidth = PixelRatio.getPixelSizeForLayoutSize(
+          previewLayout.width,
+        )
+        const expectedHeight = PixelRatio.getPixelSizeForLayoutSize(
+          previewLayout.height,
+        )
+        expect(snapshot.width).toBeCloseTo(expectedWidth, 0)
+        expect(snapshot.height).toBeCloseTo(expectedHeight, 0)
+      } finally {
+        snapshot.dispose()
+      }
     } finally {
       errorSub.remove()
       await session.stop()
@@ -222,7 +278,6 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(previewLayout.y).toBeCloseTo(PADDING_TOP, 0)
       expect(previewLayout.height).toBeGreaterThan(0)
       expectPreviewGeometry(preview, previewLayout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(preview, previewLayout)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -294,10 +349,6 @@ describe('VisionCamera - NativePreviewView', () => {
         expect(previewLayout.x).toBeCloseTo(0, 0)
         expect(previewLayout.y).toBeCloseTo(PADDING_TOP, 0)
         expectPreviewGeometry(preview, previewLayout)
-        await expectPreviewSnapshotDimensionsToMatchLayout(
-          preview,
-          previewLayout,
-        )
       } finally {
         errorSub.remove()
         await session.stop()
@@ -398,7 +449,6 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(layout.width).toBeCloseTo(FIXED_PREVIEW_WIDTH, 0)
       expect(layout.height).toBeCloseTo(FIXED_PREVIEW_HEIGHT, 0)
       expectPreviewGeometry(preview, layout)
-      await expectPreviewSnapshotDimensionsToMatchLayout(preview, layout)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -490,7 +540,6 @@ describe('VisionCamera - NativePreviewView', () => {
       expect(second.width).toBeCloseTo(WIDE_PREVIEW_WIDTH, 0)
       expect(second.height).toBeCloseTo(WIDE_PREVIEW_HEIGHT, 0)
       expectPreviewGeometry(preview, second)
-      await expectPreviewSnapshotDimensionsToMatchLayout(preview, second)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -918,10 +967,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         expectPreviewGeometry(preview, previewLayout)
-        await expectPreviewSnapshotDimensionsToMatchLayout(
-          preview,
-          previewLayout,
-        )
         const topLeft = preview.convertViewPointToCameraPoint({ x: 0, y: 0 })
         if (resizeMode === 'cover') coverTopLeft = topLeft
         else containTopLeft = topLeft
@@ -1011,10 +1056,6 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         expectPreviewGeometry(preview, previewLayout)
-        await expectPreviewSnapshotDimensionsToMatchLayout(
-          preview,
-          previewLayout,
-        )
       } finally {
         errorSub.remove()
         await session.stop()
