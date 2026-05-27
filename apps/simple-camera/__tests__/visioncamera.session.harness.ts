@@ -476,16 +476,13 @@ describe('VisionCamera - Session', () => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip('multi-cam session: not supported on this platform')
     }
-    const combinations = factory.supportedMultiCamDeviceCombinations
-    if (combinations.length === 0) {
-      return context.skip(
-        'multi-cam session: no combinations reported on this device',
-      )
-    }
-    const combination =
-      combinations.find((devices) => devices.length >= 2) ?? combinations[0]
+    const combination = factory.supportedMultiCamDeviceCombinations.find(
+      (devices) => devices.length >= 2,
+    )
     if (combination == null) {
-      throw new Error('missing multi-cam device combination')
+      return context.skip(
+        'multi-cam session: no multi-device combination reported on this device',
+      )
     }
 
     const session = await VisionCamera.createCameraSession(true)
