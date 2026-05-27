@@ -1,38 +1,33 @@
 import { describe, expect, test } from 'bun:test'
 import type { Folder, Item, Root } from 'fumadocs-core/page-tree'
 import {
+  type ContentStorage,
+  type ContentStorageMetaFile,
   type ContentStoragePageFile,
   FileSystem,
+  type PageData as FumadocsPageData,
   type PageTreeBuilderContext,
-  type SourceConfig,
 } from 'fumadocs-core/source'
 import { createApiReferenceTreePlugin } from '@/lib/source/api-reference-tree-plugin'
 import { createPlatformLabelPlugin } from '@/lib/source/platform-label-plugin'
 
-type PageData = {
+type TestPageData = FumadocsPageData & {
   title: string
   hybridParent?: string
   platforms?: string[]
 }
 
-type PageFile = {
+type PageFile = ContentStoragePageFile<undefined, TestPageData>
+type PageFileInput = {
   format: 'page'
-  data: PageData
+  data: TestPageData
 }
-
-type TestSourceConfig = SourceConfig & {
-  pageData: PageData
-}
-
-type TestLoaderConfig = {
-  source: TestSourceConfig
-  i18n: undefined
-}
+type TestStorage = ContentStorage<PageFile, ContentStorageMetaFile>
 
 function createPage(file: string, title: string): Item {
   return {
     $id: file,
-    $ref: { file },
+    $ref: file,
     type: 'page',
     name: title,
     url: `/api/${title}`,
@@ -40,12 +35,15 @@ function createPage(file: string, title: string): Item {
 }
 
 function createContext(
-  files: Record<string, PageFile>,
-): PageTreeBuilderContext<TestSourceConfig> {
-  const storage = new FileSystem<ContentStoragePageFile<TestSourceConfig>>()
+  files: Record<string, PageFileInput>,
+): PageTreeBuilderContext<TestStorage> {
+  const storage = new FileSystem<
+    PageFile | ContentStorageMetaFile
+  >() as TestStorage
 
   for (const [filePath, file] of Object.entries(files)) {
     storage.write(filePath, {
+      type: undefined,
       path: filePath,
       format: 'page',
       slugs: [file.data.title],
@@ -55,27 +53,29 @@ function createContext(
 
   const getUrl = () => ''
   // Fumadocs exposes PageTreeBuilder in its type surface, but not from the runtime module.
-  const builder = {} as PageTreeBuilderContext<TestSourceConfig>['builder']
+  const builder = {} as PageTreeBuilderContext<TestStorage>['builder']
   return {
-    idPrefix: 'test',
-    noRef: false,
     transformers: [],
     builder,
     storage,
-    getUrl,
+    options: {
+      idPrefix: 'test',
+      noRef: false,
+      url: getUrl,
+    },
   }
 }
 
 function getNodeTitle(
   node: Folder['children'][number],
-  files: Record<string, PageFile>,
+  files: Record<string, PageFileInput>,
 ): string {
-  if (node.type === 'folder' && node.index?.$ref?.file) {
-    return files[node.index.$ref.file]?.data.title ?? ''
+  if (node.type === 'folder' && node.index?.$ref) {
+    return files[node.index.$ref]?.data.title ?? ''
   }
 
-  if (node.type === 'page' && node.$ref?.file) {
-    return files[node.$ref.file]?.data.title ?? ''
+  if (node.type === 'page' && node.$ref) {
+    return files[node.$ref]?.data.title ?? ''
   }
 
   return ''
@@ -94,7 +94,7 @@ function getFolderByTitle(root: Root, title: string): Folder {
 
 function getChildFolderByTitle(
   folder: Folder,
-  files: Record<string, PageFile>,
+  files: Record<string, PageFileInput>,
   title: string,
 ): Folder {
   const child = folder.children.find(
@@ -110,7 +110,7 @@ function getChildFolderByTitle(
 
 describe('api reference tree plugin', () => {
   test('nests platform-labeled hybrid children under their stable hybrid parent', () => {
-    const files: Record<string, PageFile> = {
+    const files: Record<string, PageFileInput> = {
       'CameraOutput.mdx': {
         format: 'page',
         data: { title: 'CameraOutput' },
@@ -181,8 +181,8 @@ describe('api reference tree plugin', () => {
     }
 
     const context = createContext(files)
-    const apiTreePlugin = createApiReferenceTreePlugin<TestLoaderConfig>()
-    const platformLabelPlugin = createPlatformLabelPlugin<TestLoaderConfig>()
+    const apiTreePlugin = createApiReferenceTreePlugin<TestStorage>()
+    const platformLabelPlugin = createPlatformLabelPlugin<TestStorage>()
     const transformApiTree = apiTreePlugin.transformPageTree?.root
     const transformPlatformLabels = platformLabelPlugin.transformPageTree?.root
 
