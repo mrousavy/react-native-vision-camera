@@ -181,6 +181,7 @@ describe('VisionCamera - Session', () => {
     const session = await VisionCamera.createCameraSession(false)
     const subscription = session.addOnErrorListener(() => {})
     subscription.remove()
+    await session.stop()
   })
 
   it('registers interruption listeners without throwing', async () => {
@@ -189,6 +190,7 @@ describe('VisionCamera - Session', () => {
     const b = session.addOnInterruptionEndedListener(() => {})
     a.remove()
     b.remove()
+    await session.stop()
   })
 
   it('reconfigures a running session with a new output set', async () => {
@@ -573,6 +575,7 @@ describe('VisionCamera - Session', () => {
         console.log(`multi-cam combination configured: [${description}]`)
       }
     } finally {
+      await session.stop()
       await session.configure([])
     }
   })
