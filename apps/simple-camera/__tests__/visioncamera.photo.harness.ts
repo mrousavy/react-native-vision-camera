@@ -804,9 +804,13 @@ describe('VisionCamera - Photo', () => {
         constraints: [],
       },
     ])
-    console.log(
-      `photoOutput support flags: depthData=${photoOutput.supportsDepthDataDelivery} calibrationData=${photoOutput.supportsCameraCalibrationDataDelivery}`,
-    )
-    expect(photoOutput.supportsDepthDataDelivery).toBe(true)
+    try {
+      console.log(
+        `photoOutput support flags: depthData=${photoOutput.supportsDepthDataDelivery} calibrationData=${photoOutput.supportsCameraCalibrationDataDelivery}`,
+      )
+      expect(photoOutput.supportsDepthDataDelivery).toBe(true)
+    } finally {
+      await session.stop()
+    }
   })
 })
