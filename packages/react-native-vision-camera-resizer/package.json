@@ -69,9 +69,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.15",
     "nitrogen": "0.35.9",
-    "react": "19.2.3",
+    "react": "19.2.6",
     "react-native": "0.85.3",
     "react-native-nitro-modules": "0.35.9",
     "react-native-vision-camera": "*",

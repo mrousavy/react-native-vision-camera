@@ -53,8 +53,8 @@
   },
   "devDependencies": {
     "@shopify/react-native-skia": "2.6.4",
-    "@types/react": "19.2.14",
-    "react": "19.2.3",
+    "@types/react": "19.2.15",
+    "react": "19.2.6",
     "react-native": "0.85.3",
     "react-native-nitro-modules": "0.35.9",
     "react-native-reanimated": "4.3.0",
