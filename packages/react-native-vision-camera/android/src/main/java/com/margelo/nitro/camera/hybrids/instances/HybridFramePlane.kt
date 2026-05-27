@@ -39,13 +39,13 @@ class HybridFramePlane(
       } else {
         cachedBuffer?.let {
           // We already have it cached
-          return it
+          return it.readableBytes()
         }
         val size = plane.buffer.readableByteCount
         val copy = DirectByteBufferPool.Shared.acquire(size)
         copy.replaceWithReadableBytesFrom(plane.buffer)
         cachedBuffer = copy
-        return copy
+        return copy.readableBytes()
       }
     }
 
