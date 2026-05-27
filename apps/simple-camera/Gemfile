@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # You may use http://rbenv.org/ or https://rvm.io/ to install and use this version
-ruby ">= 2.6.10"
+ruby ">= 3.4.9"
 
 # Exclude problematic versions of cocoapods and activesupport that cause build failures.
 gem 'cocoapods', '>= 1.16.2', '< 1.17'
@@ -14,3 +14,4 @@ gem 'bigdecimal'
 gem 'logger'
 gem 'benchmark'
 gem 'mutex_m'
+gem 'nkf'

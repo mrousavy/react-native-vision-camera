@@ -2844,7 +2844,7 @@ SPEC CHECKSUMS:
   VisionCameraLocation: ec2e8ef6decf0bc957656c38a2d3bea35cdacb24
   VisionCameraResizer: 67b609a929ea431bae51e4818b137fb16ee8014d
   VisionCameraWorklets: 0122d7714e06fbc7d88f763c472376323fafd8c4
-  Yoga: 0a3b1e85da3524bdc3e0161818c8881ad363f97b
+  Yoga: 772166513f9cd2d61a6251d0dacbbfaa5b537479
 
 PODFILE CHECKSUM: 225e4ff5bb6719c47fa66724251c4ad2098c76da
 
