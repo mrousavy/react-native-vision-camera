@@ -39,7 +39,7 @@
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.2.1",
     "@types/mdx": "^2.0.13",
-    "@types/node": "25.3.2",
+    "@types/node": "25.9.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "postcss": "^8.5.6",
