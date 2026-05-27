@@ -126,7 +126,7 @@
     }
   },
   "patchedDependencies": {
-    "react-native@0.84.0": "patches/react-native@0.84.0.patch"
+    "react-native@0.85.3": "patches/react-native@0.85.3.patch"
   },
   "version": "5.0.11"
 }
