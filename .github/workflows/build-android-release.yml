@@ -7,6 +7,9 @@ on:
     paths:
       - '.github/workflows/build-android-release.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build_release:
     name: Build Android Example App (release, new architecture)
@@ -30,15 +33,19 @@ jobs:
         run: |
           ./gradlew clean :app:assembleRelease --no-daemon --no-build-cache
 
-      - name: Upload APK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload APK artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v7
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: apps/simple-camera/android/app/build/outputs/apk/release/app-release.apk
-          asset_name: "SimpleCamera-${{ github.event.release.tag_name }}.apk"
-          asset_content_type: application/vnd.android.package-archive
+          name: SimpleCamera-Release-Android
+          path: apps/simple-camera/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
+
+      - name: Upload APK to Release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" "apps/simple-camera/android/app/build/outputs/apk/release/app-release.apk#SimpleCamera-${GITHUB_REF_NAME}.apk" --clobber
 
       - name: Stop Gradle Daemon
         working-directory: apps/simple-camera/android

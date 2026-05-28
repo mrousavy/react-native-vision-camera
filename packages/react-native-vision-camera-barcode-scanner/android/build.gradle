@@ -5,9 +5,10 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:9.1.1"
+    classpath "com.android.tools.build:gradle:9.2.1"
   }
 }
+
 
 def reactNativeArchitectures() {
   def value = rootProject.getProperties().get("reactNativeArchitectures")
@@ -149,4 +150,3 @@ dependencies {
   // Add a dependency on VisionCamera (for HybridFrameSpec and HybridCameraOutputSpec)
   implementation project(":react-native-vision-camera")
 }
-
