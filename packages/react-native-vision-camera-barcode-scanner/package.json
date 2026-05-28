@@ -71,7 +71,7 @@
     "react-native": "0.85.3",
     "react-native-nitro-modules": "0.35.9",
     "react-native-vision-camera": "*",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "react": "*",

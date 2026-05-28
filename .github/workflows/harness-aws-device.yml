@@ -93,7 +93,7 @@ jobs:
 
       - id: filter
         if: ${{ github.event_name != 'workflow_dispatch' }}
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             android:
@@ -147,9 +147,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Setup JDK 17
         uses: actions/setup-java@v5
@@ -196,7 +196,7 @@ jobs:
         run: test -f ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
 
       - name: Upload Android app artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.HARNESS_ANDROID_APK_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_ANDROID_APP_BUILD_OUTPUT }}
@@ -217,7 +217,7 @@ jobs:
           fetch-depth: 1
 
       - name: Download Android app artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ env.HARNESS_ANDROID_APK_ARTIFACT_NAME }}
           path: apps/simple-camera/android/app/build/outputs/apk/debug
@@ -284,7 +284,7 @@ jobs:
 
       - name: Schedule Device Farm Android Automated Test
         id: run-test
-        uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
+        uses: aws-actions/aws-devicefarm-mobile-device-testing@v3
         continue-on-error: true
         with:
           run-settings-json: |
@@ -327,7 +327,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           max-size: 1.5G
           key: ${{ runner.os }}-${{ runner.arch }}-xcode${{ env.HARNESS_XCODE_VERSION }}-ccache-harness-ios
@@ -343,7 +343,7 @@ jobs:
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.2
+          ruby-version: 3.4.9
           bundler-cache: true
           working-directory: apps/simple-camera/
 
@@ -453,7 +453,7 @@ jobs:
         run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
 
       - name: Upload iOS app artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
@@ -461,7 +461,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Harness XCTest UI runner IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}
@@ -482,13 +482,13 @@ jobs:
           fetch-depth: 1
 
       - name: Download iOS app artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ env.HARNESS_IOS_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
 
       - name: Download Harness XCTest UI runner IPA artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
@@ -572,7 +572,7 @@ jobs:
 
       - name: Schedule Device Farm iOS Automated Test
         id: run-test
-        uses: aws-actions/aws-devicefarm-mobile-device-testing@v2.3
+        uses: aws-actions/aws-devicefarm-mobile-device-testing@v3
         continue-on-error: true
         with:
           run-settings-json: |

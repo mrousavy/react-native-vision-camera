@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -16,7 +15,7 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
-      "fumadocs-mdx:collections/*": [".source/*"]
+      "fumadocs-mdx:collections/*": ["./.source/*"]
     },
     "plugins": [
       {
