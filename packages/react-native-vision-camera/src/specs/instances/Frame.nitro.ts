@@ -251,34 +251,27 @@ export interface Frame
   readonly isPlanar: boolean
 
   /**
-   * Get whether this {@linkcode Frame} has readable Pixel Data
+   * Get whether this {@linkcode Frame} has a readable Pixel Buffer
    * attached to it.
    *
    * @discussion
-   * If this is true, the {@linkcode Frame}'s pixels can be read from JS via
-   * {@linkcode getPixelBuffer | getPixelBuffer()}.
-   *
-   * On Android, {@linkcode PixelFormat | 'private'} Frames are usually native
-   * buffers only and therefore return `false` here. Use
-   * {@linkcode hasNativeBuffer | hasNativeBuffer} and
-   * {@linkcode getNativeBuffer | getNativeBuffer()} for GPU/native interop.
-   *
-   * On iOS, every valid Frame has readable Pixel Data.
+   * Usually a {@linkcode Frame} has an application-accessible Pixel Buffer
+   * if its {@linkcode pixelFormat} is application-accessible - aka
+   * every {@linkcode PixelFormat} except for {@linkcode PixelFormat | 'private'}.
+   * On iOS, every Frame has an application-accessible Pixel Buffer.
    *
    * @see {@linkcode getPixelBuffer | getPixelBuffer()}
    */
   readonly hasPixelBuffer: boolean
   /**
-   * Get whether this {@linkcode Frame} has a Native Buffer handle
+   * Get whether this {@linkcode Frame} has a Native Buffer
    * attached to it.
    *
    * @discussion
-   * A Native Buffer is the platform-native image handle used for zero-copy
-   * GPU/native interop. It is independent from readable Pixel Data:
-   * a {@linkcode PixelFormat | 'private'} Frame may have a Native Buffer even
-   * when {@linkcode hasPixelBuffer | hasPixelBuffer} is false.
-   *
-   * On iOS, every valid Frame has a Native Buffer.
+   * Usually a {@linkcode Frame} has a Native Buffer if
+   * its {@linkcode pixelFormat} is application-accessible - aka
+   * every {@linkcode PixelFormat} except for {@linkcode PixelFormat | 'private'}.
+   * On iOS, every Frame has a Native Buffer.
    *
    * @see {@linkcode getNativeBuffer | getNativeBuffer()}
    * @see {@linkcode NativeBuffer}
