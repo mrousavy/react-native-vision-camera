@@ -2754,7 +2754,7 @@ SPEC CHECKSUMS:
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  hermes-engine: 10eab3e41131bfd09c0472f0a7d4e4a9d08dea43
+  hermes-engine: 691752261227b9de03faf08561f47f2e2b5b52e9
   MLImage: 2ab9c968e75f57911c16f4c9d9e8a8e9604a86a1
   MLKitBarcodeScanning: 72c6437f13a900833b400136be53a8a5d86f42fa
   MLKitCommon: 26b779f072a182c1603d4c88a101c350cac837b1
@@ -2771,7 +2771,7 @@ SPEC CHECKSUMS:
   React: e2dc35338068bbd299c66f043ae0d7f25de8499e
   React-callinvoker: 28b25d21b124c26cebaea713ba7d801b9351dc48
   React-Core: f90d375d3bab515ad00df30605ce1bf02e6db12f
-  React-Core-prebuilt: d683e2702afed06f3f64dddda74515749c822894
+  React-Core-prebuilt: b1b6e4d2fa9fd45a48500e7212eea403c30ee5c8
   React-CoreModules: da4f80202ef954bdfb926ca4c9ac5f685900aa5c
   React-cxxreact: 1d1d2a28a5f10e4e2e7cf2bfd54dc9c92c68c672
   React-debug: 92944dc4d89f56d640e75498266cbde557a48189
@@ -2839,7 +2839,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: a54c0c9b976766e1b6d5e2bb4d1ad0d15913e9e1
   ReactCodegen: 04cfdcadc18804284a28162c474e3a5574a644c9
   ReactCommon: 3ec2a55999d296af90c24beb66c8a77dc660d3ef
-  ReactNativeDependencies: 3adbcb4c48333a3d843448993dc7bc9377927987
+  ReactNativeDependencies: 2eb4b828d36504e50dff4d7a9c3808068bbd4713
   RNGestureHandler: 2e6d08b07ca6be2de1e4bde51dd9237b7b186d99
   RNReanimated: f26f3044ea86e3878fb2db213297d0810dd8f779
   RNScreens: 63cc2156368ac1a8239e9131103c2fef901fc381
@@ -2850,7 +2850,7 @@ SPEC CHECKSUMS:
   VisionCameraLocation: 02decd77066a5cc7ebedb525897527def9ff5d88
   VisionCameraResizer: f1046afebedbd869ef86f5fe7032fc3a20be2c52
   VisionCameraWorklets: c0ce8f63bfc871fc560217489b966ba298ed7d64
-  Yoga: 36fee8f1fca3f54a28c3d7f80e69f66d73d3af96
+  Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
 PODFILE CHECKSUM: 225e4ff5bb6719c47fa66724251c4ad2098c76da
 

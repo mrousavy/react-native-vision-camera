@@ -32,8 +32,8 @@
     "motion": "^12.36.0",
     "next": "16.2.6",
     "picocolors": "^1.1.1",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@playwright/test": "1.60.0",

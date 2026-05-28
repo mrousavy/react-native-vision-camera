@@ -29,7 +29,7 @@
         "@react-navigation/native-stack": "^7.14.2",
         "@shopify/react-native-skia": "2.6.4",
         "@types/jest": "^30.0.0",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-gesture-handler": "^2.30.0",
         "react-native-nitro-image": "0.15.0",
@@ -81,8 +81,8 @@
         "motion": "^12.36.0",
         "next": "16.2.6",
         "picocolors": "^1.1.1",
-        "react": "19.2.6",
-        "react-dom": "19.2.6",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
       },
       "devDependencies": {
         "@playwright/test": "1.60.0",
@@ -106,7 +106,7 @@
       "devDependencies": {
         "@types/react": "19.2.15",
         "nitrogen": "0.35.9",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-image": "0.15.0",
         "react-native-nitro-modules": "0.35.9",
@@ -125,7 +125,7 @@
       "devDependencies": {
         "@types/react": "19.2.15",
         "nitrogen": "0.35.9",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.35.9",
         "react-native-vision-camera": "*",
@@ -144,7 +144,7 @@
       "devDependencies": {
         "@types/react": "19.2.15",
         "nitrogen": "0.35.9",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.35.9",
         "react-native-vision-camera": "*",
@@ -163,7 +163,7 @@
       "devDependencies": {
         "@types/react": "19.2.15",
         "nitrogen": "0.35.9",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.35.9",
         "react-native-vision-camera": "*",
@@ -182,7 +182,7 @@
       "devDependencies": {
         "@shopify/react-native-skia": "2.6.4",
         "@types/react": "19.2.15",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.35.9",
         "react-native-reanimated": "4.3.0",
@@ -207,7 +207,7 @@
       "devDependencies": {
         "@types/react": "19.2.15",
         "nitrogen": "0.35.9",
-        "react": "19.2.6",
+        "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-nitro-modules": "0.35.9",
         "react-native-vision-camera": "*",
@@ -2364,11 +2364,11 @@
 
     "rc9": ["rc9@2.1.2", "", { "dependencies": { "defu": "^6.1.4", "destr": "^2.0.3" } }, "sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg=="],
 
-    "react": ["react@19.2.6", "", {}, "sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q=="],
+    "react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
     "react-devtools-core": ["react-devtools-core@6.1.5", "", { "dependencies": { "shell-quote": "^1.6.1", "ws": "^7" } }, "sha512-ePrwPfxAnB+7hgnEr8vpKxL9cmnp7F322t8oqcPshbIQQhDKgFDW4tjhF2wjVbdXF9O/nyuy3sQWd9JGpiLPvA=="],
 
-    "react-dom": ["react-dom@19.2.6", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.6" } }, "sha512-0prMI+hvBbPjsWnxDLxlCGyM8PN6UuWjEUCYmZhO67xIV9Xasa/r/vDnq+Xyq4Lo27g8QSbO5YzARu0D1Sps3g=="],
+    "react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "react-freeze": ["react-freeze@1.0.4", "", { "peerDependencies": { "react": ">=17.0.0" } }, "sha512-r4F0Sec0BLxWicc7HEyo2x3/2icUTrRmDjaaRyzzn+7aDyFZliszMDOgLVwSnQnYENOlL1o569Ze2HZefk8clA=="],
 

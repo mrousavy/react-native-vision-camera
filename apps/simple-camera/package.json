@@ -22,7 +22,7 @@
     "@react-navigation/native-stack": "^7.14.2",
     "@shopify/react-native-skia": "2.6.4",
     "@types/jest": "^30.0.0",
-    "react": "19.2.6",
+    "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-gesture-handler": "^2.30.0",
     "react-native-nitro-image": "0.15.0",
