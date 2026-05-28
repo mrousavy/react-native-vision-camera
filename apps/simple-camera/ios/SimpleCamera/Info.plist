@@ -41,6 +41,8 @@
 	<string>VisionCamera needs access to your Location to add GPS tags to captured photos.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>RCTMetroPort</key>
+	<string>$(RCT_METRO_PORT)</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>

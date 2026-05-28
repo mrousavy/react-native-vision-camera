@@ -18,6 +18,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     return args[index + 1]
   }
 
+  private func metroPortFromInfoPlist() -> String {
+    guard let port = Bundle.main.object(forInfoDictionaryKey: "RCTMetroPort") as? String,
+          !port.isEmpty,
+          !port.contains("$(") else {
+      return "8081"
+    }
+    return port
+  }
+
   private func configureMetroFromLaunchContext() {
     let defaults = UserDefaults.standard
     let launchArgJsLocation = valueForLaunchArgument("-RCT_jsLocation")
@@ -29,9 +38,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // apps/simple-camera/rn-harness.config.mjs.
     // Release builds still use the prebundled JS bundle in bundleURL(), so these
     // values do not affect release app startup.
+#if DEBUG && targetEnvironment(simulator)
+    defaults.set(launchArgJsLocation ?? "localhost:\(metroPortFromInfoPlist())", forKey: "RCT_jsLocation")
+#else
     if let jsLocation = launchArgJsLocation {
       defaults.set(jsLocation, forKey: "RCT_jsLocation")
     }
+#endif
 
     if let packagerScheme = launchArgPackagerScheme {
       defaults.set(packagerScheme, forKey: "RCT_packager_scheme")
