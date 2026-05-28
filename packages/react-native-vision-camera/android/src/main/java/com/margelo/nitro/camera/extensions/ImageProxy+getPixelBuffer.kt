@@ -68,10 +68,10 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
     }
   }
 
-  return when {
+  when {
     planes.size == 1 -> {
       // Medium Path: We can wrap a single direct plane as a ByteBuffer, or copy it into one if needed.
-      planes.single().buffer.wrapOrCopyIntoArrayBuffer()
+      return planes.single().buffer.wrapOrCopyIntoArrayBuffer()
     }
     planes.size > 1 -> {
       // Slow Path: We have to copy all planes into a new ByteBuffer.
@@ -82,7 +82,7 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
         byteBuffer.put(buffer)
       }
       val arrayBuffer = ArrayBuffer.wrap(byteBuffer)
-      DisposableArrayBuffer(arrayBuffer) {
+      return DisposableArrayBuffer(arrayBuffer) {
         DirectByteBufferPool.Shared.release(byteBuffer)
       }
     }
