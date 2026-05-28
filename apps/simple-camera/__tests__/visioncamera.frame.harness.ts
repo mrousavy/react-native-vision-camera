@@ -76,7 +76,7 @@ describe('VisionCamera - Frame', () => {
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
 
-  it('reports and conditionally reads native frame buffers', async (context) => {
+  it('reports native buffers and conditionally reads pixel buffers', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const frameOutput = VisionCamera.createFrameOutput({
       targetResolution: CommonResolutions.HD_16_9,
@@ -131,24 +131,6 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        if (!frame.hasPixelBuffer) {
-          scheduleOnRN(report, {
-            state: 'skip',
-            reason:
-              'native frame buffers: device does not expose readable pixel buffers',
-          })
-          return
-        }
-
-        const pixelBufferBytes = frame.getPixelBuffer().byteLength
-        if (pixelBufferBytes <= 0) {
-          scheduleOnRN(report, {
-            state: 'error',
-            errorMessage: 'Frame pixel buffer was empty.',
-          })
-          return
-        }
-
         if (!frame.hasNativeBuffer) {
           scheduleOnRN(report, {
             state: 'skip',
@@ -169,6 +151,17 @@ describe('VisionCamera - Frame', () => {
           }
         } finally {
           nativeBuffer.release()
+        }
+
+        if (frame.hasPixelBuffer) {
+          const pixelBufferBytes = frame.getPixelBuffer().byteLength
+          if (pixelBufferBytes <= 0) {
+            scheduleOnRN(report, {
+              state: 'error',
+              errorMessage: 'Frame pixel buffer was empty.',
+            })
+            return
+          }
         }
 
         scheduleOnRN(report, {

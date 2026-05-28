@@ -251,8 +251,8 @@ export interface Frame
   readonly isPlanar: boolean
 
   /**
-   * Get whether this {@linkcode Frame} has a readable Pixel Buffer
-   * attached to it.
+   * Get whether this {@linkcode Frame} has a CPU-accessible
+   * Pixel Buffer attached to it.
    *
    * @discussion
    * Usually a {@linkcode Frame} has an application-accessible Pixel Buffer
@@ -268,10 +268,12 @@ export interface Frame
    * attached to it.
    *
    * @discussion
-   * Usually a {@linkcode Frame} has a Native Buffer if
-   * its {@linkcode pixelFormat} is application-accessible - aka
-   * every {@linkcode PixelFormat} except for {@linkcode PixelFormat | 'private'}.
-   * On iOS, every Frame has a Native Buffer.
+   * A Native Buffer can be sampled on the GPU as an external texture,
+   * or used in Media Encoder APIs.
+   *
+   * @discussion
+   * Usually a {@linkcode Frame} has a Native Buffer if the platform
+   * supports it. Only legacy platforms don't support Native Buffers.
    *
    * @see {@linkcode getNativeBuffer | getNativeBuffer()}
    * @see {@linkcode NativeBuffer}
@@ -321,11 +323,17 @@ export interface Frame
    * this {@linkcode Frame}.
    *
    * This is a shared contract between libraries to pass
-   * native buffers around without natively typed bindings.
+   * Native Buffers around without natively typed bindings.
+   *
+   * The Native Buffer can be sampled by the GPU as an
+   * external texture, or passed to Media Encoder APIs.
    *
    * The {@linkcode NativeBuffer} must be released
    * again by its consumer via {@linkcode NativeBuffer.release | release()},
    * otherwise the Camera pipeline might stall.
+   *
+   * @discussion
+   * Libraries like Skia or WebGPU implement Native Buffer APIs.
    *
    * @throws If {@linkcode hasNativeBuffer | hasNativeBuffer} is false.
    *
@@ -334,6 +342,32 @@ export interface Frame
    * if (frame.hasNativeBuffer) {
    *   const nativeBuffer = frame.getNativeBuffer()
    *   console.log(`Native Buffer pointer: ${nativeBuffer.pointer}`)
+   *   nativeBuffer.release()
+   * }
+   * ```
+   * @example
+   * Import a `Frame` into Skia via `NativeBuffer`
+   * ```ts
+   * if (frame.hasNativeBuffer) {
+   *   const nativeBuffer = frame.getNativeBuffer()
+   *   const image = Skia.Image.MakeImageFromNativeBuffer(nativeBuffer.pointer)
+   *   // Render `image` via Skia APIs
+   *   image.dispose()
+   *   nativeBuffer.release()
+   * }
+   * ```
+   * @example
+   * Import a `Frame` into WebGPU via `NativeBuffer`
+   * ```ts
+   * const device = ... // WebGPU device
+   * if (frame.hasNativeBuffer) {
+   *   const nativeBuffer = frame.getNativeBuffer()
+   *   const image = device.importExternalTexture({
+   *     source: nativeBuffer,
+   *     label: 'camera-frame'
+   *   })
+   *   // Render `image` via Skia APIs
+   *   image.dispose()
    *   nativeBuffer.release()
    * }
    * ```

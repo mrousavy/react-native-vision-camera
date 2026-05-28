@@ -1,29 +1,35 @@
 package com.margelo.nitro.camera.extensions
 
+import android.hardware.HardwareBuffer
 import android.os.Build
-import android.util.Log
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
 
+val HardwareBuffer.isCpuReadable: Boolean
+  @RequiresApi(Build.VERSION_CODES.O)
+  get() {
+    val readableUsageFlags = HardwareBuffer.USAGE_CPU_READ_RARELY or HardwareBuffer.USAGE_CPU_READ_OFTEN
+    return (usage and readableUsageFlags) != 0L
+  }
+
 val ImageProxy.hasPixelBuffer: Boolean
   @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      image?.hardwareBuffer?.use {
-        // We have a buffer - return true
-        return true
+      image?.hardwareBuffer?.use { hardwareBuffer ->
+        if (hardwareBuffer.isCpuReadable) {
+          // We have CPU-readable GPU-backed Pixel Data.
+          return true
+        }
       }
     }
-    if (planes.size >= 1) {
-      // We have CPU accessible planes
-      return true
-    }
-    // We have nothing.
-    return false
+    // We have CPU-accessible planes.
+    return planes.isNotEmpty()
   }
 
 data class DisposableArrayBuffer(
@@ -52,17 +58,16 @@ private fun ByteBuffer.wrapOrCopyIntoArrayBuffer(): DisposableArrayBuffer {
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
     image?.hardwareBuffer?.use { hardwareBuffer ->
-      try {
-        // Fast Path: We have a GPU-accessible Buffer
+      if (hardwareBuffer.isCpuReadable) {
+        // Fast Path: We have a CPU-readable HardwareBuffer.
         val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
         return DisposableArrayBuffer(arrayBuffer) {
           // no release
         }
-      } catch (e: Throwable) {
-        Log.e("ImageProxy", "Failed to wrap zero-copy HardwareBuffer! Falling back to ByteBuffer copy...", e)
       }
     }
   }
+
   when {
     planes.size == 1 -> {
       // Medium Path: We can wrap a single direct plane as a ByteBuffer, or copy it into one if needed.
@@ -81,6 +86,6 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
         DirectByteBufferPool.Shared.release(byteBuffer)
       }
     }
-    else -> throw Error("ImageProxy does not contain any GPU- or CPU-Pixel Data!")
+    else -> throw Error("ImageProxy does not contain any readable Pixel Data!")
   }
 }
