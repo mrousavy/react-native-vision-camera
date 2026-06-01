@@ -63,12 +63,24 @@ phases:
 
         cd "$WORKING_DIRECTORY/react-native-vision-camera/apps/simple-camera"
 
+        copy_harness_crash_reports() {
+          status=$?
+          crash_dir="$PWD/.harness/crash-reports"
+          if [ -d "$crash_dir" ]; then
+            mkdir -p "$HARNESS_ARTIFACTS/crash-reports" || true
+            cp -R "$crash_dir"/. "$HARNESS_ARTIFACTS/crash-reports/" || true
+          fi
+          return "$status"
+        }
+
+        trap copy_harness_crash_reports EXIT
+
         HARNESS_IOS_XCTESTRUN_FILE="$DEVICEFARM_XCUITESTRUN_FILE" \
           HARNESS_IOS_XCTEST_DERIVED_DATA_PATH="$DEVICEFARM_DERIVED_DATA_PATH" \
           HARNESS_METRO_BIND_HOST="::" \
           HARNESS_IOS_METRO_HOST="$(cat "$HARNESS_METRO_HOST_FILE")" \
           HARNESS_IOS_DEVICE_ID="$DEVICEFARM_DEVICE_UDID" \
-          HARNESS_DETECT_NATIVE_CRASHES=false \
+          HARNESS_DETECT_NATIVE_CRASHES=true \
           CI=true \
           FORCE_COLOR=1 \
           JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" \
