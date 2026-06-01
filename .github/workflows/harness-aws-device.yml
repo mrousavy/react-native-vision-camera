@@ -44,6 +44,7 @@ on:
       - "packages/react-native-vision-camera-skia/**"
       - "bun.lock"
       - "package.json"
+      - "patches/**"
   pull_request:
     paths:
       - ".github/workflows/harness-aws-device.yml"
@@ -56,6 +57,7 @@ on:
       - "packages/react-native-vision-camera-skia/**"
       - "bun.lock"
       - "package.json"
+      - "patches/**"
 
 env:
   USE_CCACHE: 1
