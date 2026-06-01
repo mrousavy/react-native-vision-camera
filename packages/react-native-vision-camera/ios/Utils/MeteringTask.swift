@@ -241,6 +241,15 @@ final class MeteringTask {
       hasEverAdjusted: hasEverAdjusted,
       settledAt: settledAt)
   }
+  private func seedMeteringState(for mode: MeteringMode, isAdjusting: Bool) {
+    guard !isFinished else { return }
+    if isAdjusting {
+      self.onMeteringAdjusting(for: mode)
+    } else {
+      self.onMeteringSettled(for: mode)
+    }
+    self.update()
+  }
 
   /**
    * Starts metering exposure (AE) to the given `CGPoint`.
@@ -269,6 +278,7 @@ final class MeteringTask {
         }
         self.update()
       })
+    self.seedMeteringState(for: .ae, isAdjusting: device.isAdjustingExposure)
   }
 
   /**
@@ -298,6 +308,7 @@ final class MeteringTask {
         }
         self.update()
       })
+    self.seedMeteringState(for: .af, isAdjusting: device.isAdjustingFocus)
   }
 
   /**
@@ -323,6 +334,7 @@ final class MeteringTask {
         }
         self.update()
       })
+    self.seedMeteringState(for: .awb, isAdjusting: device.isAdjustingWhiteBalance)
   }
 
   private func getExposureMode(responsiveness: FocusResponsiveness) throws
