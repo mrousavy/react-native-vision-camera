@@ -30,6 +30,7 @@ import NitroModules
 final class MeteringTask {
   private let minStableFocusDurationUntilResolve: TimeInterval = 0.12  // 120ms
   private let pollInterval: TimeInterval = 0.05  // 50ms
+  private let timeout: TimeInterval = 10.0  // 10s
   private let queue: DispatchQueue
   private let device: AVCaptureDevice
   private var meteringStates: [MeteringMode: MeteringProgress]
@@ -37,6 +38,7 @@ final class MeteringTask {
   private let autoReset: AutoReset
   private var observations: [NSKeyValueObservation] = []
   private var timer: DispatchSourceTimer?
+  private var startedAt: Date? = nil
   private var isFinished = false
   private var onComplete: (() -> Void)? = nil
   private var onError: ((Error) -> Void)? = nil
@@ -90,6 +92,7 @@ final class MeteringTask {
   ) {
     self.onComplete = onComplete
     self.onError = onError
+    self.startedAt = Date()
     // the Timer periodically polls AE/AF/AWB state - this is how we can ensure the states have
     // been stable for 120ms+ and aren't just fluctuating.
     let timer = DispatchSource.makeTimerSource(queue: queue)
@@ -117,6 +120,7 @@ final class MeteringTask {
     observations.removeAll()
     timer?.cancel()
     timer = nil
+    startedAt = nil
     if !isFinished {
       onError?(MeteringError.timeouted)
       isFinished = true
@@ -129,6 +133,11 @@ final class MeteringTask {
     // 1. Check if all metering states have been settled for at least
     //    the `minStableFocusDurationUntilResolve` duration. (120ms)
     let now = Date()
+    if let startedAt, now.timeIntervalSince(startedAt) >= timeout {
+      logger.info("Metering operations timed out after \(self.timeout) seconds!")
+      destroy()
+      return
+    }
     let allSettledForStableDuration = self.meteringStates.values.allSatisfy { progress in
       guard let settledAt = progress.settledAt else {
         // This metering state has not been settled at all yet!
