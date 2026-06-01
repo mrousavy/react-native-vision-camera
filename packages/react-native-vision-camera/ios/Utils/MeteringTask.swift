@@ -251,9 +251,6 @@ final class MeteringTask {
       throw RuntimeError.error(withMessage: "Metering Mode `AE` is not supported on this device!")
     }
     logger.info("Started metering AE to \(point.debugDescription)...")
-    // Request AF to lock to the specific point
-    self.device.exposurePointOfInterest = point
-    self.device.exposureMode = try getExposureMode(responsiveness: responsiveness)
     // Track AE completion
     self.onMeteringRequested(for: .ae)
     self.observations.append(
@@ -269,6 +266,9 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AF to lock to the specific point
+    self.device.exposurePointOfInterest = point
+    self.device.exposureMode = try getExposureMode(responsiveness: responsiveness)
   }
 
   /**
@@ -280,9 +280,6 @@ final class MeteringTask {
       throw RuntimeError.error(withMessage: "Metering Mode `AF` is not supported on this device!")
     }
     logger.info("Started metering AF to \(point.debugDescription)...")
-    // Request AF to lock to the specific point
-    device.focusPointOfInterest = point
-    device.focusMode = try getFocusMode(responsiveness: responsiveness)
     // Track AF completion
     self.onMeteringRequested(for: .af)
     self.observations.append(
@@ -298,6 +295,9 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AF to lock to the specific point
+    device.focusPointOfInterest = point
+    device.focusMode = try getFocusMode(responsiveness: responsiveness)
   }
 
   /**
@@ -306,8 +306,6 @@ final class MeteringTask {
    */
   func startMeteringAWB(responsiveness: FocusResponsiveness) throws {
     logger.info("Started metering AWB...")
-    // Request AWB to focus
-    device.whiteBalanceMode = try getWhiteBalanceMode(responsiveness: responsiveness)
     // Track AWB completion
     self.onMeteringRequested(for: .awb)
     self.observations.append(
@@ -323,6 +321,8 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AWB to focus
+    device.whiteBalanceMode = try getWhiteBalanceMode(responsiveness: responsiveness)
   }
 
   private func getExposureMode(responsiveness: FocusResponsiveness) throws
