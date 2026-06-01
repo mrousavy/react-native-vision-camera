@@ -102,7 +102,7 @@ final class MeteringTask {
 
     let timeoutTimer = DispatchSource.makeTimerSource(queue: queue)
     timeoutTimer.schedule(deadline: .now() + timeout)
-    timeoutTimer.setEventHandler { [weak self] in self?.timeoutMetering() }
+    timeoutTimer.setEventHandler { [weak self] in self?.onTimedOut() }
     timeoutTimer.resume()
     self.timeoutTimer = timeoutTimer
     logger.info("Started metering operations...")
@@ -112,10 +112,7 @@ final class MeteringTask {
    * Cancels the currently active `MeteringTask`.
    */
   func cancel() {
-    if isFinished {
-      // Task has completed successfully
-      return
-    }
+    guard !isFinished else { return }
     logger.info("Canceling metering operations...")
     onError?(MeteringError.canceled)
     isFinished = true
@@ -136,7 +133,7 @@ final class MeteringTask {
     }
   }
 
-  private func timeoutMetering() {
+  private func onTimedOut() {
     guard !isFinished else { return }
     logger.info("Metering operations timed out after \(self.timeout) seconds!")
     destroy()
