@@ -1,23 +1,23 @@
 diff --git a/React/DevSupport/RCTInspectorDevServerHelper.mm b/React/DevSupport/RCTInspectorDevServerHelper.mm
-index 9230dd3b33223e7048f2a22bef286355f4beed84..bcc1d971e2ce7e9c7d6be87f4593b78e1966502d 100644
+index e2ee27e2..57ea8a7c 100644
 --- a/React/DevSupport/RCTInspectorDevServerHelper.mm
 +++ b/React/DevSupport/RCTInspectorDevServerHelper.mm
-@@ -34,6 +34,10 @@
-   if (host == nullptr) {
-     host = @"localhost";
+@@ -34,6 +34,10 @@ static NSString *getServerHost(NSURL *bundleURL)
+     return [NSString stringWithFormat:@"%@:%@", host, [bundleURL port]];
    }
+ 
 +  // NSURL.host strips IPv6 brackets, but URL authority requires them.
 +  if ([host containsString:@":"] && ![host hasPrefix:@"["] && ![host hasSuffix:@"]"]) {
 +    host = [NSString stringWithFormat:@"[%@]", host];
 +  }
- 
-   // this is consistent with the Android implementation, where http:// is the
-   // hardcoded implicit scheme for the debug server. Note, packagerURL
+   // Check environment variable
+   NSString *portStr = [[[NSProcessInfo processInfo] environment] objectForKey:@"RCT_METRO_PORT"];
+   if ((portStr != nullptr) && [portStr length] > 0) {
 diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
-index 1c17945855dc32c0b3b8fea5bb766c1d9637a244..aac492a4f30714720128866a16766f50141fdeb3 100644
+index 1c179458..67ad0666 100644
 --- a/React/DevSupport/RCTPackagerConnection.mm
 +++ b/React/DevSupport/RCTPackagerConnection.mm
-@@ -64,22 +64,24 @@ - (instancetype)init
+@@ -64,30 +64,38 @@ struct Registration {
  
  static RCTReconnectingWebSocket *socketForLocation(NSString *const serverHostPort, NSString *scheme)
  {
@@ -33,6 +33,12 @@ index 1c17945855dc32c0b3b8fea5bb766c1d9637a244..aac492a4f30714720128866a16766f50
    if (![scheme length]) {
      scheme = @"http";
    }
+-  NSURLComponents *const components = [NSURLComponents new];
+-  components.host = serverHost ?: @"localhost";
+-  components.scheme = scheme;
+-  components.port = serverPort ? @(serverPort.integerValue) : @(kRCTBundleURLProviderDefaultPort);
+-  components.path = @"/message";
+-  components.queryItems = @[ [NSURLQueryItem queryItemWithName:@"role" value:RCTPlatformName] ];
 +
 +  NSString *location = serverHostPort;
 +  if (![location length]) {
@@ -59,10 +65,10 @@ index 1c17945855dc32c0b3b8fea5bb766c1d9637a244..aac492a4f30714720128866a16766f50
    static dispatch_queue_t queue;
    static dispatch_once_t onceToken;
    dispatch_once(&onceToken, ^{
-@@ -91,5 +93,5 @@ static RCTReconnectingWebSocket *socketForLocation(NSString *const serverHostPor
      queue = dispatch_queue_create("com.facebook.RCTPackagerConnectionQueue", DISPATCH_QUEUE_SERIAL);
    });
 -  return [[RCTReconnectingWebSocket alloc] initWithURL:components.URL queue:queue];
 +  return [[RCTReconnectingWebSocket alloc] initWithURL:socketURL queue:queue];
  }
-   static dispatch_queue_t queue;
+ 
+ - (void)startWithBundleManager:(RCTBundleManager *)bundleManager
