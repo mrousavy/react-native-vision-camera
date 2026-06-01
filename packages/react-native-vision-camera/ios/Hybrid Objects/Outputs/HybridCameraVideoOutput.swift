@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
+final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
   private let queue = DispatchQueue(label: "com.margelo.camera.video")
   private let options: VideoOutputOptions
   private let fileType: RecorderFileType
@@ -24,6 +24,10 @@ class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOutput {
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?
       try? connection.setOrientation(outputOrientation)
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .video) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

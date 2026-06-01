@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewViewOutput {
+final class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewViewOutput {
   let mediaType: MediaType = .video
   let previewLayer: AVCaptureVideoPreviewLayer
   private let orientationManager = HybridInterfaceOrientationManager()
@@ -20,6 +20,10 @@ class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePreviewVie
       // Setting orientation on a Preview output does nothing,
       // as its orientation is always driven by the `orientationManager`.
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = previewLayer.connection else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

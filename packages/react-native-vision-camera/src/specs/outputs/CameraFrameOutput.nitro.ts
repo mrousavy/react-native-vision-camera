@@ -169,6 +169,7 @@ export interface FrameOutputOptions {
  * @see {@linkcode FrameOutputOptions}
  * @see {@linkcode useFrameOutput | useFrameOutput(...)}
  * @example
+ * Creating a `CameraFrameOutput` via the Hooks API:
  * ```ts
  * const frameOutput = useFrameOutput({
  *   pixelFormat: 'yuv',
@@ -176,6 +177,20 @@ export interface FrameOutputOptions {
  *     'worklet'
  *     frame.dispose()
  *   }
+ * })
+ * ```
+ *
+ * @example
+ * Creating a `CameraFrameOutput` via the Imperative API:
+ * ```ts
+ * const frameOutput = VisionCamera.createFrameOutput({
+ *   targetResolution: CommonResolutions.HD_16_9,
+ *   pixelFormat: 'yuv',
+ *   enablePreviewSizedOutputBuffers: false,
+ *   allowDeferredStart: true,
+ *   enablePhysicalBufferRotation: false,
+ *   enableCameraMatrixDelivery: false,
+ *   dropFramesWhileBusy: true,
  * })
  * ```
  */

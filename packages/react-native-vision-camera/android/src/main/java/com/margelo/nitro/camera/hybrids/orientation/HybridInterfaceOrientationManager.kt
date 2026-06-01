@@ -49,6 +49,7 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
           }
         }
       }
+    this.listener = listener
     displayManager.registerDisplayListener(listener, null)
   }
 
@@ -56,5 +57,6 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
     listener?.let { listener ->
       displayManager.unregisterDisplayListener(listener)
     }
+    listener = null
   }
 }

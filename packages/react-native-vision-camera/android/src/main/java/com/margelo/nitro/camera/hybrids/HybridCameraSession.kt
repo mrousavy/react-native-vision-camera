@@ -28,7 +28,6 @@ import com.margelo.nitro.camera.session.toConfig
 import com.margelo.nitro.camera.utils.CustomLifecycle
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.core.resolved
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -102,6 +101,7 @@ class HybridCameraSession(
           // Multi Camera Session
           // TODO: In Multi-Cam we cannot use the CameraX `SessionConfig` API, so we cannot use `ConstraintsResolver`!
           //       This effectively means that no special features (FPS, HDR, Stabilization, ...) are supported in multi-cam... :(
+          //       Implement this once CameraX supports it - feature request: https://issuetracker.google.com/issues/470629644
           val allPreparedUseCases = mutableListOf<NativeCameraOutput.PreparedUseCase>()
           val configs =
             connections.map { connection ->
@@ -138,16 +138,19 @@ class HybridCameraSession(
   }
 
   override fun start(): Promise<Unit> {
-    lifecycleOwner.setActive(true)
-    return Promise.resolved()
+    return Promise.async(uiScope) {
+      lifecycleOwner.setActive(true)
+    }
   }
 
   override fun stop(): Promise<Unit> {
-    lifecycleOwner.setActive(false)
-    return Promise.resolved()
+    return Promise.async(uiScope) {
+      lifecycleOwner.setActive(false)
+    }
   }
 
   override fun dispose() {
+    super.dispose()
     Log.i(TAG, "Destroying CameraSession...")
     Promise.async(uiScope) {
       lifecycleOwner.destroy()

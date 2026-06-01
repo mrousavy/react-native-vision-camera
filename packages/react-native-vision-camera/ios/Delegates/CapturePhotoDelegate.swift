@@ -94,22 +94,6 @@ final class CapturePhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     didFinishCapturingDeferredPhotoProxy deferredPhotoProxy: AVCaptureDeferredPhotoProxy?,
     error: (any Error)?
   ) {
-    fatalError("didFinishCapturingDeferredPhotoProxy: is not yet implemented!")
-  }
-
-  func photoOutput(
-    _ output: AVCapturePhotoOutput,
-    didFinishRecordingLivePhotoMovieForEventualFileAt outputFileURL: URL,
-    resolvedSettings: AVCaptureResolvedPhotoSettings
-  ) {
-    fatalError("didFinishRecordingLivePhotoMovieForEventualFileAt: is not yet implemented!")
-  }
-
-  func photoOutput(
-    _ output: AVCapturePhotoOutput, didFinishProcessingLivePhotoToMovieFileAt outputFileURL: URL,
-    duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings,
-    error: (any Error)?
-  ) {
-    fatalError("didFinishProcessingLivePhotoToMovieFileAt: is not yet implemented!")
+    logger.warning("didFinishCapturingDeferredPhotoProxy is not implemented!")
   }
 }

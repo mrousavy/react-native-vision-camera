@@ -230,6 +230,7 @@ export interface CapturePhotoSettings {
 export interface PhotoFile {
   /**
    * The path of the file.
+   * This is a filesystem path, not a `file://` URL.
    */
   filePath: string
 }
@@ -245,8 +246,20 @@ export interface PhotoFile {
  * @see {@linkcode CapturePhotoSettings}
  * @see {@linkcode usePhotoOutput | usePhotoOutput(...)}
  * @example
+ * Creating a `CameraPhotoOutput` via the Hooks API:
  * ```ts
- * const photoOutput = usePhotoOutput({})
+ * const photoOutput = usePhotoOutput()
+ * ```
+ *
+ * @example
+ * Creating a `CameraPhotoOutput` via the Imperative API:
+ * ```ts
+ * const photoOutput = VisionCamera.createPhotoOutput({
+ *   targetResolution: CommonResolutions.UHD_4_3,
+ *   containerFormat: 'native',
+ *   quality: 0.9,
+ *   qualityPrioritization: 'balanced',
+ * })
  * ```
  */
 export interface CameraPhotoOutput extends CameraOutput {
@@ -314,4 +327,36 @@ export interface CameraPhotoOutput extends CameraOutput {
     settings: CapturePhotoSettings,
     callbacks: CapturePhotoCallbacks,
   ): Promise<PhotoFile>
+
+  /**
+   * Asynchronously prepares the {@linkcode CameraPhotoOutput}
+   * with the given {@linkcode settings} array to improve capture
+   * responsiveness for subsequent {@linkcode capturePhoto | capturePhoto(...)}
+   * calls when called with any of the same {@linkcode CapturePhotoSettings}
+   * that have been prepared via this method.
+   *
+   * @discussion
+   * It is recommended to always call this with a few common
+   * settings you expect to be used for {@linkcode capturePhoto | capturePhoto(...)}
+   * later on.
+   *
+   * It is perfectly fine to not call {@linkcode prepareSettings | prepareSettings(...)}
+   * when using Photo capture, but {@linkcode capturePhoto | capturePhoto(...)} may
+   * allocate buffers that cause higher latency on initial calls when aiming for quality.
+   *
+   * On Android, this method is no-op.
+   *
+   * @example
+   * ```ts
+   * const photoOutput = usePhotoOutput({})
+   *
+   * useEffect(() => {
+   *   photoOutput.prepareSettings([
+   *     { flashMode: 'off', enableDistortionCorrection: true },
+   *     { flashMode: 'on', enableDistortionCorrection: false },
+   *   ])
+   * }, [])
+   * ```
+   */
+  prepareSettings(settings: CapturePhotoSettings[]): Promise<void>
 }

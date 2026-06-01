@@ -39,16 +39,16 @@ namespace margelo::nitro::camera {
      */
     bool invoke(const std::vector<std::variant<std::shared_ptr<HybridFrameSpec>, std::shared_ptr<HybridDepthSpec>>>& frames) const {
       static const auto method = javaClassStatic()->getMethod<jboolean(jni::alias_ref<jni::JArrayClass<JVariant_HybridFrameSpec_HybridDepthSpec>> /* frames */)>("invoke");
-      auto __result = method(self(), [&]() {
-        size_t __size = frames.size();
+      auto __result = method(self(), [&](auto&& __input) {
+        size_t __size = __input.size();
         jni::local_ref<jni::JArrayClass<JVariant_HybridFrameSpec_HybridDepthSpec>> __array = jni::JArrayClass<JVariant_HybridFrameSpec_HybridDepthSpec>::newArray(__size);
         for (size_t __i = 0; __i < __size; __i++) {
-          const auto& __element = frames[__i];
+          const auto& __element = __input[__i];
           auto __elementJni = JVariant_HybridFrameSpec_HybridDepthSpec::fromCpp(__element);
           __array->setElement(__i, *__elementJni);
         }
         return __array;
-      }());
+      }(frames));
       return static_cast<bool>(__result);
     }
   };
@@ -67,16 +67,16 @@ namespace margelo::nitro::camera {
      * Invokes the C++ `std::function<...>` this `JFunc_bool_std__vector_std__variant_std__shared_ptr_HybridFrameSpec___std__shared_ptr_HybridDepthSpec____cxx` instance holds.
      */
     jboolean invoke_cxx(jni::alias_ref<jni::JArrayClass<JVariant_HybridFrameSpec_HybridDepthSpec>> frames) {
-      bool __result = _func([&]() {
-              size_t __size = frames->size();
-              std::vector<std::variant<std::shared_ptr<HybridFrameSpec>, std::shared_ptr<HybridDepthSpec>>> __vector;
-              __vector.reserve(__size);
-              for (size_t __i = 0; __i < __size; __i++) {
-                auto __element = frames->getElement(__i);
-                __vector.push_back(__element->toCpp());
-              }
-              return __vector;
-            }());
+      bool __result = _func([&](auto&& __input) {
+        size_t __size = __input->size();
+        std::vector<std::variant<std::shared_ptr<HybridFrameSpec>, std::shared_ptr<HybridDepthSpec>>> __vector;
+        __vector.reserve(__size);
+        for (size_t __i = 0; __i < __size; __i++) {
+          auto __element = __input->getElement(__i);
+          __vector.push_back(__element->toCpp());
+        }
+        return __vector;
+      }(frames));
       return __result;
     }
 

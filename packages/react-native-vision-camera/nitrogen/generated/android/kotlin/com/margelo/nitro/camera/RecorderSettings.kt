@@ -9,6 +9,7 @@ package com.margelo.nitro.camera
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
+import java.util.Objects
 
 
 /**
@@ -22,12 +23,33 @@ data class RecorderSettings(
   val location: HybridLocationSpec?,
   @DoNotStrip
   @Keep
+  val filePath: String?,
+  @DoNotStrip
+  @Keep
   val maxDuration: Double?,
   @DoNotStrip
   @Keep
   val maxFileSize: Double?
 ) {
   /* primary constructor */
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is RecorderSettings) return false
+    return Objects.deepEquals(this.location, other.location)
+      && Objects.deepEquals(this.filePath, other.filePath)
+      && Objects.deepEquals(this.maxDuration, other.maxDuration)
+      && Objects.deepEquals(this.maxFileSize, other.maxFileSize)
+  }
+
+  override fun hashCode(): Int {
+    return arrayOf<Any?>(
+      location,
+      filePath,
+      maxDuration,
+      maxFileSize
+    ).contentDeepHashCode()
+  }
 
   companion object {
     /**
@@ -37,8 +59,8 @@ data class RecorderSettings(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(location: HybridLocationSpec?, maxDuration: Double?, maxFileSize: Double?): RecorderSettings {
-      return RecorderSettings(location, maxDuration, maxFileSize)
+    private fun fromCpp(location: HybridLocationSpec?, filePath: String?, maxDuration: Double?, maxFileSize: Double?): RecorderSettings {
+      return RecorderSettings(location, filePath, maxDuration, maxFileSize)
     }
   }
 }

@@ -34,12 +34,25 @@ export interface DepthFrameOutputOptions
  * @see {@linkcode DepthFrameOutputOptions}
  * @see {@linkcode useDepthOutput | useDepthOutput(...)}
  * @example
+ * Creating a `CameraDepthFrameOutput` via the Hooks API:
  * ```ts
  * const depthOutput = useDepthOutput({
  *   onDepth(depth) {
  *     'worklet'
  *     depth.dispose()
  *   }
+ * })
+ * ```
+ *
+ * @example
+ * Creating a `CameraDepthFrameOutput` via the Imperative API:
+ * ```ts
+ * const depthOutput = VisionCamera.createDepthFrameOutput({
+ *   targetResolution: CommonResolutions.VGA_16_9,
+ *   enableFiltering: true,
+ *   enablePhysicalBufferRotation: false,
+ *   dropFramesWhileBusy: true,
+ *   allowDeferredStart: true,
  * })
  * ```
  */

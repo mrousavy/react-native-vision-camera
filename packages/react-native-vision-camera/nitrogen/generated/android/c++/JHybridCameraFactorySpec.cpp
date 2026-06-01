@@ -297,25 +297,25 @@ namespace margelo::nitro::camera {
   }
   std::shared_ptr<Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>> JHybridCameraFactorySpec::resolveConstraints(const std::shared_ptr<HybridCameraDeviceSpec>& device, const std::vector<CameraOutputConfiguration>& outputConfigurations, const std::vector<std::variant<FPSConstraint, VideoStabilizationModeConstraint, PreviewStabilizationModeConstraint, ResolutionBiasConstraint, VideoDynamicRangeConstraint, PhotoHDRConstraint, PixelFormatConstraint, BinnedConstraint>>& constraints, std::optional<bool> requiresMultiCam) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JHybridCameraDeviceSpec::JavaPart> /* device */, jni::alias_ref<jni::JArrayClass<JCameraOutputConfiguration>> /* outputConfigurations */, jni::alias_ref<jni::JArrayClass<JConstraint>> /* constraints */, jni::alias_ref<jni::JBoolean> /* requiresMultiCam */)>("resolveConstraints");
-    auto __result = method(_javaPart, std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(device)->getJavaPart(), [&]() {
-      size_t __size = outputConfigurations.size();
+    auto __result = method(_javaPart, std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(device)->getJavaPart(), [&](auto&& __input) {
+      size_t __size = __input.size();
       jni::local_ref<jni::JArrayClass<JCameraOutputConfiguration>> __array = jni::JArrayClass<JCameraOutputConfiguration>::newArray(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        const auto& __element = outputConfigurations[__i];
+        const auto& __element = __input[__i];
         auto __elementJni = JCameraOutputConfiguration::fromCpp(__element);
         __array->setElement(__i, *__elementJni);
       }
       return __array;
-    }(), [&]() {
-      size_t __size = constraints.size();
+    }(outputConfigurations), [&](auto&& __input) {
+      size_t __size = __input.size();
       jni::local_ref<jni::JArrayClass<JConstraint>> __array = jni::JArrayClass<JConstraint>::newArray(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        const auto& __element = constraints[__i];
+        const auto& __element = __input[__i];
         auto __elementJni = JConstraint::fromCpp(__element);
         __array->setElement(__i, *__elementJni);
       }
       return __array;
-    }(), requiresMultiCam.has_value() ? jni::JBoolean::valueOf(requiresMultiCam.value()) : nullptr);
+    }(constraints), requiresMultiCam.has_value() ? jni::JBoolean::valueOf(requiresMultiCam.value()) : nullptr);
     return [&]() {
       auto __promise = Promise<std::shared_ptr<HybridCameraSessionConfigSpec>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
@@ -377,16 +377,16 @@ namespace margelo::nitro::camera {
   }
   std::shared_ptr<HybridCameraOutputSynchronizerSpec> JHybridCameraFactorySpec::createOutputSynchronizer(const std::vector<std::shared_ptr<HybridCameraOutputSpec>>& outputs) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridCameraOutputSynchronizerSpec::JavaPart>(jni::alias_ref<jni::JArrayClass<JHybridCameraOutputSpec::JavaPart>> /* outputs */)>("createOutputSynchronizer");
-    auto __result = method(_javaPart, [&]() {
-      size_t __size = outputs.size();
+    auto __result = method(_javaPart, [&](auto&& __input) {
+      size_t __size = __input.size();
       jni::local_ref<jni::JArrayClass<JHybridCameraOutputSpec::JavaPart>> __array = jni::JArrayClass<JHybridCameraOutputSpec::JavaPart>::newArray(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        const auto& __element = outputs[__i];
+        const auto& __element = __input[__i];
         auto __elementJni = std::dynamic_pointer_cast<JHybridCameraOutputSpec>(__element)->getJavaPart();
         __array->setElement(__i, *__elementJni);
       }
       return __array;
-    }());
+    }(outputs));
     return __result->getJHybridCameraOutputSynchronizerSpec();
   }
   std::shared_ptr<HybridZoomGestureControllerSpec> JHybridCameraFactorySpec::createZoomGestureController() {

@@ -20,7 +20,7 @@ body:
       options:
         - label: I have read and followed every applicable step in the [Nitro Modules Troubleshooting guide](https://nitro.margelo.com/docs/guides/troubleshooting).
           required: true
-        - label: I have read the [VisionCamera Troubleshooting guide](https://react-native-vision-camera.com/docs/guides/troubleshooting) and [Installation guide](https://react-native-vision-camera.com/docs/guides).
+        - label: I have read the [VisionCamera Troubleshooting guide](https://visioncamera.margelo.com/docs) and [Installation guide](https://visioncamera.margelo.com/docs).
           required: true
         - label: I did a clean build — deleted `node_modules`, `android/build`, `android/.gradle`, `android/app/build`, and `~/.gradle/caches`, then reinstalled.
           required: true

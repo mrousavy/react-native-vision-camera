@@ -138,6 +138,19 @@ open class HybridCameraOutputSpec_cxx {
       self.__implementation.outputOrientation = margelo.nitro.camera.CameraOrientation(rawValue: newValue)!
     }
   }
+  
+  public final var currentResolution: bridge.std__optional_Size_ {
+    @inline(__always)
+    get {
+      return { () -> bridge.std__optional_Size_ in
+        if let __unwrappedValue = self.__implementation.currentResolution {
+          return bridge.create_std__optional_Size_(__unwrappedValue)
+        } else {
+          return .init()
+        }
+      }()
+    }
+  }
 
   // Methods
   

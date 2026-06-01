@@ -9,7 +9,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridFrameRecorder: HybridRecorderSpec {
+final class HybridFrameRecorder: HybridRecorderSpec {
   private let orientation: CameraOrientation
   private let masterClock: CMClock
   private let fileURL: URL
@@ -88,7 +88,7 @@ class HybridFrameRecorder: HybridRecorderSpec {
   }
 
   var filePath: String {
-    return fileURL.absoluteString
+    return fileURL.path
   }
 
   func initializeVideoTrack(withSettings settings: [String: Any]) throws {

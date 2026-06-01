@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOutput, RecorderDelegate {
+final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOutput, RecorderDelegate {
   private let delegate: FrameDelegate
   private let options: VideoOutputOptions
   private let queue: DispatchQueue
@@ -32,6 +32,10 @@ class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCameraOut
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?
       try? connection.setOrientation(outputOrientation)
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .video) else { return nil }
+    return connection.inputStreamResolution
   }
 
   // TODO: Support setting custom `targetBitRate`

@@ -9,7 +9,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class AudioSession {
+final class AudioSession {
   let audioSession: AVCaptureSession
   let input: AVCaptureDeviceInput
   let output: AVCaptureAudioDataOutput

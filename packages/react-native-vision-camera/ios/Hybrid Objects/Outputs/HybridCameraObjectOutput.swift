@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput {
+final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput {
   private let queue = DispatchQueue(label: "com.margelo.camera.object-scanner")
   private let delegate: MetadataDelegate
   private let options: ObjectOutputOptions
@@ -22,6 +22,10 @@ class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCameraOutput
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?
       try? connection.setOrientation(outputOrientation)
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .metadataObject) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

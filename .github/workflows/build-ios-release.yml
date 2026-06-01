@@ -1,0 +1,71 @@
+name: Build iOS (Release)
+
+on:
+  release:
+    types: [published]
+  pull_request:
+    paths:
+      - '.github/workflows/build-ios-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    name: Build iOS Example App (release, new architecture)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install npm dependencies (bun)
+        run: bun install
+
+      - name: Setup Ruby (bundle)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+          bundler-cache: true
+          working-directory: apps/simple-camera
+
+      - name: Select Xcode 26.2
+        run: sudo xcode-select -s "/Applications/Xcode_26.2.app/Contents/Developer"
+      - name: Install Pods
+        working-directory: apps/simple-camera
+        run: bun pods
+
+      - name: Build App (Release, Simulator)
+        working-directory: apps/simple-camera/ios
+        run: |
+          set -o pipefail
+          xcodebuild \
+            CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+            -derivedDataPath build -UseModernBuildSystem=YES \
+            -workspace SimpleCamera.xcworkspace \
+            -scheme SimpleCamera \
+            -sdk iphonesimulator \
+            -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
+            -showBuildTimingSummary \
+            clean \
+            build \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions
+
+      - name: Package .app for Simulator
+        run: |
+          cd apps/simple-camera/ios/build/Build/Products/Release-iphonesimulator
+          zip -r ../../../../../../../SimpleCamera-Release-Simulator.zip SimpleCamera.app
+
+      - name: Upload .app artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: SimpleCamera-Release-Simulator
+          path: SimpleCamera-Release-Simulator.zip
+          retention-days: 7
+
+      - name: Upload .app to Release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" "SimpleCamera-Release-Simulator.zip#SimpleCamera-Simulator-${GITHUB_REF_NAME}.app.zip" --clobber

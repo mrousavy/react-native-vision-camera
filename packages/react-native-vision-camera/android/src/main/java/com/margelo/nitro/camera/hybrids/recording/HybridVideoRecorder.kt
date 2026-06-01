@@ -81,8 +81,7 @@ class HybridVideoRecorder(
                 }
               if (finishReason != null) {
                 // Recording finished successfully - either no error, or file/duration limit reached:
-                val outputUri = event.outputResults.outputUri
-                onRecordingFinished(outputUri.toString(), finishReason)
+                onRecordingFinished(file.absolutePath, finishReason)
               } else {
                 // We have an error, either during capture or even while starting:
                 val error = VideoRecorderError(event.error, event.cause)
@@ -146,5 +145,11 @@ class HybridVideoRecorder(
       this.recordedDuration = 0.0
       this.recordedFileSize = 0.0
     }
+  }
+
+  override fun dispose() {
+    super.dispose()
+    recording?.close()
+    recording = null
   }
 }

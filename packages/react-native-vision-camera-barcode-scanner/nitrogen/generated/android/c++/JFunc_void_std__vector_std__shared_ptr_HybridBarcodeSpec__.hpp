@@ -35,16 +35,16 @@ namespace margelo::nitro::camera::barcodescanner {
      */
     void invoke(const std::vector<std::shared_ptr<HybridBarcodeSpec>>& barcodes) const {
       static const auto method = javaClassStatic()->getMethod<void(jni::alias_ref<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>> /* barcodes */)>("invoke");
-      method(self(), [&]() {
-        size_t __size = barcodes.size();
+      method(self(), [&](auto&& __input) {
+        size_t __size = __input.size();
         jni::local_ref<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>> __array = jni::JArrayClass<JHybridBarcodeSpec::JavaPart>::newArray(__size);
         for (size_t __i = 0; __i < __size; __i++) {
-          const auto& __element = barcodes[__i];
+          const auto& __element = __input[__i];
           auto __elementJni = std::dynamic_pointer_cast<JHybridBarcodeSpec>(__element)->getJavaPart();
           __array->setElement(__i, *__elementJni);
         }
         return __array;
-      }());
+      }(barcodes));
     }
   };
 
@@ -62,16 +62,16 @@ namespace margelo::nitro::camera::barcodescanner {
      * Invokes the C++ `std::function<...>` this `JFunc_void_std__vector_std__shared_ptr_HybridBarcodeSpec___cxx` instance holds.
      */
     void invoke_cxx(jni::alias_ref<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>> barcodes) {
-      _func([&]() {
-              size_t __size = barcodes->size();
-              std::vector<std::shared_ptr<HybridBarcodeSpec>> __vector;
-              __vector.reserve(__size);
-              for (size_t __i = 0; __i < __size; __i++) {
-                auto __element = barcodes->getElement(__i);
-                __vector.push_back(__element->getJHybridBarcodeSpec());
-              }
-              return __vector;
-            }());
+      _func([&](auto&& __input) {
+        size_t __size = __input->size();
+        std::vector<std::shared_ptr<HybridBarcodeSpec>> __vector;
+        __vector.reserve(__size);
+        for (size_t __i = 0; __i < __size; __i++) {
+          auto __element = __input->getElement(__i);
+          __vector.push_back(__element->getJHybridBarcodeSpec());
+        }
+        return __vector;
+      }(barcodes));
     }
 
   public:

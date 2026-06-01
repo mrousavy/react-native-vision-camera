@@ -1,8 +1,12 @@
 name: Harness Android Emulator
 
+# In PRs, this has the same head_ref and cancels in-progress runs.
+# On main, this has no head_ref, so it uses run_id - which is unique
+# per run, making cancel-in-progress useless and allowing parallel runs
+# for the main branch.
 concurrency:
-  group: harness-android-emulator-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
+  group: harness-android-emulator-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
@@ -84,9 +88,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Setup JDK 17
         uses: actions/setup-java@v5

@@ -25,6 +25,8 @@ namespace margelo::nitro::image { class HybridImageSpec; }
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `CameraOrientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOrientation; }
+// Forward declaration of `Size` to properly resolve imports.
+namespace margelo::nitro::camera { struct Size; }
 
 #include <memory>
 #include "HybridPhotoSpec.hpp"
@@ -34,6 +36,7 @@ namespace margelo::nitro::camera { enum class CameraOrientation; }
 #include "PhotoFile.hpp"
 #include "JPhotoFile.hpp"
 #include <string>
+#include <NitroModules/JUnit.hpp>
 #include "CapturePhotoSettings.hpp"
 #include "JCapturePhotoSettings.hpp"
 #include "FlashMode.hpp"
@@ -49,10 +52,13 @@ namespace margelo::nitro::camera { enum class CameraOrientation; }
 #include <NitroImage/HybridImageSpec.hpp>
 #include "JFunc_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec_.hpp"
 #include <NitroImage/JHybridImageSpec.hpp>
+#include <vector>
 #include "MediaType.hpp"
 #include "JMediaType.hpp"
 #include "CameraOrientation.hpp"
 #include "JCameraOrientation.hpp"
+#include "Size.hpp"
+#include "JSize.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -108,6 +114,11 @@ namespace margelo::nitro::camera {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JCameraOrientation> /* outputOrientation */)>("setOutputOrientation");
     method(_javaPart, JCameraOrientation::fromCpp(outputOrientation));
   }
+  std::optional<Size> JHybridCameraPhotoOutputSpec::getCurrentResolution() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getCurrentResolution");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
+  }
 
   // Methods
   std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> JHybridCameraPhotoOutputSpec::capturePhoto(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) {
@@ -134,6 +145,30 @@ namespace margelo::nitro::camera {
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
         auto __result = jni::static_ref_cast<JPhotoFile>(__boxedResult);
         __promise->resolve(__result->toCpp());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<void>> JHybridCameraPhotoOutputSpec::prepareSettings(const std::vector<CapturePhotoSettings>& settings) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<JCapturePhotoSettings>> /* settings */)>("prepareSettings");
+    auto __result = method(_javaPart, [&](auto&& __input) {
+      size_t __size = __input.size();
+      jni::local_ref<jni::JArrayClass<JCapturePhotoSettings>> __array = jni::JArrayClass<JCapturePhotoSettings>::newArray(__size);
+      for (size_t __i = 0; __i < __size; __i++) {
+        const auto& __element = __input[__i];
+        auto __elementJni = JCapturePhotoSettings::fromCpp(__element);
+        __array->setElement(__i, *__elementJni);
+      }
+      return __array;
+    }(settings));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
       });
       __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
         jni::JniException __jniError(__throwable);

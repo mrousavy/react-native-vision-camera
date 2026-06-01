@@ -7,6 +7,7 @@ import {
   normalizePlatformLabelWithLookup,
   orderPlatformLabelsWithOrder,
 } from './platforms-core'
+
 export { normalizeHeadingTitle }
 
 export function normalizePlatformLabel(value: string): string | null {

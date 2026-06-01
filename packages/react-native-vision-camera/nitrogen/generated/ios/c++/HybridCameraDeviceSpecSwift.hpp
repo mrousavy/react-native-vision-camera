@@ -218,6 +218,15 @@ namespace margelo::nitro::camera {
     inline bool getHasTorch() noexcept override {
       return _swiftPart.hasTorch();
     }
+    inline bool getSupportsTorchStrength() noexcept override {
+      return _swiftPart.getSupportsTorchStrength();
+    }
+    inline double getMinTorchStrength() noexcept override {
+      return _swiftPart.getMinTorchStrength();
+    }
+    inline double getMaxTorchStrength() noexcept override {
+      return _swiftPart.getMaxTorchStrength();
+    }
     inline bool getSupportsLowLightBoost() noexcept override {
       return _swiftPart.getSupportsLowLightBoost();
     }

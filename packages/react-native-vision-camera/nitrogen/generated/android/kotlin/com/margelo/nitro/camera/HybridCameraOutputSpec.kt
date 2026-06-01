@@ -34,6 +34,10 @@ abstract class HybridCameraOutputSpec: HybridObject() {
   @set:DoNotStrip
   @set:Keep
   abstract var outputOrientation: CameraOrientation
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val currentResolution: Size?
 
   // Methods
   

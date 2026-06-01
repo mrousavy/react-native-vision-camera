@@ -7,6 +7,18 @@ import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.NativeBuffer
 import com.margelo.nitro.camera.utils.NativeBufferHelper
 
+val ImageProxy.hasNativeBuffer: Boolean
+  @OptIn(ExperimentalGetImage::class)
+  get() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+      return false
+    }
+    image?.hardwareBuffer?.use {
+      return true
+    }
+    return false
+  }
+
 @OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getNativeBuffer(): NativeBuffer {
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
@@ -15,14 +27,16 @@ fun ImageProxy.getNativeBuffer(): NativeBuffer {
   val hardwareBuffer =
     image?.hardwareBuffer
       ?: throw Error("Frame does not have a HardwareBuffer!")
-  val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
-  var wasReleased = false
-  val release = {
-    if (wasReleased) {
-      throw Error("Tried to release NativeBuffer twice!")
+  return hardwareBuffer.use { hardwareBuffer ->
+    val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
+    var wasReleased = false
+    val release = {
+      if (wasReleased) {
+        throw Error("Tried to release NativeBuffer twice!")
+      }
+      NativeBufferHelper.releaseHardwareBufferPointer(pointer)
+      wasReleased = true
     }
-    NativeBufferHelper.releaseHardwareBufferPointer(pointer)
-    wasReleased = true
+    NativeBuffer(pointer.toULong(), release)
   }
-  return NativeBuffer(pointer.toULong(), release)
 }

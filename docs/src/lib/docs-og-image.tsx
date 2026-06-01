@@ -36,7 +36,7 @@ const SLIDER_COLOR = '#F5A623'
 // Generates tick marks for a camera-style slider
 // Major ticks (tall) at whole integers, minor ticks (short) in between
 function CameraSlider() {
-  const ticks: { height: number; opacity: number }[] = []
+  const ticks: { id: string; height: number; opacity: number }[] = []
   // Range from -3 to 3, with 8 minor ticks between each major tick
   const minorPerMajor = 8
   const majorSteps = 6
@@ -49,6 +49,7 @@ function CameraSlider() {
     const distFromCenter = Math.abs(i - center) / center
     const edgeFade = Math.max(0, 1 - distFromCenter * 1.3)
     ticks.push({
+      id: `tick-${i}`,
       height: isMajor ? 36 : 18,
       opacity: (isMajor ? 0.85 : 0.4) * edgeFade,
     })
@@ -65,9 +66,9 @@ function CameraSlider() {
         height: 40,
       }}
     >
-      {ticks.map((tick, i) => (
+      {ticks.map((tick) => (
         <div
-          key={i}
+          key={tick.id}
           style={{
             display: 'flex',
             width: 6,

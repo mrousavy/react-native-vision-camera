@@ -19,9 +19,9 @@ import Foundation
 //       Then we can remove `requiresAudioInput` and remove the special handling for adding/removing a
 //       microphone connection in our HybridCameraSession. We just add all connections necessary.
 
-// TODO: Not every output should require conformace to `ResolutionNegotionParticipant`, should it? e.g. metadata/output.
+// TODO: Not every output should require conformace to `ResolutionNegotiationParticipant`, should it? e.g. metadata/output.
 
-public protocol NativeCameraOutput: AnyObject, ResolutionNegotionParticipant {
+public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant {
   associatedtype Output: AVCaptureOutput
 
   /**

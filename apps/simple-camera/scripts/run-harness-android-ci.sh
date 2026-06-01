@@ -13,16 +13,6 @@ adb wait-for-device
 echo "Installing APK from ${APP_APK_PATH}..."
 adb install -r "${APP_APK_PATH}"
 
-echo "Granting runtime permissions for ${BUNDLE_ID}..."
-adb shell settings put secure location_mode 3 || true
-adb shell pm grant "${BUNDLE_ID}" android.permission.CAMERA || true
-adb shell pm grant "${BUNDLE_ID}" android.permission.RECORD_AUDIO || true
-adb shell pm grant "${BUNDLE_ID}" android.permission.ACCESS_FINE_LOCATION || true
-adb shell pm grant "${BUNDLE_ID}" android.permission.ACCESS_COARSE_LOCATION || true
-
-echo "Runtime permissions:"
-adb shell dumpsys package "${BUNDLE_ID}" | awk '/runtime permissions:/{flag=1} flag{print} /^\s*$/{if(flag){exit}}' || true
-
 echo "Checking app startup..."
 adb logcat -c || true
 adb shell am force-stop "${BUNDLE_ID}" || true

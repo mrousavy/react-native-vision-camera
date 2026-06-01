@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridFrameRendererView: HybridFrameRendererViewSpec {
+final class HybridFrameRendererView: HybridFrameRendererViewSpec {
   var view: UIView = AutoLayerResizingView()
   var renderer: (any HybridFrameRendererSpec)? {
     didSet {

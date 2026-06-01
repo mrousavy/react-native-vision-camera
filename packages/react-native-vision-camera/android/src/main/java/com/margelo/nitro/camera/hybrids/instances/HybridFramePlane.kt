@@ -2,6 +2,7 @@ package com.margelo.nitro.camera.hybrids.instances
 
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.HybridFramePlaneSpec
+import com.margelo.nitro.camera.extensions.readableBytes
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
@@ -32,15 +33,15 @@ class HybridFramePlane(
   private val buffer: ByteBuffer
     get() {
       if (plane.buffer.isDirect) {
-        return plane.buffer
+        return plane.buffer.readableBytes()
       } else {
         cachedBuffer?.let {
           // We already have it cached
           return it
         }
-        val size = plane.buffer.capacity()
-        val copy = DirectByteBufferPool.Shared.acquire(size)
-        copy.put(plane.buffer)
+        val source = plane.buffer.readableBytes()
+        val copy = DirectByteBufferPool.Shared.acquire(source.remaining())
+        copy.put(source)
         cachedBuffer = copy
         return copy
       }

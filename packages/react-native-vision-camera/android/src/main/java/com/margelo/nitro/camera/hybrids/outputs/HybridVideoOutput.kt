@@ -22,7 +22,7 @@ import com.margelo.nitro.camera.VideoOutputSettings
 import com.margelo.nitro.camera.extensions.converters.fromMirrorMode
 import com.margelo.nitro.camera.extensions.converters.toDynamicRange
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
-import com.margelo.nitro.camera.extensions.getClosestAspectRatio
+import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.surfaceRotation
 import com.margelo.nitro.camera.extensions.toQualitySelector
 import com.margelo.nitro.camera.hybrids.recording.HybridVideoRecorder
@@ -42,6 +42,8 @@ class HybridVideoOutput(
       field = value
       videoCapture?.targetRotation = value.surfaceRotation
     }
+  override val currentResolution: Size?
+    get() = videoCapture?.resolutionInfo?.resolution?.toSize()
 
   private val context: Context
     get() = NitroModules.applicationContext ?: throw Error("No ApplicationContext!")
@@ -81,13 +83,11 @@ class HybridVideoOutput(
 
           // TODO: Maybe CameraX can implement an API that allows us to just pass
           //       a `Size` (or a `ResolutionSelector`), as this is what we already have.
-          // Sets the Quality itself (UHD, FHD, ...)
+          // Sets the Quality itself (UHD, FHD, ...). We intentionally do not call
+          // `setAspectRatio` - it's a hard filter that can force CameraX to crop the
+          // chosen Quality's typical size, e.g. SD@640x480 + RATIO_16_9 → 640x360.
           val qualitySelector = options.targetResolution.toQualitySelector()
           setQualitySelector(qualitySelector)
-
-          // Sets the aspect ratio (if there are multiple UHD qualities choose the one we wanted)
-          val aspect = options.targetResolution.getClosestAspectRatio()
-          setAspectRatio(aspect)
         }.build()
   }
 
@@ -145,8 +145,15 @@ class HybridVideoOutput(
   @SuppressLint("MissingPermission")
   override fun createRecorder(settings: RecorderSettings): Promise<HybridRecorderSpec> {
     return Promise.async {
-      // Create .mp4 file in temp directory
-      val file = File.createTempFile("VisionCamera_", "mp4")
+      val file =
+        if (settings.filePath != null) {
+          File(settings.filePath)
+        } else {
+          // Create .mp4 file in temp directory
+          File.createTempFile("VisionCamera_", ".mp4")
+        }
+      // Create all parent directories if they don't exist yet.
+      file.parentFile?.mkdirs()
 
       // Prepare output options
       val fileOutputOptions =

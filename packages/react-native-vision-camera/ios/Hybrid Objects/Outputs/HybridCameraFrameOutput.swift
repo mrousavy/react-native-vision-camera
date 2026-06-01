@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
+final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
   private let delegate: FrameDelegate
   private let queue: DispatchQueue
   private let queueSpecificKey = DispatchSpecificKey<Void>()
@@ -29,6 +29,10 @@ class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOutput {
         try? connection.setOrientation(outputOrientation)
       }
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .video) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .video

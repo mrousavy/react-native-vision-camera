@@ -20,6 +20,8 @@ namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
 namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConnection; }
+// Forward declaration of `CapturePhotoSettings` to properly resolve imports.
+namespace margelo::nitro::camera { struct CapturePhotoSettings; }
 // Forward declaration of `ColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class ColorRange; }
 // Forward declaration of `ColorSpace` to properly resolve imports.
@@ -255,6 +257,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "CameraOutputConfiguration.hpp"
 #include "CameraSessionConfiguration.hpp"
 #include "CameraSessionConnection.hpp"
+#include "CapturePhotoSettings.hpp"
 #include "ColorRange.hpp"
 #include "ColorSpace.hpp"
 #include "DepthPixelFormat.hpp"
@@ -543,21 +546,6 @@ namespace margelo::nitro::camera::bridge::swift {
     return optional.has_value();
   }
   inline std::variant<nitro::NullType, double> get_std__optional_std__variant_nitro__NullType__double__(const std::optional<std::variant<nitro::NullType, double>>& optional) noexcept {
-    return optional.value();
-  }
-  
-  // pragma MARK: std::optional<double>
-  /**
-   * Specialized version of `std::optional<double>`.
-   */
-  using std__optional_double_ = std::optional<double>;
-  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
-    return std::optional<double>(value);
-  }
-  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
-    return optional.has_value();
-  }
-  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
     return optional.value();
   }
   
@@ -915,6 +903,21 @@ namespace margelo::nitro::camera::bridge::swift {
   // pragma MARK: std::weak_ptr<HybridCameraVideoOutputSpec>
   using std__weak_ptr_HybridCameraVideoOutputSpec_ = std::weak_ptr<HybridCameraVideoOutputSpec>;
   inline std__weak_ptr_HybridCameraVideoOutputSpec_ weakify_std__shared_ptr_HybridCameraVideoOutputSpec_(const std::shared_ptr<HybridCameraVideoOutputSpec>& strong) noexcept { return strong; }
+  
+  // pragma MARK: std::optional<double>
+  /**
+   * Specialized version of `std::optional<double>`.
+   */
+  using std__optional_double_ = std::optional<double>;
+  inline std::optional<double> create_std__optional_double_(const double& value) noexcept {
+    return std::optional<double>(value);
+  }
+  inline bool has_value_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.has_value();
+  }
+  inline double get_std__optional_double_(const std::optional<double>& optional) noexcept {
+    return optional.value();
+  }
   
   // pragma MARK: std::optional<RecorderFileType>
   /**
@@ -1424,6 +1427,17 @@ namespace margelo::nitro::camera::bridge::swift {
   }
   inline Result_bool_ create_Result_bool_(const std::exception_ptr& error) noexcept {
     return Result<bool>::withError(error);
+  }
+  
+  // pragma MARK: std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>
+  /**
+   * Specialized version of `std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>`.
+   */
+  using std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___ = std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>>;
+  inline std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> create_std__vector_std__vector_std__shared_ptr_HybridCameraDeviceSpec___(size_t size) noexcept {
+    std::vector<std::vector<std::shared_ptr<HybridCameraDeviceSpec>>> vector;
+    vector.reserve(size);
+    return vector;
   }
   
   // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>
@@ -2447,6 +2461,17 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_PhotoFile create_Func_void_PhotoFile(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_PhotoFile_Wrapper wrap_Func_void_PhotoFile(Func_void_PhotoFile value) noexcept {
     return Func_void_PhotoFile_Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::vector<CapturePhotoSettings>
+  /**
+   * Specialized version of `std::vector<CapturePhotoSettings>`.
+   */
+  using std__vector_CapturePhotoSettings_ = std::vector<CapturePhotoSettings>;
+  inline std::vector<CapturePhotoSettings> create_std__vector_CapturePhotoSettings_(size_t size) noexcept {
+    std::vector<CapturePhotoSettings> vector;
+    vector.reserve(size);
+    return vector;
   }
   
   // pragma MARK: Result<std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>>>

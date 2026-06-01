@@ -19,6 +19,7 @@ namespace margelo::nitro::camera {
       prototype.registerHybridGetter("supportsCameraCalibrationDataDelivery", &HybridCameraPhotoOutputSpec::getSupportsCameraCalibrationDataDelivery);
       prototype.registerHybridMethod("capturePhoto", &HybridCameraPhotoOutputSpec::capturePhoto);
       prototype.registerHybridMethod("capturePhotoToFile", &HybridCameraPhotoOutputSpec::capturePhotoToFile);
+      prototype.registerHybridMethod("prepareSettings", &HybridCameraPhotoOutputSpec::prepareSettings);
     });
   }
 

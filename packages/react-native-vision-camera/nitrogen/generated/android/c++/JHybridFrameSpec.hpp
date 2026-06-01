@@ -59,6 +59,8 @@ namespace margelo::nitro::camera {
     CameraOrientation getOrientation() override;
     bool getIsMirrored() override;
     bool getIsPlanar() override;
+    bool getHasPixelBuffer() override;
+    bool getHasNativeBuffer() override;
     std::optional<std::vector<double>> getCameraIntrinsicMatrix() override;
 
   public:

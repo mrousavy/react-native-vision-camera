@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraSession: HybridCameraSessionSpec {
+final class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
   private static let queue: DispatchQueue = DispatchQueue(
     label: "com.margelo.camera.session",
@@ -23,6 +23,9 @@ class HybridCameraSession: HybridCameraSessionSpec {
     } else {
       self.session = AVCaptureSession()
     }
+    // We manage formats manually via `device.activeFormat`, so opt out of the
+    // session's preset-based format selection upfront.
+    self.session.sessionPreset = .inputPriority
     super.init()
   }
 
@@ -350,7 +353,7 @@ class HybridCameraSession: HybridCameraSessionSpec {
     }
     if let initialExposure = initialExposureBias {
       let clamped = max(
-        min(Float(initialExposure), device.maxExposureTargetBias), device.maxExposureTargetBias)
+        min(Float(initialExposure), device.maxExposureTargetBias), device.minExposureTargetBias)
       device.setExposureTargetBias(clamped)
     }
   }

@@ -13,6 +13,8 @@ namespace margelo::nitro::camera { class HybridScannedObjectSpec; }
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `CameraOrientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOrientation; }
+// Forward declaration of `Size` to properly resolve imports.
+namespace margelo::nitro::camera { struct Size; }
 
 #include <memory>
 #include "HybridScannedObjectSpec.hpp"
@@ -26,6 +28,8 @@ namespace margelo::nitro::camera { enum class CameraOrientation; }
 #include "JMediaType.hpp"
 #include "CameraOrientation.hpp"
 #include "JCameraOrientation.hpp"
+#include "Size.hpp"
+#include "JSize.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -70,6 +74,11 @@ namespace margelo::nitro::camera {
   void JHybridCameraObjectOutputSpec::setOutputOrientation(CameraOrientation outputOrientation) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<void(jni::alias_ref<JCameraOrientation> /* outputOrientation */)>("setOutputOrientation");
     method(_javaPart, JCameraOrientation::fromCpp(outputOrientation));
+  }
+  std::optional<Size> JHybridCameraObjectOutputSpec::getCurrentResolution() {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JSize>()>("getCurrentResolution");
+    auto __result = method(_javaPart);
+    return __result != nullptr ? std::make_optional(__result->toCpp()) : std::nullopt;
   }
 
   // Methods

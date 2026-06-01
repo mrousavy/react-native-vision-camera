@@ -489,9 +489,54 @@ export interface CameraDevice
    * In almost all cases, {@linkcode hasTorch} is the
    * same as {@linkcode hasFlash}.
    *
+   * Use {@linkcode supportsTorchStrength} to find out whether
+   * the torch additionally accepts a custom brightness level
+   * via {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}.
+   *
    * @see {@linkcode CameraController.setTorchMode | setTorchMode(...)}
+   * @see {@linkcode supportsTorchStrength}
    */
   readonly hasTorch: boolean
+  /**
+   * Whether this {@linkcode CameraDevice} supports configuring
+   * a custom torch brightness level via
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}.
+   *
+   * @discussion
+   * Many devices with a {@linkcode hasTorch | torch} can only
+   * toggle the torch on or off and do not expose a brightness
+   * level - calling
+   * {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   * on such a device will fail. Use
+   * {@linkcode CameraController.setTorchMode | setTorchMode('on')}
+   * instead to turn the torch on at the system default level.
+   *
+   * @see {@linkcode hasTorch}
+   * @see {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   */
+  readonly supportsTorchStrength: boolean
+  /**
+   * Gets the minimum supported torch strength for this device,
+   * or `0` if {@linkcode supportsTorchStrength} is false.
+   *
+   * Use {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   * to set the torch strength.
+   *
+   * @see {@linkcode supportsTorchStrength}
+   * @see {@linkcode maxTorchStrength}
+   */
+  readonly minTorchStrength: number
+  /**
+   * Gets the maximum supported torch strength for this device,
+   * or `0` if {@linkcode supportsTorchStrength} is false.
+   *
+   * Use {@linkcode CameraController.enableTorchWithStrength | enableTorchWithStrength(...)}
+   * to set the torch strength.
+   *
+   * @see {@linkcode supportsTorchStrength}
+   * @see {@linkcode minTorchStrength}
+   */
+  readonly maxTorchStrength: number
 
   // pragma MARK: Low Light Boost
   /**

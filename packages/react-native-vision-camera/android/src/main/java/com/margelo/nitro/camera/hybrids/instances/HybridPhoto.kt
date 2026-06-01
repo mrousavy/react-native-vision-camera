@@ -20,6 +20,8 @@ import com.margelo.nitro.camera.extensions.hasPixelBuffer
 import com.margelo.nitro.camera.extensions.isRAW
 import com.margelo.nitro.camera.extensions.orientation
 import com.margelo.nitro.camera.extensions.photoContainerFormat
+import com.margelo.nitro.camera.extensions.readableBytes
+import com.margelo.nitro.camera.extensions.toReadableByteArray
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.image.HybridImage
@@ -90,8 +92,7 @@ class HybridPhoto(
       android.graphics.ImageFormat.JPEG -> {
         // JPEG Images have a single plane of image data.
         val plane = image.planes.single()
-        val buffer = plane.buffer
-        val bytes = ByteArray(buffer.remaining()).also { bytes -> buffer.get(bytes) }
+        val bytes = plane.buffer.toReadableByteArray()
         FileOutputStream(file).use { stream ->
           stream.write(bytes)
         }
@@ -129,7 +130,7 @@ class HybridPhoto(
       android.graphics.ImageFormat.JPEG -> {
         // JPEG Images have a single plane of image data.
         val plane = image.planes.single()
-        return ArrayBuffer.wrap(plane.buffer)
+        return ArrayBuffer.wrap(plane.buffer.readableBytes())
       }
       else -> {
         // TODO: If the CameraX team implements https://issuetracker.google.com/u/3/issues/482079661,

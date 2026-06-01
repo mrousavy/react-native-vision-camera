@@ -64,6 +64,14 @@ abstract class HybridFrameSpec: HybridObject() {
   
   @get:DoNotStrip
   @get:Keep
+  abstract val hasPixelBuffer: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
+  abstract val hasNativeBuffer: Boolean
+  
+  @get:DoNotStrip
+  @get:Keep
   abstract val cameraIntrinsicMatrix: DoubleArray?
 
   // Methods

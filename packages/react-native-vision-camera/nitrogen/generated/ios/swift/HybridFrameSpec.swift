@@ -19,6 +19,8 @@ public protocol HybridFrameSpec_protocol: HybridObject {
   var orientation: CameraOrientation { get }
   var isMirrored: Bool { get }
   var isPlanar: Bool { get }
+  var hasPixelBuffer: Bool { get }
+  var hasNativeBuffer: Bool { get }
   var cameraIntrinsicMatrix: [Double]? { get }
 
   // Methods

@@ -12,10 +12,10 @@ extension ResolutionBiasConstraint: ResolvableConstraint {
 
   func resolve(for format: AVCaptureDevice.Format) throws(RuntimeError) -> ConstraintResolution<Void> {
     let hybridOutput = self.resolutionBias
-    guard let resolutionNegotiationsParticipant = hybridOutput as? any ResolutionNegotionParticipant else {
+    guard let resolutionNegotiationsParticipant = hybridOutput as? any ResolutionNegotiationParticipant else {
       throw RuntimeError.error(
         withMessage:
-          "The given CameraOutput (in `resolutionBias`) does not conform to `ResolutionNegotionParticipant`!")
+          "The given CameraOutput (in `resolutionBias`) does not conform to `ResolutionNegotiationParticipant`!")
     }
 
     let streamType = resolutionNegotiationsParticipant.streamType

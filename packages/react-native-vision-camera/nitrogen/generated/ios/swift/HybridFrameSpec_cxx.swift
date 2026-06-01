@@ -184,6 +184,20 @@ open class HybridFrameSpec_cxx {
     }
   }
   
+  public final var hasPixelBuffer: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.hasPixelBuffer
+    }
+  }
+  
+  public final var hasNativeBuffer: Bool {
+    @inline(__always)
+    get {
+      return self.__implementation.hasNativeBuffer
+    }
+  }
+  
   public final var cameraIntrinsicMatrix: bridge.std__optional_std__vector_double__ {
     @inline(__always)
     get {

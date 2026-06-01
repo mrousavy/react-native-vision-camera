@@ -11,6 +11,7 @@ import com.margelo.nitro.camera.HybridDepthSpec
 import com.margelo.nitro.camera.HybridNativeThreadSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
+import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.orientation
 import com.margelo.nitro.camera.extensions.setAllowDroppingLateFrames
@@ -36,6 +37,8 @@ class HybridDepthFrameOutput(
       field = value
       imageAnalysis?.targetRotation = value.surfaceRotation
     }
+  override val currentResolution: Size?
+    get() = imageAnalysis?.resolutionInfo?.resolution?.toSize()
   override var mirrorMode: MirrorMode = MirrorMode.AUTO
 
   private var imageAnalysis: ImageAnalysis? = null
@@ -43,7 +46,7 @@ class HybridDepthFrameOutput(
       field = value
       updateAnalyzer()
     }
-  private var onFrame: ((HybridDepthSpec) -> Boolean)? = null
+  private var onDepthFrame: ((HybridDepthSpec) -> Boolean)? = null
     set(value) {
       field = value
       updateAnalyzer()
@@ -82,13 +85,13 @@ class HybridDepthFrameOutput(
   }
 
   /**
-   * Sets or removes the ImageAnalyzer, depending on `onFrame`.
+   * Sets or removes the ImageAnalyzer, depending on `onDepthFrame`.
    */
   private fun updateAnalyzer() {
     val imageAnalysis = imageAnalysis ?: return
-    val onFrame = onFrame
+    val onDepthFrame = this.onDepthFrame
 
-    if (onFrame != null) {
+    if (onDepthFrame != null) {
       imageAnalysis.setAnalyzer(executor) { image ->
         // This represents the Image's orientation relative to the
         // Frame Output. If `enablePhysicalBufferRotation` is true,
@@ -98,7 +101,7 @@ class HybridDepthFrameOutput(
         val orientation = image.orientation
         val isMirrored = mirrorMode == MirrorMode.ON
         val frame = HybridDepthFrame(image, orientation, isMirrored)
-        onFrame(frame)
+        onDepthFrame(frame)
       }
     } else {
       imageAnalysis.clearAnalyzer()
@@ -107,10 +110,15 @@ class HybridDepthFrameOutput(
 
   override fun setOnDepthFrameCallback(onDepthFrame: ((HybridDepthSpec) -> Boolean)?) {
     require(executor.isRunningOnExecutor) { "setOnDepthFrameCallback(...) must be called on the DepthFrameOutput's `thread`!" }
-    this.onFrame = onFrame
+    this.onDepthFrame = onDepthFrame
   }
 
   override fun setOnDepthFrameDroppedCallback(onDepthFrameDropped: ((FrameDroppedReason) -> Unit)?) {
     // TODO: CameraX does not have a way to figure out if a Frame has been dropped or not.
+  }
+
+  override fun dispose() {
+    super.dispose()
+    imageAnalysis?.clearAnalyzer()
   }
 }

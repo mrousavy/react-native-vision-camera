@@ -19,6 +19,7 @@ import {
   MarkdownThemeContext,
 } from 'typedoc-plugin-markdown'
 import { shouldSuppressInheritedTypeLevelComment } from '../src/lib/typedoc/inherited-type-level-comments.ts'
+import { getMemberCallSuffix } from '../src/lib/typedoc/member-heading.ts'
 
 type CommentTag = {
   tag: string
@@ -319,9 +320,15 @@ class VisionCameraThemeContext extends MarkdownThemeContext {
       declaration: this.partials.declaration,
       declarationTitle: this.partials.declarationTitle,
       inheritance: this.partials.inheritance,
+      memberTitle: this.partials.memberTitle,
       memberWithGroups: this.partials.memberWithGroups,
       signatureTitle: this.partials.signatureTitle,
     }
+
+    this.partials.memberTitle = (model) =>
+      originalPartials
+        .memberTitle(model)
+        .replace('()', getMemberCallSuffix(model))
 
     this.partials.accessor = (model, options) =>
       this.renderAccessor(model, options)

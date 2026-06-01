@@ -1,0 +1,75 @@
+diff --git a/React/DevSupport/RCTInspectorDevServerHelper.mm b/React/DevSupport/RCTInspectorDevServerHelper.mm
+index e2ee27e..c116d52 100644
+--- a/React/DevSupport/RCTInspectorDevServerHelper.mm
++++ b/React/DevSupport/RCTInspectorDevServerHelper.mm
+@@ -29,6 +29,11 @@ static NSString *getServerHost(NSURL *bundleURL)
+     host = @"localhost";
+   }
+ 
++  // NSURL.host strips IPv6 brackets, but URL authority requires them.
++  if ([host containsString:@":"] && ![host hasPrefix:@"["] && ![host hasSuffix:@"]"]) {
++    host = [NSString stringWithFormat:@"[%@]", host];
++  }
++
+   // Use explicit port from URL if available
+   if ([bundleURL port] != nullptr) {
+     return [NSString stringWithFormat:@"%@:%@", host, [bundleURL port]];
+diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
+index 1c179458..67ad0666 100644
+--- a/React/DevSupport/RCTPackagerConnection.mm
++++ b/React/DevSupport/RCTPackagerConnection.mm
+@@ -64,30 +64,38 @@ struct Registration {
+ 
+ static RCTReconnectingWebSocket *socketForLocation(NSString *const serverHostPort, NSString *scheme)
+ {
+-  NSString *serverHost;
+-  NSString *serverPort;
+-  NSArray *locationComponents = [serverHostPort componentsSeparatedByString:@":"];
+-  if ([locationComponents count] > 0) {
+-    serverHost = locationComponents[0];
+-  }
+-  if ([locationComponents count] > 1) {
+-    serverPort = locationComponents[1];
+-  }
+   if (![scheme length]) {
+     scheme = @"http";
+   }
+-  NSURLComponents *const components = [NSURLComponents new];
+-  components.host = serverHost ?: @"localhost";
+-  components.scheme = scheme;
+-  components.port = serverPort ? @(serverPort.integerValue) : @(kRCTBundleURLProviderDefaultPort);
+-  components.path = @"/message";
+-  components.queryItems = @[ [NSURLQueryItem queryItemWithName:@"role" value:RCTPlatformName] ];
++
++  NSString *location = serverHostPort;
++  if (![location length]) {
++    location = @"localhost";
++  }
++
++  NSString *locationURLString = [location rangeOfString:@"://"].location == NSNotFound
++      ? [NSString stringWithFormat:@"%@://%@/", scheme, location]
++      : location;
++  NSURLComponents *locationURL = [NSURLComponents componentsWithString:locationURLString];
++
++  NSString *serverHost = locationURL.host ?: @"localhost";
++  if ([serverHost containsString:@":"] && ![serverHost hasPrefix:@"["]) {
++    serverHost = [NSString stringWithFormat:@"[%@]", serverHost];
++  }
++
++  NSNumber *serverPort = locationURL.port ?: @(kRCTBundleURLProviderDefaultPort);
++  NSString *socketURLString = [NSString stringWithFormat:@"%@://%@:%@/message?role=%@",
++                                                         scheme,
++                                                         serverHost,
++                                                         serverPort,
++                                                         RCTPlatformName];
++  NSURL *socketURL = [NSURL URLWithString:socketURLString];
+   static dispatch_queue_t queue;
+   static dispatch_once_t onceToken;
+   dispatch_once(&onceToken, ^{
+     queue = dispatch_queue_create("com.facebook.RCTPackagerConnectionQueue", DISPATCH_QUEUE_SERIAL);
+   });
+-  return [[RCTReconnectingWebSocket alloc] initWithURL:components.URL queue:queue];
++  return [[RCTReconnectingWebSocket alloc] initWithURL:socketURL queue:queue];
+ }
+ 
+ - (void)startWithBundleManager:(RCTBundleManager *)bundleManager

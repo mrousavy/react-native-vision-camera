@@ -8,8 +8,10 @@ import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraPreviewOutputSpec
 import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
+import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
+import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.public.NativePreviewOutput
 
@@ -25,6 +27,8 @@ class HybridPreviewOutput :
       // It is controlled by the PreviewView.
     }
   override val mirrorMode: MirrorMode = MirrorMode.AUTO
+  override val currentResolution: Size?
+    get() = preview?.resolutionInfo?.resolution?.toSize()
 
   private var preview: Preview? = null
   private var surfaceProvider: Preview.SurfaceProvider? = null

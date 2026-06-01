@@ -41,6 +41,7 @@ namespace margelo::nitro::camera { class HybridCameraOutputSpecSwift; }
 #include <NitroImage/HybridImageSpec.hpp>
 #include "PhotoFile.hpp"
 #include <string>
+#include <vector>
 #include "HybridCameraOutputSpecSwift.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -109,6 +110,14 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<Promise<PhotoFile>> capturePhotoToFile(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) override {
       auto __result = _swiftPart.capturePhotoToFile(std::forward<decltype(settings)>(settings), std::forward<decltype(callbacks)>(callbacks));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<void>> prepareSettings(const std::vector<CapturePhotoSettings>& settings) override {
+      auto __result = _swiftPart.prepareSettings(settings);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

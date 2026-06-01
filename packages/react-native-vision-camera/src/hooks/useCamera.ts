@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react'
-import { getAllCameraDevices } from '../CameraDevices'
 import { getCameraDevice } from '../devices/getCameraDevice'
 import type {
   CameraController,
@@ -25,7 +24,7 @@ import { useCameraControllerConfiguration } from './internal/useCameraController
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
 import { useListenerSubscription } from './internal/useListenerSubscription'
-import { useStableCallback } from './internal/useStableCallback'
+import { useCameraDevices } from './useCameraDevices'
 import { useOrientation } from './useOrientation'
 
 export interface CameraProps {
@@ -256,11 +255,11 @@ export function useCamera({
   }, [orientation, outputs])
 
   // 3. Get the input - either find one via position, or use the user provided one
+  const devices = useCameraDevices()
   const input = useMemo(() => {
     if (typeof device === 'string') {
       // The user passed a `CameraPosition` (e.g. "back") - try to find a device ourselves
       const position = device
-      const devices = getAllCameraDevices()
       const foundDevice = getCameraDevice(devices, position)
       if (foundDevice == null) {
         throw new Error(`This device does not have any "${position}" Cameras!`)
@@ -270,7 +269,7 @@ export function useCamera({
       // The user passed an actual device. return as-is.
       return device
     }
-  }, [device])
+  }, [device, devices])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, input, outputs, {
@@ -313,15 +312,6 @@ export function useCamera({
     onSubjectAreaChanged,
   )
 
-  // 8. On unmount, dispose the controller & session.
-  const cleanup = useStableCallback(() => {
-    controller?.dispose()
-    session?.dispose()
-  })
-  useEffect(() => {
-    return () => cleanup()
-  }, [cleanup])
-
-  // 9. Give the user the controller
+  // 8. Give the user the controller
   return controller
 }

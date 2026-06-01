@@ -144,6 +144,18 @@ export interface RecorderSettings {
    */
   location?: Location
   /**
+   * The absolute path (including file name and extension) where
+   * the recording file should be written to, or `undefined` to
+   * create a file in the device's temporary directory.
+   * Pass a filesystem path, not a `file://` URL.
+   *
+   * All parent directories in this {@linkcode filePath} will
+   * be automatically created if they do not yet exist.
+   *
+   * @default undefined
+   */
+  filePath?: string
+  /**
    * If set, the recording automatically stops once it reaches
    * this duration, in seconds.
    *
@@ -179,8 +191,17 @@ export interface RecorderSettings {
  * @see {@linkcode Recorder}
  * @see {@linkcode useVideoOutput | useVideoOutput(...)}
  * @example
+ * Creating a `CameraVideoOutput` via the Hooks API:
  * ```ts
- * const videoOutput = useVideoOutput({})
+ * const videoOutput = useVideoOutput()
+ * ```
+ *
+ * @example
+ * Creating a `CameraVideoOutput` via the Imperative API:
+ * ```ts
+ * const videoOutput = VisionCamera.createVideoOutput({
+ *   targetResolution: CommonResolutions.FHD_16_9,
+ * })
  * ```
  */
 export interface CameraVideoOutput extends CameraOutput {
@@ -210,8 +231,11 @@ export interface CameraVideoOutput extends CameraOutput {
    * Creates and prepares a new {@linkcode Recorder}
    * instance with the given {@linkcode RecorderSettings}.
    *
-   * The {@linkcode Recorder} will record to a temporary
-   * file, and can only record once.
+   * The {@linkcode Recorder} will record to the configured
+   * file path, or to a temporary file if no path was provided.
+   * The {@linkcode Recorder}'s file paths are filesystem paths,
+   * not `file://` URLs.
+   * It can only record once.
    *
    * If you want to create a second recording,
    * you must create a new {@linkcode Recorder}.

@@ -57,16 +57,16 @@ namespace margelo::nitro::camera::barcodescanner {
   std::vector<std::shared_ptr<HybridBarcodeSpec>> JHybridBarcodeScannerSpec::scanCodes(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>>(jni::alias_ref<margelo::nitro::camera::JHybridFrameSpec::JavaPart> /* frame */)>("scanCodes");
     auto __result = method(_javaPart, std::dynamic_pointer_cast<margelo::nitro::camera::JHybridFrameSpec>(frame)->getJavaPart());
-    return [&]() {
-      size_t __size = __result->size();
+    return [&](auto&& __input) {
+      size_t __size = __input->size();
       std::vector<std::shared_ptr<HybridBarcodeSpec>> __vector;
       __vector.reserve(__size);
       for (size_t __i = 0; __i < __size; __i++) {
-        auto __element = __result->getElement(__i);
+        auto __element = __input->getElement(__i);
         __vector.push_back(__element->getJHybridBarcodeSpec());
       }
       return __vector;
-    }();
+    }(__result);
   }
   std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> JHybridBarcodeScannerSpec::scanCodesAsync(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<margelo::nitro::camera::JHybridFrameSpec::JavaPart> /* frame */)>("scanCodesAsync");
@@ -75,16 +75,16 @@ namespace margelo::nitro::camera::barcodescanner {
       auto __promise = Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
         auto __result = jni::static_ref_cast<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>>(__boxedResult);
-        __promise->resolve([&]() {
-          size_t __size = __result->size();
+        __promise->resolve([&](auto&& __input) {
+          size_t __size = __input->size();
           std::vector<std::shared_ptr<HybridBarcodeSpec>> __vector;
           __vector.reserve(__size);
           for (size_t __i = 0; __i < __size; __i++) {
-            auto __element = __result->getElement(__i);
+            auto __element = __input->getElement(__i);
             __vector.push_back(__element->getJHybridBarcodeSpec());
           }
           return __vector;
-        }());
+        }(__result));
       });
       __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
         jni::JniException __jniError(__throwable);

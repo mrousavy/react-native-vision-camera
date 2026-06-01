@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera-worklets",
-  "version": "5.0.6",
+  "version": "5.0.11",
   "description": "react-native-worklets integration for react-native-vision-camera frame processing and threading APIs.",
   "main": "lib/index",
   "module": "lib/index",
@@ -65,14 +65,14 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@types/react": "19.2.14",
-    "nitrogen": "0.35.4",
+    "@types/react": "19.2.15",
+    "nitrogen": "0.35.9",
     "react": "19.2.3",
-    "react-native": "0.84.0",
-    "react-native-nitro-modules": "0.35.4",
-    "react-native-worklets": "0.8.1",
+    "react-native": "0.85.3",
+    "react-native-nitro-modules": "0.35.9",
+    "react-native-worklets": "0.9.1",
     "react-native-vision-camera": "*",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "react": "*",

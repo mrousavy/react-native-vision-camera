@@ -7,7 +7,7 @@
 import AVFoundation
 import Foundation
 
-public protocol NativePreviewViewOutput: AnyObject, ResolutionNegotionParticipant {
+public protocol NativePreviewViewOutput: AnyObject, ResolutionNegotiationParticipant {
   var previewLayer: AVCaptureVideoPreviewLayer { get }
 
   /**

@@ -25,13 +25,12 @@ describe('VisionCamera - Devices', () => {
     expect(hasFront).toBe(true)
   })
 
-  it('logs external cameras when present (optional)', () => {
+  it('logs external cameras when present (optional)', (context) => {
     const external = factory.cameraDevices.filter(
       (d) => d.position === 'external',
     )
     if (external.length === 0) {
-      console.log('[SKIP] external cameras: none available on this device')
-      return
+      return context.skip('external cameras: none available on this device')
     }
     for (const device of external) {
       console.log(
@@ -43,7 +42,7 @@ describe('VisionCamera - Devices', () => {
   it('returns the same device when calling getCameraForId with a known id', () => {
     const first = factory.cameraDevices[0]
     expect(first).toBeDefined()
-    if (first == null) return
+    if (first == null) throw new Error('no cameras')
 
     const looked = factory.getCameraForId(first.id)
     expect(looked).toBeDefined()
@@ -59,10 +58,8 @@ describe('VisionCamera - Devices', () => {
 
   it('returns an array from getSupportedExtensions for the default back camera', async () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) {
-      console.log('[SKIP] getSupportedExtensions: no back device')
-      return
-    }
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
     const extensions = await factory.getSupportedExtensions(device)
     console.log(
       `back camera extensions: ${extensions.map((e) => e.type).join(', ') || '(none)'}`,
@@ -71,7 +68,6 @@ describe('VisionCamera - Devices', () => {
 
   it('subscribes and unsubscribes a devices-changed listener', () => {
     const subscription = factory.addOnCameraDevicesChangedListener(() => {})
-    expect(subscription.remove).toBeDefined()
     subscription.remove()
     subscription.remove()
   })
@@ -136,7 +132,8 @@ describe('VisionCamera - Devices', () => {
 
   it('returns non-empty getSupportedResolutions for photo/video streams on a back device', () => {
     const device = factory.getDefaultCamera('back')
-    if (device == null) return
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
     const photoResolutions = device.getSupportedResolutions('photo')
     const videoResolutions = device.getSupportedResolutions('video')
     expect(photoResolutions.length).toBeGreaterThan(0)
@@ -145,10 +142,50 @@ describe('VisionCamera - Devices', () => {
 
   it('gets and sets userPreferredCamera', () => {
     const back = factory.getDefaultCamera('back')
-    if (back == null) return
+    expect(back).toBeDefined()
+    if (back == null) throw new Error('no back camera')
     const previous = factory.userPreferredCamera
     factory.userPreferredCamera = back
     expect(factory.userPreferredCamera?.id).toBe(back.id)
     factory.userPreferredCamera = previous
+  })
+
+  it('exposes supportedMultiCamDeviceCombinations consistently with supportsMultiCamSessions', () => {
+    if (VisionCamera.supportsMultiCamSessions) {
+      expect(
+        factory.supportedMultiCamDeviceCombinations.length,
+      ).toBeGreaterThanOrEqual(1)
+    } else {
+      expect(factory.supportedMultiCamDeviceCombinations).toHaveLength(0)
+    }
+  })
+
+  it('every device in a supportedMultiCamDeviceCombinations combination is also present in cameraDevices', (context) => {
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    if (combinations.length === 0) {
+      return context.skip(
+        'supportedMultiCamDeviceCombinations device lookup: no combinations on this platform',
+      )
+    }
+    const knownIds = factory.cameraDevices.map((d) => d.id)
+    for (const combination of combinations) {
+      expect(combination.length).toBeGreaterThan(0)
+      for (const device of combination) {
+        expect(knownIds).toContain(device.id)
+      }
+    }
+  })
+
+  it('logs every supported multi-cam device combination', () => {
+    const combinations = factory.supportedMultiCamDeviceCombinations
+    console.log(
+      `supportedMultiCamDeviceCombinations: ${combinations.length} combinations`,
+    )
+    for (const [index, combination] of combinations.entries()) {
+      const description = combination
+        .map((d) => `${d.position}:${d.id}`)
+        .join(', ')
+      console.log(`  [${index}] ${description}`)
+    }
   })
 })

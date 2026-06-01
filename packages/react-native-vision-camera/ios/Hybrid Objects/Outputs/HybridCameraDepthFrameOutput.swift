@@ -8,7 +8,7 @@ import AVFoundation
 import Foundation
 import NitroModules
 
-class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCameraOutput {
+final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCameraOutput {
   private let delegate: DepthFrameDelegate
   private let queue: DispatchQueue
   private let queueSpecificKey = DispatchSpecificKey<Void>()
@@ -30,6 +30,10 @@ class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, NativeCame
         try? connection.setOrientation(outputOrientation)
       }
     }
+  }
+  var currentResolution: Size? {
+    guard let connection = output.connection(with: .depthData) else { return nil }
+    return connection.inputStreamResolution
   }
 
   var streamType: StreamType = .depthVideo

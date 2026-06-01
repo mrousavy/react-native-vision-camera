@@ -8,6 +8,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.LowLightBoostState
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.TorchState
+import com.google.common.util.concurrent.ListenableFuture
 import com.margelo.nitro.camera.CameraControllerConfiguration
 import com.margelo.nitro.camera.ExposureMode
 import com.margelo.nitro.camera.FocusMode
@@ -30,7 +31,6 @@ import com.margelo.nitro.camera.hybrids.metering.HybridMeteringPoint
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolve
 import com.margelo.nitro.core.resolved
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 class HybridCameraController(
@@ -71,7 +71,8 @@ class HybridCameraController(
   override val torchStrength: Double
     get() =
       camera.cameraInfo.torchStrengthLevel.value
-        ?.toDouble() ?: 1.0
+        ?.toDouble() ?: 0.0
+
   override val torchMode: TorchMode
     get() = TorchMode.fromTorchState(camera.cameraInfo.torchState.value ?: TorchState.OFF)
 
@@ -97,7 +98,7 @@ class HybridCameraController(
 
   override fun configure(config: CameraControllerConfiguration): Promise<Unit> {
     return Promise.async {
-      val futures = mutableListOf<Future<*>>()
+      val futures = mutableListOf<ListenableFuture<*>>()
 
       // `enableLowLightBoost={...}`
       if (config.enableLowLightBoost != null) {
@@ -196,10 +197,7 @@ class HybridCameraController(
     }
   }
 
-  override fun setTorchMode(
-    mode: TorchMode,
-    strength: Double?,
-  ): Promise<Unit> {
+  override fun setTorchMode(mode: TorchMode): Promise<Unit> {
     return Promise.async {
       when (mode) {
         TorchMode.OFF -> {
@@ -208,24 +206,22 @@ class HybridCameraController(
             .await()
         }
         TorchMode.ON -> {
-          if (strength != null) {
-            require(strength in 0.0..1.0) {
-              "Torch `strength` is not within 0.0 to 1.0 range! (Received: $strength)"
-            }
-            val normalizedStrength = 1 + (strength * camera.cameraInfo.maxTorchStrengthLevel)
-            camera.cameraControl
-              .setTorchStrengthLevel(normalizedStrength.toInt())
-              .await()
-            camera.cameraControl
-              .enableTorch(true)
-              .await()
-          } else {
-            camera.cameraControl
-              .enableTorch(true)
-              .await()
-          }
+          camera.cameraControl
+            .enableTorch(true)
+            .await()
         }
       }
+    }
+  }
+
+  override fun enableTorchWithStrength(strength: Double): Promise<Unit> {
+    return Promise.async {
+      camera.cameraControl
+        .setTorchStrengthLevel(strength.toInt())
+        .await()
+      camera.cameraControl
+        .enableTorch(true)
+        .await()
     }
   }
 

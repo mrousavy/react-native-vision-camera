@@ -9,7 +9,7 @@ import Foundation
 import NitroImage
 import NitroModules
 
-class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
+final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
   private let options: PhotoOutputOptions
   let mediaType: MediaType = .video
   let requiresAudioInput: Bool = false
@@ -30,6 +30,19 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
       // TODO: Should we apply that within the CameraSession's DispatchQueue? Batch it?
       try? connection.setOrientation(outputOrientation)
     }
+  }
+  var currentResolution: Size? {
+    // Reads back what `configure(config:)` pinned via
+    // `output.maxPhotoDimensions = format.supportedMaxPhotoDimensions.nearest(...)`.
+    if #available(iOS 16.0, *) {
+      let dims = output.maxPhotoDimensions
+      return Size(width: Double(dims.width), height: Double(dims.height))
+    }
+    guard let device = output.connections.first?.deviceInput?.device else {
+      return nil
+    }
+    let dims = device.activeFormat.highResolutionStillImageDimensions
+    return Size(width: Double(dims.width), height: Double(dims.height))
   }
 
   var streamType: StreamType = .photo
@@ -152,8 +165,6 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
         for: self.output, withOptions: self.options)
       // 3. Perform capture
       output.capturePhoto(with: captureSettings, delegate: delegate)
-      // 4. Prepare settings for next photo capture so it'll be faster
-      output.setPreparedPhotoSettingsArray([captureSettings])
       return promise
     } catch {
       // Something failed - e.g. creating Photo settings!
@@ -170,6 +181,15 @@ class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOutput {
       let filePath = try await photo.saveToTemporaryFileAsync()
         .await()
       return PhotoFile(filePath: filePath)
+    }
+  }
+
+  func prepareSettings(settings: [CapturePhotoSettings]) throws -> Promise<Void> {
+    return Promise.async {
+      let captureSettings = try settings.map {
+        try $0.toAVCapturePhotoSettings(for: self.output, withOptions: self.options)
+      }
+      try await self.output.setPreparedPhotoSettingsArray(captureSettings)
     }
   }
 }

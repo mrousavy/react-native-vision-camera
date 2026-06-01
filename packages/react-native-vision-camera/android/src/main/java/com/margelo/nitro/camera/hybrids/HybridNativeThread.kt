@@ -12,4 +12,8 @@ class HybridNativeThread(
   override fun runOnThread(task: () -> Unit) {
     executor.execute(task)
   }
+
+  override fun dispose() {
+    super.dispose()
+  }
 }

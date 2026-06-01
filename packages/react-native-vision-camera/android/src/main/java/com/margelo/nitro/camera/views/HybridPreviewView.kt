@@ -86,14 +86,14 @@ class HybridPreviewView(
     }
   private var isPreviewing: Boolean = false
   private val meteringPointFactory: MeteringPointFactory
-  private var cameraSpaceToViewSpaceMatrix: Matrix? = null
+  private var cameraSpaceToViewPixelsMatrix: Matrix? = null
   private val pixelRatio: Float
 
   init {
     previewView.installHierarchyFitter()
     previewView.previewStreamState.observeForever(this)
     previewView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-      updateCameraSpaceToViewSpaceMatrix()
+      updateCameraSpaceToViewPixelsMatrix()
     }
     previewView.setOnTouchListener(this)
     meteringPointFactory = previewView.meteringPointFactory
@@ -119,8 +119,8 @@ class HybridPreviewView(
         meteringPointFactory.createPoint(absoluteViewX.toFloat(), absoluteViewY.toFloat())
       }
     return HybridMeteringPoint(
-      absoluteViewX,
-      absoluteViewY,
+      viewX,
+      viewY,
       size,
       meteringPoint,
     )
@@ -137,18 +137,27 @@ class HybridPreviewView(
 
   override fun convertCameraPointToViewPoint(cameraPoint: Point): Point {
     val matrix =
-      cameraSpaceToViewSpaceMatrix
+      cameraSpaceToViewPixelsMatrix
         ?: throw Error("Cannot convert camera point to view point - PreviewView isn't ready yet!")
-    return matrix.convertPoint(cameraPoint)
+    val viewPixels = matrix.convertPoint(cameraPoint)
+    return Point(
+      viewPixels.x / pixelRatio,
+      viewPixels.y / pixelRatio,
+    )
   }
 
   override fun convertViewPointToCameraPoint(viewPoint: Point): Point {
     val matrix =
-      cameraSpaceToViewSpaceMatrix
-        ?: throw Error("Cannot convert camera point to view point - PreviewView isn't ready yet!")
+      cameraSpaceToViewPixelsMatrix
+        ?: throw Error("Cannot convert view point to camera point - PreviewView isn't ready yet!")
     val inverted = Matrix()
     matrix.invert(inverted)
-    return inverted.convertPoint(viewPoint)
+    val viewPixels =
+      Point(
+        viewPoint.x * pixelRatio,
+        viewPoint.y * pixelRatio,
+      )
+    return inverted.convertPoint(viewPixels)
   }
 
   override fun convertScannedObjectCoordinatesToViewCoordinates(scannedObject: HybridScannedObjectSpec): HybridScannedObjectSpec {
@@ -173,6 +182,7 @@ class HybridPreviewView(
 
   override fun onChanged(value: PreviewView.StreamState) {
     val isPreviewing = value == PreviewView.StreamState.STREAMING
+    updateCameraSpaceToViewPixelsMatrix()
     if (this.isPreviewing != isPreviewing) {
       if (isPreviewing) {
         Log.i(TAG, "PreviewView started!")
@@ -183,17 +193,17 @@ class HybridPreviewView(
       }
     }
     this.isPreviewing = isPreviewing
-    updateCameraSpaceToViewSpaceMatrix()
   }
 
-  // This Matrix has to be updated when the PreviewView's layout changes,
+  // This matrix maps CameraX sensor coordinates to Android view pixels.
+  // It has to be updated when the PreviewView's layout changes,
   // we cannot access it directly from `convertCameraPointToViewPoint` each time
   // since it's accessible from the UI-Thread only.
-  private fun updateCameraSpaceToViewSpaceMatrix() {
+  private fun updateCameraSpaceToViewPixelsMatrix() {
     val matrix =
       previewView.sensorToViewTransform
         ?: return
-    this.cameraSpaceToViewSpaceMatrix = matrix
+    this.cameraSpaceToViewPixelsMatrix = matrix
   }
 
   override fun onTouch(

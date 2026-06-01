@@ -57,11 +57,13 @@ namespace margelo::nitro::camera {
     MediaType getMediaType() override;
     CameraOrientation getOutputOrientation() override;
     void setOutputOrientation(CameraOrientation outputOrientation) override;
+    std::optional<Size> getCurrentResolution() override;
 
   public:
     // Methods
     std::shared_ptr<Promise<std::shared_ptr<HybridPhotoSpec>>> capturePhoto(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) override;
     std::shared_ptr<Promise<PhotoFile>> capturePhotoToFile(const CapturePhotoSettings& settings, const CapturePhotoCallbacks& callbacks) override;
+    std::shared_ptr<Promise<void>> prepareSettings(const std::vector<CapturePhotoSettings>& settings) override;
 
   private:
     jni::global_ref<JHybridCameraPhotoOutputSpec::JavaPart> _javaPart;

@@ -16,6 +16,7 @@ public protocol HybridCameraPhotoOutputSpec_protocol: HybridObject, HybridCamera
   // Methods
   func capturePhoto(settings: CapturePhotoSettings, callbacks: CapturePhotoCallbacks) throws -> Promise<(any HybridPhotoSpec)>
   func capturePhotoToFile(settings: CapturePhotoSettings, callbacks: CapturePhotoCallbacks) throws -> Promise<PhotoFile>
+  func prepareSettings(settings: [CapturePhotoSettings]) throws -> Promise<Void>
 }
 
 public extension HybridCameraPhotoOutputSpec_protocol {

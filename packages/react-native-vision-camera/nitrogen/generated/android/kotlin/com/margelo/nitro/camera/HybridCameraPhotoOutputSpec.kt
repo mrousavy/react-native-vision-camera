@@ -42,6 +42,10 @@ abstract class HybridCameraPhotoOutputSpec: HybridCameraOutputSpec() {
   @DoNotStrip
   @Keep
   abstract fun capturePhotoToFile(settings: CapturePhotoSettings, callbacks: CapturePhotoCallbacks): Promise<PhotoFile>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun prepareSettings(settings: Array<CapturePhotoSettings>): Promise<Unit>
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {
