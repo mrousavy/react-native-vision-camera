@@ -1,18 +1,19 @@
 diff --git a/React/DevSupport/RCTInspectorDevServerHelper.mm b/React/DevSupport/RCTInspectorDevServerHelper.mm
-index e2ee27e2..57ea8a7c 100644
+index e2ee27e..c116d52 100644
 --- a/React/DevSupport/RCTInspectorDevServerHelper.mm
 +++ b/React/DevSupport/RCTInspectorDevServerHelper.mm
-@@ -34,6 +34,10 @@ static NSString *getServerHost(NSURL *bundleURL)
-     return [NSString stringWithFormat:@"%@:%@", host, [bundleURL port]];
+@@ -29,6 +29,11 @@ static NSString *getServerHost(NSURL *bundleURL)
+     host = @"localhost";
    }
  
 +  // NSURL.host strips IPv6 brackets, but URL authority requires them.
 +  if ([host containsString:@":"] && ![host hasPrefix:@"["] && ![host hasSuffix:@"]"]) {
 +    host = [NSString stringWithFormat:@"[%@]", host];
 +  }
-   // Check environment variable
-   NSString *portStr = [[[NSProcessInfo processInfo] environment] objectForKey:@"RCT_METRO_PORT"];
-   if ((portStr != nullptr) && [portStr length] > 0) {
++
+   // Use explicit port from URL if available
+   if ([bundleURL port] != nullptr) {
+     return [NSString stringWithFormat:@"%@:%@", host, [bundleURL port]];
 diff --git a/React/DevSupport/RCTPackagerConnection.mm b/React/DevSupport/RCTPackagerConnection.mm
 index 1c179458..67ad0666 100644
 --- a/React/DevSupport/RCTPackagerConnection.mm
