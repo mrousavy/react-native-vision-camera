@@ -320,14 +320,47 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
   }
 
   func startZoomAnimation(zoom: Double, rate: Double) -> Promise<Void> {
-    return captureDevice.withLock(queue) { completion in
+    return captureDevice.withLock(queue) { resolve, reject in
+      let rampDuration = rate > 0 ? Swift.abs(zoom - self.captureDevice.videoZoomFactor) / rate : 10.0
+      let timeout = max(rampDuration + 1.0, 1.0)
+
       var observation: NSKeyValueObservation?
+      var timeoutTimer: DispatchSourceTimer?
+      var didFinish = false
+      func finish(with error: Error? = nil) {
+        guard !didFinish else { return }
+        didFinish = true
+        observation?.invalidate()
+        observation = nil
+        timeoutTimer?.cancel()
+        timeoutTimer = nil
+        if let error {
+          reject(error)
+        } else {
+          resolve()
+        }
+      }
+
+      let timer = DispatchSource.makeTimerSource(queue: self.queue)
+      timer.schedule(deadline: .now() + timeout)
+      timer.setEventHandler {
+        if self.captureDevice.isRampingVideoZoom {
+          finish(
+            with: RuntimeError.error(withMessage: "Timed out waiting for zoom ramp to finish!"))
+        } else {
+          finish()
+        }
+      }
+      timer.resume()
+      timeoutTimer = timer
+
       observation = self.captureDevice.observe(
         \.isRampingVideoZoom,
         changeHandler: { _, change in
           if change.oldValue == true && change.newValue == false {
-            completion()
-            observation?.invalidate()
+            self.queue.async {
+              finish()
+            }
           }
         })
 
