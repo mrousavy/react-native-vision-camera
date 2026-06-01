@@ -44,12 +44,25 @@ index 1c17945855dc32c0b3b8fea5bb766c1d9637a244..aac492a4f30714720128866a16766f50
 +      : location;
 +  NSURLComponents *locationURL = [NSURLComponents componentsWithString:locationURLString];
 +
-   NSURLComponents *const components = [NSURLComponents new];
--  components.host = serverHost ?: @"localhost";
-+  components.host = locationURL.host ?: @"localhost";
-   components.scheme = scheme;
--  components.port = serverPort ? @(serverPort.integerValue) : @(kRCTBundleURLProviderDefaultPort);
-+  components.port = locationURL.port ?: @(kRCTBundleURLProviderDefaultPort);
-   components.path = @"/message";
-   components.queryItems = @[ [NSURLQueryItem queryItemWithName:@"role" value:RCTPlatformName] ];
++  NSString *serverHost = locationURL.host ?: @"localhost";
++  if ([serverHost containsString:@":"] && ![serverHost hasPrefix:@"["]) {
++    serverHost = [NSString stringWithFormat:@"[%@]", serverHost];
++  }
++
++  NSNumber *serverPort = locationURL.port ?: @(kRCTBundleURLProviderDefaultPort);
++  NSString *socketURLString = [NSString stringWithFormat:@"%@://%@:%@/message?role=%@",
++                                                         scheme,
++                                                         serverHost,
++                                                         serverPort,
++                                                         RCTPlatformName];
++  NSURL *socketURL = [NSURL URLWithString:socketURLString];
+   static dispatch_queue_t queue;
+   static dispatch_once_t onceToken;
+   dispatch_once(&onceToken, ^{
+@@ -91,5 +93,5 @@ static RCTReconnectingWebSocket *socketForLocation(NSString *const serverHostPor
+     queue = dispatch_queue_create("com.facebook.RCTPackagerConnectionQueue", DISPATCH_QUEUE_SERIAL);
+   });
+-  return [[RCTReconnectingWebSocket alloc] initWithURL:components.URL queue:queue];
++  return [[RCTReconnectingWebSocket alloc] initWithURL:socketURL queue:queue];
+ }
    static dispatch_queue_t queue;
