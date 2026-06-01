@@ -235,8 +235,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
     if captureDevice.isFocusPointOfInterestSupported {
       modes.append(.af)
     }
-    // White Balance adjusting is always supported, but it's not to a specific point
-    modes.append(.awb)
+    // White Balance adjusting is not point-based, but it still requires a supported auto mode.
+    if captureDevice.isWhiteBalanceModeSupported(.autoWhiteBalance) || captureDevice.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {
+      modes.append(.awb)
+    }
     return modes
   }
 
