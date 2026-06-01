@@ -241,6 +241,15 @@ final class MeteringTask {
       hasEverAdjusted: hasEverAdjusted,
       settledAt: settledAt)
   }
+  private func onMeteringChanged(for mode: MeteringMode, isAdjusting: Bool) {
+    guard !isFinished else { return }
+    if isAdjusting {
+      self.onMeteringAdjusting(for: mode)
+    } else {
+      self.onMeteringSettled(for: mode)
+    }
+    self.update()
+  }
 
   /**
    * Starts metering exposure (AE) to the given `CGPoint`.
@@ -261,13 +270,10 @@ final class MeteringTask {
         \.isAdjustingExposure,
         options: [.new]
       ) { [weak self] _, _ in
-        guard let self else { return }
-        if device.isAdjustingExposure {
-          self.onMeteringAdjusting(for: .ae)
-        } else {
-          self.onMeteringSettled(for: .ae)
+        self?.queue.async { [weak self] in
+          guard let self else { return }
+          self.onMeteringChanged(for: .ae, isAdjusting: self.device.isAdjustingExposure)
         }
-        self.update()
       })
   }
 
@@ -290,13 +296,10 @@ final class MeteringTask {
         \.isAdjustingFocus,
         options: [.new]
       ) { [weak self] _, _ in
-        guard let self else { return }
-        if device.isAdjustingFocus {
-          self.onMeteringAdjusting(for: .af)
-        } else {
-          self.onMeteringSettled(for: .af)
+        self?.queue.async { [weak self] in
+          guard let self else { return }
+          self.onMeteringChanged(for: .af, isAdjusting: self.device.isAdjustingFocus)
         }
-        self.update()
       })
   }
 
@@ -315,13 +318,10 @@ final class MeteringTask {
         \.isAdjustingWhiteBalance,
         options: [.new]
       ) { [weak self] _, _ in
-        guard let self else { return }
-        if device.isAdjustingWhiteBalance {
-          self.onMeteringAdjusting(for: .awb)
-        } else {
-          self.onMeteringSettled(for: .awb)
+        self?.queue.async { [weak self] in
+          guard let self else { return }
+          self.onMeteringChanged(for: .awb, isAdjusting: self.device.isAdjustingWhiteBalance)
         }
-        self.update()
       })
   }
 
