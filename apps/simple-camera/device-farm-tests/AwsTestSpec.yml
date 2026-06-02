@@ -27,21 +27,8 @@ phases:
 
         cd apps/simple-camera
 
-        copy_harness_crash_reports() {
-          status=$?
-          crash_dir="$PWD/.harness/crash-reports"
-          if [ -d "$crash_dir" ]; then
-            mkdir -p "$HARNESS_ARTIFACTS/crash-reports" || true
-            cp -R "$crash_dir"/. "$HARNESS_ARTIFACTS/crash-reports/" || true
-          fi
-          return "$status"
-        }
-
-        trap copy_harness_crash_reports EXIT
-
         HARNESS_ANDROID_DEVICE_MANUFACTURER="$MANUFACTURER" \
           HARNESS_ANDROID_DEVICE_MODEL="$MODEL" \
-          HARNESS_DETECT_NATIVE_CRASHES=true \
           CI=true \
           FORCE_COLOR=1 \
           JEST_JUNIT_OUTPUT_FILE="$HARNESS_JUNIT" \
