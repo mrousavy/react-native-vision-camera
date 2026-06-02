@@ -39,6 +39,14 @@ article > .prose.flex-1 > h2#properties {
   @apply border-t border-fd-border/60 pt-8 mt-6;
 }
 
+/* Keep code glyph-for-glyph; Geist Mono renders sequences like `...` as ligatures. */
+.prose code {
+  font-variant-ligatures: none;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+}
+
 /* Wrap long inline code/API symbols on narrow screens without overflowing. */
 article .prose :not(pre) > code {
   white-space: normal;
