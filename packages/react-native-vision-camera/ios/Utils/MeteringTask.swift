@@ -270,8 +270,8 @@ final class MeteringTask {
         \.isAdjustingExposure,
         options: [.new]
       ) { [weak self] _, _ in
-        self?.queue.async { [weak self] in
-          guard let self else { return }
+        guard let self else { return }
+        self.queue.async {
           self.onMeteringChanged(for: .ae, isAdjusting: self.device.isAdjustingExposure)
         }
       })
@@ -296,8 +296,8 @@ final class MeteringTask {
         \.isAdjustingFocus,
         options: [.new]
       ) { [weak self] _, _ in
-        self?.queue.async { [weak self] in
-          guard let self else { return }
+        guard let self else { return }
+        self.queue.async {
           self.onMeteringChanged(for: .af, isAdjusting: self.device.isAdjustingFocus)
         }
       })
@@ -318,8 +318,8 @@ final class MeteringTask {
         \.isAdjustingWhiteBalance,
         options: [.new]
       ) { [weak self] _, _ in
-        self?.queue.async { [weak self] in
-          guard let self else { return }
+        guard let self else { return }
+        self.queue.async {
           self.onMeteringChanged(for: .awb, isAdjusting: self.device.isAdjustingWhiteBalance)
         }
       })
