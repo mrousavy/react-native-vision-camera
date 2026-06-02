@@ -356,6 +356,7 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
       observation = self.captureDevice.observe(
         \.isRampingVideoZoom,
+        options: [.old, .new],
         changeHandler: { _, change in
           if change.oldValue == true && change.newValue == false {
             self.queue.async {
