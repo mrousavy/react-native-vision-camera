@@ -253,6 +253,15 @@ final class MeteringTask {
     let settledAt = self.meteringStates[mode]?.settledAt ?? .now
     self.meteringStates[mode] = MeteringProgress(settledAt: settledAt)
   }
+  private func onMeteringChanged(for mode: MeteringMode, isAdjusting: Bool) {
+    guard !isFinished else { return }
+    if isAdjusting {
+      self.onMeteringAdjusting(for: mode)
+    } else {
+      self.onMeteringSettled(for: mode)
+    }
+    self.update()
+  }
 
   /**
    * Starts metering exposure (AE) to the given `CGPoint`.
@@ -271,12 +280,9 @@ final class MeteringTask {
         options: [.new]
       ) { [weak self] _, _ in
         guard let self else { return }
-        if device.isAdjustingExposure {
-          self.onMeteringAdjusting(for: .ae)
-        } else {
-          self.onMeteringSettled(for: .ae)
+        self.queue.async {
+          self.onMeteringChanged(for: .ae, isAdjusting: self.device.isAdjustingExposure)
         }
-        self.update()
       })
     // Request AF to lock to the specific point
     self.device.exposurePointOfInterest = point
@@ -300,12 +306,9 @@ final class MeteringTask {
         options: [.new]
       ) { [weak self] _, _ in
         guard let self else { return }
-        if device.isAdjustingFocus {
-          self.onMeteringAdjusting(for: .af)
-        } else {
-          self.onMeteringSettled(for: .af)
+        self.queue.async {
+          self.onMeteringChanged(for: .af, isAdjusting: self.device.isAdjustingFocus)
         }
-        self.update()
       })
     // Request AF to lock to the specific point
     device.focusPointOfInterest = point
@@ -326,12 +329,9 @@ final class MeteringTask {
         options: [.new]
       ) { [weak self] _, _ in
         guard let self else { return }
-        if device.isAdjustingWhiteBalance {
-          self.onMeteringAdjusting(for: .awb)
-        } else {
-          self.onMeteringSettled(for: .awb)
+        self.queue.async {
+          self.onMeteringChanged(for: .awb, isAdjusting: self.device.isAdjustingWhiteBalance)
         }
-        self.update()
       })
     // Request AWB to focus
     device.whiteBalanceMode = try getWhiteBalanceMode(responsiveness: responsiveness)
