@@ -73,8 +73,6 @@ runs:
         PLATFORM="${{ inputs.platform }}"
         PUBLISH_OUTCOME="${{ steps.publish-harness-results.outcome }}"
         TEST_STEP_OUTCOME="${{ inputs.test-step-outcome }}"
-        CLEAN_LOG="$(mktemp)"
-        perl -pe 's/\e\[[0-9;]*[mK]//g' "$LOG_FILE" > "$CLEAN_LOG"
 
         echo "===== Harness ${PLATFORM} output log ====="
         cat "$LOG_FILE"
@@ -85,17 +83,7 @@ runs:
           exit 1
         fi
 
-        if grep -Eq 'Test Suites:[[:space:]].*[1-9][0-9]* failed' "$CLEAN_LOG" ||
-          grep -Eq 'Tests:[[:space:]].*[1-9][0-9]* failed' "$CLEAN_LOG"; then
-          echo "Harness output log reported test failures." >&2
-          exit 1
-        fi
-
         if [[ "$TEST_STEP_OUTCOME" == "failure" ]]; then
-          if grep -Eq 'Test Suites:[[:space:]].*[0-9]+ total' "$CLEAN_LOG"; then
-            echo "::warning::Device Farm test step reported failure, but Harness results published successfully and the Harness output summary has no failures. Treating Harness results as the test source of truth."
-          else
-            echo "Device Farm test step reported failure and no Harness output summary was found." >&2
-            exit 1
-          fi
+          echo "Device Farm test step reported failure." >&2
+          exit 1
         fi

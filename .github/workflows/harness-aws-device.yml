@@ -36,8 +36,6 @@ on:
     paths:
       - ".github/workflows/harness-aws-device.yml"
       - ".github/actions/upload-devicefarm-artifact/**"
-      - ".github/actions/collect-devicefarm-results/**"
-      - ".github/scripts/find-devicefarm-artifact.sh"
       - "apps/simple-camera/**"
       - "packages/react-native-vision-camera/**"
       - "packages/react-native-vision-camera-barcode-scanner/**"
@@ -51,8 +49,6 @@ on:
     paths:
       - ".github/workflows/harness-aws-device.yml"
       - ".github/actions/upload-devicefarm-artifact/**"
-      - ".github/actions/collect-devicefarm-results/**"
-      - ".github/scripts/find-devicefarm-artifact.sh"
       - "apps/simple-camera/**"
       - "packages/react-native-vision-camera/**"
       - "packages/react-native-vision-camera-barcode-scanner/**"
@@ -123,8 +119,6 @@ jobs:
               - 'patches/**'
               - '.github/workflows/harness-aws-device.yml'
               - '.github/actions/upload-devicefarm-artifact/**'
-              - '.github/actions/collect-devicefarm-results/**'
-              - '.github/scripts/find-devicefarm-artifact.sh'
               - 'bun.lock'
               - 'package.json'
 
