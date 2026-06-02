@@ -71,7 +71,7 @@ const iosAppLaunchOptions = iosMetroHostPort
 
 const isCI = process.env.CI === 'true'
 const bundleStartTimeout = isCI ? 30_000 : 15_000
-const bridgeTimeout = isCI ? 90_000 : 45_000
+const bridgeTimeout = isCI ? 120_000 : 45_000
 const platformReadyTimeout = 60_000
 const maxAppRestarts = isCI ? 1 : 2
 
