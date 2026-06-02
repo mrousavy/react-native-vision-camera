@@ -38,6 +38,7 @@ class HybridCameraController(
 ) : HybridCameraControllerSpec() {
   private companion object {
     const val CAMERA_CONTROL_TIMEOUT_MS = 10_000L
+    const val EXPOSURE_COMPENSATION_TIMEOUT_MS = 20_000L
   }
 
   override val device: HybridCameraDeviceSpec = HybridCameraDevice(camera.cameraInfo)
@@ -197,7 +198,7 @@ class HybridCameraController(
     return Promise.async {
       camera.cameraControl
         .setExposureCompensationIndex(exposure.toInt())
-        .awaitCameraControl("setExposureBias")
+        .awaitCameraControl("setExposureBias", EXPOSURE_COMPENSATION_TIMEOUT_MS)
     }
   }
 
@@ -351,7 +352,10 @@ class HybridCameraController(
     )
   }
 
-  private suspend fun <T> ListenableFuture<T>.awaitCameraControl(operationName: String): T {
-    return await(CAMERA_CONTROL_TIMEOUT_MS, "CameraController.$operationName")
+  private suspend fun <T> ListenableFuture<T>.awaitCameraControl(
+    operationName: String,
+    timeoutMs: Long = CAMERA_CONTROL_TIMEOUT_MS,
+  ): T {
+    return await(timeoutMs, "CameraController.$operationName")
   }
 }
