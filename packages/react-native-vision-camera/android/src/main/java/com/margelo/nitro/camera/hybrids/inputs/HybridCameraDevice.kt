@@ -38,7 +38,6 @@ import com.margelo.nitro.camera.extensions.getDepthSizes
 import com.margelo.nitro.camera.extensions.getPhotoSizes
 import com.margelo.nitro.camera.extensions.getPixelFormats
 import com.margelo.nitro.camera.extensions.getStreamSizes
-import com.margelo.nitro.camera.extensions.getVideoSizes
 import com.margelo.nitro.camera.extensions.localizedName
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.extensions.modelID
@@ -210,7 +209,12 @@ class HybridCameraDevice(
     val sizes =
       when (outputStreamType) {
         OutputStreamType.PHOTO -> camera2Info.getPhotoSizes()
-        OutputStreamType.VIDEO -> camera2Info.getVideoSizes()
+        OutputStreamType.VIDEO ->
+          videoCapabilities
+            .getSupportedQualities(androidx.camera.core.DynamicRange.SDR)
+            .mapNotNull { quality -> videoCapabilities.getResolution(quality, androidx.camera.core.DynamicRange.SDR) }
+            .distinct()
+            .toTypedArray()
         OutputStreamType.STREAM -> camera2Info.getStreamSizes()
         OutputStreamType.DEPTH_PHOTO, OutputStreamType.DEPTH_STREAM -> camera2Info.getDepthSizes()
       }

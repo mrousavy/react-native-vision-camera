@@ -10,12 +10,14 @@ import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.Point
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.convertPoint
+import com.margelo.nitro.camera.extensions.framePointToRawBufferPoint
 import com.margelo.nitro.camera.extensions.getNativeBuffer
 import com.margelo.nitro.camera.extensions.getPixelBuffer
 import com.margelo.nitro.camera.extensions.hasNativeBuffer
 import com.margelo.nitro.camera.extensions.hasPixelBuffer
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.extensions.pixelFormat
+import com.margelo.nitro.camera.extensions.rawBufferPointToFramePoint
 import com.margelo.nitro.camera.public.NativeFrame
 import com.margelo.nitro.core.ArrayBuffer
 
@@ -101,14 +103,27 @@ class HybridFrame(
 
   override fun convertCameraPointToFramePoint(cameraPoint: Point): Point {
     val sensorToBuffer = image.imageInfo.sensorToBufferTransformMatrix
-    return sensorToBuffer.convertPoint(cameraPoint)
+    val rawBufferPoint = sensorToBuffer.convertPoint(cameraPoint)
+    return rawBufferPoint.rawBufferPointToFramePoint(
+      orientation,
+      isMirrored,
+      image.width.toDouble(),
+      image.height.toDouble(),
+    )
   }
 
   override fun convertFramePointToCameraPoint(framePoint: Point): Point {
+    val rawBufferPoint =
+      framePoint.framePointToRawBufferPoint(
+        orientation,
+        isMirrored,
+        image.width.toDouble(),
+        image.height.toDouble(),
+      )
     val bufferToSensor =
       Matrix().apply {
         image.imageInfo.sensorToBufferTransformMatrix.invert(this)
       }
-    return bufferToSensor.convertPoint(framePoint)
+    return bufferToSensor.convertPoint(rawBufferPoint)
   }
 }
