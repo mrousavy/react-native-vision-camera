@@ -487,14 +487,21 @@ describe('VisionCamera - Coordinates', () => {
       observedOrientation = orientation
     }
 
+    const useOrientedFrameCenter = Platform.OS === 'android'
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       const isRotated =
         frame.orientation === 'left' || frame.orientation === 'right'
       const center = {
-        x: isRotated ? frame.height / 2 : frame.width / 2,
-        y: isRotated ? frame.width / 2 : frame.height / 2,
+        x:
+          useOrientedFrameCenter && isRotated
+            ? frame.height / 2
+            : frame.width / 2,
+        y:
+          useOrientedFrameCenter && isRotated
+            ? frame.width / 2
+            : frame.height / 2,
       }
       const cameraPoint = frame.convertFramePointToCameraPoint(center)
       scheduleOnRN(onSample, cameraPoint, frame.orientation)
