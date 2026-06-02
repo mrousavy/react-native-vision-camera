@@ -15,6 +15,9 @@ import type {
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
+
 describe('VisionCamera - Photo', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -362,13 +365,16 @@ describe('VisionCamera - Photo', () => {
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
 
-      // Prepare default settings on the Photo Output before capturing.
-      // This is kinda required for max res capture on iOS as otherwise
-      // the pipeline is not ready for 48MP+ capture (possibly a race
-      // condition inside AVFoundation?) and would give us binned (eg 24MP)
+      // TODO: Figure out why we need prepareSettings + 1s sleep to capture max res????
+      // Prepare default settings on the Photo Output before capturing,
+      // and add an artificial 1 second timeout.
+      // This is for some reason required for max res capture on iOS as
+      // otherwise the pipeline is not ready for 48MP+ capture (possibly a
+      // race condition inside AVFoundation?) and would give us binned (eg 24MP)
       // photos instead - maybe because it tries to give a photo quickly while
       // 48MP is still being warmed up? No idea. Bad DX imo.
       await photoOutput.prepareSettings([{}])
+      await sleep(1000)
 
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
