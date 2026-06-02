@@ -44,7 +44,6 @@ final class MeteringTask {
   private var onError: ((Error) -> Void)? = nil
 
   private struct MeteringProgress {
-    var hasEverAdjusted: Bool
     var settledAt: Date? = nil
   }
   private enum MeteringError: Error, CustomStringConvertible {
@@ -245,17 +244,14 @@ final class MeteringTask {
   }
 
   private func onMeteringRequested(for mode: MeteringMode) {
-    self.meteringStates[mode] = MeteringProgress(hasEverAdjusted: false)
+    self.meteringStates[mode] = MeteringProgress()
   }
   private func onMeteringAdjusting(for mode: MeteringMode) {
-    self.meteringStates[mode] = MeteringProgress(hasEverAdjusted: true)
+    self.meteringStates[mode] = MeteringProgress()
   }
   private func onMeteringSettled(for mode: MeteringMode) {
-    let hasEverAdjusted = self.meteringStates[mode]?.hasEverAdjusted ?? false
     let settledAt = self.meteringStates[mode]?.settledAt ?? .now
-    self.meteringStates[mode] = MeteringProgress(
-      hasEverAdjusted: hasEverAdjusted,
-      settledAt: settledAt)
+    self.meteringStates[mode] = MeteringProgress(settledAt: settledAt)
   }
 
   /**
