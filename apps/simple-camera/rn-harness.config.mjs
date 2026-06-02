@@ -74,10 +74,6 @@ const bundleStartTimeout = isCI ? 90_000 : 15_000
 const bridgeTimeout = isCI ? 120_000 : 45_000
 const maxAppRestarts = isCI ? 4 : 2
 
-// TODO: get libimobiledevice on AWS working
-const detectNativeCrashes =
-  process.env.HARNESS_DETECT_NATIVE_CRASHES?.trim().toLowerCase() !== 'false'
-
 const useEmulator = androidDeviceMode === 'emulator'
 
 const androidDevice = useEmulator
@@ -118,7 +114,7 @@ const config = {
   bridgeTimeout,
   bundleStartTimeout,
   maxAppRestarts,
-  detectNativeCrashes,
+  detectNativeCrashes: true,
   resetEnvironmentBetweenTestFiles: true,
   forwardClientLogs: true,
   permissions: true,
