@@ -36,10 +36,6 @@ import java.util.concurrent.TimeUnit
 class HybridCameraController(
   val camera: Camera,
 ) : HybridCameraControllerSpec() {
-  private companion object {
-    const val CAMERA_CONTROL_TIMEOUT_MS = 10_000L
-  }
-
   override val device: HybridCameraDeviceSpec = HybridCameraDevice(camera.cameraInfo)
   private val cameraState: CameraState?
     get() = camera.cameraInfo.cameraState.value
@@ -118,7 +114,7 @@ class HybridCameraController(
         // TODO: Implement enableDistortionCorrection changing when CameraX supports it
       }
 
-      futures.forEach { it.awaitCameraControl("configure") }
+      futures.forEach { it.await() }
     }
   }
 
@@ -136,7 +132,7 @@ class HybridCameraController(
       }
       camera.cameraControl
         .setZoomRatio(zoom)
-        .awaitCameraControl("setZoom")
+        .await()
     }
   }
 
@@ -161,7 +157,7 @@ class HybridCameraController(
         }
       camera.cameraControl
         .startFocusAndMetering(focusAction.build())
-        .awaitCameraControl("focusTo")
+        .await()
     }
   }
 
@@ -181,7 +177,7 @@ class HybridCameraController(
     return Promise.async {
       camera.cameraControl
         .cancelFocusAndMetering()
-        .awaitCameraControl("resetFocus")
+        .await()
     }
   }
 
@@ -197,7 +193,7 @@ class HybridCameraController(
     return Promise.async {
       camera.cameraControl
         .setExposureCompensationIndex(exposure.toInt())
-        .awaitCameraControl("setExposureBias")
+        .await()
     }
   }
 
@@ -207,12 +203,12 @@ class HybridCameraController(
         TorchMode.OFF -> {
           camera.cameraControl
             .enableTorch(false)
-            .awaitCameraControl("setTorchMode")
+            .await()
         }
         TorchMode.ON -> {
           camera.cameraControl
             .enableTorch(true)
-            .awaitCameraControl("setTorchMode")
+            .await()
         }
       }
     }
@@ -222,10 +218,10 @@ class HybridCameraController(
     return Promise.async {
       camera.cameraControl
         .setTorchStrengthLevel(strength.toInt())
-        .awaitCameraControl("enableTorchWithStrength.setTorchStrengthLevel")
+        .await()
       camera.cameraControl
         .enableTorch(true)
-        .awaitCameraControl("enableTorchWithStrength.enableTorch")
+        .await()
     }
   }
 
@@ -349,9 +345,5 @@ class HybridCameraController(
       "Locking White Balance Gains is not yet supported on Android! " +
         "You can use AWB focus (`focusTo(..., ['AWB'])`) instead.",
     )
-  }
-
-  private suspend fun <T> ListenableFuture<T>.awaitCameraControl(operationName: String): T {
-    return await(CAMERA_CONTROL_TIMEOUT_MS, "CameraController.$operationName")
   }
 }

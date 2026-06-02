@@ -73,7 +73,6 @@ runs:
         PLATFORM="${{ inputs.platform }}"
         PUBLISH_OUTCOME="${{ steps.publish-harness-results.outcome }}"
         TEST_STEP_OUTCOME="${{ inputs.test-step-outcome }}"
-
         echo "===== Harness ${PLATFORM} output log ====="
         cat "$LOG_FILE"
         echo "===== End Harness ${PLATFORM} output log ====="
