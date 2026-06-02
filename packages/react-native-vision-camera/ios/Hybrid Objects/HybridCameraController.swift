@@ -321,6 +321,12 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func startZoomAnimation(zoom: Double, rate: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
+      if self.captureDevice.videoZoomFactor == zoom {
+        // We are already exactly on our target value
+        completion()
+        return
+      }
+
       var observation: NSKeyValueObservation?
       observation = self.captureDevice.observe(
         \.isRampingVideoZoom,
