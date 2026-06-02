@@ -347,7 +347,7 @@ describe('VisionCamera - Controller', () => {
     }
   })
 
-  it('sets exposure bias to in-range values when the device supports it', async (context) => {
+  it('sets exposure bias to min/max when the device supports it', async (context) => {
     if (!backDevice.supportsExposureBias) {
       return context.skip('exposureBias: not supported on this device')
     }
@@ -371,16 +371,14 @@ describe('VisionCamera - Controller', () => {
     try {
       // AVCaptureDevice quantizes the requested bias to a discrete rational
       // step, so the readback may differ from the request by a tiny epsilon.
-      const exposureBiases = [
-        Math.min(1, backDevice.maxExposureBias),
-        Math.max(-1, backDevice.minExposureBias),
-        0,
-      ].filter((bias, index, biases) => biases.indexOf(bias) === index)
+      await controller.setExposureBias(backDevice.maxExposureBias)
+      expect(controller.exposureBias).toBeCloseTo(backDevice.maxExposureBias, 4)
 
-      for (const bias of exposureBiases) {
-        await controller.setExposureBias(bias)
-        expect(controller.exposureBias).toBeCloseTo(bias, 4)
-      }
+      await controller.setExposureBias(backDevice.minExposureBias)
+      expect(controller.exposureBias).toBeCloseTo(backDevice.minExposureBias, 4)
+
+      await controller.setExposureBias(0)
+      expect(controller.exposureBias).toBeCloseTo(0, 4)
     } finally {
       await session.stop()
     }
