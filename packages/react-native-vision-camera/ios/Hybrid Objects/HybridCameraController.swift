@@ -319,8 +319,6 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func startZoomAnimation(zoom: Double, rate: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
-      self.captureDevice.ramp(toVideoZoomFactor: zoom, withRate: Float(rate))
-
       var observation: NSKeyValueObservation?
       observation = self.captureDevice.observe(
         \.isRampingVideoZoom,
@@ -330,6 +328,8 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
             observation?.invalidate()
           }
         })
+
+      self.captureDevice.ramp(toVideoZoomFactor: zoom, withRate: Float(rate))
     }
   }
 
