@@ -235,8 +235,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
     if captureDevice.isFocusPointOfInterestSupported {
       modes.append(.af)
     }
-    // White Balance adjusting is always supported, but it's not to a specific point
-    modes.append(.awb)
+    // White Balance adjusting is not point-based, but it still requires a supported auto mode.
+    if captureDevice.isWhiteBalanceModeSupported(.autoWhiteBalance) || captureDevice.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {
+      modes.append(.awb)
+    }
     return modes
   }
 
@@ -319,8 +321,6 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func startZoomAnimation(zoom: Double, rate: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
-      self.captureDevice.ramp(toVideoZoomFactor: zoom, withRate: Float(rate))
-
       var observation: NSKeyValueObservation?
       observation = self.captureDevice.observe(
         \.isRampingVideoZoom,
@@ -330,6 +330,8 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
             observation?.invalidate()
           }
         })
+
+      self.captureDevice.ramp(toVideoZoomFactor: zoom, withRate: Float(rate))
     }
   }
 

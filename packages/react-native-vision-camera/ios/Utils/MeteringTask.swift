@@ -30,19 +30,20 @@ import NitroModules
 final class MeteringTask {
   private let minStableFocusDurationUntilResolve: TimeInterval = 0.12  // 120ms
   private let pollInterval: TimeInterval = 0.05  // 50ms
+  private let timeout: TimeInterval = 10.0  // 10s
   private let queue: DispatchQueue
   private let device: AVCaptureDevice
   private var meteringStates: [MeteringMode: MeteringProgress]
   private let adaptiveness: SceneAdaptiveness
   private let autoReset: AutoReset
   private var observations: [NSKeyValueObservation] = []
-  private var timer: DispatchSourceTimer?
+  private var pollTimer: DispatchSourceTimer?
+  private var timeoutTimer: DispatchSourceTimer?
   private var isFinished = false
   private var onComplete: (() -> Void)? = nil
   private var onError: ((Error) -> Void)? = nil
 
   private struct MeteringProgress {
-    var hasEverAdjusted: Bool
     var settledAt: Date? = nil
   }
   private enum MeteringError: Error, CustomStringConvertible {
@@ -92,11 +93,17 @@ final class MeteringTask {
     self.onError = onError
     // the Timer periodically polls AE/AF/AWB state - this is how we can ensure the states have
     // been stable for 120ms+ and aren't just fluctuating.
-    let timer = DispatchSource.makeTimerSource(queue: queue)
-    timer.schedule(deadline: .now(), repeating: pollInterval)
-    timer.setEventHandler { [weak self] in self?.update() }
-    timer.resume()
-    self.timer = timer
+    let pollTimer = DispatchSource.makeTimerSource(queue: queue)
+    pollTimer.schedule(deadline: .now(), repeating: pollInterval)
+    pollTimer.setEventHandler { [weak self] in self?.update() }
+    pollTimer.resume()
+    self.pollTimer = pollTimer
+
+    let timeoutTimer = DispatchSource.makeTimerSource(queue: queue)
+    timeoutTimer.schedule(deadline: .now() + timeout)
+    timeoutTimer.setEventHandler { [weak self] in self?.onTimedOut() }
+    timeoutTimer.resume()
+    self.timeoutTimer = timeoutTimer
     logger.info("Started metering operations...")
   }
 
@@ -115,12 +122,20 @@ final class MeteringTask {
     logger.info("Destroying `MeteringTask`...")
     observations.forEach { $0.invalidate() }
     observations.removeAll()
-    timer?.cancel()
-    timer = nil
+    pollTimer?.cancel()
+    pollTimer = nil
+    timeoutTimer?.cancel()
+    timeoutTimer = nil
     if !isFinished {
       onError?(MeteringError.timeouted)
       isFinished = true
     }
+  }
+
+  private func onTimedOut() {
+    guard !isFinished else { return }
+    logger.info("Metering operations timed out after \(self.timeout) seconds!")
+    destroy()
   }
 
   private func update() {
@@ -229,17 +244,14 @@ final class MeteringTask {
   }
 
   private func onMeteringRequested(for mode: MeteringMode) {
-    self.meteringStates[mode] = MeteringProgress(hasEverAdjusted: false)
+    self.meteringStates[mode] = MeteringProgress()
   }
   private func onMeteringAdjusting(for mode: MeteringMode) {
-    self.meteringStates[mode] = MeteringProgress(hasEverAdjusted: true)
+    self.meteringStates[mode] = MeteringProgress()
   }
   private func onMeteringSettled(for mode: MeteringMode) {
-    let hasEverAdjusted = self.meteringStates[mode]?.hasEverAdjusted ?? false
     let settledAt = self.meteringStates[mode]?.settledAt ?? .now
-    self.meteringStates[mode] = MeteringProgress(
-      hasEverAdjusted: hasEverAdjusted,
-      settledAt: settledAt)
+    self.meteringStates[mode] = MeteringProgress(settledAt: settledAt)
   }
 
   /**
@@ -251,9 +263,6 @@ final class MeteringTask {
       throw RuntimeError.error(withMessage: "Metering Mode `AE` is not supported on this device!")
     }
     logger.info("Started metering AE to \(point.debugDescription)...")
-    // Request AF to lock to the specific point
-    self.device.exposurePointOfInterest = point
-    self.device.exposureMode = try getExposureMode(responsiveness: responsiveness)
     // Track AE completion
     self.onMeteringRequested(for: .ae)
     self.observations.append(
@@ -269,6 +278,9 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AF to lock to the specific point
+    self.device.exposurePointOfInterest = point
+    self.device.exposureMode = try getExposureMode(responsiveness: responsiveness)
   }
 
   /**
@@ -280,9 +292,6 @@ final class MeteringTask {
       throw RuntimeError.error(withMessage: "Metering Mode `AF` is not supported on this device!")
     }
     logger.info("Started metering AF to \(point.debugDescription)...")
-    // Request AF to lock to the specific point
-    device.focusPointOfInterest = point
-    device.focusMode = try getFocusMode(responsiveness: responsiveness)
     // Track AF completion
     self.onMeteringRequested(for: .af)
     self.observations.append(
@@ -298,6 +307,9 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AF to lock to the specific point
+    device.focusPointOfInterest = point
+    device.focusMode = try getFocusMode(responsiveness: responsiveness)
   }
 
   /**
@@ -306,8 +318,6 @@ final class MeteringTask {
    */
   func startMeteringAWB(responsiveness: FocusResponsiveness) throws {
     logger.info("Started metering AWB...")
-    // Request AWB to focus
-    device.whiteBalanceMode = try getWhiteBalanceMode(responsiveness: responsiveness)
     // Track AWB completion
     self.onMeteringRequested(for: .awb)
     self.observations.append(
@@ -323,6 +333,8 @@ final class MeteringTask {
         }
         self.update()
       })
+    // Request AWB to focus
+    device.whiteBalanceMode = try getWhiteBalanceMode(responsiveness: responsiveness)
   }
 
   private func getExposureMode(responsiveness: FocusResponsiveness) throws
