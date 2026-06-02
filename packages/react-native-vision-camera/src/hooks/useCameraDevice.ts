@@ -24,6 +24,8 @@ export function useCameraDevice(
   position: CameraPosition,
   filter?: DeviceFilter,
 ): CameraDevice | undefined {
+  // TODO: Use CameraDeviceFactory.getDefaultCamera() if filter is null, otherwise filter manually.
+  //       For that, CameraDevices.ts must give us the shared factory though.
   const devices = useCameraDevices()
 
   // TODO: Can we use something like useSyncExternalStore or whatever to avoid "wrong" dependencies?
