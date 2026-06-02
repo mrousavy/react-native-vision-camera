@@ -6,11 +6,10 @@ import type { UInt64 } from 'react-native-nitro-modules'
  * This is a shared contract between libraries to interact
  * with native buffers without natively typed bindings.
  *
- * Consumers, like react-native-skia or react-native-wgpu
- * can accept a `NativeBuffer`-shaped object that has a
- * {@linkcode pointer} and a {@linkcode release} function
- * to unwrap the native buffer from it, load it as a GPU
- * Texture, and release it once it has been rendered.
+ * Consumers, like react-native-skia or react-native-wgpu,
+ * can use the {@linkcode pointer} to unwrap the native buffer,
+ * load it as a GPU Texture, and release it once it has been
+ * rendered via the {@linkcode release} function.
  *
  * @example
  * ```ts

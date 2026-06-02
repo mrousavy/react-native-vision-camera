@@ -362,12 +362,14 @@ export interface Frame
    * const device = ... // WebGPU device
    * if (frame.hasNativeBuffer) {
    *   const nativeBuffer = frame.getNativeBuffer()
-   *   const image = device.importExternalTexture({
-   *     source: nativeBuffer,
+   *   const videoFrame = RNWebGPU.createVideoFrameFromNativeBuffer(nativeBuffer.pointer)
+   *   const externalTexture = device.importExternalTexture({
+   *     source: videoFrame,
    *     label: 'camera-frame'
    *   })
-   *   // Render `image` via Skia APIs
-   *   image.dispose()
+   *   // After submitting commands that sample `externalTexture`:
+   *   externalTexture.destroy()
+   *   videoFrame.release()
    *   nativeBuffer.release()
    * }
    * ```
