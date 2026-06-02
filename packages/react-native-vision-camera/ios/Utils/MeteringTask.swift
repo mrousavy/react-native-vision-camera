@@ -30,13 +30,15 @@ import NitroModules
 final class MeteringTask {
   private let minStableFocusDurationUntilResolve: TimeInterval = 0.12  // 120ms
   private let pollInterval: TimeInterval = 0.05  // 50ms
+  private let timeout: TimeInterval = 10.0  // 10s
   private let queue: DispatchQueue
   private let device: AVCaptureDevice
   private var meteringStates: [MeteringMode: MeteringProgress]
   private let adaptiveness: SceneAdaptiveness
   private let autoReset: AutoReset
   private var observations: [NSKeyValueObservation] = []
-  private var timer: DispatchSourceTimer?
+  private var pollTimer: DispatchSourceTimer?
+  private var timeoutTimer: DispatchSourceTimer?
   private var isFinished = false
   private var onComplete: (() -> Void)? = nil
   private var onError: ((Error) -> Void)? = nil
@@ -92,11 +94,17 @@ final class MeteringTask {
     self.onError = onError
     // the Timer periodically polls AE/AF/AWB state - this is how we can ensure the states have
     // been stable for 120ms+ and aren't just fluctuating.
-    let timer = DispatchSource.makeTimerSource(queue: queue)
-    timer.schedule(deadline: .now(), repeating: pollInterval)
-    timer.setEventHandler { [weak self] in self?.update() }
-    timer.resume()
-    self.timer = timer
+    let pollTimer = DispatchSource.makeTimerSource(queue: queue)
+    pollTimer.schedule(deadline: .now(), repeating: pollInterval)
+    pollTimer.setEventHandler { [weak self] in self?.update() }
+    pollTimer.resume()
+    self.pollTimer = pollTimer
+
+    let timeoutTimer = DispatchSource.makeTimerSource(queue: queue)
+    timeoutTimer.schedule(deadline: .now() + timeout)
+    timeoutTimer.setEventHandler { [weak self] in self?.onTimedOut() }
+    timeoutTimer.resume()
+    self.timeoutTimer = timeoutTimer
     logger.info("Started metering operations...")
   }
 
@@ -115,12 +123,20 @@ final class MeteringTask {
     logger.info("Destroying `MeteringTask`...")
     observations.forEach { $0.invalidate() }
     observations.removeAll()
-    timer?.cancel()
-    timer = nil
+    pollTimer?.cancel()
+    pollTimer = nil
+    timeoutTimer?.cancel()
+    timeoutTimer = nil
     if !isFinished {
       onError?(MeteringError.timeouted)
       isFinished = true
     }
+  }
+
+  private func onTimedOut() {
+    guard !isFinished else { return }
+    logger.info("Metering operations timed out after \(self.timeout) seconds!")
+    destroy()
   }
 
   private func update() {
