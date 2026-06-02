@@ -14,10 +14,8 @@ import com.margelo.nitro.camera.Point
 import com.margelo.nitro.camera.extensions.DisposableArrayBuffer
 import com.margelo.nitro.camera.extensions.convertPoint
 import com.margelo.nitro.camera.extensions.depthPixelFormat
-import com.margelo.nitro.camera.extensions.framePointToRawBufferPoint
 import com.margelo.nitro.camera.extensions.getNativeBuffer
 import com.margelo.nitro.camera.extensions.getPixelBuffer
-import com.margelo.nitro.camera.extensions.rawBufferPointToFramePoint
 import com.margelo.nitro.camera.public.NativeFrame
 import com.margelo.nitro.core.ArrayBuffer
 import com.margelo.nitro.core.Promise
@@ -114,28 +112,15 @@ class HybridDepthFrame(
 
   override fun convertCameraPointToDepthPoint(cameraPoint: Point): Point {
     val sensorToBuffer = image.imageInfo.sensorToBufferTransformMatrix
-    val rawBufferPoint = sensorToBuffer.convertPoint(cameraPoint)
-    return rawBufferPoint.rawBufferPointToFramePoint(
-      orientation,
-      isMirrored,
-      image.width.toDouble(),
-      image.height.toDouble(),
-    )
+    return sensorToBuffer.convertPoint(cameraPoint)
   }
 
   override fun convertDepthPointToCameraPoint(depthPoint: Point): Point {
-    val rawBufferPoint =
-      depthPoint.framePointToRawBufferPoint(
-        orientation,
-        isMirrored,
-        image.width.toDouble(),
-        image.height.toDouble(),
-      )
     val bufferToSensor =
       Matrix().apply {
         image.imageInfo.sensorToBufferTransformMatrix.invert(this)
       }
-    return bufferToSensor.convertPoint(rawBufferPoint)
+    return bufferToSensor.convertPoint(depthPoint)
   }
 
   override fun toFrame(): HybridFrameSpec {

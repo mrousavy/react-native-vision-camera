@@ -487,22 +487,10 @@ describe('VisionCamera - Coordinates', () => {
       observedOrientation = orientation
     }
 
-    const useOrientedFrameCenter = Platform.OS === 'android'
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
-      const isRotated =
-        frame.orientation === 'left' || frame.orientation === 'right'
-      const center = {
-        x:
-          useOrientedFrameCenter && isRotated
-            ? frame.height / 2
-            : frame.width / 2,
-        y:
-          useOrientedFrameCenter && isRotated
-            ? frame.width / 2
-            : frame.height / 2,
-      }
+      const center = { x: frame.width / 2, y: frame.height / 2 }
       const cameraPoint = frame.convertFramePointToCameraPoint(center)
       scheduleOnRN(onSample, cameraPoint, frame.orientation)
       frame.dispose()
@@ -542,9 +530,10 @@ describe('VisionCamera - Coordinates', () => {
     }
   })
 
-  // Analyzer coordinates are in the Frame's intended/oriented image space.
-  // Frame.convertFramePointToCameraPoint must account for that orientation;
-  // the center-only test above cannot catch an off-center rectangle drifting.
+  // Analyzer coordinates may be reported in the Frame's intended/oriented
+  // image space, while Frame.convertFramePointToCameraPoint consumes raw
+  // buffer-space points. The center-only test above cannot catch an
+  // off-center rectangle drifting after orientation is applied.
   // See https://github.com/mrousavy/react-native-vision-camera/pull/3878.
   it('maps oriented Frame rectangles into the same Camera bounds', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
@@ -565,10 +554,16 @@ describe('VisionCamera - Coordinates', () => {
       },
     ])
 
+    type Bounds = {
+      left: number
+      top: number
+      right: number
+      bottom: number
+    }
     type ProjectionReport = {
       orientation: string
-      orientedCorners: Point[]
-      recoveredCorners: Point[]
+      expected: Bounds
+      reported: Bounds
     }
     let report: ProjectionReport | undefined
     const onReport = (r: ProjectionReport) => {
@@ -603,17 +598,38 @@ describe('VisionCamera - Coordinates', () => {
         { x: box.left, y: box.bottom },
       ]
 
-      const cameraCorners = orientedCorners.map((corner) =>
-        frame.convertFramePointToCameraPoint(corner),
-      )
-      const recoveredCorners = cameraCorners.map((corner) =>
-        frame.convertCameraPointToFramePoint(corner),
-      )
+      const orientedPointToFramePoint = (point: Point): Point => {
+        switch (frame.orientation) {
+          case 'right':
+            return { x: w - point.y, y: point.x }
+          case 'left':
+            return { x: point.y, y: h - point.x }
+          case 'down':
+            return { x: w - point.x, y: h - point.y }
+          default:
+            return point
+        }
+      }
+      const getCameraBounds = (points: Point[]): Bounds => {
+        const cameraPoints = points.map((point) =>
+          frame.convertFramePointToCameraPoint(point),
+        )
+        const xs = cameraPoints.map((point) => point.x)
+        const ys = cameraPoints.map((point) => point.y)
+        return {
+          left: Math.min(...xs),
+          top: Math.min(...ys),
+          right: Math.max(...xs),
+          bottom: Math.max(...ys),
+        }
+      }
 
       scheduleOnRN(onReport, {
         orientation: frame.orientation,
-        orientedCorners,
-        recoveredCorners,
+        expected: getCameraBounds(
+          orientedCorners.map(orientedPointToFramePoint),
+        ),
+        reported: getCameraBounds(orientedCorners),
       })
       frame.dispose()
     })
@@ -633,18 +649,12 @@ describe('VisionCamera - Coordinates', () => {
         )
       }
 
-      for (let i = 0; i < r.orientedCorners.length; i++) {
-        const original = r.orientedCorners[i]
-        const recovered = r.recoveredCorners[i]
-        if (original == null || recovered == null) {
-          throw new Error(`missing round-trip corner at index ${i}`)
-        }
-        expect(recovered.x).toBeCloseTo(original.x, 0)
-        expect(recovered.y).toBeCloseTo(original.y, 0)
+      for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
+        expect(r.reported[edge]).toBeCloseTo(r.expected[edge], 0)
       }
 
       console.log(
-        `oriented rectangle projection orientation=${r.orientation} corners=${JSON.stringify(r.orientedCorners)} recovered=${JSON.stringify(r.recoveredCorners)}`,
+        `oriented rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
       )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
