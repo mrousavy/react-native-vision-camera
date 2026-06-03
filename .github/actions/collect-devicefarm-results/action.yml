@@ -117,20 +117,6 @@ runs:
         fi
 
         if [[ "$TEST_STEP_OUTCOME" == "failure" ]]; then
-          if [[ "$PLATFORM" != "ios" ]]; then
-            echo "Device Farm ${PLATFORM} test step reported failure." >&2
-            exit 1
-          fi
-
-          if [[ -z "$XCODEBUILD_LOG" ]]; then
-            echo "Device Farm iOS test step reported failure and no XCTest log was found." >&2
-            exit 1
-          fi
-
-          if ! grep -Fq "** TEST EXECUTE SUCCEEDED **" "$XCODEBUILD_LOG"; then
-            echo "Device Farm iOS test step reported failure and XCTest did not report success." >&2
-            exit 1
-          fi
-
-          echo "Device Farm iOS test step reported failure, but Harness JUnit and XCTest logs passed. Treating Harness results as authoritative." >&2
+          echo "Device Farm ${PLATFORM} test step reported failure." >&2
+          exit 1
         fi
