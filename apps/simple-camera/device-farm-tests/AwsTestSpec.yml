@@ -7,8 +7,36 @@ phases:
     commands:
       - devicefarm-cli use node 20
       - node -v
-      - curl -fsSL https://bun.com/install | bash
-      - ~/.bun/bin/bun install
+      - |
+        set -euo pipefail
+
+        install_bun() {
+          if [ -f ".devicefarm/bin/bun" ]; then
+            mkdir -p "$HOME/.bun/bin"
+            cp ".devicefarm/bin/bun" "$HOME/.bun/bin/bun"
+            chmod +x "$HOME/.bun/bin/bun"
+            if "$HOME/.bun/bin/bun" --version; then
+              return 0
+            fi
+            rm -f "$HOME/.bun/bin/bun"
+          fi
+
+          for attempt in 1 2 3; do
+            if curl -fsSL https://bun.com/install | bash; then
+              "$HOME/.bun/bin/bun" --version
+              return 0
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              return 1
+            fi
+
+            sleep "$((attempt * 5))"
+          done
+        }
+
+        install_bun
+      - ~/.bun/bin/bun install --frozen-lockfile
 
       - adb wait-for-device
       - adb devices -l
