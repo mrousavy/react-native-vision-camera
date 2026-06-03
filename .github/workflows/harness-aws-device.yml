@@ -308,7 +308,10 @@ jobs:
         uses: ./.github/actions/collect-devicefarm-results
         with:
           artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          console-url: ${{ steps.run-test.outputs.console-url }}
           platform: android
+          run-arn: ${{ steps.run-test.outputs.arn }}
           test-step-outcome: ${{ steps.run-test.outcome }}
 
   build-ios:
@@ -596,5 +599,8 @@ jobs:
         uses: ./.github/actions/collect-devicefarm-results
         with:
           artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          console-url: ${{ steps.run-test.outputs.console-url }}
           platform: ios
+          run-arn: ${{ steps.run-test.outputs.arn }}
           test-step-outcome: ${{ steps.run-test.outcome }}
