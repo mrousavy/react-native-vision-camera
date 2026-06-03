@@ -28,6 +28,7 @@ import com.margelo.nitro.camera.session.toConfig
 import com.margelo.nitro.camera.utils.CustomLifecycle
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.Promise
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -50,6 +51,8 @@ class HybridCameraSession(
   private var onErrorListeners = arrayListOf<(Throwable) -> Unit>()
   private var onInterruptionStartedListeners = arrayListOf<(InterruptionReason) -> Unit>()
   private var onInterruptionEndedListeners = arrayListOf<() -> Unit>()
+  private var startWaiters = arrayListOf<CompletableDeferred<Unit>>()
+  private var stopWaiters = arrayListOf<CompletableDeferred<Unit>>()
   private var currentCameraState = CameraState.Type.CLOSED
 
   @SuppressLint("RestrictedApi")
@@ -139,13 +142,47 @@ class HybridCameraSession(
 
   override fun start(): Promise<Unit> {
     return Promise.async(uiScope) {
+      val startWaiter =
+        if (activeSession?.isRunning == false) {
+          CompletableDeferred<Unit>().also { startWaiters.add(it) }
+        } else {
+          null
+        }
+
       lifecycleOwner.setActive(true)
+
+      if (activeSession?.isRunning == true) {
+        startWaiter?.complete(Unit)
+      }
+
+      try {
+        startWaiter?.await()
+      } finally {
+        startWaiter?.let { startWaiters.remove(it) }
+      }
     }
   }
 
   override fun stop(): Promise<Unit> {
     return Promise.async(uiScope) {
+      val stopWaiter =
+        if (activeSession?.isRunning == true) {
+          CompletableDeferred<Unit>().also { stopWaiters.add(it) }
+        } else {
+          null
+        }
+
       lifecycleOwner.setActive(false)
+
+      if (activeSession?.isRunning == false) {
+        stopWaiter?.complete(Unit)
+      }
+
+      try {
+        stopWaiter?.await()
+      } finally {
+        stopWaiter?.let { stopWaiters.remove(it) }
+      }
     }
   }
 
@@ -177,14 +214,22 @@ class HybridCameraSession(
   // pragma MARK: Lifecycle Changed Callbacks
 
   override fun onStarted() {
+    startWaiters.forEach { waiter -> waiter.complete(Unit) }
+    startWaiters.clear()
     onStartedListeners.forEach { listener -> listener() }
   }
 
   override fun onStopped() {
+    stopWaiters.forEach { waiter -> waiter.complete(Unit) }
+    stopWaiters.clear()
     onStoppedListeners.forEach { listener -> listener() }
   }
 
   override fun onError(error: Throwable) {
+    startWaiters.forEach { waiter -> waiter.completeExceptionally(error) }
+    startWaiters.clear()
+    stopWaiters.forEach { waiter -> waiter.completeExceptionally(error) }
+    stopWaiters.clear()
     onErrorListeners.forEach { listener -> listener(error) }
   }
 
