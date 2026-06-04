@@ -4,19 +4,18 @@ description: Choosing between VisionCamera and Expo Camera based on documented A
 icon: GitCompareArrows
 ---
 
-### TL;DR
+### Intent
 
-Expo Camera is the Expo SDK camera view. Pick it for Expo Go, Web, and fast Expo setup.
+Both VisionCamera and Expo Camera are popular Camera libraries for React Native and Expo - however each come with their own feature set and limitations, showcased here on this page.
 
-VisionCamera is a native camera framework. Pick it for camera-first apps, pro capture controls, realtime frames/ML, depth, HDR/RAW, multi-cam, custom outputs, or native plugins.
-
-VisionCamera also has a declarative `<Camera />` API; the extra surface area comes from optional native camera features.
+- Expo Camera ([expo-camera](https://docs.expo.dev/versions/latest/sdk/camera)) is the Expo SDK's Camera view. Pick it for Expo Go, Web, and fast Expo setup.
+- VisionCamera ([react-native-vision-camera](/api/react-native-vision-camera)) is a native Camera framework built with Nitro. Pick it for camera-first apps, pro capture controls, high-performance Camera apps, realtime frames/ML, depth, HDR/RAW, multi-cam, custom outputs, or native plugins.
 
 ### Feature Comparison
 
 | Feature                                                                                                                  | VisionCamera | Expo Camera             |
 | ------------------------------------------------------------------------------------------------------------------------ | ------------ | ----------------------- |
-| Works in [Expo Go](https://docs.expo.dev/versions/latest/sdk/camera/)                                                    | ❌            | ✅                       |
+| Works in [Expo Go](https://expo.dev/go)                                                                                  | ❌            | ✅                       |
 | Works on [Web](https://docs.expo.dev/versions/latest/sdk/camera/#web-support)                                            | ❌            | ✅                       |
 | [Camera View](camera-view) Component                                                                                     | ✅            | ✅                       |
 | Capturing [Photos](photo-output)                                                                                         | ✅            | ✅                       |
@@ -60,9 +59,5 @@ VisionCamera also has a declarative `<Camera />` API; the extra surface area com
 
 ### Expo projects
 
-Expo Camera is an Expo SDK package and runs in Expo Go.
-VisionCamera is a third-party native package; in Expo, follow ["Getting Started"](/docs) and use `expo prebuild`, `expo run:*`, or a development build.
-
-### Note on speed
-
-VisionCamera is designed for high-performance native camera pipelines, but this page does not include independent Expo-Camera-vs-VisionCamera benchmarks.
+Expo Camera is an Expo SDK package and runs in [Expo Go](https://expo.dev/go).
+VisionCamera is a third-party native package and runs in an [Expo Development Build](https://docs.expo.dev/tutorial/eas/configure-development-build/#initialize-a-development-build) (`expo prebuild`), or in a bare React Native app.
