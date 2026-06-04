@@ -15,14 +15,14 @@ Use [Expo Camera](https://docs.expo.dev/versions/latest/sdk/camera/) when your r
 
 Use VisionCamera when you need direct control over the native camera pipeline: multiple camera outputs, frame processing, depth frames, native frame processor plugins, custom native camera outputs, or constraint-based control over device capabilities.
 
-Both can be used in Expo projects, but they have different integration tradeoffs. Expo Camera is an Expo SDK package and is documented as included in Expo Go. VisionCamera is a third-party native React Native package; in an Expo app, follow the VisionCamera Expo setup in ["Getting Started"](index) and plan on `expo prebuild`, `expo run:*`, or a development build.
+Both can be used in Expo projects, but they have different integration tradeoffs. Expo Camera is an Expo SDK package and is documented as included in Expo Go. VisionCamera is a third-party native React Native package; in an Expo app, follow the VisionCamera Expo setup in ["Getting Started"](/docs) and plan on `expo prebuild`, `expo run:*`, or a development build.
 
 ### Comparison
 
 | Area | VisionCamera | Expo Camera |
 | --- | --- | --- |
 | Package | [`react-native-vision-camera`](https://www.npmjs.com/package/react-native-vision-camera) | [`expo-camera`](https://www.npmjs.com/package/expo-camera) |
-| Install path | Install VisionCamera plus `react-native-nitro-modules` and `react-native-nitro-image`, then rebuild native code. See ["Getting Started"](index). | Install with `npx expo install expo-camera`. Expo's docs note that existing React Native apps must install Expo first. |
+| Install path | Install VisionCamera plus `react-native-nitro-modules` and `react-native-nitro-image`, then rebuild native code. See ["Getting Started"](/docs). | Install with `npx expo install expo-camera`. Expo's docs note that existing React Native apps must install Expo first. |
 | Expo Go | VisionCamera is a third-party native package. Expo's library guide says libraries with native project configuration should use a development build if they are not supported in Expo Go. | The Expo Camera docs mark `expo-camera` as included in Expo Go. |
 | Platforms documented | The current VisionCamera docs describe iOS and Android native implementations, using AVFoundation on iOS and CameraX on Android. | The Expo Camera docs mark Android device-only, iOS device-only, and Web support. |
 | Main view API | [`<Camera />`](/api/react-native-vision-camera/views/Camera) | `CameraView` |
@@ -56,7 +56,7 @@ Both can be used in Expo projects, but they have different integration tradeoffs
 
 VisionCamera can be installed in an Expo project, but it is not the same integration path as Expo Camera.
 
-In VisionCamera's ["Getting Started"](index) guide, the Expo path adds camera permissions to app config, runs `npx expo prebuild`, and then builds a native binary with `npx expo run:ios` or `npx expo run:android`.
+In VisionCamera's ["Getting Started"](/docs) guide, the Expo path adds camera permissions to app config, runs `npx expo prebuild`, and then builds a native binary with `npx expo run:ios` or `npx expo run:android`.
 Expo's library guide explains that third-party libraries with native project configuration generally require a development build when they are not supported in Expo Go.
 
 If your camera requirements fit Expo Camera and Expo Go support is important, Expo Camera is usually the smaller integration surface.
