@@ -12,46 +12,43 @@ VisionCamera is a native camera framework. Pick it for camera-first apps, pro ca
 
 VisionCamera also has a declarative `<Camera />` API; the extra surface area comes from optional native camera features.
 
-### Comparison
-
-`x` means no documented equivalent in the Expo Camera docs.
+### Feature Comparison
 
 | Feature | VisionCamera | Expo Camera |
 | --- | --- | --- |
-| Expo Go | x | ✓ |
-| Web | x | ✓ |
-| Fast Expo setup | x | ✓ |
-| Declarative camera view | ✓ | ✓ |
-| Photos | ✓ | ✓ |
-| Videos | ✓ | ✓ |
-| Barcode scanning | ✓ | ✓ |
-| Manual [AE/AF/AWB](locking-ae-af-awb) | ✓ | x |
-| Configurable `focusTo(...)` | ✓ | x |
-| [Frame Processors](frame-output) | ✓ | x |
-| Pixel/color access for ML | ✓ | x |
-| [Skia interop](skia-frame-processors) | ✓ | x |
-| [Depth frames](depth-output) | ✓ | x |
-| Depth in photos | ✓ | x |
-| [RAW/DNG photos](raw-photos) | ✓ | x |
-| [Photo HDR](photo-hdr) | ✓ | x |
-| [Video HDR/Dynamic Ranges](video-hdr) | ✓ | x |
-| Maximum-resolution photo paths | ✓ | x |
-| Android [Camera Extensions](camera-extensions) | ✓ | x |
-| [Constraints API](constraints) | ✓ | x |
-| [Video stabilization](video-stabilization) | ✓ | ✓ |
-| Preview stabilization | ✓ | x |
-| [Low light boost](low-light-boost) | ✓ | x |
-| [Exposure bias](exposure-bias) | ✓ | x |
-| [Custom FPS](fps) | ✓ | x |
-| Specific/external camera devices | ✓ | basic |
-| [Multi-camera sessions](multi-camera) | ✓ | x |
-| Persistent recording while switching cameras | ✓ | x |
-| Coordinate conversions | ✓ | x |
-| Location tags | ✓ | x |
-| Photo callbacks and preview thumbnails | ✓ | basic |
-| Output quality settings and codecs | ✓ | basic |
-| Native Frame Processor plugins | ✓ | x |
-| Custom native `CameraOutput`s | ✓ | x |
+| Works in Expo Go | ❌ | ✅ |
+| Web support | ❌ | ✅ |
+| Camera view component | ✅ | ✅ |
+| Photos | ✅ | ✅ |
+| Videos | ✅ | ✅ |
+| Barcode scanning | ✅ | ✅ |
+| Manual [AE/AF/AWB](locking-ae-af-awb) | ✅ | ❌ |
+| Configurable `focusTo(...)` | ✅ | ❌ |
+| [Frame Processors](frame-output) | ✅ | ❌ |
+| Pixel/color access for ML | ✅ | ❌ |
+| [Skia interop](skia-frame-processors) | ✅ | ❌ |
+| [Depth frames](depth-output) | ✅ | ❌ |
+| Depth in photos | ✅ | ❌ |
+| [RAW/DNG photos](raw-photos) | ✅ | ❌ |
+| [Photo HDR](photo-hdr) | ✅ | ❌ |
+| [Video HDR/Dynamic Ranges](video-hdr) | ✅ | ❌ |
+| Maximum-resolution photo paths | ✅ | ❌ |
+| Android [Camera Extensions](camera-extensions) | ✅ | ❌ |
+| [Constraints API](constraints) | ✅ | ❌ |
+| [Video stabilization](video-stabilization) | ✅ | ✅ |
+| Preview stabilization | ✅ | ❌ |
+| [Low light boost](low-light-boost) | ✅ | ❌ |
+| [Exposure bias](exposure-bias) | ✅ | ❌ |
+| [Custom FPS](fps) | ✅ | ❌ |
+| Specific/external camera devices | ✅ | Basic |
+| [Multi-camera sessions](multi-camera) | ✅ | ❌ |
+| Persistent recording while switching cameras | ✅ | ❌ |
+| Coordinate conversions | ✅ | ❌ |
+| Location tags | ✅ | ❌ |
+| Photo callbacks and preview thumbnails | ✅ | Basic |
+| Output quality settings and codecs | ✅ | Basic |
+| Native Frame Processor plugins | ✅ | ❌ |
+| Custom native `CameraOutput`s | ✅ | ❌ |
 
 ### Expo projects
 
