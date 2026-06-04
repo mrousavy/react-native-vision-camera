@@ -1,3 +1,4 @@
+import type { Image } from 'react-native-nitro-image'
 import { NitroModules } from 'react-native-nitro-modules'
 import type {
   CameraOutput,
@@ -20,7 +21,8 @@ const factory = NitroModules.createHybridObject<BarcodeScannerFactory>(
  * Create a new {@linkcode BarcodeScanner}.
  *
  * The {@linkcode BarcodeScanner} can be used to
- * scan {@linkcode Barcode}s in a {@linkcode Frame}.
+ * scan {@linkcode Barcode}s in a {@linkcode Frame} or
+ * an existing {@linkcode Image}.
  */
 export function createBarcodeScanner(
   options: BarcodeScannerOptions,

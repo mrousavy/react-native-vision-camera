@@ -11,6 +11,8 @@
 namespace margelo::nitro::camera::barcodescanner { class HybridBarcodeSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include <memory>
 #include "HybridBarcodeSpec.hpp"
@@ -20,6 +22,8 @@ namespace margelo::nitro::camera { class HybridFrameSpec; }
 #include <NitroModules/JPromise.hpp>
 #include <VisionCamera/HybridFrameSpec.hpp>
 #include <VisionCamera/JHybridFrameSpec.hpp>
+#include <NitroImage/HybridImageSpec.hpp>
+#include <NitroImage/JHybridImageSpec.hpp>
 
 namespace margelo::nitro::camera::barcodescanner {
 
@@ -71,6 +75,31 @@ namespace margelo::nitro::camera::barcodescanner {
   std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> JHybridBarcodeScannerSpec::scanCodesAsync(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<margelo::nitro::camera::JHybridFrameSpec::JavaPart> /* frame */)>("scanCodesAsync");
     auto __result = method(_javaPart, std::dynamic_pointer_cast<margelo::nitro::camera::JHybridFrameSpec>(frame)->getJavaPart());
+    return [&]() {
+      auto __promise = Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<jni::JArrayClass<JHybridBarcodeSpec::JavaPart>>(__boxedResult);
+        __promise->resolve([&](auto&& __input) {
+          size_t __size = __input->size();
+          std::vector<std::shared_ptr<HybridBarcodeSpec>> __vector;
+          __vector.reserve(__size);
+          for (size_t __i = 0; __i < __size; __i++) {
+            auto __element = __input->getElement(__i);
+            __vector.push_back(__element->getJHybridBarcodeSpec());
+          }
+          return __vector;
+        }(__result));
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> JHybridBarcodeScannerSpec::scanCodesInImageAsync(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<margelo::nitro::image::JHybridImageSpec::JavaPart> /* image */)>("scanCodesInImageAsync");
+    auto __result = method(_javaPart, std::dynamic_pointer_cast<margelo::nitro::image::JHybridImageSpec>(image)->getJavaPart());
     return [&]() {
       auto __promise = Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
