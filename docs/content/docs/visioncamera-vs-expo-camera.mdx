@@ -16,47 +16,47 @@ VisionCamera also has a declarative `<Camera />` API; the extra surface area com
 
 | Feature                                                                                                                  | VisionCamera | Expo Camera             |
 | ------------------------------------------------------------------------------------------------------------------------ | ------------ | ----------------------- |
-| [Works in Expo Go](https://docs.expo.dev/versions/latest/sdk/camera/)                                                    | ❌            | ✅                       |
-| [Web Support](https://docs.expo.dev/versions/latest/sdk/camera/#web-support)                                             | ❌            | ✅                       |
-| [Camera View Component](camera-view)                                                                                     | ✅            | ✅                       |
-| [Capturing Photos](photo-output)                                                                                         | ✅            | ✅                       |
-| [Android Snapshot Capture](snapshot-capture)                                                                             | ✅            | ❌                       |
-| [Capturing Videos](video-output)                                                                                         | ✅            | ✅                       |
-| [Barcode Scanning](barcode-scanner)                                                                                      | ✅            | ✅                       |
-| [System Barcode Scanner UI](https://docs.expo.dev/versions/latest/sdk/camera/#launchscanneroptions)                      | ❌            | ✅                       |
-| [Scan Barcodes from Image URL](https://docs.expo.dev/versions/latest/sdk/camera/#camerascanfromurlasyncurl-barcodetypes) | ❌            | ✅                       |
-| [Locking AE/AF/AWB](locking-ae-af-awb)                                                                                   | ✅            | ❌                       |
-| [Configurable `focusTo(...)`](tap-to-focus#focus-metering-options)                                                       | ✅            | ❌                       |
-| [Realtime Frame Processing](frame-output)                                                                                | ✅            | ❌                       |
-| [Drawing onto the Camera with Skia](skia-frame-processors)                                                               | ✅            | ❌                       |
-| [Realtime Depth Frame Processing](depth-output)                                                                          | ✅            | ❌                       |
-| [Depth in Photos](a-photo)                                                                                               | ✅            | ❌                       |
-| [Capturing RAW Photos](raw-photos)                                                                                       | ✅            | ❌                       |
-| [Photo HDR](photo-hdr)                                                                                                   | ✅            | ❌                       |
-| [Video HDR/Dynamic Ranges](video-hdr)                                                                                    | ✅            | ❌                       |
-| [Maximum Photo Resolution](camera-outputs#resolutions)                                                                   | ✅            | ❌                       |
-| [Android Camera Extensions](camera-extensions)                                                                           | ✅            | ❌                       |
-| [Video Stabilization](video-stabilization)                                                                               | ✅            | ✅                       |
-| [Preview Stabilization](/api/react-native-vision-camera/interfaces/PreviewStabilizationModeConstraint)                   | ✅            | ❌                       |
-| [Low Light Boost](low-light-boost)                                                                                       | ✅            | ❌                       |
-| [Exposure Bias](exposure-bias)                                                                                           | ✅            | ❌                       |
-| [Configurable FPS](fps)                                                                                                  | ✅            | ❌                       |
-| [Specific Camera/Lens Selection](devices#selecting-a-custom-camera-device)                                               | ✅            | Front/back + iOS lenses |
-| [External Camera Devices](devices#external-devices)                                                                      | ✅            | ❌                       |
-| [Multi-Camera](multi-camera)                                                                                             | ✅            | ❌                       |
-| [Persistent Video Outputs](video-output#persistent-video-outputs)                                                        | ✅            | ❌                       |
-| [Coordinate Systems](coordinate-systems)                                                                                 | ✅            | ❌                       |
-| [Location Tags](location)                                                                                                | ✅            | ❌                       |
-| [Photo Output Callbacks](photo-output-callbacks)                                                                         | ✅            | ❌                       |
-| [Preview Image During Capture](photo-output-callbacks#preview-image)                                                     | ✅            | ❌                       |
-| [Custom Photo JPEG Quality](photo-quality#configure-jpeg-quality)                                                        | ✅            | ✅                       |
-| [Photo `qualityPrioritization`](photo-quality#adjust-quality-prioritization)                                             | ✅            | ❌                       |
-| [Custom Video `maxFileSize`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxfilesize)                    | ✅            | ✅                       |
-| [Custom Video `maxDuration`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxduration)                    | ✅            | ✅                       |
-| [Custom Video Bitrate](/api/react-native-vision-camera/interfaces/VideoOutputOptions#targetbitrate)                      | ✅            | ✅                       |
-| [Custom Video `codec`](/api/react-native-vision-camera/interfaces/VideoOutputSettings#codec)                             | ✅            | ✅                       |
-| [Native Frame Processor Plugins](native-frame-processor-plugins)                                                         | ✅            | ❌                       |
-| [Custom Native `CameraOutput`s](custom-native-camera-outputs)                                                            | ✅            | ❌                       |
+| Works in [Expo Go](https://docs.expo.dev/versions/latest/sdk/camera/)                                                    | ❌            | ✅                       |
+| Works on [Web](https://docs.expo.dev/versions/latest/sdk/camera/#web-support)                                            | ❌            | ✅                       |
+| [Camera View](camera-view) Component                                                                                     | ✅            | ✅                       |
+| Capturing [Photos](photo-output)                                                                                         | ✅            | ✅                       |
+| Android [Snapshot Capture](snapshot-capture)                                                                             | ✅            | ❌                       |
+| Capturing [Videos](video-output)                                                                                         | ✅            | ✅                       |
+| Barcode [Scanning](barcode-scanner)                                                                                      | ✅            | ✅                       |
+| System [Barcode Scanner UI](https://docs.expo.dev/versions/latest/sdk/camera/#launchscanneroptions)                      | ❌            | ✅                       |
+| Scan [Barcodes from Image URL](https://docs.expo.dev/versions/latest/sdk/camera/#camerascanfromurlasyncurl-barcodetypes) | ❌            | ✅                       |
+| Locking [AE/AF/AWB](locking-ae-af-awb)                                                                                   | ✅            | ❌                       |
+| Configurable [`focusTo(...)`](tap-to-focus#focus-metering-options)                                                       | ✅            | ❌                       |
+| Realtime [Frame Processing](frame-output)                                                                                | ✅            | ❌                       |
+| Drawing onto the Camera with [Skia](skia-frame-processors)                                                               | ✅            | ❌                       |
+| Realtime [Depth Frame Processing](depth-output)                                                                          | ✅            | ❌                       |
+| Depth in [Photos](a-photo)                                                                                               | ✅            | ❌                       |
+| Capturing [RAW Photos](raw-photos)                                                                                       | ✅            | ❌                       |
+| Photo [HDR](photo-hdr)                                                                                                   | ✅            | ❌                       |
+| Video [HDR/Dynamic Ranges](video-hdr)                                                                                    | ✅            | ❌                       |
+| Maximum Photo [Resolution](camera-outputs#resolutions)                                                                   | ✅            | ❌                       |
+| Android [Camera Extensions](camera-extensions)                                                                           | ✅            | ❌                       |
+| Video [Stabilization](video-stabilization)                                                                               | ✅            | ✅                       |
+| Preview [Stabilization](/api/react-native-vision-camera/interfaces/PreviewStabilizationModeConstraint)                   | ✅            | ❌                       |
+| Low Light [Boost](low-light-boost)                                                                                       | ✅            | ❌                       |
+| Exposure [Bias](exposure-bias)                                                                                           | ✅            | ❌                       |
+| Configurable [FPS](fps)                                                                                                  | ✅            | ❌                       |
+| Specific [Camera/Lens Selection](devices#selecting-a-custom-camera-device)                                               | ✅            | Front/back + iOS lenses |
+| External [Camera Devices](devices#external-devices)                                                                      | ✅            | ❌                       |
+| Multi-Camera [Support](multi-camera)                                                                                     | ✅            | ❌                       |
+| Persistent [Video Outputs](video-output#persistent-video-outputs)                                                        | ✅            | ❌                       |
+| Coordinate [Systems](coordinate-systems)                                                                                 | ✅            | ❌                       |
+| Location [Tags](location)                                                                                                | ✅            | ❌                       |
+| Photo Output [Callbacks](photo-output-callbacks)                                                                         | ✅            | ❌                       |
+| Preview Image [During Capture](photo-output-callbacks#preview-image)                                                     | ✅            | ❌                       |
+| Custom Photo [JPEG Quality](photo-quality#configure-jpeg-quality)                                                        | ✅            | ✅                       |
+| Photo [`qualityPrioritization`](photo-quality#adjust-quality-prioritization)                                             | ✅            | ❌                       |
+| Custom Video [`maxFileSize`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxfilesize)                    | ✅            | ✅                       |
+| Custom Video [`maxDuration`](/api/react-native-vision-camera/interfaces/RecorderSettings#maxduration)                    | ✅            | ✅                       |
+| Custom Video [Bitrate](/api/react-native-vision-camera/interfaces/VideoOutputOptions#targetbitrate)                      | ✅            | ✅                       |
+| Custom Video [`codec`](/api/react-native-vision-camera/interfaces/VideoOutputSettings#codec)                             | ✅            | ✅                       |
+| Native [Frame Processor Plugins](native-frame-processor-plugins)                                                         | ✅            | ❌                       |
+| Custom Native [`CameraOutput`s](custom-native-camera-outputs)                                                            | ✅            | ❌                       |
 
 ### Expo projects
 
