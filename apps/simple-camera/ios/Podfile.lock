@@ -2350,6 +2350,7 @@ PODS:
   - VisionCameraBarcodeScanner (5.0.11):
     - GoogleMLKit/BarcodeScanning (= 9.0.0)
     - hermes-engine
+    - NitroImage
     - NitroModules
     - RCTRequired
     - RCTTypeSafety
@@ -2846,7 +2847,7 @@ SPEC CHECKSUMS:
   RNVectorIcons: 97f26211c07d69e45b189f9dd0dbbe5e2d2b0b92
   RNWorklets: 04a35c45bd72d24914cbaf24bdfa4e30e1eab2df
   VisionCamera: 204d37d39a6a59b31bc48c777094be3096594810
-  VisionCameraBarcodeScanner: 5de8b7612ba93bf3a7fa2164938898d231c386fe
+  VisionCameraBarcodeScanner: 27f6ed59ad96425067a0ff582aacb0d89484115f
   VisionCameraLocation: a0289fd95ebd3317f60f52416319c5ac182bba21
   VisionCameraResizer: a35ea21e06bfb8f1e652dc5d1b7b20cb0fddc7a4
   VisionCameraWorklets: 38e14b319413d2caa6d9fa85062a003a821cf417

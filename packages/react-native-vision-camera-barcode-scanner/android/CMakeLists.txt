@@ -21,6 +21,7 @@ include_directories(
 
 find_library(LOG_LIB log)
 find_package(react-native-vision-camera REQUIRED)   # <-- for the HybridFrameSpec and HybridCameraOutputSpec
+find_package(react-native-nitro-image REQUIRED)     # <-- for the HybridImageSpec
 
 # Link all libraries together
 target_link_libraries(
@@ -28,4 +29,5 @@ target_link_libraries(
         ${LOG_LIB}
         android                                   # <-- Android core
         react-native-vision-camera::VisionCamera
+        react-native-nitro-image::NitroImage
 )

@@ -22,6 +22,8 @@ namespace margelo::nitro::camera::barcodescanner { class HybridBarcodeSpec; }
 namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera::barcodescanner { struct Point; }
 // Forward declaration of `TargetBarcodeFormat` to properly resolve imports.
@@ -38,6 +40,8 @@ namespace VisionCameraBarcodeScanner { class HybridBarcodeSpec_cxx; }
 namespace VisionCamera { class HybridCameraOutputSpec_cxx; }
 // Forward declaration of `HybridFrameSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridFrameSpec_cxx; }
+// Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
+namespace NitroImage { class HybridImageSpec_cxx; }
 
 // Include C++ defined types
 #include "BarcodeScannerOutputResolution.hpp"
@@ -46,6 +50,7 @@ namespace VisionCamera { class HybridFrameSpec_cxx; }
 #include "HybridBarcodeSpec.hpp"
 #include "Point.hpp"
 #include "TargetBarcodeFormat.hpp"
+#include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/ArrayBufferHolder.hpp>
 #include <NitroModules/Promise.hpp>
@@ -76,7 +81,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     vector.reserve(size);
     return vector;
   }
-  
+
   // pragma MARK: std::optional<std::string>
   /**
    * Specialized version of `std::optional<std::string>`.
@@ -91,7 +96,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline std::string get_std__optional_std__string_(const std::optional<std::string>& optional) noexcept {
     return optional.value();
   }
-  
+
   // pragma MARK: std::optional<std::shared_ptr<ArrayBuffer>>
   /**
    * Specialized version of `std::optional<std::shared_ptr<ArrayBuffer>>`.
@@ -106,7 +111,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline std::shared_ptr<ArrayBuffer> get_std__optional_std__shared_ptr_ArrayBuffer__(const std::optional<std::shared_ptr<ArrayBuffer>>& optional) noexcept {
     return optional.value();
   }
-  
+
   // pragma MARK: std::shared_ptr<HybridBarcodeSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridBarcodeSpec>`.
@@ -114,11 +119,11 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__shared_ptr_HybridBarcodeSpec_ = std::shared_ptr<HybridBarcodeSpec>;
   std::shared_ptr<HybridBarcodeSpec> create_std__shared_ptr_HybridBarcodeSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
   void* NON_NULL get_std__shared_ptr_HybridBarcodeSpec_(std__shared_ptr_HybridBarcodeSpec_ cppType);
-  
+
   // pragma MARK: std::weak_ptr<HybridBarcodeSpec>
   using std__weak_ptr_HybridBarcodeSpec_ = std::weak_ptr<HybridBarcodeSpec>;
   inline std__weak_ptr_HybridBarcodeSpec_ weakify_std__shared_ptr_HybridBarcodeSpec_(const std::shared_ptr<HybridBarcodeSpec>& strong) noexcept { return strong; }
-  
+
   // pragma MARK: std::vector<std::shared_ptr<HybridBarcodeSpec>>
   /**
    * Specialized version of `std::vector<std::shared_ptr<HybridBarcodeSpec>>`.
@@ -129,7 +134,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     vector.reserve(size);
     return vector;
   }
-  
+
   // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>
   /**
    * Specialized version of `std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>`.
@@ -137,11 +142,11 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>;
   std::shared_ptr<margelo::nitro::camera::HybridFrameSpec> create_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
   void* NON_NULL get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_ cppType);
-  
+
   // pragma MARK: std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>
   using std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ = std::weak_ptr<margelo::nitro::camera::HybridFrameSpec>;
   inline std__weak_ptr_margelo__nitro__camera__HybridFrameSpec_ weakify_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& strong) noexcept { return strong; }
-  
+
   // pragma MARK: std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>
   /**
    * Specialized version of `std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>`.
@@ -153,7 +158,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline PromiseHolder<std::vector<std::shared_ptr<HybridBarcodeSpec>>> wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____(std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> promise) noexcept {
     return PromiseHolder<std::vector<std::shared_ptr<HybridBarcodeSpec>>>(std::move(promise));
   }
-  
+
   // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridBarcodeSpec>>& /* result */)>
   /**
    * Specialized version of `std::function<void(const std::vector<std::shared_ptr<HybridBarcodeSpec>>&)>`.
@@ -175,7 +180,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec___Wrapper wrap_Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec__(Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec__ value) noexcept {
     return Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec___Wrapper(std::move(value));
   }
-  
+
   // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
   /**
    * Specialized version of `std::function<void(const std::exception_ptr&)>`.
@@ -197,7 +202,19 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline Func_void_std__exception_ptr_Wrapper wrap_Func_void_std__exception_ptr(Func_void_std__exception_ptr value) noexcept {
     return Func_void_std__exception_ptr_Wrapper(std::move(value));
   }
-  
+
+  // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
+  /**
+   * Specialized version of `std::shared_ptr<margelo::nitro::image::HybridImageSpec>`.
+   */
+  using std__shared_ptr_margelo__nitro__image__HybridImageSpec_ = std::shared_ptr<margelo::nitro::image::HybridImageSpec>;
+  std::shared_ptr<margelo::nitro::image::HybridImageSpec> create_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(std__shared_ptr_margelo__nitro__image__HybridImageSpec_ cppType);
+
+  // pragma MARK: std::weak_ptr<margelo::nitro::image::HybridImageSpec>
+  using std__weak_ptr_margelo__nitro__image__HybridImageSpec_ = std::weak_ptr<margelo::nitro::image::HybridImageSpec>;
+  inline std__weak_ptr_margelo__nitro__image__HybridImageSpec_ weakify_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& strong) noexcept { return strong; }
+
   // pragma MARK: std::shared_ptr<HybridBarcodeScannerSpec>
   /**
    * Specialized version of `std::shared_ptr<HybridBarcodeScannerSpec>`.
@@ -205,11 +222,11 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__shared_ptr_HybridBarcodeScannerSpec_ = std::shared_ptr<HybridBarcodeScannerSpec>;
   std::shared_ptr<HybridBarcodeScannerSpec> create_std__shared_ptr_HybridBarcodeScannerSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
   void* NON_NULL get_std__shared_ptr_HybridBarcodeScannerSpec_(std__shared_ptr_HybridBarcodeScannerSpec_ cppType);
-  
+
   // pragma MARK: std::weak_ptr<HybridBarcodeScannerSpec>
   using std__weak_ptr_HybridBarcodeScannerSpec_ = std::weak_ptr<HybridBarcodeScannerSpec>;
   inline std__weak_ptr_HybridBarcodeScannerSpec_ weakify_std__shared_ptr_HybridBarcodeScannerSpec_(const std::shared_ptr<HybridBarcodeScannerSpec>& strong) noexcept { return strong; }
-  
+
   // pragma MARK: Result<std::vector<std::shared_ptr<HybridBarcodeSpec>>>
   using Result_std__vector_std__shared_ptr_HybridBarcodeSpec___ = Result<std::vector<std::shared_ptr<HybridBarcodeSpec>>>;
   inline Result_std__vector_std__shared_ptr_HybridBarcodeSpec___ create_Result_std__vector_std__shared_ptr_HybridBarcodeSpec___(const std::vector<std::shared_ptr<HybridBarcodeSpec>>& value) noexcept {
@@ -218,7 +235,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline Result_std__vector_std__shared_ptr_HybridBarcodeSpec___ create_Result_std__vector_std__shared_ptr_HybridBarcodeSpec___(const std::exception_ptr& error) noexcept {
     return Result<std::vector<std::shared_ptr<HybridBarcodeSpec>>>::withError(error);
   }
-  
+
   // pragma MARK: Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>>
   using Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ = Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>>;
   inline Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____(const std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>& value) noexcept {
@@ -227,7 +244,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>>>::withError(error);
   }
-  
+
   // pragma MARK: std::vector<TargetBarcodeFormat>
   /**
    * Specialized version of `std::vector<TargetBarcodeFormat>`.
@@ -238,7 +255,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     vector.reserve(size);
     return vector;
   }
-  
+
   // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>
   /**
    * Specialized version of `std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>`.
@@ -246,11 +263,11 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_ = std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>;
   std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec> create_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_(void* NON_NULL swiftUnsafePointer) noexcept;
   void* NON_NULL get_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_(std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_ cppType);
-  
+
   // pragma MARK: std::weak_ptr<margelo::nitro::camera::HybridCameraOutputSpec>
   using std__weak_ptr_margelo__nitro__camera__HybridCameraOutputSpec_ = std::weak_ptr<margelo::nitro::camera::HybridCameraOutputSpec>;
   inline std__weak_ptr_margelo__nitro__camera__HybridCameraOutputSpec_ weakify_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_(const std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>& strong) noexcept { return strong; }
-  
+
   // pragma MARK: std::optional<BarcodeScannerOutputResolution>
   /**
    * Specialized version of `std::optional<BarcodeScannerOutputResolution>`.
@@ -265,7 +282,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline BarcodeScannerOutputResolution get_std__optional_BarcodeScannerOutputResolution_(const std::optional<BarcodeScannerOutputResolution>& optional) noexcept {
     return optional.value();
   }
-  
+
   // pragma MARK: std::shared_ptr<HybridBarcodeScannerFactorySpec>
   /**
    * Specialized version of `std::shared_ptr<HybridBarcodeScannerFactorySpec>`.
@@ -273,11 +290,11 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   using std__shared_ptr_HybridBarcodeScannerFactorySpec_ = std::shared_ptr<HybridBarcodeScannerFactorySpec>;
   std::shared_ptr<HybridBarcodeScannerFactorySpec> create_std__shared_ptr_HybridBarcodeScannerFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept;
   void* NON_NULL get_std__shared_ptr_HybridBarcodeScannerFactorySpec_(std__shared_ptr_HybridBarcodeScannerFactorySpec_ cppType);
-  
+
   // pragma MARK: std::weak_ptr<HybridBarcodeScannerFactorySpec>
   using std__weak_ptr_HybridBarcodeScannerFactorySpec_ = std::weak_ptr<HybridBarcodeScannerFactorySpec>;
   inline std__weak_ptr_HybridBarcodeScannerFactorySpec_ weakify_std__shared_ptr_HybridBarcodeScannerFactorySpec_(const std::shared_ptr<HybridBarcodeScannerFactorySpec>& strong) noexcept { return strong; }
-  
+
   // pragma MARK: Result<std::shared_ptr<HybridBarcodeScannerSpec>>
   using Result_std__shared_ptr_HybridBarcodeScannerSpec__ = Result<std::shared_ptr<HybridBarcodeScannerSpec>>;
   inline Result_std__shared_ptr_HybridBarcodeScannerSpec__ create_Result_std__shared_ptr_HybridBarcodeScannerSpec__(const std::shared_ptr<HybridBarcodeScannerSpec>& value) noexcept {
@@ -286,7 +303,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
   inline Result_std__shared_ptr_HybridBarcodeScannerSpec__ create_Result_std__shared_ptr_HybridBarcodeScannerSpec__(const std::exception_ptr& error) noexcept {
     return Result<std::shared_ptr<HybridBarcodeScannerSpec>>::withError(error);
   }
-  
+
   // pragma MARK: Result<std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>>
   using Result_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec__ = Result<std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>>;
   inline Result_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec__ create_Result_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec__(const std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>& value) noexcept {

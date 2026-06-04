@@ -7,6 +7,7 @@
 
 import VisionCamera
 import NitroModules
+import NitroImage
 
 /// See ``HybridBarcodeScannerSpec``
 public protocol HybridBarcodeScannerSpec_protocol: HybridObject {
@@ -16,6 +17,7 @@ public protocol HybridBarcodeScannerSpec_protocol: HybridObject {
   // Methods
   func scanCodes(frame: (any HybridFrameSpec)) throws -> [(any HybridBarcodeSpec)]
   func scanCodesAsync(frame: (any HybridFrameSpec)) throws -> Promise<[(any HybridBarcodeSpec)]>
+  func scanCodesInImageAsync(image: (any HybridImageSpec)) throws -> Promise<[(any HybridBarcodeSpec)]>
 }
 
 public extension HybridBarcodeScannerSpec_protocol {

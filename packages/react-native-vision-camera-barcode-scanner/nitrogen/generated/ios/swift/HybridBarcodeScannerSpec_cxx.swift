@@ -7,6 +7,7 @@
 
 import NitroModules
 import VisionCamera
+import NitroImage
 
 /**
  * A class implementation that bridges HybridBarcodeScannerSpec over to C++.
@@ -85,7 +86,7 @@ open class HybridBarcodeScannerSpec_cxx {
     }
   }
 
-  
+
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -122,7 +123,7 @@ open class HybridBarcodeScannerSpec_cxx {
   }
 
   // Properties
-  
+
 
   // Methods
   @inline(__always)
@@ -149,7 +150,7 @@ open class HybridBarcodeScannerSpec_cxx {
       return bridge.create_Result_std__vector_std__shared_ptr_HybridBarcodeSpec___(__exceptionPtr)
     }
   }
-  
+
   @inline(__always)
   public final func scanCodesAsync(frame: bridge.std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ {
     do {
@@ -157,6 +158,38 @@ open class HybridBarcodeScannerSpec_cxx {
         let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(frame)
         let __instance = HybridFrameSpec_cxx.fromUnsafe(__unsafePointer)
         return __instance.getHybridFrameSpec()
+      }())
+      let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____ in
+        let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____()
+        let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____(__promise)
+        __result
+          .then({ __result in __promiseHolder.resolve({ () -> bridge.std__vector_std__shared_ptr_HybridBarcodeSpec__ in
+              var __vector = bridge.create_std__vector_std__shared_ptr_HybridBarcodeSpec__(__result.count)
+              for __item in __result {
+                __vector.push_back({ () -> bridge.std__shared_ptr_HybridBarcodeSpec_ in
+                  let __cxxWrapped = __item.getCxxWrapper()
+                  return __cxxWrapped.getCxxPart()
+                }())
+              }
+              return __vector
+            }()) })
+          .catch({ __error in __promiseHolder.reject(__error.toCpp()) })
+        return __promise
+      }()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____(__resultCpp)
+    } catch (let __error) {
+      let __exceptionPtr = __error.toCpp()
+      return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____(__exceptionPtr)
+    }
+  }
+
+  @inline(__always)
+  public final func scanCodesInImageAsync(image: bridge.std__shared_ptr_margelo__nitro__image__HybridImageSpec_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ {
+    do {
+      let __result = try self.__implementation.scanCodesInImageAsync(image: { () -> any HybridImageSpec in
+        let __unsafePointer = bridge.get_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(image)
+        let __instance = HybridImageSpec_cxx.fromUnsafe(__unsafePointer)
+        return __instance.getHybridImageSpec()
       }())
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec____()

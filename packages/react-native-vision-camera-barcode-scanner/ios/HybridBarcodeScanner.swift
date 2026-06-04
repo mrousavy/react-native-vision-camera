@@ -7,6 +7,7 @@
 
 import MLKitBarcodeScanning
 import MLKitVision
+import NitroImage
 import NitroModules
 import VisionCamera
 
@@ -19,21 +20,33 @@ class HybridBarcodeScanner: HybridBarcodeScannerSpec {
   }
 
   func scanCodes(frame: any HybridFrameSpec) throws -> [any HybridBarcodeSpec] {
-    let image = try frame.toMLImage()
-    let barcodes = try scanner.results(in: image)
+    let mlImage = try frame.toMLImage()
+    let barcodes = try scanner.results(in: mlImage)
     return barcodes.map { HybridBarcode(barcode: $0) }
   }
 
   func scanCodesAsync(frame: any HybridFrameSpec) throws -> Promise<[any HybridBarcodeSpec]> {
+    let mlImage = try frame.toMLImage()
+    return process(mlImage)
+  }
+
+  func scanCodesInImageAsync(image: any HybridImageSpec) throws -> Promise<[any HybridBarcodeSpec]> {
+    let mlImage = try image.toMLImage()
+    return process(mlImage)
+  }
+
+  private func process(_ image: MLImage) -> Promise<[any HybridBarcodeSpec]> {
     let promise = Promise<[any HybridBarcodeSpec]>()
 
-    let image = try frame.toMLImage()
     scanner.process(image) { barcodes, error in
       if let error {
         promise.reject(withError: error)
+        return
       }
       if let barcodes {
         promise.resolve(withResult: barcodes.map { HybridBarcode(barcode: $0) })
+      } else {
+        promise.resolve(withResult: [])
       }
     }
 

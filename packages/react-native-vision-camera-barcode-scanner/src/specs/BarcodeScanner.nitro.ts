@@ -1,3 +1,4 @@
+import type { Image } from 'react-native-nitro-image'
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Frame, PreviewViewMethods } from 'react-native-vision-camera'
 import type { createBarcodeScanner } from '../factory'
@@ -8,7 +9,9 @@ import type { Barcode } from './Barcode.nitro'
  * Represents a Barcode Scanner that uses MLKit Barcodes.
  *
  * The {@linkcode BarcodeScanner} can be used in a
- * Frame Processor by calling {@linkcode BarcodeScanner.scanCodes | scanCodes(...)}.
+ * Frame Processor by calling {@linkcode BarcodeScanner.scanCodes | scanCodes(...)},
+ * or for static images by calling
+ * {@linkcode BarcodeScanner.scanCodesInImageAsync | scanCodesInImageAsync(...)}.
  *
  * @see {@linkcode useBarcodeScanner | useBarcodeScanner(...)}
  * @see {@linkcode createBarcodeScanner | createBarcodeScanner(...)}
@@ -52,4 +55,34 @@ export interface BarcodeScanner
    * @see {@linkcode scanCodes}
    */
   scanCodesAsync(frame: Frame): Promise<Barcode[]>
+
+  /**
+   * Asynchronously detects {@linkcode Barcode}s in the
+   * given {@linkcode Image}.
+   *
+   * This can be used to scan codes in an existing still image, such as
+   * an image loaded from disk, bundled resources or a URL via
+   * `react-native-nitro-image`.
+   *
+   * All coordinates in the returned {@linkcode Barcode}s are relative
+   * to the given {@linkcode Image}'s coordinate system.
+   *
+   * @example
+   * ```ts
+   * import { loadImage } from 'react-native-nitro-image'
+   * import { createBarcodeScanner } from 'react-native-vision-camera-barcode-scanner'
+   *
+   * const image = await loadImage({ url: 'https://example.com/barcode.png' })
+   * const scanner = createBarcodeScanner({ barcodeFormats: ['all-formats'] })
+   *
+   * try {
+   *   const barcodes = await scanner.scanCodesInImageAsync(image)
+   *   console.log('Barcode value:', barcodes[0]?.rawValue)
+   * } finally {
+   *   image.dispose()
+   *   scanner.dispose()
+   * }
+   * ```
+   */
+  scanCodesInImageAsync(image: Image): Promise<Barcode[]>
 }

@@ -16,12 +16,15 @@ namespace VisionCameraBarcodeScanner { class HybridBarcodeScannerSpec_cxx; }
 namespace margelo::nitro::camera::barcodescanner { class HybridBarcodeSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 
 #include <memory>
 #include "HybridBarcodeSpec.hpp"
 #include <vector>
 #include <VisionCamera/HybridFrameSpec.hpp>
 #include <NitroModules/Promise.hpp>
+#include <NitroImage/HybridImageSpec.hpp>
 
 #include "VisionCameraBarcodeScanner-Swift-Cxx-Umbrella.hpp"
 
@@ -83,6 +86,14 @@ namespace margelo::nitro::camera::barcodescanner {
     }
     inline std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> scanCodesAsync(const std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>& frame) override {
       auto __result = _swiftPart.scanCodesAsync(frame);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridBarcodeSpec>>>> scanCodesInImageAsync(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image) override {
+      auto __result = _swiftPart.scanCodesInImageAsync(image);
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

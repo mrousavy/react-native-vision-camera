@@ -1,3 +1,4 @@
+import type { Image } from 'react-native-nitro-image'
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { Frame } from 'react-native-vision-camera'
 import type { createBarcodeScannerOutput } from '../factory'
@@ -15,8 +16,8 @@ import type { Rect } from './Rect'
  * {@linkcode createBarcodeScannerOutput | CameraOutput}.
  *
  * See {@linkcode BarcodeScanner.scanCodes | BarcodeScanner.scanCodes(...)}
- * for information about converting Barcode coordinates to
- * view coordinates.
+ * and {@linkcode BarcodeScanner.scanCodesInImageAsync | BarcodeScanner.scanCodesInImageAsync(...)}
+ * for information about Barcode coordinate systems.
  *
  * @example
  * ```ts
@@ -36,13 +37,17 @@ export interface Barcode
   readonly format: BarcodeFormat
 
   /**
-   * Get the {@linkcode Barcode}'s bounding box, relative
-   * to the input {@linkcode Frame}'s coordinates.
+   * Get the {@linkcode Barcode}'s bounding box.
+   *
+   * The coordinates are relative to the input {@linkcode Frame}
+   * or {@linkcode Image}.
    */
   readonly boundingBox: Rect
   /**
-   * Get the {@linkcode Barcode}'s corner points, relative
-   * to the input {@linkcode Frame}'s coordinates.
+   * Get the {@linkcode Barcode}'s corner points.
+   *
+   * The coordinates are relative to the input {@linkcode Frame}
+   * or {@linkcode Image}.
    */
   readonly cornerPoints: Point[]
   /**

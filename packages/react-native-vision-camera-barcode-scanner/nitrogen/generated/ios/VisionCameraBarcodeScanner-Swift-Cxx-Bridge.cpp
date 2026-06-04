@@ -12,6 +12,7 @@
 #include "HybridBarcodeScannerSpecSwift.hpp"
 #include "HybridBarcodeSpecSwift.hpp"
 #include "VisionCameraBarcodeScanner-Swift-Cxx-Umbrella.hpp"
+#include <NitroImage/NitroImage-Swift-Cxx-Bridge.hpp>
 #include <NitroModules/NitroDefines.hpp>
 #include <VisionCamera/VisionCamera-Swift-Cxx-Bridge.hpp>
 
@@ -32,7 +33,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     VisionCameraBarcodeScanner::HybridBarcodeSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
-  
+
   // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridFrameSpec>
   std::shared_ptr<margelo::nitro::camera::HybridFrameSpec> create_std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     // Implemented in VisionCamera
@@ -42,7 +43,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     // Implemented in VisionCamera
     return margelo::nitro::camera::bridge::swift::get_std__shared_ptr_HybridFrameSpec_(cppType);
   }
-  
+
   // pragma MARK: std::function<void(const std::vector<std::shared_ptr<HybridBarcodeSpec>>& /* result */)>
   Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec__ create_Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec__(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = VisionCameraBarcodeScanner::Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec__::fromUnsafe(swiftClosureWrapper);
@@ -50,7 +51,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
       swiftClosure.call(result);
     };
   }
-  
+
   // pragma MARK: std::function<void(const std::exception_ptr& /* error */)>
   Func_void_std__exception_ptr create_Func_void_std__exception_ptr(void* NON_NULL swiftClosureWrapper) noexcept {
     auto swiftClosure = VisionCameraBarcodeScanner::Func_void_std__exception_ptr::fromUnsafe(swiftClosureWrapper);
@@ -58,7 +59,17 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
       swiftClosure.call(error);
     };
   }
-  
+
+  // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
+  std::shared_ptr<margelo::nitro::image::HybridImageSpec> create_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::create_std__shared_ptr_HybridImageSpec_(swiftUnsafePointer);
+  }
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(std__shared_ptr_margelo__nitro__image__HybridImageSpec_ cppType) {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::get_std__shared_ptr_HybridImageSpec_(cppType);
+  }
+
   // pragma MARK: std::shared_ptr<HybridBarcodeScannerSpec>
   std::shared_ptr<HybridBarcodeScannerSpec> create_std__shared_ptr_HybridBarcodeScannerSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     VisionCameraBarcodeScanner::HybridBarcodeScannerSpec_cxx swiftPart = VisionCameraBarcodeScanner::HybridBarcodeScannerSpec_cxx::fromUnsafe(swiftUnsafePointer);
@@ -74,7 +85,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     VisionCameraBarcodeScanner::HybridBarcodeScannerSpec_cxx& swiftPart = swiftWrapper->getSwiftPart();
     return swiftPart.toUnsafe();
   }
-  
+
   // pragma MARK: std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec>
   std::shared_ptr<margelo::nitro::camera::HybridCameraOutputSpec> create_std__shared_ptr_margelo__nitro__camera__HybridCameraOutputSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     // Implemented in VisionCamera
@@ -84,7 +95,7 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     // Implemented in VisionCamera
     return margelo::nitro::camera::bridge::swift::get_std__shared_ptr_HybridCameraOutputSpec_(cppType);
   }
-  
+
   // pragma MARK: std::shared_ptr<HybridBarcodeScannerFactorySpec>
   std::shared_ptr<HybridBarcodeScannerFactorySpec> create_std__shared_ptr_HybridBarcodeScannerFactorySpec_(void* NON_NULL swiftUnsafePointer) noexcept {
     VisionCameraBarcodeScanner::HybridBarcodeScannerFactorySpec_cxx swiftPart = VisionCameraBarcodeScanner::HybridBarcodeScannerFactorySpec_cxx::fromUnsafe(swiftUnsafePointer);
