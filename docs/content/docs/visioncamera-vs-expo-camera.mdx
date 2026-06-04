@@ -3,66 +3,47 @@ title: VisionCamera vs Expo Camera
 description: Choosing between VisionCamera and Expo Camera based on documented API surface, platform support, and native integration requirements
 ---
 
-This page compares VisionCamera and Expo Camera using documented API surface, platform support, and native integration requirements.
-It does not compare download counts, benchmarks, reliability, SEO, social media coverage, or community perception.
+This page compares VisionCamera and Expo Camera using current VisionCamera docs/code and the official [Expo Camera documentation](https://docs.expo.dev/versions/latest/sdk/camera/).
+It is intentionally scoped to documented capabilities, not popularity, reliability, or benchmark claims.
 
-VisionCamera statements are based on the current VisionCamera docs and package metadata in this repository.
-Expo Camera statements are based on the official [Expo Camera documentation](https://docs.expo.dev/versions/latest/sdk/camera/) and Expo's [Using libraries](https://docs.expo.dev/workflow/using-libraries/) guide.
+### TL;DR
 
-### Short answer
+Use Expo Camera for Expo Go, Web, and the simplest possible camera screen.
 
-Use [Expo Camera](https://docs.expo.dev/versions/latest/sdk/camera/) when your requirements fit Expo's documented `CameraView` API, you need Web support, or you need the camera to run inside Expo Go.
+Use VisionCamera for anything that needs deeper native camera control: pro capture controls, realtime frame access, ML, depth, HDR/RAW, multi-cam, custom outputs, or native plugins.
 
-Use VisionCamera when you need direct control over the native camera pipeline: multiple camera outputs, frame processing, depth frames, native frame processor plugins, custom native camera outputs, or constraint-based control over device capabilities.
+VisionCamera is easy to use through its declarative API, but it intentionally exposes much more of the native camera pipeline.
 
-Both can be used in Expo projects, but they have different integration tradeoffs. Expo Camera is an Expo SDK package and is documented as included in Expo Go. VisionCamera is a third-party native React Native package; in an Expo app, follow the VisionCamera Expo setup in ["Getting Started"](/docs) and plan on `expo prebuild`, `expo run:*`, or a development build.
+### Quick comparison
 
-### Comparison
-
-| Area | VisionCamera | Expo Camera |
+| Need | Pick | Why |
 | --- | --- | --- |
-| Package | [`react-native-vision-camera`](https://www.npmjs.com/package/react-native-vision-camera) | [`expo-camera`](https://www.npmjs.com/package/expo-camera) |
-| Install path | Install VisionCamera plus `react-native-nitro-modules` and `react-native-nitro-image`, then rebuild native code. See ["Getting Started"](/docs). | Install with `npx expo install expo-camera`. Expo's docs note that existing React Native apps must install Expo first. |
-| Expo Go | VisionCamera is a third-party native package. Expo's library guide says libraries with native project configuration should use a development build if they are not supported in Expo Go. | The Expo Camera docs mark `expo-camera` as included in Expo Go. |
-| Platforms documented | The current VisionCamera docs describe iOS and Android native implementations, using AVFoundation on iOS and CameraX on Android. | The Expo Camera docs mark Android device-only, iOS device-only, and Web support. |
-| Main view API | [`<Camera />`](/api/react-native-vision-camera/views/Camera) | `CameraView` |
-| Lower-level APIs | [`useCamera(...)`](/api/react-native-vision-camera/functions/useCamera) and imperative [`CameraSession`](/api/react-native-vision-camera/hybrid-objects/CameraSession) APIs are documented. | The fetched Expo Camera reference documents `CameraView`, props, hooks, and static methods. |
-| Photos | [`CameraPhotoOutput`](photo-output) can capture a `Photo` in memory or capture directly to a file. | Expo Camera documents taking photos from `CameraView`; its overview states photos are saved to the app's cache. |
-| Videos | [`CameraVideoOutput`](video-output) creates a `Recorder`; audio is optional and requires microphone permission. | Expo Camera documents recording videos from `CameraView`; its overview states videos are saved to the app's cache. |
-| Barcode scanning | The separate [`react-native-vision-camera-barcode-scanner`](barcode-scanner) package provides a `<CodeScanner />` view, a `CameraOutput`, and a Frame Processor plugin powered by MLKit. | Expo Camera documents barcode scanning through `CameraView` props such as `barcodeScannerSettings` and `onBarcodeScanned`, plus a config-plugin option for barcode scanning support. |
-| Realtime frame processing | [`CameraFrameOutput`](frame-output) streams `Frame`s to a JS worklet function and requires `react-native-vision-camera-worklets` for synchronous frame callbacks. | The fetched Expo Camera reference does not document a realtime frame-buffer output equivalent to `CameraFrameOutput`. |
-| Depth frames | [`CameraDepthFrameOutput`](depth-output) streams `Depth` frames to a JS worklet function. | The fetched Expo Camera reference does not document a depth-frame output equivalent to `CameraDepthFrameOutput`. |
-| Multiple outputs | VisionCamera's [`CameraOutput`](camera-outputs) model lets a camera session connect photo, video, frame, depth, preview, barcode, and custom outputs. | Expo Camera documents a `CameraView` component with configurable props and methods. |
-| Device capabilities | [`CameraDevice`](devices) exposes capabilities such as zoom ranges, available resolutions, supported FPS ranges, HDR support, stabilization support, and device metadata. The [Constraints API](constraints) lets you express prioritized capture intent. | Expo Camera documents camera controls such as zoom, torch, flash, picture size, ratio, video quality, video bitrate, video stabilization mode, and selected lens where supported. |
-| Native extension points | Third-party code can implement [custom native `CameraOutput`s](custom-native-camera-outputs) and [native frame processor plugins](native-frame-processor-plugins). | Expo's library guide documents development builds, native modules, config plugins, and native project configuration generally; the fetched Expo Camera reference does not document attaching custom native camera outputs to `CameraView`. |
+| Expo Go | Expo Camera | It is included in Expo Go. |
+| Web | Expo Camera | Expo Camera documents Web support. |
+| Simplest camera screen | Expo Camera | `CameraView` is the smallest API surface when preview/photo/video/barcodes are enough. |
+| Camera-first app | VisionCamera | More control, more outputs, and a deeper native API surface. |
+| Realtime ML or frame access | VisionCamera | [Frame Processors](frame-output) stream GPU-backed frames to JS worklets and native plugins. |
+| Pro capture features | VisionCamera | Manual controls, HDR/RAW, constraints, depth, multi-cam, and custom outputs. |
 
-### Choose Expo Camera when
+### Expo Camera gives you
 
-- Your app needs to run in Expo Go with camera support.
-- You need a camera component that is documented for Android, iOS, and Web.
-- Your requirements fit Expo Camera's documented `CameraView` APIs for preview, photos, videos, barcode scanning, zoom, flash, torch, picture size, and video recording configuration.
-- You prefer the Expo SDK install path and Expo Camera config plugin options.
+- Expo Go support.
+- Web support.
+- Extremely simple setup and API when `CameraView` covers your use case.
 
-### Choose VisionCamera when
+### VisionCamera gives you
 
-- You need realtime frame access for computer vision, ML, GPU processing, streaming, or native frame processor plugins.
-- You need depth frames.
-- You need to compose multiple outputs in one camera session.
-- You need custom native camera outputs implemented in Swift or Kotlin.
-- You need to inspect camera devices and express prioritized constraints for resolution, FPS, HDR, stabilization, and related capture capabilities.
-- You need the VisionCamera barcode scanner's documented options: a standalone `<CodeScanner />` view, a camera output, or a frame processor plugin.
+- Pro capture control: [manual AE/AF/AWB](locking-ae-af-awb), configurable `focusTo(...)`, [exposure bias](exposure-bias), [low light boost](low-light-boost), [custom FPS](fps), [stabilization](video-stabilization), [Photo HDR](photo-hdr), [Video HDR/Dynamic Ranges](video-hdr), [RAW/DNG photos](raw-photos), Android [Camera Extensions](camera-extensions), maximum-resolution photo paths, photo callbacks, output quality settings, codecs, and location tags.
+- Realtime pipelines: [Frame Processors](frame-output), pixel/color access, GPU resizing for ML, [Skia interop](skia-frame-processors), [Depth frames](depth-output), MLKit barcode scanning, iOS native [Object Output](object-output), and native Frame Processor plugins.
+- Native session control: multiple outputs, the [Constraints API](constraints), explicit lifecycle control, imperative `CameraSession`/`CameraController` APIs, specific/external camera selection, [multi-camera sessions](multi-camera), persistent recording while switching cameras, coordinate conversions, and custom native `CameraOutput`s.
 
-### Using VisionCamera in an Expo app
+### Expo projects
 
-VisionCamera can be installed in an Expo project, but it is not the same integration path as Expo Camera.
+Both can be used in Expo projects, but the integration path is different.
 
-In VisionCamera's ["Getting Started"](/docs) guide, the Expo path adds camera permissions to app config, runs `npx expo prebuild`, and then builds a native binary with `npx expo run:ios` or `npx expo run:android`.
-Expo's library guide explains that third-party libraries with native project configuration generally require a development build when they are not supported in Expo Go.
+Expo Camera is an Expo SDK package and is documented as included in Expo Go.
+VisionCamera is a third-party native React Native package; in an Expo app, follow ["Getting Started"](/docs) and use `expo prebuild`, `expo run:*`, or a development build.
 
-If your camera requirements fit Expo Camera and Expo Go support is important, Expo Camera is usually the smaller integration surface.
-If your requirements depend on VisionCamera's frame outputs, custom outputs, or device capability model, use VisionCamera and treat the native build step as part of the integration.
+### Note on speed
 
-### What this page does not claim
-
-This page does not claim that one library is faster, more stable, more popular, or better for every app.
-Those claims require current benchmarks, issue analysis, or adoption data, none of which are part of this comparison page.
+VisionCamera is designed for high-performance native camera pipelines, but this page does not include independent Expo-Camera-vs-VisionCamera benchmarks.
