@@ -5,6 +5,7 @@
   "pages": [
     "---Guides---",
     "index",
+    "visioncamera-vs-expo-camera",
     "---Concepts---",
     "devices",
     "camera-outputs",
