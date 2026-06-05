@@ -6,7 +6,7 @@ Branch: `codex/start-crash-3773`
 
 ## Current status
 
-This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally or in CI yet. The local multi-physical-camera iPhone 15 Pro became locked during the first attempt and a later local `run-ios` attempt failed in Xcode before launching the app. The available iPhone SE 3rd gen ran the earlier repro loop without crashing. CI has now run both the earlier broad 120-cycle repro and the corrected `photo -> video -> photo` native/Skia topology repro on real iOS Device Farm hardware without crashing.
+This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally or in CI yet. The local multi-physical-camera iPhone 15 Pro became locked during the first attempt and a later local `run-ios` attempt failed in Xcode before launching the app. The available iPhone SE 3rd gen ran the earlier repro loop without crashing. CI has now run the earlier broad 120-cycle repro, the corrected `photo -> video -> photo` native/Skia topology repro, and the active photo/video capture topology repro on real iOS Device Farm hardware without crashing.
 
 The strongest confirmed root-cause evidence is therefore the original issue stack plus the VisionCamera call ordering below. The original stack proves `AVCaptureSession.startRunning()` overlapped with AVFoundation's private configuration-commit notification path. A separate client report mentions the sibling private assertion `AVCaptureOutput detachFromFigCaptureSession` during rapid `photo -> video -> photo` changes, especially with a filter-preview path involved. That client report is not a stack trace, but it is directionally important because it points at the same output lifetime boundary from the detach side rather than the attach side. The exact assertion conditions inside `-[AVCaptureOutput attachToFigCaptureSession:]` and `detachFromFigCaptureSession` are private Apple code, so the remaining internal invariant is inferred from stacks/logs, not decompiled source.
 
@@ -76,12 +76,13 @@ This is intentionally event-driven. It does not use artificial sleeps or timeout
 
 ## Harness reproducer added
 
-`apps/simple-camera/__tests__/visioncamera.start-crash.harness.tsx` now contains three iOS-only stress tests:
+`apps/simple-camera/__tests__/visioncamera.start-crash.harness.tsx` now contains four iOS-only stress tests:
 
 ```text
 cycles photo -> video -> photo outputs through native preview start/stop
 cycles photo -> video -> photo outputs with Skia frame-preview attached
 captures photo -> records video -> captures photo with Skia frame-preview attached
+restarts with stable photo/video outputs while toggling audio, HDR, and zoom
 ```
 
 The first two tests render high-level camera components and run 60 cycles of:
@@ -100,6 +101,8 @@ photo mode -> capturePhoto -> inactive
 video mode -> create recorder -> startRecording -> stopRecording -> inactive
 onStopped -> switch photo-only/video-only output topology + active
 ```
+
+The fourth test is closer to the production code in #3773. It keeps both photo and video outputs attached as `[photoOutput, videoOutput]`, recreates the video output by toggling `enableAudio`, toggles `photoHDR` plus HDR video dynamic range when supported, applies zoom targets across the virtual-device zoom range from `onStarted`, and immediately restarts from `onStopped`.
 
 A crash on CI should appear as an iOS Harness process failure rather than a normal assertion failure.
 
@@ -137,7 +140,16 @@ CI observations from PR #4001 / Harness AWS Device run `27022466051` on commit `
 - iOS Harness summary was green: 13 test suites passed, 126 tests passed, 15 skipped, 0 failed.
 - The GitHub `Test iOS` job still reported failure because AWS Device Farm reported one failed item outside the Harness summary: `Total: 3, passed: 2, failed: 1`. The printed Harness output did not contain an AVFoundation crash, app crash, failed test, `attachToFigCaptureSession`, or `detachFromFigCaptureSession`.
 
-Negative evidence: the iPhone SE result and the first two iOS Device Farm results suggest output topology changes alone are not sufficient to deterministically reproduce the crash. Hardware/OS version, camera topology, active recording/capture state, recorder preparation, lens switching, mount/unmount timing, or the original iPhone 11 / iOS 18.7.7 matrix likely matters.
+CI observations from PR #4001 / Harness AWS Device run `27023974149` on commit `eab8faca6403e5d91ef84c98c627f97fef90ee75`:
+
+- Build iOS passed.
+- Test iOS executed on Apple iPhone 16 Pro.
+- The active capture stress test passed: 18 Skia cycles completed in 7.838s.
+- iOS Harness summary was green: 13 test suites passed, 127 tests passed, 15 skipped, 0 failed.
+- The GitHub `Test iOS` job still reported failure because AWS Device Farm reported one failed item outside the Harness summary: `Total: 3, passed: 2, failed: 1`.
+- The printed Harness output did not contain an AVFoundation crash, app crash, failed test, `attachToFigCaptureSession`, or `detachFromFigCaptureSession`.
+
+Negative evidence: the iPhone SE result and the first three iOS Device Farm results suggest simple output topology changes and immediate active capture/recording cycles are not sufficient to deterministically reproduce the crash. Hardware/OS version, camera topology, recording while mutating the same output, recorder preparation lifetime, lens switching, mount/unmount timing, stable photo+video outputs with output recreation, or the original iPhone 11 / iOS 18.7.7 matrix likely matters.
 
 ## Verification done
 
@@ -164,7 +176,7 @@ This is proven at the call-order/concurrency level by the crash stack and Vision
 
 ## Next repro iteration
 
-The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The most likely next conditions to test are:
+The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The current next Harness iteration tests the production shape where photo and video outputs stay attached together while `enableAudio`, HDR constraints, and zoom change across immediate restart cycles. If that also passes, the most likely remaining conditions to test are:
 
 - actively recording while replacing or recreating the video output,
 - preparing a new recorder while the session is being stopped/reconfigured,

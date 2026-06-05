@@ -9,9 +9,14 @@ import {
   it,
   render,
 } from 'react-native-harness'
-import type { CameraDevice, Constraint } from 'react-native-vision-camera'
+import type {
+  CameraDevice,
+  CameraRef,
+  Constraint,
+} from 'react-native-vision-camera'
 import {
   Camera,
+  CommonDynamicRanges,
   CommonResolutions,
   VisionCamera,
 } from 'react-native-vision-camera'
@@ -29,7 +34,9 @@ describe('VisionCamera - Start Crash Stress', () => {
 
   beforeAll(async () => {
     await VisionCamera.requestCameraPermission()
+    await VisionCamera.requestMicrophonePermission()
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
+    expect(VisionCamera.microphonePermissionStatus).toBe('authorized')
     const factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
     expect(back).toBeDefined()
@@ -304,6 +311,139 @@ describe('VisionCamera - Start Crash Stress', () => {
     expect(sessionError).toBe(undefined)
   }
 
+  async function runProductionShapeRestartStress(maxCycles: number) {
+    const finished = deferred<number>()
+    let sessionError: Error | undefined
+
+    function ProductionShapeCamera() {
+      const cameraRef = useRef<CameraRef>(null)
+      const [isActive, setIsActive] = useState(true)
+      const [cycle, setCycle] = useState(0)
+      const [isMuted, setIsMuted] = useState(false)
+      const [enablePhotoHDR, setEnablePhotoHDR] = useState(false)
+
+      const photoOutput = useMemo(
+        () =>
+          VisionCamera.createPhotoOutput({
+            targetResolution: CommonResolutions.HD_4_3,
+            containerFormat: 'jpeg',
+            quality: 0.8,
+            qualityPrioritization: 'balanced',
+          }),
+        [],
+      )
+      const videoOutput = useMemo(
+        () =>
+          VisionCamera.createVideoOutput({
+            targetResolution: CommonResolutions.FHD_16_9,
+            targetBitRate: 20_000_000,
+            enableAudio: !isMuted,
+          }),
+        [isMuted],
+      )
+      const outputs = useMemo(
+        () => [photoOutput, videoOutput],
+        [photoOutput, videoOutput],
+      )
+      const constraints = useMemo<Constraint[]>(() => {
+        const nextConstraints: Constraint[] = []
+        if (enablePhotoHDR && backDevice.supportsPhotoHDR) {
+          nextConstraints.push({ photoHDR: true })
+        }
+        if (backDevice.supportsFPS(60)) {
+          nextConstraints.push({ fps: 60 })
+        }
+        if (backDevice.supportsVideoStabilizationMode('cinematic-extended')) {
+          nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
+        }
+        if (
+          enablePhotoHDR &&
+          backDevice.supportedVideoDynamicRanges.some(
+            (dynamicRange) => dynamicRange.bitDepth === 'hdr-10-bit',
+          )
+        ) {
+          nextConstraints.push({
+            videoDynamicRange: CommonDynamicRanges.ANY_HDR,
+          })
+        }
+        return nextConstraints
+      }, [enablePhotoHDR])
+      const zoomTargets = useMemo(() => {
+        const neutralZoom =
+          backDevice.zoomLensSwitchFactors[0] ?? Math.max(backDevice.minZoom, 1)
+        const candidates = [
+          backDevice.minZoom,
+          neutralZoom,
+          neutralZoom * 2,
+          neutralZoom * 3,
+        ]
+        return candidates.filter(
+          (zoom, index) =>
+            zoom >= backDevice.minZoom &&
+            zoom <= backDevice.maxZoom &&
+            candidates.indexOf(zoom) === index,
+        )
+      }, [])
+      const onStarted = useCallback(() => {
+        const applyZoomAndStop = async () => {
+          try {
+            const targetZoom = zoomTargets[cycle % zoomTargets.length] ?? 1
+            await cameraRef.current?.controller?.setZoom(targetZoom)
+          } catch (error) {
+            console.log(`start crash stress zoom update failed: ${error}`)
+          } finally {
+            setIsActive(false)
+          }
+        }
+
+        void applyZoomAndStop()
+      }, [cycle, zoomTargets])
+      const onStopped = useCallback(() => {
+        const nextCycle = cycle + 1
+        if (nextCycle >= maxCycles) {
+          console.log(
+            `start crash production-shape stress completed ${nextCycle} Camera cycles on ${backDevice.localizedName}`,
+          )
+          finished.resolve(nextCycle)
+          return
+        }
+
+        setCycle(nextCycle)
+        setIsMuted((current) => !current)
+        setEnablePhotoHDR((current) => !current)
+        setIsActive(true)
+      }, [cycle])
+      const onError = useCallback((error: Error) => {
+        sessionError = error
+        finished.reject(error)
+      }, [])
+
+      return (
+        <Camera
+          ref={cameraRef}
+          device={backDevice}
+          isActive={isActive}
+          outputs={outputs}
+          constraints={constraints}
+          style={StyleSheet.absoluteFill}
+          onStarted={onStarted}
+          onStopped={onStopped}
+          onError={onError}
+        />
+      )
+    }
+
+    await render(<ProductionShapeCamera />)
+    const cycles = await withTimeout(
+      finished.promise,
+      90_000,
+      'Camera production-shape restart stress',
+    )
+
+    expect(cycles).toBe(maxCycles)
+    expect(sessionError).toBe(undefined)
+  }
+
   it('cycles photo -> video -> photo outputs through native preview start/stop', async (context) => {
     if (Platform.OS !== 'ios') {
       return context.skip(
@@ -332,5 +472,15 @@ describe('VisionCamera - Start Crash Stress', () => {
     }
 
     await runActiveCaptureTopologyStress(18)
+  })
+
+  it('restarts with stable photo/video outputs while toggling audio, HDR, and zoom', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip(
+        'AVFoundation attach/detach assertion stress: iOS only',
+      )
+    }
+
+    await runProductionShapeRestartStress(80)
   })
 })
