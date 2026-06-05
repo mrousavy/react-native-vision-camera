@@ -14,6 +14,7 @@ import {
 } from 'react-native-vision-camera'
 import { useLocation } from 'react-native-vision-camera-location'
 import { useResizer } from 'react-native-vision-camera-resizer'
+import { SkiaCamera } from 'react-native-vision-camera-skia'
 import { CameraSelectorButton } from '../components/CameraSelectorButton'
 import { CameraView } from '../components/CameraView'
 import { CaptureButton } from '../components/CaptureButton'
@@ -24,6 +25,10 @@ import { useSafeAreaPadding } from '../hooks/useSafeAreaPadding'
 import { logDevices } from '../logDevices'
 
 const START_CRASH_REPRO = true
+
+function getStartCrashMode(cycle: number): 'photo' | 'video' {
+  return cycle % 2 === 1 ? 'video' : 'photo'
+}
 
 export function CameraScreen() {
   const navigation = useNavigation()
@@ -85,9 +90,13 @@ export function CameraScreen() {
     targetBitRate: startCrashReproVariant % 2 === 0 ? 20_000_000 : 12_000_000,
     enableAudio: false,
   })
+  const startCrashReproMode = getStartCrashMode(startCrashReproCycle)
   const cameraOutputs = useMemo(
-    () => (START_CRASH_REPRO ? [photoOutput, videoOutput] : [photoOutput]),
-    [photoOutput, videoOutput],
+    () =>
+      START_CRASH_REPRO && startCrashReproMode === 'video'
+        ? [videoOutput]
+        : [photoOutput],
+    [photoOutput, startCrashReproMode, videoOutput],
   )
   const cameraConstraints = useMemo<Constraint[]>(() => {
     if (!START_CRASH_REPRO) return []
@@ -95,14 +104,21 @@ export function CameraScreen() {
     if (device?.supportsFPS(60)) {
       nextConstraints.push({ fps: 60 })
     }
-    if (device?.supportsVideoStabilizationMode('cinematic-extended')) {
+    if (
+      startCrashReproMode === 'video' &&
+      device?.supportsVideoStabilizationMode('cinematic-extended')
+    ) {
       nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
     }
-    if (startCrashReproHDR && device?.supportsPhotoHDR) {
+    if (
+      startCrashReproMode === 'photo' &&
+      startCrashReproHDR &&
+      device?.supportsPhotoHDR
+    ) {
       nextConstraints.unshift({ photoHDR: true })
     }
     return nextConstraints
-  }, [device, startCrashReproHDR])
+  }, [device, startCrashReproHDR, startCrashReproMode])
   const { resizer, error } = useResizer({
     width: 192,
     height: 192,
@@ -259,16 +275,17 @@ export function CameraScreen() {
   const onCameraStarted = useCallback(() => {
     if (!START_CRASH_REPRO) return
     console.log(
-      `[START_CRASH_REPRO] cycle ${startCrashReproCycle} started; stopping before next reconfigure/start`,
+      `[START_CRASH_REPRO] ${startCrashReproMode} cycle ${startCrashReproCycle} started; stopping before next reconfigure/start`,
     )
     setStartCrashReproActive(false)
-  }, [startCrashReproCycle])
+  }, [startCrashReproCycle, startCrashReproMode])
   const onCameraStopped = useCallback(() => {
     if (!START_CRASH_REPRO) return
     setStartCrashReproCycle((cycle) => {
       const nextCycle = cycle + 1
+      const nextMode = getStartCrashMode(nextCycle)
       console.log(
-        `[START_CRASH_REPRO] cycle ${cycle} stopped; swapping output/constraints and immediately restarting cycle ${nextCycle}`,
+        `[START_CRASH_REPRO] cycle ${cycle} stopped; switching to ${nextMode} outputs and immediately restarting cycle ${nextCycle}`,
       )
       return nextCycle
     })
@@ -288,24 +305,48 @@ export function CameraScreen() {
     <View style={[styles.container, safePadding]}>
       <StatusBar barStyle="light-content" />
 
-      <CameraView
-        isActive={
-          isAppActive &&
-          isScreenFocused &&
-          (!START_CRASH_REPRO || startCrashReproActive)
-        }
-        device={device}
-        outputs={cameraOutputs}
-        mirrorMode={device.position === 'front' ? 'on' : 'off'}
-        constraints={cameraConstraints}
-        onStarted={onCameraStarted}
-        onStopped={onCameraStopped}
-        onInterruptionStarted={(reason) =>
-          console.log(`Camera interrupted! Reason: ${reason}`)
-        }
-        onInterruptionEnded={() => console.log(`Camera interruption over.`)}
-        onError={(error) => console.error(`Camera error:`, error)}
-      />
+      {START_CRASH_REPRO ? (
+        <SkiaCamera
+          isActive={isAppActive && isScreenFocused && startCrashReproActive}
+          style={styles.camera}
+          device={device}
+          outputs={cameraOutputs}
+          mirrorMode={device.position === 'front' ? 'on' : 'off'}
+          constraints={cameraConstraints}
+          enablePreviewSizedOutputBuffers={true}
+          onFrame={(frame, render) => {
+            'worklet'
+            render(({ canvas, frameTexture }) => {
+              canvas.drawImage(frameTexture, 0, 0)
+            })
+            frame.dispose()
+          }}
+          onStarted={onCameraStarted}
+          onStopped={onCameraStopped}
+          onSessionConfigSelected={(config) => {
+            console.log(`Given Constraints:`, cameraConstraints)
+            console.log(`Resolved SessionConfig:`, config.toString())
+          }}
+          onInterruptionStarted={(reason) =>
+            console.log(`Camera interrupted! Reason: ${reason}`)
+          }
+          onInterruptionEnded={() => console.log(`Camera interruption over.`)}
+          onError={(error) => console.error(`Camera error:`, error)}
+        />
+      ) : (
+        <CameraView
+          isActive={isAppActive && isScreenFocused}
+          device={device}
+          outputs={cameraOutputs}
+          mirrorMode={device.position === 'front' ? 'on' : 'off'}
+          constraints={cameraConstraints}
+          onInterruptionStarted={(reason) =>
+            console.log(`Camera interrupted! Reason: ${reason}`)
+          }
+          onInterruptionEnded={() => console.log(`Camera interruption over.`)}
+          onError={(error) => console.error(`Camera error:`, error)}
+        />
+      )}
 
       <FullOverlay style={safePadding}>
         <Row>
@@ -337,6 +378,11 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  camera: {
+    flex: 1,
+    borderRadius: 25,
+    overflow: 'hidden',
   },
   textContainer: {
     flex: 1,

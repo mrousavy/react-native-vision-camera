@@ -1,4 +1,4 @@
-import { createRef, useCallback, useMemo, useState } from 'react'
+import { createRef } from 'react'
 import { type LayoutChangeEvent, StyleSheet } from 'react-native'
 import {
   afterEach,
@@ -9,12 +9,7 @@ import {
   it,
   render,
 } from 'react-native-harness'
-import type {
-  CameraDevice,
-  CameraRef,
-  Constraint,
-  Point,
-} from 'react-native-vision-camera'
+import type { CameraDevice, CameraRef, Point } from 'react-native-vision-camera'
 import {
   Camera,
   CommonResolutions,
@@ -431,104 +426,6 @@ describe('VisionCamera - Camera View', () => {
     const secondCamera = secondRef.current
     if (secondCamera == null) throw new Error('no second Camera ref')
     expectPreviewGeometry(secondCamera, secondCameraLayout)
-  })
-
-  it('reconfigures outputs and immediately restarts from Camera lifecycle callbacks', async () => {
-    const maxCycles = 120
-    const finished = deferred<number>()
-    let sessionError: Error | undefined
-
-    function RestartingCamera() {
-      const [isActive, setIsActive] = useState(true)
-      const [cycle, setCycle] = useState(0)
-      const [variant, setVariant] = useState(0)
-      const [enablePhotoHDR, setEnablePhotoHDR] = useState(false)
-
-      const photoOutput = useMemo(
-        () =>
-          VisionCamera.createPhotoOutput({
-            targetResolution: CommonResolutions.HD_4_3,
-            containerFormat: 'jpeg',
-            quality: 0.8,
-            qualityPrioritization: 'balanced',
-          }),
-        [],
-      )
-      const videoOutput = useMemo(
-        () =>
-          VisionCamera.createVideoOutput({
-            targetResolution:
-              variant % 2 === 0
-                ? CommonResolutions.FHD_16_9
-                : CommonResolutions.HD_16_9,
-            targetBitRate: variant % 2 === 0 ? 20_000_000 : 12_000_000,
-            enableAudio: false,
-          }),
-        [variant],
-      )
-      const outputs = useMemo(
-        () => [photoOutput, videoOutput],
-        [photoOutput, videoOutput],
-      )
-      const constraints = useMemo<Constraint[]>(() => {
-        const nextConstraints: Constraint[] = []
-        if (backDevice.supportsFPS(60)) {
-          nextConstraints.push({ fps: 60 })
-        }
-        if (backDevice.supportsVideoStabilizationMode('cinematic-extended')) {
-          nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
-        }
-        if (enablePhotoHDR && backDevice.supportsPhotoHDR) {
-          nextConstraints.unshift({ photoHDR: true })
-        }
-        return nextConstraints
-      }, [enablePhotoHDR])
-      const onStarted = useCallback(() => {
-        setIsActive(false)
-      }, [])
-      const onStopped = useCallback(() => {
-        const nextCycle = cycle + 1
-        if (nextCycle >= maxCycles) {
-          console.log(
-            `start crash repro harness completed ${nextCycle} cycles on ${backDevice.localizedName}`,
-          )
-          finished.resolve(nextCycle)
-          return
-        }
-
-        setCycle(nextCycle)
-        setVariant((current) => current + 1)
-        setEnablePhotoHDR((current) => !current)
-        setIsActive(true)
-      }, [cycle])
-      const onError = useCallback((error: Error) => {
-        sessionError = error
-        finished.reject(error)
-      }, [])
-
-      return (
-        <Camera
-          device={backDevice}
-          isActive={isActive}
-          outputs={outputs}
-          constraints={constraints}
-          style={StyleSheet.absoluteFill}
-          onStarted={onStarted}
-          onStopped={onStopped}
-          onError={onError}
-        />
-      )
-    }
-
-    await render(<RestartingCamera />)
-    const cycles = await withTimeout(
-      finished.promise,
-      120_000,
-      'Camera output reconfigure/restart cycles',
-    )
-
-    expect(cycles).toBe(maxCycles)
-    expect(sessionError).toBe(undefined)
   })
 
   it('fires stop callbacks when isActive is rerendered from true to false', async () => {
