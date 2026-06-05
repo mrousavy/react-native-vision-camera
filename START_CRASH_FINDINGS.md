@@ -6,7 +6,7 @@ Branch: `codex/start-crash-3773`
 
 ## Current status
 
-This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally or in CI yet. The local multi-physical-camera iPhone 15 Pro became locked during the first attempt and a later local `run-ios` attempt failed in Xcode before launching the app. The available iPhone SE 3rd gen ran the earlier repro loop without crashing. CI has now run the earlier broad 120-cycle repro, the corrected `photo -> video -> photo` native/Skia topology repro, and the active photo/video capture topology repro on real iOS Device Farm hardware without crashing.
+This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally or in CI yet. The local multi-physical-camera iPhone 15 Pro became locked during the first attempt and a later local `run-ios` attempt failed in Xcode before launching the app. The available iPhone SE 3rd gen ran the earlier repro loop without crashing. CI has now run the earlier broad 120-cycle repro, the corrected `photo -> video -> photo` native/Skia topology repro, the active photo/video capture topology repro, and a production-shape photo+video output restart repro on real iOS Device Farm hardware without crashing.
 
 The strongest confirmed root-cause evidence is therefore the original issue stack plus the VisionCamera call ordering below. The original stack proves `AVCaptureSession.startRunning()` overlapped with AVFoundation's private configuration-commit notification path. A separate client report mentions the sibling private assertion `AVCaptureOutput detachFromFigCaptureSession` during rapid `photo -> video -> photo` changes, especially with a filter-preview path involved. That client report is not a stack trace, but it is directionally important because it points at the same output lifetime boundary from the detach side rather than the attach side. The exact assertion conditions inside `-[AVCaptureOutput attachToFigCaptureSession:]` and `detachFromFigCaptureSession` are private Apple code, so the remaining internal invariant is inferred from stacks/logs, not decompiled source.
 
@@ -149,7 +149,22 @@ CI observations from PR #4001 / Harness AWS Device run `27023974149` on commit `
 - The GitHub `Test iOS` job still reported failure because AWS Device Farm reported one failed item outside the Harness summary: `Total: 3, passed: 2, failed: 1`.
 - The printed Harness output did not contain an AVFoundation crash, app crash, failed test, `attachToFigCaptureSession`, or `detachFromFigCaptureSession`.
 
-Negative evidence: the iPhone SE result and the first three iOS Device Farm results suggest simple output topology changes and immediate active capture/recording cycles are not sufficient to deterministically reproduce the crash. Hardware/OS version, camera topology, recording while mutating the same output, recorder preparation lifetime, lens switching, mount/unmount timing, stable photo+video outputs with output recreation, or the original iPhone 11 / iOS 18.7.7 matrix likely matters.
+CI observations from PR #4001 / Harness AWS Device run `27025713494` on commit `41d3378c3b4ca3684cdd80b889b2974a9148d5c8`:
+
+- Build iOS passed.
+- Test iOS executed on Apple iPhone 16 Pro.
+- The complete start-crash stress file passed:
+  - 60 native preview topology cycles completed in 13.139s.
+  - 60 Skia topology cycles completed in 13.519s.
+  - 18 active capture/record cycles completed in 7.734s.
+  - 80 production-shape restart cycles completed in 20.028s.
+- The production-shape test kept `[photoOutput, videoOutput]` attached, toggled `enableAudio`, toggled HDR video dynamic range when supported, applied zoom from `onStarted`, and immediately restarted from `onStopped`.
+- The iPhone 16 Pro back devices in this run reported `supportsPhotoHDR: false` and `hdrRanges: 6`, so this run exercised video HDR dynamic range toggling but not actual photo HDR enablement.
+- iOS Harness summary was green: 13 test suites passed, 128 tests passed, 15 skipped, 0 failed.
+- The GitHub `Test iOS` job still reported failure because AWS Device Farm reported one failed item outside the Harness summary: `Total: 3, passed: 2, failed: 1`.
+- The printed Harness output did not contain an AVFoundation crash, app crash, failed test, `AVCaptureOutput`, `attachToFigCaptureSession`, or `detachFromFigCaptureSession`.
+
+Negative evidence: the iPhone SE result and the first four iOS Device Farm results suggest simple output topology changes, immediate active capture/recording cycles, and production-shape photo+video output recreation across restarts are not sufficient to deterministically reproduce the crash on the tested hardware/OS. Hardware/OS version, camera topology, recording while mutating the same output, recorder preparation/finalization lifetime, actual photo HDR enablement, lens switching during recording/capture, mount/unmount timing, or the original iPhone 11 / iOS 18.7.7 matrix likely matters.
 
 ## Verification done
 
@@ -176,11 +191,12 @@ This is proven at the call-order/concurrency level by the crash stack and Vision
 
 ## Next repro iteration
 
-The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The current next Harness iteration tests the production shape where photo and video outputs stay attached together while `enableAudio`, HDR constraints, and zoom change across immediate restart cycles. If that also passes, the most likely remaining conditions to test are:
+The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The production-shape Harness iteration also passed on CI. The most likely remaining conditions to test are:
 
 - actively recording while replacing or recreating the video output,
-- preparing a new recorder while the session is being stopped/reconfigured,
-- changing zoom across a virtual-device lens switch before the stop/restart cycle,
+- preparing/finalizing a recorder while the session is being stopped/reconfigured,
+- changing zoom across a virtual-device lens switch during active capture or recording,
+- actual photo HDR enablement on a device where `supportsPhotoHDR` is true,
 - switching between virtual multi-camera device IDs instead of only using the default back camera,
 - unmounting/remounting `<Camera>` instead of only toggling `isActive`,
 - testing on the original crash matrix, especially iPhone 11 on iOS 18.7.7.
