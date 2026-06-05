@@ -9,6 +9,17 @@ describe('VisionCamera - Controller Exposure', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
 
+  const createContinuousOutput = () =>
+    VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+
   beforeAll(async () => {
     await VisionCamera.requestCameraPermission()
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
@@ -30,10 +41,14 @@ describe('VisionCamera - Controller Exposure', () => {
       quality: 0.8,
       qualityPrioritization: 'balanced',
     })
+    const frameOutput = createContinuousOutput()
     const [controller] = await session.configure([
       {
         input: backDevice,
-        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        outputs: [
+          { output: photoOutput, mirrorMode: 'auto' },
+          { output: frameOutput, mirrorMode: 'auto' },
+        ],
         constraints: [],
       },
     ])
@@ -69,10 +84,14 @@ describe('VisionCamera - Controller Exposure', () => {
       quality: 0.8,
       qualityPrioritization: 'balanced',
     })
+    const frameOutput = createContinuousOutput()
     const [controller] = await session.configure([
       {
         input: backDevice,
-        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        outputs: [
+          { output: photoOutput, mirrorMode: 'auto' },
+          { output: frameOutput, mirrorMode: 'auto' },
+        ],
         constraints: [],
       },
     ])

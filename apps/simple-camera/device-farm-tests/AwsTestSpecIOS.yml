@@ -75,6 +75,7 @@ phases:
             --harnessRunner ios \
             --reporters=default \
             --reporters=jest-junit \
+            --forceExit \
             --verbose 2>&1 | tee "$HARNESS_LOG"
 
 artifacts:
