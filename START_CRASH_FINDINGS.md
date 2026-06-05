@@ -76,13 +76,14 @@ This is intentionally event-driven. It does not use artificial sleeps or timeout
 
 ## Harness reproducer added
 
-`apps/simple-camera/__tests__/visioncamera.start-crash.harness.tsx` now contains four iOS-only stress tests:
+`apps/simple-camera/__tests__/visioncamera.start-crash.harness.tsx` now contains five iOS-only stress tests:
 
 ```text
 cycles photo -> video -> photo outputs through native preview start/stop
 cycles photo -> video -> photo outputs with Skia frame-preview attached
 captures photo -> records video -> captures photo with Skia frame-preview attached
 restarts with stable photo/video outputs while toggling audio, HDR, and zoom
+recreates video output while recording with Skia frame-preview attached
 ```
 
 The first two tests render high-level camera components and run 60 cycles of:
@@ -103,6 +104,8 @@ onStopped -> switch photo-only/video-only output topology + active
 ```
 
 The fourth test is closer to the production code in #3773. It keeps both photo and video outputs attached as `[photoOutput, videoOutput]`, recreates the video output by toggling `enableAudio`, toggles `photoHDR` plus HDR video dynamic range when supported, applies zoom targets across the virtual-device zoom range from `onStarted`, and immediately restarts from `onStopped`.
+
+The fifth test targets the active recording teardown boundary more directly. It keeps the Skia/filter-preview path attached, starts a real recorder, recreates the video output by toggling `enableAudio` while that recorder is still active, waits for `onSessionConfigSelected` from the reconfiguration, then stops the old recorder and restarts the camera from `onStopped`.
 
 A crash on CI should appear as an iOS Harness process failure rather than a normal assertion failure.
 
@@ -191,9 +194,8 @@ This is proven at the call-order/concurrency level by the crash stack and Vision
 
 ## Next repro iteration
 
-The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The production-shape Harness iteration also passed on CI. The most likely remaining conditions to test are:
+The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The production-shape Harness iteration also passed on CI. The current next Harness iteration mutates/recreates the video output while a recorder is active and the Skia/frame-preview path is attached. If that also passes, the most likely remaining conditions to test are:
 
-- actively recording while replacing or recreating the video output,
 - preparing/finalizing a recorder while the session is being stopped/reconfigured,
 - changing zoom across a virtual-device lens switch during active capture or recording,
 - actual photo HDR enablement on a device where `supportsPhotoHDR` is true,

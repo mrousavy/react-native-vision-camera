@@ -13,6 +13,7 @@ import type {
   CameraDevice,
   CameraRef,
   Constraint,
+  Recorder,
 } from 'react-native-vision-camera'
 import {
   Camera,
@@ -444,6 +445,160 @@ describe('VisionCamera - Start Crash Stress', () => {
     expect(sessionError).toBe(undefined)
   }
 
+  async function runRecordingOutputMutationStress(maxCycles: number) {
+    const finished = deferred<number>()
+    let sessionError: Error | undefined
+
+    function RecordingMutationCamera() {
+      const [isActive, setIsActive] = useState(true)
+      const [cycle, setCycle] = useState(0)
+      const [isMuted, setIsMuted] = useState(false)
+      const [enableVideoHDR, setEnableVideoHDR] = useState(false)
+      const recorderRef = useRef<Recorder | null>(null)
+      const recordingInFlight = useRef(false)
+      const shouldStopAfterReconfigure = useRef(false)
+
+      const photoOutput = useMemo(
+        () =>
+          VisionCamera.createPhotoOutput({
+            targetResolution: CommonResolutions.HD_4_3,
+            containerFormat: 'jpeg',
+            quality: 0.8,
+            qualityPrioritization: 'balanced',
+          }),
+        [],
+      )
+      const videoOutput = useMemo(
+        () =>
+          VisionCamera.createVideoOutput({
+            targetResolution: CommonResolutions.FHD_16_9,
+            targetBitRate: 20_000_000,
+            enableAudio: !isMuted,
+          }),
+        [isMuted],
+      )
+      const outputs = useMemo(
+        () => [photoOutput, videoOutput],
+        [photoOutput, videoOutput],
+      )
+      const constraints = useMemo<Constraint[]>(() => {
+        const nextConstraints: Constraint[] = []
+        if (backDevice.supportsFPS(60)) {
+          nextConstraints.push({ fps: 60 })
+        }
+        if (backDevice.supportsVideoStabilizationMode('cinematic-extended')) {
+          nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
+        }
+        if (
+          enableVideoHDR &&
+          backDevice.supportedVideoDynamicRanges.some(
+            (dynamicRange) => dynamicRange.bitDepth === 'hdr-10-bit',
+          )
+        ) {
+          nextConstraints.push({
+            videoDynamicRange: CommonDynamicRanges.ANY_HDR,
+          })
+        }
+        return nextConstraints
+      }, [enableVideoHDR])
+      const rejectWithError = useCallback((error: Error) => {
+        sessionError = error
+        finished.reject(error)
+      }, [])
+      const stopRecorderAndDeactivate = useCallback(async () => {
+        const recorder = recorderRef.current
+        if (recorder == null) return
+
+        try {
+          await recorder.stopRecording()
+        } catch (error) {
+          rejectWithError(error as Error)
+        } finally {
+          recorderRef.current = null
+          recordingInFlight.current = false
+          shouldStopAfterReconfigure.current = false
+          setIsActive(false)
+        }
+      }, [rejectWithError])
+      const onSessionConfigSelected = useCallback(() => {
+        if (!shouldStopAfterReconfigure.current) return
+
+        shouldStopAfterReconfigure.current = false
+        void stopRecorderAndDeactivate()
+      }, [stopRecorderAndDeactivate])
+      const onStarted = useCallback(() => {
+        if (recordingInFlight.current) return
+        recordingInFlight.current = true
+
+        const mutateOutputWhileRecording = async () => {
+          try {
+            const recorder = await videoOutput.createRecorder({})
+            recorderRef.current = recorder
+            await recorder.startRecording(
+              () => {},
+              (error) => {
+                rejectWithError(error)
+              },
+            )
+            shouldStopAfterReconfigure.current = true
+            setIsMuted((current) => !current)
+            setEnableVideoHDR((current) => !current)
+          } catch (error) {
+            recordingInFlight.current = false
+            rejectWithError(error as Error)
+          }
+        }
+
+        void mutateOutputWhileRecording()
+      }, [rejectWithError, videoOutput])
+      const onStopped = useCallback(() => {
+        const nextCycle = cycle + 1
+        if (nextCycle >= maxCycles) {
+          console.log(
+            `start crash recording mutation stress completed ${nextCycle} Skia cycles on ${backDevice.localizedName}`,
+          )
+          finished.resolve(nextCycle)
+          return
+        }
+
+        setCycle(nextCycle)
+        setIsActive(true)
+      }, [cycle])
+
+      return (
+        <SkiaCamera
+          device={backDevice}
+          isActive={isActive}
+          outputs={outputs}
+          constraints={constraints}
+          style={StyleSheet.absoluteFill}
+          enablePreviewSizedOutputBuffers={true}
+          onFrame={(frame, render) => {
+            'worklet'
+            render(({ canvas, frameTexture }) => {
+              canvas.drawImage(frameTexture, 0, 0)
+            })
+            frame.dispose()
+          }}
+          onStarted={onStarted}
+          onStopped={onStopped}
+          onSessionConfigSelected={onSessionConfigSelected}
+          onError={rejectWithError}
+        />
+      )
+    }
+
+    await render(<RecordingMutationCamera />)
+    const cycles = await withTimeout(
+      finished.promise,
+      90_000,
+      'Skia recording output mutation stress',
+    )
+
+    expect(cycles).toBe(maxCycles)
+    expect(sessionError).toBe(undefined)
+  }
+
   it('cycles photo -> video -> photo outputs through native preview start/stop', async (context) => {
     if (Platform.OS !== 'ios') {
       return context.skip(
@@ -482,5 +637,15 @@ describe('VisionCamera - Start Crash Stress', () => {
     }
 
     await runProductionShapeRestartStress(80)
+  })
+
+  it('recreates video output while recording with Skia frame-preview attached', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip(
+        'AVFoundation attach/detach assertion stress: iOS only',
+      )
+    }
+
+    await runRecordingOutputMutationStress(12)
   })
 })
