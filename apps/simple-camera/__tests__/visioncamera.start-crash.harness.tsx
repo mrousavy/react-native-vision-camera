@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import {
   afterEach,
@@ -40,6 +40,7 @@ function isExpectedForcedRecordingStop(error: Error): boolean {
 
 describe('VisionCamera - Start Crash Stress', () => {
   let backDevice: CameraDevice
+  let frontDevice: CameraDevice | undefined
 
   beforeAll(async () => {
     await VisionCamera.requestCameraPermission()
@@ -51,6 +52,7 @@ describe('VisionCamera - Start Crash Stress', () => {
     expect(back).toBeDefined()
     if (back == null) throw new Error('no back camera')
     backDevice = back
+    frontDevice = factory.getDefaultCamera('front')
   })
 
   afterEach(() => {
@@ -453,6 +455,228 @@ describe('VisionCamera - Start Crash Stress', () => {
     expect(sessionError).toBe(undefined)
   }
 
+  async function runReporterStyleActiveInteractionStress(maxCycles: number) {
+    const finished = deferred<number>()
+    let sessionError: Error | undefined
+
+    function ActiveInteractionCamera() {
+      const cameraRef = useRef<CameraRef>(null)
+      const [, setCycle] = useState(0)
+      const [configuredTick, setConfiguredTick] = useState(0)
+      const [isMuted, setIsMuted] = useState(false)
+      const [enablePhotoHDR, setEnablePhotoHDR] = useState(false)
+      const [useFrontDevice, setUseFrontDevice] = useState(false)
+      const hasStarted = useRef(false)
+      const isRunningCycle = useRef(false)
+      const continueAfterConfigured = useRef(false)
+      const cycleRef = useRef(0)
+      const currentDevice =
+        useFrontDevice && frontDevice != null ? frontDevice : backDevice
+
+      const photoOutput = useMemo(
+        () =>
+          VisionCamera.createPhotoOutput({
+            targetResolution: CommonResolutions.HD_4_3,
+            containerFormat: 'jpeg',
+            quality: 0.8,
+            qualityPrioritization: 'balanced',
+          }),
+        [],
+      )
+      const videoOutput = useMemo(
+        () =>
+          VisionCamera.createVideoOutput({
+            targetResolution: CommonResolutions.FHD_16_9,
+            targetBitRate: 20_000_000,
+            enableAudio: !isMuted,
+          }),
+        [isMuted],
+      )
+      const outputs = useMemo(
+        () => [photoOutput, videoOutput],
+        [photoOutput, videoOutput],
+      )
+      const constraints = useMemo<Constraint[]>(() => {
+        const nextConstraints: Constraint[] = []
+        if (enablePhotoHDR && currentDevice.supportsPhotoHDR) {
+          nextConstraints.push({ photoHDR: true })
+        }
+        if (currentDevice.supportsFPS(60)) {
+          nextConstraints.push({ fps: 60 })
+        }
+        if (
+          currentDevice.supportsVideoStabilizationMode('cinematic-extended')
+        ) {
+          nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
+        }
+        if (
+          enablePhotoHDR &&
+          currentDevice.supportedVideoDynamicRanges.some(
+            (dynamicRange) => dynamicRange.bitDepth === 'hdr-10-bit',
+          )
+        ) {
+          nextConstraints.push({
+            videoDynamicRange: CommonDynamicRanges.ANY_HDR,
+          })
+        }
+        return nextConstraints
+      }, [currentDevice, enablePhotoHDR])
+      const zoomTargets = useMemo(() => {
+        const neutralZoom =
+          currentDevice.zoomLensSwitchFactors[0] ??
+          Math.max(currentDevice.minZoom, 1)
+        const candidates = [
+          currentDevice.minZoom,
+          neutralZoom,
+          neutralZoom * 2,
+          neutralZoom * 3,
+        ]
+        return candidates.filter(
+          (zoom, index) =>
+            zoom >= currentDevice.minZoom &&
+            zoom <= currentDevice.maxZoom &&
+            candidates.indexOf(zoom) === index,
+        )
+      }, [currentDevice])
+      const rejectWithError = useCallback((error: Error) => {
+        sessionError = error
+        finished.reject(error)
+      }, [])
+      const logExpectedControlError = useCallback(
+        (label: string, error: Error) => {
+          console.log(
+            `start crash active interaction ${label} failed: ${error}`,
+          )
+        },
+        [],
+      )
+      const runNextCycle = useCallback(() => {
+        if (isRunningCycle.current) return
+        isRunningCycle.current = true
+
+        try {
+          const nextCycle = cycleRef.current
+          if (nextCycle >= maxCycles) {
+            void cameraRef.current?.controller
+              ?.setTorchMode('off')
+              .catch(() => {})
+            console.log(
+              `start crash active interaction stress completed ${nextCycle} Camera cycles on ${backDevice.localizedName}`,
+            )
+            finished.resolve(nextCycle)
+            return
+          }
+
+          const controller = cameraRef.current?.controller
+          if (controller != null) {
+            const targetZoom = zoomTargets[nextCycle % zoomTargets.length] ?? 1
+            void controller
+              .setZoom(targetZoom)
+              .catch((error) => logExpectedControlError('zoom update', error))
+
+            if (currentDevice.supportsExposureBias) {
+              const exposureTargets = [
+                currentDevice.minExposureBias,
+                currentDevice.maxExposureBias,
+                0,
+              ]
+              const targetExposure =
+                exposureTargets[nextCycle % exposureTargets.length] ?? 0
+              void controller
+                .setExposureBias(targetExposure)
+                .catch((error) =>
+                  logExpectedControlError('exposure update', error),
+                )
+            }
+
+            if (currentDevice.hasTorch) {
+              void controller
+                .setTorchMode(nextCycle % 2 === 0 ? 'on' : 'off')
+                .catch((error) =>
+                  logExpectedControlError('torch update', error),
+                )
+            }
+
+            if (currentDevice.supportsFocusMetering) {
+              const focusPoints = [
+                { x: 120, y: 160 },
+                { x: 240, y: 240 },
+                { x: 160, y: 360 },
+              ]
+              const focusPoint =
+                focusPoints[nextCycle % focusPoints.length] ?? focusPoints[0]
+              if (focusPoint != null) {
+                void cameraRef.current
+                  ?.focusTo(focusPoint, {
+                    adaptiveness: 'continuous',
+                    autoResetAfter: null,
+                    responsiveness: 'snappy',
+                  })
+                  .catch((error) =>
+                    logExpectedControlError('focus update', error),
+                  )
+              }
+            }
+          }
+
+          cycleRef.current = nextCycle + 1
+          continueAfterConfigured.current = true
+          setCycle(cycleRef.current)
+          setIsMuted((current) => !current)
+          setEnablePhotoHDR((current) => !current)
+          if (frontDevice != null && nextCycle % 8 === 7) {
+            setUseFrontDevice((current) => !current)
+          }
+        } catch (error) {
+          rejectWithError(error as Error)
+        } finally {
+          isRunningCycle.current = false
+        }
+      }, [currentDevice, logExpectedControlError, rejectWithError, zoomTargets])
+      const onStarted = useCallback(() => {
+        if (hasStarted.current) return
+        hasStarted.current = true
+        runNextCycle()
+      }, [runNextCycle])
+      const onConfigured = useCallback(() => {
+        if (!hasStarted.current || !continueAfterConfigured.current) return
+
+        continueAfterConfigured.current = false
+        setConfiguredTick((current) => current + 1)
+      }, [])
+
+      useEffect(() => {
+        if (configuredTick === 0) return
+        runNextCycle()
+      }, [configuredTick, runNextCycle])
+
+      return (
+        <Camera
+          ref={cameraRef}
+          device={currentDevice}
+          isActive={true}
+          outputs={outputs}
+          constraints={constraints}
+          style={StyleSheet.absoluteFill}
+          mirrorMode={useFrontDevice ? 'on' : 'off'}
+          onStarted={onStarted}
+          onConfigured={onConfigured}
+          onError={rejectWithError}
+        />
+      )
+    }
+
+    await render(<ActiveInteractionCamera />)
+    const cycles = await withTimeout(
+      finished.promise,
+      90_000,
+      'Camera reporter-style active interaction stress',
+    )
+
+    expect(cycles).toBe(maxCycles)
+    expect(sessionError).toBe(undefined)
+  }
+
   async function runRecordingOutputMutationStress(maxCycles: number) {
     const finished = deferred<{
       cycles: number
@@ -678,5 +902,15 @@ describe('VisionCamera - Start Crash Stress', () => {
     }
 
     await runRecordingOutputMutationStress(12)
+  })
+
+  it('mutates reporter-style active controls while reconfiguring outputs', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip(
+        'AVFoundation attach/detach assertion stress: iOS only',
+      )
+    }
+
+    await runReporterStyleActiveInteractionStress(80)
   })
 })
