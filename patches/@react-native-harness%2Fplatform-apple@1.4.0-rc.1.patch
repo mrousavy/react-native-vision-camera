@@ -1,0 +1,174 @@
+diff --git a/dist/xctest-agent-client.d.ts b/dist/xctest-agent-client.d.ts
+index 6f896672f61f8cdd00249b00a0a6501b4a0a0288..0ef8d608c7ec91fc01b62483f8f77240e07b48ae 100644
+--- a/dist/xctest-agent-client.d.ts
++++ b/dist/xctest-agent-client.d.ts
+@@ -11,6 +11,7 @@ export type XCTestAgentClient = {
+     dispose: () => Promise<void>;
+     getPermissionsConfig: () => Promise<XCTestAgentPermissionsConfiguration>;
+     health: () => Promise<XCTestAgentHealthResponse>;
++    shutdown: () => Promise<void>;
+ };
+ export declare const createXCTestAgentClient: (transport: XCTestAgentTransport) => XCTestAgentClient;
+ export {};
+diff --git a/dist/xctest-agent-client.js b/dist/xctest-agent-client.js
+index 4a70bba5e197673eba02c5210171c24207511e02..bef996567ed11723f33254cfb9d841fae94b55d5 100644
+--- a/dist/xctest-agent-client.js
++++ b/dist/xctest-agent-client.js
+@@ -29,6 +29,12 @@ export const createXCTestAgentClient = (transport) => {
+             });
+             return response.permissions;
+         },
++        shutdown: async () => {
++            await requestJson({
++                method: 'POST',
++                path: '/shutdown',
++            });
++        },
+         dispose: async () => {
+             await transport.dispose();
+         },
+diff --git a/dist/xctest-agent.js b/dist/xctest-agent.js
+index 7ee0ac916a3708e98953ead0a80711bd2c7b2822..de0f0ae36fef4199cf614e5725e30599b038f83f 100644
+--- a/dist/xctest-agent.js
++++ b/dist/xctest-agent.js
+@@ -670,7 +670,21 @@ export const createXCTestAgentController = (options) => {
+         agentClient = null;
+         processTask = null;
+         xctestAgentLogger.info('Stopping XCTest agent session for %s target', target.kind);
++        if (currentClient) {
++            try {
++                await currentClient.shutdown();
++            }
++            catch (error) {
++                xctestAgentLogger.warn('Failed to gracefully shut down XCTest agent for %s: %s', target.kind, getErrorMessage(error));
++            }
++        }
+         await currentClient?.dispose();
++        if (await waitForShutdown({
++            processTask: currentProcessTask,
++            shutdownTimeoutMs,
++        })) {
++            return;
++        }
+         await stopProcess({
+             process: currentProcess,
+             processTask: currentProcessTask,
+diff --git a/src/xctest-agent-client.ts b/src/xctest-agent-client.ts
+index 93f28b5c66ab907c4645ea01431d593d205a7f28..763c8e40243d026c30720b4123d79e1aa17e51d5 100644
+--- a/src/xctest-agent-client.ts
++++ b/src/xctest-agent-client.ts
+@@ -23,6 +23,7 @@ export type XCTestAgentClient = {
+   dispose: () => Promise<void>;
+   getPermissionsConfig: () => Promise<XCTestAgentPermissionsConfiguration>;
+   health: () => Promise<XCTestAgentHealthResponse>;
++  shutdown: () => Promise<void>;
+ };
+ 
+ export const createXCTestAgentClient = (
+@@ -67,6 +68,12 @@ export const createXCTestAgentClient = (
+ 
+       return response.permissions;
+     },
++    shutdown: async () => {
++      await requestJson({
++        method: 'POST',
++        path: '/shutdown',
++      });
++    },
+     dispose: async () => {
+       await transport.dispose();
+     },
+diff --git a/src/xctest-agent.ts b/src/xctest-agent.ts
+index 00e3034e46cb789a9e3690593b08da63d4ebb1ce..82b9655c60acd8f8fca3745729c8be0c4312dcf9 100644
+--- a/src/xctest-agent.ts
++++ b/src/xctest-agent.ts
+@@ -1113,7 +1113,28 @@ export const createXCTestAgentController = (options: {
+       target.kind
+     );
+ 
++    if (currentClient) {
++      try {
++        await currentClient.shutdown();
++      } catch (error) {
++        xctestAgentLogger.warn(
++          'Failed to gracefully shut down XCTest agent for %s: %s',
++          target.kind,
++          getErrorMessage(error)
++        );
++      }
++    }
++
+     await currentClient?.dispose();
++    if (
++      await waitForShutdown({
++        processTask: currentProcessTask,
++        shutdownTimeoutMs,
++      })
++    ) {
++      return;
++    }
++
+     await stopProcess({
+       process: currentProcess,
+       processTask: currentProcessTask,
+diff --git a/xctest-agent/HarnessXCTestAgentUITests/HarnessXCTestAgentUITests.swift b/xctest-agent/HarnessXCTestAgentUITests/HarnessXCTestAgentUITests.swift
+index 31abf4b787a602d53fadf30794b27fe287aa0bd2..d608f8cc928ef813f0b66064bc73032ecf30af5c 100644
+--- a/xctest-agent/HarnessXCTestAgentUITests/HarnessXCTestAgentUITests.swift
++++ b/xctest-agent/HarnessXCTestAgentUITests/HarnessXCTestAgentUITests.swift
+@@ -4,6 +4,7 @@ import Network
+ final class HarnessXCTestAgentState {
+   private let lock = NSLock()
+   private var _permissions: PermissionPromptConfiguration
++  private var _shouldStop = false
+ 
+   init(permissions: PermissionPromptConfiguration) {
+     _permissions = permissions
+@@ -20,6 +21,18 @@ final class HarnessXCTestAgentState {
+     _permissions = permissions
+     lock.unlock()
+   }
++
++  var shouldStop: Bool {
++    lock.lock()
++    defer { lock.unlock() }
++    return _shouldStop
++  }
++
++  func requestStop() {
++    lock.lock()
++    _shouldStop = true
++    lock.unlock()
++  }
+ }
+ 
+ private struct XCTestAgentHealthResponse: Codable {
+@@ -31,6 +44,10 @@ private struct XCTestAgentPermissionsResponse: Codable {
+   let permissions: PermissionPromptConfiguration
+ }
+ 
++private struct XCTestAgentShutdownResponse: Codable {
++  let status: String
++}
++
+ 
+ private struct XCTestAgentRequest {
+   let body: Data
+@@ -250,6 +267,9 @@ final class HarnessXCTestAgentUITests: XCTestCase {
+       return jsonResponse(XCTestAgentPermissionsResponse(permissions: state.permissions))
+     case ("GET", "/permissions"):
+       return jsonResponse(XCTestAgentPermissionsResponse(permissions: state.permissions))
++    case ("POST", "/shutdown"):
++      state.requestStop()
++      return jsonResponse(XCTestAgentShutdownResponse(status: "stopping"))
+     default:
+       return XCTestAgentResponse(body: Data("{\"error\":\"not found\"}".utf8), statusCode: 404)
+     }
+@@ -301,7 +321,7 @@ final class HarnessXCTestAgentUITests: XCTestCase {
+ 
+     let sessionDeadline = Date().addingTimeInterval(Constants.defaultSessionDuration)
+ 
+-    while Date() < sessionDeadline {
++    while Date() < sessionDeadline && !state.shouldStop {
+       observeTargetApplication()
+ 
+       for capability in capabilities {
