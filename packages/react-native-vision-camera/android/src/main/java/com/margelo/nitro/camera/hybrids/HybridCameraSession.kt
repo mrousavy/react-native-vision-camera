@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraState
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -52,8 +51,6 @@ class HybridCameraSession(
   private var onInterruptionStartedListeners = arrayListOf<(InterruptionReason) -> Unit>()
   private var onInterruptionEndedListeners = arrayListOf<() -> Unit>()
   private var startWaiters = arrayListOf<CompletableDeferred<Unit>>()
-  private var stopWaiters = arrayListOf<CompletableDeferred<Unit>>()
-  private var currentCameraState = CameraState.Type.CLOSED
 
   @SuppressLint("RestrictedApi")
   override fun configure(
@@ -165,24 +162,7 @@ class HybridCameraSession(
 
   override fun stop(): Promise<Unit> {
     return Promise.async(uiScope) {
-      val stopWaiter =
-        if (activeSession?.isRunning == true) {
-          CompletableDeferred<Unit>().also { stopWaiters.add(it) }
-        } else {
-          null
-        }
-
       lifecycleOwner.setActive(false)
-
-      if (activeSession?.isRunning == false) {
-        stopWaiter?.complete(Unit)
-      }
-
-      try {
-        stopWaiter?.await()
-      } finally {
-        stopWaiter?.let { stopWaiters.remove(it) }
-      }
     }
   }
 
@@ -220,16 +200,12 @@ class HybridCameraSession(
   }
 
   override fun onStopped() {
-    stopWaiters.forEach { waiter -> waiter.complete(Unit) }
-    stopWaiters.clear()
     onStoppedListeners.forEach { listener -> listener() }
   }
 
   override fun onError(error: Throwable) {
     startWaiters.forEach { waiter -> waiter.completeExceptionally(error) }
     startWaiters.clear()
-    stopWaiters.forEach { waiter -> waiter.completeExceptionally(error) }
-    stopWaiters.clear()
     onErrorListeners.forEach { listener -> listener(error) }
   }
 
