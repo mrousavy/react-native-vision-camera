@@ -6,9 +6,6 @@ import androidx.annotation.UiThread
 import androidx.camera.core.Camera
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.UseCaseGroup
-import androidx.camera.core.impl.CameraCaptureCallback
-import androidx.camera.core.impl.CameraCaptureResult
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
@@ -33,10 +30,6 @@ import com.margelo.nitro.core.Promise
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withTimeout
-import java.util.concurrent.Executor
 
 @Suppress("unused")
 class HybridCameraSession(
@@ -47,7 +40,6 @@ class HybridCameraSession(
     get() = NitroModules.applicationContext ?: throw Error("No Context!")
   private val lifecycleOwner = CustomLifecycle(context)
   private val uiScope = CoroutineScope(Dispatchers.Main)
-  private val directExecutor = Executor { runnable -> runnable.run() }
 
   override val isRunning: Boolean
     get() = activeSession?.isRunning ?: false
@@ -59,11 +51,6 @@ class HybridCameraSession(
   private var onInterruptionStartedListeners = arrayListOf<(InterruptionReason) -> Unit>()
   private var onInterruptionEndedListeners = arrayListOf<() -> Unit>()
   private var startWaiters = arrayListOf<CompletableDeferred<Unit>>()
-
-  private data class CaptureResultWaiter(
-    val result: CompletableDeferred<Unit>,
-    val cleanup: () -> Unit,
-  )
 
   @SuppressLint("RestrictedApi")
   override fun configure(
@@ -152,7 +139,6 @@ class HybridCameraSession(
 
   override fun start(): Promise<Unit> {
     return Promise.async(uiScope) {
-      val captureResultWaiters = createFirstCaptureResultWaiters()
       val startWaiter =
         if (activeSession?.isRunning == false) {
           CompletableDeferred<Unit>().also { startWaiters.add(it) }
@@ -168,10 +154,8 @@ class HybridCameraSession(
 
       try {
         startWaiter?.await()
-        awaitFirstCaptureResults(captureResultWaiters)
       } finally {
         startWaiter?.let { startWaiters.remove(it) }
-        captureResultWaiters.forEach { waiter -> waiter.cleanup() }
       }
     }
   }
@@ -204,46 +188,6 @@ class HybridCameraSession(
     }
     if (initialExposureBias != null) {
       camera.cameraControl.setExposureCompensationIndex(initialExposureBias.toInt())
-    }
-  }
-
-  @SuppressLint("RestrictedApi")
-  private fun createFirstCaptureResultWaiters(): List<CaptureResultWaiter> {
-    val session = activeSession ?: return emptyList()
-    return session.cameras.mapNotNull { camera ->
-      val cameraInfo = camera.cameraInfo as? CameraInfoInternal ?: return@mapNotNull null
-      val result = CompletableDeferred<Unit>()
-      val callback =
-        object : CameraCaptureCallback() {
-          override fun onCaptureCompleted(
-            captureConfigId: Int,
-            cameraCaptureResult: CameraCaptureResult,
-          ) {
-            result.complete(Unit)
-          }
-        }
-
-      cameraInfo.addSessionCaptureCallback(directExecutor, callback)
-      CaptureResultWaiter(
-        result = result,
-        cleanup = { cameraInfo.removeSessionCaptureCallback(callback) },
-      )
-    }
-  }
-
-  private suspend fun awaitFirstCaptureResults(waiters: List<CaptureResultWaiter>) {
-    if (waiters.isEmpty()) return
-
-    try {
-      withTimeout(CAMERA_START_CAPTURE_RESULT_TIMEOUT_MS) {
-        waiters.map { waiter -> waiter.result }.awaitAll()
-      }
-    } catch (error: TimeoutCancellationException) {
-      throw Error(
-        "Timed out waiting for CameraSession to produce a capture result after " +
-          "${CAMERA_START_CAPTURE_RESULT_TIMEOUT_MS}ms.",
-        error,
-      )
     }
   }
 
@@ -308,9 +252,5 @@ class HybridCameraSession(
     return ListenerSubscription {
       onInterruptionEndedListeners.remove(onInterruptionEnded)
     }
-  }
-
-  private companion object {
-    private const val CAMERA_START_CAPTURE_RESULT_TIMEOUT_MS = 5_000L
   }
 }
