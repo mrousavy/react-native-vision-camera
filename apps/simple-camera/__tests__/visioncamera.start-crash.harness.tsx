@@ -30,6 +30,14 @@ function getStartCrashStressMode(cycle: number): StartCrashStressMode {
   return cycle % 2 === 1 ? 'video' : 'photo'
 }
 
+function isExpectedForcedRecordingStop(error: Error): boolean {
+  const message = `${String(error)} ${error.message}`
+  return (
+    message.includes('AVFoundationErrorDomain Code=-11818') &&
+    message.includes('AVErrorRecordingSuccessfullyFinishedKey=true')
+  )
+}
+
 describe('VisionCamera - Start Crash Stress', () => {
   let backDevice: CameraDevice
 
@@ -446,7 +454,10 @@ describe('VisionCamera - Start Crash Stress', () => {
   }
 
   async function runRecordingOutputMutationStress(maxCycles: number) {
-    const finished = deferred<number>()
+    const finished = deferred<{
+      cycles: number
+      forcedRecordingStops: number
+    }>()
     let sessionError: Error | undefined
 
     function RecordingMutationCamera() {
@@ -457,6 +468,7 @@ describe('VisionCamera - Start Crash Stress', () => {
       const recorderRef = useRef<Recorder | null>(null)
       const recordingInFlight = useRef(false)
       const shouldStopAfterReconfigure = useRef(false)
+      const forcedRecordingStops = useRef(0)
 
       const photoOutput = useMemo(
         () =>
@@ -505,6 +517,21 @@ describe('VisionCamera - Start Crash Stress', () => {
         sessionError = error
         finished.reject(error)
       }, [])
+      const handleRecordingError = useCallback(
+        (error: Error) => {
+          if (!isExpectedForcedRecordingStop(error)) {
+            rejectWithError(error)
+            return
+          }
+
+          forcedRecordingStops.current += 1
+          recorderRef.current = null
+          recordingInFlight.current = false
+          shouldStopAfterReconfigure.current = false
+          setIsActive(false)
+        },
+        [rejectWithError],
+      )
       const stopRecorderAndDeactivate = useCallback(async () => {
         const recorder = recorderRef.current
         if (recorder == null) return
@@ -512,14 +539,14 @@ describe('VisionCamera - Start Crash Stress', () => {
         try {
           await recorder.stopRecording()
         } catch (error) {
-          rejectWithError(error as Error)
+          handleRecordingError(error as Error)
         } finally {
           recorderRef.current = null
           recordingInFlight.current = false
           shouldStopAfterReconfigure.current = false
           setIsActive(false)
         }
-      }, [rejectWithError])
+      }, [handleRecordingError])
       const onSessionConfigSelected = useCallback(() => {
         if (!shouldStopAfterReconfigure.current) return
 
@@ -537,7 +564,7 @@ describe('VisionCamera - Start Crash Stress', () => {
             await recorder.startRecording(
               () => {},
               (error) => {
-                rejectWithError(error)
+                handleRecordingError(error)
               },
             )
             shouldStopAfterReconfigure.current = true
@@ -550,14 +577,17 @@ describe('VisionCamera - Start Crash Stress', () => {
         }
 
         void mutateOutputWhileRecording()
-      }, [rejectWithError, videoOutput])
+      }, [handleRecordingError, rejectWithError, videoOutput])
       const onStopped = useCallback(() => {
         const nextCycle = cycle + 1
         if (nextCycle >= maxCycles) {
           console.log(
-            `start crash recording mutation stress completed ${nextCycle} Skia cycles on ${backDevice.localizedName}`,
+            `start crash recording mutation stress completed ${nextCycle} Skia cycles on ${backDevice.localizedName} with ${forcedRecordingStops.current} forced stops`,
           )
-          finished.resolve(nextCycle)
+          finished.resolve({
+            cycles: nextCycle,
+            forcedRecordingStops: forcedRecordingStops.current,
+          })
           return
         }
 
@@ -589,13 +619,14 @@ describe('VisionCamera - Start Crash Stress', () => {
     }
 
     await render(<RecordingMutationCamera />)
-    const cycles = await withTimeout(
+    const result = await withTimeout(
       finished.promise,
       90_000,
       'Skia recording output mutation stress',
     )
 
-    expect(cycles).toBe(maxCycles)
+    expect(result.cycles).toBe(maxCycles)
+    expect(result.forcedRecordingStops).toBeGreaterThan(0)
     expect(sessionError).toBe(undefined)
   }
 
