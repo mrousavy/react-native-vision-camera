@@ -41,7 +41,14 @@ _outputInternal->figCaptureSession == NULL
 figCaptureSession == _outputInternal->figCaptureSession
 ```
 
-This is not source-level decompilation, and it is not the exact iPhone 11 / iOS 18.7.7 binary from the issue. It is still stronger than a guess: the assertion predicates are embedded in nearby iOS 18.7.x AVFCapture binaries and match the stack functions in #3773.
+Local disassembly of the iOS 18.7.1 `AVFCapture` binary confirms those strings are the actual branch predicates:
+
+- `-[AVCaptureOutput attachToFigCaptureSession:]` builds a dispatch barrier block on the output's internal queue. The block reads the output internal pointer at offset `0x10`, branches to `___45-[AVCaptureOutput attachToFigCaptureSession:]_block_invoke.cold.1` if it is non-null, otherwise stores the incoming FigCaptureSession pointer there and then calls `attachSafelyToFigCaptureSession:`.
+- `-[AVCaptureOutput detachFromFigCaptureSession:]` uses the same dispatch barrier shape. The block compares the incoming FigCaptureSession pointer to the output internal pointer at offset `0x10`, branches to `___47-[AVCaptureOutput detachFromFigCaptureSession:]_block_invoke.cold.1` if they differ, otherwise clears that internal pointer to null and then calls `detachSafelyFromFigCaptureSession:`.
+- `_makeConfigurationLive:` first computes unique inputs/outputs/preview layers from the old and new `AVCaptureSessionConfiguration`s, calls `detachFromFigCaptureSession:` for old preview layers, then calls `attachToFigCaptureSession:` for new preview layers. Around the unique input/output sets it also calls `makeObjectsPerformSelector:withObject:` with the same old/new FigCaptureSession pointer. This matches the reporter stack: `_handleConfigurationCommittedNotificationWithPayload:` calls `_makeConfigurationLive:`, which makes the output attachment live on `FigCaptureSessionNotificationQueue`.
+- The same symbol table exposes separate `AVCaptureSessionInternal` fields for `committedAVCaptureSessionConfigurations`, `liveAVCaptureSessionConfiguration`, and `waitingForFigCaptureSessionConfigurationToBecomeLive`. That makes the important lifecycle split explicit: a configuration can be committed before it is live.
+
+This is not source-level decompilation, and it is not the exact iPhone 11 / iOS 18.7.7 binary from the issue. It is still stronger than a guess: the assertion predicates and attachment order are visible in nearby iOS 18.7.x AVFCapture binaries and match the stack functions in #3773.
 
 ## VisionCamera code path responsible
 
@@ -245,7 +252,23 @@ CI observations from PR #4001 / Harness AWS Device run `27029008264` on commit `
 - The GitHub `Test iOS` job still reported failure because AWS Device Farm reported `FAILED` outside the Harness summary and the wrapper exited with code 1.
 - The printed Harness output did not contain an app crash, `AVCaptureOutput`, `attachToFigCaptureSession`, `detachFromFigCaptureSession`, `SIGABRT`, or `EXC_`.
 
-Negative evidence: the iPhone SE result and the first five iOS Device Farm results suggest simple output topology changes, immediate active capture/recording cycles, production-shape photo+video output recreation across restarts, active-recorder output mutation, and continuing after AVFoundation forced recording stops are not sufficient to deterministically reproduce the crash on the tested hardware/OS. Hardware/OS version, camera topology, actual photo HDR enablement, lens switching during recording/capture, mount/unmount timing, reporter-style active control mutation, or the original iPhone 11 / iOS 18.7.7 matrix likely still matters.
+CI observations from PR #4001 / Harness AWS Device run `27030309527` on commit `695e1fe3cc4ab510a67072279b97eae500e348bd`:
+
+- Build iOS passed.
+- Test iOS executed on Apple iPhone 16 Pro.
+- The six pushed start-crash stress tests all passed:
+  - 60 native preview topology cycles completed in 13.720s.
+  - 60 Skia topology cycles completed in 12.624s.
+  - 18 active capture/record cycles completed in 7.512s.
+  - 80 production-shape restart cycles completed in 19.208s.
+  - 12 active-recorder mutation cycles completed in 10.414s, with 12 forced recording stops.
+  - 80 reporter-style active interaction cycles completed in 15.163s.
+- iOS Harness summary was green: 13 passed suites, 130 passed tests, 15 skipped, 145 total, time 326.018s.
+- The GitHub `Test iOS` job still reported failure because AWS Device Farm reported `FAILED` outside the Harness summary and the wrapper exited with code 1.
+- The active-interaction test produced expected/tolerated focus metering cancellation/timeouts and torch rejections on a no-torch device. These were control API failures, not session errors.
+- The printed Harness output did not contain an app crash, `AVCaptureOutput`, `attachToFigCaptureSession`, `detachFromFigCaptureSession`, `AVFoundationErrorDomain`, `SIGABRT`, or `EXC_`.
+
+Negative evidence: the iPhone SE result and the first six iOS Device Farm results suggest simple output topology changes, immediate active capture/recording cycles, production-shape photo+video output recreation across restarts, active-recorder output mutation, continuing after AVFoundation forced recording stops, and reporter-style active control mutation are not sufficient to deterministically reproduce the crash on the tested hardware/OS. Hardware/OS version, camera topology, actual photo HDR enablement, lens switching during recording/capture, mount/unmount timing, TestFlight/release timing, or the original iPhone 11 / iOS 18.7.7 matrix likely still matters.
 
 ## Verification done
 
@@ -257,8 +280,12 @@ bunx tsc --noEmit --project apps/simple-camera/tsconfig.json
 git diff --check
 bun --cwd apps/simple-camera react-native bundle --platform ios --dev true --entry-file index.js --bundle-output /tmp/simple-camera-start-crash.bundle --assets-dest /tmp/simple-camera-start-crash-assets --reset-cache
 xcrun nm -m "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture" | rg "attachToFigCaptureSession|detachFromFigCaptureSession|_makeConfigurationLive|_handleConfigurationCommittedNotification"
+xcrun nm -m "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture" | rg "AVCaptureSessionInternal"
 strings -a "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture" | rg "attachToFigCaptureSession|detachFromFigCaptureSession|figCaptureSession|AVCaptureOutput\\.m"
 strings -a "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7 (22H20)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture" | rg "AVCaptureOutput\\.m|_outputInternal->figCaptureSession == NULL|figCaptureSession == _outputInternal->figCaptureSession|attachToFigCaptureSession|detachFromFigCaptureSession"
+xcrun llvm-objdump --arch-name=arm64 --start-address=0x1a1d0fd6c --stop-address=0x1a1d0fe20 -d "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture"
+xcrun llvm-objdump --arch-name=arm64 --start-address=0x1a1d527f8 --stop-address=0x1a1d528c0 -d "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture"
+xcrun llvm-objdump --arch-name=arm64 --start-address=0x1a1d27c30 --stop-address=0x1a1d28080 -d "/Users/mrousavy/Library/Developer/Xcode/iOS DeviceSupport/iPhone16,1 18.7.1 (22H31)/Symbols/System/Library/PrivateFrameworks/AVFCapture.framework/AVFCapture" > /tmp/avfcapture_make_live_disasm.txt
 ```
 
 `bunx biome check apps/simple-camera/__tests__/visioncamera.start-crash.harness.tsx apps/simple-camera/__tests__/visioncamera.camera-view.harness.tsx apps/simple-camera/src/screens/CameraScreen.tsx START_CRASH_FINDINGS.md apps/simple-camera/__tests__/README.md` reported only pre-existing unused-variable warnings in `CameraScreen.tsx`. The new stress Harness file had no Biome diagnostics.
