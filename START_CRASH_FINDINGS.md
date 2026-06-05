@@ -6,7 +6,7 @@ Branch: `codex/start-crash-3773`
 
 ## Current status
 
-This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally yet. The local multi-physical-camera iPhone 15 Pro became locked and SpringBoard denied further launches, while the available iPhone SE 3rd gen ran the repro loop without crashing.
+This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally or in CI yet. The local multi-physical-camera iPhone 15 Pro became locked and SpringBoard denied further launches, while the available iPhone SE 3rd gen ran the repro loop without crashing. The first CI iOS Harness run also ran the new 120-cycle repro on a multi-camera iOS Device Farm device without crashing.
 
 The strongest confirmed root-cause evidence is therefore the original issue stack plus the VisionCamera call ordering below. The stack proves `AVCaptureSession.startRunning()` overlapped with AVFoundation's private configuration-commit notification path. The exact assertion condition inside `-[AVCaptureOutput attachToFigCaptureSession:]` is private Apple code, so the remaining internal invariant is inferred from the stack, not decompiled source.
 
@@ -100,7 +100,16 @@ Observed locally:
 - Subsequent iPhone 15 Pro launches were denied because the device was locked: `Unable to launch com.margelo.nitro.camera.example.simple because the device was not, or could not be, unlocked`.
 - The attached Teams video shows an app crash alert after an active video recording session, but it does not expose a native stack. It supports the general "active camera plus output/session state changes" trigger shape, not the internal AVFoundation diagnosis by itself.
 
-Negative evidence: the iPhone SE result suggests the crash is not a simple deterministic JavaScript loop bug on all hardware/OS combinations. Hardware, OS version, camera topology, or a narrower recording/output transition likely matters.
+CI observations from PR #4001 / Harness AWS Device run `27018903509`:
+
+- Build iOS passed.
+- Test iOS executed on a multi-camera iOS device exposing wide, ultra-wide, telephoto, dual, dual-wide, triple, lidar-depth, and true-depth devices.
+- The new Harness test completed 120 cycles on `Back Camera` in 25.766s: `reconfigures outputs and immediately restarts from Camera lifecycle callbacks`.
+- iOS Harness summary was green: 12 test suites passed, 125 tests passed, 15 skipped, 0 failed.
+- The GitHub `Test iOS` job still reported failure because the Device Farm step itself returned failed, but the Harness output did not contain an AVFoundation crash, app crash, failed test, or assertion.
+- Android also ran the new test and completed 120 cycles in 27.414s. Android failed in unrelated existing suites (`photo`, `coordinates`, `controller`, `video`), not in the new Camera-view repro.
+
+Negative evidence: the iPhone SE result and the first iOS Device Farm result suggest the current loop is not sufficient to deterministically reproduce the crash. Hardware/OS version, camera topology, recording state, recorder preparation, lens switching, mount/unmount timing, or a narrower output transition likely matters.
 
 ## Verification done
 
@@ -124,6 +133,17 @@ The best current issue description is:
 > VisionCamera can enqueue `AVCaptureSession.startRunning()` immediately after a configuration commit that replaces outputs or changes output-affecting constraints. VisionCamera's own serial queue ensures `startRunning()` happens after `commitConfiguration()` returns, but AVFoundation/CoreMedia may still be processing the committed configuration asynchronously on `FigCaptureSessionNotificationQueue`. On affected hardware/OS combinations, `startRunning()` can overlap that private output-attachment work and trip AVFoundation's internal assertion in `-[AVCaptureOutput attachToFigCaptureSession:]`.
 
 This is proven at the call-order/concurrency level by the crash stack and VisionCamera source. It is not yet proven at the "Apple internal field X had value Y" level because AVFoundation source is private and the exact assertion condition is not visible.
+
+## Next repro iteration
+
+The current repro proves the high-level hook can drive the suspected `configure() -> start()` ordering, but the negative CI result means the original issue likely needs an additional condition. The most likely next conditions to test are:
+
+- actively recording while replacing or recreating the video output,
+- preparing a new recorder while the session is being stopped/reconfigured,
+- changing zoom across a virtual-device lens switch before the stop/restart cycle,
+- switching between virtual multi-camera device IDs instead of only using the default back camera,
+- unmounting/remounting `<Camera>` instead of only toggling `isActive`,
+- testing on the original crash matrix, especially iPhone 11 on iOS 18.7.7.
 
 ## What would count as proof of a fix
 
