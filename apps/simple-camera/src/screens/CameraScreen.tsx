@@ -228,6 +228,7 @@ export function CameraScreen() {
 
   const preparedRecorder = useRef<Recorder>(undefined)
   const activeRecorder = useRef<Recorder>(undefined)
+  const startCrashReproCaptureInFlight = useRef(false)
   const startRecording = useCallback(async () => {
     console.log(`Starting Recording...`)
     // get previously prepared recorder (cached)
@@ -272,13 +273,56 @@ export function CameraScreen() {
     await recorder.stopRecording()
     console.log(`Recording stopped!`)
   }, [])
+  const runStartCrashReproCaptureCycle = useCallback(async () => {
+    if (startCrashReproCaptureInFlight.current) return
+    startCrashReproCaptureInFlight.current = true
+    try {
+      if (startCrashReproMode === 'photo') {
+        const photo = await photoOutput.capturePhoto(
+          { flashMode: 'off', enableShutterSound: false },
+          {},
+        )
+        console.log(
+          `[START_CRASH_REPRO] captured ${photo.width}x${photo.height} photo in cycle ${startCrashReproCycle}`,
+        )
+        photo.dispose()
+      } else {
+        const recorder = await videoOutput.createRecorder({})
+        await recorder.startRecording(
+          (path, reason) => {
+            console.log(
+              `[START_CRASH_REPRO] recording finished with ${reason}; path: ${path}`,
+            )
+          },
+          (error) =>
+            console.error(`[START_CRASH_REPRO] recording failed`, error),
+        )
+        await recorder.stopRecording()
+        console.log(
+          `[START_CRASH_REPRO] started and stopped video recording in cycle ${startCrashReproCycle}`,
+        )
+      }
+    } catch (error) {
+      console.error(
+        `[START_CRASH_REPRO] ${startCrashReproMode} capture cycle failed`,
+        error,
+      )
+    } finally {
+      startCrashReproCaptureInFlight.current = false
+      setStartCrashReproActive(false)
+    }
+  }, [photoOutput, startCrashReproCycle, startCrashReproMode, videoOutput])
   const onCameraStarted = useCallback(() => {
     if (!START_CRASH_REPRO) return
     console.log(
-      `[START_CRASH_REPRO] ${startCrashReproMode} cycle ${startCrashReproCycle} started; stopping before next reconfigure/start`,
+      `[START_CRASH_REPRO] ${startCrashReproMode} cycle ${startCrashReproCycle} started; running capture before next reconfigure/start`,
     )
-    setStartCrashReproActive(false)
-  }, [startCrashReproCycle, startCrashReproMode])
+    void runStartCrashReproCaptureCycle()
+  }, [
+    runStartCrashReproCaptureCycle,
+    startCrashReproCycle,
+    startCrashReproMode,
+  ])
   const onCameraStopped = useCallback(() => {
     if (!START_CRASH_REPRO) return
     setStartCrashReproCycle((cycle) => {
