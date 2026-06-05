@@ -1,0 +1,136 @@
+# Issue #3773 start crash findings
+
+Issue: https://github.com/mrousavy/react-native-vision-camera/issues/3773
+
+Branch: `codex/start-crash-3773`
+
+## Current status
+
+This branch contains an event-driven reproducer in the simple-camera app and an iOS Harness stress test. I have not produced the exact AVFoundation assertion locally yet. The local multi-physical-camera iPhone 15 Pro became locked and SpringBoard denied further launches, while the available iPhone SE 3rd gen ran the repro loop without crashing.
+
+The strongest confirmed root-cause evidence is therefore the original issue stack plus the VisionCamera call ordering below. The stack proves `AVCaptureSession.startRunning()` overlapped with AVFoundation's private configuration-commit notification path. The exact assertion condition inside `-[AVCaptureOutput attachToFigCaptureSession:]` is private Apple code, so the remaining internal invariant is inferred from the stack, not decompiled source.
+
+## What the crash stack proves
+
+The crash stack in #3773 has two important concurrent paths:
+
+- One thread is inside `HybridCameraSession.start()` -> `AVCaptureSession.startRunning()` -> AVFoundation graph build.
+- Another thread is on `FigCaptureSessionNotificationQueue` inside AVFoundation's configuration-commit notification path, including `_handleConfigurationCommittedNotificationWithPayload`, `_makeConfigurationLive:`, and `-[AVCaptureOutput attachToFigCaptureSession:]`.
+
+That proves VisionCamera had already called `startRunning()` while AVFoundation/CoreMedia was still making a recently committed configuration live on its private notification queue.
+
+Because VisionCamera serializes `configure()` and `start()` on `HybridCameraSession.queue`, this overlap cannot be explained by two VisionCamera calls running at the same time on our queue. The only sequence consistent with the stack is:
+
+1. VisionCamera enters `session.beginConfiguration()`.
+2. VisionCamera mutates inputs, outputs, connections, formats, FPS, and stabilization.
+3. VisionCamera calls `session.commitConfiguration()`.
+4. `commitConfiguration()` returns to VisionCamera before AVFoundation's private "configuration committed" work has fully drained.
+5. VisionCamera's next queued `start()` runs and calls `session.startRunning()`.
+6. AVFoundation is still attaching outputs from the committed configuration on `FigCaptureSessionNotificationQueue`.
+7. AVFoundation hits its private assertion in `attachToFigCaptureSession`.
+
+## VisionCamera code path responsible
+
+Native serialization is in `packages/react-native-vision-camera/ios/Hybrid Objects/HybridCameraSession.swift`:
+
+- `configure(...)` uses `Promise.parallel(Self.queue)`, then calls `beginConfiguration()` and `commitConfiguration()`.
+- `start()` uses the same `Self.queue`, then calls `session.startRunning()`.
+- `stop()` uses the same `Self.queue`, then calls `session.stopRunning()`.
+
+The queue guarantees call order only for VisionCamera's own work. It does not guarantee AVFoundation's private CoreMedia notification queue has finished processing the effects of `commitConfiguration()`.
+
+The high-level React hook path can enqueue `configure()` and `start()` back-to-back during one React update:
+
+- `useCameraController(...)` starts an async `session.configure(...)` effect when outputs or constraints change.
+- `useCamera()` then computes `hasController = controller != null`.
+- `useCameraSessionIsRunning(session, isActive && hasController)` starts an async `session.start()` effect.
+
+On a reconfiguration update, the previous controller can still be non-null until the new `configure()` resolves. If `isActive` is true in that same commit, React schedules both effects. Since `useCameraController(...)` is called before `useCameraSessionIsRunning(...)`, the native queue receives:
+
+```text
+session.configure(new outputs / constraints)
+session.start()
+```
+
+That is a valid VisionCamera queue order, but it is the exact dangerous order if AVFoundation's `commitConfiguration()` is not a full barrier for its private "make configuration live" work.
+
+## Local reproducer added
+
+`apps/simple-camera/src/screens/CameraScreen.tsx` now has `START_CRASH_REPRO = true`.
+
+The example app starts the camera automatically, then loops from native callbacks:
+
+1. `onStarted` sets `isActive=false`.
+2. `onStopped` swaps video output settings and optional HDR constraints.
+3. `onStopped` immediately sets `isActive=true`.
+4. The next React commit reconfigures outputs/constraints and restarts without sleeps.
+
+The loop attaches both photo and video outputs, alternates `HD_16_9`/`FHD_16_9` video output settings, requests 60 FPS when supported, requests cinematic-extended stabilization when supported, and toggles `photoHDR` when supported.
+
+This is intentionally event-driven. It does not use artificial sleeps or timeouts to create the race window.
+
+## Harness reproducer added
+
+`apps/simple-camera/__tests__/visioncamera.camera-view.harness.tsx` now contains:
+
+```text
+reconfigures outputs and immediately restarts from Camera lifecycle callbacks
+```
+
+It renders a high-level `<Camera>` and runs 120 cycles of:
+
+```text
+onStarted -> inactive
+onStopped -> replace video output + toggle constraints + active
+```
+
+This is the closest Harness shape to the reported crash because it exercises the React hook lifecycle that can enqueue `configure()` followed by `start()` in the same commit. A crash on CI should appear as an iOS Harness process failure rather than a normal assertion failure.
+
+## Device observations
+
+Local devices seen by `xcrun devicectl list devices`:
+
+- iPhone SE 3rd gen, iOS 26.5, single back wide camera.
+- iPhone 15 Pro, iOS 26.5, multi-physical back camera.
+
+Observed locally:
+
+- iPhone SE 3rd gen completed roughly 480 event-driven repro cycles without the AVFoundation assertion.
+- iPhone 15 Pro reached roughly 140 cycles in an earlier mixed-log run without the assertion, then the app process ended with exit code 0. I did not find a local crash report for `SimpleCamera`.
+- Subsequent iPhone 15 Pro launches were denied because the device was locked: `Unable to launch com.margelo.nitro.camera.example.simple because the device was not, or could not be, unlocked`.
+- The attached Teams video shows an app crash alert after an active video recording session, but it does not expose a native stack. It supports the general "active camera plus output/session state changes" trigger shape, not the internal AVFoundation diagnosis by itself.
+
+Negative evidence: the iPhone SE result suggests the crash is not a simple deterministic JavaScript loop bug on all hardware/OS combinations. Hardware, OS version, camera topology, or a narrower recording/output transition likely matters.
+
+## Verification done
+
+Commands that passed:
+
+```sh
+bun run build
+bunx tsc --noEmit --project apps/simple-camera/tsconfig.json
+git diff --check
+bun --cwd apps/simple-camera react-native bundle --platform ios --dev true --entry-file index.js --bundle-output /tmp/simple-camera-start-crash.bundle --assets-dest /tmp/simple-camera-start-crash-assets --reset-cache
+```
+
+`bunx biome check apps/simple-camera/__tests__/visioncamera.camera-view.harness.tsx apps/simple-camera/src/screens/CameraScreen.tsx` reported only pre-existing unused-variable warnings in `CameraScreen.tsx`. The new Harness file had no Biome diagnostics.
+
+Local `react-native-harness --harnessRunner ios` tried to boot an iOS simulator, so I stopped it. The simulator is not useful for this camera pipeline race; the PR CI iOS Harness run on real hardware is the relevant signal.
+
+## Current root-cause statement
+
+The best current issue description is:
+
+> VisionCamera can enqueue `AVCaptureSession.startRunning()` immediately after a configuration commit that replaces outputs or changes output-affecting constraints. VisionCamera's own serial queue ensures `startRunning()` happens after `commitConfiguration()` returns, but AVFoundation/CoreMedia may still be processing the committed configuration asynchronously on `FigCaptureSessionNotificationQueue`. On affected hardware/OS combinations, `startRunning()` can overlap that private output-attachment work and trip AVFoundation's internal assertion in `-[AVCaptureOutput attachToFigCaptureSession:]`.
+
+This is proven at the call-order/concurrency level by the crash stack and VisionCamera source. It is not yet proven at the "Apple internal field X had value Y" level because AVFoundation source is private and the exact assertion condition is not visible.
+
+## What would count as proof of a fix
+
+A proper fix needs to change the ordering contract, then re-run the same repro loop and Harness test:
+
+- prevent `startRunning()` from being enqueued while a reconfiguration is still becoming live, or
+- make the high-level hook clear/withhold the previous controller during reconfiguration so a prop update cannot schedule `configure()` and `start()` in the same React commit, or
+- add a native barrier based on a real AVFoundation lifecycle signal if one exists.
+
+Artificial sleeps are not proof. They would only lower the race probability.

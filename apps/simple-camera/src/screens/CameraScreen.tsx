@@ -1,7 +1,9 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { StatusBar, StyleSheet, Text, View } from 'react-native'
 import {
+  CommonResolutions,
+  type Constraint,
   type Recorder,
   useCameraDeviceExtensions,
   useCameraDevices,
@@ -21,6 +23,8 @@ import { useIsActive } from '../hooks/useIsActive'
 import { useSafeAreaPadding } from '../hooks/useSafeAreaPadding'
 import { logDevices } from '../logDevices'
 
+const START_CRASH_REPRO = true
+
 export function CameraScreen() {
   const navigation = useNavigation()
   const isAppActive = useIsActive()
@@ -32,8 +36,20 @@ export function CameraScreen() {
   const [enableDepthStream, setEnableDepthStream] = useState(false)
 
   const devices = useCameraDevices()
-  const defaultDevice = devices[0]
+  const defaultDevice = useMemo(
+    () =>
+      devices.find(
+        (d) => d.position === 'back' && d.physicalDevices.length > 1,
+      ) ??
+      devices.find((d) => d.position === 'back') ??
+      devices[0],
+    [devices],
+  )
   const [device, setDevice] = useState(defaultDevice)
+  const [startCrashReproActive, setStartCrashReproActive] = useState(true)
+  const [startCrashReproCycle, setStartCrashReproCycle] = useState(0)
+  const [startCrashReproVariant, setStartCrashReproVariant] = useState(0)
+  const [startCrashReproHDR, setStartCrashReproHDR] = useState(false)
 
   useEffect(() => {
     setDevice(defaultDevice)
@@ -62,8 +78,31 @@ export function CameraScreen() {
 
   const photoOutput = usePhotoOutput({})
   const videoOutput = useVideoOutput({
-    enableAudio: true,
+    targetResolution:
+      startCrashReproVariant % 2 === 0
+        ? CommonResolutions.FHD_16_9
+        : CommonResolutions.HD_16_9,
+    targetBitRate: startCrashReproVariant % 2 === 0 ? 20_000_000 : 12_000_000,
+    enableAudio: false,
   })
+  const cameraOutputs = useMemo(
+    () => (START_CRASH_REPRO ? [photoOutput, videoOutput] : [photoOutput]),
+    [photoOutput, videoOutput],
+  )
+  const cameraConstraints = useMemo<Constraint[]>(() => {
+    if (!START_CRASH_REPRO) return []
+    const nextConstraints: Constraint[] = []
+    if (device?.supportsFPS(60)) {
+      nextConstraints.push({ fps: 60 })
+    }
+    if (device?.supportsVideoStabilizationMode('cinematic-extended')) {
+      nextConstraints.push({ videoStabilizationMode: 'cinematic-extended' })
+    }
+    if (startCrashReproHDR && device?.supportsPhotoHDR) {
+      nextConstraints.unshift({ photoHDR: true })
+    }
+    return nextConstraints
+  }, [device, startCrashReproHDR])
   const { resizer, error } = useResizer({
     width: 192,
     height: 192,
@@ -217,6 +256,26 @@ export function CameraScreen() {
     await recorder.stopRecording()
     console.log(`Recording stopped!`)
   }, [])
+  const onCameraStarted = useCallback(() => {
+    if (!START_CRASH_REPRO) return
+    console.log(
+      `[START_CRASH_REPRO] cycle ${startCrashReproCycle} started; stopping before next reconfigure/start`,
+    )
+    setStartCrashReproActive(false)
+  }, [startCrashReproCycle])
+  const onCameraStopped = useCallback(() => {
+    if (!START_CRASH_REPRO) return
+    setStartCrashReproCycle((cycle) => {
+      const nextCycle = cycle + 1
+      console.log(
+        `[START_CRASH_REPRO] cycle ${cycle} stopped; swapping output/constraints and immediately restarting cycle ${nextCycle}`,
+      )
+      return nextCycle
+    })
+    setStartCrashReproVariant((variant) => variant + 1)
+    setStartCrashReproHDR((hdr) => !hdr)
+    setStartCrashReproActive(true)
+  }, [])
 
   if (device == null) {
     return (
@@ -230,15 +289,17 @@ export function CameraScreen() {
       <StatusBar barStyle="light-content" />
 
       <CameraView
-        isActive={isAppActive && isScreenFocused}
-        device={device}
-        outputs={[photoOutput]}
-        mirrorMode={device.position === 'front' ? 'on' : 'off'}
-        constraints={
-          [
-            // Session Constraints
-          ]
+        isActive={
+          isAppActive &&
+          isScreenFocused &&
+          (!START_CRASH_REPRO || startCrashReproActive)
         }
+        device={device}
+        outputs={cameraOutputs}
+        mirrorMode={device.position === 'front' ? 'on' : 'off'}
+        constraints={cameraConstraints}
+        onStarted={onCameraStarted}
+        onStopped={onCameraStopped}
         onInterruptionStarted={(reason) =>
           console.log(`Camera interrupted! Reason: ${reason}`)
         }
