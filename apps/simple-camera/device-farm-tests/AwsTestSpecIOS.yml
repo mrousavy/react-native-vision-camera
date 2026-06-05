@@ -79,7 +79,3 @@ phases:
 
 artifacts:
   - $WORKING_DIRECTORY/harness-artifacts
-  # Keep this at the Harness root. Device Farm treats an explicitly listed
-  # empty artifact directory as a failed test step, and crash-reports is empty
-  # on successful native runs.
-  - $WORKING_DIRECTORY/react-native-vision-camera/apps/simple-camera/.harness
