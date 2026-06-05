@@ -25,6 +25,12 @@ outputs:
   customer-artifacts-log-file:
     description: Copied Device Farm customer artifacts log file path
     value: ${{ steps.find-customer-artifacts-log.outputs.log_file }}
+  test-spec-output-file:
+    description: Copied Device Farm test spec output log file path
+    value: ${{ steps.find-test-spec-output.outputs.log_file }}
+  test-spec-timestamped-output-file:
+    description: Copied Device Farm timestamped test spec output log file path
+    value: ${{ steps.find-test-spec-timestamped-output.outputs.log_file }}
 
 runs:
   using: composite
@@ -91,6 +97,40 @@ runs:
           echo "log_file=" >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Find Device Farm test spec output
+      id: find-test-spec-output
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARTIFACT_DIR="${{ inputs.artifact-folder }}"
+        PLATFORM="${{ inputs.platform }}"
+        WORKSPACE_LOG=".github/test-results/devicefarm-test-spec-output-${PLATFORM}.log"
+        if bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+          "$ARTIFACT_DIR" \
+          '*-Test spec output.txt' \
+          "$WORKSPACE_LOG"; then
+          echo "log_file=$WORKSPACE_LOG" >> "$GITHUB_OUTPUT"
+        else
+          echo "log_file=" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Find Device Farm timestamped test spec output
+      id: find-test-spec-timestamped-output
+      shell: bash
+      run: |
+        set -euo pipefail
+        ARTIFACT_DIR="${{ inputs.artifact-folder }}"
+        PLATFORM="${{ inputs.platform }}"
+        WORKSPACE_LOG=".github/test-results/devicefarm-test-spec-timestamped-output-${PLATFORM}.log"
+        if bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+          "$ARTIFACT_DIR" \
+          '*-Test spec timestamped output.txt' \
+          "$WORKSPACE_LOG"; then
+          echo "log_file=$WORKSPACE_LOG" >> "$GITHUB_OUTPUT"
+        else
+          echo "log_file=" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Publish Harness test results
       id: publish-harness-results
       if: steps.find-harness-junit.outputs.junit_file != ''
@@ -129,6 +169,20 @@ runs:
           echo "===== Device Farm ${PLATFORM} customer artifacts log ====="
           cat "$CUSTOMER_ARTIFACTS_LOG"
           echo "===== End Device Farm ${PLATFORM} customer artifacts log ====="
+        fi
+
+        TEST_SPEC_OUTPUT="${{ steps.find-test-spec-output.outputs.log_file }}"
+        if [[ -n "$TEST_SPEC_OUTPUT" && "$TEST_STEP_OUTCOME" == "failure" ]]; then
+          echo "===== Device Farm ${PLATFORM} test spec output ====="
+          cat "$TEST_SPEC_OUTPUT"
+          echo "===== End Device Farm ${PLATFORM} test spec output ====="
+        fi
+
+        TEST_SPEC_TIMESTAMPED_OUTPUT="${{ steps.find-test-spec-timestamped-output.outputs.log_file }}"
+        if [[ -n "$TEST_SPEC_TIMESTAMPED_OUTPUT" && "$TEST_STEP_OUTCOME" == "failure" ]]; then
+          echo "===== Device Farm ${PLATFORM} timestamped test spec output ====="
+          cat "$TEST_SPEC_TIMESTAMPED_OUTPUT"
+          echo "===== End Device Farm ${PLATFORM} timestamped test spec output ====="
         fi
 
         if [[ "$PUBLISH_OUTCOME" == "failure" ]]; then
