@@ -244,7 +244,7 @@ const npmPackageDownloadTotal = 33_880_333
 
 const summaryStats = [
   {
-    label: 'Known public installs',
+    label: 'Play Store installs',
     value: `${formatCompactNumber(knownInstallTotal)}+`,
     icon: Download,
   },
