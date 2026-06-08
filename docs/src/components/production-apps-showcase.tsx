@@ -1,4 +1,4 @@
-import { BadgeCheck, Download, Store, TrendingUp } from 'lucide-react'
+import { Download, Package, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
 
 type InstallMetric = {
@@ -222,7 +222,7 @@ function sumMetrics(kind: InstallMetric['kind']) {
 function formatCompactNumber(value: number) {
   if (value >= 1_000_000) {
     return `${new Intl.NumberFormat('en', {
-      maximumFractionDigits: value >= 10_000_000 ? 0 : 1,
+      maximumFractionDigits: 0,
     }).format(value / 1_000_000)}M`
   }
 
@@ -237,17 +237,9 @@ function formatCompactNumber(value: number) {
 
 const knownInstallTotal = sumMetrics('lifetime-installs')
 const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
-const storeLinkCount = productionApps.reduce(
-  (count, app) => count + 1 + (app.playStoreUrl ? 1 : 0),
-  0,
-)
+const npmPackageDownloadTotal = 33_880_333
 
 const summaryStats = [
-  {
-    label: 'Production apps',
-    value: productionApps.length.toString(),
-    icon: BadgeCheck,
-  },
   {
     label: 'Known public installs',
     value: `${formatCompactNumber(knownInstallTotal)}+`,
@@ -255,13 +247,13 @@ const summaryStats = [
   },
   {
     label: 'App Store downloads/mo',
-    value: `~${formatCompactNumber(appStoreMonthlyDownloadTotal)}`,
+    value: `${formatCompactNumber(appStoreMonthlyDownloadTotal)}+`,
     icon: TrendingUp,
   },
   {
-    label: 'Store links',
-    value: storeLinkCount.toString(),
-    icon: Store,
+    label: 'Total npm downloads',
+    value: `${formatCompactNumber(npmPackageDownloadTotal)}+`,
+    icon: Package,
   },
 ]
 
@@ -289,7 +281,7 @@ function SummaryStat({
   icon: Icon,
 }: (typeof summaryStats)[number]) {
   return (
-    <div className="flex items-center gap-3 py-3 xl:border-l xl:border-fd-border xl:pl-5 xl:first:border-l-0 xl:first:pl-0">
+    <div className="flex items-center gap-3 py-3 sm:border-l sm:border-fd-border sm:pl-5 sm:first:border-l-0 sm:first:pl-0">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-fd-border bg-fd-muted text-fd-muted-foreground">
         <Icon className="size-4" aria-hidden="true" />
       </span>
@@ -384,7 +376,7 @@ export function ProductionAppsShowcase() {
           <AppIconStack />
         </div>
 
-        <div className="mt-7 grid gap-1 border-t border-fd-border pt-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-7 grid gap-1 border-t border-fd-border pt-3 sm:grid-cols-3">
           {summaryStats.map((stat) => (
             <SummaryStat key={stat.label} {...stat} />
           ))}
