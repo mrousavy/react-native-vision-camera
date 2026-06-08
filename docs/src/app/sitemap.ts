@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import type { MetadataRoute } from 'next'
 import { absoluteUrl } from '@/lib/site-config'
 import { apiSource, docsSource } from '@/lib/source'
@@ -6,6 +7,7 @@ import { apiSource, docsSource } from '@/lib/source'
 export const dynamic = 'force-static'
 
 const DOCS_CONTENT_ROOT = 'content/docs'
+const TYPEDOC_JSON_PATH = '.source/typedoc.json'
 
 const HOME_LAST_MODIFIED_PATHS = [
   'src/app/(home)/page.tsx',
@@ -80,8 +82,12 @@ function getGitLastModified(paths: string[]): Date | undefined {
 
 function withLastModified(
   entry: Omit<MetadataRoute.Sitemap[number], 'lastModified'>,
-  paths: string[],
+  paths: string[] | undefined,
 ): MetadataRoute.Sitemap[number] {
+  if (paths == null || paths.length === 0) {
+    return entry
+  }
+
   const lastModified = getGitLastModified(paths)
   return lastModified == null ? entry : { ...entry, lastModified }
 }
@@ -93,21 +99,109 @@ function getDocsPageLastModifiedPaths(pagePath: string): string[] {
 function getApiPackagePaths(packageName: string): string[] {
   return [
     `../packages/${packageName}/src`,
+    `../packages/${packageName}/README.md`,
     `../packages/${packageName}/package.json`,
   ]
 }
 
-function getApiPageLastModifiedPaths(pagePath: string): string[] {
-  const packageName = pagePath.split('/')[0]
+type TypeDocSymbolIdMapEntry = {
+  packageName?: string
+  packagePath?: string
+  qualifiedName?: string
+}
 
-  if (API_PACKAGE_NAMES.includes(packageName)) {
-    return [...API_DOC_GENERATOR_PATHS, ...getApiPackagePaths(packageName)]
+type TypeDocJson = {
+  symbolIdMap?: Record<string, TypeDocSymbolIdMapEntry>
+}
+
+type TypeDocSymbolSourcePaths = Map<string, ReadonlySet<string>>
+
+let typedocSymbolSourcePaths: TypeDocSymbolSourcePaths | undefined | null
+
+function getTypeDocSymbolSourcePaths(): TypeDocSymbolSourcePaths | null {
+  if (typedocSymbolSourcePaths !== undefined) {
+    return typedocSymbolSourcePaths
   }
 
-  return [
-    ...API_DOC_GENERATOR_PATHS,
-    ...API_PACKAGE_NAMES.flatMap(getApiPackagePaths),
-  ]
+  try {
+    const typedoc = JSON.parse(
+      readFileSync(TYPEDOC_JSON_PATH, 'utf8'),
+    ) as TypeDocJson
+    const pathsBySymbol = new Map<string, Set<string>>()
+
+    for (const symbol of Object.values(typedoc.symbolIdMap ?? {})) {
+      if (
+        symbol.packageName == null ||
+        symbol.packagePath == null ||
+        symbol.qualifiedName == null ||
+        symbol.qualifiedName.length === 0
+      ) {
+        continue
+      }
+
+      const qualifiedNameParts = symbol.qualifiedName.split('.')
+      for (let i = 1; i <= qualifiedNameParts.length; i += 1) {
+        const qualifiedName = qualifiedNameParts.slice(0, i).join('.')
+        const key = `${symbol.packageName}\0${qualifiedName}`
+        const existing = pathsBySymbol.get(key) ?? new Set<string>()
+        existing.add(`../packages/${symbol.packageName}/${symbol.packagePath}`)
+        pathsBySymbol.set(key, existing)
+      }
+    }
+
+    typedocSymbolSourcePaths = new Map(
+      [...pathsBySymbol].map(([key, paths]) => [key, paths]),
+    )
+  } catch {
+    typedocSymbolSourcePaths = null
+  }
+
+  return typedocSymbolSourcePaths
+}
+
+function getApiSymbolSourcePaths(pagePath: string): string[] | undefined {
+  const match = pagePath.match(/^([^/]+)\/[^/]+\/([^/]+)\.mdx$/)
+  if (match == null) {
+    return undefined
+  }
+
+  const [, packageName, symbolName] = match
+  if (!API_PACKAGE_NAMES.includes(packageName)) {
+    return undefined
+  }
+
+  const paths = getTypeDocSymbolSourcePaths()?.get(
+    `${packageName}\0${symbolName}`,
+  )
+  return paths == null ? undefined : [...paths].sort()
+}
+
+function getApiPageLastModifiedPaths(pagePath: string): string[] | undefined {
+  const packageName = pagePath.split('/')[0]
+
+  if (pagePath === 'index.mdx') {
+    return [
+      ...API_DOC_GENERATOR_PATHS,
+      ...API_PACKAGE_NAMES.map((name) => `../packages/${name}/package.json`),
+    ]
+  }
+
+  if (API_PACKAGE_NAMES.includes(packageName)) {
+    if (pagePath === `${packageName}/index.mdx`) {
+      return [...API_DOC_GENERATOR_PATHS, ...getApiPackagePaths(packageName)]
+    }
+
+    const symbolSourcePaths = getApiSymbolSourcePaths(pagePath)
+    if (symbolSourcePaths != null && symbolSourcePaths.length > 0) {
+      return [...API_DOC_GENERATOR_PATHS, ...symbolSourcePaths]
+    }
+
+    // If TypeDoc cannot prove source paths for a generated API page, omit
+    // `<lastmod>` instead of emitting an unverifiable freshness signal.
+    return undefined
+  }
+
+  return undefined
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
