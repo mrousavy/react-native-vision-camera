@@ -503,7 +503,7 @@ function AppIconStack() {
         <AppIcon
           key={app.name}
           app={app}
-          className="size-12 border border-white/70 shadow-md ring-2 ring-fd-background lg:size-14 dark:border-zinc-900/10"
+          className="size-12 shadow-md ring-2 ring-fd-background lg:size-14"
           decorative
           size={56}
         />
@@ -555,11 +555,7 @@ function AppCard({ app }: { app: ProductionApp }) {
       data-production-app-card=""
     >
       <div className="flex items-start gap-4">
-        <AppIcon
-          app={app}
-          className="size-14 border border-fd-border shadow-sm"
-          size={56}
-        />
+        <AppIcon app={app} className="size-14 shadow-sm" size={56} />
         <div className="min-w-0 flex-1">
           <h3 className="m-0 text-lg font-semibold leading-tight tracking-normal text-fd-foreground">
             {app.name}
