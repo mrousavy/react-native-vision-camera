@@ -13,7 +13,6 @@ type InstallMetric = {
 type ProductionApp = {
   name: string
   company: string
-  category: string
   installMetrics: InstallMetric[]
   iconSrc: string
   appStoreUrl: string
@@ -24,7 +23,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Xbox',
     company: 'Microsoft',
-    category: 'Gaming companion',
     installMetrics: [
       {
         label: '600K/mo App Store downloads est.',
@@ -45,7 +43,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'PlayStation App',
     company: 'PlayStation Mobile',
-    category: 'Gaming companion',
     installMetrics: [
       {
         label: '800K/mo App Store downloads est.',
@@ -66,7 +63,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Shopify',
     company: 'Shopify',
-    category: 'Commerce',
     installMetrics: [
       {
         label: '400K/mo App Store downloads est.',
@@ -88,7 +84,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Klarna',
     company: 'Klarna Bank',
-    category: 'Shopping finance',
     installMetrics: [
       {
         label: '50M+ Play Store installs',
@@ -105,7 +100,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'SONIC',
     company: 'Sonic Industries',
-    category: 'Restaurant',
     installMetrics: [
       {
         label: '10M+ Play Store installs',
@@ -122,7 +116,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Urban Company',
     company: 'Urban Company',
-    category: 'Home services',
     installMetrics: [
       {
         label: '10M+ Play Store installs',
@@ -139,7 +132,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Picnic',
     company: 'Picnic',
-    category: 'Online supermarket',
     installMetrics: [
       {
         label: '90K/mo App Store downloads est.',
@@ -161,7 +153,6 @@ const productionApps: ProductionApp[] = [
   {
     name: "Arby's",
     company: "Arby's",
-    category: 'Restaurant',
     installMetrics: [
       {
         label: '5M+ Play Store installs',
@@ -178,7 +169,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Buffalo Wild Wings',
     company: 'Buffalo Wild Wings',
-    category: 'Restaurant',
     installMetrics: [
       {
         label: '5M+ Play Store installs',
@@ -195,7 +185,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'PUMA',
     company: 'PUMA',
-    category: 'Commerce',
     installMetrics: [
       {
         label: '5M+ Play Store installs',
@@ -212,7 +201,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Starlink',
     company: 'SpaceX',
-    category: 'Connectivity',
     installMetrics: [
       {
         label: '500K/mo App Store downloads est.',
@@ -233,7 +221,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Expensify',
     company: 'Expensify',
-    category: 'Expense management',
     installMetrics: [
       {
         label: '20K/mo App Store downloads est.',
@@ -255,7 +242,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'National Car Rental',
     company: 'EAN Services',
-    category: 'Travel',
     installMetrics: [
       {
         label: '1M+ Play Store installs',
@@ -272,7 +258,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'MetaMask',
     company: 'Consensys',
-    category: 'Crypto wallet',
     installMetrics: [
       {
         label: '200K/mo App Store downloads est.',
@@ -293,7 +278,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Ledger Live',
     company: 'Ledger',
-    category: 'Crypto wallet',
     installMetrics: [
       {
         label: '30K/mo App Store downloads est.',
@@ -315,7 +299,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'SnapCalorie',
     company: 'Perception Labs',
-    category: 'Health app',
     installMetrics: [
       {
         label: '500K+ Play Store installs',
@@ -332,7 +315,6 @@ const productionApps: ProductionApp[] = [
   {
     name: 'VSCO Capture',
     company: 'Visual Supply Company',
-    category: 'Camera app',
     installMetrics: [
       {
         label: '10K/mo App Store downloads est.',
@@ -463,7 +445,7 @@ function AddYourAppCard() {
       className="flex h-full flex-col gap-4 rounded-lg border border-dashed border-fd-border bg-fd-card p-4 shadow-sm transition-colors hover:border-fd-primary/45"
       data-add-your-app-card=""
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <AppIconGridPlaceholder className="size-14" />
         <div className="min-w-0 flex-1">
           <h3 className="m-0 text-lg font-semibold leading-tight tracking-normal text-fd-foreground">
@@ -554,21 +536,16 @@ function AppCard({ app }: { app: ProductionApp }) {
       className="flex h-full flex-col gap-4 rounded-lg border border-fd-border bg-fd-card p-4 shadow-sm transition-colors hover:border-fd-primary/45"
       data-production-app-card=""
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <AppIcon
           app={app}
           className="size-14 border border-fd-border shadow-sm"
           size={56}
         />
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="m-0 text-lg font-semibold leading-tight tracking-normal text-fd-foreground">
-              {app.name}
-            </h3>
-            <span className="rounded-md border border-fd-border px-2 py-0.5 text-xs font-medium text-fd-muted-foreground">
-              {app.category}
-            </span>
-          </div>
+          <h3 className="m-0 text-lg font-semibold leading-tight tracking-normal text-fd-foreground">
+            {app.name}
+          </h3>
           <p className="mt-1 text-sm text-fd-muted-foreground">{app.company}</p>
         </div>
       </div>
