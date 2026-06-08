@@ -598,7 +598,7 @@ export function ProductionAppsShowcase() {
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-3xl font-semibold leading-tight tracking-normal text-fd-foreground md:text-4xl">
-              VisionCamera is used by the apps on your phone.
+              VisionCamera is used by apps on your phone.
             </h2>
             <p className="mt-3 max-w-xl text-base leading-7 text-fd-muted-foreground">
               A selection of real apps using react-native-vision-camera in
