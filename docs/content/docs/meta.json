@@ -5,6 +5,7 @@
   "pages": [
     "---Guides---",
     "index",
+    "production-apps",
     "visioncamera-vs-expo-camera",
     "---Concepts---",
     "devices",
