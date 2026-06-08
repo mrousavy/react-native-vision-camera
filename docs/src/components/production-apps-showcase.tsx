@@ -1,12 +1,4 @@
-import {
-  Apple,
-  BadgeCheck,
-  Camera,
-  Download,
-  ExternalLink,
-  Play,
-  Store,
-} from 'lucide-react'
+import { BadgeCheck, Camera, Download, ExternalLink, Store } from 'lucide-react'
 import Image from 'next/image'
 
 type ProductionApp = {
@@ -149,23 +141,14 @@ function SummaryStat({
   )
 }
 
-function StoreLink({
-  href,
-  label,
-  icon: Icon,
-}: {
-  href: string
-  label: string
-  icon: typeof Apple
-}) {
+function StoreLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="inline-flex items-center gap-1.5 rounded-md border border-fd-border px-2.5 py-1.5 text-xs font-medium text-fd-foreground no-underline transition-colors hover:border-fd-primary/45 hover:text-fd-primary"
+      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-fd-border px-2.5 py-1.5 text-xs font-medium text-fd-foreground no-underline transition-colors hover:border-fd-primary/45 hover:text-fd-primary"
       target="_blank"
       rel="noreferrer"
     >
-      <Icon className="size-3.5" aria-hidden="true" />
       {label}
       <ExternalLink className="size-3" aria-hidden="true" />
     </a>
@@ -200,15 +183,15 @@ function AppCard({ app }: { app: ProductionApp }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-fd-border pt-3">
+      <div className="grid gap-3 border-t border-fd-border pt-3">
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-fd-muted-foreground">
           <Download className="size-3.5" aria-hidden="true" />
           {app.downloads}
         </span>
-        <div className="flex flex-wrap gap-2">
-          <StoreLink href={app.appStoreUrl} label="App Store" icon={Apple} />
+        <div className="flex flex-nowrap items-center gap-2">
+          <StoreLink href={app.appStoreUrl} label="App Store" />
           {app.playStoreUrl ? (
-            <StoreLink href={app.playStoreUrl} label="Play Store" icon={Play} />
+            <StoreLink href={app.playStoreUrl} label="Play Store" />
           ) : null}
         </div>
       </div>
