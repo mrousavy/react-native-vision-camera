@@ -359,6 +359,7 @@ function formatCompactNumber(value: number) {
 const knownInstallTotal = sumMetrics('lifetime-installs')
 const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
 const npmPackageDownloadTotal = 33_880_333
+const heroIconApps = productionApps.slice(0, 8)
 const editDocUrl =
   'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/content/docs/production-apps.mdx'
 
@@ -480,8 +481,8 @@ function AddYourAppCard() {
 
 function AppIconStack() {
   return (
-    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-6">
-      {productionApps.map((app) => (
+    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-3">
+      {heroIconApps.map((app) => (
         <AppIcon
           key={app.name}
           app={app}
