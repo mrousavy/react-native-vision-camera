@@ -1,5 +1,8 @@
+import { Cards } from 'fumadocs-ui/components/card'
 import { Download, Package, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/cn'
 
 type InstallMetric = {
   label: string
@@ -299,7 +302,10 @@ function StoreLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-md border border-fd-border px-2 py-1.5 text-xs font-medium text-fd-foreground no-underline transition-colors hover:border-fd-primary/45 hover:text-fd-primary"
+      className={cn(
+        buttonVariants({ variant: 'outline', size: 'sm' }),
+        'min-w-0 flex-1 whitespace-nowrap border-fd-border text-fd-foreground no-underline hover:border-fd-primary/45 hover:bg-transparent hover:text-fd-primary',
+      )}
       target="_blank"
       rel="noreferrer"
     >
@@ -383,11 +389,11 @@ export function ProductionAppsShowcase() {
         </div>
       </section>
 
-      <section className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <Cards className="mt-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {productionApps.map((app) => (
           <AppCard key={app.name} app={app} />
         ))}
-      </section>
+      </Cards>
     </div>
   )
 }
