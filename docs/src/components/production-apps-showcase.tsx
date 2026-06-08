@@ -260,18 +260,72 @@ const summaryStats = [
   },
 ]
 
+function IOSAppIconPlaceholder() {
+  return (
+    <svg
+      className="absolute inset-0 size-full bg-white text-zinc-500"
+      viewBox="0 0 512 512"
+      aria-hidden="true"
+    >
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="square"
+        strokeWidth="1.25"
+        vectorEffect="non-scaling-stroke"
+      >
+        <path d="M0 128h512M0 256h512M0 384h512M128 0v512M256 0v512M384 0v512" />
+        <path d="M32 0v512M96 0v512M416 0v512M480 0v512" />
+        <path d="M32 32 480 480M480 32 32 480" />
+        <circle cx="256" cy="256" r="224" />
+        <circle cx="256" cy="256" r="134" />
+        <circle cx="256" cy="256" r="96" />
+      </g>
+    </svg>
+  )
+}
+
+function AppIcon({
+  app,
+  className,
+  decorative = false,
+  size,
+}: {
+  app: ProductionApp
+  className?: string
+  decorative?: boolean
+  size: number
+}) {
+  return (
+    <span
+      className={cn(
+        'relative inline-flex shrink-0 overflow-hidden rounded-[22%]',
+        className,
+      )}
+    >
+      <IOSAppIconPlaceholder />
+      <Image
+        src={app.iconSrc}
+        alt={decorative ? '' : `${app.name} iOS app icon`}
+        width={size}
+        height={size}
+        className="relative size-full object-cover"
+        draggable={false}
+      />
+    </span>
+  )
+}
+
 function AppIconStack() {
   return (
     <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-3">
       {productionApps.map((app) => (
-        <Image
+        <AppIcon
           key={app.name}
-          src={app.iconSrc}
-          alt=""
-          width={56}
-          height={56}
-          className="size-12 rounded-[22%] border border-white/70 bg-white object-cover shadow-md ring-2 ring-fd-background lg:size-14 dark:border-zinc-900/10"
-          draggable={false}
+          app={app}
+          className="size-12 border border-white/70 shadow-md ring-2 ring-fd-background lg:size-14 dark:border-zinc-900/10"
+          decorative
+          size={56}
         />
       ))}
     </div>
@@ -321,13 +375,10 @@ function AppCard({ app }: { app: ProductionApp }) {
       data-production-app-card=""
     >
       <div className="flex items-center gap-4">
-        <Image
-          src={app.iconSrc}
-          alt={`${app.name} iOS app icon`}
-          width={56}
-          height={56}
-          className="size-14 shrink-0 rounded-[22%] border border-fd-border bg-white object-cover shadow-sm"
-          draggable={false}
+        <AppIcon
+          app={app}
+          className="size-14 border border-fd-border shadow-sm"
+          size={56}
         />
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
