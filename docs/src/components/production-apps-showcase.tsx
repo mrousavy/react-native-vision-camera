@@ -1,8 +1,25 @@
 import { Cards } from 'fumadocs-ui/components/card'
 import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
-import Image from 'next/image'
+import Image, { type StaticImageData } from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import arbysIcon from '../../public/img/production-apps/arbys.jpg'
+import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
+import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
+import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
+import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
+import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
+import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
+import picnicIcon from '../../public/img/production-apps/picnic.jpg'
+import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
+import pumaIcon from '../../public/img/production-apps/puma.jpg'
+import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
+import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
+import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
+import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
+import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
+import xboxIcon from '../../public/img/production-apps/xbox.jpg'
 
 type InstallMetric = {
   label: string
@@ -14,7 +31,7 @@ type ProductionApp = {
   name: string
   company: string
   installMetrics: InstallMetric[]
-  iconSrc: string
+  iconSrc: StaticImageData
   appStoreUrl: string
   playStoreUrl?: string
 }
@@ -35,7 +52,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/xbox.jpg',
+    iconSrc: xboxIcon,
     appStoreUrl: 'https://apps.apple.com/us/app/xbox/id736179781',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass',
@@ -55,7 +72,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/playstation-app.jpg',
+    iconSrc: playstationAppIcon,
     appStoreUrl: 'https://apps.apple.com/us/app/playstation-app/id410896080',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.scee.psxandroid',
@@ -75,7 +92,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/shopify.jpg',
+    iconSrc: shopifyIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/shopify-sell-online-in-person/id371294472',
     playStoreUrl:
@@ -91,7 +108,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/klarna.jpg',
+    iconSrc: klarnaIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
     playStoreUrl:
@@ -107,7 +124,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/sonic-drive-in.jpg',
+    iconSrc: sonicDriveInIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
     playStoreUrl:
@@ -123,7 +140,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/urban-company.jpg',
+    iconSrc: urbanCompanyIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/urban-company-home-services/id1032480595',
     playStoreUrl:
@@ -144,7 +161,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/picnic.jpg',
+    iconSrc: picnicIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/picnic-order-cook-eat/id1018175041',
     playStoreUrl:
@@ -160,7 +177,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/arbys.jpg',
+    iconSrc: arbysIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/arbys-fast-food-sandwiches/id1348507359',
     playStoreUrl:
@@ -176,7 +193,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/buffalo-wild-wings.jpg',
+    iconSrc: buffaloWildWingsIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/buffalo-wild-wings/id1031364004',
     playStoreUrl:
@@ -192,7 +209,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/puma.jpg',
+    iconSrc: pumaIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
     playStoreUrl:
@@ -213,7 +230,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/starlink.jpg',
+    iconSrc: starlinkIcon,
     appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.starlink.mobile',
@@ -233,7 +250,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/expensify.jpg',
+    iconSrc: expensifyIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
     playStoreUrl:
@@ -249,7 +266,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/national-car-rental.jpg',
+    iconSrc: nationalCarRentalIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/national-car-rental/id675304115',
     playStoreUrl:
@@ -270,7 +287,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/metamask.jpg',
+    iconSrc: metamaskIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
@@ -290,7 +307,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/ledger-live.jpg',
+    iconSrc: ledgerLiveIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
     playStoreUrl:
@@ -306,7 +323,7 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: '/img/production-apps/snapcalorie.jpg',
+    iconSrc: snapcalorieIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/snapcalorie-ai-calorie-counter/id1574239307',
     playStoreUrl:
@@ -322,7 +339,7 @@ const productionApps: ProductionApp[] = [
         kind: 'monthly-downloads',
       },
     ],
-    iconSrc: '/img/production-apps/vsco-capture.jpg',
+    iconSrc: vscoCaptureIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
   },
