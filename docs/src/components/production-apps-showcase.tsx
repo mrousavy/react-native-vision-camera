@@ -1,5 +1,5 @@
 import { Cards } from 'fumadocs-ui/components/card'
-import { Download, Package, TrendingUp } from 'lucide-react'
+import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
@@ -241,6 +241,8 @@ function formatCompactNumber(value: number) {
 const knownInstallTotal = sumMetrics('lifetime-installs')
 const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
 const npmPackageDownloadTotal = 33_880_333
+const editDocUrl =
+  'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/content/docs/production-apps.mdx'
 
 const summaryStats = [
   {
@@ -260,28 +262,32 @@ const summaryStats = [
   },
 ]
 
-function IOSAppIconPlaceholder() {
+// Drawn locally so we do not ship Apple's Design Resources as website content.
+function AppIconGridPlaceholder({ className }: { className?: string }) {
   return (
-    <svg
-      className="absolute inset-0 size-full bg-white text-zinc-500"
-      viewBox="0 0 512 512"
-      aria-hidden="true"
+    <span
+      className={cn(
+        'inline-flex shrink-0 overflow-hidden rounded-[22%] border border-fd-border bg-white text-zinc-500 shadow-sm',
+        className,
+      )}
     >
-      <g
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="square"
-        strokeWidth="1.25"
-        vectorEffect="non-scaling-stroke"
-      >
-        <path d="M0 128h512M0 256h512M0 384h512M128 0v512M256 0v512M384 0v512" />
-        <path d="M32 0v512M96 0v512M416 0v512M480 0v512" />
-        <path d="M32 32 480 480M480 32 32 480" />
-        <circle cx="256" cy="256" r="224" />
-        <circle cx="256" cy="256" r="134" />
-        <circle cx="256" cy="256" r="96" />
-      </g>
-    </svg>
+      <svg className="size-full" viewBox="0 0 512 512" aria-hidden="true">
+        <g
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="square"
+          strokeWidth="1.25"
+          vectorEffect="non-scaling-stroke"
+        >
+          <path d="M0 128h512M0 256h512M0 384h512M128 0v512M256 0v512M384 0v512" />
+          <path d="M32 0v512M96 0v512M416 0v512M480 0v512" />
+          <path d="M32 32 480 480M480 32 32 480" />
+          <circle cx="256" cy="256" r="224" />
+          <circle cx="256" cy="256" r="134" />
+          <circle cx="256" cy="256" r="96" />
+        </g>
+      </svg>
+    </span>
   )
 }
 
@@ -303,7 +309,6 @@ function AppIcon({
         className,
       )}
     >
-      <IOSAppIconPlaceholder />
       <Image
         src={app.iconSrc}
         alt={decorative ? '' : `${app.name} iOS app icon`}
@@ -313,6 +318,45 @@ function AppIcon({
         draggable={false}
       />
     </span>
+  )
+}
+
+function AddYourAppCard() {
+  return (
+    <div
+      className="flex h-full flex-col gap-4 rounded-lg border border-dashed border-fd-border bg-fd-card p-4 shadow-sm transition-colors hover:border-fd-primary/45"
+      data-add-your-app-card=""
+    >
+      <div className="flex items-center gap-4">
+        <AppIconGridPlaceholder className="size-14" />
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 text-lg font-semibold leading-tight tracking-normal text-fd-foreground">
+            Your App here
+          </h3>
+          <p className="mt-1 text-sm text-fd-muted-foreground">
+            Using VisionCamera in production?
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-3 border-t border-fd-border pt-3">
+        <p className="m-0 text-sm leading-6 text-fd-muted-foreground">
+          Add your app to this list!
+        </p>
+        <a
+          href={editDocUrl}
+          className={cn(
+            buttonVariants({ variant: 'outline', size: 'sm' }),
+            'mt-auto w-full border-fd-border text-fd-foreground no-underline hover:border-fd-primary/45 hover:bg-transparent hover:text-fd-primary',
+          )}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <PencilLine className="size-3.5 shrink-0" aria-hidden="true" />
+          Edit this page
+        </a>
+      </div>
+    </div>
   )
 }
 
@@ -444,6 +488,7 @@ export function ProductionAppsShowcase() {
         {productionApps.map((app) => (
           <AppCard key={app.name} app={app} />
         ))}
+        <AddYourAppCard />
       </Cards>
     </div>
   )
