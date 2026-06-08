@@ -1,6 +1,7 @@
 import type { HomeLayoutProps } from 'fumadocs-ui/layouts/home'
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
 import Image from 'next/image'
+import { featuredGuideLinks } from '@/lib/featured-guide-links'
 import { siteConfig } from '@/lib/site-config'
 
 export const docsShellClassName = 'vc-docs-shell flex flex-col'
@@ -52,6 +53,21 @@ export function homeOptions(): HomeLayoutProps {
         text: 'API Reference',
         url: '/api',
         active: 'nested-url',
+      },
+      {
+        type: 'menu',
+        text: 'Guides',
+        url: '/docs',
+        active: 'nested-url',
+        items: featuredGuideLinks.map((link) => ({
+          text: link.label,
+          url: link.href,
+          active: 'url',
+          menu: {
+            className: 'rounded-md border-transparent bg-transparent px-3 py-2',
+            children: <span className="text-sm font-medium">{link.label}</span>,
+          },
+        })),
       },
     ],
     githubUrl: siteConfig.repositoryUrl,

@@ -7,6 +7,7 @@ import {
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { FeaturedGuideLinks } from '@/components/featured-guide-links'
 import { LetsTalkWidget } from '@/components/lets-talk-widget'
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions'
 import { PlatformPills } from '@/components/platform/pills'
@@ -34,6 +35,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     <DocsPage
       toc={page.data.toc}
       full={page.data.full}
+      footer={{ children: <FeaturedGuideLinks currentUrl={page.url} /> }}
       tableOfContent={{ footer: <LetsTalkWidget /> }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>

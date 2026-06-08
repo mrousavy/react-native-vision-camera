@@ -9,16 +9,36 @@ export const dynamic = 'force-static'
 const DOCS_CONTENT_ROOT = 'content/docs'
 const TYPEDOC_JSON_PATH = '.source/typedoc.json'
 
-const HOME_LAST_MODIFIED_PATHS = [
-  'src/app/(home)/page.tsx',
-  'src/app/(home)/layout.tsx',
+const SHARED_PAGE_LAST_MODIFIED_PATHS = [
   'src/app/layout.tsx',
-  'src/components/landing',
+  'src/app/(content)/layout.tsx',
+  'src/lib/featured-guide-links.ts',
+  'src/lib/layout.shared.tsx',
   'src/lib/site-config.ts',
   'src/lib/structured-data.ts',
+]
+
+const HOME_LAST_MODIFIED_PATHS = [
+  ...SHARED_PAGE_LAST_MODIFIED_PATHS,
+  'src/app/(home)/page.tsx',
+  'src/app/(home)/layout.tsx',
+  'src/components/landing',
   'public/vc_logo.svg',
   'public/img/landing-bg-back.webp',
   'public/img/landing-bg-front.webp',
+]
+
+const DOCS_PAGE_LAST_MODIFIED_PATHS = [
+  ...SHARED_PAGE_LAST_MODIFIED_PATHS,
+  'src/app/(content)/docs/layout.tsx',
+  'src/app/(content)/docs/[[...slug]]/page.tsx',
+  'src/components/featured-guide-links.tsx',
+]
+
+const API_PAGE_LAST_MODIFIED_PATHS = [
+  ...SHARED_PAGE_LAST_MODIFIED_PATHS,
+  'src/app/(content)/api/layout.tsx',
+  'src/app/(content)/api/[[...slug]]/page.tsx',
 ]
 
 const API_PACKAGE_NAMES = [
@@ -93,7 +113,7 @@ function withLastModified(
 }
 
 function getDocsPageLastModifiedPaths(pagePath: string): string[] {
-  return [`${DOCS_CONTENT_ROOT}/${pagePath}`]
+  return [...DOCS_PAGE_LAST_MODIFIED_PATHS, `${DOCS_CONTENT_ROOT}/${pagePath}`]
 }
 
 function getApiPackagePaths(packageName: string): string[] {
@@ -181,6 +201,7 @@ function getApiPageLastModifiedPaths(pagePath: string): string[] | undefined {
 
   if (pagePath === 'index.mdx') {
     return [
+      ...API_PAGE_LAST_MODIFIED_PATHS,
       ...API_DOC_GENERATOR_PATHS,
       ...API_PACKAGE_NAMES.map((name) => `../packages/${name}/package.json`),
     ]
@@ -188,12 +209,20 @@ function getApiPageLastModifiedPaths(pagePath: string): string[] | undefined {
 
   if (API_PACKAGE_NAMES.includes(packageName)) {
     if (pagePath === `${packageName}/index.mdx`) {
-      return [...API_DOC_GENERATOR_PATHS, ...getApiPackagePaths(packageName)]
+      return [
+        ...API_PAGE_LAST_MODIFIED_PATHS,
+        ...API_DOC_GENERATOR_PATHS,
+        ...getApiPackagePaths(packageName),
+      ]
     }
 
     const symbolSourcePaths = getApiSymbolSourcePaths(pagePath)
     if (symbolSourcePaths != null && symbolSourcePaths.length > 0) {
-      return [...API_DOC_GENERATOR_PATHS, ...symbolSourcePaths]
+      return [
+        ...API_PAGE_LAST_MODIFIED_PATHS,
+        ...API_DOC_GENERATOR_PATHS,
+        ...symbolSourcePaths,
+      ]
     }
 
     // If TypeDoc cannot prove source paths for a generated API page, omit
