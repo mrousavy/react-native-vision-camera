@@ -15,6 +15,7 @@ import {
   getGithubContentUrl,
   getMarkdownPath,
   getOgImage,
+  siteConfig,
 } from '@/lib/site-config'
 import { docsSource } from '@/lib/source'
 import { getMDXComponents } from '@/mdx-components'
@@ -83,6 +84,7 @@ export async function generateMetadata(
       canonical: page.url,
     },
     openGraph: {
+      siteName: siteConfig.name,
       url: page.url,
       images: [image],
     },

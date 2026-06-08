@@ -3,8 +3,10 @@ const DEFAULT_BRANCH = 'main'
 
 export const siteConfig = {
   name: 'VisionCamera',
+  alternateNames: ['React Native Vision Camera', 'react-native-vision-camera'],
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL),
   repositoryUrl: 'https://github.com/mrousavy/react-native-vision-camera',
+  packageUrl: 'https://www.npmjs.com/package/react-native-vision-camera',
   repositoryBranch: DEFAULT_BRANCH,
   contentRoots: {
     docs: 'docs/content/docs',
