@@ -86,6 +86,57 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
   },
   {
+    name: 'Klarna',
+    company: 'Klarna Bank',
+    category: 'Shopping finance',
+    installMetrics: [
+      {
+        label: '50M+ Play Store installs',
+        value: 50_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/klarna.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.myklarnamobile',
+  },
+  {
+    name: 'SONIC',
+    company: 'Sonic Industries',
+    category: 'Restaurant',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/sonic-drive-in.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
+  },
+  {
+    name: 'Urban Company',
+    company: 'Urban Company',
+    category: 'Home services',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/urban-company.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/urban-company-home-services/id1032480595',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap',
+  },
+  {
     name: 'Picnic',
     company: 'Picnic',
     category: 'Online supermarket',
@@ -106,6 +157,57 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/picnic-order-cook-eat/id1018175041',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.picnic.android',
+  },
+  {
+    name: "Arby's",
+    company: "Arby's",
+    category: 'Restaurant',
+    installMetrics: [
+      {
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/arbys.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/arbys-fast-food-sandwiches/id1348507359',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.arbys.android.arbysapp',
+  },
+  {
+    name: 'Buffalo Wild Wings',
+    company: 'Buffalo Wild Wings',
+    category: 'Restaurant',
+    installMetrics: [
+      {
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/buffalo-wild-wings.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/buffalo-wild-wings/id1031364004',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.buffalowildwings.blazinrewards',
+  },
+  {
+    name: 'PUMA',
+    company: 'PUMA',
+    category: 'Commerce',
+    installMetrics: [
+      {
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/puma.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.puma.ecom.app',
   },
   {
     name: 'Starlink',
@@ -151,6 +253,23 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
   },
   {
+    name: 'National Car Rental',
+    company: 'EAN Services',
+    category: 'Travel',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/national-car-rental.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/national-car-rental/id675304115',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.ehi.national.mobile',
+  },
+  {
     name: 'MetaMask',
     company: 'Consensys',
     category: 'Crypto wallet',
@@ -192,6 +311,23 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.ledger.live',
+  },
+  {
+    name: 'SnapCalorie',
+    company: 'Perception Labs',
+    category: 'Health app',
+    installMetrics: [
+      {
+        label: '500K+ Play Store installs',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/snapcalorie.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/snapcalorie-ai-calorie-counter/id1574239307',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.snapcalorie.alpha002',
   },
   {
     name: 'VSCO Capture',
@@ -362,7 +498,7 @@ function AddYourAppCard() {
 
 function AppIconStack() {
   return (
-    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-3">
+    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-6">
       {productionApps.map((app) => (
         <AppIcon
           key={app.name}
