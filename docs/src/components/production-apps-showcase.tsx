@@ -378,7 +378,7 @@ const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
 const npmPackageDownloadTotal = 33_880_333
 const heroIconApps = productionApps.slice(0, 8)
 const editDocUrl =
-  'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/content/docs/production-apps.mdx'
+  'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/src/components/production-apps-showcase.tsx'
 
 const summaryStats = [
   {
