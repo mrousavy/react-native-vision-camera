@@ -1,11 +1,17 @@
-import { BadgeCheck, Camera, Download, ExternalLink, Store } from 'lucide-react'
+import { BadgeCheck, Download, Store, TrendingUp } from 'lucide-react'
 import Image from 'next/image'
+
+type InstallMetric = {
+  label: string
+  value: number
+  kind: 'lifetime-installs' | 'monthly-downloads'
+}
 
 type ProductionApp = {
   name: string
   company: string
   category: string
-  downloads: string
+  installMetrics: InstallMetric[]
   iconSrc: string
   appStoreUrl: string
   playStoreUrl?: string
@@ -16,7 +22,18 @@ const productionApps: ProductionApp[] = [
     name: 'Xbox',
     company: 'Microsoft',
     category: 'Gaming companion',
-    downloads: '100M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '600K/mo App Store downloads est.',
+        value: 600_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '100M+ Play Store installs',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/xbox.jpg',
     appStoreUrl: 'https://apps.apple.com/us/app/xbox/id736179781',
     playStoreUrl:
@@ -26,7 +43,18 @@ const productionApps: ProductionApp[] = [
     name: 'PlayStation App',
     company: 'PlayStation Mobile',
     category: 'Gaming companion',
-    downloads: '100M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '800K/mo App Store downloads est.',
+        value: 800_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '100M+ Play Store installs',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/playstation-app.jpg',
     appStoreUrl: 'https://apps.apple.com/us/app/playstation-app/id410896080',
     playStoreUrl:
@@ -36,7 +64,18 @@ const productionApps: ProductionApp[] = [
     name: 'Shopify',
     company: 'Shopify',
     category: 'Commerce',
-    downloads: '10M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '400K/mo App Store downloads est.',
+        value: 400_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/shopify.jpg',
     appStoreUrl:
       'https://apps.apple.com/us/app/shopify-sell-online-in-person/id371294472',
@@ -44,20 +83,86 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
   },
   {
+    name: 'Picnic',
+    company: 'Picnic',
+    category: 'Online supermarket',
+    installMetrics: [
+      {
+        label: '90K/mo App Store downloads est.',
+        value: 90_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/picnic.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/picnic-order-cook-eat/id1018175041',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.picnic.android',
+  },
+  {
     name: 'Starlink',
     company: 'SpaceX',
     category: 'Connectivity',
-    downloads: '10M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/starlink.jpg',
     appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.starlink.mobile',
   },
   {
+    name: 'Expensify',
+    company: 'Expensify',
+    category: 'Expense management',
+    installMetrics: [
+      {
+        label: '20K/mo App Store downloads est.',
+        value: 20_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: '/img/production-apps/expensify.jpg',
+    appStoreUrl:
+      'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
+  },
+  {
     name: 'MetaMask',
     company: 'Consensys',
     category: 'Crypto wallet',
-    downloads: '10M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '200K/mo App Store downloads est.',
+        value: 200_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/metamask.jpg',
     appStoreUrl:
       'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
@@ -67,7 +172,18 @@ const productionApps: ProductionApp[] = [
     name: 'Ledger Live',
     company: 'Ledger',
     category: 'Crypto wallet',
-    downloads: '1M+ Play Store installs',
+    installMetrics: [
+      {
+        label: '30K/mo App Store downloads est.',
+        value: 30_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: '/img/production-apps/ledger-live.jpg',
     appStoreUrl:
       'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
@@ -78,34 +194,80 @@ const productionApps: ProductionApp[] = [
     name: 'VSCO Capture',
     company: 'Visual Supply Company',
     category: 'Camera app',
-    downloads: 'App Store downloads not public',
+    installMetrics: [
+      {
+        label: '10K/mo App Store downloads est.',
+        value: 10_000,
+        kind: 'monthly-downloads',
+      },
+    ],
     iconSrc: '/img/production-apps/vsco-capture.jpg',
     appStoreUrl:
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
   },
 ]
 
+function sumMetrics(kind: InstallMetric['kind']) {
+  return productionApps.reduce(
+    (sum, app) =>
+      sum +
+      app.installMetrics.reduce(
+        (appSum, metric) => appSum + (metric.kind === kind ? metric.value : 0),
+        0,
+      ),
+    0,
+  )
+}
+
+function formatCompactNumber(value: number) {
+  if (value >= 1_000_000) {
+    return `${new Intl.NumberFormat('en', {
+      maximumFractionDigits: value >= 10_000_000 ? 0 : 1,
+    }).format(value / 1_000_000)}M`
+  }
+
+  if (value >= 1_000) {
+    return `${new Intl.NumberFormat('en', {
+      maximumFractionDigits: value >= 100_000 ? 0 : 1,
+    }).format(value / 1_000)}K`
+  }
+
+  return new Intl.NumberFormat('en').format(value)
+}
+
+const knownInstallTotal = sumMetrics('lifetime-installs')
+const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
+const storeLinkCount = productionApps.reduce(
+  (count, app) => count + 1 + (app.playStoreUrl ? 1 : 0),
+  0,
+)
+
 const summaryStats = [
   {
     label: 'Production apps',
-    value: '7',
+    value: productionApps.length.toString(),
     icon: BadgeCheck,
   },
   {
     label: 'Known public installs',
-    value: '231M+',
+    value: `${formatCompactNumber(knownInstallTotal)}+`,
     icon: Download,
   },
   {
-    label: 'App Store / Play Store links',
-    value: '13',
+    label: 'App Store downloads/mo',
+    value: `~${formatCompactNumber(appStoreMonthlyDownloadTotal)}`,
+    icon: TrendingUp,
+  },
+  {
+    label: 'Store links',
+    value: storeLinkCount.toString(),
     icon: Store,
   },
 ]
 
 function AppIconStack() {
   return (
-    <div className="flex shrink-0 items-center -space-x-3">
+    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-3">
       {productionApps.map((app) => (
         <Image
           key={app.name}
@@ -113,7 +275,7 @@ function AppIconStack() {
           alt=""
           width={56}
           height={56}
-          className="size-14 rounded-[22%] border border-white/70 bg-white object-cover shadow-md ring-2 ring-fd-background dark:border-zinc-900/10"
+          className="size-12 rounded-[22%] border border-white/70 bg-white object-cover shadow-md ring-2 ring-fd-background lg:size-14 dark:border-zinc-900/10"
           draggable={false}
         />
       ))}
@@ -127,7 +289,7 @@ function SummaryStat({
   icon: Icon,
 }: (typeof summaryStats)[number]) {
   return (
-    <div className="flex items-center gap-3 border-fd-border py-4 sm:border-l sm:first:border-l-0 sm:pl-5 sm:first:pl-0">
+    <div className="flex items-center gap-3 py-3 xl:border-l xl:border-fd-border xl:pl-5 xl:first:border-l-0 xl:first:pl-0">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-fd-border bg-fd-muted text-fd-muted-foreground">
         <Icon className="size-4" aria-hidden="true" />
       </span>
@@ -145,12 +307,11 @@ function StoreLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-fd-border px-2.5 py-1.5 text-xs font-medium text-fd-foreground no-underline transition-colors hover:border-fd-primary/45 hover:text-fd-primary"
+      className="inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-md border border-fd-border px-2 py-1.5 text-xs font-medium text-fd-foreground no-underline transition-colors hover:border-fd-primary/45 hover:text-fd-primary"
       target="_blank"
       rel="noreferrer"
     >
       {label}
-      <ExternalLink className="size-3" aria-hidden="true" />
     </a>
   )
 }
@@ -183,12 +344,19 @@ function AppCard({ app }: { app: ProductionApp }) {
         </div>
       </div>
 
-      <div className="grid gap-3 border-t border-fd-border pt-3">
-        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-fd-muted-foreground">
-          <Download className="size-3.5" aria-hidden="true" />
-          {app.downloads}
-        </span>
-        <div className="flex flex-nowrap items-center gap-2">
+      <div className="flex flex-1 flex-col gap-3 border-t border-fd-border pt-3">
+        <div className="grid gap-1.5">
+          {app.installMetrics.map((metric) => (
+            <span
+              key={metric.label}
+              className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-fd-muted-foreground"
+            >
+              <Download className="size-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">{metric.label}</span>
+            </span>
+          ))}
+        </div>
+        <div className="mt-auto flex w-full flex-nowrap items-center gap-2">
           <StoreLink href={app.appStoreUrl} label="App Store" />
           {app.playStoreUrl ? (
             <StoreLink href={app.playStoreUrl} label="Play Store" />
@@ -202,14 +370,10 @@ function AppCard({ app }: { app: ProductionApp }) {
 export function ProductionAppsShowcase() {
   return (
     <div className="not-prose mt-8">
-      <section className="border-y border-fd-border py-8">
+      <section className="border-b border-fd-border pb-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-md border border-fd-border bg-fd-muted px-3 py-1 text-sm font-medium text-fd-muted-foreground">
-              <Camera className="size-4" aria-hidden="true" />
-              Production apps
-            </div>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-normal text-fd-foreground md:text-4xl">
+            <h2 className="text-3xl font-semibold leading-tight tracking-normal text-fd-foreground md:text-4xl">
               VisionCamera is used by apps on your phone.
             </h2>
             <p className="mt-3 max-w-xl text-base leading-7 text-fd-muted-foreground">
@@ -220,7 +384,7 @@ export function ProductionAppsShowcase() {
           <AppIconStack />
         </div>
 
-        <div className="mt-7 grid gap-1 border-t border-fd-border pt-3 sm:grid-cols-3">
+        <div className="mt-7 grid gap-1 border-t border-fd-border pt-3 sm:grid-cols-2 xl:grid-cols-4">
           {summaryStats.map((stat) => (
             <SummaryStat key={stat.label} {...stat} />
           ))}
