@@ -481,7 +481,7 @@ function AddYourAppCard() {
 
 function AppIconStack() {
   return (
-    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 lg:-space-x-3">
+    <div className="-space-x-4 flex max-w-full shrink-0 items-center overflow-hidden pl-2 xl:-space-x-3">
       {heroIconApps.map((app) => (
         <AppIcon
           key={app.name}
@@ -578,7 +578,7 @@ export function ProductionAppsShowcase() {
   return (
     <div className="not-prose mt-8">
       <section className="border-b border-fd-border pb-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-2xl">
             <h2 className="text-3xl font-semibold leading-tight tracking-normal text-fd-foreground md:text-4xl">
               VisionCamera is used by apps on your phone.
