@@ -74,10 +74,7 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
       output.isAppleProRAWEnabled = enableAppleProRAW
     }
 
-    if #available(iOS 26, *),
-      output.isCameraSensorOrientationCompensationSupported,
-      output.isCameraSensorOrientationCompensationEnabled
-    {
+    if #available(iOS 26, *) {
       // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
       output.isCameraSensorOrientationCompensationEnabled = false
     }
