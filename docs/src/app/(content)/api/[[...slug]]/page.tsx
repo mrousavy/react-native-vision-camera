@@ -135,12 +135,13 @@ export async function generateMetadata(
   props: PageProps<'/api/[[...slug]]'>,
 ): Promise<Metadata> {
   const page = await resolveApiPage(props.params)
+  const description = page.data.description?.trim()
 
   const image = getOgImage(page.url)
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    ...(description != null && description.length > 0 ? { description } : {}),
     alternates: {
       canonical: page.url,
     },

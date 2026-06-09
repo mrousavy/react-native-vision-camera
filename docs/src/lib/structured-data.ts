@@ -1,8 +1,5 @@
 import { absoluteUrl, siteConfig } from './site-config'
 
-const SITE_DESCRIPTION =
-  'The most powerful Camera library for React Native. Supports Photo and Video capture, QR/Barcode scanning, Frame Processors, and more.'
-
 const AUTHOR = {
   name: 'Marc Rousavy',
   url: 'https://mrousavy.com',
@@ -34,7 +31,7 @@ export function getSiteStructuredData() {
         url: siteUrl,
         name: siteConfig.name,
         alternateName: [...siteConfig.alternateNames],
-        description: SITE_DESCRIPTION,
+        description: siteConfig.description,
         inLanguage: 'en',
         publisher: { '@id': projectId },
         about: { '@id': softwareId },
@@ -75,7 +72,7 @@ export function getSiteStructuredData() {
         '@type': 'SoftwareSourceCode',
         '@id': softwareId,
         name: 'react-native-vision-camera',
-        description: SITE_DESCRIPTION,
+        description: siteConfig.description,
         codeRepository: siteConfig.repositoryUrl,
         sameAs: [siteConfig.repositoryUrl, siteConfig.packageUrl],
         programmingLanguage: ['TypeScript', 'Swift', 'Kotlin', 'C++'],

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { absoluteUrl } from '@/lib/site-config'
+import { absoluteUrl, siteConfig } from '@/lib/site-config'
 import { apiSource, docsSource } from '@/lib/source'
 
 export const dynamic = 'force-static'
@@ -19,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: absoluteUrl('/'),
+      url: siteConfig.metadataBase.origin,
       changeFrequency: 'monthly',
       priority: 1.0,
     },
