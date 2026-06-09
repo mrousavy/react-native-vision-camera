@@ -12,7 +12,6 @@ const TYPEDOC_JSON_PATH = '.source/typedoc.json'
 const SHARED_PAGE_LAST_MODIFIED_PATHS = [
   'src/app/layout.tsx',
   'src/app/(content)/layout.tsx',
-  'src/lib/featured-guide-links.ts',
   'src/lib/layout.shared.tsx',
   'src/lib/site-config.ts',
   'src/lib/structured-data.ts',
@@ -32,7 +31,6 @@ const DOCS_PAGE_LAST_MODIFIED_PATHS = [
   ...SHARED_PAGE_LAST_MODIFIED_PATHS,
   'src/app/(content)/docs/layout.tsx',
   'src/app/(content)/docs/[[...slug]]/page.tsx',
-  'src/components/featured-guide-links.tsx',
 ]
 
 const API_PAGE_LAST_MODIFIED_PATHS = [
