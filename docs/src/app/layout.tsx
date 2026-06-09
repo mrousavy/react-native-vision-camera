@@ -22,6 +22,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: siteConfig.metadataBase,
+  applicationName: siteConfig.name,
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
@@ -36,6 +37,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     siteName: siteConfig.name,
+  },
+  appleWebApp: {
+    title: siteConfig.name,
   },
   twitter: {
     card: 'summary_large_image',

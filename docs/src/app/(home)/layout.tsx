@@ -1,7 +1,7 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home'
 import type { Metadata } from 'next'
 import { homeOptions } from '@/lib/layout.shared'
-import { getOgImage } from '@/lib/site-config'
+import { getOgImage, siteConfig } from '@/lib/site-config'
 
 const image = getOgImage('/')
 
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
+    siteName: siteConfig.name,
     images: [image],
   },
   twitter: {

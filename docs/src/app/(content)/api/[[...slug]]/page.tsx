@@ -17,7 +17,7 @@ import {
   readPlatformsFromPageData,
   readTocPlatformsByHeadingFromPageData,
 } from '@/lib/platforms'
-import { getOgImage } from '@/lib/site-config'
+import { getOgImage, siteConfig } from '@/lib/site-config'
 import { apiSource } from '@/lib/source'
 import { getMDXComponents } from '@/mdx-components'
 
@@ -145,6 +145,7 @@ export async function generateMetadata(
       canonical: page.url,
     },
     openGraph: {
+      siteName: siteConfig.name,
       url: page.url,
       images: [image],
     },
