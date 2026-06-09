@@ -64,6 +64,10 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
     // JS configures the video resolution, we don't want to downscale here.
     output.automaticallyConfiguresOutputBufferDimensions = false
     if #available(iOS 26.0, *) {
+      // We only use this output for recording, allowing it to start deferred makes the session start faster.
+      if output.isDeferredStartSupported {
+        output.isDeferredStartEnabled = true
+      }
       // Allow capturing HDR
       output.preservesDynamicHDRMetadata = true
     }
@@ -83,12 +87,6 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
     }
     try? connection.setMirrorMode(config.mirrorMode)
     try? connection.setOrientation(outputOrientation)
-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
-      // We only use this output for recording, allowing it to start deferred makes the session start faster.
-      if !output.isDeferredStartEnabled {
-        output.isDeferredStartEnabled = true
-      }
-    }
   }
 
   func getSupportedVideoCodecs() throws -> [VideoCodec] {
