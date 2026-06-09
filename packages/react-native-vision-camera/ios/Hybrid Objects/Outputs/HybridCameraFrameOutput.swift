@@ -66,8 +66,8 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
     //       and `targetResolution` to `.any` (to not participate in resolution negotiations).
     //       If `allowBufferResizing` is false, we don't set `.videoSettings` ("native" resolution), and reflect our
     //       target resolution via `targetResolution` to participate in resolution negotiations.
-    if #available(iOS 17.0, *), options.enablePreviewSizedOutputBuffers {
-      output.deliversPreviewSizedOutputBuffers = true
+    if #available(iOS 13.0, *) {
+      output.deliversPreviewSizedOutputBuffers = options.enablePreviewSizedOutputBuffers
     }
     if #available(iOS 26.0, *), output.isDeferredStartSupported {
       // Deferred start allows the Session to delay this output's startup in favor
