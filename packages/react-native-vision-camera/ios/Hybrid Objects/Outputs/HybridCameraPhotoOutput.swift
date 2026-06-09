@@ -54,6 +54,8 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     self.output = AVCapturePhotoOutput()
     self.options = options
     super.init()
+
+    output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
   }
 
   func configure(config: CameraOutputConfiguration) {
@@ -62,11 +64,6 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     }
     try? connection.setOrientation(outputOrientation)
     try? connection.setMirrorMode(config.mirrorMode)
-
-    let qualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
-    if output.maxPhotoQualityPrioritization != qualityPrioritization {
-      output.maxPhotoQualityPrioritization = qualityPrioritization
-    }
 
     let enableAppleProRAW = options.containerFormat == .dng && output.isAppleProRAWSupported
     if output.isAppleProRAWEnabled != enableAppleProRAW {
