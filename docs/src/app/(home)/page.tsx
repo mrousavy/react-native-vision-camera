@@ -184,6 +184,15 @@ export default function HomePage() {
       className="relative flex-1 min-h-0 w-full overflow-hidden touch-none"
       onPointerDown={handleFocusPointerDown}
     >
+      <h1 className="sr-only">
+        VisionCamera - Camera Library for React Native
+      </h1>
+      <p className="sr-only">
+        The most powerful high-performance Camera library for React Native.
+        Supports Photo and Video capture, QR/Barcode scanning, Frame Processors,
+        and more.
+      </p>
+
       <ParallaxBlurLayer
         x={backX}
         y={backY}
@@ -229,22 +238,6 @@ export default function HomePage() {
               draggable={false}
               priority
             />
-          </div>
-          <div
-            className="mx-auto max-w-xl px-6 text-center text-white"
-            style={{
-              filter: `blur(${blurAmounts.logo}px)`,
-              transition: FOCUS_TRANSITION,
-            }}
-          >
-            <h1 className="text-2xl leading-tight font-semibold md:text-3xl">
-              VisionCamera for React Native
-            </h1>
-            <p className="mt-3 text-sm leading-6 font-medium text-white/85 drop-shadow-[0_1px_14px_rgba(0,0,0,0.65)] md:text-base md:leading-7">
-              A high-performance Camera library for photo and video capture,
-              QR/Barcode scanning, Frame Processors, and custom native camera
-              pipelines.
-            </p>
           </div>
           <div
             className="flex flex-wrap items-center justify-center gap-3"
