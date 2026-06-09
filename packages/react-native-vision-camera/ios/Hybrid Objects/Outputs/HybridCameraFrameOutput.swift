@@ -69,6 +69,11 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
     if #available(iOS 17.0, *), options.enablePreviewSizedOutputBuffers {
       output.deliversPreviewSizedOutputBuffers = true
     }
+    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+      // Deferred start allows the Session to delay this output's startup in favor
+      // of preview-related outputs to make preview appear faster.
+      output.isDeferredStartEnabled = options.allowDeferredStart
+    }
     if #available(iOS 26.0, *) {
       // We don't need HDR metadata, as that's only useful for encoders.
       output.preservesDynamicHDRMetadata = false
@@ -92,13 +97,6 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
       // Pipeline should deliver camera matrix (via attachment on `CMSampleBuffer`)
       if connection.isCameraIntrinsicMatrixDeliverySupported {
         connection.isCameraIntrinsicMatrixDeliveryEnabled = true
-      }
-    }
-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
-      // Deferred start allows the Session to delay this output's startup in favor
-      // of preview-related outputs to make preview appear faster.
-      if output.isDeferredStartEnabled != options.allowDeferredStart {
-        output.isDeferredStartEnabled = options.allowDeferredStart
       }
     }
   }
