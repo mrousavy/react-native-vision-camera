@@ -29,7 +29,7 @@ import landingBgFront from '../../../public/img/landing-bg-front.webp'
 export default function HomePage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const logoHitAreaRef = useRef<HTMLDivElement>(null)
-  const logoWordmarkRef = useRef<HTMLDivElement>(null)
+  const logoWordmarkRef = useRef<HTMLHeadingElement>(null)
   const { backX, backY, containerSize, frontX, frontY } =
     useParallaxMotion(containerRef)
 
@@ -184,15 +184,6 @@ export default function HomePage() {
       className="relative flex-1 min-h-0 w-full overflow-hidden touch-none"
       onPointerDown={handleFocusPointerDown}
     >
-      <h1 className="sr-only">
-        VisionCamera - Camera Library for React Native
-      </h1>
-      <p className="sr-only">
-        The most powerful high-performance Camera library for React Native.
-        Supports Photo and Video capture, QR/Barcode scanning, Frame Processors,
-        and more.
-      </p>
-
       <ParallaxBlurLayer
         x={backX}
         y={backY}
@@ -221,9 +212,9 @@ export default function HomePage() {
 
       <div className="absolute inset-0 flex items-center justify-center z-[1]">
         <div ref={logoHitAreaRef} className="flex flex-col items-center gap-6">
-          <div
+          <h1
             ref={logoWordmarkRef}
-            className="w-[min(80vw,384px)]"
+            className="m-0 w-[min(80vw,384px)]"
             style={{
               filter: `blur(${blurAmounts.logo}px)`,
               transition: FOCUS_TRANSITION,
@@ -238,7 +229,7 @@ export default function HomePage() {
               draggable={false}
               priority
             />
-          </div>
+          </h1>
           <div
             className="flex flex-wrap items-center justify-center gap-3"
             style={{
