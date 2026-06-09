@@ -40,6 +40,7 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
     self.options = options
     self.fileType = options.fileType ?? .mov
     super.init()
+
     self.setMetadataTag(.libraryTag)
     if #available(iOS 26.0, *), output.isDeferredStartSupported {
       // Deferred start allows the session to delay this output's startup in favor

@@ -55,12 +55,6 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     self.options = options
     super.init()
 
-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
-      // Deferred start allows the session to delay this output's startup in favor
-      // of preview-related outputs to make preview appear faster.
-      output.isDeferredStartEnabled = true
-    }
-
     output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
 
     if options.containerFormat == .dng {
@@ -73,6 +67,12 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     {
       // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
       output.isCameraSensorOrientationCompensationEnabled = false
+    }
+
+    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+      // Deferred start allows the session to delay this output's startup in favor
+      // of preview-related outputs to make preview appear faster.
+      output.isDeferredStartEnabled = true
     }
 
     // Prepare the default Photo Settings to make the pipeline ready - some things (like flashMode)
