@@ -67,6 +67,58 @@ describe('VisionCamera - Photo', () => {
     await session.stop()
   })
 
+  it('captures three Photos in parallel with responsive capture enabled', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+      enableResponsiveCapture: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      const captureResults = await Promise.allSettled(
+        Array.from({ length: 3 }, () =>
+          photoOutput.capturePhoto(
+            { flashMode: 'off', enableShutterSound: false },
+            {},
+          ),
+        ),
+      )
+
+      const capturedPhotos = captureResults.flatMap((result) =>
+        result.status === 'fulfilled' ? [result.value] : [],
+      )
+      try {
+        expect(captureResults).toHaveLength(3)
+        for (const result of captureResults) {
+          expect(result.status).toBe('fulfilled')
+          if (result.status === 'rejected') {
+            throw result.reason
+          }
+          expect(result.value.width).toBeGreaterThan(0)
+          expect(result.value.height).toBeGreaterThan(0)
+          expect(result.value.containerFormat).toBe('jpeg')
+        }
+      } finally {
+        for (const photo of capturedPhotos) {
+          photo.dispose()
+        }
+      }
+    } finally {
+      await session.stop()
+    }
+  })
+
   it('checks and reads a native Photo pixel buffer in-memory', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
