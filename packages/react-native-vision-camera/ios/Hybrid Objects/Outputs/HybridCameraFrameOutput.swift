@@ -61,11 +61,6 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
     output.alwaysDiscardsLateVideoFrames = options.dropFramesWhileBusy
     // JS configures the video resolution, we don't want to downscale here by default.
     output.automaticallyConfiguresOutputBufferDimensions = false
-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
-      // Deferred start allows the Session to delay this output's startup in favor
-      // of preview-related outputs to make preview appear faster.
-      output.isDeferredStartEnabled = options.allowDeferredStart
-    }
     // TODO: Add a flag called `allowBufferResizing` and probably get rid of `enablePreviewSizedOutputBuffers`
     //       If `allowBufferResizing` is true, we can set `.videoSettings`/dimensions here to `options.targetResolution`
     //       and `targetResolution` to `.any` (to not participate in resolution negotiations).
@@ -97,6 +92,13 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
       // Pipeline should deliver camera matrix (via attachment on `CMSampleBuffer`)
       if connection.isCameraIntrinsicMatrixDeliverySupported {
         connection.isCameraIntrinsicMatrixDeliveryEnabled = true
+      }
+    }
+    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+      // Deferred start allows the Session to delay this output's startup in favor
+      // of preview-related outputs to make preview appear faster.
+      if output.isDeferredStartEnabled != options.allowDeferredStart {
+        output.isDeferredStartEnabled = options.allowDeferredStart
       }
     }
   }

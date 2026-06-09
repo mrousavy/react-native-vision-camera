@@ -59,11 +59,6 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
     // Configure `videoSettings`
     output.alwaysDiscardsLateDepthData = options.dropFramesWhileBusy
     output.isFilteringEnabled = options.enableFiltering
-    if #available(iOS 26.0, *), output.isDeferredStartSupported {
-      // Deferred start allows the Session to delay this output's startup in favor
-      // of preview-related outputs to make preview appear faster.
-      output.isDeferredStartEnabled = options.allowDeferredStart
-    }
   }
 
   func configure(config: CameraOutputConfiguration) {
@@ -78,6 +73,13 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
       // Pipeline should physically rotate buffers on the `connection`
       try? connection.setOrientation(outputOrientation)
       try? connection.setMirrorMode(config.mirrorMode)
+    }
+    if #available(iOS 26.0, *), output.isDeferredStartSupported {
+      // Deferred start allows the Session to delay this output's startup in favor
+      // of preview-related outputs to make preview appear faster.
+      if output.isDeferredStartEnabled != options.allowDeferredStart {
+        output.isDeferredStartEnabled = options.allowDeferredStart
+      }
     }
   }
 
