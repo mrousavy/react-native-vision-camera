@@ -27,6 +27,7 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
   },
+  description: siteConfig.description,
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
