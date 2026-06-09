@@ -18,8 +18,14 @@ public extension PhotoOutputOptions {
   /**
    * Create a new instance of `PhotoOutputOptions`.
    */
-  init(targetResolution: Size, containerFormat: TargetPhotoContainerFormat, quality: Double, qualityPrioritization: QualityPrioritization, previewImageTargetSize: Size?) {
-    self.init(targetResolution, containerFormat, quality, qualityPrioritization, { () -> bridge.std__optional_Size_ in
+  init(targetResolution: Size, containerFormat: TargetPhotoContainerFormat, quality: Double, qualityPrioritization: QualityPrioritization, enableResponsiveCapture: Bool?, previewImageTargetSize: Size?) {
+    self.init(targetResolution, containerFormat, quality, qualityPrioritization, { () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = enableResponsiveCapture {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_Size_ in
       if let __unwrappedValue = previewImageTargetSize {
         return bridge.create_std__optional_Size_(__unwrappedValue)
       } else {
@@ -48,6 +54,18 @@ public extension PhotoOutputOptions {
     return self.__qualityPrioritization
   }
   
+  @inline(__always)
+  var enableResponsiveCapture: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__enableResponsiveCapture) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__enableResponsiveCapture)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+
   @inline(__always)
   var previewImageTargetSize: Size? {
     return self.__previewImageTargetSize.value

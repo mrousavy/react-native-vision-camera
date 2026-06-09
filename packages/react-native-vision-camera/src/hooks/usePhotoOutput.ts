@@ -33,6 +33,7 @@ export function usePhotoOutput({
   containerFormat = 'native',
   quality = 0.9,
   qualityPrioritization = 'balanced',
+  enableResponsiveCapture = false,
   previewImageTargetSize = undefined,
 }: Partial<PhotoOutputOptions> = {}): CameraPhotoOutput {
   // 1. Create photo output
@@ -43,6 +44,7 @@ export function usePhotoOutput({
         containerFormat: containerFormat,
         quality: quality,
         qualityPrioritization: qualityPrioritization,
+        enableResponsiveCapture: enableResponsiveCapture,
         previewImageTargetSize: previewImageTargetSize,
       }),
     [
@@ -50,6 +52,7 @@ export function usePhotoOutput({
       containerFormat,
       quality,
       qualityPrioritization,
+      enableResponsiveCapture,
       previewImageTargetSize,
     ],
   )
