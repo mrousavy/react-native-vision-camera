@@ -191,9 +191,30 @@ class HybridCameraController(
 
   override fun setExposureBias(exposure: Double): Promise<Unit> {
     return Promise.async {
-      camera.cameraControl
-        .setExposureCompensationIndex(exposure.toInt())
-        .await()
+      val exposureIndex = exposure.toInt()
+      val exposureState = camera.cameraInfo.exposureState
+      if (!exposureState.isExposureCompensationSupported) {
+        throw Error("Exposure compensation is not supported on this CameraDevice!")
+      }
+      if (!exposureState.exposureCompensationRange.contains(exposureIndex)) {
+        throw Error(
+          "`exposure` is out of range! Expected value within " +
+            "${exposureState.exposureCompensationRange.lower}...${exposureState.exposureCompensationRange.upper}, received $exposure.",
+        )
+      }
+
+      val result =
+        camera.cameraControl
+          .setExposureCompensationIndex(exposureIndex)
+
+      // CameraX's Future waits for AE convergence, which can legitimately never happen at
+      // extreme exposure compensation values. Once ExposureState reflects our target index,
+      // CameraX has accepted the request and the controller Promise can resolve.
+      if (result.isDone) {
+        result.await()
+      } else if (camera.cameraInfo.exposureState.exposureCompensationIndex != exposureIndex) {
+        throw Error("Failed to set exposure compensation index to $exposureIndex.")
+      }
     }
   }
 
