@@ -10,52 +10,70 @@ import CoreGraphics
 
 enum FrameCoordinateSystemConverter {
   /**
-   * Get a Matrix that can convert a point in the
-   * given `pixelBuffer` to normalized Camera coordinates
-   * (`(cx, cy) ∈ [0, 1]²`).
-   * The `orientation` and `isMirrored` flags affect the
-   * Matrix if the `Frame` needs those to be adjusted.
+   * Get a Matrix that can convert a point in oriented (display-space)
+   * frame coordinates to normalized Camera coordinates (`(cx, cy) ∈ [0, 1]²`).
+   *
+   * Frame coordinates are in the oriented/visual space as returned by ML
+   * analyzers: (0,0) is the top-left of the displayed image regardless of
+   * how the raw sensor buffer is rotated. For 90° rotations (left/right)
+   * the oriented dimensions are the transpose of the buffer dimensions.
+   *
+   * Camera coordinates are normalized buffer coordinates - the same space
+   * AVFoundation calls "capture device point of interest", which
+   * `AVCaptureVideoPreviewLayer.layerPointConverted(fromCaptureDevicePoint:)`
+   * and focus/exposure points-of-interest expect.
    */
   static func getFrameToCameraMatrix(
     pixelBuffer: CVPixelBuffer,
     orientation: CameraOrientation,
     isMirrored: Bool
   ) -> CGAffineTransform {
-    var matrix = CGAffineTransform.identity
+    let bufferWidth = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
+    let bufferHeight = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
 
-    // 1. Counter-rotate by the orientation to get it up-right
+    // For 90° rotations the oriented frame dimensions are the transpose of
+    // the raw buffer dimensions.
+    let orientedWidth: CGFloat
+    let orientedHeight: CGFloat
     switch orientation {
-    case .up:
-      break
-    case .down:
-      matrix =
-        matrix
-        .translatedBy(x: 1, y: 1)
-        .rotated(by: .pi)
-    case .left:
-      matrix =
-        matrix
-        .translatedBy(x: 1, y: 0)
-        .rotated(by: .pi / 2)
-    case .right:
-      matrix =
-        matrix
-        .translatedBy(x: 0, y: 1)
-        .rotated(by: -.pi / 2)
+    case .left, .right:
+      orientedWidth = bufferHeight
+      orientedHeight = bufferWidth
+    case .up, .down:
+      orientedWidth = bufferWidth
+      orientedHeight = bufferHeight
     }
 
-    // 2. If the Frame is mirrored, counter-mirror our Matrix
+    // 1. Normalize oriented pixels to [0, 1]
+    var matrix = CGAffineTransform(scaleX: 1.0 / orientedWidth, y: 1.0 / orientedHeight)
+
+    // 2. Un-mirror. Display mirroring flips the upright image, so this
+    //    happens in oriented space, before un-rotating into buffer space.
     if isMirrored {
       let mirror = CGAffineTransform.identity
         .translatedBy(x: 1, y: 0)
         .scaledBy(x: -1, y: 1)
-      matrix = mirror.concatenating(matrix)
+      matrix = matrix.concatenating(mirror)
     }
 
-    // 3. Our Matrix is in [0, 1], so let's scale it to [0, width|height] now
-    let width = CGFloat(CVPixelBufferGetWidth(pixelBuffer))
-    let height = CGFloat(CVPixelBufferGetHeight(pixelBuffer))
-    matrix = matrix.scaledBy(x: 1 / width, y: 1 / height)
+    // 3. Rotate the normalized oriented point back into buffer space.
+    //    `orientation` means: upright = buffer rotated counter-clockwise by
+    //    `orientation.degrees`, so the inverse rotation is applied here.
+    let rotation: CGAffineTransform
+    switch orientation {
+    case .up:
+      rotation = .identity
+    case .left:
+      // (x, y) -> (y, 1 - x)
+      rotation = CGAffineTransform(translationX: 0, y: 1).rotated(by: -.pi / 2)
+    case .right:
+      // (x, y) -> (1 - y, x)
+      rotation = CGAffineTransform(translationX: 1, y: 0).rotated(by: .pi / 2)
+    case .down:
+      // (x, y) -> (1 - x, 1 - y)
+      rotation = CGAffineTransform(translationX: 1, y: 1).rotated(by: .pi)
+    }
+    matrix = matrix.concatenating(rotation)
 
     return matrix
   }
