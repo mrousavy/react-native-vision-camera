@@ -1,4 +1,10 @@
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import {
+  beforeAll,
+  describe,
+  expect,
+  it,
+  waitUntil,
+} from 'react-native-harness'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -655,6 +661,149 @@ describe('VisionCamera - Controller', () => {
       expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
     } finally {
       await session.stop()
+    }
+  })
+
+  it('keeps an exposure lock applied between configure() and start()', async (context) => {
+    if (!backDevice.supportsExposureLocking) {
+      return context.skip('exposure locking: not supported on this device')
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+
+    // Lock exposure to a short duration / mid-range ISO after configure() but
+    // before start() — what an app does to carry a known-good exposure into
+    // the stream so the first visible frames are not blown out.
+    const lockedDuration = Math.min(
+      Math.max(1 / 60, controller.minExposureDuration),
+      controller.maxExposureDuration,
+    )
+    const lockedISO = (controller.minISO + controller.maxISO) / 2
+    await controller.setExposureLocked(lockedDuration, lockedISO)
+    expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
+
+    await session.start()
+
+    try {
+      // start() must not clobber an explicitly requested exposure lock by
+      // resetting the device back to continuous auto-exposure at max ISO.
+      console.log(
+        `exposure lock across start(): requested iso=${lockedISO} ` +
+          `actual iso=${controller.iso} mode=${controller.exposureMode} ` +
+          `(device range ${controller.minISO}-${controller.maxISO})`,
+      )
+      expect(controller.exposureMode).toBeOneOf(['custom', 'locked'])
+      expect(controller.iso).toBeCloseTo(lockedISO, -2)
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('resumes auto-exposure near previously converged values on a fresh session', async (context) => {
+    if (!backDevice.supportsExposureLocking) {
+      return context.skip(
+        'auto-exposure ISO readback: device does not support manual exposure, iso reads 0',
+      )
+    }
+
+    // First session: let continuous auto-exposure converge and remember where
+    // it landed.
+    const firstSession = await VisionCamera.createCameraSession(false)
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [firstController] = await firstSession.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: firstPhotoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (firstController == null) throw new Error('no controller')
+    await firstSession.start()
+
+    let convergedISO = 0
+    try {
+      await waitUntil(() => firstController.iso > 0, { timeout: 10_000 })
+      // AE has converged once the ISO stops moving by more than 10% for a
+      // sustained window. Elapsed time is the behavior under test here —
+      // convergence is inherently a process over wall-clock time.
+      let referenceISO = firstController.iso
+      let stableSince = Date.now()
+      await waitUntil(
+        () => {
+          const currentISO = firstController.iso
+          const delta = Math.abs(currentISO - referenceISO)
+          if (delta > referenceISO * 0.1) {
+            referenceISO = currentISO
+            stableSince = Date.now()
+          }
+          return Date.now() - stableSince >= 1_000
+        },
+        { timeout: 15_000 },
+      )
+      convergedISO = referenceISO
+    } finally {
+      await firstSession.stop()
+    }
+
+    if (convergedISO > firstController.maxISO * 0.5) {
+      return context.skip(
+        'AE continuity: scene too dark — converged ISO is near max ISO, so a reset-to-max regression is indistinguishable from correct convergence',
+      )
+    }
+
+    // Second session on the same device: the first frames must resume near
+    // the previously converged exposure (v4 behavior, and what the native
+    // camera app does) — not restart at the format's max ISO and visibly
+    // ramp down over several hundred ms.
+    const secondSession = await VisionCamera.createCameraSession(false)
+    const secondPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [secondController] = await secondSession.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: secondPhotoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (secondController == null) throw new Error('no controller')
+    await secondSession.start()
+
+    try {
+      await waitUntil(() => secondController.iso > 0, { timeout: 10_000 })
+      const initialISO = secondController.iso
+      console.log(
+        `AE continuity: converged iso=${convergedISO} ` +
+          `restart initial iso=${initialISO} ` +
+          `(device max iso=${secondController.maxISO})`,
+      )
+      // 4x is a generous bound — the observed regression starts at the
+      // format's max ISO, roughly 50x above the converged value.
+      const maxAcceptableInitialISO = convergedISO * 4
+      expect(initialISO).toBeLessThanOrEqual(maxAcceptableInitialISO)
+    } finally {
+      await secondSession.stop()
     }
   })
 
