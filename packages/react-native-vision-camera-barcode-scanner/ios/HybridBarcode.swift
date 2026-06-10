@@ -5,14 +5,22 @@
 //  Created by Marc Rousavy on 08.02.26.
 //
 
+import CoreGraphics
 import MLKitBarcodeScanning
 import NitroModules
 
 final class HybridBarcode: HybridBarcodeSpec {
   private let barcode: Barcode
+  /**
+   * Converts MLKit result coordinates into oriented (display-space) Frame
+   * coordinates. MLKit on iOS returns coordinates in the raw pixel-buffer's
+   * coordinate space, no matter what `MLImage.orientation` is set to.
+   */
+  private let pointTransform: CGAffineTransform
 
-  init(barcode: Barcode) {
+  init(barcode: Barcode, pointTransform: CGAffineTransform = .identity) {
     self.barcode = barcode
+    self.pointTransform = pointTransform
     super.init()
   }
 
@@ -21,12 +29,12 @@ final class HybridBarcode: HybridBarcodeSpec {
   }
 
   var boundingBox: Rect {
-    let frame = barcode.frame
+    let frame = barcode.frame.applying(pointTransform)
     return Rect(
-      left: frame.origin.x,
-      right: frame.origin.x + frame.size.width,
-      top: frame.origin.y,
-      bottom: frame.origin.y + frame.size.height)
+      left: frame.minX,
+      right: frame.maxX,
+      top: frame.minY,
+      bottom: frame.maxY)
   }
 
   var cornerPoints: [Point] {
@@ -37,7 +45,8 @@ final class HybridBarcode: HybridBarcodeSpec {
       guard let point = value as? CGPoint else {
         return Point(x: 0.0, y: 0.0)
       }
-      return Point(x: point.x, y: point.y)
+      let transformed = point.applying(pointTransform)
+      return Point(x: transformed.x, y: transformed.y)
     }
   }
 

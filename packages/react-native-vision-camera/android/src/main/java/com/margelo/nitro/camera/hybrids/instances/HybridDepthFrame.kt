@@ -112,15 +112,33 @@ class HybridDepthFrame(
 
   override fun convertCameraPointToDepthPoint(cameraPoint: Point): Point {
     val sensorToBuffer = image.imageInfo.sensorToBufferTransformMatrix
-    return sensorToBuffer.convertPoint(cameraPoint)
+    val rawFramePoint = sensorToBuffer.convertPoint(cameraPoint)
+    // Convert from raw buffer space to oriented (display) space
+    val w = image.width.toDouble()
+    val h = image.height.toDouble()
+    return when (orientation) {
+      CameraOrientation.RIGHT -> Point(rawFramePoint.y, w - rawFramePoint.x)
+      CameraOrientation.LEFT -> Point(h - rawFramePoint.y, rawFramePoint.x)
+      CameraOrientation.DOWN -> Point(w - rawFramePoint.x, h - rawFramePoint.y)
+      CameraOrientation.UP -> rawFramePoint
+    }
   }
 
   override fun convertDepthPointToCameraPoint(depthPoint: Point): Point {
+    // Convert from oriented (display) space to raw buffer space
+    val w = image.width.toDouble()
+    val h = image.height.toDouble()
+    val rawFramePoint = when (orientation) {
+      CameraOrientation.RIGHT -> Point(w - depthPoint.y, depthPoint.x)
+      CameraOrientation.LEFT -> Point(depthPoint.y, h - depthPoint.x)
+      CameraOrientation.DOWN -> Point(w - depthPoint.x, h - depthPoint.y)
+      CameraOrientation.UP -> depthPoint
+    }
     val bufferToSensor =
       Matrix().apply {
         image.imageInfo.sensorToBufferTransformMatrix.invert(this)
       }
-    return bufferToSensor.convertPoint(depthPoint)
+    return bufferToSensor.convertPoint(rawFramePoint)
   }
 
   override fun toFrame(): HybridFrameSpec {
