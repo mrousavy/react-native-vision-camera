@@ -2,6 +2,7 @@ package com.margelo.nitro.camera.hybrids.outputs
 
 import android.annotation.SuppressLint
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.FrameDroppedReason
@@ -14,10 +15,12 @@ import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetVideoPixelFormat
 import com.margelo.nitro.camera.extensions.converters.toSize
+import com.margelo.nitro.camera.extensions.getCameraIntrinsicCalibrationOrNull
 import com.margelo.nitro.camera.extensions.orientation
 import com.margelo.nitro.camera.extensions.setAllowDroppingLateFrames
 import com.margelo.nitro.camera.extensions.sortedByClosestTo
 import com.margelo.nitro.camera.extensions.surfaceRotation
+import com.margelo.nitro.camera.extensions.toCameraIntrinsicMatrix
 import com.margelo.nitro.camera.hybrids.HybridNativeThread
 import com.margelo.nitro.camera.hybrids.instances.HybridFrame
 import com.margelo.nitro.camera.public.NativeCameraOutput
@@ -52,10 +55,19 @@ class HybridFrameOutput(
       updateAnalyzer()
     }
 
+  private var staticCameraIntrinsicCalibration: FloatArray? = null
+
   override fun createUseCase(
     mirrorMode: MirrorMode,
     config: NativeCameraOutput.Config,
   ): NativeCameraOutput.PreparedUseCase {
+    staticCameraIntrinsicCalibration =
+      if (options.enableCameraMatrixDelivery) {
+        config.cameraInfo?.getCameraIntrinsicCalibrationOrNull()
+      } else {
+        null
+      }
+
     val resolutionSelector =
       ResolutionSelector
         .Builder()
@@ -127,12 +139,23 @@ class HybridFrameOutput(
         // target orientation.
         val orientation = image.orientation
         val isMirrored = mirrorMode == MirrorMode.ON
-        val frame = HybridFrame(image, orientation, isMirrored)
+        val cameraIntrinsicMatrix = getCameraIntrinsicMatrix(image)
+        val frame = HybridFrame(image, orientation, isMirrored, cameraIntrinsicMatrix)
         onFrame(frame)
       }
     } else {
       imageAnalysis.clearAnalyzer()
     }
+  }
+
+  private fun getCameraIntrinsicMatrix(image: ImageProxy): DoubleArray? {
+    if (!options.enableCameraMatrixDelivery) return null
+
+    val cameraIntrinsicCalibration =
+      image.getCameraIntrinsicCalibrationOrNull()
+        ?: staticCameraIntrinsicCalibration
+
+    return cameraIntrinsicCalibration?.toCameraIntrinsicMatrix(image.imageInfo.sensorToBufferTransformMatrix)
   }
 
   override fun setOnFrameCallback(onFrame: ((HybridFrameSpec) -> Boolean)?) {
