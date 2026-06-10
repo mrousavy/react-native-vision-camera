@@ -8,13 +8,16 @@ import {
   expect,
   it,
   render,
+  waitUntil,
 } from 'react-native-harness'
 import type { CameraDevice, CameraRef, Point } from 'react-native-vision-camera'
 import {
   Camera,
   CommonResolutions,
+  useFrameOutput,
   VisionCamera,
 } from 'react-native-vision-camera'
+import { createSynchronizable } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
 
 interface Layout {
@@ -53,6 +56,65 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
   expect(meteringPoint.normalizedX).toBeLessThanOrEqual(1)
   expect(meteringPoint.normalizedY).toBeGreaterThanOrEqual(0)
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
+}
+
+type FrameCounter = ReturnType<typeof createSynchronizable<number>>
+
+interface MountCycleCameraProps {
+  mounted: boolean
+  device: CameraDevice
+  frameCounter: FrameCounter
+  onStarted: () => void
+  onError: (error: Error) => void
+}
+
+
+function MountCycleCamera({
+  mounted,
+  device,
+  frameCounter,
+  onStarted,
+  onError,
+}: MountCycleCameraProps) {
+  const frameOutput = useFrameOutput({
+    pixelFormat: 'yuv',
+    onFrame(frame) {
+      'worklet'
+      try {
+        frameCounter.setBlocking((prev) => prev + 1)
+      } finally {
+        frame.dispose()
+      }
+    },
+  })
+  if (!mounted) return null
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      isActive={true}
+      outputs={[frameOutput]}
+      onStarted={onStarted}
+      onError={onError}
+    />
+  )
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+
+async function expectFramesToStop(frameCounter: FrameCounter): Promise<void> {
+  const deadline = Date.now() + 10_000
+  let previous = frameCounter.getBlocking()
+  while (Date.now() < deadline) {
+    await sleep(750)
+    const current = frameCounter.getBlocking()
+    if (current === previous) return
+    previous = current
+  }
+  throw new Error('Frames kept arriving after the Camera unmounted.')
 }
 
 describe('VisionCamera - Camera View', () => {
@@ -489,6 +551,90 @@ describe('VisionCamera - Camera View', () => {
       10_000,
       'inactive Camera onPreviewStopped',
     )
+    expect(sessionError).toBe(undefined)
+  })
+
+  it('streams frames after each mount in an unmount -> mount -> unmount -> mount cycle', async () => {
+    const frameCounter = createSynchronizable(0)
+    let sessionError: Error | undefined
+
+    // Start unmounted, like an app screen waiting for a button press.
+    const { rerender } = await render(
+      <MountCycleCamera
+        mounted={false}
+        device={backDevice}
+        frameCounter={frameCounter}
+        onStarted={() => {}}
+        onError={(error) => {
+          sessionError = error
+        }}
+      />,
+    )
+    expect(frameCounter.getBlocking()).toBe(0)
+
+    // First mount: session starts and frames flow through the worklet.
+    const firstStarted = deferred()
+    await rerender(
+      <MountCycleCamera
+        mounted={true}
+        device={backDevice}
+        frameCounter={frameCounter}
+        onStarted={firstStarted.resolve}
+        onError={(error) => {
+          sessionError = error
+          firstStarted.reject(error)
+        }}
+      />,
+    )
+    await withTimeout(
+      firstStarted.promise,
+      15_000,
+      'Camera onStarted after first mount',
+    )
+    const firstBaseline = frameCounter.getBlocking()
+    await waitUntil(() => frameCounter.getBlocking() >= firstBaseline + 3, {
+      timeout: 15_000,
+    })
+    expect(sessionError).toBe(undefined)
+
+    // Unmount: the session tears down and frame delivery stops.
+    await rerender(
+      <MountCycleCamera
+        mounted={false}
+        device={backDevice}
+        frameCounter={frameCounter}
+        onStarted={() => {}}
+        onError={(error) => {
+          sessionError = error
+        }}
+      />,
+    )
+    await expectFramesToStop(frameCounter)
+    expect(sessionError).toBe(undefined)
+
+    // Second mount: a fresh session starts and frames flow again.
+    const secondStarted = deferred()
+    await rerender(
+      <MountCycleCamera
+        mounted={true}
+        device={backDevice}
+        frameCounter={frameCounter}
+        onStarted={secondStarted.resolve}
+        onError={(error) => {
+          sessionError = error
+          secondStarted.reject(error)
+        }}
+      />,
+    )
+    await withTimeout(
+      secondStarted.promise,
+      15_000,
+      'Camera onStarted after second mount',
+    )
+    const secondBaseline = frameCounter.getBlocking()
+    await waitUntil(() => frameCounter.getBlocking() >= secondBaseline + 3, {
+      timeout: 15_000,
+    })
     expect(sessionError).toBe(undefined)
   })
 })
