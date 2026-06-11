@@ -17,7 +17,8 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
   let mediaType: MediaType = .depth
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = true
-  let output: AVCaptureDepthDataOutput
+  private(set) var output: AVCaptureDepthDataOutput
+  var attachedSessionID: UInt64?
   lazy var thread: any HybridNativeThreadSpec = {
     return HybridNativeThread(queue: queue)
   }()
@@ -53,7 +54,15 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
       target: nil)
     self.queue.setSpecific(key: queueSpecificKey, value: ())
     super.init()
+    setUpOutput()
+  }
 
+  func recreateOutput() {
+    output = AVCaptureDepthDataOutput()
+    setUpOutput()
+  }
+
+  private func setUpOutput() {
     // Set up our `delegate`
     output.setDelegate(delegate, callbackQueue: queue)
     // Configure `videoSettings`

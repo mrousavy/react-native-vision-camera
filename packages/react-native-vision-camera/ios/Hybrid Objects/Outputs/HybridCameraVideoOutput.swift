@@ -13,7 +13,8 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
   private let options: VideoOutputOptions
   private let fileType: RecorderFileType
   let mediaType: MediaType = .video
-  let output: AVCaptureMovieFileOutput
+  private(set) var output: AVCaptureMovieFileOutput
+  var attachedSessionID: UInt64?
   var requiresAudioInput: Bool {
     return options.enableAudio == true
   }
@@ -41,6 +42,11 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
     self.fileType = options.fileType ?? .mov
     super.init()
     self.setMetadataTag(.libraryTag)
+  }
+
+  func recreateOutput() {
+    output = AVCaptureMovieFileOutput()
+    setMetadataTag(.libraryTag)
   }
 
   private func setMetadataTag(_ tag: AVMetadataItem) {

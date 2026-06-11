@@ -17,7 +17,24 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     autoreleaseFrequency: .inherit,
     target: nil)
 
+  /**
+   * A process-unique ID for this `HybridCameraSession`.
+   * Outputs use this to detect when they are moved from one `CameraSession`
+   * to another (e.g. when a `<Camera>` re-mounts but its outputs are re-used),
+   * see `NativeCameraOutput.prepareForAttaching(toSessionWithID:)`.
+   */
+  let sessionID: UInt64
+  private static let sessionIDLock = NSLock()
+  private static var lastSessionID: UInt64 = 0
+  private static func makeSessionID() -> UInt64 {
+    sessionIDLock.lock()
+    defer { sessionIDLock.unlock() }
+    lastSessionID += 1
+    return lastSessionID
+  }
+
   init(enableMultiCam: Bool) {
+    self.sessionID = Self.makeSessionID()
     if enableMultiCam {
       self.session = AVCaptureMultiCamSession()
     } else {
@@ -289,9 +306,17 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       // 3. Loop through all outputs
       for outputConfiguration in connection.outputs {
         let output = outputConfiguration.output
+        if let nativeOutput = output as? any NativeCameraOutput {
+          // 3.1. If this output was previously attached to a different CameraSession,
+          //      recreate its underlying AVCaptureOutput first. CoreMedia attaches/detaches
+          //      outputs asynchronously, so an AVCaptureOutput that was used in another
+          //      session might still be attached at the CoreMedia level - re-attaching it
+          //      here would crash with an `attachToFigCaptureSession:` assertion (#3773).
+          nativeOutput.prepareForAttaching(toSessionWithID: self.sessionID)
+        }
         let containsOutput = try self.session.containsOutput(output)
         if !containsOutput {
-          // 3.1. It doesn't exist yet - add it to the session..
+          // 3.2. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output)
         }
       }

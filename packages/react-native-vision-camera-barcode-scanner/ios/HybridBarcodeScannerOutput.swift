@@ -12,13 +12,15 @@ import NitroModules
 import VisionCamera
 
 final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutput {
+  private let options: BarcodeScannerOutputOptions
   private let scanner: BarcodeScanner
   private let onBarcodeScanned: (_ barcodes: [any HybridBarcodeSpec]) -> Void
   private let onError: (_ error: Error) -> Void
   private var isScanning = false
   private var delegate: BarcodeScannerDelegate? = nil
   private let queue: DispatchQueue
-  let output: AVCaptureVideoDataOutput
+  private(set) var output: AVCaptureVideoDataOutput
+  var attachedSessionID: UInt64?
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   let mediaType: MediaType = .video
@@ -38,6 +40,7 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
   }
 
   init(options: BarcodeScannerOutputOptions) {
+    self.options = options
     self.scanner = BarcodeScanner.barcodeScanner(options: options.toMLKitOptions())
     self.onBarcodeScanned = options.onBarcodeScanned
     self.onError = options.onError
@@ -49,6 +52,15 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
     self.delegate = BarcodeScannerDelegate(onSampleBuffer: { [weak self] buffer in
       self?.scan(buffer)
     })
+    setUpOutput()
+  }
+
+  func recreateOutput() {
+    output = AVCaptureVideoDataOutput()
+    setUpOutput()
+  }
+
+  private func setUpOutput() {
     self.output.setSampleBufferDelegate(delegate, queue: queue)
     self.output.alwaysDiscardsLateVideoFrames = true
     if #available(iOS 17.0, *), options.outputResolution != .full {

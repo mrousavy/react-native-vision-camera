@@ -32,6 +32,30 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant 
    * it is connected to in `CameraSession.configure(..)`.
    */
   var output: Output { get }
+
+  /**
+   * The ID of the `CameraSession` this output's `output` was last attached to.
+   *
+   * This is fully managed by `prepareForAttaching(toSessionWithID:)` - implementations
+   * only need to provide the stored property (`var attachedSessionID: UInt64?`).
+   */
+  var attachedSessionID: UInt64? { get set }
+
+  /**
+   * Creates a new `output` instance, replacing the current one.
+   *
+   * An `AVCaptureOutput` can only ever be attached to a single `AVCaptureSession` in
+   * its lifetime - CoreMedia attaches/detaches it to the underlying `FigCaptureSession`
+   * asynchronously, so even after it has been removed from a previous `AVCaptureSession`,
+   * it might still be attached (or become attached) at the CoreMedia level.
+   * Re-using it in a different `AVCaptureSession` then crashes with an
+   * `attachToFigCaptureSession:` assertion failure (SIGABRT).
+   * See https://github.com/mrousavy/react-native-vision-camera/issues/3773
+   *
+   * Implementations are expected to re-apply all creation-time settings
+   * (delegates, queues, format settings) to the new `output` instance.
+   */
+  func recreateOutput()
   /**
    * Whether this `NativeCameraOutput` requires
    * an audio input attached to its `AVCaptureOutput`.
@@ -56,4 +80,22 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant 
    * such as orientation or mirroring settings in here.
    */
   func configure(config: CameraOutputConfiguration)
+}
+
+extension NativeCameraOutput {
+  /**
+   * Prepares this output for being attached to the `CameraSession` with the given ID.
+   *
+   * If this output was previously attached to a *different* `CameraSession`, the
+   * underlying `AVCaptureOutput` is recreated (see `recreateOutput()`) so that we
+   * never attach the same `AVCaptureOutput` instance to two `AVCaptureSession`s.
+   */
+  func prepareForAttaching(toSessionWithID sessionID: UInt64) {
+    if let attachedSessionID = self.attachedSessionID, attachedSessionID != sessionID {
+      logger.info(
+        "\(type(of: self)) is moving from CameraSession #\(attachedSessionID) to CameraSession #\(sessionID) - recreating its \(Output.self)...")
+      recreateOutput()
+    }
+    self.attachedSessionID = sessionID
+  }
 }

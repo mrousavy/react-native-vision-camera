@@ -17,7 +17,8 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
   let mediaType: MediaType = .video
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
-  let output: AVCaptureVideoDataOutput
+  private(set) var output: AVCaptureVideoDataOutput
+  var attachedSessionID: UInt64?
   lazy var thread: any HybridNativeThreadSpec = {
     return HybridNativeThread(queue: queue)
   }()
@@ -52,7 +53,15 @@ final class HybridCameraFrameOutput: HybridCameraFrameOutputSpec, NativeCameraOu
       target: nil)
     self.queue.setSpecific(key: queueSpecificKey, value: ())
     super.init()
+    setUpOutput()
+  }
 
+  func recreateOutput() {
+    output = AVCaptureVideoDataOutput()
+    setUpOutput()
+  }
+
+  private func setUpOutput() {
     // Set up our `delegate`
     output.setSampleBufferDelegate(delegate, queue: queue)
     // Configure `videoSettings`

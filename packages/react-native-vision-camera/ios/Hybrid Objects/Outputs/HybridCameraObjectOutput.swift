@@ -13,7 +13,8 @@ final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCamera
   private let delegate: MetadataDelegate
   private let options: ObjectOutputOptions
   let mediaType: MediaType = .metadata
-  let output: AVCaptureMetadataOutput
+  private(set) var output: AVCaptureMetadataOutput
+  var attachedSessionID: UInt64?
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   var outputOrientation: CameraOrientation = .up {
@@ -35,7 +36,18 @@ final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCamera
     self.options = options
     self.output = AVCaptureMetadataOutput()
     self.delegate = MetadataDelegate()
+    super.init()
+    setUpOutput()
+  }
 
+  func recreateOutput() {
+    output = AVCaptureMetadataOutput()
+    setUpOutput()
+  }
+
+  private func setUpOutput() {
+    // `metadataObjectTypes` are applied later in `configure(config:)`,
+    // once the output is attached to a session.
     output.setMetadataObjectsDelegate(delegate, queue: queue)
   }
 

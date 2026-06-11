@@ -17,7 +17,8 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
   let mediaType: MediaType = .video
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
-  let output: AVCaptureVideoDataOutput
+  private(set) var output: AVCaptureVideoDataOutput
+  var attachedSessionID: UInt64?
   private var recorders = WeakArray<HybridFrameRecorder>()
   private let fileType: RecorderFileType
 
@@ -54,7 +55,23 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
       label: "com.margelo.camera.video-frame.video",
       qos: .utility)
     super.init()
+    setUpOutput()
+    // set the delegate to append to the Recorder
+    delegate.onFrame = { [weak self] buffer, timestamp, orientation, isMirrored in
+      guard let self else { return }
+      self.onFrame(buffer, type: .video)
+    }
+  }
 
+  func recreateOutput() {
+    // Preserve `videoSettings`, which might have been customized via `setOutputSettings(...)`
+    let previousVideoSettings = output.videoSettings
+    output = AVCaptureVideoDataOutput()
+    setUpOutput()
+    output.videoSettings = previousVideoSettings
+  }
+
+  private func setUpOutput() {
     // Set up our `delegate`
     output.setSampleBufferDelegate(delegate, queue: videoQueue)
     // Set the pixel format to the device native format.
@@ -70,11 +87,6 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
       }
       // Allow capturing HDR
       output.preservesDynamicHDRMetadata = true
-    }
-    // set the delegate to append to the Recorder
-    delegate.onFrame = { [weak self] buffer, timestamp, orientation, isMirrored in
-      guard let self else { return }
-      self.onFrame(buffer, type: .video)
     }
   }
 

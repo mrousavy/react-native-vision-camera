@@ -15,7 +15,8 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
   let requiresAudioInput: Bool = false
   // TODO: If depth data delivery is configured, we probably should return `true` here
   let requiresDepthFormat: Bool = false
-  let output: AVCapturePhotoOutput
+  private(set) var output: AVCapturePhotoOutput
+  var attachedSessionID: UInt64?
 
   var supportsDepthDataDelivery: Bool {
     return output.isDepthDataDeliverySupported
@@ -54,7 +55,15 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     self.output = AVCapturePhotoOutput()
     self.options = options
     super.init()
+    setUpOutput()
+  }
 
+  func recreateOutput() {
+    output = AVCapturePhotoOutput()
+    setUpOutput()
+  }
+
+  private func setUpOutput() {
     output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
 
     if options.containerFormat == .dng {
