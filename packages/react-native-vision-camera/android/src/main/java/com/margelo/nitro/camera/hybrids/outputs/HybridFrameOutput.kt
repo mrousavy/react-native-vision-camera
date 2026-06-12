@@ -81,8 +81,14 @@ class HybridFrameOutput(
           setOutputImageRotationEnabled(options.enablePhysicalBufferRotation)
 
           when (options.pixelFormat) {
-            TargetVideoPixelFormat.YUV -> {
-              // Use YUV_420_888 (CPU)
+            TargetVideoPixelFormat.YUV,
+            TargetVideoPixelFormat.YUV_420_8_BIT_FULL,
+            TargetVideoPixelFormat.YUV_420_8_BIT_VIDEO,
+            -> {
+              // Use YUV_420_888 (CPU).
+              // Android does not allow configuring the color range of the
+              // Camera output, so the explicit full/video-range targets
+              // resolve to the same format as `yuv` here.
               setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
             }
             TargetVideoPixelFormat.RGB -> {

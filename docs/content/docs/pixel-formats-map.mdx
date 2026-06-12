@@ -7,10 +7,12 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
 ### Requesting a Pixel Format
 
-In a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput), you have three options that affects your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat):
+In a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput), you have multiple options that affect your [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Frame#pixelformat):
 
 - [`'native'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig)'s [`nativePixelFormat`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig#nativepixelformat) - this requires zero conversion and is generally the most efficient.
 - [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the platform default YUV format - often [`yuv-420-8-bit-full`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat). In most cases, this requires little to no conversion and is very efficient.
+- [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Explicitly uses YUV 4:2:0 8-bit **full-range** ([`yuv-420-8-bit-full`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)). Full-range is often preferred for CPU-based processing (e.g. ML inference).
+- [`'yuv-420-8-bit-video'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Explicitly uses YUV 4:2:0 8-bit **video-range** ([`yuv-420-8-bit-video`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)). Some GPU video pipelines require video-range, for example WebGPU (Dawn) can only import video-range YUV buffers as external textures. On Android, the color range of the Camera output cannot be configured, so this resolves to the same format as [`'yuv'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat).
 - [`'rgb'`](/api/react-native-vision-camera/type-aliases/TargetVideoPixelFormat): Uses the platform default RGB format - often [`rgb-rgba-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) or [`rgb-bgra-8-bit`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat). This always requires conversion as the Camera operates in YUV (or BayerRAW), and uses ~2.6x more memory.
 
 > [!TIP]

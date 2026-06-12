@@ -56,7 +56,23 @@ export type VideoPixelFormat =
  *    format ({@linkcode PixelFormat | 'private'}) and requires zero conversion.
  * - `'yuv'`: Choose the YUV format closest to the Camera's native format. Often YUV 4:2:0
  *    8-bit full-range like {@linkcode VideoPixelFormat | 'yuv-420-8-bit-full'}.
+ * - `'yuv-420-8-bit-full'`: Explicitly choose YUV 4:2:0 8-bit **full-range**
+ *    ({@linkcode VideoPixelFormat | 'yuv-420-8-bit-full'}). Full-range is often preferred
+ *    for CPU-based processing (e.g. ML inference).
+ * - `'yuv-420-8-bit-video'`: Explicitly choose YUV 4:2:0 8-bit **video-range**
+ *    ({@linkcode VideoPixelFormat | 'yuv-420-8-bit-video'}). Video-range is required by
+ *    some GPU video pipelines, for example WebGPU (Dawn) can only import video-range
+ *    YUV buffers as external textures.
  * - `'rgb'`: Choose an RGB format. Often 8-bit BGRA like
  *   {@linkcode VideoPixelFormat | 'rgb-bgra-8-bit'}.
+ *
+ * Note: On Android, `'yuv-420-8-bit-full'` and `'yuv-420-8-bit-video'` both resolve
+ * to the same YUV format as `'yuv'` (`YUV_420_888`), as Android does not allow
+ * configuring the color range of the Camera output.
  */
-export type TargetVideoPixelFormat = 'native' | 'yuv' | 'rgb'
+export type TargetVideoPixelFormat =
+  | 'native'
+  | 'yuv'
+  | 'yuv-420-8-bit-full'
+  | 'yuv-420-8-bit-video'
+  | 'rgb'

@@ -29,9 +29,11 @@ namespace margelo::nitro::camera {
    * An enum which can be represented as a JavaScript union (TargetVideoPixelFormat).
    */
   enum class TargetVideoPixelFormat {
-    NATIVE      SWIFT_NAME(native) = 0,
-    YUV      SWIFT_NAME(yuv) = 1,
-    RGB      SWIFT_NAME(rgb) = 2,
+    YUV_420_8_BIT_VIDEO      SWIFT_NAME(yuv4208BitVideo) = 0,
+    YUV_420_8_BIT_FULL      SWIFT_NAME(yuv4208BitFull) = 1,
+    NATIVE      SWIFT_NAME(native) = 2,
+    YUV      SWIFT_NAME(yuv) = 3,
+    RGB      SWIFT_NAME(rgb) = 4,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
@@ -44,6 +46,8 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::TargetVideoPixelFormat fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("yuv-420-8-bit-video"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_VIDEO;
+        case hashString("yuv-420-8-bit-full"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_FULL;
         case hashString("native"): return margelo::nitro::camera::TargetVideoPixelFormat::NATIVE;
         case hashString("yuv"): return margelo::nitro::camera::TargetVideoPixelFormat::YUV;
         case hashString("rgb"): return margelo::nitro::camera::TargetVideoPixelFormat::RGB;
@@ -53,6 +57,8 @@ namespace margelo::nitro {
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::TargetVideoPixelFormat arg) {
       switch (arg) {
+        case margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-video");
+        case margelo::nitro::camera::TargetVideoPixelFormat::YUV_420_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-full");
         case margelo::nitro::camera::TargetVideoPixelFormat::NATIVE: return JSIConverter<std::string>::toJSI(runtime, "native");
         case margelo::nitro::camera::TargetVideoPixelFormat::YUV: return JSIConverter<std::string>::toJSI(runtime, "yuv");
         case margelo::nitro::camera::TargetVideoPixelFormat::RGB: return JSIConverter<std::string>::toJSI(runtime, "rgb");
@@ -67,6 +73,8 @@ namespace margelo::nitro {
       }
       std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
       switch (hashString(unionValue.c_str(), unionValue.size())) {
+        case hashString("yuv-420-8-bit-video"):
+        case hashString("yuv-420-8-bit-full"):
         case hashString("native"):
         case hashString("yuv"):
         case hashString("rgb"):
