@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraState
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -28,6 +27,7 @@ import com.margelo.nitro.camera.session.toConfig
 import com.margelo.nitro.camera.utils.CustomLifecycle
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.Promise
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -50,7 +50,7 @@ class HybridCameraSession(
   private var onErrorListeners = arrayListOf<(Throwable) -> Unit>()
   private var onInterruptionStartedListeners = arrayListOf<(InterruptionReason) -> Unit>()
   private var onInterruptionEndedListeners = arrayListOf<() -> Unit>()
-  private var currentCameraState = CameraState.Type.CLOSED
+  private var startWaiters = arrayListOf<CompletableDeferred<Unit>>()
 
   @SuppressLint("RestrictedApi")
   override fun configure(
@@ -139,7 +139,24 @@ class HybridCameraSession(
 
   override fun start(): Promise<Unit> {
     return Promise.async(uiScope) {
+      val startWaiter =
+        if (activeSession?.isRunning == false) {
+          CompletableDeferred<Unit>().also { startWaiters.add(it) }
+        } else {
+          null
+        }
+
       lifecycleOwner.setActive(true)
+
+      if (activeSession?.isRunning == true) {
+        startWaiter?.complete(Unit)
+      }
+
+      try {
+        startWaiter?.await()
+      } finally {
+        startWaiter?.let { startWaiters.remove(it) }
+      }
     }
   }
 
@@ -177,6 +194,8 @@ class HybridCameraSession(
   // pragma MARK: Lifecycle Changed Callbacks
 
   override fun onStarted() {
+    startWaiters.forEach { waiter -> waiter.complete(Unit) }
+    startWaiters.clear()
     onStartedListeners.forEach { listener -> listener() }
   }
 
@@ -185,6 +204,8 @@ class HybridCameraSession(
   }
 
   override fun onError(error: Throwable) {
+    startWaiters.forEach { waiter -> waiter.completeExceptionally(error) }
+    startWaiters.clear()
     onErrorListeners.forEach { listener -> listener(error) }
   }
 

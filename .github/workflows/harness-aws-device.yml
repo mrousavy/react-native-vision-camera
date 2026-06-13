@@ -73,6 +73,8 @@ env:
   HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME: harness-xctest-agent-ipa
   HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH: apps/simple-camera/ios/build/devicefarm/HarnessXCTestAgentUITests.ipa
   HARNESS_IOS_XCTEST_UI_TEST_PACKAGE_OUTPUT: apps/simple-camera/ios/build/devicefarm/HarnessXCTestUITestPackage.zip
+  HARNESS_IOS_BUN_ARTIFACT_NAME: harness-ios-bun
+  HARNESS_IOS_BUN_ARTIFACT_PATH: apps/simple-camera/ios/build/devicefarm/bun/bun
   HARNESS_DEVICE_FARM_REPO_ARCHIVE_NAME: react-native-vision-camera.zip
   HARNESS_ANDROID_DEVICE_FARM_TEST_PACKAGE_OUTPUT: apps/simple-camera/android/build/devicefarm/AndroidTestPackage.zip
   HARNESS_ANDROID_BUNDLE_ID: com.margelo.nitro.camera.example.simple
@@ -218,6 +220,8 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: oven-sh/setup-bun@v2
+
       - name: Download Android app artifact
         uses: actions/download-artifact@v8
         with:
@@ -241,6 +245,18 @@ jobs:
             --format=zip \
             --output "$PACKAGE_PATH" \
             HEAD
+
+          BUN_BIN="$(command -v bun)"
+          BUN_PACKAGE_ROOT="$(mktemp -d)"
+          mkdir -p "$BUN_PACKAGE_ROOT/.devicefarm/bin"
+          cp "$BUN_BIN" "$BUN_PACKAGE_ROOT/.devicefarm/bin/bun"
+          chmod +x "$BUN_PACKAGE_ROOT/.devicefarm/bin/bun"
+          "$BUN_PACKAGE_ROOT/.devicefarm/bin/bun" --version
+
+          (
+            cd "$BUN_PACKAGE_ROOT"
+            zip -qry "$GITHUB_WORKSPACE/$PACKAGE_PATH" .devicefarm
+          )
 
           unzip -tq "$PACKAGE_PATH"
 
@@ -308,7 +324,10 @@ jobs:
         uses: ./.github/actions/collect-devicefarm-results
         with:
           artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          console-url: ${{ steps.run-test.outputs.console-url }}
           platform: android
+          run-arn: ${{ steps.run-test.outputs.arn }}
           test-step-outcome: ${{ steps.run-test.outcome }}
 
   build-ios:
@@ -470,6 +489,26 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Stage Bun runtime for Device Farm
+        run: |
+          set -euo pipefail
+
+          BUN_BIN="$(command -v bun)"
+          BUN_RUNTIME="${{ env.HARNESS_IOS_BUN_ARTIFACT_PATH }}"
+
+          mkdir -p "$(dirname "$BUN_RUNTIME")"
+          cp "$BUN_BIN" "$BUN_RUNTIME"
+          chmod +x "$BUN_RUNTIME"
+          "$BUN_RUNTIME" --version
+
+      - name: Upload Bun runtime artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.HARNESS_IOS_BUN_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_IOS_BUN_ARTIFACT_PATH }}
+          if-no-files-found: error
+          retention-days: 7
+
   test-ios:
     name: Test iOS
     runs-on: ubuntu-latest
@@ -495,6 +534,12 @@ jobs:
           name: ${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_ARTIFACT_NAME }}
           path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm
 
+      - name: Download Bun runtime artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ env.HARNESS_IOS_BUN_ARTIFACT_NAME }}
+          path: ${{ env.HARNESS_PROJECT_ROOT }}/ios/build/devicefarm/bun
+
       - name: Verify iOS app artifact
         run: test -f ${{ env.HARNESS_IOS_APP_BUILD_OUTPUT }}
 
@@ -509,6 +554,7 @@ jobs:
           PACKAGE_ROOT="$(mktemp -d)"
           REPO_ARCHIVE="$PACKAGE_ROOT/${{ env.HARNESS_DEVICE_FARM_REPO_ARCHIVE_NAME }}"
           RUNNER_IPA="$PACKAGE_ROOT/$(basename "${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}")"
+          BUN_BIN="${{ env.HARNESS_IOS_BUN_ARTIFACT_PATH }}"
 
           rm -f "$PACKAGE_PATH"
           mkdir -p "$(dirname "$PACKAGE_PATH")"
@@ -517,6 +563,17 @@ jobs:
             --format=zip \
             --output "$REPO_ARCHIVE" \
             HEAD
+
+          if [[ -f "$BUN_BIN" ]]; then
+            BUN_PACKAGE_ROOT="$(mktemp -d)"
+            mkdir -p "$BUN_PACKAGE_ROOT/.devicefarm/bin"
+            cp "$BUN_BIN" "$BUN_PACKAGE_ROOT/.devicefarm/bin/bun"
+            chmod +x "$BUN_PACKAGE_ROOT/.devicefarm/bin/bun"
+            (
+              cd "$BUN_PACKAGE_ROOT"
+              zip -qry "$REPO_ARCHIVE" .devicefarm
+            )
+          fi
 
           cp "${{ env.HARNESS_IOS_HARNESS_XCTEST_RUNNER_IPA_PATH }}" "$RUNNER_IPA"
 
@@ -596,5 +653,8 @@ jobs:
         uses: ./.github/actions/collect-devicefarm-results
         with:
           artifact-folder: ${{ steps.run-test.outputs.artifact-folder }}
+          aws-region: ${{ env.HARNESS_AWS_REGION }}
+          console-url: ${{ steps.run-test.outputs.console-url }}
           platform: ios
+          run-arn: ${{ steps.run-test.outputs.arn }}
           test-step-outcome: ${{ steps.run-test.outcome }}
