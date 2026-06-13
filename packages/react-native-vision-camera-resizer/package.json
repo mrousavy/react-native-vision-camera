@@ -72,7 +72,7 @@
     "@types/react": "19.2.15",
     "nitrogen": "0.35.9",
     "react": "19.2.3",
-    "react-native": "0.85.3",
+    "react-native": "0.86.0",
     "react-native-nitro-modules": "0.35.9",
     "react-native-vision-camera": "*",
     "typescript": "6.0.3"
