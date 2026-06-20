@@ -11,13 +11,20 @@ export function useExposureUpdater(
     if (controller == null) return
     if (exposure == null) return
 
+    // `setExposureBias` rejects if the session became inactive before the
+    // update applied (e.g. during teardown). This is recoverable, so catch the
+    // rejection here — otherwise it surfaces as an unhandled promise rejection.
+    const onExposureError = (error: unknown): void => {
+      console.warn('Failed to set exposure bias:', error)
+    }
+
     if (typeof exposure === 'number') {
       // number
-      controller.setExposureBias(exposure)
+      controller.setExposureBias(exposure).catch(onExposureError)
       return
     } else {
       // SharedValue<number>
-      controller.setExposureBias(exposure.get())
+      controller.setExposureBias(exposure.get()).catch(onExposureError)
       const listener = VisionCameraWorkletsProxy.bindUIUpdatesToController(
         exposure,
         controller,

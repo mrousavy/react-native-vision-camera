@@ -10,6 +10,12 @@ export function useTorchModeUpdater(
     if (controller == null) return
     if (torchMode == null) return
 
-    controller.setTorchMode(torchMode)
+    // `setTorchMode` rejects if the device has no torch (e.g. front camera, or
+    // many emulators), or if the session became inactive before the update
+    // applied (e.g. during teardown). These are recoverable, so catch the
+    // rejection here — otherwise it surfaces as an unhandled promise rejection.
+    controller.setTorchMode(torchMode).catch((error) => {
+      console.warn(`Failed to set torch mode to "${torchMode}":`, error)
+    })
   }, [controller, torchMode])
 }

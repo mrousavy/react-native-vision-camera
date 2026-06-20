@@ -11,13 +11,21 @@ export function useZoomUpdater(
     if (controller == null) return
     if (zoom == null) return
 
+    // `setZoom` rejects if the session became inactive before the update
+    // applied (e.g. during teardown), throwing `OperationCanceledException:
+    // Camera is not active`. This is recoverable, so catch the rejection here —
+    // otherwise it surfaces as an unhandled promise rejection.
+    const onZoomError = (error: unknown): void => {
+      console.warn('Failed to set zoom:', error)
+    }
+
     if (typeof zoom === 'number') {
       // number
-      controller.setZoom(zoom)
+      controller.setZoom(zoom).catch(onZoomError)
       return
     } else {
       // SharedValue<number>
-      controller.setZoom(zoom.get())
+      controller.setZoom(zoom.get()).catch(onZoomError)
       const listener = VisionCameraWorkletsProxy.bindUIUpdatesToController(
         zoom,
         controller,
