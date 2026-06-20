@@ -36,12 +36,12 @@ To start a Video Recording, use [`Recorder.startRecording(...)`](/api/react-nati
 
 ```ts
 const recorder = ...
-await recorder.startRecording({
+await recorder.startRecording(
   (path, reason) => console.log(`Recording finished! ${reason}`),
   (error) => console.error(`Recording error!`, error),
   () => console.log(`Recording paused!`),
   () => console.log(`Recording resumed!`)
-})
+)
 ```
 
 #### Inspecting Progress

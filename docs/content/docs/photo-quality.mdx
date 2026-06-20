@@ -32,7 +32,7 @@ const photoOutput = usePhotoOutput({
 ### Configure JPEG `quality`
 
 Processed [`PhotoContainerFormat`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)s (such as [`'jpeg'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat) or [`'heic'`](/api/react-native-vision-camera/type-aliases/PhotoContainerFormat)) compress captured [`Photo`](/api/react-native-vision-camera/hybrid-objects/Photo)s.
-By default, a compression of `0.95` (meaning 95% quality) is used, which can be adjusted via [`quality`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#quality) - for example, to capture in maximum quality set it to `1.0`:
+By default, a compression of `0.9` (meaning 90% quality) is used, which can be adjusted via [`quality`](/api/react-native-vision-camera/interfaces/PhotoOutputOptions#quality) - for example, to capture in maximum quality set it to `1.0`:
 
 ```ts
 const photoOutput = usePhotoOutput({
