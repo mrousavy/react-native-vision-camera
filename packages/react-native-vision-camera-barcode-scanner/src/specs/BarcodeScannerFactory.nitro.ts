@@ -11,7 +11,7 @@ export interface BarcodeScannerOptions {
    * scanning.
    *
    * If you want to detect all kinds of barcodes,
-   * use {@linkcode TargetBarcodeFormat | ['all']}
+   * use {@linkcode TargetBarcodeFormat | ['all-formats']}
    */
   barcodeFormats: TargetBarcodeFormat[]
 }
@@ -22,7 +22,7 @@ export interface BarcodeScannerOutputOptions {
    * scanning.
    *
    * If you want to detect all kinds of barcodes,
-   * use {@linkcode TargetBarcodeFormat | ['all']}
+   * use {@linkcode TargetBarcodeFormat | ['all-formats']}
    */
   barcodeFormats: TargetBarcodeFormat[]
   /**

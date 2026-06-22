@@ -15,6 +15,21 @@ const LOGO_SIZE = {
 const LOGO_WORDMARK_MARGIN_CLASS_NAME = 'ml-2'
 const LOGO_WORDMARK_WIDTH_CLASS_NAME = 'w-[150px]'
 
+function MargeloBrandIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 30 30"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M0 0V30H30L0 0Z" />
+      <path d="M30 0V30L19.007 10.9941L30 0Z" />
+    </svg>
+  )
+}
+
 export function sideBarOptions(): BaseLayoutProps {
   return {
     themeSwitch: {
@@ -52,6 +67,14 @@ export function homeOptions(): HomeLayoutProps {
         text: 'API Reference',
         url: '/api',
         active: 'nested-url',
+      },
+      {
+        type: 'icon',
+        text: 'Margelo',
+        label: 'Margelo',
+        url: 'https://margelo.com',
+        icon: <MargeloBrandIcon />,
+        external: true,
       },
     ],
     githubUrl: siteConfig.repositoryUrl,

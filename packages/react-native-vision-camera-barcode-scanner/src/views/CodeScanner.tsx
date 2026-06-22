@@ -53,7 +53,7 @@ export interface CodeScannerOptions extends BarcodeScannerOutputOptions {
  *   return (
  *     <CodeScanner
  *       isActive={isActive}
- *       barcodeFormats={['all']}
+ *       barcodeFormats={['all-formats']}
  *       onBarcodeScanned={(barcodes) => {
  *         console.log(`Scanned ${barcodes.length} barcodes!`)
  *       }}

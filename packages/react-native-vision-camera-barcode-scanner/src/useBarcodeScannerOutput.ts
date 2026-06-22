@@ -19,7 +19,7 @@ import type { BarcodeScannerOutputOptions } from './specs/BarcodeScannerFactory.
  * ```tsx
  * const device = ...
  * const scannerOutput = useBarcodeScannerOutput({
- *   barcodeFormats: ['all'],
+ *   barcodeFormats: ['all-formats'],
  *   onBarcodeScanned(barcodes) {
  *     console.log(`Scanned ${barcodes.length} barcodes!`)
  *   },
@@ -41,7 +41,7 @@ import type { BarcodeScannerOutputOptions } from './specs/BarcodeScannerFactory.
  * ```ts
  * const device = ...
  * const scannerOutput = useBarcodeScannerOutput({
- *   barcodeFormats: ['all'],
+ *   barcodeFormats: ['all-formats'],
  *   onBarcodeScanned(barcodes) {
  *     console.log(`Scanned ${barcodes.length} barcodes!`)
  *   },
