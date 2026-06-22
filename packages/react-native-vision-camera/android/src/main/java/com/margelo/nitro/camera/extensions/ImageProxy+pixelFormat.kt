@@ -1,13 +1,39 @@
 package com.margelo.nitro.camera.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.ImageFormat
+import android.hardware.DataSpace
+import android.os.Build
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.DepthPixelFormat
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.extensions.converters.fromImageFormat
+import com.margelo.nitro.camera.utils.PixelRange
+
+private val ImageProxy.pixelRange: PixelRange
+  @SuppressLint("WrongConstant")
+  @OptIn(ExperimentalGetImage::class)
+  get() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      return PixelRange.UNKNOWN
+    }
+
+    val dataSpace = image?.dataSpace ?: return PixelRange.UNKNOWN
+    val range = DataSpace.getRange(dataSpace)
+    return when (range) {
+      DataSpace.RANGE_LIMITED -> PixelRange.VIDEO
+      DataSpace.RANGE_FULL -> PixelRange.FULL
+      DataSpace.RANGE_EXTENDED -> PixelRange.EXTENDED
+      else -> PixelRange.UNKNOWN
+    }
+  }
 
 val ImageProxy.pixelFormat: PixelFormat
-  get() = PixelFormat.fromImageFormat(format)
+  get() {
+    return PixelFormat.fromImageFormat(format, pixelRange)
+  }
 
 val ImageProxy.depthPixelFormat: DepthPixelFormat
   get() {
