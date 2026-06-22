@@ -4,7 +4,10 @@ import android.graphics.ImageFormat
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.utils.PixelRange
 
-fun PixelFormat.Companion.fromImageFormat(imageFormat: Int, range: PixelRange): PixelFormat {
+fun PixelFormat.Companion.fromImageFormat(
+  imageFormat: Int,
+  range: PixelRange,
+): PixelFormat {
   return when (imageFormat) {
     ImageFormat.FLEX_RGB_888 -> PixelFormat.RGB_RGB_8_BIT
     ImageFormat.FLEX_RGBA_8888 -> PixelFormat.RGB_RGBA_8_BIT

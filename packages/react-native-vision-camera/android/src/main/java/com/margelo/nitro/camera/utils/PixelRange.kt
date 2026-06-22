@@ -1,8 +1,8 @@
 package com.margelo.nitro.camera.utils
 
 enum class PixelRange {
-    VIDEO,
-    FULL,
-    EXTENDED,
-    UNKNOWN
+  VIDEO,
+  FULL,
+  EXTENDED,
+  UNKNOWN,
 }
