@@ -29,9 +29,9 @@ export interface DeviceFilter {
    * @example
    * ```ts
    * // This device is simpler, so it starts up faster.
-   * getCameraDevice({ physicalDevices: ['wide-angle'] })
+   * getCameraDevice(devices, 'back', { physicalDevices: ['wide-angle'] })
    * // This device is more complex, so it starts up slower, but you can switch between devices on 0.5x, 1x and 2x zoom.
-   * getCameraDevice({ physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto'] })
+   * getCameraDevice(devices, 'back', { physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto'] })
    * ```
    */
   physicalDevices?: PhysicalDeviceType[]
