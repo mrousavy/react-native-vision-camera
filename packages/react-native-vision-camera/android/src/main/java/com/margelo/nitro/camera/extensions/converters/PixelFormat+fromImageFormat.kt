@@ -15,32 +15,32 @@ fun PixelFormat.Companion.fromImageFormat(
     ImageFormat.DEPTH_POINT_CLOUD -> PixelFormat.DEPTH_POINT_CLOUD_32_BIT
     ImageFormat.YUV_420_888 -> {
       when (range) {
-        PixelRange.FULL -> PixelFormat.YUV_420_8_BIT_FULL
-        else -> PixelFormat.YUV_420_8_BIT_VIDEO
+        PixelRange.VIDEO -> PixelFormat.YUV_420_8_BIT_VIDEO
+        else -> PixelFormat.YUV_420_8_BIT_FULL
       }
     }
     ImageFormat.YUV_422_888 -> {
       when (range) {
-        PixelRange.FULL -> PixelFormat.YUV_422_8_BIT_FULL
-        else -> PixelFormat.YUV_422_8_BIT_VIDEO
+        PixelRange.VIDEO -> PixelFormat.YUV_422_8_BIT_VIDEO
+        else -> PixelFormat.YUV_422_8_BIT_FULL
       }
     }
     ImageFormat.YUV_444_888 -> {
       when (range) {
-        PixelRange.FULL -> PixelFormat.YUV_444_8_BIT_FULL
-        else -> PixelFormat.YUV_444_8_BIT_VIDEO
+        PixelRange.VIDEO -> PixelFormat.YUV_444_8_BIT_VIDEO
+        else -> PixelFormat.YUV_444_8_BIT_FULL
       }
     }
     ImageFormat.YCBCR_P010 -> {
       when (range) {
-        PixelRange.FULL -> PixelFormat.YUV_420_10_BIT_FULL
-        else -> PixelFormat.YUV_420_10_BIT_VIDEO
+        PixelRange.VIDEO -> PixelFormat.YUV_420_10_BIT_VIDEO
+        else -> PixelFormat.YUV_420_10_BIT_FULL
       }
     }
     ImageFormat.YCBCR_P210 -> {
       when (range) {
-        PixelRange.FULL -> PixelFormat.YUV_422_10_BIT_FULL
-        else -> PixelFormat.YUV_422_10_BIT_VIDEO
+        PixelRange.VIDEO -> PixelFormat.YUV_422_10_BIT_VIDEO
+        else -> PixelFormat.YUV_422_10_BIT_FULL
       }
     }
     ImageFormat.PRIVATE -> PixelFormat.PRIVATE
