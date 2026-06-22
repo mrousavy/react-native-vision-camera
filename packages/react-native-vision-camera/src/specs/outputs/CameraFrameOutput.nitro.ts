@@ -2,8 +2,12 @@ import type { Sync } from 'react-native-nitro-modules'
 import type { useFrameOutput } from '../../hooks/useFrameOutput'
 import type { FrameDroppedReason } from '../common-types/FrameDroppedReason'
 import type { NativeBuffer } from '../common-types/NativeBuffer'
+import type { PixelFormat } from '../common-types/PixelFormat'
 import type { Size } from '../common-types/Size'
-import type { TargetVideoPixelFormat } from '../common-types/VideoPixelFormat'
+import type {
+  TargetVideoPixelFormat,
+  VideoPixelFormat,
+} from '../common-types/VideoPixelFormat'
 import type { NativeThread } from '../frame-processors/NativeThread.nitro'
 import type { Frame } from '../instances/Frame.nitro'
 import type { CameraSession } from '../session/CameraSession.nitro'
@@ -73,17 +77,19 @@ export interface FrameOutputOptions {
    * {@linkcode CameraSessionConfig.nativePixelFormat | nativePixelFormat}.
    * - Some configurations may natively stream in a
    * YUV format (e.g. if {@linkcode CameraSessionConfig.nativePixelFormat | nativePixelFormat} ==
-   * {@linkcode TargetVideoPixelFormat | 'yuv-420-8-bit-video'}),
+   * {@linkcode VideoPixelFormat | 'yuv-420-8-bit-video'}),
    * in which case {@linkcode TargetVideoPixelFormat | 'yuv'} can also be zero overhead.
    * - If your Frame Processor absolutely requires to run in RGB, you may
    * set {@linkcode pixelFormat} to {@linkcode TargetVideoPixelFormat | 'rgb'},
    * which comes with additional processing overhead as the Camera pipeline
    * will convert native frames to RGB (e.g. to
-   * {@linkcode TargetVideoPixelFormat | 'rgb-bgra-8-bit'}).
+   * {@linkcode VideoPixelFormat | 'rgb-bgra-8-bit'}).
    *
    * @discussion
    * It is recommended to use {@linkcode TargetVideoPixelFormat | 'native'}
-   * if possible, as this will use a zero-copy GPU-only path.
+   * if possible, as this avoids explicit pixel-format conversion. On Android,
+   * this uses a GPU-only {@linkcode PixelFormat | 'private'} path; on iOS, it
+   * asks AVFoundation for the device-native CoreVideo format.
    * Other formats almost always require conversion at
    * some point, especially on Android.
    *

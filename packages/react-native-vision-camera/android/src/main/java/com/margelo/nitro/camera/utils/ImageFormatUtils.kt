@@ -1,6 +1,7 @@
 package com.margelo.nitro.camera.utils
 
 import android.graphics.ImageFormat
+import android.graphics.PixelFormat as AndroidPixelFormat
 
 object ImageFormatUtils {
   val allVideoFormats =
@@ -15,6 +16,8 @@ object ImageFormatUtils {
       // RGB
       ImageFormat.FLEX_RGB_888,
       ImageFormat.FLEX_RGBA_8888,
+      AndroidPixelFormat.RGB_888,
+      AndroidPixelFormat.RGBA_8888,
     )
   val allDepthFormats =
     arrayOf(

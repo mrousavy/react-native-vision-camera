@@ -59,12 +59,13 @@ const buffer = depth.getDepthData()
 
 #### Interpreting Depth Data
 
-The Depth Data's layout depends on the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Depth#pixelformat). For example, in [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat), pixels are laid out in 16-bit floats - one float per "pixel".
+The Depth Data's layout depends on the [`Depth`](/api/react-native-vision-camera/hybrid-objects/Depth)'s [`pixelFormat`](/api/react-native-vision-camera/hybrid-objects/Depth#pixelformat). On iOS, [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) stores one 16-bit float depth sample per pixel. On Android, [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) maps to `ImageFormat.DEPTH16`, where each 16-bit sample stores range and confidence bits.
 
 ```ts
 const depth = ...
 const buffer = depth.getDepthData()
-if (depth.pixelFormat === 'depth-16') {
+if (depth.pixelFormat === 'depth-16-bit') {
+  // iOS depth-16-bit data is Float16. Android DEPTH16 uses packed Uint16 samples.
   const pixels = new Float16Array(buffer)
   // [!code ++]
   const distanceToFirstPixel = pixels[0]
@@ -73,7 +74,8 @@ if (depth.pixelFormat === 'depth-16') {
 ```
 
 > [!TIP]
-> Typically, a single 16-bit float in [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) data represents a distance in meters.
+> On iOS, a single 16-bit float in [`'depth-16-bit'`](/api/react-native-vision-camera/type-aliases/DepthPixelFormat) data represents a distance in meters.
+> On Android, read `ImageFormat.DEPTH16` as unsigned 16-bit samples: the low 13 bits are range in millimeters and the high 3 bits are confidence.
 
 #### Converting between Depth Formats
 

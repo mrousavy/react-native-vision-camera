@@ -3,6 +3,7 @@ package com.margelo.nitro.camera.extensions.converters
 import android.graphics.ImageFormat
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.utils.PixelRange
+import android.graphics.PixelFormat as AndroidPixelFormat
 
 fun PixelFormat.Companion.fromImageFormat(
   imageFormat: Int,
@@ -11,6 +12,8 @@ fun PixelFormat.Companion.fromImageFormat(
   return when (imageFormat) {
     ImageFormat.FLEX_RGB_888 -> PixelFormat.RGB_RGB_8_BIT
     ImageFormat.FLEX_RGBA_8888 -> PixelFormat.RGB_RGBA_8_BIT
+    AndroidPixelFormat.RGB_888 -> PixelFormat.RGB_RGB_8_BIT
+    AndroidPixelFormat.RGBA_8888 -> PixelFormat.RGB_RGBA_8_BIT
     ImageFormat.DEPTH16 -> PixelFormat.DEPTH_16_BIT
     ImageFormat.DEPTH_POINT_CLOUD -> PixelFormat.DEPTH_POINT_CLOUD_32_BIT
     ImageFormat.YUV_420_888 -> {

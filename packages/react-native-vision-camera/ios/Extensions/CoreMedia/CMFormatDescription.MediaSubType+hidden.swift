@@ -45,6 +45,11 @@ extension CMFormatDescription.MediaSubType {
     rawValue: kCVPixelFormatType_444YpCbCr8BiPlanarVideoRange)
   static let yuv4448BitFull = CMFormatDescription.MediaSubType(
     rawValue: kCVPixelFormatType_444YpCbCr8BiPlanarFullRange)
+  // YUV 4:4:4 10-Bit
+  static let yuv44410BitVideo = CMFormatDescription.MediaSubType(
+    rawValue: kCVPixelFormatType_444YpCbCr10BiPlanarVideoRange)
+  static let yuv44410BitFull = CMFormatDescription.MediaSubType(
+    rawValue: kCVPixelFormatType_444YpCbCr10BiPlanarFullRange)
 
   // BGRA
   static let rgbBgra8Bit = CMFormatDescription.MediaSubType(rawValue: kCVPixelFormatType_32BGRA)

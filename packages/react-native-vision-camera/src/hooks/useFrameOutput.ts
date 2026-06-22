@@ -77,10 +77,10 @@ export interface UseFrameOutputProps extends Partial<FrameOutputOptions> {
  * @discussion
  * Choosing an appropriate {@linkcode FrameOutputOptions.pixelFormat | pixelFormat}
  * depends on your Frame Processor's usage. While the most commonly used
- * format in visual recognition models is {@linkcode VideoPixelFormat | 'rgb'},
+ * target in visual recognition models is {@linkcode TargetVideoPixelFormat | 'rgb'},
  * it is by far not the most efficient format for a Camera pipeline as it
  * requires an additional conversion and uses ~2.6x more bandwidth than
- * {@linkcode VideoPixelFormat | 'yuv'}.
+ * {@linkcode TargetVideoPixelFormat | 'yuv'}.
  *
  * If you render to native Surfaces (e.g. via GPU pipelines or Media Encoders),
  * you may also be able to use {@linkcode TargetVideoPixelFormat | 'native'},
