@@ -5,9 +5,18 @@ inputs:
   artifact-folder:
     description: Device Farm artifact folder produced by the test action
     required: true
+  aws-region:
+    description: AWS region where the Device Farm run was scheduled
+    required: false
+  console-url:
+    description: AWS Device Farm console URL for the run
+    required: false
   platform:
     description: Platform label used in filenames and log output
     required: true
+  run-arn:
+    description: AWS Device Farm run ARN
+    required: false
   test-step-outcome:
     description: Outcome of the upstream Device Farm execution step
     required: false
@@ -23,6 +32,77 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Print Device Farm result tree
+      if: inputs.run-arn != ''
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        RUN_ARN="${{ inputs.run-arn }}"
+        AWS_REGION="${{ inputs.aws-region }}"
+        CONSOLE_URL="${{ inputs.console-url }}"
+
+        echo "===== Device Farm run ====="
+        echo "Run ARN: $RUN_ARN"
+        if [[ -n "$CONSOLE_URL" ]]; then
+          echo "Console URL: $CONSOLE_URL"
+        fi
+
+        if [[ -z "$AWS_REGION" ]]; then
+          echo "No AWS region was provided; skipping Device Farm result tree." >&2
+          exit 0
+        fi
+
+        if ! command -v aws >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+          echo "aws and jq are required to print the Device Farm result tree." >&2
+          exit 0
+        fi
+
+        JOBS_JSON="$(aws devicefarm list-jobs --region "$AWS_REGION" --arn "$RUN_ARN" --output json || true)"
+        if [[ -z "$JOBS_JSON" ]]; then
+          echo "Could not list Device Farm jobs." >&2
+          exit 0
+        fi
+
+        echo "Jobs:"
+        jq -r '
+          .jobs[]
+          | "- \(.name): status=\(.status) result=\(.result // "UNKNOWN") counters=\(.counters)"
+        ' <<< "$JOBS_JSON"
+
+        while IFS= read -r JOB_ARN; do
+          [[ -z "$JOB_ARN" ]] && continue
+
+          SUITES_JSON="$(aws devicefarm list-suites --region "$AWS_REGION" --arn "$JOB_ARN" --output json || true)"
+          if [[ -z "$SUITES_JSON" ]]; then
+            echo "Could not list suites for job $JOB_ARN." >&2
+            continue
+          fi
+
+          echo "Suites for job $JOB_ARN:"
+          jq -r '
+            .suites[]
+            | "- \(.name): status=\(.status) result=\(.result // "UNKNOWN") counters=\(.counters)"
+          ' <<< "$SUITES_JSON"
+
+          while IFS= read -r SUITE_ARN; do
+            [[ -z "$SUITE_ARN" ]] && continue
+
+            TESTS_JSON="$(aws devicefarm list-tests --region "$AWS_REGION" --arn "$SUITE_ARN" --output json || true)"
+            if [[ -z "$TESTS_JSON" ]]; then
+              echo "Could not list tests for suite $SUITE_ARN." >&2
+              continue
+            fi
+
+            jq -r '
+              .tests[]
+              | "  - \(.name): status=\(.status) result=\(.result // "UNKNOWN") counters=\(.counters)"
+                + (if (.message // "") != "" then " message=\(.message)" else "" end)
+            ' <<< "$TESTS_JSON"
+          done < <(jq -r '.suites[].arn' <<< "$SUITES_JSON")
+        done < <(jq -r '.jobs[].arn' <<< "$JOBS_JSON")
+        echo "===== End Device Farm run ====="
+
     - name: Find Harness JUnit result
       id: find-harness-junit
       shell: bash
@@ -31,11 +111,14 @@ runs:
         ARTIFACT_DIR="${{ inputs.artifact-folder }}"
         PLATFORM="${{ inputs.platform }}"
         WORKSPACE_JUNIT=".github/test-results/harness-results-${PLATFORM}.junit.xml"
-        bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+        if bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
           "$ARTIFACT_DIR" \
           'harness-results.junit.xml' \
-          "$WORKSPACE_JUNIT"
-        echo "junit_file=$WORKSPACE_JUNIT" >> "$GITHUB_OUTPUT"
+          "$WORKSPACE_JUNIT"; then
+          echo "junit_file=$WORKSPACE_JUNIT" >> "$GITHUB_OUTPUT"
+        else
+          echo "junit_file=" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Find Harness output log
       id: find-harness-log
@@ -45,11 +128,14 @@ runs:
         ARTIFACT_DIR="${{ inputs.artifact-folder }}"
         PLATFORM="${{ inputs.platform }}"
         WORKSPACE_LOG=".github/test-results/harness-output-${PLATFORM}.log"
-        bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
+        if bash "$GITHUB_ACTION_PATH/../../scripts/find-devicefarm-artifact.sh" \
           "$ARTIFACT_DIR" \
           'harness-output.log' \
-          "$WORKSPACE_LOG"
-        echo "log_file=$WORKSPACE_LOG" >> "$GITHUB_OUTPUT"
+          "$WORKSPACE_LOG"; then
+          echo "log_file=$WORKSPACE_LOG" >> "$GITHUB_OUTPUT"
+        else
+          echo "log_file=" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Publish Harness test results
       id: publish-harness-results
@@ -71,11 +157,67 @@ runs:
         set -euo pipefail
         LOG_FILE="${{ steps.find-harness-log.outputs.log_file }}"
         PLATFORM="${{ inputs.platform }}"
+        if [[ -n "$LOG_FILE" ]]; then
+          echo "===== Harness ${PLATFORM} output log ====="
+          cat "$LOG_FILE"
+          echo "===== End Harness ${PLATFORM} output log ====="
+        else
+          echo "No Harness ${PLATFORM} output log was found in Device Farm artifacts."
+        fi
+
+    - name: Print Device Farm raw artifacts
+      if: always()
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        ARTIFACT_DIR="${{ inputs.artifact-folder }}"
+        TEST_STEP_OUTCOME="${{ inputs.test-step-outcome }}"
+        JUNIT_FILE="${{ steps.find-harness-junit.outputs.junit_file }}"
+        LOG_FILE="${{ steps.find-harness-log.outputs.log_file }}"
+
+        if [[ "$TEST_STEP_OUTCOME" != "failure" && -n "$JUNIT_FILE" && -n "$LOG_FILE" ]]; then
+          exit 0
+        fi
+
+        if [[ -z "$ARTIFACT_DIR" || ! -d "$ARTIFACT_DIR" ]]; then
+          echo "Device Farm artifact folder missing: '$ARTIFACT_DIR'" >&2
+          exit 0
+        fi
+
+        echo "===== Device Farm artifact files ====="
+        find "$ARTIFACT_DIR" -type f | sort
+        echo "===== End Device Farm artifact files ====="
+
+        while IFS= read -r FILE; do
+          NAME="$(basename "$FILE")"
+          case "$NAME" in
+            *"Test spec output.txt"|*"Test spec timestamped output.txt"|*"Customer Artifacts Log.txt")
+              echo "===== $NAME ====="
+              cat "$FILE"
+              echo "===== End $NAME ====="
+              ;;
+            *"Logcat.logcat"|*"Syslog.log"|*"xcodebuild.log")
+              echo "===== Last 400 lines of $NAME ====="
+              tail -n 400 "$FILE"
+              echo "===== End $NAME ====="
+              ;;
+          esac
+        done < <(find "$ARTIFACT_DIR" -type f | sort)
+
+    - name: Validate Device Farm result
+      if: always()
+      shell: bash
+      run: |
+        set -euo pipefail
         PUBLISH_OUTCOME="${{ steps.publish-harness-results.outcome }}"
         TEST_STEP_OUTCOME="${{ inputs.test-step-outcome }}"
-        echo "===== Harness ${PLATFORM} output log ====="
-        cat "$LOG_FILE"
-        echo "===== End Harness ${PLATFORM} output log ====="
+        JUNIT_FILE="${{ steps.find-harness-junit.outputs.junit_file }}"
+
+        if [[ -z "$JUNIT_FILE" ]]; then
+          echo "Harness JUnit result was not found in Device Farm artifacts." >&2
+          exit 1
+        fi
 
         if [[ "$PUBLISH_OUTCOME" == "failure" ]]; then
           echo "Harness test result publication reported failures." >&2

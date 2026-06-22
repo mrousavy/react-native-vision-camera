@@ -2,12 +2,16 @@ package com.margelo.nitro.camera.hybrids
 
 import android.animation.Animator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.LowLightBoostState
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.TorchState
+import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.CameraInfoInternal
 import com.google.common.util.concurrent.ListenableFuture
 import com.margelo.nitro.camera.CameraControllerConfiguration
 import com.margelo.nitro.camera.ExposureMode
@@ -31,12 +35,17 @@ import com.margelo.nitro.camera.hybrids.metering.HybridMeteringPoint
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.core.resolve
 import com.margelo.nitro.core.resolved
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
 class HybridCameraController(
   val camera: Camera,
 ) : HybridCameraControllerSpec() {
   override val device: HybridCameraDeviceSpec = HybridCameraDevice(camera.cameraInfo)
+  private val directExecutor = Executor { runnable -> runnable.run() }
   private val cameraState: CameraState?
     get() = camera.cameraInfo.cameraState.value
   private var zoomAnimator: ValueAnimator? = null
@@ -191,8 +200,16 @@ class HybridCameraController(
 
   override fun setExposureBias(exposure: Double): Promise<Unit> {
     return Promise.async {
+      val exposureIndex = exposure.toInt()
+      val exposureState = camera.cameraInfo.exposureState
+      if (exposureState.isExposureCompensationSupported &&
+        exposureState.exposureCompensationRange.contains(exposureIndex) &&
+        exposureState.exposureCompensationIndex != exposureIndex
+      ) {
+        awaitCaptureResultBeforeExposureBias()
+      }
       camera.cameraControl
-        .setExposureCompensationIndex(exposure.toInt())
+        .setExposureCompensationIndex(exposureIndex)
         .await()
     }
   }
@@ -345,5 +362,40 @@ class HybridCameraController(
       "Locking White Balance Gains is not yet supported on Android! " +
         "You can use AWB focus (`focusTo(..., ['AWB'])`) instead.",
     )
+  }
+
+  @SuppressLint("RestrictedApi")
+  private suspend fun awaitCaptureResultBeforeExposureBias() {
+    if (!isConnected) return
+    val cameraInfo = camera.cameraInfo as? CameraInfoInternal ?: return
+    val result = CompletableDeferred<Unit>()
+    val callback =
+      object : CameraCaptureCallback() {
+        override fun onCaptureCompleted(
+          captureConfigId: Int,
+          cameraCaptureResult: CameraCaptureResult,
+        ) {
+          result.complete(Unit)
+        }
+      }
+
+    cameraInfo.addSessionCaptureCallback(directExecutor, callback)
+    try {
+      withTimeout(EXPOSURE_BIAS_CAPTURE_RESULT_TIMEOUT_MS) {
+        result.await()
+      }
+    } catch (error: TimeoutCancellationException) {
+      throw Error(
+        "Timed out waiting for CameraController to receive a capture result before setting exposure bias after " +
+          "${EXPOSURE_BIAS_CAPTURE_RESULT_TIMEOUT_MS}ms.",
+        error,
+      )
+    } finally {
+      cameraInfo.removeSessionCaptureCallback(callback)
+    }
+  }
+
+  private companion object {
+    private const val EXPOSURE_BIAS_CAPTURE_RESULT_TIMEOUT_MS = 5_000L
   }
 }
