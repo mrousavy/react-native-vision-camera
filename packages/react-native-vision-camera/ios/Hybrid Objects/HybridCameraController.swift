@@ -229,10 +229,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
    */
   private func getAllSupportedMeteringModes() -> [MeteringMode] {
     var modes: [MeteringMode] = []
-    if captureDevice.isExposurePointOfInterestSupported {
+    if isExposureMeteringSupported {
       modes.append(.ae)
     }
-    if captureDevice.isFocusPointOfInterestSupported {
+    if isFocusMeteringSupported {
       modes.append(.af)
     }
     // White Balance adjusting is not point-based, but it still requires a supported auto mode.
@@ -254,20 +254,50 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
       if device.isFocusPointOfInterestSupported {
         device.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5)
       }
-      if device.isFocusModeSupported(.continuousAutoFocus) {
-        device.focusMode = .continuousAutoFocus
+      if let mode = getResetFocusMode(for: device) {
+        device.focusMode = mode
       }
       // reset AE to center + continuous tracking
       if device.isExposurePointOfInterestSupported {
         device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
       }
-      if device.isExposureModeSupported(.continuousAutoExposure) {
-        device.exposureMode = .continuousAutoExposure
+      if let mode = getResetExposureMode(for: device) {
+        device.exposureMode = mode
       }
       // reset AWB to continuous tracking
       if device.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance) {
         device.whiteBalanceMode = .continuousAutoWhiteBalance
       }
+    }
+  }
+
+  private var isExposureMeteringSupported: Bool {
+    return captureDevice.isExposurePointOfInterestSupported
+      && (captureDevice.isExposureModeSupported(.autoExpose) || captureDevice.isExposureModeSupported(.continuousAutoExposure))
+  }
+
+  private var isFocusMeteringSupported: Bool {
+    return captureDevice.isFocusPointOfInterestSupported
+      && (captureDevice.isFocusModeSupported(.autoFocus) || captureDevice.isFocusModeSupported(.continuousAutoFocus))
+  }
+
+  private func getResetFocusMode(for device: AVCaptureDevice) -> AVCaptureDevice.FocusMode? {
+    if device.isFocusModeSupported(.continuousAutoFocus) {
+      return .continuousAutoFocus
+    } else if device.isFocusModeSupported(.autoFocus) {
+      return .autoFocus
+    } else {
+      return nil
+    }
+  }
+
+  private func getResetExposureMode(for device: AVCaptureDevice) -> AVCaptureDevice.ExposureMode? {
+    if device.isExposureModeSupported(.continuousAutoExposure) {
+      return .continuousAutoExposure
+    } else if device.isExposureModeSupported(.autoExpose) {
+      return .autoExpose
+    } else {
+      return nil
     }
   }
 
@@ -370,6 +400,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
   func setFocusLocked(lensPosition: Double) -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
       // 1. Ensure values are within valid range
+      guard self.captureDevice.isLockingFocusWithCustomLensPositionSupported else {
+        throw RuntimeError.error(
+          withMessage: "Cannot lock focus - this CameraDevice does not support locking focus to a custom lens position! (See `device.supportsFocusLocking`)")
+      }
       guard lensPosition >= 0 && lensPosition <= 1 else {
         throw RuntimeError.error(
           withMessage: "`lensPosition` is not within 0.0 to 1.0 range! (Received: \(lensPosition))")
@@ -385,6 +419,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func lockCurrentFocus() -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
+      guard self.captureDevice.isLockingFocusWithCustomLensPositionSupported else {
+        throw RuntimeError.error(
+          withMessage: "Cannot lock focus - this CameraDevice does not support locking focus to a custom lens position! (See `device.supportsFocusLocking`)")
+      }
       self.captureDevice.setFocusModeLocked(lensPosition: AVCaptureDevice.currentLensPosition) {
         _ in
         completion()
@@ -412,6 +450,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
     return captureDevice.withLock(queue) { completion in
       let device = self.captureDevice
       // 1. Ensure values are within valid range
+      guard device.isExposureModeSupported(.custom) else {
+        throw RuntimeError.error(
+          withMessage: "Cannot lock exposure - this CameraDevice does not support custom exposure duration/ISO! (See `device.supportsExposureLocking`)")
+      }
       guard
         duration >= device.activeFormat.minExposureDuration.seconds
           && duration <= device.activeFormat.maxExposureDuration.seconds
@@ -440,6 +482,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
 
   func lockCurrentExposure() -> Promise<Void> {
     return captureDevice.withLock(queue) { completion in
+      guard self.captureDevice.isExposureModeSupported(.custom) else {
+        throw RuntimeError.error(
+          withMessage: "Cannot lock exposure - this CameraDevice does not support custom exposure duration/ISO! (See `device.supportsExposureLocking`)")
+      }
       self.captureDevice.setExposureModeCustom(
         duration: AVCaptureDevice.currentExposureDuration,
         iso: AVCaptureDevice.currentISO
