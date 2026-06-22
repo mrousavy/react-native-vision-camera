@@ -6,7 +6,7 @@ description: Using the Barcode Scanner view, output or plugin to detect Barcodes
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
 The Barcode Scanner allows detecting machine readable codes (like Barcodes or QR codes) using [MLKit](https://developers.google.com/ml-kit).
-It ships a simple [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view, a Barcode Scanner Frame Processor Plugin, a Barcode Scanner [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput), and static image scanning for [`Image`](https://github.com/mrousavy/react-native-nitro-image) instances via the [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner) library.
+It ships a simple [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view, a Barcode Scanner Frame Processor Plugin, a Barcode Scanner [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput), and still image scanning for [`Image`](https://github.com/mrousavy/react-native-nitro-image) instances via the [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner) library.
 
 Unlike [the Object Output](object-output) (which is iOS-only), the Barcode Scanner works on both iOS and Android.
 
@@ -19,7 +19,7 @@ Unlike [the Object Output](object-output) (which is iOS-only), the Barcode Scann
 
 ### Using the Barcode Scanner
 
-<Tabs items={["<CodeScanner /> (view)", "CameraOutput", "Frame Processor Plugin", "Static Images"]} groupId="barcode-api-style" persist>
+<Tabs items={["<CodeScanner /> (view)", "CameraOutput", "Frame Processor Plugin", "Still Images"]} groupId="barcode-api-style" persist>
 <Tab value="<CodeScanner /> (view)">
 The [`<CodeScanner />`](/api/react-native-vision-camera-barcode-scanner/views/CodeScanner) view is a simple view component to scan Barcodes:
 
@@ -99,8 +99,8 @@ function App() {
 }
 ```
 </Tab>
-<Tab value="Static Images">
-For still images, load a [`react-native-nitro-image`](https://github.com/mrousavy/react-native-nitro-image) [`Image`](https://github.com/mrousavy/react-native-nitro-image) and scan it with [`BarcodeScanner.scanCodesInImageAsync(...)`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner#scancodesinimageasync):
+<Tab value="Still Images">
+To scan objects in a still [`Image`](https://github.com/mrousavy/react-native-nitro-image), create a [`BarcodeScanner`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner) and use [`scanCodesInImageAsync(...)`](/api/react-native-vision-camera-barcode-scanner/hybrid-objects/BarcodeScanner#scancodesinimageasync):
 
 ```ts
 import { loadImage } from 'react-native-nitro-image'
