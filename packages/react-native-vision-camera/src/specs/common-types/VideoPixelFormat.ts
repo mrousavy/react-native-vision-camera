@@ -18,6 +18,7 @@ import type { PixelFormat } from './PixelFormat'
  * | `yuv-422-10-bit-video`      | YUV        | 4:2:2    | 10-bit    | Video        | Planar              |
  * | `yuv-422-10-bit-full`       | YUV        | 4:2:2    | 10-bit    | Full         | Planar              |
  * | `yuv-444-8-bit-video`       | YUV        | 4:4:4    | 8-bit     | Video        | Planar              |
+ * | `yuv-444-8-bit-full`        | YUV        | 4:4:4    | 8-bit     | Full         | Planar              |
  * | `rgb-bgra-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved BGRA    |
  * | `rgb-rgba-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGBA    |
  * | `rgb-rgb-8-bit`             | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGB     |
@@ -35,6 +36,7 @@ export type VideoPixelFormat =
   | 'yuv-422-10-bit-video'
   | 'yuv-422-10-bit-full'
   | 'yuv-444-8-bit-video'
+  | 'yuv-444-8-bit-full'
   | 'rgb-bgra-8-bit'
   | 'rgb-rgba-8-bit'
   | 'rgb-rgb-8-bit'

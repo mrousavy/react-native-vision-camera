@@ -86,7 +86,7 @@ open class HybridBarcodeScannerSpec_cxx {
     }
   }
 
-
+  
 
   /**
    * Get the memory size of the Swift class (plus size of any other allocations)
@@ -123,7 +123,7 @@ open class HybridBarcodeScannerSpec_cxx {
   }
 
   // Properties
-
+  
 
   // Methods
   @inline(__always)
@@ -150,7 +150,7 @@ open class HybridBarcodeScannerSpec_cxx {
       return bridge.create_Result_std__vector_std__shared_ptr_HybridBarcodeSpec___(__exceptionPtr)
     }
   }
-
+  
   @inline(__always)
   public final func scanCodesAsync(frame: bridge.std__shared_ptr_margelo__nitro__camera__HybridFrameSpec_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ {
     do {
@@ -182,7 +182,7 @@ open class HybridBarcodeScannerSpec_cxx {
       return bridge.create_Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____(__exceptionPtr)
     }
   }
-
+  
   @inline(__always)
   public final func scanCodesInImageAsync(image: bridge.std__shared_ptr_margelo__nitro__image__HybridImageSpec_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridBarcodeSpec_____ {
     do {

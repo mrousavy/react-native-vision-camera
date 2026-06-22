@@ -37,6 +37,8 @@ public extension PixelFormat {
         self = .yuv42210BitFull
       case "yuv-444-8-bit-video":
         self = .yuv4448BitVideo
+      case "yuv-444-8-bit-full":
+        self = .yuv4448BitFull
       case "rgb-bgra-8-bit":
         self = .rgbBgra8Bit
       case "rgb-rgba-8-bit":
@@ -89,6 +91,8 @@ public extension PixelFormat {
         return "yuv-422-10-bit-full"
       case .yuv4448BitVideo:
         return "yuv-444-8-bit-video"
+      case .yuv4448BitFull:
+        return "yuv-444-8-bit-full"
       case .rgbBgra8Bit:
         return "rgb-bgra-8-bit"
       case .rgbRgba8Bit:
