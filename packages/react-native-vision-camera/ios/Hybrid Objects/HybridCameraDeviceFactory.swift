@@ -74,6 +74,18 @@ final class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
   }
 
   func getDefaultCamera(position: CameraPosition) throws -> (any HybridCameraDeviceSpec)? {
+    if #available(iOS 17.0, *), position == .external {
+      // On iOS, Position "external" is for some reason reflected on the .deviceType, not on .position.
+      let device = AVCaptureDevice.default(
+        .external,
+        for: .video,
+        position: .unspecified)
+      guard let device else {
+        return nil
+      }
+      return HybridCameraDevice(device: device)
+    }
+
     let device = AVCaptureDevice.default(
       .builtInWideAngleCamera,
       for: .video,
