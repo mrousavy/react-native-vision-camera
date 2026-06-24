@@ -8,6 +8,7 @@ import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
+import locketIcon from '../../public/img/production-apps/locket.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
@@ -145,6 +146,21 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/urban-company-home-services/id1032480595',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap',
+  },
+  {
+    name: 'Locket Widget',
+    company: 'Locket Labs',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: locketIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.locket.Locket',
   },
   {
     name: 'Picnic',
