@@ -25,132 +25,187 @@
 
 namespace margelo::nitro::camera {
 
-  /**
-   * An enum which can be represented as a JavaScript union (PixelFormat).
-   */
-  enum class PixelFormat {
-    UNKNOWN      SWIFT_NAME(unknown) = 0,
-    YUV_420_8_BIT_VIDEO      SWIFT_NAME(yuv4208BitVideo) = 1,
-    YUV_420_8_BIT_FULL      SWIFT_NAME(yuv4208BitFull) = 2,
-    YUV_420_10_BIT_VIDEO      SWIFT_NAME(yuv42010BitVideo) = 3,
-    YUV_420_10_BIT_FULL      SWIFT_NAME(yuv42010BitFull) = 4,
-    YUV_422_8_BIT_VIDEO      SWIFT_NAME(yuv4228BitVideo) = 5,
-    YUV_422_8_BIT_FULL      SWIFT_NAME(yuv4228BitFull) = 6,
-    YUV_422_10_BIT_VIDEO      SWIFT_NAME(yuv42210BitVideo) = 7,
-    YUV_422_10_BIT_FULL      SWIFT_NAME(yuv42210BitFull) = 8,
-    YUV_444_8_BIT_VIDEO      SWIFT_NAME(yuv4448BitVideo) = 9,
-    YUV_444_8_BIT_FULL      SWIFT_NAME(yuv4448BitFull) = 10,
-    RGB_BGRA_8_BIT      SWIFT_NAME(rgbBgra8Bit) = 11,
-    RGB_RGBA_8_BIT      SWIFT_NAME(rgbRgba8Bit) = 12,
-    RGB_RGB_8_BIT      SWIFT_NAME(rgbRgb8Bit) = 13,
-    RAW_BAYER_PACKED96_12_BIT      SWIFT_NAME(rawBayerPacked9612Bit) = 14,
-    RAW_BAYER_UNPACKED_16_BIT      SWIFT_NAME(rawBayerUnpacked16Bit) = 15,
-    DEPTH_16_BIT      SWIFT_NAME(depth16Bit) = 16,
-    DEPTH_32_BIT      SWIFT_NAME(depth32Bit) = 17,
-    DEPTH_POINT_CLOUD_32_BIT      SWIFT_NAME(depthPointCloud32Bit) = 18,
-    DISPARITY_16_BIT      SWIFT_NAME(disparity16Bit) = 19,
-    DISPARITY_32_BIT      SWIFT_NAME(disparity32Bit) = 20,
-    PRIVATE      SWIFT_NAME(private) = 21,
-  } CLOSED_ENUM;
+/**
+ * An enum which can be represented as a JavaScript union (PixelFormat).
+ */
+enum class PixelFormat {
+  UNKNOWN SWIFT_NAME(unknown) = 0,
+  YUV_420_8_BIT_VIDEO SWIFT_NAME(yuv4208BitVideo) = 1,
+  YUV_420_8_BIT_FULL SWIFT_NAME(yuv4208BitFull) = 2,
+  YUV_420_10_BIT_VIDEO SWIFT_NAME(yuv42010BitVideo) = 3,
+  YUV_420_10_BIT_FULL SWIFT_NAME(yuv42010BitFull) = 4,
+  YUV_422_8_BIT_VIDEO SWIFT_NAME(yuv4228BitVideo) = 5,
+  YUV_422_8_BIT_FULL SWIFT_NAME(yuv4228BitFull) = 6,
+  YUV_422_10_BIT_VIDEO SWIFT_NAME(yuv42210BitVideo) = 7,
+  YUV_422_10_BIT_FULL SWIFT_NAME(yuv42210BitFull) = 8,
+  YUV_444_8_BIT_VIDEO SWIFT_NAME(yuv4448BitVideo) = 9,
+  YUV_444_8_BIT_FULL SWIFT_NAME(yuv4448BitFull) = 10,
+  YUV_444_10_BIT_VIDEO SWIFT_NAME(yuv44410BitVideo) = 11,
+  YUV_444_10_BIT_FULL SWIFT_NAME(yuv44410BitFull) = 12,
+  RGB_BGRA_8_BIT SWIFT_NAME(rgbBgra8Bit) = 13,
+  RGB_RGBA_8_BIT SWIFT_NAME(rgbRgba8Bit) = 14,
+  RGB_RGB_8_BIT SWIFT_NAME(rgbRgb8Bit) = 15,
+  RAW_BAYER_PACKED96_12_BIT SWIFT_NAME(rawBayerPacked9612Bit) = 16,
+  RAW_BAYER_UNPACKED_16_BIT SWIFT_NAME(rawBayerUnpacked16Bit) = 17,
+  DEPTH_16_BIT SWIFT_NAME(depth16Bit) = 18,
+  DEPTH_32_BIT SWIFT_NAME(depth32Bit) = 19,
+  DEPTH_POINT_CLOUD_32_BIT SWIFT_NAME(depthPointCloud32Bit) = 20,
+  DISPARITY_16_BIT SWIFT_NAME(disparity16Bit) = 21,
+  DISPARITY_32_BIT SWIFT_NAME(disparity32Bit) = 22,
+  PRIVATE SWIFT_NAME(private) = 23,
+} CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera
 
 namespace margelo::nitro {
 
-  // C++ PixelFormat <> JS PixelFormat (union)
-  template <>
-  struct JSIConverter<margelo::nitro::camera::PixelFormat> final {
-    static inline margelo::nitro::camera::PixelFormat fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
-      std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
-      switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("unknown"): return margelo::nitro::camera::PixelFormat::UNKNOWN;
-        case hashString("yuv-420-8-bit-video"): return margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_VIDEO;
-        case hashString("yuv-420-8-bit-full"): return margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_FULL;
-        case hashString("yuv-420-10-bit-video"): return margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_VIDEO;
-        case hashString("yuv-420-10-bit-full"): return margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_FULL;
-        case hashString("yuv-422-8-bit-video"): return margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_VIDEO;
-        case hashString("yuv-422-8-bit-full"): return margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_FULL;
-        case hashString("yuv-422-10-bit-video"): return margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_VIDEO;
-        case hashString("yuv-422-10-bit-full"): return margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_FULL;
-        case hashString("yuv-444-8-bit-video"): return margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_VIDEO;
-        case hashString("yuv-444-8-bit-full"): return margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_FULL;
-        case hashString("rgb-bgra-8-bit"): return margelo::nitro::camera::PixelFormat::RGB_BGRA_8_BIT;
-        case hashString("rgb-rgba-8-bit"): return margelo::nitro::camera::PixelFormat::RGB_RGBA_8_BIT;
-        case hashString("rgb-rgb-8-bit"): return margelo::nitro::camera::PixelFormat::RGB_RGB_8_BIT;
-        case hashString("raw-bayer-packed96-12-bit"): return margelo::nitro::camera::PixelFormat::RAW_BAYER_PACKED96_12_BIT;
-        case hashString("raw-bayer-unpacked-16-bit"): return margelo::nitro::camera::PixelFormat::RAW_BAYER_UNPACKED_16_BIT;
-        case hashString("depth-16-bit"): return margelo::nitro::camera::PixelFormat::DEPTH_16_BIT;
-        case hashString("depth-32-bit"): return margelo::nitro::camera::PixelFormat::DEPTH_32_BIT;
-        case hashString("depth-point-cloud-32-bit"): return margelo::nitro::camera::PixelFormat::DEPTH_POINT_CLOUD_32_BIT;
-        case hashString("disparity-16-bit"): return margelo::nitro::camera::PixelFormat::DISPARITY_16_BIT;
-        case hashString("disparity-32-bit"): return margelo::nitro::camera::PixelFormat::DISPARITY_32_BIT;
-        case hashString("private"): return margelo::nitro::camera::PixelFormat::PRIVATE;
-        default: [[unlikely]]
-          throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum PixelFormat - invalid value!");
-      }
+// C++ PixelFormat <> JS PixelFormat (union)
+template <>
+struct JSIConverter<margelo::nitro::camera::PixelFormat> final {
+  static inline margelo::nitro::camera::PixelFormat fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
+    std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, arg);
+    switch (hashString(unionValue.c_str(), unionValue.size())) {
+      case hashString("unknown"):
+        return margelo::nitro::camera::PixelFormat::UNKNOWN;
+      case hashString("yuv-420-8-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_VIDEO;
+      case hashString("yuv-420-8-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_FULL;
+      case hashString("yuv-420-10-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_VIDEO;
+      case hashString("yuv-420-10-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_FULL;
+      case hashString("yuv-422-8-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_VIDEO;
+      case hashString("yuv-422-8-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_FULL;
+      case hashString("yuv-422-10-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_VIDEO;
+      case hashString("yuv-422-10-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_FULL;
+      case hashString("yuv-444-8-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_VIDEO;
+      case hashString("yuv-444-8-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_FULL;
+      case hashString("yuv-444-10-bit-video"):
+        return margelo::nitro::camera::PixelFormat::YUV_444_10_BIT_VIDEO;
+      case hashString("yuv-444-10-bit-full"):
+        return margelo::nitro::camera::PixelFormat::YUV_444_10_BIT_FULL;
+      case hashString("rgb-bgra-8-bit"):
+        return margelo::nitro::camera::PixelFormat::RGB_BGRA_8_BIT;
+      case hashString("rgb-rgba-8-bit"):
+        return margelo::nitro::camera::PixelFormat::RGB_RGBA_8_BIT;
+      case hashString("rgb-rgb-8-bit"):
+        return margelo::nitro::camera::PixelFormat::RGB_RGB_8_BIT;
+      case hashString("raw-bayer-packed96-12-bit"):
+        return margelo::nitro::camera::PixelFormat::RAW_BAYER_PACKED96_12_BIT;
+      case hashString("raw-bayer-unpacked-16-bit"):
+        return margelo::nitro::camera::PixelFormat::RAW_BAYER_UNPACKED_16_BIT;
+      case hashString("depth-16-bit"):
+        return margelo::nitro::camera::PixelFormat::DEPTH_16_BIT;
+      case hashString("depth-32-bit"):
+        return margelo::nitro::camera::PixelFormat::DEPTH_32_BIT;
+      case hashString("depth-point-cloud-32-bit"):
+        return margelo::nitro::camera::PixelFormat::DEPTH_POINT_CLOUD_32_BIT;
+      case hashString("disparity-16-bit"):
+        return margelo::nitro::camera::PixelFormat::DISPARITY_16_BIT;
+      case hashString("disparity-32-bit"):
+        return margelo::nitro::camera::PixelFormat::DISPARITY_32_BIT;
+      case hashString("private"):
+        return margelo::nitro::camera::PixelFormat::PRIVATE;
+      default:
+        [[unlikely]] throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum PixelFormat - invalid value!");
     }
-    static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::PixelFormat arg) {
-      switch (arg) {
-        case margelo::nitro::camera::PixelFormat::UNKNOWN: return JSIConverter<std::string>::toJSI(runtime, "unknown");
-        case margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-video");
-        case margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-full");
-        case margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-video");
-        case margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-full");
-        case margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-8-bit-video");
-        case margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-8-bit-full");
-        case margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-video");
-        case margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-full");
-        case margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_VIDEO: return JSIConverter<std::string>::toJSI(runtime, "yuv-444-8-bit-video");
-        case margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_FULL: return JSIConverter<std::string>::toJSI(runtime, "yuv-444-8-bit-full");
-        case margelo::nitro::camera::PixelFormat::RGB_BGRA_8_BIT: return JSIConverter<std::string>::toJSI(runtime, "rgb-bgra-8-bit");
-        case margelo::nitro::camera::PixelFormat::RGB_RGBA_8_BIT: return JSIConverter<std::string>::toJSI(runtime, "rgb-rgba-8-bit");
-        case margelo::nitro::camera::PixelFormat::RGB_RGB_8_BIT: return JSIConverter<std::string>::toJSI(runtime, "rgb-rgb-8-bit");
-        case margelo::nitro::camera::PixelFormat::RAW_BAYER_PACKED96_12_BIT: return JSIConverter<std::string>::toJSI(runtime, "raw-bayer-packed96-12-bit");
-        case margelo::nitro::camera::PixelFormat::RAW_BAYER_UNPACKED_16_BIT: return JSIConverter<std::string>::toJSI(runtime, "raw-bayer-unpacked-16-bit");
-        case margelo::nitro::camera::PixelFormat::DEPTH_16_BIT: return JSIConverter<std::string>::toJSI(runtime, "depth-16-bit");
-        case margelo::nitro::camera::PixelFormat::DEPTH_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "depth-32-bit");
-        case margelo::nitro::camera::PixelFormat::DEPTH_POINT_CLOUD_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "depth-point-cloud-32-bit");
-        case margelo::nitro::camera::PixelFormat::DISPARITY_16_BIT: return JSIConverter<std::string>::toJSI(runtime, "disparity-16-bit");
-        case margelo::nitro::camera::PixelFormat::DISPARITY_32_BIT: return JSIConverter<std::string>::toJSI(runtime, "disparity-32-bit");
-        case margelo::nitro::camera::PixelFormat::PRIVATE: return JSIConverter<std::string>::toJSI(runtime, "private");
-        default: [[unlikely]]
-          throw std::invalid_argument("Cannot convert PixelFormat to JS - invalid value: "
-                                    + std::to_string(static_cast<int>(arg)) + "!");
-      }
+  }
+  static inline jsi::Value toJSI(jsi::Runtime& runtime, margelo::nitro::camera::PixelFormat arg) {
+    switch (arg) {
+      case margelo::nitro::camera::PixelFormat::UNKNOWN:
+        return JSIConverter<std::string>::toJSI(runtime, "unknown");
+      case margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_420_8_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-420-8-bit-full");
+      case margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_420_10_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-420-10-bit-full");
+      case margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-422-8-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_422_8_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-422-8-bit-full");
+      case margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_422_10_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-422-10-bit-full");
+      case margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-444-8-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_444_8_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-444-8-bit-full");
+      case margelo::nitro::camera::PixelFormat::YUV_444_10_BIT_VIDEO:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-444-10-bit-video");
+      case margelo::nitro::camera::PixelFormat::YUV_444_10_BIT_FULL:
+        return JSIConverter<std::string>::toJSI(runtime, "yuv-444-10-bit-full");
+      case margelo::nitro::camera::PixelFormat::RGB_BGRA_8_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "rgb-bgra-8-bit");
+      case margelo::nitro::camera::PixelFormat::RGB_RGBA_8_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "rgb-rgba-8-bit");
+      case margelo::nitro::camera::PixelFormat::RGB_RGB_8_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "rgb-rgb-8-bit");
+      case margelo::nitro::camera::PixelFormat::RAW_BAYER_PACKED96_12_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "raw-bayer-packed96-12-bit");
+      case margelo::nitro::camera::PixelFormat::RAW_BAYER_UNPACKED_16_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "raw-bayer-unpacked-16-bit");
+      case margelo::nitro::camera::PixelFormat::DEPTH_16_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "depth-16-bit");
+      case margelo::nitro::camera::PixelFormat::DEPTH_32_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "depth-32-bit");
+      case margelo::nitro::camera::PixelFormat::DEPTH_POINT_CLOUD_32_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "depth-point-cloud-32-bit");
+      case margelo::nitro::camera::PixelFormat::DISPARITY_16_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "disparity-16-bit");
+      case margelo::nitro::camera::PixelFormat::DISPARITY_32_BIT:
+        return JSIConverter<std::string>::toJSI(runtime, "disparity-32-bit");
+      case margelo::nitro::camera::PixelFormat::PRIVATE:
+        return JSIConverter<std::string>::toJSI(runtime, "private");
+      default:
+        [[unlikely]] throw std::invalid_argument("Cannot convert PixelFormat to JS - invalid value: " + std::to_string(static_cast<int>(arg)) + "!");
     }
-    static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
-      if (!value.isString()) {
+  }
+  static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
+    if (!value.isString()) {
+      return false;
+    }
+    std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
+    switch (hashString(unionValue.c_str(), unionValue.size())) {
+      case hashString("unknown"):
+      case hashString("yuv-420-8-bit-video"):
+      case hashString("yuv-420-8-bit-full"):
+      case hashString("yuv-420-10-bit-video"):
+      case hashString("yuv-420-10-bit-full"):
+      case hashString("yuv-422-8-bit-video"):
+      case hashString("yuv-422-8-bit-full"):
+      case hashString("yuv-422-10-bit-video"):
+      case hashString("yuv-422-10-bit-full"):
+      case hashString("yuv-444-8-bit-video"):
+      case hashString("yuv-444-8-bit-full"):
+      case hashString("yuv-444-10-bit-video"):
+      case hashString("yuv-444-10-bit-full"):
+      case hashString("rgb-bgra-8-bit"):
+      case hashString("rgb-rgba-8-bit"):
+      case hashString("rgb-rgb-8-bit"):
+      case hashString("raw-bayer-packed96-12-bit"):
+      case hashString("raw-bayer-unpacked-16-bit"):
+      case hashString("depth-16-bit"):
+      case hashString("depth-32-bit"):
+      case hashString("depth-point-cloud-32-bit"):
+      case hashString("disparity-16-bit"):
+      case hashString("disparity-32-bit"):
+      case hashString("private"):
+        return true;
+      default:
         return false;
-      }
-      std::string unionValue = JSIConverter<std::string>::fromJSI(runtime, value);
-      switch (hashString(unionValue.c_str(), unionValue.size())) {
-        case hashString("unknown"):
-        case hashString("yuv-420-8-bit-video"):
-        case hashString("yuv-420-8-bit-full"):
-        case hashString("yuv-420-10-bit-video"):
-        case hashString("yuv-420-10-bit-full"):
-        case hashString("yuv-422-8-bit-video"):
-        case hashString("yuv-422-8-bit-full"):
-        case hashString("yuv-422-10-bit-video"):
-        case hashString("yuv-422-10-bit-full"):
-        case hashString("yuv-444-8-bit-video"):
-        case hashString("yuv-444-8-bit-full"):
-        case hashString("rgb-bgra-8-bit"):
-        case hashString("rgb-rgba-8-bit"):
-        case hashString("rgb-rgb-8-bit"):
-        case hashString("raw-bayer-packed96-12-bit"):
-        case hashString("raw-bayer-unpacked-16-bit"):
-        case hashString("depth-16-bit"):
-        case hashString("depth-32-bit"):
-        case hashString("depth-point-cloud-32-bit"):
-        case hashString("disparity-16-bit"):
-        case hashString("disparity-32-bit"):
-        case hashString("private"):
-          return true;
-        default:
-          return false;
-      }
     }
-  };
+  }
+};
 
 } // namespace margelo::nitro

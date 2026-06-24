@@ -5,116 +5,122 @@
 /// Copyright © Marc Rousavy @ Margelo
 ///
 
-/**
- * Represents the JS union `PixelFormat`, backed by a C++ enum.
- */
+/// Represents the JS union `PixelFormat`, backed by a C++ enum.
 public typealias PixelFormat = margelo.nitro.camera.PixelFormat
 
-public extension PixelFormat {
+extension PixelFormat {
   /**
    * Get a PixelFormat for the given String value, or
    * return `nil` if the given value was invalid/unknown.
    */
-  init?(fromString string: String) {
+  public init?(fromString string: String) {
     switch string {
-      case "unknown":
-        self = .unknown
-      case "yuv-420-8-bit-video":
-        self = .yuv4208BitVideo
-      case "yuv-420-8-bit-full":
-        self = .yuv4208BitFull
-      case "yuv-420-10-bit-video":
-        self = .yuv42010BitVideo
-      case "yuv-420-10-bit-full":
-        self = .yuv42010BitFull
-      case "yuv-422-8-bit-video":
-        self = .yuv4228BitVideo
-      case "yuv-422-8-bit-full":
-        self = .yuv4228BitFull
-      case "yuv-422-10-bit-video":
-        self = .yuv42210BitVideo
-      case "yuv-422-10-bit-full":
-        self = .yuv42210BitFull
-      case "yuv-444-8-bit-video":
-        self = .yuv4448BitVideo
-      case "yuv-444-8-bit-full":
-        self = .yuv4448BitFull
-      case "rgb-bgra-8-bit":
-        self = .rgbBgra8Bit
-      case "rgb-rgba-8-bit":
-        self = .rgbRgba8Bit
-      case "rgb-rgb-8-bit":
-        self = .rgbRgb8Bit
-      case "raw-bayer-packed96-12-bit":
-        self = .rawBayerPacked9612Bit
-      case "raw-bayer-unpacked-16-bit":
-        self = .rawBayerUnpacked16Bit
-      case "depth-16-bit":
-        self = .depth16Bit
-      case "depth-32-bit":
-        self = .depth32Bit
-      case "depth-point-cloud-32-bit":
-        self = .depthPointCloud32Bit
-      case "disparity-16-bit":
-        self = .disparity16Bit
-      case "disparity-32-bit":
-        self = .disparity32Bit
-      case "private":
-        self = .private
-      default:
-        return nil
+    case "unknown":
+      self = .unknown
+    case "yuv-420-8-bit-video":
+      self = .yuv4208BitVideo
+    case "yuv-420-8-bit-full":
+      self = .yuv4208BitFull
+    case "yuv-420-10-bit-video":
+      self = .yuv42010BitVideo
+    case "yuv-420-10-bit-full":
+      self = .yuv42010BitFull
+    case "yuv-422-8-bit-video":
+      self = .yuv4228BitVideo
+    case "yuv-422-8-bit-full":
+      self = .yuv4228BitFull
+    case "yuv-422-10-bit-video":
+      self = .yuv42210BitVideo
+    case "yuv-422-10-bit-full":
+      self = .yuv42210BitFull
+    case "yuv-444-8-bit-video":
+      self = .yuv4448BitVideo
+    case "yuv-444-8-bit-full":
+      self = .yuv4448BitFull
+    case "yuv-444-10-bit-video":
+      self = .yuv44410BitVideo
+    case "yuv-444-10-bit-full":
+      self = .yuv44410BitFull
+    case "rgb-bgra-8-bit":
+      self = .rgbBgra8Bit
+    case "rgb-rgba-8-bit":
+      self = .rgbRgba8Bit
+    case "rgb-rgb-8-bit":
+      self = .rgbRgb8Bit
+    case "raw-bayer-packed96-12-bit":
+      self = .rawBayerPacked9612Bit
+    case "raw-bayer-unpacked-16-bit":
+      self = .rawBayerUnpacked16Bit
+    case "depth-16-bit":
+      self = .depth16Bit
+    case "depth-32-bit":
+      self = .depth32Bit
+    case "depth-point-cloud-32-bit":
+      self = .depthPointCloud32Bit
+    case "disparity-16-bit":
+      self = .disparity16Bit
+    case "disparity-32-bit":
+      self = .disparity32Bit
+    case "private":
+      self = .private
+    default:
+      return nil
     }
   }
 
   /**
    * Get the String value this PixelFormat represents.
    */
-  var stringValue: String {
+  public var stringValue: String {
     switch self {
-      case .unknown:
-        return "unknown"
-      case .yuv4208BitVideo:
-        return "yuv-420-8-bit-video"
-      case .yuv4208BitFull:
-        return "yuv-420-8-bit-full"
-      case .yuv42010BitVideo:
-        return "yuv-420-10-bit-video"
-      case .yuv42010BitFull:
-        return "yuv-420-10-bit-full"
-      case .yuv4228BitVideo:
-        return "yuv-422-8-bit-video"
-      case .yuv4228BitFull:
-        return "yuv-422-8-bit-full"
-      case .yuv42210BitVideo:
-        return "yuv-422-10-bit-video"
-      case .yuv42210BitFull:
-        return "yuv-422-10-bit-full"
-      case .yuv4448BitVideo:
-        return "yuv-444-8-bit-video"
-      case .yuv4448BitFull:
-        return "yuv-444-8-bit-full"
-      case .rgbBgra8Bit:
-        return "rgb-bgra-8-bit"
-      case .rgbRgba8Bit:
-        return "rgb-rgba-8-bit"
-      case .rgbRgb8Bit:
-        return "rgb-rgb-8-bit"
-      case .rawBayerPacked9612Bit:
-        return "raw-bayer-packed96-12-bit"
-      case .rawBayerUnpacked16Bit:
-        return "raw-bayer-unpacked-16-bit"
-      case .depth16Bit:
-        return "depth-16-bit"
-      case .depth32Bit:
-        return "depth-32-bit"
-      case .depthPointCloud32Bit:
-        return "depth-point-cloud-32-bit"
-      case .disparity16Bit:
-        return "disparity-16-bit"
-      case .disparity32Bit:
-        return "disparity-32-bit"
-      case .private:
-        return "private"
+    case .unknown:
+      return "unknown"
+    case .yuv4208BitVideo:
+      return "yuv-420-8-bit-video"
+    case .yuv4208BitFull:
+      return "yuv-420-8-bit-full"
+    case .yuv42010BitVideo:
+      return "yuv-420-10-bit-video"
+    case .yuv42010BitFull:
+      return "yuv-420-10-bit-full"
+    case .yuv4228BitVideo:
+      return "yuv-422-8-bit-video"
+    case .yuv4228BitFull:
+      return "yuv-422-8-bit-full"
+    case .yuv42210BitVideo:
+      return "yuv-422-10-bit-video"
+    case .yuv42210BitFull:
+      return "yuv-422-10-bit-full"
+    case .yuv4448BitVideo:
+      return "yuv-444-8-bit-video"
+    case .yuv4448BitFull:
+      return "yuv-444-8-bit-full"
+    case .yuv44410BitVideo:
+      return "yuv-444-10-bit-video"
+    case .yuv44410BitFull:
+      return "yuv-444-10-bit-full"
+    case .rgbBgra8Bit:
+      return "rgb-bgra-8-bit"
+    case .rgbRgba8Bit:
+      return "rgb-rgba-8-bit"
+    case .rgbRgb8Bit:
+      return "rgb-rgb-8-bit"
+    case .rawBayerPacked9612Bit:
+      return "raw-bayer-packed96-12-bit"
+    case .rawBayerUnpacked16Bit:
+      return "raw-bayer-unpacked-16-bit"
+    case .depth16Bit:
+      return "depth-16-bit"
+    case .depth32Bit:
+      return "depth-32-bit"
+    case .depthPointCloud32Bit:
+      return "depth-point-cloud-32-bit"
+    case .disparity16Bit:
+      return "disparity-16-bit"
+    case .disparity32Bit:
+      return "disparity-32-bit"
+    case .private:
+      return "private"
     }
   }
 }

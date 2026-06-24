@@ -151,7 +151,8 @@ export interface Frame
   /**
    * Gets the {@linkcode PixelFormat} of this Frame's pixel data.
    * Common formats are {@linkcode PixelFormat | 'yuv-420-8-bit-video'}
-   * for native YUV Frames, {@linkcode PixelFormat | 'rgb-bgra-32-bit'}
+   * or {@linkcode PixelFormat | 'yuv-420-8-bit-full'}
+   * for YUV Frames, {@linkcode PixelFormat | 'rgb-bgra-8-bit'}
    * for processed RGB Frames, or {@linkcode PixelFormat | 'private'} for
    * zero-copy GPU-only Frames.
    *
@@ -163,7 +164,7 @@ export interface Frame
    *
    * @discussion
    * If the {@linkcode Frame} is a GPU-only buffer, its {@linkcode pixelFormat}
-   * is {@linkcode PixelFormat | 'private'}, wich allows zero-copy importing it
+   * is {@linkcode PixelFormat | 'private'}, which allows zero-copy importing it
    * into GPU pipelines directly, however its pixel data is likely not accessible
    * on the CPU.
    * You can use {@linkcode getNativeBuffer | getNativeBuffer()} to get a handle

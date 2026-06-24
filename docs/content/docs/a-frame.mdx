@@ -75,7 +75,7 @@ console.log(frame.pixelFormat) // 'yuv-420-8-bit-full'
 ```
 
 While the most commonly known [`PixelFormat`](/api/react-native-vision-camera/type-aliases/PixelFormat) is RGB (often [`'rgb-bgra-8-bit'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)), it is not natively produced by the Camera, which means it requires expensive conversion causing higher latency, more bandwidth, and overall slower performance.
-The Camera's native pixel format is typically YUV (often [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat)) or a vendor-specific variation of it ([`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat)), which uses ~50% less memory than RGB and requires little to no conversion overhead.
+The Camera's native pixel format is typically YUV (for example [`'yuv-420-8-bit-video'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) on iOS native capture or [`'yuv-420-8-bit-full'`](/api/react-native-vision-camera/type-aliases/VideoPixelFormat) for common CPU-readable YUV paths), or a vendor-specific variation of it ([`'private'`](/api/react-native-vision-camera/type-aliases/PixelFormat)), which uses ~50% less memory than RGB and requires little to no conversion overhead.
 
 > [!NOTE]
 > See ["Frame Output: Choosing a Pixel Format"](frame-output#choosing-a-pixel-format) for more information about configuring the Pixel Format a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) streams in.
@@ -132,7 +132,7 @@ if (frame.isPlanar) {
     const uvBuffer = planes[1].getPixelBuffer()
     const yPixels = new Uint8Array(yBuffer)
     const uvPixels = new Uint8Array(uvBuffer)
-    const firstPixel = { y: yPixels[0], u: uvPixels[0], v: uvPixels[0] }
+    const firstPixel = { y: yPixels[0], u: uvPixels[0], v: uvPixels[1] }
   }
 } else {
   // regular pixel buffer access

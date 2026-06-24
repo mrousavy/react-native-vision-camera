@@ -12,9 +12,11 @@ extension AVCaptureDevice.Format {
   var colorRange: ColorRange {
     let pixelFormat = self.formatDescription.mediaSubType
     switch pixelFormat {
-    case .yuv4208BitVideo, .yuv42010BitVideo, .yuv4228BitVideo, .yuv42210BitVideo:
+    case .yuv4208BitVideo, .yuv42010BitVideo, .yuv4228BitVideo, .yuv42210BitVideo,
+      .yuv4448BitVideo, .yuv44410BitVideo:
       return .video
-    case .yuv4208BitFull, .yuv42010BitFull, .yuv4228BitFull, .yuv42210BitFull:
+    case .yuv4208BitFull, .yuv42010BitFull, .yuv4228BitFull, .yuv42210BitFull,
+      .yuv4448BitFull, .yuv44410BitFull:
       return .full
     default:
       return .unknown
