@@ -9,11 +9,92 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
   FrameDroppedReason,
+  PixelFormat,
+  TargetVideoPixelFormat,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
+
+const yuvOutputPixelFormats: PixelFormat[] = [
+  'yuv-420-8-bit-full',
+  'yuv-420-8-bit-video',
+]
+
+const rgbOutputPixelFormats: PixelFormat[] = [
+  'rgb-bgra-8-bit',
+  'rgb-rgba-8-bit',
+  'rgb-rgb-8-bit',
+]
+
+const nativeOutputPixelFormats: PixelFormat[] = [
+  'private',
+  'yuv-420-8-bit-full',
+  'yuv-420-8-bit-video',
+]
+
+async function getDeliveredFramePixelFormat(
+  device: CameraDevice,
+  pixelFormat: TargetVideoPixelFormat,
+): Promise<PixelFormat> {
+  const session = await VisionCamera.createCameraSession(false)
+  const frameOutput = VisionCamera.createFrameOutput({
+    targetResolution: CommonResolutions.VGA_16_9,
+    pixelFormat,
+    enablePreviewSizedOutputBuffers: false,
+    enablePhysicalBufferRotation: false,
+    enableCameraMatrixDelivery: false,
+    allowDeferredStart: false,
+    dropFramesWhileBusy: true,
+  })
+  await session.configure([
+    {
+      input: device,
+      outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+      constraints: [],
+    },
+  ])
+
+  const receivedPixelFormat = deferred<PixelFormat>()
+  let didReport = false
+  const report = (deliveredPixelFormat: PixelFormat) => {
+    if (didReport) return
+    didReport = true
+    receivedPixelFormat.resolve(deliveredPixelFormat)
+  }
+  const reportError = (errorMessage: string) => {
+    if (didReport) return
+    didReport = true
+    receivedPixelFormat.reject(new Error(errorMessage))
+  }
+  const errorSub = session.addOnErrorListener(receivedPixelFormat.reject)
+
+  const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+  runtime.setOnFrameCallback(frameOutput, (frame) => {
+    'worklet'
+    try {
+      scheduleOnRN(report, frame.pixelFormat)
+    } catch (e) {
+      scheduleOnRN(reportError, String(e))
+    } finally {
+      frame.dispose()
+    }
+  })
+
+  await session.start()
+  try {
+    return await withTimeout(
+      receivedPixelFormat.promise,
+      15_000,
+      `receive ${pixelFormat} frame pixel format`,
+    )
+  } finally {
+    runtime.setOnFrameCallback(frameOutput, undefined)
+    errorSub.remove()
+    await session.stop()
+  }
+}
 
 describe('VisionCamera - Frame', () => {
   let factory: CameraDeviceFactory
@@ -74,6 +155,24 @@ describe('VisionCamera - Frame', () => {
       await session.stop()
     }
     expect(framesReceived).toBeGreaterThanOrEqual(3)
+  })
+
+  it('delivers 8-bit 420 YUV frames when streaming in yuv', async () => {
+    const pixelFormat = await getDeliveredFramePixelFormat(backDevice, 'yuv')
+    console.log(`yuv frame pixel format: ${pixelFormat}`)
+    expect(yuvOutputPixelFormats).toContain(pixelFormat)
+  })
+
+  it('delivers RGB frames when streaming in rgb', async () => {
+    const pixelFormat = await getDeliveredFramePixelFormat(backDevice, 'rgb')
+    console.log(`rgb frame pixel format: ${pixelFormat}`)
+    expect(rgbOutputPixelFormats).toContain(pixelFormat)
+  })
+
+  it('delivers native frames as private or 8-bit 420 YUV', async () => {
+    const pixelFormat = await getDeliveredFramePixelFormat(backDevice, 'native')
+    console.log(`native frame pixel format: ${pixelFormat}`)
+    expect(nativeOutputPixelFormats).toContain(pixelFormat)
   })
 
   it('reports native buffers and conditionally reads pixel buffers', async (context) => {
