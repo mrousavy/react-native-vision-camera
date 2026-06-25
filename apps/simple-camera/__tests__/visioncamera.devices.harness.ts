@@ -73,40 +73,9 @@ describe('VisionCamera - Devices', () => {
   })
 
   it('does not expose unknown fallback values in enumerated device capabilities', () => {
-    const unknownValues: string[] = []
-
     for (const device of factory.cameraDevices) {
       for (const inspectedDevice of [device, ...device.physicalDevices]) {
         const label = `${inspectedDevice.position}:${inspectedDevice.id}`
-
-        if (inspectedDevice.position === 'unspecified') {
-          unknownValues.push(`${label}.position=unspecified`)
-        }
-        if (inspectedDevice.type === 'unknown') {
-          unknownValues.push(`${label}.type=unknown`)
-        }
-        if (inspectedDevice.mediaTypes.includes('other')) {
-          unknownValues.push(`${label}.mediaTypes includes other`)
-        }
-        if (inspectedDevice.supportedPixelFormats.includes('unknown')) {
-          unknownValues.push(`${label}.supportedPixelFormats includes unknown`)
-        }
-
-        for (const [
-          index,
-          dynamicRange,
-        ] of inspectedDevice.supportedVideoDynamicRanges.entries()) {
-          const rangeLabel = `${label}.supportedVideoDynamicRanges[${index}]`
-          if (dynamicRange.bitDepth === 'unknown') {
-            unknownValues.push(`${rangeLabel}.bitDepth=unknown`)
-          }
-          if (dynamicRange.colorSpace === 'unknown') {
-            unknownValues.push(`${rangeLabel}.colorSpace=unknown`)
-          }
-          if (dynamicRange.colorRange === 'unknown') {
-            unknownValues.push(`${rangeLabel}.colorRange=unknown`)
-          }
-        }
 
         console.log(
           `known values ${label}: type=${inspectedDevice.type} ` +
@@ -119,10 +88,19 @@ describe('VisionCamera - Devices', () => {
               )
               .join(',')}`,
         )
+
+        expect(inspectedDevice.position).not.toBe('unspecified')
+        expect(inspectedDevice.type).not.toBe('unknown')
+        expect(inspectedDevice.mediaTypes).not.toContain('other')
+        expect(inspectedDevice.supportedPixelFormats).not.toContain('unknown')
+
+        for (const dynamicRange of inspectedDevice.supportedVideoDynamicRanges) {
+          expect(dynamicRange.bitDepth).not.toBe('unknown')
+          expect(dynamicRange.colorSpace).not.toBe('unknown')
+          expect(dynamicRange.colorRange).not.toBe('unknown')
+        }
       }
     }
-
-    expect(unknownValues).toEqual([])
   })
 
   it('reports sane capability invariants for each device', () => {
