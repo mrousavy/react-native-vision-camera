@@ -9,6 +9,7 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
   FrameDroppedReason,
+  PixelFormat,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
@@ -306,11 +307,18 @@ describe('VisionCamera - Frame', () => {
     let reportedWidth = 0
     let reportedHeight = 0
     let reportedPlanes = -1
+    let reportedPixelFormat: PixelFormat | undefined
     const reportedFrame = deferred()
-    const report = (w: number, h: number, planes: number) => {
+    const report = (
+      w: number,
+      h: number,
+      planes: number,
+      format: PixelFormat,
+    ) => {
       reportedWidth = w
       reportedHeight = h
       reportedPlanes = planes
+      reportedPixelFormat = format
       if (reportedWidth > 0 && reportedHeight > 0) {
         reportedFrame.resolve()
       }
@@ -327,7 +335,7 @@ describe('VisionCamera - Frame', () => {
         const planes = frame.getPlanes()
         planeCount = planes.length
       }
-      scheduleOnRN(report, w, h, planeCount)
+      scheduleOnRN(report, w, h, planeCount, frame.pixelFormat)
       frame.dispose()
     })
 
@@ -340,11 +348,13 @@ describe('VisionCamera - Frame', () => {
       await session.stop()
     }
     console.log(
-      `yuv frame reported ${reportedWidth}x${reportedHeight} planes=${reportedPlanes}`,
+      `yuv frame reported ${reportedWidth}x${reportedHeight} planes=${reportedPlanes} pixelFormat=${reportedPixelFormat}`,
     )
     expect(reportedWidth).toBeGreaterThan(0)
     expect(reportedHeight).toBeGreaterThan(0)
     expect(reportedPlanes).toBeGreaterThanOrEqual(1)
+    expect(reportedPixelFormat).toBeDefined()
+    expect(reportedPixelFormat).not.toBe('unknown')
   })
 
   it('delivers readable pixel buffers when streaming in rgb', async () => {
