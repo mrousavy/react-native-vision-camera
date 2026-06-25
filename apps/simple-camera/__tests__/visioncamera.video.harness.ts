@@ -1,14 +1,20 @@
+import { createElement } from 'react'
 import { Platform } from 'react-native'
+import Video, { type OnLoadData } from 'react-native-video'
 import {
+  afterEach,
   beforeAll,
+  cleanup,
   describe,
   expect,
   it,
+  render,
   waitUntil,
 } from 'react-native-harness'
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraVideoOutput,
   Recorder,
   RecordingFinishedReason,
 } from 'react-native-vision-camera'
@@ -17,6 +23,35 @@ import { deferred, withTimeout } from './test-utils'
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+const metadataVideoStyle = { width: 1, height: 1, opacity: 0 }
+
+function toMetadataLoadError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error
+  }
+  return new Error(`Failed to load video metadata: ${String(error)}`)
+}
+
+async function loadVideoMetadata(filePath: string): Promise<OnLoadData> {
+  const loaded = deferred<OnLoadData>()
+  await render(
+    createElement(Video, {
+      source: { uri: filePath },
+      paused: true,
+      muted: true,
+      controls: false,
+      style: metadataVideoStyle,
+      onLoad: loaded.resolve,
+      onError: (error: unknown) => loaded.reject(toMetadataLoadError(error)),
+    }),
+  )
+  try {
+    return await withTimeout(loaded.promise, 10_000, 'video metadata load')
+  } finally {
+    cleanup()
+  }
+}
 
 describe('VisionCamera - Video', () => {
   let factory: CameraDeviceFactory
@@ -32,6 +67,10 @@ describe('VisionCamera - Video', () => {
     expect(back).toBeDefined()
     if (back == null) throw new Error('no back camera')
     backDevice = back
+  })
+
+  afterEach(() => {
+    cleanup()
   })
 
   it('records a short clip and finishes with reason "stopped"', async () => {
@@ -100,6 +139,92 @@ describe('VisionCamera - Video', () => {
     } finally {
       await session.stop()
     }
+  })
+
+  it('records without an audio track after disabling audio on a running session', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const audioOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: true,
+    })
+
+    const recordClip = async (
+      videoOutput: CameraVideoOutput,
+      label: string,
+    ) => {
+      const recorder = await videoOutput.createRecorder({})
+      const finished = deferred<{
+        path: string
+        reason: RecordingFinishedReason
+      }>()
+
+      await recorder.startRecording(
+        (path, reason) => finished.resolve({ path, reason }),
+        finished.reject,
+      )
+      await sleep(1_000)
+      await recorder.stopRecording()
+
+      const result = await withTimeout(finished.promise, 10_000, label)
+      expect(result.reason).toBe('stopped')
+      expect(result.path).toMatch(/^\/.*\.(mov|mp4)$/)
+      expect(recorder.recordedFileSize).toBeGreaterThan(0)
+      return result.path
+    }
+
+    let audioPath: string | undefined
+    let noAudioPath: string | undefined
+    try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: audioOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      await session.start()
+
+      audioPath = await recordClip(audioOutput, 'audio-enabled recording finish')
+
+      const noAudioOutput = VisionCamera.createVideoOutput({
+        targetResolution: CommonResolutions.HD_16_9,
+        enableAudio: false,
+      })
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: noAudioOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+
+      noAudioPath = await recordClip(
+        noAudioOutput,
+        'audio-disabled recording finish',
+      )
+    } finally {
+      await session.stop()
+    }
+
+    expect(audioPath).toBeDefined()
+    expect(noAudioPath).toBeDefined()
+    if (audioPath == null || noAudioPath == null) {
+      throw new Error('recording did not produce both files')
+    }
+
+    const audioMetadata = await loadVideoMetadata(audioPath)
+    const noAudioMetadata = await loadVideoMetadata(noAudioPath)
+    const audioTrackCount = audioMetadata.audioTracks.length
+    const noAudioTrackCount = noAudioMetadata.audioTracks.length
+
+    expect(audioTrackCount).toBeGreaterThan(0)
+    expect(noAudioMetadata.naturalSize.width).toBeGreaterThan(0)
+    expect(noAudioMetadata.naturalSize.height).toBeGreaterThan(0)
+    expect(noAudioMetadata.duration).toBeGreaterThan(0)
+    expect(noAudioTrackCount).toBe(0)
+    console.log(
+      `audio reconfiguration tracks: enabled=${audioTrackCount}, disabled=${noAudioTrackCount}`,
+    )
   })
 
   it('applies a custom targetBitRate', async () => {
