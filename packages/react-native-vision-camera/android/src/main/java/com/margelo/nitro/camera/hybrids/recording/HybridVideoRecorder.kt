@@ -77,6 +77,9 @@ class HybridVideoRecorder(
                   VideoRecordEvent.Finalize.ERROR_NONE -> RecordingFinishedReason.STOPPED
                   VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED -> RecordingFinishedReason.MAX_DURATION_REACHED
                   VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> RecordingFinishedReason.MAX_FILE_SIZE_REACHED
+                  // Source went inactive (e.g. Activity stopped mid-recording). Unlike
+                  // ERROR_NO_VALID_DATA, CameraX still finalizes a valid file, so keep it.
+                  VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> RecordingFinishedReason.STOPPED
                   else -> null
                 }
               if (finishReason != null) {

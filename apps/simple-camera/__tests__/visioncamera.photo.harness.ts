@@ -8,6 +8,7 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraOrientation,
   FlashMode,
   MirrorMode,
   QualityPrioritization,
@@ -17,6 +18,96 @@ import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
+
+function readJpegExifOrientation(buffer: ArrayBuffer): number | undefined {
+  const view = new DataView(buffer)
+  if (view.byteLength < 4 || view.getUint16(0, false) !== 0xffd8) {
+    return undefined
+  }
+
+  let offset = 2
+  while (offset + 4 <= view.byteLength) {
+    if (view.getUint8(offset) !== 0xff) {
+      return undefined
+    }
+    while (offset < view.byteLength && view.getUint8(offset) === 0xff) {
+      offset++
+    }
+
+    const marker = view.getUint8(offset)
+    offset++
+    if (marker === 0xda || marker === 0xd9) {
+      return undefined
+    }
+    if (offset + 2 > view.byteLength) {
+      return undefined
+    }
+
+    const segmentLength = view.getUint16(offset, false)
+    const segmentStart = offset + 2
+    const segmentEnd = offset + segmentLength
+    if (segmentEnd > view.byteLength || segmentLength < 2) {
+      return undefined
+    }
+
+    const isExifSegment =
+      marker === 0xe1 &&
+      segmentStart + 6 <= segmentEnd &&
+      view.getUint8(segmentStart) === 0x45 &&
+      view.getUint8(segmentStart + 1) === 0x78 &&
+      view.getUint8(segmentStart + 2) === 0x69 &&
+      view.getUint8(segmentStart + 3) === 0x66 &&
+      view.getUint8(segmentStart + 4) === 0x00 &&
+      view.getUint8(segmentStart + 5) === 0x00
+    if (isExifSegment) {
+      return readTiffOrientation(view, segmentStart + 6, segmentEnd)
+    }
+
+    offset = segmentEnd
+  }
+
+  return undefined
+}
+
+function readTiffOrientation(
+  view: DataView,
+  tiffStart: number,
+  tiffEnd: number,
+): number | undefined {
+  if (tiffStart + 8 > tiffEnd) {
+    return undefined
+  }
+
+  const byteOrder = view.getUint16(tiffStart, false)
+  const littleEndian = byteOrder === 0x4949
+  if (!littleEndian && byteOrder !== 0x4d4d) {
+    return undefined
+  }
+  if (view.getUint16(tiffStart + 2, littleEndian) !== 42) {
+    return undefined
+  }
+
+  const firstIfdOffset = view.getUint32(tiffStart + 4, littleEndian)
+  const ifdStart = tiffStart + firstIfdOffset
+  if (ifdStart + 2 > tiffEnd) {
+    return undefined
+  }
+
+  const entryCount = view.getUint16(ifdStart, littleEndian)
+  for (let index = 0; index < entryCount; index++) {
+    const entryStart = ifdStart + 2 + index * 12
+    if (entryStart + 12 > tiffEnd) {
+      return undefined
+    }
+
+    const tag = view.getUint16(entryStart, littleEndian)
+    if (tag === 0x0112) {
+      return view.getUint16(entryStart + 8, littleEndian)
+    }
+  }
+
+  return undefined
+}
 
 describe('VisionCamera - Photo', () => {
   let factory: CameraDeviceFactory
@@ -152,6 +243,59 @@ describe('VisionCamera - Photo', () => {
     photo.dispose()
 
     await session.stop()
+  })
+
+  it('preserves JPEG EXIF orientation when saving an in-memory Photo to a file', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.9,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'off' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      const outputOrientations: CameraOrientation[] = [
+        'up',
+        'right',
+        'down',
+        'left',
+      ]
+      for (const outputOrientation of outputOrientations) {
+        photoOutput.outputOrientation = outputOrientation
+        const photo = await photoOutput.capturePhoto(
+          { flashMode: 'off', enableShutterSound: false },
+          {},
+        )
+        try {
+          const inMemoryData = await photo.getFileDataAsync()
+          const inMemoryOrientation = readJpegExifOrientation(inMemoryData)
+          expect(inMemoryOrientation).toBeDefined()
+
+          const path = await photo.saveToTemporaryFileAsync()
+          const response = await fetch(`file://${path}`)
+          const savedData = await response.arrayBuffer()
+          const savedOrientation = readJpegExifOrientation(savedData)
+
+          console.log(
+            `outputOrientation=${outputOrientation} photo.orientation=${photo.orientation} in-memory EXIF=${inMemoryOrientation} saved EXIF=${savedOrientation}`,
+          )
+          expect(savedOrientation).toBe(inMemoryOrientation)
+        } finally {
+          photo.dispose()
+        }
+      }
+    } finally {
+      await session.stop()
+    }
   })
 
   // TODO: Re-enable once VisionCamera exposes a way to query supported photo
