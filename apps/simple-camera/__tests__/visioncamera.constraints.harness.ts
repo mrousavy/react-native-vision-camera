@@ -225,6 +225,105 @@ describe('VisionCamera - Constraints', () => {
     expect(previewLongEdge).toBe(targetLongEdge)
   })
 
+  it('keeps a low video target when preview resolution bias is attached first', async (context) => {
+    const targetResolution = CommonResolutions.HD_16_9
+    const maxAllowedResolution = CommonResolutions.FHD_16_9
+    const uhdResolution = CommonResolutions.UHD_16_9
+
+    const getEdges = (resolution: { width: number; height: number }) => ({
+      short: Math.min(resolution.width, resolution.height),
+      long: Math.max(resolution.width, resolution.height),
+    })
+
+    const targetEdges = getEdges(targetResolution)
+    const maxAllowedEdges = getEdges(maxAllowedResolution)
+    const uhdEdges = getEdges(uhdResolution)
+    const supportedVideoResolutions = backDevice.getSupportedResolutions('video')
+    const supportsTargetResolution = supportedVideoResolutions.some(
+      (resolution) => {
+        const edges = getEdges(resolution)
+        return edges.short === targetEdges.short && edges.long === targetEdges.long
+      },
+    )
+    const supportsUhdResolution = supportedVideoResolutions.some(
+      (resolution) => {
+        const edges = getEdges(resolution)
+        return edges.short === uhdEdges.short && edges.long === uhdEdges.long
+      },
+    )
+    if (!supportsTargetResolution) {
+      return context.skip('720p video resolution not supported on this device')
+    }
+    if (!supportsUhdResolution) {
+      return context.skip('4k video resolution not supported on this device')
+    }
+
+    async function resolveLowTargetSession(includePreview: boolean) {
+      const session = await VisionCamera.createCameraSession(false)
+      const videoOutput = VisionCamera.createVideoOutput({
+        targetResolution,
+        enableAudio: false,
+        enableHigherResolutionCodecs: true,
+      })
+      const previewOutput = includePreview
+        ? VisionCamera.createPreviewOutput()
+        : undefined
+
+      await session.configure([
+        {
+          input: backDevice,
+          outputs:
+            previewOutput == null
+              ? [{ output: videoOutput, mirrorMode: 'auto' }]
+              : [
+                  { output: previewOutput, mirrorMode: 'auto' },
+                  { output: videoOutput, mirrorMode: 'auto' },
+                ],
+          constraints:
+            previewOutput == null
+              ? [{ resolutionBias: videoOutput }]
+              : [
+                  { resolutionBias: previewOutput },
+                  { resolutionBias: videoOutput },
+                ],
+        },
+      ])
+
+      await session.start()
+      try {
+        await waitUntil(() => videoOutput.currentResolution != null, {
+          timeout: 10_000,
+        })
+        const currentResolution = videoOutput.currentResolution
+        if (currentResolution == null) throw new Error('no video resolution')
+        return currentResolution
+      } finally {
+        await session.stop()
+      }
+    }
+
+    const videoOnly = await resolveLowTargetSession(false)
+    const videoOnlyEdges = getEdges(videoOnly)
+    if (
+      videoOnlyEdges.short > maxAllowedEdges.short ||
+      videoOnlyEdges.long > maxAllowedEdges.long
+    ) {
+      return context.skip(
+        `device resolves video-only 720p target to ${videoOnly.width}x${videoOnly.height}`,
+      )
+    }
+
+    const withPreview = await resolveLowTargetSession(true)
+    const previewEdges = getEdges(withPreview)
+    console.log(
+      `720p target video-only=${videoOnly.width}x${videoOnly.height} ` +
+        `with-preview=${withPreview.width}x${withPreview.height}`,
+    )
+
+    expect(previewEdges.short).toBeLessThanOrEqual(maxAllowedEdges.short)
+    expect(previewEdges.long).toBeLessThanOrEqual(maxAllowedEdges.long)
+  })
+
   it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
     if (!backDevice.supportsPhotoHDR) {
       return context.skip('photoHDR: not supported on this device')
