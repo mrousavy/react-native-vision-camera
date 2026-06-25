@@ -72,6 +72,59 @@ describe('VisionCamera - Devices', () => {
     subscription.remove()
   })
 
+  it('does not expose unknown fallback values in enumerated device capabilities', () => {
+    const unknownValues: string[] = []
+
+    for (const device of factory.cameraDevices) {
+      for (const inspectedDevice of [device, ...device.physicalDevices]) {
+        const label = `${inspectedDevice.position}:${inspectedDevice.id}`
+
+        if (inspectedDevice.position === 'unspecified') {
+          unknownValues.push(`${label}.position=unspecified`)
+        }
+        if (inspectedDevice.type === 'unknown') {
+          unknownValues.push(`${label}.type=unknown`)
+        }
+        if (inspectedDevice.mediaTypes.includes('other')) {
+          unknownValues.push(`${label}.mediaTypes includes other`)
+        }
+        if (inspectedDevice.supportedPixelFormats.includes('unknown')) {
+          unknownValues.push(`${label}.supportedPixelFormats includes unknown`)
+        }
+
+        for (const [
+          index,
+          dynamicRange,
+        ] of inspectedDevice.supportedVideoDynamicRanges.entries()) {
+          const rangeLabel = `${label}.supportedVideoDynamicRanges[${index}]`
+          if (dynamicRange.bitDepth === 'unknown') {
+            unknownValues.push(`${rangeLabel}.bitDepth=unknown`)
+          }
+          if (dynamicRange.colorSpace === 'unknown') {
+            unknownValues.push(`${rangeLabel}.colorSpace=unknown`)
+          }
+          if (dynamicRange.colorRange === 'unknown') {
+            unknownValues.push(`${rangeLabel}.colorRange=unknown`)
+          }
+        }
+
+        console.log(
+          `known values ${label}: type=${inspectedDevice.type} ` +
+            `mediaTypes=${inspectedDevice.mediaTypes.join(',')} ` +
+            `pixelFormats=${inspectedDevice.supportedPixelFormats.join(',')} ` +
+            `dynamicRanges=${inspectedDevice.supportedVideoDynamicRanges
+              .map(
+                (range) =>
+                  `${range.bitDepth}/${range.colorSpace}/${range.colorRange}`,
+              )
+              .join(',')}`,
+        )
+      }
+    }
+
+    expect(unknownValues).toEqual([])
+  })
+
   it('reports sane capability invariants for each device', () => {
     for (const device of factory.cameraDevices) {
       const label = `${device.position}:${device.id}`
