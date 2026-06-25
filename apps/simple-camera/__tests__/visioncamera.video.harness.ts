@@ -1,6 +1,5 @@
 import { createElement } from 'react'
 import { Platform } from 'react-native'
-import Video, { type OnLoadData } from 'react-native-video'
 import {
   afterEach,
   beforeAll,
@@ -11,6 +10,7 @@ import {
   render,
   waitUntil,
 } from 'react-native-harness'
+import Video, { type OnLoadData } from 'react-native-video'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -184,7 +184,10 @@ describe('VisionCamera - Video', () => {
       ])
       await session.start()
 
-      audioPath = await recordClip(audioOutput, 'audio-enabled recording finish')
+      audioPath = await recordClip(
+        audioOutput,
+        'audio-enabled recording finish',
+      )
 
       const noAudioOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.HD_16_9,
