@@ -109,6 +109,122 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
+  it('keeps 4k video at 60 fps when a preview output is attached', async (context) => {
+    const targetResolution = CommonResolutions.UHD_16_9
+    const targetShortEdge = Math.min(
+      targetResolution.width,
+      targetResolution.height,
+    )
+    const targetLongEdge = Math.max(
+      targetResolution.width,
+      targetResolution.height,
+    )
+    const supportsUhdVideo = backDevice
+      .getSupportedResolutions('video')
+      .some((resolution) => {
+        const shortEdge = Math.min(resolution.width, resolution.height)
+        const longEdge = Math.max(resolution.width, resolution.height)
+        return shortEdge === targetShortEdge && longEdge === targetLongEdge
+      })
+    if (!supportsUhdVideo) {
+      return context.skip('4k video resolution not supported on this device')
+    }
+    if (!backDevice.supportsFPS(60)) {
+      return context.skip('fps: 60 not supported on this device')
+    }
+
+    async function resolveVideoSession(includePreview: boolean) {
+      const session = await VisionCamera.createCameraSession(false)
+      const videoOutput = VisionCamera.createVideoOutput({
+        targetResolution,
+        enableAudio: false,
+        enableHigherResolutionCodecs: true,
+      })
+      const previewOutput = includePreview
+        ? VisionCamera.createPreviewOutput()
+        : undefined
+      let selectedConfig: CameraSessionConfig | undefined
+
+      await session.configure([
+        {
+          input: backDevice,
+          outputs:
+            previewOutput == null
+              ? [{ output: videoOutput, mirrorMode: 'auto' }]
+              : [
+                  { output: previewOutput, mirrorMode: 'auto' },
+                  { output: videoOutput, mirrorMode: 'auto' },
+                ],
+          constraints:
+            previewOutput == null
+              ? [{ fps: 60 }, { resolutionBias: videoOutput }]
+              : [
+                  { fps: 60 },
+                  { resolutionBias: previewOutput },
+                  { resolutionBias: videoOutput },
+                ],
+          onSessionConfigSelected: (config) => {
+            selectedConfig = config
+          },
+        },
+      ])
+      await waitUntil(() => selectedConfig != null, { timeout: 5_000 })
+
+      await session.start()
+      try {
+        await waitUntil(() => videoOutput.currentResolution != null, {
+          timeout: 10_000,
+        })
+        const currentResolution = videoOutput.currentResolution
+        if (selectedConfig == null) throw new Error('no selected config')
+        if (currentResolution == null) throw new Error('no video resolution')
+        return {
+          selectedFPS: selectedConfig.selectedFPS,
+          resolution: currentResolution,
+        }
+      } finally {
+        await session.stop()
+      }
+    }
+
+    const videoOnly = await resolveVideoSession(false)
+    const videoOnlyShortEdge = Math.min(
+      videoOnly.resolution.width,
+      videoOnly.resolution.height,
+    )
+    const videoOnlyLongEdge = Math.max(
+      videoOnly.resolution.width,
+      videoOnly.resolution.height,
+    )
+    if (
+      videoOnly.selectedFPS !== 60 ||
+      videoOnlyShortEdge !== targetShortEdge ||
+      videoOnlyLongEdge !== targetLongEdge
+    ) {
+      return context.skip(
+        `device resolves video-only 4k@60 to ${videoOnly.resolution.width}x${videoOnly.resolution.height}@${videoOnly.selectedFPS ?? 'default'}fps`,
+      )
+    }
+
+    const withPreview = await resolveVideoSession(true)
+    const previewShortEdge = Math.min(
+      withPreview.resolution.width,
+      withPreview.resolution.height,
+    )
+    const previewLongEdge = Math.max(
+      withPreview.resolution.width,
+      withPreview.resolution.height,
+    )
+    console.log(
+      `4k@60 video-only=${videoOnly.resolution.width}x${videoOnly.resolution.height}@${videoOnly.selectedFPS ?? 'default'}fps ` +
+        `with-preview=${withPreview.resolution.width}x${withPreview.resolution.height}@${withPreview.selectedFPS ?? 'default'}fps`,
+    )
+
+    expect(withPreview.selectedFPS).toBe(60)
+    expect(previewShortEdge).toBe(targetShortEdge)
+    expect(previewLongEdge).toBe(targetLongEdge)
+  })
+
   it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
     if (!backDevice.supportsPhotoHDR) {
       return context.skip('photoHDR: not supported on this device')
