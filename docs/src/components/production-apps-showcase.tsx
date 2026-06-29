@@ -47,7 +47,7 @@ type ProductionApp = {
   company: string
   installMetrics: InstallMetric[]
   iconSrc: StaticImageData
-  appStoreUrl: string
+  appStoreUrl?: string
   playStoreUrl?: string
 }
 
@@ -844,7 +844,9 @@ function AppCard({ app }: { app: ProductionApp }) {
           </div>
         ) : null}
         <div className="mt-auto flex w-full flex-nowrap items-center gap-2">
-          <StoreLink href={app.appStoreUrl} label="App Store" />
+          {app.appStoreUrl ? (
+            <StoreLink href={app.appStoreUrl} label="App Store" />
+          ) : null}
           {app.playStoreUrl ? (
             <StoreLink href={app.playStoreUrl} label="Play Store" />
           ) : null}
