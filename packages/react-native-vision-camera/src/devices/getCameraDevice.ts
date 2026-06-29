@@ -1,6 +1,7 @@
 import type { CameraPosition } from '../specs/common-types/CameraPosition'
 import type { DeviceType } from '../specs/common-types/DeviceType'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
+import type { CameraDeviceFactory } from '../specs/inputs/CameraDeviceFactory.nitro'
 
 export type PhysicalDeviceType = Extract<
   DeviceType,
@@ -55,10 +56,20 @@ export interface DeviceFilter {
  * ```
  */
 export function getCameraDevice(
-  devices: CameraDevice[],
+  deviceFactory: CameraDeviceFactory,
   position: CameraPosition,
   filter: DeviceFilter = {},
 ): CameraDevice | undefined {
+  if (Object.values(filter).length === 0) {
+    // No `filter` was passed, so let's just get the default Camera Device at that position!
+    const defaultCamera = deviceFactory.getDefaultCamera(position)
+    if (defaultCamera != null) {
+      return defaultCamera
+    }
+  }
+
+  // We have a `filter`, or there is no default Camera Device - so let's get all devices and rank
+  const devices = deviceFactory.cameraDevices
   return devices
     .filter((d) => d.position === position)
     .reduce<CameraDevice | undefined>((prev, curr) => {

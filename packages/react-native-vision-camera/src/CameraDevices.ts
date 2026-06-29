@@ -15,10 +15,10 @@ function setCameraDevices(devices: CameraDevice[]): void {
 }
 
 // Prepares the factory once this file is imported.
-const factoryPromise = VisionCamera.createDeviceFactory()
+export const cameraDevicesFactoryPromise = VisionCamera.createDeviceFactory()
 
 // once the factory is created, start loading devices already in background
-factoryPromise
+cameraDevicesFactoryPromise
   .then((factory) => {
     // CameraDeviceFactory is loaded - get initial devices
     setCameraDevices(factory.cameraDevices)
@@ -28,7 +28,6 @@ factoryPromise
       setCameraDevices(newDevices)
     })
   })
-
   .catch((e) => {
     console.error(`Failed to load Camera Devices!`, e)
   })
@@ -59,7 +58,7 @@ export function getAllCameraDevices(): CameraDevice[] {
 export async function getDefaultCameraDevice(
   position: CameraPosition,
 ): Promise<CameraDevice | undefined> {
-  const factory = await factoryPromise
+  const factory = await cameraDevicesFactoryPromise
   return factory.getDefaultCamera(position)
 }
 
@@ -102,6 +101,6 @@ export function addOnCameraDevicesChangedListener(
 export async function getSupportedExtensions(
   device: CameraDevice,
 ): Promise<CameraExtension[]> {
-  const factory = await factoryPromise
+  const factory = await cameraDevicesFactoryPromise
   return factory.getSupportedExtensions(device)
 }
