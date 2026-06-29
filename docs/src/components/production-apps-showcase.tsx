@@ -20,6 +20,7 @@ import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import steplabRecord from '../../public/img/production-apps/steplab-record.jpg'
 import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
 import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
 import xboxIcon from '../../public/img/production-apps/xbox.jpg'
@@ -391,6 +392,26 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/golf-daddy-golf-at-home/id6463652126',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.benchmarkgolf.app',
+  },
+  {
+    name: 'Steplab Record',
+    company: 'Steplab',
+    installMetrics: [
+      {
+        label: '300K+ App Store installs',
+        value: 300_000,
+        kind: 'lifetime-installs',
+      },
+      {
+        label: '1K+ Play Store installs',
+        value: 5_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: steplabRecord,
+    appStoreUrl: 'https://apps.apple.com/gb/app/steplab-record/id6459021202',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.steplab.record',
   },
 ]
 
