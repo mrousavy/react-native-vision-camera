@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
+import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
@@ -374,6 +375,22 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
+  },
+  {
+    name: 'Golf Daddy',
+    company: 'GolfDaddy',
+    installMetrics: [
+      {
+        label: '5K+ Play Store installs',
+        value: 5_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: golfDaddyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/golf-daddy-golf-at-home/id6463652126',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.benchmarkgolf.app',
   },
 ]
 
