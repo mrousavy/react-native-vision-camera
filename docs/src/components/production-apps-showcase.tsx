@@ -43,24 +43,24 @@ type ProductionApp = {
 
 const productionApps: ProductionApp[] = [
   {
-    name: 'Xbox',
-    company: 'Microsoft',
+    name: 'Amazon Shopping',
+    company: 'Amazon',
     installMetrics: [
       {
-        label: '600K/mo App Store downloads est.',
-        value: 600_000,
+        label: '2M/mo App Store downloads est.',
+        value: 2_000_000,
         kind: 'monthly-downloads',
       },
       {
-        label: '100M+ Play Store installs',
-        value: 100_000_000,
+        label: '1B+ Play Store downloads',
+        value: 1_000_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: xboxIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/xbox/id736179781',
+    iconSrc: amazonShoppingIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/amazon-shopping/id297606951',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass',
+      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.shopping',
   },
   {
     name: 'PlayStation App',
@@ -81,6 +81,62 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/playstation-app/id410896080',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.scee.psxandroid',
+  },
+  {
+    name: 'Xbox',
+    company: 'Microsoft',
+    installMetrics: [
+      {
+        label: '600K/mo App Store downloads est.',
+        value: 600_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '100M+ Play Store installs',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: xboxIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/xbox/id736179781',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass',
+  },
+  {
+    name: 'Klarna',
+    company: 'Klarna Bank',
+    installMetrics: [
+      {
+        label: '50M+ Play Store installs',
+        value: 50_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: klarnaIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.myklarnamobile',
+  },
+  {
+    name: 'Starlink',
+    company: 'SpaceX',
+    installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: starlinkIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.starlink.mobile',
   },
   {
     name: 'Shopify',
@@ -104,40 +160,71 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
   },
   {
-    name: 'Amazon Shopping',
-    company: 'Amazon',
+    name: 'MetaMask',
+    company: 'Consensys',
     installMetrics: [
       {
-        label: '2M/mo App Store downloads est.',
-        value: 2_000_000,
+        label: '200K/mo App Store downloads est.',
+        value: 200_000,
         kind: 'monthly-downloads',
       },
       {
-        label: '1B+ Play Store downloads',
-        value: 1_000_000_000,
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: amazonShoppingIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/amazon-shopping/id297606951',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.shopping',
+    iconSrc: metamaskIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
   },
   {
-    name: 'Klarna',
-    company: 'Klarna Bank',
+    name: 'Urban Company',
+    company: 'Urban Company',
     installMetrics: [
       {
-        label: '50M+ Play Store installs',
-        value: 50_000_000,
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: klarnaIcon,
+    iconSrc: urbanCompanyIcon,
     appStoreUrl:
-      'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
+      'https://apps.apple.com/us/app/urban-company-home-services/id1032480595',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.myklarnamobile',
+      'https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap',
+  },
+  {
+    name: 'SONIC',
+    company: 'Sonic Industries',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: sonicDriveInIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
+  },
+  {
+    name: 'Locket Widget',
+    company: 'Locket Labs',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: locketIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.locket.Locket',
   },
   {
     name: 'OnePay',
@@ -161,51 +248,20 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.onefinance.one',
   },
   {
-    name: 'SONIC',
-    company: 'Sonic Industries',
+    name: 'PUMA',
+    company: 'PUMA',
     installMetrics: [
       {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: sonicDriveInIcon,
+    iconSrc: pumaIcon,
     appStoreUrl:
-      'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
+      'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
-  },
-  {
-    name: 'Urban Company',
-    company: 'Urban Company',
-    installMetrics: [
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: urbanCompanyIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/urban-company-home-services/id1032480595',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap',
-  },
-  {
-    name: 'Locket Widget',
-    company: 'Locket Labs',
-    installMetrics: [
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: locketIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.locket.Locket',
+      'https://play.google.com/store/apps/details?id=com.puma.ecom.app',
   },
   {
     name: 'Picnic',
@@ -261,40 +317,25 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.buffalowildwings.blazinrewards',
   },
   {
-    name: 'PUMA',
-    company: 'PUMA',
+    name: 'Ledger Live',
+    company: 'Ledger',
     installMetrics: [
       {
-        label: '5M+ Play Store installs',
-        value: 5_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: pumaIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.puma.ecom.app',
-  },
-  {
-    name: 'Starlink',
-    company: 'SpaceX',
-    installMetrics: [
-      {
-        label: '500K/mo App Store downloads est.',
-        value: 500_000,
+        label: '30K/mo App Store downloads est.',
+        value: 30_000,
         kind: 'monthly-downloads',
       },
       {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: starlinkIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
+    iconSrc: ledgerLiveIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.starlink.mobile',
+      'https://play.google.com/store/apps/details?id=com.ledger.live',
   },
   {
     name: 'Expensify',
@@ -334,47 +375,6 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.ehi.national.mobile',
   },
   {
-    name: 'MetaMask',
-    company: 'Consensys',
-    installMetrics: [
-      {
-        label: '200K/mo App Store downloads est.',
-        value: 200_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: metamaskIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
-    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
-  },
-  {
-    name: 'Ledger Live',
-    company: 'Ledger',
-    installMetrics: [
-      {
-        label: '30K/mo App Store downloads est.',
-        value: 30_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '1M+ Play Store installs',
-        value: 1_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: ledgerLiveIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.ledger.live',
-  },
-  {
     name: 'SnapCalorie',
     company: 'Perception Labs',
     installMetrics: [
@@ -405,21 +405,6 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
   },
   {
-    name: 'ShadowLens',
-    company: 'Marc Rousavy',
-    installMetrics: [
-      {
-        label: '1K+ Play Store installs',
-        value: 1_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: shadowlensIcon,
-    appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
-  },
-  {
     name: 'Golf Daddy',
     company: 'GolfDaddy',
     installMetrics: [
@@ -434,6 +419,21 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/golf-daddy-golf-at-home/id6463652126',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.benchmarkgolf.app',
+  },
+  {
+    name: 'ShadowLens',
+    company: 'Marc Rousavy',
+    installMetrics: [
+      {
+        label: '1K+ Play Store installs',
+        value: 1_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: shadowlensIcon,
+    appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
   },
 ]
 
