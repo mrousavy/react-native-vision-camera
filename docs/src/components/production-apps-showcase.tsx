@@ -13,6 +13,7 @@ import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
+import onePayIcon from '../../public/img/production-apps/onepay.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
 import pumaIcon from '../../public/img/production-apps/puma.jpg'
@@ -137,6 +138,27 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.myklarnamobile',
+  },
+  {
+    name: 'OnePay',
+    company: 'One Finance',
+    installMetrics: [
+      {
+        label: '600K/mo App Store downloads est.',
+        value: 600_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: onePayIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/onepay-mobile-banking/id1494523953',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.onefinance.one',
   },
   {
     name: 'SONIC',
