@@ -3,6 +3,7 @@ import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
 import Image, { type StaticImageData } from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
@@ -100,6 +101,13 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/shopify-sell-online-in-person/id371294472',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
+  },
+  {
+    name: 'Amazon Shopping',
+    company: 'Amazon',
+    installMetrics: [],
+    iconSrc: amazonShoppingIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/amazon-shopping/id297606951',
   },
   {
     name: 'Klarna',
@@ -614,17 +622,19 @@ function AppCard({ app }: { app: ProductionApp }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 border-t border-fd-border pt-3">
-        <div className="grid gap-1.5">
-          {app.installMetrics.map((metric) => (
-            <span
-              key={metric.label}
-              className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-fd-muted-foreground"
-            >
-              <Download className="size-3.5 shrink-0" aria-hidden="true" />
-              <span className="truncate">{metric.label}</span>
-            </span>
-          ))}
-        </div>
+        {app.installMetrics.length > 0 ? (
+          <div className="grid gap-1.5">
+            {app.installMetrics.map((metric) => (
+              <span
+                key={metric.label}
+                className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-fd-muted-foreground"
+              >
+                <Download className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">{metric.label}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="mt-auto flex w-full flex-nowrap items-center gap-2">
           <StoreLink href={app.appStoreUrl} label="App Store" />
           {app.playStoreUrl ? (
