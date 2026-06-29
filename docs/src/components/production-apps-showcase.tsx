@@ -14,6 +14,7 @@ import nationalCarRentalIcon from '../../public/img/production-apps/national-car
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
 import pumaIcon from '../../public/img/production-apps/puma.jpg'
+import shadowlensIcon from '../../public/img/production-apps/shadowlens.jpg'
 import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
@@ -358,6 +359,21 @@ const productionApps: ProductionApp[] = [
     iconSrc: vscoCaptureIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
+  },
+  {
+    name: 'ShadowLens',
+    company: 'Marc Rousavy',
+    installMetrics: [
+      {
+        label: '1K+ Play Store installs',
+        value: 1_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: shadowlensIcon,
+    appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
   },
 ]
 
