@@ -105,9 +105,22 @@ const productionApps: ProductionApp[] = [
   {
     name: 'Amazon Shopping',
     company: 'Amazon',
-    installMetrics: [],
+    installMetrics: [
+      {
+        label: '2M/mo App Store downloads est.',
+        value: 2_000_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1B+ Play Store downloads',
+        value: 1_000_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
     iconSrc: amazonShoppingIcon,
     appStoreUrl: 'https://apps.apple.com/us/app/amazon-shopping/id297606951',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.shopping',
   },
   {
     name: 'Klarna',
