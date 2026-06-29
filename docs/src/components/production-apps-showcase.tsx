@@ -5,23 +5,33 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
 import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
+import bestBuyIcon from '../../public/img/production-apps/best-buy.jpg'
+import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
+import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
+import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
+import mywalmartIcon from '../../public/img/production-apps/mywalmart.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
+import offerupIcon from '../../public/img/production-apps/offerup.jpg'
 import onePayIcon from '../../public/img/production-apps/onepay.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
+import poplIcon from '../../public/img/production-apps/popl.jpg'
 import pumaIcon from '../../public/img/production-apps/puma.jpg'
+import remitlyIcon from '../../public/img/production-apps/remitly.jpg'
+import seekByInaturalistIcon from '../../public/img/production-apps/seek-by-inaturalist.jpg'
 import shadowlensIcon from '../../public/img/production-apps/shadowlens.jpg'
 import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import toyotaFinancialServicesIcon from '../../public/img/production-apps/toyota-financial-services.jpg'
 import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
 import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
 import xboxIcon from '../../public/img/production-apps/xbox.jpg'
@@ -119,6 +129,21 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.myklarnamobile',
   },
   {
+    name: 'OfferUp',
+    company: 'OfferUp',
+    installMetrics: [
+      {
+        label: '50M+ Play Store installs',
+        value: 50_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: offerupIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/offerup-buy-sell-marketplace/id468996152',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.offerup',
+  },
+  {
     name: 'Starlink',
     company: 'SpaceX',
     installMetrics: [
@@ -158,6 +183,38 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/shopify-sell-online-in-person/id371294472',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
+  },
+  {
+    name: 'Best Buy',
+    company: 'Best Buy',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: bestBuyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/best-buy-tech-deals-savings/id314855255',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.bestbuy.android',
+  },
+  {
+    name: 'Remitly',
+    company: 'Remitly',
+    installMetrics: [
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: remitlyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/remitly-send-money-abroad/id674258465',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.remitly.androidapp',
   },
   {
     name: 'MetaMask',
@@ -317,6 +374,101 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.buffalowildwings.blazinrewards',
   },
   {
+    name: 'BoldVoice',
+    company: 'Wellocution',
+    installMetrics: [
+      {
+        label: '5M+ downloads claimed',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: boldvoiceIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/boldvoice-accent-training/id1567841142',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.wellocution.androidapp',
+  },
+  {
+    name: 'Toyota Financial Services',
+    company: 'Toyota Motor Credit',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: toyotaFinancialServicesIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/toyota-financial-services/id472110881',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.tmcc.click2pay.mytfs',
+  },
+  {
+    name: 'MyWalmart',
+    company: 'Walmart',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mywalmartIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mywalmart/id1459898418',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.walmart.squiggly',
+  },
+  {
+    name: 'Instawork',
+    company: 'Instawork',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: instaworkIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/instawork-work-when-you-want/id1123819773',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.instaworkmobile',
+  },
+  {
+    name: 'Lingvano',
+    company: 'Lingvano',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: lingvanoIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/lingvano-learn-sign-language/id1547252782',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.lingvano.app',
+  },
+  {
+    name: 'Seek by iNaturalist',
+    company: 'iNaturalist',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: seekByInaturalistIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/seek-by-inaturalist/id1353224144',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=org.inaturalist.seek',
+  },
+  {
     name: 'Ledger Live',
     company: 'Ledger',
     installMetrics: [
@@ -389,6 +541,21 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/snapcalorie-ai-calorie-counter/id1574239307',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.snapcalorie.alpha002',
+  },
+  {
+    name: 'Popl',
+    company: 'Popl',
+    installMetrics: [
+      {
+        label: '500K+ Play Store installs',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: poplIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/popl-ai-lead-capture/id1503939262',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.nfc.popl',
   },
   {
     name: 'VSCO Capture',
@@ -480,7 +647,7 @@ const editDocUrl =
 
 const summaryStats = [
   {
-    label: 'Play Store installs',
+    label: 'Known installs/downloads',
     value: `${formatCompactNumber(knownInstallTotal)}+`,
     icon: Download,
   },
