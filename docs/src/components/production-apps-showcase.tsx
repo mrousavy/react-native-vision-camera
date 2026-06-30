@@ -11,7 +11,6 @@ import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import connecteamIcon from '../../public/img/production-apps/connecteam.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
-import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
@@ -158,6 +157,26 @@ const productionApps: ProductionApp[] = [
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.offerup',
   },
   {
+    name: 'Locket Widget',
+    company: 'Locket Labs',
+    installMetrics: [
+      {
+        label: '800K/mo App Store downloads est.',
+        value: 800_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: locketIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.locket.Locket',
+  },
+  {
     name: 'Starlink',
     company: 'SpaceX',
     installMetrics: [
@@ -176,6 +195,27 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.starlink.mobile',
+  },
+  {
+    name: 'Remitly',
+    company: 'Remitly',
+    installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: remitlyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/remitly-send-money-abroad/id674258465',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.remitly.androidapp',
   },
   {
     name: 'Shopify',
@@ -220,47 +260,6 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.bestbuy.android',
   },
   {
-    name: 'Remitly',
-    company: 'Remitly',
-    installMetrics: [
-      {
-        label: '500K/mo App Store downloads est.',
-        value: 500_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: remitlyIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/remitly-send-money-abroad/id674258465',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.remitly.androidapp',
-  },
-  {
-    name: 'MetaMask',
-    company: 'Consensys',
-    installMetrics: [
-      {
-        label: '100K/mo App Store downloads est.',
-        value: 100_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: metamaskIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
-    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
-  },
-  {
     name: 'Urban Company',
     company: 'Urban Company',
     installMetrics: [
@@ -303,12 +302,12 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
   },
   {
-    name: 'Locket Widget',
-    company: 'Locket Labs',
+    name: 'MetaMask',
+    company: 'Consensys',
     installMetrics: [
       {
-        label: '800K/mo App Store downloads est.',
-        value: 800_000,
+        label: '100K/mo App Store downloads est.',
+        value: 100_000,
         kind: 'monthly-downloads',
       },
       {
@@ -317,10 +316,10 @@ const productionApps: ProductionApp[] = [
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: locketIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.locket.Locket',
+    iconSrc: metamaskIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
   },
   {
     name: 'OnePay',
@@ -432,6 +431,48 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/boldvoice-accent-training/id1567841142',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.wellocution.androidapp',
+  },
+  {
+    name: 'Ledger Live',
+    company: 'Ledger',
+    installMetrics: [
+      {
+        label: '30K/mo App Store downloads est.',
+        value: 30_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: ledgerLiveIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.ledger.live',
+  },
+  {
+    name: 'Expensify',
+    company: 'Expensify',
+    installMetrics: [
+      {
+        label: '20K/mo App Store downloads est.',
+        value: 20_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: expensifyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
   },
   {
     name: 'Toyota Financial Services',
@@ -559,48 +600,6 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/seek-by-inaturalist/id1353224144',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=org.inaturalist.seek',
-  },
-  {
-    name: 'Ledger Live',
-    company: 'Ledger',
-    installMetrics: [
-      {
-        label: '30K/mo App Store downloads est.',
-        value: 30_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '1M+ Play Store installs',
-        value: 1_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: ledgerLiveIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.ledger.live',
-  },
-  {
-    name: 'Expensify',
-    company: 'Expensify',
-    installMetrics: [
-      {
-        label: '20K/mo App Store downloads est.',
-        value: 20_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '1M+ Play Store installs',
-        value: 1_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: expensifyIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
   },
   {
     name: 'National Car Rental',
