@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "ExposureMode" and the the Kotlin enum "ExposureMode".
+   * The C++ JNI bridge between the C++ enum "ExposureMode" and the Kotlin enum "ExposureMode".
    */
   struct JExposureMode final: public jni::JavaClass<JExposureMode> {
   public:

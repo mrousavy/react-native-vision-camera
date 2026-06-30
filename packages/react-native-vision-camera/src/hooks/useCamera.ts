@@ -254,13 +254,17 @@ export function useCamera({
     }
   }, [orientation, outputs])
 
+  // TODO: Make `CameraSessionConnection.input` also accept
+  //       a `TargetCameraPosition` so we don't need to do `useCameraDevices()` here
+  //       so we don't need to always re-render, and we can actually use `getDefaultCamera(position)`
+  //       on the native side for better selection!
   // 3. Get the input - either find one via position, or use the user provided one
   const devices = useCameraDevices()
   const input = useMemo(() => {
     if (typeof device === 'string') {
       // The user passed a `CameraPosition` (e.g. "back") - try to find a device ourselves
       const position = device
-      const foundDevice = getCameraDevice(devices, position)
+      const foundDevice = devices.find((d) => d.position === position)
       if (foundDevice == null) {
         throw new Error(`This device does not have any "${position}" Cameras!`)
       }

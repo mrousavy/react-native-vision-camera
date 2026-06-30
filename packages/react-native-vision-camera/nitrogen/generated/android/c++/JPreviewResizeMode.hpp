@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "PreviewResizeMode" and the the Kotlin enum "PreviewResizeMode".
+   * The C++ JNI bridge between the C++ enum "PreviewResizeMode" and the Kotlin enum "PreviewResizeMode".
    */
   struct JPreviewResizeMode final: public jni::JavaClass<JPreviewResizeMode> {
   public:

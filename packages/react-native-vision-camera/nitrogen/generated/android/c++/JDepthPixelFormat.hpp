@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "DepthPixelFormat" and the the Kotlin enum "DepthPixelFormat".
+   * The C++ JNI bridge between the C++ enum "DepthPixelFormat" and the Kotlin enum "DepthPixelFormat".
    */
   struct JDepthPixelFormat final: public jni::JavaClass<JDepthPixelFormat> {
   public:

@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  TargetCameraPosition,
 } from 'react-native-vision-camera'
 import { VisionCamera } from 'react-native-vision-camera'
 
@@ -23,6 +24,28 @@ describe('VisionCamera - Devices', () => {
     const hasFront = factory.cameraDevices.some((d) => d.position === 'front')
     expect(hasBack).toBe(true)
     expect(hasFront).toBe(true)
+  })
+
+  it('returns the default camera for each available target position', () => {
+    const positions: TargetCameraPosition[] = ['back', 'front', 'external']
+
+    for (const position of positions) {
+      const defaultCamera = factory.getDefaultCamera(position)
+      const devicesAtPosition = factory.cameraDevices.filter(
+        (d) => d.position === position,
+      )
+
+      if (devicesAtPosition.length === 0) {
+        expect(defaultCamera).toBe(undefined)
+        continue
+      }
+
+      expect(defaultCamera).toBeDefined()
+      expect(defaultCamera?.position).toBe(position)
+      expect(devicesAtPosition.some((d) => d.id === defaultCamera?.id)).toBe(
+        true,
+      )
+    }
   })
 
   it('logs external cameras when present (optional)', (context) => {

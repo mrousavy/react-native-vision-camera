@@ -3,10 +3,12 @@ package com.margelo.nitro.camera
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalLensFacing
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -108,12 +110,17 @@ class HybridCameraDeviceFactory(
     }
   }
 
-  override fun getDefaultCamera(position: CameraPosition): HybridCameraDeviceSpec? {
+  @OptIn(ExperimentalLensFacing::class)
+  override fun getDefaultCamera(position: TargetCameraPosition): HybridCameraDeviceSpec? {
     val selector =
       when (position) {
-        CameraPosition.FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
-        CameraPosition.BACK -> CameraSelector.DEFAULT_BACK_CAMERA
-        else -> return null
+        TargetCameraPosition.FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
+        TargetCameraPosition.BACK -> CameraSelector.DEFAULT_BACK_CAMERA
+        TargetCameraPosition.EXTERNAL ->
+          CameraSelector
+            .Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+            .build()
       }
     try {
       val defaultCamera = cameraProvider.getCameraInfo(selector)

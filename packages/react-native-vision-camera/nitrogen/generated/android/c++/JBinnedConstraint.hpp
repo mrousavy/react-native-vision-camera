@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "BinnedConstraint" and the the Kotlin data class "BinnedConstraint".
+   * The C++ JNI bridge between the C++ struct "BinnedConstraint" and the Kotlin data class "BinnedConstraint".
    */
   struct JBinnedConstraint final: public jni::JavaClass<JBinnedConstraint> {
   public:

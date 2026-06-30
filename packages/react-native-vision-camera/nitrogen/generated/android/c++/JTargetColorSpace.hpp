@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "TargetColorSpace" and the the Kotlin enum "TargetColorSpace".
+   * The C++ JNI bridge between the C++ enum "TargetColorSpace" and the Kotlin enum "TargetColorSpace".
    */
   struct JTargetColorSpace final: public jni::JavaClass<JTargetColorSpace> {
   public:

@@ -60,7 +60,7 @@ abstract class HybridCameraDeviceFactorySpec: HybridObject() {
   
   @DoNotStrip
   @Keep
-  abstract fun getDefaultCamera(position: CameraPosition): HybridCameraDeviceSpec?
+  abstract fun getDefaultCamera(position: TargetCameraPosition): HybridCameraDeviceSpec?
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "FrameDroppedReason" and the the Kotlin enum "FrameDroppedReason".
+   * The C++ JNI bridge between the C++ enum "FrameDroppedReason" and the Kotlin enum "FrameDroppedReason".
    */
   struct JFrameDroppedReason final: public jni::JavaClass<JFrameDroppedReason> {
   public:

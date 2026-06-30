@@ -22,7 +22,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "CapturePhotoSettings" and the the Kotlin data class "CapturePhotoSettings".
+   * The C++ JNI bridge between the C++ struct "CapturePhotoSettings" and the Kotlin data class "CapturePhotoSettings".
    */
   struct JCapturePhotoSettings final: public jni::JavaClass<JCapturePhotoSettings> {
   public:

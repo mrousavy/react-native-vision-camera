@@ -18,8 +18,8 @@ namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `HybridCameraExtensionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraExtensionSpec; }
-// Forward declaration of `CameraPosition` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `TargetCameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetCameraPosition; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
@@ -30,7 +30,7 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 #include <string>
 #include "HybridCameraExtensionSpec.hpp"
 #include <NitroModules/Promise.hpp>
-#include "CameraPosition.hpp"
+#include "TargetCameraPosition.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
 
@@ -120,7 +120,7 @@ namespace margelo::nitro::camera {
       auto __value = std::move(__result.value());
       return __value;
     }
-    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(CameraPosition position) override {
+    inline std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(TargetCameraPosition position) override {
       auto __result = _swiftPart.getDefaultCamera(static_cast<int>(position));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
