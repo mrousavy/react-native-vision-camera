@@ -7,6 +7,10 @@ import type { CameraDevice } from './specs/inputs/CameraDevice.nitro'
 import type { CameraExtension } from './specs/inputs/CameraExtension.nitro'
 import { VisionCamera } from './VisionCamera'
 
+// TODO: Remove this whole file in favor of the hooks API, as well as the
+//       declarative `CameraSessionConnection.input` variant for `TargetCameraPosition`
+//       which is way better than getting all devices to JS, and then selecting one.
+
 // this caches our Camera Devices
 let cameraDevices: CameraDevice[] = []
 const listeners: ((newDevices: CameraDevice[]) => void)[] = []
@@ -18,7 +22,7 @@ function setCameraDevices(devices: CameraDevice[]): void {
 }
 
 // Prepares the factory once this file is imported.
-export const cameraDevicesFactoryPromise = VisionCamera.createDeviceFactory()
+const cameraDevicesFactoryPromise = VisionCamera.createDeviceFactory()
 
 // once the factory is created, start loading devices already in background
 cameraDevicesFactoryPromise
@@ -45,6 +49,7 @@ cameraDevicesFactoryPromise
  *
  * @see {@linkcode useCameraDevices}
  * @see {@linkcode getCameraDevice}
+ * @deprecated Use the hooks API, or call `VisionCamera.createDeviceFactory()` yourself.
  */
 export function getAllCameraDevices(): CameraDevice[] {
   return cameraDevices
@@ -57,6 +62,7 @@ export function getAllCameraDevices(): CameraDevice[] {
  * If no Camera is available on the given position, this returns `undefined`.
  *
  * @see {@linkcode getCameraDevice}
+ * @deprecated Use the hooks API, or call `VisionCamera.createDeviceFactory()` yourself.
  */
 export async function getDefaultCameraDevice(
   position: TargetCameraPosition,
@@ -73,6 +79,7 @@ export async function getDefaultCameraDevice(
  * {@linkcode ListenerSubscription.remove | remove()} when no longer needed.
  *
  * @see {@linkcode useCameraDevices}
+ * @deprecated Use the hooks API, or call `VisionCamera.createDeviceFactory()` yourself.
  */
 export function addOnCameraDevicesChangedListener(
   listener: (newDevices: CameraDevice[]) => void,
@@ -100,6 +107,7 @@ export function addOnCameraDevicesChangedListener(
  * @platform Android
  * @see {@linkcode useCameraDeviceExtensions}
  * @see {@linkcode CameraExtension}
+ * @deprecated Use the hooks API, or call `VisionCamera.createDeviceFactory()` yourself.
  */
 export async function getSupportedExtensions(
   device: CameraDevice,
