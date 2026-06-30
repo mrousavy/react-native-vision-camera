@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "PhotoHDRConstraint" and the the Kotlin data class "PhotoHDRConstraint".
+   * The C++ JNI bridge between the C++ struct "PhotoHDRConstraint" and the Kotlin data class "PhotoHDRConstraint".
    */
   struct JPhotoHDRConstraint final: public jni::JavaClass<JPhotoHDRConstraint> {
   public:

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "CameraExtensionType" and the the Kotlin enum "CameraExtensionType".
+   * The C++ JNI bridge between the C++ enum "CameraExtensionType" and the Kotlin enum "CameraExtensionType".
    */
   struct JCameraExtensionType final: public jni::JavaClass<JCameraExtensionType> {
   public:

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera::barcodescanner {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "TargetBarcodeFormat" and the the Kotlin enum "TargetBarcodeFormat".
+   * The C++ JNI bridge between the C++ enum "TargetBarcodeFormat" and the Kotlin enum "TargetBarcodeFormat".
    */
   struct JTargetBarcodeFormat final: public jni::JavaClass<JTargetBarcodeFormat> {
   public:
