@@ -3,11 +3,13 @@ import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
 import Image, { type StaticImageData } from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import amazonBusinessIcon from '../../public/img/production-apps/amazon-business.jpg'
 import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
 import bestBuyIcon from '../../public/img/production-apps/best-buy.jpg'
 import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
+import connecteamIcon from '../../public/img/production-apps/connecteam.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
@@ -27,12 +29,14 @@ import pumaIcon from '../../public/img/production-apps/puma.jpg'
 import remitlyIcon from '../../public/img/production-apps/remitly.jpg'
 import seekByInaturalistIcon from '../../public/img/production-apps/seek-by-inaturalist.jpg'
 import shadowlensIcon from '../../public/img/production-apps/shadowlens.jpg'
+import shiftsmartIcon from '../../public/img/production-apps/shiftsmart.jpg'
 import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
 import toyotaFinancialServicesIcon from '../../public/img/production-apps/toyota-financial-services.jpg'
 import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
+import vehoDriverIcon from '../../public/img/production-apps/veho-driver.jpg'
 import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
 import xboxIcon from '../../public/img/production-apps/xbox.jpg'
 
@@ -117,6 +121,11 @@ const productionApps: ProductionApp[] = [
     company: 'Klarna Bank',
     installMetrics: [
       {
+        label: '1M/mo App Store downloads est.',
+        value: 1_000_000,
+        kind: 'monthly-downloads',
+      },
+      {
         label: '50M+ Play Store installs',
         value: 50_000_000,
         kind: 'lifetime-installs',
@@ -132,6 +141,11 @@ const productionApps: ProductionApp[] = [
     name: 'OfferUp',
     company: 'OfferUp',
     installMetrics: [
+      {
+        label: '300K/mo App Store downloads est.',
+        value: 300_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '50M+ Play Store installs',
         value: 50_000_000,
@@ -189,6 +203,11 @@ const productionApps: ProductionApp[] = [
     company: 'Best Buy',
     installMetrics: [
       {
+        label: '400K/mo App Store downloads est.',
+        value: 400_000,
+        kind: 'monthly-downloads',
+      },
+      {
         label: '10M+ Play Store installs',
         value: 10_000_000,
         kind: 'lifetime-installs',
@@ -204,6 +223,11 @@ const productionApps: ProductionApp[] = [
     name: 'Remitly',
     company: 'Remitly',
     installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '10M+ Play Store installs',
         value: 10_000_000,
@@ -221,8 +245,8 @@ const productionApps: ProductionApp[] = [
     company: 'Consensys',
     installMetrics: [
       {
-        label: '200K/mo App Store downloads est.',
-        value: 200_000,
+        label: '100K/mo App Store downloads est.',
+        value: 100_000,
         kind: 'monthly-downloads',
       },
       {
@@ -241,6 +265,11 @@ const productionApps: ProductionApp[] = [
     company: 'Urban Company',
     installMetrics: [
       {
+        label: '300K/mo App Store downloads est.',
+        value: 300_000,
+        kind: 'monthly-downloads',
+      },
+      {
         label: '10M+ Play Store installs',
         value: 10_000_000,
         kind: 'lifetime-installs',
@@ -257,6 +286,11 @@ const productionApps: ProductionApp[] = [
     company: 'Sonic Industries',
     installMetrics: [
       {
+        label: '200K/mo App Store downloads est.',
+        value: 200_000,
+        kind: 'monthly-downloads',
+      },
+      {
         label: '10M+ Play Store installs',
         value: 10_000_000,
         kind: 'lifetime-installs',
@@ -272,6 +306,11 @@ const productionApps: ProductionApp[] = [
     name: 'Locket Widget',
     company: 'Locket Labs',
     installMetrics: [
+      {
+        label: '800K/mo App Store downloads est.',
+        value: 800_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '10M+ Play Store installs',
         value: 10_000_000,
@@ -308,6 +347,11 @@ const productionApps: ProductionApp[] = [
     name: 'PUMA',
     company: 'PUMA',
     installMetrics: [
+      {
+        label: '100K/mo App Store downloads est.',
+        value: 100_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '5M+ Play Store installs',
         value: 5_000_000,
@@ -406,6 +450,22 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.tmcc.click2pay.mytfs',
   },
   {
+    name: 'Amazon Business',
+    company: 'Amazon',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: amazonBusinessIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/amazon-business-b2b-shopping/id1498197033',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.business.shopping',
+  },
+  {
     name: 'MyWalmart',
     company: 'Walmart',
     installMetrics: [
@@ -419,6 +479,22 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/mywalmart/id1459898418',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.walmart.squiggly',
+  },
+  {
+    name: 'Connecteam',
+    company: 'Connecteam',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: connecteamIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/connecteam-team-management-app/id1121613912',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.connecteamco.Connecteam.app',
   },
   {
     name: 'Instawork',
@@ -435,6 +511,22 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/instawork-work-when-you-want/id1123819773',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.instaworkmobile',
+  },
+  {
+    name: 'Shiftsmart',
+    company: 'Shiftsmart',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: shiftsmartIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/shiftsmart-find-work/id1235930724',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.shiftsmart.workerapp',
   },
   {
     name: 'Lingvano',
@@ -541,6 +633,21 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/snapcalorie-ai-calorie-counter/id1574239307',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.snapcalorie.alpha002',
+  },
+  {
+    name: 'Veho Driver',
+    company: 'Veho',
+    installMetrics: [
+      {
+        label: '500K+ Play Store installs',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: vehoDriverIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/veho-driver/id1457078986',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.vehotechnologies.Driver',
   },
   {
     name: 'Popl',
