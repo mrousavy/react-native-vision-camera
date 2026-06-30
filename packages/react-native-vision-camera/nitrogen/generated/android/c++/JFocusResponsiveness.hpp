@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "FocusResponsiveness" and the the Kotlin enum "FocusResponsiveness".
+   * The C++ JNI bridge between the C++ enum "FocusResponsiveness" and the Kotlin enum "FocusResponsiveness".
    */
   struct JFocusResponsiveness final: public jni::JavaClass<JFocusResponsiveness> {
   public:

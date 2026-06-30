@@ -18,7 +18,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "DepthFrameOutputOptions" and the the Kotlin data class "DepthFrameOutputOptions".
+   * The C++ JNI bridge between the C++ struct "DepthFrameOutputOptions" and the Kotlin data class "DepthFrameOutputOptions".
    */
   struct JDepthFrameOutputOptions final: public jni::JavaClass<JDepthFrameOutputOptions> {
   public:

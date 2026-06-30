@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "WhiteBalanceTemperatureAndTint" and the the Kotlin data class "WhiteBalanceTemperatureAndTint".
+   * The C++ JNI bridge between the C++ struct "WhiteBalanceTemperatureAndTint" and the Kotlin data class "WhiteBalanceTemperatureAndTint".
    */
   struct JWhiteBalanceTemperatureAndTint final: public jni::JavaClass<JWhiteBalanceTemperatureAndTint> {
   public:

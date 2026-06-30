@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "TargetVideoPixelFormat" and the the Kotlin enum "TargetVideoPixelFormat".
+   * The C++ JNI bridge between the C++ enum "TargetVideoPixelFormat" and the Kotlin enum "TargetVideoPixelFormat".
    */
   struct JTargetVideoPixelFormat final: public jni::JavaClass<JTargetVideoPixelFormat> {
   public:

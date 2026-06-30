@@ -28,7 +28,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "FocusOptions" and the the Kotlin data class "FocusOptions".
+   * The C++ JNI bridge between the C++ struct "FocusOptions" and the Kotlin data class "FocusOptions".
    */
   struct JFocusOptions final: public jni::JavaClass<JFocusOptions> {
   public:
