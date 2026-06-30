@@ -64,9 +64,12 @@ final class HybridCameraSession: HybridCameraSessionSpec {
           "Successfully applied CameraSession configuration for \(connections.count) connection(s)!"
         )
       }
+  
+      // Resolve Connections upfront to AVCaptureDevice, AVOutput, etc etc
+      let resolvedConnections = try connections.map { try ResolvedCameraSessionConnection(from: $0) }
 
       // Remove all unwanted inputs and add all new inputs
-      try self.updateInputs(connections)
+      try self.updateInputs(resolvedConnections)
       // Remove all unwanted outputs and add all new outputs
       try self.updateOutputs(connections)
       // Remove all unwanted connections and add all new connections
@@ -225,19 +228,26 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * Adds all inputs on the given [targetConnections] if they haven't been added yet,
    * and removes all current inputs that aren't listed in the [connections] array.
    */
-  private func updateInputs(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
+    let requiresAudioInput = targetConnections.contains { connection in
+      return connection.outputs.contains { $0.requiresAudioInput }
+    }
+    
     // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
     for currentlyAttachedInput in self.session.inputs {
       if currentlyAttachedInput.isMicrophone {
         // It's a microphone/audio input - let's check if we want audio in any connection.
-        if !targetConnections.containsOutputThatRequiresAudioInput {
+        if !requiresAudioInput {
           // 1.1.a. We don't want any audio input - remove it!
           logger.info("Removing audio input \(currentlyAttachedInput)...")
           self.session.removeInput(currentlyAttachedInput)
         }
       } else {
         // It's a normal camera device - let's check if we want it in connections.
-        if !targetConnections.contains(input: currentlyAttachedInput) {
+        let containsCurrentlyAttachedInput = targetConnections.contains { connection in
+          return connection.isConnectedTo(input: currentlyAttachedInput)
+        }
+        if !containsCurrentlyAttachedInput {
           // 1.1.b. We don't want this input - remove it!
           logger.info("Removing input \(currentlyAttachedInput)...")
           self.session.removeInput(currentlyAttachedInput)
@@ -246,21 +256,28 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
     // 2. Loop through all connection inputs - if it's not yet attached to the session, add it
     for connection in targetConnections {
-      let containsInput = try self.session.containsInput(connection.input)
+      let device = connection.input.device
+      let containsInput = self.session.inputs.contains { input in
+        guard let deviceInput = input as? AVCaptureDeviceInput else {
+          return false
+        }
+        return deviceInput.device == device
+      }
       if !containsInput {
         // 2.1. It doesn't exist yet - add it to the session..
-        let input = try self.session.addInputWithNoConnections(connection.input)
+        let deviceInput = try AVCaptureDeviceInput(device: device)
+        self.session.addInputWithNoConnections(deviceInput)
         // 2.2. Configure the input with initial settings
         if connection.initialZoom != nil || connection.initialExposureBias != nil {
           try applyInitialConfig(
-            device: input.device,
+            device: device,
             initialZoom: connection.initialZoom,
             initialExposureBias: connection.initialExposureBias)
         }
       }
     }
     // 3. If we need an audio input, add it now
-    if targetConnections.containsOutputThatRequiresAudioInput {
+    if requiresAudioInput {
       let containsAudioInput = self.session.inputs.contains { $0.isMicrophone }
       if !containsAudioInput {
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
