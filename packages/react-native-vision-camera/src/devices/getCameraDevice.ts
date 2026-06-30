@@ -1,4 +1,4 @@
-import type { CameraPosition } from '../specs/common-types/CameraPosition'
+import type { TargetCameraPosition } from '../specs/common-types/CameraPosition'
 import type { DeviceType } from '../specs/common-types/DeviceType'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import type { CameraDeviceFactory } from '../specs/inputs/CameraDeviceFactory.nitro'
@@ -57,7 +57,7 @@ export interface DeviceFilter {
  */
 export function getCameraDevice(
   deviceFactory: CameraDeviceFactory,
-  position: CameraPosition,
+  position: TargetCameraPosition,
   filter: DeviceFilter = {},
 ): CameraDevice | undefined {
   if (Object.values(filter).length === 0) {

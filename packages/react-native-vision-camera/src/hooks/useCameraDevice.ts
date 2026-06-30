@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
 import type { DeviceFilter } from '../devices/getCameraDevice'
 import { getCameraDevice } from '../devices/getCameraDevice'
-import type { CameraPosition } from '../specs/common-types/CameraPosition'
+import type { TargetCameraPosition } from '../specs/common-types/CameraPosition'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import { useCameraDeviceFactory } from './internal/useCameraDeviceFactory'
 
@@ -22,7 +22,7 @@ import { useCameraDeviceFactory } from './internal/useCameraDeviceFactory'
  * ```
  */
 export function useCameraDevice(
-  position: CameraPosition,
+  position: TargetCameraPosition,
   filter?: DeviceFilter,
 ): CameraDevice | undefined {
   const deviceFactory = useCameraDeviceFactory()
