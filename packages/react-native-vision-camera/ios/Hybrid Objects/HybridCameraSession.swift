@@ -320,7 +320,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     
     // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
     for currentConnection in self.session.connections {
-      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
+      let containsConnection = targetConnections.contains { $0.equals(connection: currentConnection) }
       if !containsConnection {
         // 1.1. We don't want this connection - remove it!
         logger.info("Removing connection \(currentConnection)...")

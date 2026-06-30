@@ -38,7 +38,7 @@ struct ResolvedCameraSessionConnection {
     }
   }
   
-  func contains(connection: AVCaptureConnection) -> Bool {
+  func equals(connection: AVCaptureConnection) -> Bool {
     guard let deviceInput = connection.deviceInput else {
       // This connection does not have an AVCaptureDeviceInput!
       return false

@@ -11,7 +11,7 @@ import NitroModules
 extension AVCaptureSession {
   func contains(connection: ResolvedCameraSessionConnection) -> Bool {
     return self.connections.contains { c in
-      return connection.contains(connection: c)
+      return connection.equals(connection: c)
     }
   }
 }
