@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "DepthDataQuality" and the the Kotlin enum "DepthDataQuality".
+   * The C++ JNI bridge between the C++ enum "DepthDataQuality" and the Kotlin enum "DepthDataQuality".
    */
   struct JDepthDataQuality final: public jni::JavaClass<JDepthDataQuality> {
   public:

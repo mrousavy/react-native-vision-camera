@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "DynamicRangeBitDepth" and the the Kotlin enum "DynamicRangeBitDepth".
+   * The C++ JNI bridge between the C++ enum "DynamicRangeBitDepth" and the Kotlin enum "DynamicRangeBitDepth".
    */
   struct JDynamicRangeBitDepth final: public jni::JavaClass<JDynamicRangeBitDepth> {
   public:

@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "CameraControllerConfiguration" and the the Kotlin data class "CameraControllerConfiguration".
+   * The C++ JNI bridge between the C++ struct "CameraControllerConfiguration" and the Kotlin data class "CameraControllerConfiguration".
    */
   struct JCameraControllerConfiguration final: public jni::JavaClass<JCameraControllerConfiguration> {
   public:

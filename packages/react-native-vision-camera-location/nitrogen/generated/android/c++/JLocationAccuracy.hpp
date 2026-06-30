@@ -15,7 +15,7 @@ namespace margelo::nitro::camera::location {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "LocationAccuracy" and the the Kotlin enum "LocationAccuracy".
+   * The C++ JNI bridge between the C++ enum "LocationAccuracy" and the Kotlin enum "LocationAccuracy".
    */
   struct JLocationAccuracy final: public jni::JavaClass<JLocationAccuracy> {
   public:

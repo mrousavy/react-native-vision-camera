@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "ColorRange" and the the Kotlin enum "ColorRange".
+   * The C++ JNI bridge between the C++ enum "ColorRange" and the Kotlin enum "ColorRange".
    */
   struct JColorRange final: public jni::JavaClass<JColorRange> {
   public:

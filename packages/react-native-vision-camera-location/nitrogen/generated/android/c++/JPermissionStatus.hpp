@@ -15,7 +15,7 @@ namespace margelo::nitro::camera::location {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "PermissionStatus" and the the Kotlin enum "PermissionStatus".
+   * The C++ JNI bridge between the C++ enum "PermissionStatus" and the Kotlin enum "PermissionStatus".
    */
   struct JPermissionStatus final: public jni::JavaClass<JPermissionStatus> {
   public:

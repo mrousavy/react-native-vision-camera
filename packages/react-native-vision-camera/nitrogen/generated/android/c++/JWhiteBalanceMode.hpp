@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "WhiteBalanceMode" and the the Kotlin enum "WhiteBalanceMode".
+   * The C++ JNI bridge between the C++ enum "WhiteBalanceMode" and the Kotlin enum "WhiteBalanceMode".
    */
   struct JWhiteBalanceMode final: public jni::JavaClass<JWhiteBalanceMode> {
   public:

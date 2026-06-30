@@ -1,4 +1,7 @@
-import type { CameraPosition } from './specs/common-types/CameraPosition'
+import type {
+  CameraPosition,
+  TargetCameraPosition,
+} from './specs/common-types/CameraPosition'
 import type { ListenerSubscription } from './specs/common-types/ListenerSubscription'
 import type { CameraDevice } from './specs/inputs/CameraDevice.nitro'
 import type { CameraExtension } from './specs/inputs/CameraExtension.nitro'
@@ -56,7 +59,7 @@ export function getAllCameraDevices(): CameraDevice[] {
  * @see {@linkcode getCameraDevice}
  */
 export async function getDefaultCameraDevice(
-  position: CameraPosition,
+  position: TargetCameraPosition,
 ): Promise<CameraDevice | undefined> {
   const factory = await cameraDevicesFactoryPromise
   return factory.getDefaultCamera(position)

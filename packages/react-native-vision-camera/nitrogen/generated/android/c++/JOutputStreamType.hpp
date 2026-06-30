@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "OutputStreamType" and the the Kotlin enum "OutputStreamType".
+   * The C++ JNI bridge between the C++ enum "OutputStreamType" and the Kotlin enum "OutputStreamType".
    */
   struct JOutputStreamType final: public jni::JavaClass<JOutputStreamType> {
   public:
