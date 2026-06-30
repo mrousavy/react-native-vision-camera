@@ -65,15 +65,15 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         )
       }
   
-      // Resolve Connections upfront to AVCaptureDevice, AVOutput, etc etc
-      let resolvedConnections = try connections.map { try ResolvedCameraSessionConnection(from: $0) }
+      // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
+      let resolvedConnections = try connections.flatMap { try ResolvedCameraSessionConnection.connections(for: $0) }
 
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(resolvedConnections)
       // Remove all unwanted outputs and add all new outputs
       try self.updateOutputs(resolvedConnections)
       // Remove all unwanted connections and add all new connections
-      try self.updateConnections(connections)
+      try self.updateConnections(resolvedConnections)
 
       // Configure all individual inputs/outputs/connections (e.g. orientation/mirrorMode)
       for connection in connections {
@@ -229,9 +229,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * and removes all current inputs that aren't listed in the [connections] array.
    */
   private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
-    let requiresAudioInput = targetConnections.contains { connection in
-      return connection.outputs.contains { $0.requiresAudioInput }
-    }
+    let requiresAudioInput = targetConnections.contains { $0.output.requiresAudioInput }
     
     // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
     for currentlyAttachedInput in self.session.inputs {
@@ -306,13 +304,10 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
     // 2. Loop through all connections
     for connection in targetConnections {
-      // 3. Loop through all outputs
-      for output in connection.outputs {
-        let containsOutput = self.session.containsOutput(output)
-        if !containsOutput {
-          // 3.1. It doesn't exist yet - add it to the session..
-          try session.addOutputWithNoConnections(output)
-        }
+      let containsOutput = self.session.containsOutput(connection.output)
+      if !containsOutput {
+        // 3.1. It doesn't exist yet - add it to the session..
+        try session.addOutputWithNoConnections(connection.output)
       }
     }
   }
@@ -335,24 +330,20 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
     // 2. Add all new connections that we don't have yet:
     for connection in targetConnections {
-      for outputConfiguration in connection.outputs {
-        // 2.1. Add the camera -> output connection
-        let containsConnection = try self.session.containsConnection(
+      // 2.1. Add the camera -> output connection
+      let containsConnection = self.session.contains(connection: connection)
+      if !containsConnection {
+        try self.session.addConnection(
           input: connection.input,
-          output: outputConfiguration.output)
-        if !containsConnection {
-          try self.session.addConnection(
-            input: connection.input,
-            output: outputConfiguration.output)
-        }
+          output: connection.output)
+      }
 
-        // 2.2. If this `output` requires audio, add this connection too
-        if let output = outputConfiguration.output as? any NativeCameraOutput {
-          if output.requiresAudioInput {
-            let hasAudioConnection = self.session.containsAudioConnection(to: output.output)
-            if !hasAudioConnection {
-              try self.session.addAudioConnection(to: output.output)
-            }
+      // 2.2. If this `output` requires audio, add this connection too
+      if case .output(let output) = connection.output.native {
+        if output.requiresAudioInput {
+          let hasAudioConnection = self.session.containsAudioConnection(to: output.output)
+          if !hasAudioConnection {
+            try self.session.addAudioConnection(to: output.output)
           }
         }
       }

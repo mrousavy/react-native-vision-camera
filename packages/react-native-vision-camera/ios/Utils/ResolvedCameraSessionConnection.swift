@@ -10,11 +10,9 @@ import NitroModules
 
 struct ResolvedCameraSessionConnection {
   let input: Input
-  let outputs: [Output]
-  let constraints: [Constraint]
-  let initialZoom: Double?
+  let output: Output
   let initialExposureBias: Double?
-  let onSessionConfigSelected: ((_ config: any HybridCameraSessionConfigSpec) -> Void)?
+  let initialZoom: Double?
   
   func isConnectedTo(input: AVCaptureInput) -> Bool {
     guard let input = input as? AVCaptureDeviceInput else {
@@ -24,23 +22,19 @@ struct ResolvedCameraSessionConnection {
   }
   
   func isConnectedTo(output: AVCaptureOutput) -> Bool {
-    return self.outputs.contains {
-      switch $0.native {
-      case .output(let nativeOutput):
-        return nativeOutput.output == output
-      case .preview:
-        return false
-      }
+    switch self.output.native {
+    case .output(let nativeOutput):
+      return nativeOutput.output == output
+    case .preview:
+      return false
     }
   }
   func isConnectedTo(preview: AVCaptureVideoPreviewLayer) -> Bool {
-    return self.outputs.contains {
-      switch $0.native {
-      case .output(let nativeOutput):
-        return false
-      case .preview(let previewLayer):
-        return previewLayer.previewLayer == preview
-      }
+    switch self.output.native {
+    case .output:
+      return false
+    case .preview(let previewLayer):
+      return previewLayer.previewLayer == preview
     }
   }
   
@@ -109,7 +103,7 @@ struct ResolvedCameraSessionConnection {
       case output(any NativeCameraOutput)
     }
     
-    init(from outputConfiguration: CameraOutputConfiguration) throws {
+    init(from outputConfiguration: CameraOutputConfiguration) throws(RuntimeError) {
       self.hybrid = outputConfiguration.output
       self.mirrorMode = outputConfiguration.mirrorMode
       
@@ -124,12 +118,12 @@ struct ResolvedCameraSessionConnection {
     }
   }
   
-  init(from connection: CameraSessionConnection) throws {
-    self.input = try Input(from: connection.input)
-    self.outputs = try connection.outputs.map { try Output(from: $0) }
-    self.constraints = connection.constraints
-    self.initialZoom = connection.initialZoom
-    self.initialExposureBias = connection.initialExposureBias
-    self.onSessionConfigSelected = connection.onSessionConfigSelected
+  static func connections(for connection: CameraSessionConnection) throws -> [ResolvedCameraSessionConnection] {
+    return try connection.outputs.map { outputConfiguration in
+      return ResolvedCameraSessionConnection(input: try Input(from: connection.input),
+                                             output: try Output(from: outputConfiguration),
+                                             initialExposureBias: connection.initialExposureBias,
+                                             initialZoom: connection.initialZoom)
+    }
   }
 }
