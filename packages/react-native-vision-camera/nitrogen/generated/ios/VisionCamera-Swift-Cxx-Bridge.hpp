@@ -156,6 +156,8 @@ namespace margelo::nitro::camera { enum class ScannedObjectType; }
 namespace margelo::nitro::camera { enum class SceneAdaptiveness; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `TargetCameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetCameraPosition; }
 // Forward declaration of `TargetColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetColorRange; }
 // Forward declaration of `TargetColorSpace` to properly resolve imports.
@@ -324,6 +326,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "ScannedObjectType.hpp"
 #include "SceneAdaptiveness.hpp"
 #include "Size.hpp"
+#include "TargetCameraPosition.hpp"
 #include "TargetColorRange.hpp"
 #include "TargetColorSpace.hpp"
 #include "TargetDynamicRange.hpp"
@@ -2647,6 +2650,35 @@ namespace margelo::nitro::camera::bridge::swift {
   Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec__ create_Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec__(void* NON_NULL swiftClosureWrapper) noexcept;
   inline Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec___Wrapper wrap_Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec__(Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec__ value) noexcept {
     return Func_void_std__vector_std__shared_ptr_HybridCameraControllerSpec___Wrapper(std::move(value));
+  }
+  
+  // pragma MARK: std::variant<std::shared_ptr<HybridCameraDeviceSpec>, TargetCameraPosition>
+  /**
+   * Wrapper struct for `std::variant<std::shared_ptr<HybridCameraDeviceSpec>, TargetCameraPosition>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
+   */
+  struct std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_ final {
+    std::variant<std::shared_ptr<HybridCameraDeviceSpec>, TargetCameraPosition> variant;
+    std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(std::variant<std::shared_ptr<HybridCameraDeviceSpec>, TargetCameraPosition> variant): variant(variant) { }
+    operator std::variant<std::shared_ptr<HybridCameraDeviceSpec>, TargetCameraPosition>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline std::shared_ptr<HybridCameraDeviceSpec> get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline TargetCameraPosition get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_ create_std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(const std::shared_ptr<HybridCameraDeviceSpec>& value) noexcept {
+    return std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(value);
+  }
+  inline std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_ create_std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(TargetCameraPosition value) noexcept {
+    return std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(value);
   }
   
   // pragma MARK: std::optional<std::function<void(const std::shared_ptr<HybridCameraSessionConfigSpec>& /* config */)>>

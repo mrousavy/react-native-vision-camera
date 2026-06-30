@@ -18,11 +18,18 @@ public extension CameraSessionConnection {
   /**
    * Create a new instance of `CameraSessionConnection`.
    */
-  init(input: (any HybridCameraDeviceSpec), outputs: [CameraOutputConfiguration], constraints: [Constraint], initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: ((_ config: (any HybridCameraSessionConfigSpec)) -> Void)?) {
-    self.init({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
-      let __cxxWrapped = input.getCxxWrapper()
-      return __cxxWrapped.getCxxPart()
-    }(), { () -> bridge.std__vector_CameraOutputConfiguration_ in
+  init(input: CameraDeviceOrPosition, outputs: [CameraOutputConfiguration], constraints: [Constraint], initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: ((_ config: (any HybridCameraSessionConfigSpec)) -> Void)?) {
+    self.init({ () -> bridge.std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_ in
+      switch input {
+        case .first(let __value):
+          return bridge.create_std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
+            let __cxxWrapped = __value.getCxxWrapper()
+            return __cxxWrapped.getCxxPart()
+          }())
+        case .second(let __value):
+          return bridge.create_std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(__value)
+      }
+    }().variant, { () -> bridge.std__vector_CameraOutputConfiguration_ in
       var __vector = bridge.create_std__vector_CameraOutputConfiguration_(outputs.count)
       for __item in outputs {
         __vector.push_back(__item)
@@ -78,11 +85,23 @@ public extension CameraSessionConnection {
   }
 
   @inline(__always)
-  var input: (any HybridCameraDeviceSpec) {
-    return { () -> any HybridCameraDeviceSpec in
-      let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(self.__input)
-      let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
-      return __instance.getHybridCameraDeviceSpec()
+  var input: CameraDeviceOrPosition {
+    return { () -> CameraDeviceOrPosition in
+      let __variant = bridge.std__variant_std__shared_ptr_HybridCameraDeviceSpec___TargetCameraPosition_(self.__input)
+      switch __variant.index() {
+        case 0:
+          let __actual = __variant.get_0()
+          return .first({ () -> any HybridCameraDeviceSpec in
+            let __unsafePointer = bridge.get_std__shared_ptr_HybridCameraDeviceSpec_(__actual)
+            let __instance = HybridCameraDeviceSpec_cxx.fromUnsafe(__unsafePointer)
+            return __instance.getHybridCameraDeviceSpec()
+          }())
+        case 1:
+          let __actual = __variant.get_1()
+          return .second(__actual)
+        default:
+          fatalError("Variant can never have index \(__variant.index())!")
+      }
     }()
   }
   

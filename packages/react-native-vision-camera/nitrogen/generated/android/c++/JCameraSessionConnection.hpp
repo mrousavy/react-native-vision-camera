@@ -17,6 +17,7 @@
 #include "HybridCameraOutputSpec.hpp"
 #include "HybridCameraSessionConfigSpec.hpp"
 #include "JBinnedConstraint.hpp"
+#include "JCameraDeviceOrPosition.hpp"
 #include "JCameraOutputConfiguration.hpp"
 #include "JConstraint.hpp"
 #include "JFPSConstraint.hpp"
@@ -30,6 +31,7 @@
 #include "JPixelFormatConstraint.hpp"
 #include "JPreviewStabilizationModeConstraint.hpp"
 #include "JResolutionBiasConstraint.hpp"
+#include "JTargetCameraPosition.hpp"
 #include "JTargetColorRange.hpp"
 #include "JTargetColorSpace.hpp"
 #include "JTargetDynamicRange.hpp"
@@ -43,6 +45,7 @@
 #include "PixelFormatConstraint.hpp"
 #include "PreviewStabilizationModeConstraint.hpp"
 #include "ResolutionBiasConstraint.hpp"
+#include "TargetCameraPosition.hpp"
 #include "TargetColorRange.hpp"
 #include "TargetColorSpace.hpp"
 #include "TargetDynamicRange.hpp"
@@ -76,8 +79,8 @@ namespace margelo::nitro::camera {
     [[nodiscard]]
     CameraSessionConnection toCpp() const {
       static const auto clazz = javaClassStatic();
-      static const auto fieldInput = clazz->getField<JHybridCameraDeviceSpec::JavaPart>("input");
-      jni::local_ref<JHybridCameraDeviceSpec::JavaPart> input = this->getFieldValue(fieldInput);
+      static const auto fieldInput = clazz->getField<JCameraDeviceOrPosition>("input");
+      jni::local_ref<JCameraDeviceOrPosition> input = this->getFieldValue(fieldInput);
       static const auto fieldOutputs = clazz->getField<jni::JArrayClass<JCameraOutputConfiguration>>("outputs");
       jni::local_ref<jni::JArrayClass<JCameraOutputConfiguration>> outputs = this->getFieldValue(fieldOutputs);
       static const auto fieldConstraints = clazz->getField<jni::JArrayClass<JConstraint>>("constraints");
@@ -89,7 +92,7 @@ namespace margelo::nitro::camera {
       static const auto fieldOnSessionConfigSelected = clazz->getField<JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_::javaobject>("onSessionConfigSelected");
       jni::local_ref<JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_::javaobject> onSessionConfigSelected = this->getFieldValue(fieldOnSessionConfigSelected);
       return CameraSessionConnection(
-        input->getJHybridCameraDeviceSpec(),
+        input->toCpp(),
         [&](auto&& __input) {
           size_t __size = __input->size();
           std::vector<CameraOutputConfiguration> __vector;
@@ -130,12 +133,12 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JCameraSessionConnection::javaobject> fromCpp(const CameraSessionConnection& value) {
-      using JSignature = JCameraSessionConnection(jni::alias_ref<JHybridCameraDeviceSpec::JavaPart>, jni::alias_ref<jni::JArrayClass<JCameraOutputConfiguration>>, jni::alias_ref<jni::JArrayClass<JConstraint>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_::javaobject>);
+      using JSignature = JCameraSessionConnection(jni::alias_ref<JCameraDeviceOrPosition>, jni::alias_ref<jni::JArrayClass<JCameraOutputConfiguration>>, jni::alias_ref<jni::JArrayClass<JConstraint>>, jni::alias_ref<jni::JDouble>, jni::alias_ref<jni::JDouble>, jni::alias_ref<JFunc_void_std__shared_ptr_HybridCameraSessionConfigSpec_::javaobject>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
-        std::dynamic_pointer_cast<JHybridCameraDeviceSpec>(value.input)->getJavaPart(),
+        JCameraDeviceOrPosition::fromCpp(value.input),
         [&](auto&& __input) {
           size_t __size = __input.size();
           jni::local_ref<jni::JArrayClass<JCameraOutputConfiguration>> __array = jni::JArrayClass<JCameraOutputConfiguration>::newArray(__size);

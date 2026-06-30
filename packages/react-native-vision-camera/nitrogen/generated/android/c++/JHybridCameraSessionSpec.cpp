@@ -15,6 +15,8 @@ namespace margelo::nitro::camera { struct ListenerSubscription; }
 namespace margelo::nitro::camera { struct CameraSessionConnection; }
 // Forward declaration of `HybridCameraDeviceSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
+// Forward declaration of `TargetCameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetCameraPosition; }
 // Forward declaration of `CameraOutputConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
 // Forward declaration of `MirrorMode` to properly resolve imports.
@@ -71,7 +73,11 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "CameraSessionConnection.hpp"
 #include "JCameraSessionConnection.hpp"
 #include "HybridCameraDeviceSpec.hpp"
+#include "TargetCameraPosition.hpp"
+#include <variant>
+#include "JCameraDeviceOrPosition.hpp"
 #include "JHybridCameraDeviceSpec.hpp"
+#include "JTargetCameraPosition.hpp"
 #include "CameraOutputConfiguration.hpp"
 #include "JCameraOutputConfiguration.hpp"
 #include "MirrorMode.hpp"
@@ -86,7 +92,6 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "PhotoHDRConstraint.hpp"
 #include "PixelFormatConstraint.hpp"
 #include "BinnedConstraint.hpp"
-#include <variant>
 #include "JConstraint.hpp"
 #include "JFPSConstraint.hpp"
 #include "JVideoStabilizationModeConstraint.hpp"
