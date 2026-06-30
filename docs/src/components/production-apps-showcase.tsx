@@ -3,24 +3,40 @@ import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
 import Image, { type StaticImageData } from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import amazonBusinessIcon from '../../public/img/production-apps/amazon-business.jpg'
+import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
+import bestBuyIcon from '../../public/img/production-apps/best-buy.jpg'
+import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
+import connecteamIcon from '../../public/img/production-apps/connecteam.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
+import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
+import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
+import mywalmartIcon from '../../public/img/production-apps/mywalmart.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
+import offerupIcon from '../../public/img/production-apps/offerup.jpg'
+import onePayIcon from '../../public/img/production-apps/onepay.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
+import poplIcon from '../../public/img/production-apps/popl.jpg'
 import pumaIcon from '../../public/img/production-apps/puma.jpg'
+import remitlyIcon from '../../public/img/production-apps/remitly.jpg'
+import seekByInaturalistIcon from '../../public/img/production-apps/seek-by-inaturalist.jpg'
 import shadowlensIcon from '../../public/img/production-apps/shadowlens.jpg'
+import shiftsmartIcon from '../../public/img/production-apps/shiftsmart.jpg'
 import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import toyotaFinancialServicesIcon from '../../public/img/production-apps/toyota-financial-services.jpg'
 import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
+import vehoDriverIcon from '../../public/img/production-apps/veho-driver.jpg'
 import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
 import xboxIcon from '../../public/img/production-apps/xbox.jpg'
 
@@ -35,11 +51,51 @@ type ProductionApp = {
   company: string
   installMetrics: InstallMetric[]
   iconSrc: StaticImageData
-  appStoreUrl: string
+  appStoreUrl?: string
   playStoreUrl?: string
 }
 
 const productionApps: ProductionApp[] = [
+  {
+    name: 'Amazon Shopping',
+    company: 'Amazon',
+    installMetrics: [
+      {
+        label: '2M/mo App Store downloads est.',
+        value: 2_000_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1B+ Play Store downloads',
+        value: 1_000_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: amazonShoppingIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/amazon-shopping/id297606951',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.shopping',
+  },
+  {
+    name: 'PlayStation App',
+    company: 'PlayStation Mobile',
+    installMetrics: [
+      {
+        label: '800K/mo App Store downloads est.',
+        value: 800_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '100M+ Play Store installs',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: playstationAppIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/playstation-app/id410896080',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.scee.psxandroid',
+  },
   {
     name: 'Xbox',
     company: 'Microsoft',
@@ -61,8 +117,49 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass',
   },
   {
-    name: 'PlayStation App',
-    company: 'PlayStation Mobile',
+    name: 'Klarna',
+    company: 'Klarna Bank',
+    installMetrics: [
+      {
+        label: '1M/mo App Store downloads est.',
+        value: 1_000_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '50M+ Play Store installs',
+        value: 50_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: klarnaIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.myklarnamobile',
+  },
+  {
+    name: 'OfferUp',
+    company: 'OfferUp',
+    installMetrics: [
+      {
+        label: '300K/mo App Store downloads est.',
+        value: 300_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '50M+ Play Store installs',
+        value: 50_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: offerupIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/offerup-buy-sell-marketplace/id468996152',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.offerup',
+  },
+  {
+    name: 'Locket Widget',
+    company: 'Locket Labs',
     installMetrics: [
       {
         label: '800K/mo App Store downloads est.',
@@ -70,15 +167,56 @@ const productionApps: ProductionApp[] = [
         kind: 'monthly-downloads',
       },
       {
-        label: '100M+ Play Store installs',
-        value: 100_000_000,
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: playstationAppIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/playstation-app/id410896080',
+    iconSrc: locketIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.scee.psxandroid',
+      'https://play.google.com/store/apps/details?id=com.locket.Locket',
+  },
+  {
+    name: 'Starlink',
+    company: 'SpaceX',
+    installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: starlinkIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.starlink.mobile',
+  },
+  {
+    name: 'Remitly',
+    company: 'Remitly',
+    installMetrics: [
+      {
+        label: '500K/mo App Store downloads est.',
+        value: 500_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: remitlyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/remitly-send-money-abroad/id674258465',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.remitly.androidapp',
   },
   {
     name: 'Shopify',
@@ -102,41 +240,35 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.shopify.mobile',
   },
   {
-    name: 'Klarna',
-    company: 'Klarna Bank',
+    name: 'Best Buy',
+    company: 'Best Buy',
     installMetrics: [
       {
-        label: '50M+ Play Store installs',
-        value: 50_000_000,
-        kind: 'lifetime-installs',
+        label: '400K/mo App Store downloads est.',
+        value: 400_000,
+        kind: 'monthly-downloads',
       },
-    ],
-    iconSrc: klarnaIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.myklarnamobile',
-  },
-  {
-    name: 'SONIC',
-    company: 'Sonic Industries',
-    installMetrics: [
       {
         label: '10M+ Play Store installs',
         value: 10_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: sonicDriveInIcon,
+    iconSrc: bestBuyIcon,
     appStoreUrl:
-      'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
+      'https://apps.apple.com/us/app/best-buy-tech-deals-savings/id314855255',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
+      'https://play.google.com/store/apps/details?id=com.bestbuy.android',
   },
   {
     name: 'Urban Company',
     company: 'Urban Company',
     installMetrics: [
+      {
+        label: '300K/mo App Store downloads est.',
+        value: 300_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '10M+ Play Store installs',
         value: 10_000_000,
@@ -150,19 +282,87 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap',
   },
   {
-    name: 'Locket Widget',
-    company: 'Locket Labs',
+    name: 'SONIC',
+    company: 'Sonic Industries',
     installMetrics: [
+      {
+        label: '200K/mo App Store downloads est.',
+        value: 200_000,
+        kind: 'monthly-downloads',
+      },
       {
         label: '10M+ Play Store installs',
         value: 10_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: locketIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/locket-widget/id1600525061',
+    iconSrc: sonicDriveInIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.locket.Locket',
+      'https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein',
+  },
+  {
+    name: 'MetaMask',
+    company: 'Consensys',
+    installMetrics: [
+      {
+        label: '100K/mo App Store downloads est.',
+        value: 100_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '10M+ Play Store installs',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: metamaskIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
+  },
+  {
+    name: 'OnePay',
+    company: 'One Finance',
+    installMetrics: [
+      {
+        label: '600K/mo App Store downloads est.',
+        value: 600_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: onePayIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/onepay-mobile-banking/id1494523953',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.onefinance.one',
+  },
+  {
+    name: 'PUMA',
+    company: 'PUMA',
+    installMetrics: [
+      {
+        label: '100K/mo App Store downloads est.',
+        value: 100_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '5M+ Play Store installs',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: pumaIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.puma.ecom.app',
   },
   {
     name: 'Picnic',
@@ -218,97 +418,20 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.buffalowildwings.blazinrewards',
   },
   {
-    name: 'PUMA',
-    company: 'PUMA',
+    name: 'BoldVoice',
+    company: 'Wellocution',
     installMetrics: [
       {
-        label: '5M+ Play Store installs',
+        label: '5M+ downloads claimed',
         value: 5_000_000,
         kind: 'lifetime-installs',
       },
     ],
-    iconSrc: pumaIcon,
+    iconSrc: boldvoiceIcon,
     appStoreUrl:
-      'https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677',
+      'https://apps.apple.com/us/app/boldvoice-accent-training/id1567841142',
     playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.puma.ecom.app',
-  },
-  {
-    name: 'Starlink',
-    company: 'SpaceX',
-    installMetrics: [
-      {
-        label: '500K/mo App Store downloads est.',
-        value: 500_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: starlinkIcon,
-    appStoreUrl: 'https://apps.apple.com/us/app/starlink/id1537177988',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.starlink.mobile',
-  },
-  {
-    name: 'Expensify',
-    company: 'Expensify',
-    installMetrics: [
-      {
-        label: '20K/mo App Store downloads est.',
-        value: 20_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '1M+ Play Store installs',
-        value: 1_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: expensifyIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
-  },
-  {
-    name: 'National Car Rental',
-    company: 'EAN Services',
-    installMetrics: [
-      {
-        label: '1M+ Play Store installs',
-        value: 1_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: nationalCarRentalIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/national-car-rental/id675304115',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.ehi.national.mobile',
-  },
-  {
-    name: 'MetaMask',
-    company: 'Consensys',
-    installMetrics: [
-      {
-        label: '200K/mo App Store downloads est.',
-        value: 200_000,
-        kind: 'monthly-downloads',
-      },
-      {
-        label: '10M+ Play Store installs',
-        value: 10_000_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: metamaskIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202',
-    playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
+      'https://play.google.com/store/apps/details?id=com.wellocution.androidapp',
   },
   {
     name: 'Ledger Live',
@@ -332,6 +455,170 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.ledger.live',
   },
   {
+    name: 'Expensify',
+    company: 'Expensify',
+    installMetrics: [
+      {
+        label: '20K/mo App Store downloads est.',
+        value: 20_000,
+        kind: 'monthly-downloads',
+      },
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: expensifyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/expensify-travel-expense/id471713959',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg',
+  },
+  {
+    name: 'Toyota Financial Services',
+    company: 'Toyota Motor Credit',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: toyotaFinancialServicesIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/toyota-financial-services/id472110881',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.tmcc.click2pay.mytfs',
+  },
+  {
+    name: 'Amazon Business',
+    company: 'Amazon',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: amazonBusinessIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/amazon-business-b2b-shopping/id1498197033',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.business.shopping',
+  },
+  {
+    name: 'MyWalmart',
+    company: 'Walmart',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mywalmartIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mywalmart/id1459898418',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.walmart.squiggly',
+  },
+  {
+    name: 'Connecteam',
+    company: 'Connecteam',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: connecteamIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/connecteam-team-management-app/id1121613912',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.connecteamco.Connecteam.app',
+  },
+  {
+    name: 'Instawork',
+    company: 'Instawork',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: instaworkIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/instawork-work-when-you-want/id1123819773',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.instaworkmobile',
+  },
+  {
+    name: 'Shiftsmart',
+    company: 'Shiftsmart',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: shiftsmartIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/shiftsmart-find-work/id1235930724',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.shiftsmart.workerapp',
+  },
+  {
+    name: 'Lingvano',
+    company: 'Lingvano',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: lingvanoIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/lingvano-learn-sign-language/id1547252782',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.lingvano.app',
+  },
+  {
+    name: 'Seek by iNaturalist',
+    company: 'iNaturalist',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: seekByInaturalistIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/seek-by-inaturalist/id1353224144',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=org.inaturalist.seek',
+  },
+  {
+    name: 'National Car Rental',
+    company: 'EAN Services',
+    installMetrics: [
+      {
+        label: '1M+ Play Store installs',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: nationalCarRentalIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/national-car-rental/id675304115',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.ehi.national.mobile',
+  },
+  {
     name: 'SnapCalorie',
     company: 'Perception Labs',
     installMetrics: [
@@ -348,6 +635,36 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.snapcalorie.alpha002',
   },
   {
+    name: 'Veho Driver',
+    company: 'Veho',
+    installMetrics: [
+      {
+        label: '500K+ Play Store installs',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: vehoDriverIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/veho-driver/id1457078986',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.vehotechnologies.Driver',
+  },
+  {
+    name: 'Popl',
+    company: 'Popl',
+    installMetrics: [
+      {
+        label: '500K+ Play Store installs',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: poplIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/popl-ai-lead-capture/id1503939262',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.nfc.popl',
+  },
+  {
     name: 'VSCO Capture',
     company: 'Visual Supply Company',
     installMetrics: [
@@ -360,21 +677,6 @@ const productionApps: ProductionApp[] = [
     iconSrc: vscoCaptureIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
-  },
-  {
-    name: 'ShadowLens',
-    company: 'Marc Rousavy',
-    installMetrics: [
-      {
-        label: '1K+ Play Store installs',
-        value: 1_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: shadowlensIcon,
-    appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
   },
   {
     name: 'Golf Daddy',
@@ -392,6 +694,21 @@ const productionApps: ProductionApp[] = [
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.benchmarkgolf.app',
   },
+  {
+    name: 'ShadowLens',
+    company: 'Marc Rousavy',
+    installMetrics: [
+      {
+        label: '1K+ Play Store installs',
+        value: 1_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: shadowlensIcon,
+    appStoreUrl: 'https://apps.apple.com/app/shadowlens/id6471849004',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens',
+  },
 ]
 
 function sumMetrics(kind: InstallMetric['kind']) {
@@ -407,6 +724,12 @@ function sumMetrics(kind: InstallMetric['kind']) {
 }
 
 function formatCompactNumber(value: number) {
+  if (value >= 1_000_000_000) {
+    return `${new Intl.NumberFormat('en', {
+      maximumFractionDigits: 1,
+    }).format(value / 1_000_000_000)}B`
+  }
+
   if (value >= 1_000_000) {
     return `${new Intl.NumberFormat('en', {
       maximumFractionDigits: 0,
@@ -431,7 +754,7 @@ const editDocUrl =
 
 const summaryStats = [
   {
-    label: 'Play Store installs',
+    label: 'Known installs/downloads',
     value: `${formatCompactNumber(knownInstallTotal)}+`,
     icon: Download,
   },
@@ -614,19 +937,23 @@ function AppCard({ app }: { app: ProductionApp }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 border-t border-fd-border pt-3">
-        <div className="grid gap-1.5">
-          {app.installMetrics.map((metric) => (
-            <span
-              key={metric.label}
-              className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-fd-muted-foreground"
-            >
-              <Download className="size-3.5 shrink-0" aria-hidden="true" />
-              <span className="truncate">{metric.label}</span>
-            </span>
-          ))}
-        </div>
+        {app.installMetrics.length > 0 ? (
+          <div className="grid gap-1.5">
+            {app.installMetrics.map((metric) => (
+              <span
+                key={metric.label}
+                className="inline-flex min-w-0 items-center gap-1.5 text-xs font-medium text-fd-muted-foreground"
+              >
+                <Download className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">{metric.label}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="mt-auto flex w-full flex-nowrap items-center gap-2">
-          <StoreLink href={app.appStoreUrl} label="App Store" />
+          {app.appStoreUrl ? (
+            <StoreLink href={app.appStoreUrl} label="App Store" />
+          ) : null}
           {app.playStoreUrl ? (
             <StoreLink href={app.playStoreUrl} label="Play Store" />
           ) : null}
