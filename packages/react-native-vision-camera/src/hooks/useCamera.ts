@@ -258,6 +258,7 @@ export function useCamera({
   //       a `TargetCameraPosition` so we don't need to do `useCameraDevices()` here
   //       so we don't need to always re-render, and we can actually use `getDefaultCamera(position)`
   //       on the native side for better selection!
+  // 3. Get the input - either find one via position, or use the user provided one
   const devices = useCameraDevices()
   const input = useMemo(() => {
     if (typeof device === 'string') {
