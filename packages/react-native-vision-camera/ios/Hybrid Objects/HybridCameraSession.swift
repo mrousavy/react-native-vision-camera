@@ -96,7 +96,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         }
       }
 
-      // Apply any changes to the session connections
+      // If we have any Dynamic Range Constraints, we disable automatic color space selection on the AVCaptureSession.
       let hasCustomDynamicRangeConstraint = connections.contains { connection in
         return connection.constraints.contains { constraint in
           // If the user specified a custom DynamicRange, we cannot automatically adjust the ColorSpace
