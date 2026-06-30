@@ -749,8 +749,6 @@ const knownInstallTotal = sumMetrics('lifetime-installs')
 const appStoreMonthlyDownloadTotal = sumMetrics('monthly-downloads')
 const npmPackageDownloadTotal = 33_880_333
 const heroIconApps = productionApps.slice(0, 8)
-const editDocUrl =
-  'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/src/components/production-apps-showcase.tsx'
 
 const summaryStats = [
   {
@@ -852,7 +850,7 @@ function AddYourAppCard() {
           Add your app to this list!
         </p>
         <a
-          href={editDocUrl}
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfKa0_wZV5-2vgTLu_QLF2JEtX0oa9FZsqME9W-GAlq-aqhsA/viewform?usp=publish-editor"
           className={cn(
             buttonVariants({ variant: 'outline', size: 'sm' }),
             'mt-auto w-full border-fd-border text-fd-foreground no-underline hover:border-fd-primary/45 hover:bg-transparent hover:text-fd-primary',
