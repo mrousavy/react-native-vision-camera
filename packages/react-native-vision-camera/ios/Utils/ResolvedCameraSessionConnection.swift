@@ -8,6 +8,18 @@
 import AVFoundation
 import NitroModules
 
+/**
+ * Represents a flattened and resolved `CameraSessionConnection`.
+ *
+ * A single `CameraSessionConnection` can have abstract state like
+ * `input: .back` instead of a concrete device, and also has multiple
+ * `outputs`.
+ * 
+ * A `ResolvedCameraSessionConnection` has resolved all abstract state
+ * like `input: .back` to `input: AVCaptureDevice<...>`, and only contains
+ * a single `output`, so it closely mirrors an `AVCaptureConnection` - with
+ * more information.
+ */
 struct ResolvedCameraSessionConnection {
   let input: Input
   let output: Output

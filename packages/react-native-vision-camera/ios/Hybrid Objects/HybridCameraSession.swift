@@ -113,7 +113,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
 
       // Return CameraControllers per connection to adjust camera settings (focus, etc)
-      return try connections.map { connection in
+      return try resolvedConnections.map { connection in
         return try HybridCameraController(device: connection.input, queue: Self.queue)
       }
     }
