@@ -73,27 +73,25 @@ final class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
     return HybridCameraDevice(device: device)
   }
 
-  func getDefaultCamera(position: CameraPosition) throws -> (any HybridCameraDeviceSpec)? {
-    if #available(iOS 17.0, *), position == .external {
-      // On iOS, Position "external" is for some reason reflected on the .deviceType, not on .position.
-      let device = AVCaptureDevice.default(
-        .external,
-        for: .video,
-        position: .unspecified)
-      guard let device else {
-        return nil
-      }
-      return HybridCameraDevice(device: device)
-    }
-
-    let device = AVCaptureDevice.default(
-      .builtInWideAngleCamera,
-      for: .video,
-      position: position.toAVCaptureDevicePosition())
-    guard let device else {
+  func getDefaultCamera(position: TargetCameraPosition) throws -> (any HybridCameraDeviceSpec)? {
+    guard let device = getDefaultAVCaptureDevice(at: position) else {
       return nil
     }
     return HybridCameraDevice(device: device)
+  }
+
+  private func getDefaultAVCaptureDevice(at position: TargetCameraPosition) -> AVCaptureDevice? {
+    switch position {
+    case .back:
+      // Get default wide-angle at .back
+      return AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+    case .front:
+      // Get default wide-angle at .front
+      return AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+    case .external:
+      // On iOS, Position "external" is for some reason reflected on the .deviceType, not on .position.
+      return AVCaptureDevice.default(.external, for: .video, position: .unspecified)
+    }
   }
 
   func getSupportedExtensions(camera: any HybridCameraDeviceSpec) throws -> Promise<

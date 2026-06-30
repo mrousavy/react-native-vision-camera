@@ -111,16 +111,16 @@ class HybridCameraDeviceFactory(
   }
 
   @OptIn(ExperimentalLensFacing::class)
-  override fun getDefaultCamera(position: CameraPosition): HybridCameraDeviceSpec? {
+  override fun getDefaultCamera(position: TargetCameraPosition): HybridCameraDeviceSpec? {
     val selector =
       when (position) {
-        CameraPosition.FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
-        CameraPosition.BACK -> CameraSelector.DEFAULT_BACK_CAMERA
-        CameraPosition.EXTERNAL ->
-          CameraSelector.Builder()
+        TargetCameraPosition.FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
+        TargetCameraPosition.BACK -> CameraSelector.DEFAULT_BACK_CAMERA
+        TargetCameraPosition.EXTERNAL ->
+          CameraSelector
+            .Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
             .build()
-        else -> return null
       }
     try {
       val defaultCamera = cameraProvider.getCameraInfo(selector)
