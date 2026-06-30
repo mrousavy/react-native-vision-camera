@@ -28,10 +28,10 @@ extension Array where Element == CameraSessionConnection {
     }
 
     return self.contains { connection in
-      guard let input = connection.input as? any NativeCameraDevice else {
+      guard let device = try? AVCaptureDevice.resolve(value: connection.input) else {
         return false
       }
-      return input.device == targetInput.device
+      return device == targetInput.device
     }
   }
 
@@ -62,7 +62,7 @@ extension Array where Element == CameraSessionConnection {
 
     // It's a connection to a camera device - compare `input` and `output`:
     return self.contains { connection in
-      guard let input = connection.input as? any NativeCameraDevice else {
+      guard let device = try? AVCaptureDevice.resolve(value: connection.input) else {
         return false
       }
 
@@ -71,7 +71,7 @@ extension Array where Element == CameraSessionConnection {
         guard let deviceInput = port.input as? AVCaptureDeviceInput else {
           return false
         }
-        return input.device == deviceInput.device
+        return device == deviceInput.device
       }
       if !containsInput {
         return false

@@ -14,7 +14,7 @@ import NitroModules
 //       `NativeCameraDevice` directly, and only unwrap once in the caller?
 
 extension AVCaptureSession {
-  func addConnection(input: any HybridCameraDeviceSpec, output: any HybridCameraOutputSpec) throws {
+  func addConnection(input: CameraDeviceOrPosition, output: any HybridCameraOutputSpec) throws {
     // 1. Get the `AVCaptureDeviceInput` for our `input`
     let deviceInput = try findDevice(for: input)
 

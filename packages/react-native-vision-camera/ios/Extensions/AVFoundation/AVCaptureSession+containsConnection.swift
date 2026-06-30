@@ -9,7 +9,7 @@ import Foundation
 import NitroModules
 
 extension AVCaptureSession {
-  func containsConnection(input: any HybridCameraDeviceSpec, output: any HybridCameraOutputSpec)
+  func containsConnection(input: CameraDeviceOrPosition, output: any HybridCameraOutputSpec)
     throws -> Bool
   {
     // 1. Get the `AVCaptureDeviceInput` for our given `input` - this throws if it isn't attached yet.
