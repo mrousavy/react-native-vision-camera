@@ -22,6 +22,58 @@ struct ResolvedCameraSessionConnection {
     }
     return self.input.device == input.device
   }
+  
+  func isConnectedTo(output: AVCaptureOutput) -> Bool {
+    return self.outputs.contains {
+      switch $0.native {
+      case .output(let nativeOutput):
+        return nativeOutput.output == output
+      case .preview:
+        return false
+      }
+    }
+  }
+  func isConnectedTo(preview: AVCaptureVideoPreviewLayer) -> Bool {
+    return self.outputs.contains {
+      switch $0.native {
+      case .output(let nativeOutput):
+        return false
+      case .preview(let previewLayer):
+        return previewLayer.previewLayer == preview
+      }
+    }
+  }
+  
+  func contains(connection: AVCaptureConnection) -> Bool {
+    guard let deviceInput = connection.deviceInput else {
+      // This connection does not have an AVCaptureDeviceInput!
+      return false
+    }
+    guard deviceInput.device == self.input.device else {
+      // Not the same input device!
+      return false
+    }
+    
+    if let output = connection.output {
+      // It's an AVCaptureConnection to an AVCaptureOutput
+      guard self.isConnectedTo(output: output) else {
+        // Not the same output!
+        return false
+      }
+    } else if let previewLayer = connection.videoPreviewLayer {
+      // It's an AVCaptureConnection to an AVCaptureVideoPreviewLayer
+      guard self.isConnectedTo(preview: previewLayer) else {
+        // Not the same output (preview)!
+        return false
+      }
+    } else {
+      // It's a connection without an output..?
+      fatalError("AVCaptureConnection doesn't have neither an AVCaptureOutput nor an AVCaptureVideoPreviewLayer!")
+    }
+    
+    // Everything matched!
+    return true
+  }
 
   struct Input {
     let hybrid: any HybridCameraDeviceSpec
@@ -32,7 +84,7 @@ struct ResolvedCameraSessionConnection {
       switch deviceOrPosition {
       case .first(let hybridCameraDeviceSpec):
         self.hybrid = hybridCameraDeviceSpec
-      case .second(let targetCameraPosition):
+      case .second:
         self.hybrid = HybridCameraDevice(device: device)
       }
     }
@@ -47,7 +99,7 @@ struct ResolvedCameraSessionConnection {
       switch native {
       case .output(let nativeCameraOutput):
         return nativeCameraOutput.requiresAudioInput
-      case .preview(let nativePreviewViewOutput):
+      case .preview:
         return false
       }
     }

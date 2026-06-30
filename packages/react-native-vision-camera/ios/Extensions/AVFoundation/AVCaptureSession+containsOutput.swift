@@ -9,6 +9,15 @@ import Foundation
 import NitroModules
 
 extension AVCaptureSession {
+  func containsOutput(_ output: ResolvedCameraSessionConnection.Output) -> Bool {
+    switch output.native {
+    case .output(let output):
+      return outputs.contains(output.output)
+    case .preview(let previewLayer):
+      return previewLayer.previewLayer.session == self
+    }
+  }
+  
   func containsOutput(_ outputSpec: any HybridCameraOutputSpec) throws -> Bool {
     switch outputSpec {
     case let hybridOutput as any NativeCameraOutput:

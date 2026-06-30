@@ -71,7 +71,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(resolvedConnections)
       // Remove all unwanted outputs and add all new outputs
-      try self.updateOutputs(connections)
+      try self.updateOutputs(resolvedConnections)
       // Remove all unwanted connections and add all new connections
       try self.updateConnections(connections)
 
@@ -292,10 +292,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * and removes all current outputs that aren't listed in the [targetConnections] array.
    * This includes special handling for `NativePreviewViewOutput`.
    */
-  private func updateOutputs(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateOutputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     // 1. Loop through all current CameraSession outputs - if it's not in our array, we remove it
     for currentlyAttachedOutput in self.session.outputs {
-      if !targetConnections.contains(output: currentlyAttachedOutput) {
+      let containsAttachedOutput = targetConnections.contains { connection in
+        return connection.isConnectedTo(output: currentlyAttachedOutput)
+      }
+      if !containsAttachedOutput {
         // 1.1. We don't want this output - remove it!
         logger.info("Removing output \(currentlyAttachedOutput)...")
         self.session.removeOutput(currentlyAttachedOutput)
@@ -304,9 +307,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     // 2. Loop through all connections
     for connection in targetConnections {
       // 3. Loop through all outputs
-      for outputConfiguration in connection.outputs {
-        let output = outputConfiguration.output
-        let containsOutput = try self.session.containsOutput(output)
+      for output in connection.outputs {
+        let containsOutput = self.session.containsOutput(output)
         if !containsOutput {
           // 3.1. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output)
@@ -315,15 +317,16 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
   }
 
-  private func updateConnections(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateConnections(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     // By this time, `updateInputs(...)` and `updateOutputs(...)` has already been called.
     // This ensures that all unwanted inputs or outputs have been removed - and if an input
     // or output is removed from the session, the connection will also automatically be removed.
     // So we only need to worry about removing preview layer connections.
-
+    
     // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
     for currentConnection in self.session.connections {
-      if !targetConnections.contains(connection: currentConnection) {
+      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
+      if !containsConnection {
         // 1.1. We don't want this connection - remove it!
         logger.info("Removing connection \(currentConnection)...")
         self.session.removeConnection(currentConnection)

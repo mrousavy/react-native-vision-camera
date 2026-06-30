@@ -9,11 +9,11 @@ import Foundation
 import NitroModules
 
 extension AVCaptureSession {
-  func addOutputWithNoConnections(_ outputSpec: any HybridCameraOutputSpec) throws {
-    switch outputSpec {
-    case let hybridOutput as any NativeCameraOutput:
+  func addOutputWithNoConnections(_ output: ResolvedCameraSessionConnection.Output) throws {
+    switch output.native {
+    case .output(let output):
       // It's a normal AVCaptureOutput
-      let output = hybridOutput.output
+      let output = output.output
       guard output.connections.isEmpty else {
         throw RuntimeError.error(withMessage: "The given Output \"\(output)\" is already connected to a different Camera Session!")
       }
@@ -23,18 +23,15 @@ extension AVCaptureSession {
       }
       logger.info("Adding Output \(output)...")
       addOutputWithNoConnections(output)
-    case let hybridPreview as any NativePreviewViewOutput:
+      
+    case .preview(let preview):
       // It's an AVVideoPreviewLayer - we need to set its .session
-      guard hybridPreview.previewLayer.session == nil else {
-        throw RuntimeError.error(withMessage: "The given Preview Output \"\(hybridPreview)\" is already connected to a different Camera Session!")
+      let previewLayer = preview.previewLayer
+      guard previewLayer.session == nil else {
+        throw RuntimeError.error(withMessage: "The given Preview Output \"\(previewLayer)\" is already connected to a different Camera Session!")
       }
-      logger.info("Adding Preview \(hybridPreview.previewLayer)...")
-      hybridPreview.previewLayer.setSessionWithNoConnection(self)
-    default:
-      throw RuntimeError.error(
-        withMessage:
-          "Output \"\(outputSpec)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!"
-      )
+      logger.info("Adding Preview \(previewLayer)...")
+      previewLayer.setSessionWithNoConnection(self)
     }
   }
 }
