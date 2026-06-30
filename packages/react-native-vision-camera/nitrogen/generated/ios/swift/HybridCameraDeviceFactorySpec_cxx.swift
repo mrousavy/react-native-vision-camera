@@ -273,7 +273,7 @@ open class HybridCameraDeviceFactorySpec_cxx {
   @inline(__always)
   public final func getDefaultCamera(position: Int32) -> bridge.Result_std__optional_std__shared_ptr_HybridCameraDeviceSpec___ {
     do {
-      let __result = try self.__implementation.getDefaultCamera(position: margelo.nitro.camera.CameraPosition(rawValue: position)!)
+      let __result = try self.__implementation.getDefaultCamera(position: margelo.nitro.camera.TargetCameraPosition(rawValue: position)!)
       let __resultCpp = { () -> bridge.std__optional_std__shared_ptr_HybridCameraDeviceSpec__ in
         if let __unwrappedValue = __result {
           return bridge.create_std__optional_std__shared_ptr_HybridCameraDeviceSpec__({ () -> bridge.std__shared_ptr_HybridCameraDeviceSpec_ in
