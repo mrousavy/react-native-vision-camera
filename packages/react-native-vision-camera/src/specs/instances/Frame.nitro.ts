@@ -151,7 +151,7 @@ export interface Frame
   /**
    * Gets the {@linkcode PixelFormat} of this Frame's pixel data.
    * Common formats are {@linkcode PixelFormat | 'yuv-420-8-bit-video'}
-   * for native YUV Frames, {@linkcode PixelFormat | 'rgb-bgra-32-bit'}
+   * for native YUV Frames, {@linkcode PixelFormat | 'rgb-bgra-8-bit'}
    * for processed RGB Frames, or {@linkcode PixelFormat | 'private'} for
    * zero-copy GPU-only Frames.
    *
