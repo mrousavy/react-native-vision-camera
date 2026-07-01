@@ -1,6 +1,7 @@
 package com.margelo.nitro.camera.hybrids.outputs
 
 import android.annotation.SuppressLint
+import android.os.Build
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import com.margelo.nitro.camera.CameraOrientation
@@ -23,6 +24,7 @@ import com.margelo.nitro.camera.hybrids.instances.HybridFrame
 import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
 import com.margelo.nitro.camera.utils.PrivateImageReaderProxy
+import com.margelo.nitro.camera.utils.YuvImageReaderProxy
 
 class HybridFrameOutput(
   private val options: FrameOutputOptions,
@@ -84,6 +86,17 @@ class HybridFrameOutput(
             TargetVideoPixelFormat.YUV -> {
               // Use YUV_420_888 (CPU)
               setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Allocate YUV buffers with GPU_SAMPLED_IMAGE usage (when the device
+                // supports it) so Frames stay CPU-readable but can additionally be
+                // imported zero-copy as GPU textures via `Frame.getNativeBuffer()`
+                // (e.g. Vulkan/WebGPU/Skia). CameraX's default ImageReader allocates
+                // CPU-only buffers, which GPU APIs cannot import.
+                @SuppressLint("RestrictedApi")
+                setImageReaderProxyProvider { width, height, _, queueDepth, _ ->
+                  YuvImageReaderProxy(width, height, queueDepth)
+                }
+              }
             }
             TargetVideoPixelFormat.RGB -> {
               // Use RGBA_8888 (CPU + extra conversion)
@@ -93,8 +106,9 @@ class HybridFrameOutput(
               // Use PRIVATE (GPU)
               if (options.enablePhysicalBufferRotation) {
                 throw Error(
-                  "Cannot enable physical buffer rotation when `enableGpuBuffers` is set to true! " +
-                    "Set `enablePhysicalBufferRotation={false}` to use GPU buffers, or disable GPU buffers if physical buffer rotation is necessary.",
+                  "Cannot enable physical buffer rotation when `pixelFormat` is `native`! " +
+                    "Set `enablePhysicalBufferRotation: false` to use native GPU buffers, " +
+                    "or use a different `pixelFormat` if physical buffer rotation is necessary.",
                 )
               }
               @SuppressLint("RestrictedApi")
