@@ -42,7 +42,7 @@
     "@release-it-plugins/workspaces": "^5.0.3",
     "@release-it/bumper": "^7.0.5",
     "@release-it/conventional-changelog": "^11.0.0",
-    "release-it": "^20.0.1"
+    "release-it": "^20.2.1"
   },
   "peerDependencies": {
     "typescript": "^6.0.3"
