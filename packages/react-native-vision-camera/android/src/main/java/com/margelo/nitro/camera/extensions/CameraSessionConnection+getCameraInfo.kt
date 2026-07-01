@@ -9,12 +9,14 @@ fun CameraSessionConnection.getCameraInfo(provider: ProcessCameraProvider): Came
   val cameraInfo =
     input.match(
       { deviceSpec ->
+        // unwrap CameraInfo
         val device =
           deviceSpec as? NativeCameraDevice
             ?: throw Error("CameraDevice $input is not of type `NativeCameraDevice`!")
         return@match device.cameraInfo
       },
       { position ->
+        // "back" | "front" | "external" -> CameraInfo
         return@match provider.getDefaultCamera(position)
       },
     )
