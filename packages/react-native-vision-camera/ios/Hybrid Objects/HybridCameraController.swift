@@ -14,8 +14,8 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
   let captureDevice: AVCaptureDevice
   private var activeMeteringTask: MeteringTask? = nil
 
-  init(device: ResolvedCameraSessionConnection.Input, queue: DispatchQueue) throws {
-    self.device = device.hybrid
+  init(device: any HybridCameraDeviceSpec & NativeCameraDevice, queue: DispatchQueue) throws {
+    self.device = device
     self.captureDevice = device.device
 
     // TODO: Is it best practice to use the same `queue` as our HybridCameraSession?
