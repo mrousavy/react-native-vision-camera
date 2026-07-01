@@ -20,6 +20,7 @@ import dailyAstrologyHoroscopeIcon from '../../public/img/production-apps/daily-
 import evernoteIcon from '../../public/img/production-apps/evernote.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import gasbuddyIcon from '../../public/img/production-apps/gasbuddy.jpg'
+import guessUpIcon from '../../public/img/production-apps/guess-up.jpg'
 import homeAiIcon from '../../public/img/production-apps/home-ai.jpg'
 import iAmSoberIcon from '../../public/img/production-apps/i-am-sober.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
@@ -28,6 +29,7 @@ import kompanionIcon from '../../public/img/production-apps/kompanion.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
 import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
+import luxerOneIcon from '../../public/img/production-apps/luxer-one.jpg'
 import magicplanIcon from '../../public/img/production-apps/magicplan.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
 import momoIcon from '../../public/img/production-apps/momo.jpg'
@@ -41,6 +43,7 @@ import nationalCarRentalIcon from '../../public/img/production-apps/national-car
 import obicoIcon from '../../public/img/production-apps/obico.jpg'
 import offerupIcon from '../../public/img/production-apps/offerup.jpg'
 import onePayIcon from '../../public/img/production-apps/onepay.jpg'
+import partyLabIcon from '../../public/img/production-apps/party-lab.jpg'
 import peepsIcon from '../../public/img/production-apps/peeps.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
@@ -587,6 +590,22 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=interior.home.design.ai',
   },
   {
+    name: 'Guess Up',
+    company: 'Cosmicode',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: guessUpIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/charades-headbands-guess-up/id1160484607',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=pt.cosmicode.guessup',
+  },
+  {
     name: 'OnePay',
     company: 'One Finance',
     installMetrics: [
@@ -1114,6 +1133,21 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.sunoco.sunoco',
   },
   {
+    name: 'Luxer One',
+    company: 'Luxer One',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: luxerOneIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/luxer-one/id1440094075',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.luxerone.mobile.residentapp',
+  },
+  {
     name: 'myCadillac',
     company: 'General Motors',
     installMetrics: [
@@ -1174,6 +1208,22 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/klipper-octoprint-obico/id1540646623',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.thespaghettidetective.android',
+  },
+  {
+    name: 'Party Lab',
+    company: 'MindShark Games',
+    installMetrics: [
+      {
+        label: '100K+ Play Store downloads',
+        value: 100_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: partyLabIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/party-lab-exposed-game/id6446330973',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.partylabapp',
   },
   {
     name: 'VSCO Capture',
