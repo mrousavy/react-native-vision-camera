@@ -20,7 +20,7 @@ extension AVCaptureSession {
     output: ResolvedCameraSessionConnection.Output
   ) -> Bool {
     return self.connections.contains { connection in
-      return connection.deviceInput == input && connection.isConnectedTo(output: output)
+      return connection.deviceInput?.device == input && connection.isConnectedTo(output: output)
     }
   }
 }
