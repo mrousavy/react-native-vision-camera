@@ -11,11 +11,11 @@ public protocol NativePreviewViewOutput: AnyObject, ResolutionNegotiationPartici
   var previewLayer: AVCaptureVideoPreviewLayer { get }
 
   /**
-   * Called whenever the `CameraOutputConfiguration` might
+   * Called whenever the `OutputConfiguration` might
    * change, in a `beginConfiguration()`/`commitConfiguration()`
    * batch.
    * The `NativePreviewViewOutput` is expected to apply all configs
    * such as orientation or mirroring settings in here.
    */
-  func configure(config: CameraOutputConfiguration)
+  func configure(config: OutputConfiguration)
 }

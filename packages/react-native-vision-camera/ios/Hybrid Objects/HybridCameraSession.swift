@@ -56,6 +56,9 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
       logger.info("Reconfiguring CameraSession with \(connections.count) connection(s)...")
 
+      // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
+      let connections = try connections.map { try ResolvedCameraSessionConnection(connection: $0) }
+      
       // Wrap the configuration in a batch
       self.session.beginConfiguration()
       defer {
@@ -64,16 +67,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
           "Successfully applied CameraSession configuration for \(connections.count) connection(s)!"
         )
       }
-  
-      // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
-      let resolvedConnections = try connections.map { try ResolvedCameraSessionConnection(connection: $0) }
 
       // Remove all unwanted inputs and add all new inputs
-      try self.updateInputs(resolvedConnections)
+      try self.updateInputs(connections)
       // Remove all unwanted outputs and add all new outputs
-      try self.updateOutputs(resolvedConnections)
+      try self.updateOutputs(connections)
       // Remove all unwanted connections and add all new connections
-      try self.updateConnections(resolvedConnections)
+      try self.updateConnections(connections)
 
       // Configure all individual inputs/outputs/connections (e.g. orientation/mirrorMode)
       for connection in connections {
@@ -82,16 +82,12 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
         // outputs:
         for outputConfiguration in connection.outputs {
+          let outputConfig = OutputConfiguration(mirrorMode: outputConfiguration.mirrorMode)
           switch outputConfiguration.output {
-          case let output as any NativeCameraOutput:
-            // Configure AVCaptureOutput
-            output.configure(config: outputConfiguration)
-          case let previewOutput as any NativePreviewViewOutput:
-            // Configure AVCaptureVideoPreviewLayer
-            previewOutput.configure(config: outputConfiguration)
-          default:
-            // wrong type!
-            break
+          case .output(let output):
+            output.configure(config: outputConfig)
+          case .preview(let preview):
+            preview.configure(config: outputConfig)
           }
         }
       }
@@ -113,16 +109,16 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
 
       // Return CameraControllers per connection to adjust camera settings (focus, etc)
-      return try resolvedConnections.map { connection in
+      return try connections.map { connection in
         return try HybridCameraController(device: connection.input, queue: Self.queue)
       }
     }
   }
 
   // pragma MARK: SessionConfiguration
-  private func configureConnection(_ connection: CameraSessionConnection, isMultiCam: Bool) throws {
+  private func configureConnection(_ connection: ResolvedCameraSessionConnection, isMultiCam: Bool) throws {
     // Get a handle to the input
-    let outputs = connection.outputs.map { $0.output }
+    let outputs = connection.outputs.map { $0.output.hybrid }
     let resolved = try ConstraintResolver.resolveConstraints(
       for: connection.input,
       constraints: connection.constraints,

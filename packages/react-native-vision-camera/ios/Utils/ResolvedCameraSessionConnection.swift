@@ -17,6 +17,7 @@ struct ResolvedCameraSessionConnection {
   let initialExposureBias: Double?
   let initialZoom: Double?
   let onSessionConfigSelected: ((_ config: (any HybridCameraSessionConfigSpec)) -> Void)?
+  let constraints: [Constraint]
   
   init(connection: CameraSessionConnection) throws {
     self.input = try Self.resolveInput(connection.input)
@@ -24,6 +25,7 @@ struct ResolvedCameraSessionConnection {
     self.initialExposureBias = connection.initialExposureBias
     self.initialZoom = connection.initialZoom
     self.onSessionConfigSelected = connection.onSessionConfigSelected
+    self.constraints = connection.constraints
   }
   
   var requiresAudioInput: Bool {
@@ -92,6 +94,15 @@ struct ResolvedCameraSessionConnection {
         return output.mediaType
       case .preview(let preview):
         return preview.mediaType
+      }
+    }
+    
+    var hybrid: any HybridCameraOutputSpec {
+      switch self {
+      case .output(let output):
+        return output
+      case .preview(let preview):
+        return preview
       }
     }
   }

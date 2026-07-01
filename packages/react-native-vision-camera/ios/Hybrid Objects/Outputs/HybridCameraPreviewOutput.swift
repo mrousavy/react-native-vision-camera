@@ -52,7 +52,7 @@ final class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePrev
     orientationManager.stopOrientationUpdates()
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     guard let connection = previewLayer.connection else {
       return
     }
