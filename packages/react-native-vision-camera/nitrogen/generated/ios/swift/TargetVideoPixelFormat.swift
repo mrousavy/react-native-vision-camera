@@ -17,6 +17,10 @@ public extension TargetVideoPixelFormat {
    */
   init?(fromString string: String) {
     switch string {
+      case "yuv-420-8-bit-video":
+        self = .yuv4208BitVideo
+      case "yuv-420-8-bit-full":
+        self = .yuv4208BitFull
       case "native":
         self = .native
       case "yuv":
@@ -33,6 +37,10 @@ public extension TargetVideoPixelFormat {
    */
   var stringValue: String {
     switch self {
+      case .yuv4208BitVideo:
+        return "yuv-420-8-bit-video"
+      case .yuv4208BitFull:
+        return "yuv-420-8-bit-full"
       case .native:
         return "native"
       case .yuv:

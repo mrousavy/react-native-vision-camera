@@ -42,6 +42,12 @@ namespace margelo::nitro::camera {
     static jni::alias_ref<JTargetVideoPixelFormat> fromCpp(TargetVideoPixelFormat value) {
       static const auto clazz = javaClassStatic();
       switch (value) {
+        case TargetVideoPixelFormat::YUV_420_8_BIT_VIDEO:
+          static const auto fieldYUV_420_8_BIT_VIDEO = clazz->getStaticField<JTargetVideoPixelFormat>("YUV_420_8_BIT_VIDEO");
+          return clazz->getStaticFieldValue(fieldYUV_420_8_BIT_VIDEO);
+        case TargetVideoPixelFormat::YUV_420_8_BIT_FULL:
+          static const auto fieldYUV_420_8_BIT_FULL = clazz->getStaticField<JTargetVideoPixelFormat>("YUV_420_8_BIT_FULL");
+          return clazz->getStaticFieldValue(fieldYUV_420_8_BIT_FULL);
         case TargetVideoPixelFormat::NATIVE:
           static const auto fieldNATIVE = clazz->getStaticField<JTargetVideoPixelFormat>("NATIVE");
           return clazz->getStaticFieldValue(fieldNATIVE);

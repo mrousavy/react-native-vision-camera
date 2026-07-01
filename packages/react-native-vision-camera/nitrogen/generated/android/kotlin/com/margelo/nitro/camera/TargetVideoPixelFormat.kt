@@ -16,9 +16,11 @@ import com.facebook.proguard.annotations.DoNotStrip
 @DoNotStrip
 @Keep
 enum class TargetVideoPixelFormat(@DoNotStrip @Keep val value: Int) {
-  NATIVE(0),
-  YUV(1),
-  RGB(2);
+  YUV_420_8_BIT_VIDEO(0),
+  YUV_420_8_BIT_FULL(1),
+  NATIVE(2),
+  YUV(3),
+  RGB(4);
 
   companion object
 }
