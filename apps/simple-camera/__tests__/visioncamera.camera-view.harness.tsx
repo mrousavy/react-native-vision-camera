@@ -502,9 +502,10 @@ describe('VisionCamera - Camera View', () => {
     const cameraRef = createRef<CameraRef>()
     const configuredBack = deferred()
     const configuredFront = deferred()
-    const started = deferred()
-    const stopped = deferred()
-    const previewStarted = deferred()
+    const backStarted = deferred()
+    const frontStarted = deferred()
+    const frontStopped = deferred()
+    const backPreviewStarted = deferred()
     let configureCount = 0
     let sessionError: Error | undefined
     const onConfigured = () => {
@@ -516,9 +517,10 @@ describe('VisionCamera - Camera View', () => {
       sessionError = error
       configuredBack.reject(error)
       configuredFront.reject(error)
-      started.reject(error)
-      stopped.reject(error)
-      previewStarted.reject(error)
+      backStarted.reject(error)
+      frontStarted.reject(error)
+      frontStopped.reject(error)
+      backPreviewStarted.reject(error)
     }
 
     const { rerender } = await render(
@@ -528,17 +530,16 @@ describe('VisionCamera - Camera View', () => {
         isActive={true}
         style={StyleSheet.absoluteFill}
         onConfigured={onConfigured}
-        onStarted={started.resolve}
-        onStopped={stopped.resolve}
-        onPreviewStarted={previewStarted.resolve}
+        onStarted={backStarted.resolve}
+        onPreviewStarted={backPreviewStarted.resolve}
         onError={onError}
       />,
     )
 
     await withTimeout(configuredBack.promise, 15_000, 'back Camera configured')
-    await withTimeout(started.promise, 15_000, 'back Camera onStarted')
+    await withTimeout(backStarted.promise, 15_000, 'back Camera onStarted')
     await withTimeout(
-      previewStarted.promise,
+      backPreviewStarted.promise,
       15_000,
       'back Camera onPreviewStarted',
     )
@@ -556,8 +557,7 @@ describe('VisionCamera - Camera View', () => {
         isActive={true}
         style={StyleSheet.absoluteFill}
         onConfigured={onConfigured}
-        onStopped={stopped.resolve}
-        onPreviewStarted={previewStarted.resolve}
+        onStarted={frontStarted.resolve}
         onError={onError}
       />,
     )
@@ -567,6 +567,7 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'front Camera configured',
     )
+    await withTimeout(frontStarted.promise, 15_000, 'front Camera onStarted')
     await waitUntil(
       () => cameraRef.current?.controller?.device.id === frontDevice.id,
       { timeout: 10_000 },
@@ -580,12 +581,11 @@ describe('VisionCamera - Camera View', () => {
         device="front"
         isActive={false}
         style={StyleSheet.absoluteFill}
-        onStopped={stopped.resolve}
-        onPreviewStarted={previewStarted.resolve}
+        onStopped={frontStopped.resolve}
         onError={onError}
       />,
     )
-    await withTimeout(stopped.promise, 10_000, 'front Camera onStopped')
+    await withTimeout(frontStopped.promise, 10_000, 'front Camera onStopped')
     expect(sessionError).toBe(undefined)
   })
 })
