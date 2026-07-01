@@ -31,9 +31,12 @@ export function useCameraDevice(
   const memoizedFilter = useMemo(() => filter, [JSON.stringify(filter)])
 
   const cachedDevice = useRef<CameraDevice | undefined>(undefined)
-  if (deviceFactory != null && cachedDevice.current == null) {
-    // Initialize `cachedDevice`
-    cachedDevice.current = deviceFactory.getDefaultCamera(position)
+  if (deviceFactory != null) {
+    // Initialize or update `cachedDevice` when React props change.
+    const device = getCameraDevice(deviceFactory, position, memoizedFilter)
+    if (device?.id !== cachedDevice.current?.id) {
+      cachedDevice.current = device
+    }
   }
   const subscribe = useCallback(
     (onStoreChange: () => void): (() => void) => {
