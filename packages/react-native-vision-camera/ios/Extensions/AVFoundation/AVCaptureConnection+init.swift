@@ -10,16 +10,16 @@ import NitroModules
 
 extension AVCaptureConnection {
   convenience init(input: AVCaptureDeviceInput, output: ResolvedCameraSessionConnection.Output) throws {
-    let mediaType = output.hybrid.mediaType.toAVMediaType()
+    let mediaType = output.mediaType.toAVMediaType()
     let targetPorts = input.ports.filter { $0.mediaType == mediaType }
     guard !targetPorts.isEmpty else {
       throw RuntimeError.error(
         withMessage:
-          "Output \"\(output)\" operates on mediaType \"\(output.hybrid.mediaType.stringValue)\", but Input \"\(input.device.uniqueID)\" does not have any ports for that mediaType!"
+          "Output \"\(output)\" operates on mediaType \"\(output.mediaType.stringValue)\", but Input \"\(input.device.uniqueID)\" does not have any ports for that mediaType!"
       )
     }
 
-    switch output.native {
+    switch output {
     case .output(let output):
       // a) It's a normal AVCaptureSessionOutput - connect it to all its desired ports
       self.init(inputPorts: targetPorts, output: output.output)

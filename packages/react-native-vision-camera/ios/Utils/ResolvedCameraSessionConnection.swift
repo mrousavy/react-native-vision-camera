@@ -26,6 +26,49 @@ struct ResolvedCameraSessionConnection {
     self.onSessionConfigSelected = connection.onSessionConfigSelected
   }
   
+  var requiresAudioInput: Bool {
+    return outputs.contains { $0.output.requiresAudioInput }
+  }
+  
+  func isConnectedTo(input: AVCaptureInput) -> Bool {
+    guard let deviceInput = input as? AVCaptureDeviceInput else {
+      return false
+    }
+    return deviceInput.device == self.input.device
+  }
+  func isConnectedTo(output avOutput: AVCaptureOutput) -> Bool {
+    return outputs.contains { outputConfiguration in
+      switch outputConfiguration.output {
+      case .output(let output):
+        return output.output == avOutput
+      case .preview:
+        return false
+      }
+    }
+  }
+  func isConnectedTo(preview previewLayer: AVCaptureVideoPreviewLayer) -> Bool {
+    return outputs.contains { outputConfiguration in
+      switch outputConfiguration.output {
+      case .output:
+        return false
+      case .preview(let preview):
+        return preview.previewLayer == previewLayer
+      }
+    }
+  }
+  func contains(connection: AVCaptureConnection) -> Bool {
+    guard let input = connection.deviceInput else {
+      return false
+    }
+    if let output = connection.output {
+      return isConnectedTo(input: input) && isConnectedTo(output: output)
+    } else if let preview = connection.videoPreviewLayer {
+      return isConnectedTo(input: input) && isConnectedTo(preview: preview)
+    } else {
+      fatalError("AVCaptureConnection does not have .output or .videoPreviewLayer!")
+    }
+  }
+  
   struct OutputConfiguration {
     let output: Output
     let mirrorMode: MirrorMode
@@ -33,6 +76,24 @@ struct ResolvedCameraSessionConnection {
   enum Output {
     case output(any HybridCameraOutputSpec & NativeCameraOutput)
     case preview(any HybridCameraOutputSpec & NativePreviewViewOutput)
+    
+    var requiresAudioInput: Bool {
+      switch self {
+      case .output(let output):
+        return output.requiresAudioInput
+      case .preview:
+        return false
+      }
+    }
+    
+    var mediaType: MediaType {
+      switch self {
+      case .output(let output):
+        return output.mediaType
+      case .preview(let preview):
+        return preview.mediaType
+      }
+    }
   }
   
   private static func resolveInput(_ input: CameraDeviceOrPosition) throws -> any HybridCameraDeviceSpec & NativeCameraDevice {

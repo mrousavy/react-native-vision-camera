@@ -66,7 +66,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
   
       // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
-      let resolvedConnections = try connections.flatMap { try ResolvedCameraSessionConnection.connections(for: $0) }
+      let resolvedConnections = try connections.map { try ResolvedCameraSessionConnection(connection: $0) }
 
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(resolvedConnections)
@@ -229,7 +229,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * and removes all current inputs that aren't listed in the [connections] array.
    */
   private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
-    let requiresAudioInput = targetConnections.contains { $0.output.requiresAudioInput }
+    let requiresAudioInput = targetConnections.contains { $0.requiresAudioInput }
     
     // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
     for currentlyAttachedInput in self.session.inputs {
@@ -304,10 +304,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
     // 2. Loop through all connections
     for connection in targetConnections {
-      let containsOutput = self.session.containsOutput(connection.output)
-      if !containsOutput {
-        // 3.1. It doesn't exist yet - add it to the session..
-        try session.addOutputWithNoConnections(connection.output)
+      // 2.1. Loop through each output
+      for output in connection.outputs {
+        let containsOutput = self.session.containsOutput(output.output)
+        if !containsOutput {
+          // 2.2. It doesn't exist yet - add it to the session..
+          try session.addOutputWithNoConnections(output.output)
+        }
       }
     }
   }
@@ -320,7 +323,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     
     // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
     for currentConnection in self.session.connections {
-      let containsConnection = targetConnections.contains { $0.equals(connection: currentConnection) }
+      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
       if !containsConnection {
         // 1.1. We don't want this connection - remove it!
         logger.info("Removing connection \(currentConnection)...")
@@ -330,31 +333,33 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
     // 2. Add all new connections that we don't have yet:
     for connection in targetConnections {
-      // 2.1. Add the camera -> output connection
-      let containsConnection = self.session.contains(connection: connection)
-      if !containsConnection {
-        try self.session.addConnection(
-          input: connection.input,
-          output: connection.output)
-      }
+      // 2.1. Iterate through all outputs
+      for outputConfiguration in connection.outputs {
+        // 2.2. Add the camera -> output connection
+        let containsConnection = self.session.containsConnection(input: connection.input.device,
+                                                                 output: outputConfiguration.output)
+        if !containsConnection {
+          try self.session.addConnection(
+            input: connection.input.device,
+            output: outputConfiguration.output)
+        }
 
-      // 2.2. If this `output` requires audio, add this connection too
-      if case .output(let output) = connection.output.native {
-        if output.requiresAudioInput {
-          let hasAudioConnection = self.session.containsAudioConnection(to: output.output)
-          if !hasAudioConnection {
-            try self.session.addAudioConnection(to: output.output)
+        // 2.2. If this `output` requires audio, add this connection too
+        if case .output(let output) = outputConfiguration.output {
+          if output.requiresAudioInput {
+            let hasAudioConnection = self.session.containsAudioConnection(to: output.output)
+            if !hasAudioConnection {
+              try self.session.addAudioConnection(to: output.output)
+            }
           }
         }
       }
     }
   }
 
-  private func applyInitialConfig(
-    device: AVCaptureDevice, initialZoom: Double?, initialExposureBias: Double?
-  )
-    throws
-  {
+  private func applyInitialConfig(device: AVCaptureDevice,
+                                  initialZoom: Double?,
+                                  initialExposureBias: Double?) throws {
     try device.lockForConfiguration()
     defer { device.unlockForConfiguration() }
     if let initialZoom = initialZoom {
