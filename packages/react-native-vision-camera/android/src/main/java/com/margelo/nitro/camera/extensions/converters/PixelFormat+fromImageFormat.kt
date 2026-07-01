@@ -1,9 +1,9 @@
 package com.margelo.nitro.camera.extensions.converters
 
 import android.graphics.ImageFormat
-import android.graphics.PixelFormat as AndroidPixelFormat
 import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.utils.PixelRange
+import android.graphics.PixelFormat as AndroidPixelFormat
 
 fun PixelFormat.Companion.fromImageFormat(
   imageFormat: Int,
