@@ -101,14 +101,32 @@ class HybridFrame(
 
   override fun convertCameraPointToFramePoint(cameraPoint: Point): Point {
     val sensorToBuffer = image.imageInfo.sensorToBufferTransformMatrix
-    return sensorToBuffer.convertPoint(cameraPoint)
+    val rawFramePoint = sensorToBuffer.convertPoint(cameraPoint)
+    // Convert from raw buffer space to oriented (display) space
+    val w = image.width.toDouble()
+    val h = image.height.toDouble()
+    return when (orientation) {
+      CameraOrientation.RIGHT -> Point(rawFramePoint.y, w - rawFramePoint.x)
+      CameraOrientation.LEFT -> Point(h - rawFramePoint.y, rawFramePoint.x)
+      CameraOrientation.DOWN -> Point(w - rawFramePoint.x, h - rawFramePoint.y)
+      CameraOrientation.UP -> rawFramePoint
+    }
   }
 
   override fun convertFramePointToCameraPoint(framePoint: Point): Point {
+    // Convert from oriented (display) space to raw buffer space
+    val w = image.width.toDouble()
+    val h = image.height.toDouble()
+    val rawFramePoint = when (orientation) {
+      CameraOrientation.RIGHT -> Point(w - framePoint.y, framePoint.x)
+      CameraOrientation.LEFT -> Point(framePoint.y, h - framePoint.x)
+      CameraOrientation.DOWN -> Point(w - framePoint.x, h - framePoint.y)
+      CameraOrientation.UP -> framePoint
+    }
     val bufferToSensor =
       Matrix().apply {
         image.imageInfo.sensorToBufferTransformMatrix.invert(this)
       }
-    return bufferToSensor.convertPoint(framePoint)
+    return bufferToSensor.convertPoint(rawFramePoint)
   }
 }
