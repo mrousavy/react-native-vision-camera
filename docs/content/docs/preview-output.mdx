@@ -33,13 +33,12 @@ function App() {
 <Tab value="CameraSession (imperative)">
 ```tsx
 const session = await VisionCamera.createCameraSession(false)
-const device = await getDefaultCameraDevice('back')
 // [!code ++]
 const previewOutput = VisionCamera.createPreviewOutput()
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [
       // [!code ++]
       { output: previewOutput, mirrorMode: 'auto' }

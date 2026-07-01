@@ -117,7 +117,8 @@ function App() {
 ```tsx
 const device = ...
 const session = ...
-const extensions = await getSupportedExtensions(device)
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const extensions = await deviceFactory.getSupportedExtensions(device)
 const extension = extensions.find((e) => e.type === 'night')
 
 const controllers = await session.configure([

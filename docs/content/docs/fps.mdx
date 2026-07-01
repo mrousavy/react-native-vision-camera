@@ -64,10 +64,9 @@ function App() {
 <Tab value="CameraSession (imperative)">
 ```tsx
 const session = await VisionCamera.createCameraSession(false)
-const device = await getDefaultCameraDevice('back')
 await session.configure([
   {
-    input: device,
+    input: 'back',
     constraints: [
       // [!code ++]
       { fps: 60 }
