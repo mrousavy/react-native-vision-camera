@@ -76,14 +76,13 @@ describe('VisionCamera - Session', () => {
 
   it('configures a session directly from each target camera position', async () => {
     const positions: TargetCameraPosition[] = ['back', 'front', 'external']
+    const session = await VisionCamera.createCameraSession(false)
 
-    for (const position of positions) {
-      const hasDeviceAtPosition = factory.cameraDevices.some(
-        (device) => device.position === position,
-      )
-      const session = await VisionCamera.createCameraSession(false)
-
-      try {
+    try {
+      for (const position of positions) {
+        const hasDeviceAtPosition = factory.cameraDevices.some(
+          (device) => device.position === position,
+        )
         const configurePromise = session.configure([
           {
             input: position,
@@ -100,9 +99,9 @@ describe('VisionCamera - Session', () => {
         const controllers = await configurePromise
         expect(controllers).toHaveLength(1)
         expect(controllers[0]?.device.position).toBe(position)
-      } finally {
-        await session.stop()
       }
+    } finally {
+      await session.stop()
     }
   })
 
