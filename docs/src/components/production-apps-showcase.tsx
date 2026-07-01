@@ -21,6 +21,7 @@ import evernoteIcon from '../../public/img/production-apps/evernote.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import gasbuddyIcon from '../../public/img/production-apps/gasbuddy.jpg'
 import guessUpIcon from '../../public/img/production-apps/guess-up.jpg'
+import holodexIcon from '../../public/img/production-apps/holodex.jpg'
 import homeAiIcon from '../../public/img/production-apps/home-ai.jpg'
 import iAmSoberIcon from '../../public/img/production-apps/i-am-sober.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
@@ -37,6 +38,7 @@ import musescoreIcon from '../../public/img/production-apps/musescore.jpg'
 import mybuickIcon from '../../public/img/production-apps/mybuick.jpg'
 import mycadillacIcon from '../../public/img/production-apps/mycadillac.jpg'
 import mychevroletIcon from '../../public/img/production-apps/mychevrolet.jpg'
+import mychoiceBenefitsIcon from '../../public/img/production-apps/mychoice-benefits.jpg'
 import mygmcIcon from '../../public/img/production-apps/mygmc.jpg'
 import mywalmartIcon from '../../public/img/production-apps/mywalmart.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
@@ -1146,6 +1148,37 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/luxer-one/id1440094075',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.luxerone.mobile.residentapp',
+  },
+  {
+    name: 'MyChoice Benefits',
+    company: 'Businessolver',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mychoiceBenefitsIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mychoice-benefits/id1138970986',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.businessolver.mychoice',
+  },
+  {
+    name: 'HoloDex',
+    company: 'Mavelli',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: holodexIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/holodex-tcg-scan-collect/id6747442689',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.getholodex.app',
   },
   {
     name: 'myCadillac',
