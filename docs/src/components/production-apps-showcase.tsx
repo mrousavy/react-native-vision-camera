@@ -20,6 +20,7 @@ import dailyAstrologyHoroscopeIcon from '../../public/img/production-apps/daily-
 import evernoteIcon from '../../public/img/production-apps/evernote.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import gasbuddyIcon from '../../public/img/production-apps/gasbuddy.jpg'
+import homeAiIcon from '../../public/img/production-apps/home-ai.jpg'
 import iAmSoberIcon from '../../public/img/production-apps/i-am-sober.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
@@ -55,6 +56,8 @@ import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jp
 import spacesByWixIcon from '../../public/img/production-apps/spaces-by-wix.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
 import sushIcon from '../../public/img/production-apps/sush.jpg'
+import tactacamRevealIcon from '../../public/img/production-apps/tactacam-reveal.jpg'
+import tattooAiIcon from '../../public/img/production-apps/tattoo-ai.jpg'
 import tellonymIcon from '../../public/img/production-apps/tellonym.jpg'
 import teslaIcon from '../../public/img/production-apps/tesla.jpg'
 import toyotaFinancialServicesIcon from '../../public/img/production-apps/toyota-financial-services.jpg'
@@ -566,6 +569,22 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.sensopia.magicplan',
   },
   {
+    name: 'Home AI',
+    company: 'HubX',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: homeAiIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/home-ai-ai-interior-design/id6464476667',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=interior.home.design.ai',
+  },
+  {
     name: 'OnePay',
     company: 'One Finance',
     installMetrics: [
@@ -705,6 +724,22 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/boldvoice-accent-training/id1567841142',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.wellocution.androidapp',
+  },
+  {
+    name: 'Tattoo AI',
+    company: 'HubX',
+    installMetrics: [
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: tattooAiIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/tattoo-ai-tattoo-design/id6479689893',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.hubx.tattoo',
   },
   {
     name: 'Ledger Live',
@@ -1029,6 +1064,21 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/all%C4%93/id720207987',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.allergan.bd.bdmobileapp',
+  },
+  {
+    name: 'Tactacam REVEAL',
+    company: 'Tactacam',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: tactacamRevealIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/tactacam-reveal/id1515339989',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.tactacam.reveal',
   },
   {
     name: 'myCadillac',
