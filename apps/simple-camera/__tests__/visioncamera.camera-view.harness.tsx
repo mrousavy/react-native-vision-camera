@@ -8,6 +8,7 @@ import {
   expect,
   it,
   render,
+  waitUntil,
 } from 'react-native-harness'
 import type { CameraDevice, CameraRef, Point } from 'react-native-vision-camera'
 import {
@@ -57,15 +58,20 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
 
 describe('VisionCamera - Camera View', () => {
   let backDevice: CameraDevice
+  let frontDevice: CameraDevice
 
   beforeAll(async () => {
     await VisionCamera.requestCameraPermission()
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     const factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
+    const front = factory.getDefaultCamera('front')
     expect(back).toBeDefined()
+    expect(front).toBeDefined()
     if (back == null) throw new Error('no back camera')
+    if (front == null) throw new Error('no front camera')
     backDevice = back
+    frontDevice = front
   })
 
   afterEach(() => {
@@ -489,6 +495,97 @@ describe('VisionCamera - Camera View', () => {
       10_000,
       'inactive Camera onPreviewStopped',
     )
+    expect(sessionError).toBe(undefined)
+  })
+
+  it('reconfigures when the Camera device position prop changes', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const configuredBack = deferred()
+    const configuredFront = deferred()
+    const backStarted = deferred()
+    const frontStarted = deferred()
+    const frontStopped = deferred()
+    const backPreviewStarted = deferred()
+    let configureCount = 0
+    let sessionError: Error | undefined
+    const onConfigured = () => {
+      configureCount++
+      if (configureCount === 1) configuredBack.resolve()
+      else if (configureCount === 2) configuredFront.resolve()
+    }
+    const onError = (error: Error) => {
+      sessionError = error
+      configuredBack.reject(error)
+      configuredFront.reject(error)
+      backStarted.reject(error)
+      frontStarted.reject(error)
+      frontStopped.reject(error)
+      backPreviewStarted.reject(error)
+    }
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device="back"
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onConfigured={onConfigured}
+        onStarted={backStarted.resolve}
+        onPreviewStarted={backPreviewStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    await withTimeout(configuredBack.promise, 15_000, 'back Camera configured')
+    await withTimeout(backStarted.promise, 15_000, 'back Camera onStarted')
+    await withTimeout(
+      backPreviewStarted.promise,
+      15_000,
+      'back Camera onPreviewStarted',
+    )
+    await waitUntil(
+      () => cameraRef.current?.controller?.device.id === backDevice.id,
+      { timeout: 10_000 },
+    )
+    expect(cameraRef.current?.controller?.device.position).toBe('back')
+    expect(sessionError).toBe(undefined)
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device="front"
+        isActive={true}
+        style={StyleSheet.absoluteFill}
+        onConfigured={onConfigured}
+        onStarted={frontStarted.resolve}
+        onError={onError}
+      />,
+    )
+
+    await withTimeout(
+      configuredFront.promise,
+      15_000,
+      'front Camera configured',
+    )
+    await withTimeout(frontStarted.promise, 15_000, 'front Camera onStarted')
+    await waitUntil(
+      () => cameraRef.current?.controller?.device.id === frontDevice.id,
+      { timeout: 10_000 },
+    )
+    expect(cameraRef.current?.controller?.device.position).toBe('front')
+    expect(sessionError).toBe(undefined)
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device="front"
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        onStopped={frontStopped.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(frontStopped.promise, 10_000, 'front Camera onStopped')
     expect(sessionError).toBe(undefined)
   })
 })
