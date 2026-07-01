@@ -5,7 +5,10 @@ import {
   it,
   waitUntil,
 } from 'react-native-harness'
-import type { CameraDeviceFactory } from 'react-native-vision-camera'
+import type {
+  CameraDeviceFactory,
+  TargetCameraPosition,
+} from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { scheduleOnRN } from 'react-native-worklets'
@@ -68,6 +71,38 @@ describe('VisionCamera - Session', () => {
       console.log(
         `session ok: ${device.position}:${device.id} (${device.localizedName})`,
       )
+    }
+  })
+
+  it('configures a session directly from each target camera position', async () => {
+    const positions: TargetCameraPosition[] = ['back', 'front', 'external']
+
+    for (const position of positions) {
+      const hasDeviceAtPosition = factory.cameraDevices.some(
+        (device) => device.position === position,
+      )
+      const session = await VisionCamera.createCameraSession(false)
+
+      try {
+        const configurePromise = session.configure([
+          {
+            input: position,
+            outputs: [],
+            constraints: [],
+          },
+        ])
+
+        if (!hasDeviceAtPosition) {
+          await expect(configurePromise).rejects.toThrow()
+          continue
+        }
+
+        const controllers = await configurePromise
+        expect(controllers).toHaveLength(1)
+        expect(controllers[0]?.device.position).toBe(position)
+      } finally {
+        await session.stop()
+      }
     }
   })
 
