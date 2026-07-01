@@ -46,11 +46,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       let isMultiCam = connections.count > 1
       if isMultiCam {
         guard self.session is AVCaptureMultiCamSession else {
-          throw RuntimeError.error(
-            withMessage:
-              "Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
-              + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs."
-          )
+          throw RuntimeError("Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
+                             + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
         }
       }
 
@@ -79,17 +76,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       for connection in connections {
         // connection:
         try self.configureConnection(connection, isMultiCam: isMultiCam)
-
         // outputs:
-        for outputConfiguration in connection.outputs {
-          let outputConfig = OutputConfiguration(mirrorMode: outputConfiguration.mirrorMode)
-          switch outputConfiguration.output {
-          case .output(let output):
-            output.configure(config: outputConfig)
-          case .preview(let preview):
-            preview.configure(config: outputConfig)
-          }
-        }
+        self.configureOutputs(connection)
       }
 
       // If we have any Dynamic Range Constraints, we disable automatic color space selection on the AVCaptureSession.
@@ -102,8 +90,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       self.session.automaticallyConfiguresCaptureDeviceForWideColor = !hasCustomDynamicRangeConstraint
 
       // Background Audio Playback
-      if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
-        if #available(iOS 18.0, *) {
+      if #available(iOS 18.0, *) {
+        if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
           self.session.configuresApplicationAudioSessionToMixWithOthers = allowBackgroundAudioPlayback
         }
       }
@@ -200,6 +188,18 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
   }
 
+  private func configureOutputs(_ connection: ResolvedCameraSessionConnection) {
+    for outputConfiguration in connection.outputs {
+      let outputConfig = OutputConfiguration(mirrorMode: outputConfiguration.mirrorMode)
+      switch outputConfiguration.output {
+      case .output(let output):
+        output.configure(config: outputConfig)
+      case .preview(let preview):
+        preview.configure(config: outputConfig)
+      }
+    }
+  }
+  
   // pragma MARK: Start/Stop
   func start() -> Promise<Void> {
     return Promise.parallel(Self.queue) {
