@@ -56,23 +56,6 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     super.init()
 
     output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
-
-    if options.containerFormat == .dng {
-      // If we capture RAW photos, try using Apple ProRAW. If not, Bayer14 RAW will be used.
-      output.isAppleProRAWEnabled = output.isAppleProRAWSupported
-    }
-
-    if #available(iOS 26, *),
-      output.isCameraSensorOrientationCompensationSupported
-    {
-      // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
-      output.isCameraSensorOrientationCompensationEnabled = false
-    }
-
-    // Prepare the default Photo Settings to make the pipeline ready - some things (like flashMode)
-    // might change on a per-capture basis, but containerFormat and preview size is already known
-    // and can be prepared already.
-    try? prepareDefaultPhotoSettings()
   }
 
   func configure(config: OutputConfiguration) {
@@ -81,6 +64,17 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     }
     try? connection.setOrientation(outputOrientation)
     try? connection.setMirrorMode(config.mirrorMode)
+
+    let enableAppleProRAW = options.containerFormat == .dng && output.isAppleProRAWSupported
+    if output.isAppleProRAWEnabled != enableAppleProRAW {
+      // If we capture RAW photos, try using Apple ProRAW. If not, Bayer14 RAW will be used.
+      output.isAppleProRAWEnabled = enableAppleProRAW
+    }
+
+    if #available(iOS 26, *) {
+      // Don't rotate Photo buffers - we handle orientation later on in file capture or toImage().
+      output.isCameraSensorOrientationCompensationEnabled = false
+    }
 
     if #available(iOS 16.0, *) {
       // Configure PhotoOutput to the currently selected Format's max photo size
@@ -93,10 +87,14 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
         {
           // Target max photo dimensions have changed, re-configure
           output.maxPhotoDimensions = nearestPhotoDimension
-          try? prepareDefaultPhotoSettings()
         }
       }
     }
+
+    // Prepare the default Photo Settings to make the pipeline ready - some things (like flashMode)
+    // might change on a per-capture basis, but containerFormat and preview size is already known
+    // and can be prepared already.
+    try? prepareDefaultPhotoSettings()
   }
 
   private func prepareDefaultPhotoSettings() throws {
