@@ -6,12 +6,17 @@ import androidx.camera.camera2.adapter.PhysicalCameraInfoAdapter
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
+import com.margelo.nitro.camera.CameraPosition
 import com.margelo.nitro.camera.DeviceType
 import com.margelo.nitro.camera.utils.ImageFormatUtils
 
 val CameraInfo.deviceType: DeviceType
   @OptIn(ExperimentalCamera2Interop::class)
   get() {
+    if (position == CameraPosition.EXTERNAL) {
+      return DeviceType.EXTERNAL
+    }
+
     if (this is PhysicalCameraInfoAdapter) {
       // TODO: PhysicalCameraInfoAdapter throws when accessing `intrinsicZoomRatio`,
       //       so we need another way to figure out what kind of Camera this is...
