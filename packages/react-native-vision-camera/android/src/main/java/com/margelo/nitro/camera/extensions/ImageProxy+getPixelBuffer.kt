@@ -3,7 +3,6 @@ package com.margelo.nitro.camera.extensions
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
@@ -11,7 +10,6 @@ import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
 
 val HardwareBuffer.isCpuReadable: Boolean
-  @RequiresApi(Build.VERSION_CODES.O)
   get() {
     val readableUsageFlags = HardwareBuffer.USAGE_CPU_READ_RARELY or HardwareBuffer.USAGE_CPU_READ_OFTEN
     return (usage and readableUsageFlags) != 0L
