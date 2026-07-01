@@ -3,38 +3,60 @@ import { Download, Package, PencilLine, TrendingUp } from 'lucide-react'
 import Image, { type StaticImageData } from 'next/image'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import abcTrainerizeIcon from '../../public/img/production-apps/abc-trainerize.jpg'
+import alleIcon from '../../public/img/production-apps/alle.jpg'
 import amazonBusinessIcon from '../../public/img/production-apps/amazon-business.jpg'
+import amazonShopperPanelIcon from '../../public/img/production-apps/amazon-shopper-panel.jpg'
 import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
+import bHyveIcon from '../../public/img/production-apps/b-hyve.jpg'
 import bestBuyIcon from '../../public/img/production-apps/best-buy.jpg'
+import bodyfastIcon from '../../public/img/production-apps/bodyfast.jpg'
 import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import connecteamIcon from '../../public/img/production-apps/connecteam.jpg'
+import dailyAstrologyHoroscopeIcon from '../../public/img/production-apps/daily-astrology-horoscope.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
-import golfDaddyIcon from '../../public/img/production-apps/golf-daddy.jpg'
+import gasbuddyIcon from '../../public/img/production-apps/gasbuddy.jpg'
+import iAmSoberIcon from '../../public/img/production-apps/i-am-sober.jpg'
 import instaworkIcon from '../../public/img/production-apps/instawork.jpg'
 import klarnaIcon from '../../public/img/production-apps/klarna.jpg'
+import kompanionIcon from '../../public/img/production-apps/kompanion.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
 import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
+import musescoreIcon from '../../public/img/production-apps/musescore.jpg'
+import mybuickIcon from '../../public/img/production-apps/mybuick.jpg'
+import mycadillacIcon from '../../public/img/production-apps/mycadillac.jpg'
+import mychevroletIcon from '../../public/img/production-apps/mychevrolet.jpg'
+import mygmcIcon from '../../public/img/production-apps/mygmc.jpg'
 import mywalmartIcon from '../../public/img/production-apps/mywalmart.jpg'
 import nationalCarRentalIcon from '../../public/img/production-apps/national-car-rental.jpg'
+import obicoIcon from '../../public/img/production-apps/obico.jpg'
 import offerupIcon from '../../public/img/production-apps/offerup.jpg'
 import onePayIcon from '../../public/img/production-apps/onepay.jpg'
+import peepsIcon from '../../public/img/production-apps/peeps.jpg'
 import picnicIcon from '../../public/img/production-apps/picnic.jpg'
 import playstationAppIcon from '../../public/img/production-apps/playstation-app.jpg'
 import poplIcon from '../../public/img/production-apps/popl.jpg'
 import pumaIcon from '../../public/img/production-apps/puma.jpg'
 import remitlyIcon from '../../public/img/production-apps/remitly.jpg'
+import riseIcon from '../../public/img/production-apps/rise.jpg'
 import seekByInaturalistIcon from '../../public/img/production-apps/seek-by-inaturalist.jpg'
 import shadowlensIcon from '../../public/img/production-apps/shadowlens.jpg'
 import shiftsmartIcon from '../../public/img/production-apps/shiftsmart.jpg'
 import shopifyIcon from '../../public/img/production-apps/shopify.jpg'
 import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
+import spacesByWixIcon from '../../public/img/production-apps/spaces-by-wix.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import sushIcon from '../../public/img/production-apps/sush.jpg'
+import tellonymIcon from '../../public/img/production-apps/tellonym.jpg'
+import teslaIcon from '../../public/img/production-apps/tesla.jpg'
 import toyotaFinancialServicesIcon from '../../public/img/production-apps/toyota-financial-services.jpg'
+import ultimateGuitarIcon from '../../public/img/production-apps/ultimate-guitar.jpg'
+import unitedhealthcareIcon from '../../public/img/production-apps/unitedhealthcare.jpg'
 import urbanCompanyIcon from '../../public/img/production-apps/urban-company.jpg'
 import vehoDriverIcon from '../../public/img/production-apps/veho-driver.jpg'
 import vscoCaptureIcon from '../../public/img/production-apps/vsco-capture.jpg'
@@ -323,6 +345,179 @@ const productionApps: ProductionApp[] = [
     playStoreUrl: 'https://play.google.com/store/apps/details?id=io.metamask',
   },
   {
+    name: 'Spaces by Wix',
+    company: 'Wix.com',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: spacesByWixIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/spaces-follow-businesses/id1099748482',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.wix.android',
+  },
+  {
+    name: 'I Am Sober',
+    company: 'I Am Sober',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: iAmSoberIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/i-am-sober/id672904239',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.thehungrywasp.iamsober',
+  },
+  {
+    name: 'myChevrolet',
+    company: 'General Motors',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mychevroletIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mychevrolet/id398596699',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.gm.chevrolet.nomad.ownership',
+  },
+  {
+    name: 'Daily Astrology Horoscope',
+    company: 'Appsella',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: dailyAstrologyHoroscopeIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/daily-astrology-horoscope/id1448364002',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.fortunescope',
+  },
+  {
+    name: 'BodyFast',
+    company: 'BodyFast',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: bodyfastIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/bodyfast-intermittent-fasting/id1189568780',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.bodyfast',
+  },
+  {
+    name: 'Kompanion',
+    company: 'Kompanion',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: kompanionIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/kompanion-weight-loss-plan/id1576161548',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.kompanion.fasting.android',
+  },
+  {
+    name: 'GasBuddy',
+    company: 'PDI Technologies',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: gasbuddyIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/gasbuddy-find-pay-for-gas/id406719683',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=gbis.gbandroid',
+  },
+  {
+    name: 'Tellonym',
+    company: 'Callosum Software',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: tellonymIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/tellonym-ask-me-anything/id1265133033',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=de.tellonym.app',
+  },
+  {
+    name: 'SUSH',
+    company: 'Emotion Studio',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: sushIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/sush-virtual-pet-grow-evolve/id1622502023',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=app.grotinou.sushi',
+  },
+  {
+    name: 'Ultimate Guitar',
+    company: 'Ultimate Guitar',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: ultimateGuitarIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/ultimate-guitar-chords-tabs/id357828853',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.ultimateguitar.tabs',
+  },
+  {
+    name: 'MuseScore',
+    company: 'MuseScore',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: musescoreIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/musescore-sheet-music-chords/id835731296',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.musescore.playerlite',
+  },
+  {
     name: 'OnePay',
     company: 'One Finance',
     installMetrics: [
@@ -342,6 +537,36 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/onepay-mobile-banking/id1494523953',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.onefinance.one',
+  },
+  {
+    name: 'Tesla',
+    company: 'Tesla',
+    installMetrics: [
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: teslaIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/tesla/id582007913',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.teslamotors.tesla',
+  },
+  {
+    name: 'UnitedHealthcare',
+    company: 'UnitedHealthcare',
+    installMetrics: [
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: unitedhealthcareIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/unitedhealthcare/id1348316600',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.mobile.uhc',
   },
   {
     name: 'PUMA',
@@ -508,6 +733,84 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.amazon.mShop.android.business.shopping',
   },
   {
+    name: 'Amazon Shopper Panel',
+    company: 'Amazon',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: amazonShopperPanelIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/amazon-shopper-panel/id1494755014',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.amazon.shopperpanel.android.mobile.app',
+  },
+  {
+    name: 'myGMC',
+    company: 'General Motors',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mygmcIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mygmc/id399408958',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.gm.gmc.nomad.ownership',
+  },
+  {
+    name: 'B-hyve',
+    company: 'Orbit Irrigation',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: bHyveIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/b-hyve/id1066451939',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.orbit.orbitsmarthome',
+  },
+  {
+    name: 'RISE',
+    company: 'Rise Science',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: riseIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/rise-sleep-tracker/id1453884781',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.risesci.nyx',
+  },
+  {
+    name: 'ABC Trainerize',
+    company: 'Trainerize',
+    installMetrics: [
+      {
+        label: '1M+ Play Store downloads',
+        value: 1_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: abcTrainerizeIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/fitness-app-abc-trainerize/id516851502',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.trainerize.Trainerize',
+  },
+  {
     name: 'MyWalmart',
     company: 'Walmart',
     installMetrics: [
@@ -665,6 +968,83 @@ const productionApps: ProductionApp[] = [
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.nfc.popl',
   },
   {
+    name: 'Allē',
+    company: 'AbbVie',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: alleIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/all%C4%93/id720207987',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.allergan.bd.bdmobileapp',
+  },
+  {
+    name: 'myCadillac',
+    company: 'General Motors',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mycadillacIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mycadillac/id398605251',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.gm.cadillac.nomad.ownership',
+  },
+  {
+    name: 'myBuick',
+    company: 'General Motors',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: mybuickIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/mybuick/id399409835',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.gm.buick.nomad.ownership',
+  },
+  {
+    name: 'Peeps',
+    company: 'ChelleStudio',
+    installMetrics: [
+      {
+        label: '100K+ Play Store downloads',
+        value: 100_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: peepsIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/peeps-make-new-friends/id1531639916',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.buttergames.peeps',
+  },
+  {
+    name: 'Obico',
+    company: 'Obico',
+    installMetrics: [
+      {
+        label: '100K+ Play Store downloads',
+        value: 100_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: obicoIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/klipper-octoprint-obico/id1540646623',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.thespaghettidetective.android',
+  },
+  {
     name: 'VSCO Capture',
     company: 'Visual Supply Company',
     installMetrics: [
@@ -677,22 +1057,6 @@ const productionApps: ProductionApp[] = [
     iconSrc: vscoCaptureIcon,
     appStoreUrl:
       'https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219',
-  },
-  {
-    name: 'Golf Daddy',
-    company: 'GolfDaddy',
-    installMetrics: [
-      {
-        label: '5K+ Play Store installs',
-        value: 5_000,
-        kind: 'lifetime-installs',
-      },
-    ],
-    iconSrc: golfDaddyIcon,
-    appStoreUrl:
-      'https://apps.apple.com/us/app/golf-daddy-golf-at-home/id6463652126',
-    playStoreUrl:
-      'https://play.google.com/store/apps/details?id=com.benchmarkgolf.app',
   },
   {
     name: 'ShadowLens',
