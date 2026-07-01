@@ -8,9 +8,7 @@
 import AVFoundation
 import NitroModules
 
-/**
- * Represents a resolved `CameraSessionConnection`.
- */
+/// Represents a resolved `CameraSessionConnection`.
 struct ResolvedCameraSessionConnection {
   let input: any HybridCameraDeviceSpec & NativeCameraDevice
   let outputs: [OutputConfiguration]
@@ -18,7 +16,7 @@ struct ResolvedCameraSessionConnection {
   let initialZoom: Double?
   let onSessionConfigSelected: ((_ config: (any HybridCameraSessionConfigSpec)) -> Void)?
   let constraints: [Constraint]
-  
+
   init(connection: CameraSessionConnection) throws {
     self.input = try Self.resolveInput(connection.input)
     self.outputs = try connection.outputs.map { try Self.resolveOutput($0) }
@@ -27,11 +25,11 @@ struct ResolvedCameraSessionConnection {
     self.onSessionConfigSelected = connection.onSessionConfigSelected
     self.constraints = connection.constraints
   }
-  
+
   var requiresAudioInput: Bool {
     return outputs.contains { $0.output.requiresAudioInput }
   }
-  
+
   func isConnectedTo(input: AVCaptureInput) -> Bool {
     guard let deviceInput = input as? AVCaptureDeviceInput else {
       return false
@@ -70,7 +68,7 @@ struct ResolvedCameraSessionConnection {
       fatalError("AVCaptureConnection does not have .output or .videoPreviewLayer!")
     }
   }
-  
+
   struct OutputConfiguration {
     let output: Output
     let mirrorMode: MirrorMode
@@ -78,7 +76,7 @@ struct ResolvedCameraSessionConnection {
   enum Output {
     case output(any HybridCameraOutputSpec & NativeCameraOutput)
     case preview(any HybridCameraOutputSpec & NativePreviewViewOutput)
-    
+
     var requiresAudioInput: Bool {
       switch self {
       case .output(let output):
@@ -87,7 +85,7 @@ struct ResolvedCameraSessionConnection {
         return false
       }
     }
-    
+
     var mediaType: MediaType {
       switch self {
       case .output(let output):
@@ -96,7 +94,7 @@ struct ResolvedCameraSessionConnection {
         return preview.mediaType
       }
     }
-    
+
     var hybrid: any HybridCameraOutputSpec {
       switch self {
       case .output(let output):
@@ -106,7 +104,7 @@ struct ResolvedCameraSessionConnection {
       }
     }
   }
-  
+
   private static func resolveInput(_ input: CameraDeviceOrPosition) throws -> any HybridCameraDeviceSpec & NativeCameraDevice {
     switch input {
     case .first(let hybridCameraDeviceSpec):
@@ -125,11 +123,13 @@ struct ResolvedCameraSessionConnection {
     switch outputConfiguration.output {
     case let hybridOutput as any HybridCameraOutputSpec & NativeCameraOutput:
       // It's a normal AVCaptureOutput
-      return OutputConfiguration(output: .output(hybridOutput),
-                                 mirrorMode: outputConfiguration.mirrorMode)
+      return OutputConfiguration(
+        output: .output(hybridOutput),
+        mirrorMode: outputConfiguration.mirrorMode)
     case let hybridPreview as any HybridCameraOutputSpec & NativePreviewViewOutput:
-      return OutputConfiguration(output: .preview(hybridPreview),
-                                 mirrorMode: outputConfiguration.mirrorMode)
+      return OutputConfiguration(
+        output: .preview(hybridPreview),
+        mirrorMode: outputConfiguration.mirrorMode)
     default:
       throw RuntimeError("Output \"\(outputConfiguration.output)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!")
     }

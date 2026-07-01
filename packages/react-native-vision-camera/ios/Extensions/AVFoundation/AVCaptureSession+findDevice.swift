@@ -18,7 +18,7 @@ extension AVCaptureSession {
     let device = try AVCaptureDevice.resolve(value: input)
     return try findDevice(for: device)
   }
-  
+
   func findDevice(for device: AVCaptureDevice) throws -> AVCaptureDeviceInput {
     for attachedInput in self.inputs {
       guard let attachedInput = attachedInput as? AVCaptureDeviceInput else {
@@ -29,7 +29,7 @@ extension AVCaptureSession {
         return attachedInput
       }
     }
-    
+
     // We didn't find it!
     throw RuntimeError("The given device \"\(device)\" is not yet attached to the `CameraSession` - cannot form a connection yet!")
   }

@@ -23,7 +23,7 @@ extension AVCaptureSession {
       }
       logger.info("Adding Output \(output)...")
       addOutputWithNoConnections(output)
-      
+
     case .preview(let preview):
       // It's an AVVideoPreviewLayer - we need to set its .session
       let previewLayer = preview.previewLayer

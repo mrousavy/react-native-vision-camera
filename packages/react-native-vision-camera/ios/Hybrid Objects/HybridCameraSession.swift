@@ -46,8 +46,9 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       let isMultiCam = connections.count > 1
       if isMultiCam {
         guard self.session is AVCaptureMultiCamSession else {
-          throw RuntimeError("Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
-                             + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
+          throw RuntimeError(
+            "Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
+              + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
         }
       }
 
@@ -55,7 +56,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
       // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
       let connections = try connections.map { try ResolvedCameraSessionConnection(connection: $0) }
-      
+
       // Wrap the configuration in a batch
       self.session.beginConfiguration()
       defer {
@@ -199,7 +200,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
     }
   }
-  
+
   // pragma MARK: Start/Stop
   func start() -> Promise<Void> {
     return Promise.parallel(Self.queue) {
@@ -226,7 +227,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    */
   private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     let requiresAudioInput = targetConnections.contains { $0.requiresAudioInput }
-    
+
     // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
     for currentlyAttachedInput in self.session.inputs {
       if currentlyAttachedInput.isMicrophone {
@@ -316,7 +317,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     // This ensures that all unwanted inputs or outputs have been removed - and if an input
     // or output is removed from the session, the connection will also automatically be removed.
     // So we only need to worry about removing preview layer connections.
-    
+
     // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
     for currentConnection in self.session.connections {
       let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
@@ -332,8 +333,9 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       // 2.1. Iterate through all outputs
       for outputConfiguration in connection.outputs {
         // 2.2. Add the camera -> output connection
-        let containsConnection = self.session.containsConnection(input: connection.input.device,
-                                                                 output: outputConfiguration.output)
+        let containsConnection = self.session.containsConnection(
+          input: connection.input.device,
+          output: outputConfiguration.output)
         if !containsConnection {
           try self.session.addConnection(
             input: connection.input.device,
@@ -353,9 +355,11 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
   }
 
-  private func applyInitialConfig(device: AVCaptureDevice,
-                                  initialZoom: Double?,
-                                  initialExposureBias: Double?) throws {
+  private func applyInitialConfig(
+    device: AVCaptureDevice,
+    initialZoom: Double?,
+    initialExposureBias: Double?
+  ) throws {
     try device.lockForConfiguration()
     defer { device.unlockForConfiguration() }
     if let initialZoom = initialZoom {

@@ -15,8 +15,10 @@ extension AVCaptureSession {
       return connection.contains(connection: c)
     }
   }
-  func containsConnection(input: AVCaptureDevice,
-                          output: ResolvedCameraSessionConnection.Output) -> Bool {
+  func containsConnection(
+    input: AVCaptureDevice,
+    output: ResolvedCameraSessionConnection.Output
+  ) -> Bool {
     return self.connections.contains { connection in
       return connection.deviceInput == input && connection.isConnectedTo(output: output)
     }

@@ -22,7 +22,7 @@ extension AVCaptureConnection {
       return false
     }
   }
-  
+
   func isConnectedTo(output: ResolvedCameraSessionConnection.Output) -> Bool {
     switch output {
     case .output(let output):
