@@ -57,7 +57,3 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant 
    */
   func configure(config: OutputConfiguration)
 }
-
-public struct OutputConfiguration {
-  let mirrorMode: MirrorMode
-}
