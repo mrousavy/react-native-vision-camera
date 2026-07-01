@@ -84,7 +84,7 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
     }
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     guard let connection = self.output.connection(with: .video) else {
       return
     }

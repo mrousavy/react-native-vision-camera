@@ -15,9 +15,11 @@ import NitroModules
 
 extension AVCaptureSession {
   func findDevice(for input: CameraDeviceOrPosition) throws -> AVCaptureDeviceInput {
-    // 1. Resolve input to a AVCaptureDevice
     let device = try AVCaptureDevice.resolve(value: input)
-    // 2. Get a device-input
+    return try findDevice(for: device)
+  }
+
+  func findDevice(for device: AVCaptureDevice) throws -> AVCaptureDeviceInput {
     for attachedInput in self.inputs {
       guard let attachedInput = attachedInput as? AVCaptureDeviceInput else {
         continue
@@ -27,10 +29,8 @@ extension AVCaptureSession {
         return attachedInput
       }
     }
-    // 4. We didn't find the device because it is not attached to the `CameraSession` yet. Throw.
-    throw RuntimeError.error(
-      withMessage:
-        "The given input \"\(input)\" is not yet attached to the `CameraSession` - cannot form a connection yet!"
-    )
+
+    // We didn't find it!
+    throw RuntimeError("The given device \"\(device)\" is not yet attached to the `CameraSession` - cannot form a connection yet!")
   }
 }

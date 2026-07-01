@@ -78,7 +78,7 @@ class HybridCameraSession(
         1 -> {
           // Single Camera Session
           val connection = connections.single()
-          val cameraInfo = connection.getCameraInfo()
+          val cameraInfo = connection.getCameraInfo(cameraProvider)
           val outputConfigurations = connection.outputs
           val config = ConstraintResolver.resolveConstraints(cameraInfo, outputConfigurations, connection.constraints)
           Log.i(TAG, "Binding use-cases: ${config.sessionConfig.useCases}")
@@ -105,7 +105,7 @@ class HybridCameraSession(
           val allPreparedUseCases = mutableListOf<NativeCameraOutput.PreparedUseCase>()
           val configs =
             connections.map { connection ->
-              val cameraInfo = connection.getCameraInfo()
+              val cameraInfo = connection.getCameraInfo(cameraProvider)
               val outputs =
                 connection.outputs.map {
                   it.output as? NativeCameraOutput

@@ -9,18 +9,6 @@ import Foundation
 import NitroModules
 
 extension Array where Element == CameraSessionConnection {
-  var containsOutputThatRequiresAudioInput: Bool {
-    return self.contains { connection in
-      return connection.outputs.contains { outputConfig in
-        if let output = outputConfig.output as? any NativeCameraOutput {
-          return output.requiresAudioInput
-        } else {
-          return false
-        }
-      }
-    }
-  }
-
   func contains(input targetInput: AVCaptureInput) -> Bool {
     guard let targetInput = targetInput as? AVCaptureDeviceInput else {
       // We currently only support AVCaptureDeviceInput. I don't even know if there are other subclasses.

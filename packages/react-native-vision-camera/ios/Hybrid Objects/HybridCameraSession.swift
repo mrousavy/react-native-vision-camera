@@ -46,15 +46,16 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       let isMultiCam = connections.count > 1
       if isMultiCam {
         guard self.session is AVCaptureMultiCamSession else {
-          throw RuntimeError.error(
-            withMessage:
-              "Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
-              + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs."
-          )
+          throw RuntimeError(
+            "Cannot add multiple inputs (\(connections)) to a single-cam CameraSession! "
+              + "Create your CameraSession as a multi-cam session (`enableMultiCamSupport = true`) to add multiple camera inputs.")
         }
       }
 
       logger.info("Reconfiguring CameraSession with \(connections.count) connection(s)...")
+
+      // Resolve flat Connections upfront to AVCaptureDevice, AVOutput, etc etc
+      let connections = try connections.map { try ResolvedCameraSessionConnection(connection: $0) }
 
       // Wrap the configuration in a batch
       self.session.beginConfiguration()
@@ -76,24 +77,11 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       for connection in connections {
         // connection:
         try self.configureConnection(connection, isMultiCam: isMultiCam)
-
         // outputs:
-        for outputConfiguration in connection.outputs {
-          switch outputConfiguration.output {
-          case let output as any NativeCameraOutput:
-            // Configure AVCaptureOutput
-            output.configure(config: outputConfiguration)
-          case let previewOutput as any NativePreviewViewOutput:
-            // Configure AVCaptureVideoPreviewLayer
-            previewOutput.configure(config: outputConfiguration)
-          default:
-            // wrong type!
-            break
-          }
-        }
+        self.configureOutputs(connection)
       }
 
-      // Apply any changes to the session connections
+      // If we have any Dynamic Range Constraints, we disable automatic color space selection on the AVCaptureSession.
       let hasCustomDynamicRangeConstraint = connections.contains { connection in
         return connection.constraints.contains { constraint in
           // If the user specified a custom DynamicRange, we cannot automatically adjust the ColorSpace
@@ -103,8 +91,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       self.session.automaticallyConfiguresCaptureDeviceForWideColor = !hasCustomDynamicRangeConstraint
 
       // Background Audio Playback
-      if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
-        if #available(iOS 18.0, *) {
+      if #available(iOS 18.0, *) {
+        if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
           self.session.configuresApplicationAudioSessionToMixWithOthers = allowBackgroundAudioPlayback
         }
       }
@@ -117,9 +105,9 @@ final class HybridCameraSession: HybridCameraSessionSpec {
   }
 
   // pragma MARK: SessionConfiguration
-  private func configureConnection(_ connection: CameraSessionConnection, isMultiCam: Bool) throws {
+  private func configureConnection(_ connection: ResolvedCameraSessionConnection, isMultiCam: Bool) throws {
     // Get a handle to the input
-    let outputs = connection.outputs.map { $0.output }
+    let outputs = connection.outputs.map { $0.output.hybrid }
     let resolved = try ConstraintResolver.resolveConstraints(
       for: connection.input,
       constraints: connection.constraints,
@@ -201,6 +189,18 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
   }
 
+  private func configureOutputs(_ connection: ResolvedCameraSessionConnection) {
+    for outputConfiguration in connection.outputs {
+      let outputConfig = OutputConfiguration(mirrorMode: outputConfiguration.mirrorMode)
+      switch outputConfiguration.output {
+      case .output(let output):
+        output.configure(config: outputConfig)
+      case .preview(let preview):
+        preview.configure(config: outputConfig)
+      }
+    }
+  }
+
   // pragma MARK: Start/Stop
   func start() -> Promise<Void> {
     return Promise.parallel(Self.queue) {
@@ -225,19 +225,24 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * Adds all inputs on the given [targetConnections] if they haven't been added yet,
    * and removes all current inputs that aren't listed in the [connections] array.
    */
-  private func updateInputs(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
+    let requiresAudioInput = targetConnections.contains { $0.requiresAudioInput }
+
     // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
     for currentlyAttachedInput in self.session.inputs {
       if currentlyAttachedInput.isMicrophone {
         // It's a microphone/audio input - let's check if we want audio in any connection.
-        if !targetConnections.containsOutputThatRequiresAudioInput {
+        if !requiresAudioInput {
           // 1.1.a. We don't want any audio input - remove it!
           logger.info("Removing audio input \(currentlyAttachedInput)...")
           self.session.removeInput(currentlyAttachedInput)
         }
       } else {
         // It's a normal camera device - let's check if we want it in connections.
-        if !targetConnections.contains(input: currentlyAttachedInput) {
+        let containsCurrentlyAttachedInput = targetConnections.contains { connection in
+          return connection.isConnectedTo(input: currentlyAttachedInput)
+        }
+        if !containsCurrentlyAttachedInput {
           // 1.1.b. We don't want this input - remove it!
           logger.info("Removing input \(currentlyAttachedInput)...")
           self.session.removeInput(currentlyAttachedInput)
@@ -246,21 +251,28 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
     // 2. Loop through all connection inputs - if it's not yet attached to the session, add it
     for connection in targetConnections {
-      let containsInput = try self.session.containsInput(connection.input)
+      let device = connection.input.device
+      let containsInput = self.session.inputs.contains { input in
+        guard let deviceInput = input as? AVCaptureDeviceInput else {
+          return false
+        }
+        return deviceInput.device == device
+      }
       if !containsInput {
         // 2.1. It doesn't exist yet - add it to the session..
-        let input = try self.session.addInputWithNoConnections(connection.input)
+        let deviceInput = try AVCaptureDeviceInput(device: device)
+        self.session.addInputWithNoConnections(deviceInput)
         // 2.2. Configure the input with initial settings
         if connection.initialZoom != nil || connection.initialExposureBias != nil {
           try applyInitialConfig(
-            device: input.device,
+            device: device,
             initialZoom: connection.initialZoom,
             initialExposureBias: connection.initialExposureBias)
         }
       }
     }
     // 3. If we need an audio input, add it now
-    if targetConnections.containsOutputThatRequiresAudioInput {
+    if requiresAudioInput {
       let containsAudioInput = self.session.inputs.contains { $0.isMicrophone }
       if !containsAudioInput {
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
@@ -275,10 +287,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * and removes all current outputs that aren't listed in the [targetConnections] array.
    * This includes special handling for `NativePreviewViewOutput`.
    */
-  private func updateOutputs(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateOutputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     // 1. Loop through all current CameraSession outputs - if it's not in our array, we remove it
     for currentlyAttachedOutput in self.session.outputs {
-      if !targetConnections.contains(output: currentlyAttachedOutput) {
+      let containsAttachedOutput = targetConnections.contains { connection in
+        return connection.isConnectedTo(output: currentlyAttachedOutput)
+      }
+      if !containsAttachedOutput {
         // 1.1. We don't want this output - remove it!
         logger.info("Removing output \(currentlyAttachedOutput)...")
         self.session.removeOutput(currentlyAttachedOutput)
@@ -286,19 +301,18 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     }
     // 2. Loop through all connections
     for connection in targetConnections {
-      // 3. Loop through all outputs
-      for outputConfiguration in connection.outputs {
-        let output = outputConfiguration.output
-        let containsOutput = try self.session.containsOutput(output)
+      // 2.1. Loop through each output
+      for output in connection.outputs {
+        let containsOutput = self.session.containsOutput(output.output)
         if !containsOutput {
-          // 3.1. It doesn't exist yet - add it to the session..
-          try session.addOutputWithNoConnections(output)
+          // 2.2. It doesn't exist yet - add it to the session..
+          try session.addOutputWithNoConnections(output.output)
         }
       }
     }
   }
 
-  private func updateConnections(_ targetConnections: [CameraSessionConnection]) throws {
+  private func updateConnections(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     // By this time, `updateInputs(...)` and `updateOutputs(...)` has already been called.
     // This ensures that all unwanted inputs or outputs have been removed - and if an input
     // or output is removed from the session, the connection will also automatically be removed.
@@ -306,7 +320,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
     // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
     for currentConnection in self.session.connections {
-      if !targetConnections.contains(connection: currentConnection) {
+      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
+      if !containsConnection {
         // 1.1. We don't want this connection - remove it!
         logger.info("Removing connection \(currentConnection)...")
         self.session.removeConnection(currentConnection)
@@ -315,19 +330,20 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
     // 2. Add all new connections that we don't have yet:
     for connection in targetConnections {
+      // 2.1. Iterate through all outputs
       for outputConfiguration in connection.outputs {
-        // 2.1. Add the camera -> output connection
-        let containsConnection = try self.session.containsConnection(
-          input: connection.input,
+        // 2.2. Add the camera -> output connection
+        let containsConnection = self.session.containsConnection(
+          input: connection.input.device,
           output: outputConfiguration.output)
         if !containsConnection {
           try self.session.addConnection(
-            input: connection.input,
+            input: connection.input.device,
             output: outputConfiguration.output)
         }
 
         // 2.2. If this `output` requires audio, add this connection too
-        if let output = outputConfiguration.output as? any NativeCameraOutput {
+        if case .output(let output) = outputConfiguration.output {
           if output.requiresAudioInput {
             let hasAudioConnection = self.session.containsAudioConnection(to: output.output)
             if !hasAudioConnection {
@@ -340,10 +356,10 @@ final class HybridCameraSession: HybridCameraSessionSpec {
   }
 
   private func applyInitialConfig(
-    device: AVCaptureDevice, initialZoom: Double?, initialExposureBias: Double?
-  )
-    throws
-  {
+    device: AVCaptureDevice,
+    initialZoom: Double?,
+    initialExposureBias: Double?
+  ) throws {
     try device.lockForConfiguration()
     defer { device.unlockForConfiguration() }
     if let initialZoom = initialZoom {

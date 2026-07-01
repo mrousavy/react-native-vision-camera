@@ -9,7 +9,7 @@ import Foundation
 import NitroModules
 
 extension AVCaptureDevice {
-  static func resolve(value: CameraDeviceOrPosition) throws -> AVCaptureDevice {
+  static func resolve(value: CameraDeviceOrPosition) throws(RuntimeError) -> AVCaptureDevice {
     switch value {
     case .first(let hybridCameraDeviceSpec):
       guard let device = hybridCameraDeviceSpec as? any NativeCameraDevice else {
