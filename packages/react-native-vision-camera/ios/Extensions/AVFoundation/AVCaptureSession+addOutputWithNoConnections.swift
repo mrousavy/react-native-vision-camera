@@ -10,7 +10,7 @@ import NitroModules
 
 extension AVCaptureSession {
   func addOutputWithNoConnections(_ output: ResolvedCameraSessionConnection.Output) throws {
-    switch output.native {
+    switch output {
     case .output(let output):
       // It's a normal AVCaptureOutput
       let output = output.output
