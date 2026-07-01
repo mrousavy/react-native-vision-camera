@@ -9,6 +9,7 @@ import amazonBusinessIcon from '../../public/img/production-apps/amazon-business
 import amazonShopperPanelIcon from '../../public/img/production-apps/amazon-shopper-panel.jpg'
 import amazonShoppingIcon from '../../public/img/production-apps/amazon-shopping.jpg'
 import arbysIcon from '../../public/img/production-apps/arbys.jpg'
+import attIcon from '../../public/img/production-apps/att.jpg'
 import bHyveIcon from '../../public/img/production-apps/b-hyve.jpg'
 import bestBuyIcon from '../../public/img/production-apps/best-buy.jpg'
 import bodyfastIcon from '../../public/img/production-apps/bodyfast.jpg'
@@ -154,6 +155,21 @@ const productionApps: ProductionApp[] = [
     appStoreUrl:
       'https://apps.apple.com/us/app/evernote-notes-organizer/id281796108',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.evernote',
+  },
+  {
+    name: 'AT&T',
+    company: 'AT&T Services',
+    installMetrics: [
+      {
+        label: '100M+ Play Store downloads',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: attIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/at-t/id309172177',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.att.myWireless',
   },
   {
     name: 'Klarna',
