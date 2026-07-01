@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraState
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -50,7 +49,6 @@ class HybridCameraSession(
   private var onErrorListeners = arrayListOf<(Throwable) -> Unit>()
   private var onInterruptionStartedListeners = arrayListOf<(InterruptionReason) -> Unit>()
   private var onInterruptionEndedListeners = arrayListOf<() -> Unit>()
-  private var currentCameraState = CameraState.Type.CLOSED
 
   @SuppressLint("RestrictedApi")
   override fun configure(
@@ -85,7 +83,7 @@ class HybridCameraSession(
 
           if (connection.onSessionConfigSelected != null) {
             // Notify JS callback that we resolved the constraints to a specific `config`
-            val hybridConfig = HybridCameraSessionConfig(cameraInfo, config.sessionConfig, config.resolvedConfig)
+            val hybridConfig = HybridCameraSessionConfig(config.sessionConfig, config.resolvedConfig)
             connection.onSessionConfigSelected(hybridConfig)
           }
 
