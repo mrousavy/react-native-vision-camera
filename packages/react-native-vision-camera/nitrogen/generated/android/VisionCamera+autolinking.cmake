@@ -107,6 +107,7 @@ target_sources(
   ../nitrogen/generated/android/c++/JHybridCameraVideoOutputSpec.cpp
   ../nitrogen/generated/android/c++/JHybridRecorderSpec.cpp
   ../nitrogen/generated/android/c++/JHybridCameraSessionSpec.cpp
+  ../nitrogen/generated/android/c++/JCameraDeviceOrPosition.cpp
   ../nitrogen/generated/android/c++/JHybridCameraSessionConfigSpec.cpp
   ../nitrogen/generated/android/c++/JHybridFrameConverterSpec.cpp
   ../nitrogen/generated/android/c++/JHybridFrameRendererViewSpec.cpp

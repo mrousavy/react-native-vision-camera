@@ -1,6 +1,5 @@
 package com.margelo.nitro.camera.hybrids
 
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.SessionConfig
 import com.margelo.nitro.camera.AutoFocusSystem
 import com.margelo.nitro.camera.HybridCameraSessionConfigSpec
@@ -11,7 +10,6 @@ import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.public.NativeCameraSessionConfig
 
 class HybridCameraSessionConfig(
-  private val cameraInfo: CameraInfo,
   override val sessionConfig: SessionConfig,
   private val resolvedConfig: NativeCameraOutput.Config,
 ) : HybridCameraSessionConfigSpec(),

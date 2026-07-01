@@ -9,18 +9,6 @@ import Foundation
 import NitroModules
 
 extension Array where Element == CameraSessionConnection {
-  var containsOutputThatRequiresAudioInput: Bool {
-    return self.contains { connection in
-      return connection.outputs.contains { outputConfig in
-        if let output = outputConfig.output as? any NativeCameraOutput {
-          return output.requiresAudioInput
-        } else {
-          return false
-        }
-      }
-    }
-  }
-
   func contains(input targetInput: AVCaptureInput) -> Bool {
     guard let targetInput = targetInput as? AVCaptureDeviceInput else {
       // We currently only support AVCaptureDeviceInput. I don't even know if there are other subclasses.
@@ -28,10 +16,10 @@ extension Array where Element == CameraSessionConnection {
     }
 
     return self.contains { connection in
-      guard let input = connection.input as? any NativeCameraDevice else {
+      guard let device = try? AVCaptureDevice.resolve(value: connection.input) else {
         return false
       }
-      return input.device == targetInput.device
+      return device == targetInput.device
     }
   }
 
@@ -62,7 +50,7 @@ extension Array where Element == CameraSessionConnection {
 
     // It's a connection to a camera device - compare `input` and `output`:
     return self.contains { connection in
-      guard let input = connection.input as? any NativeCameraDevice else {
+      guard let device = try? AVCaptureDevice.resolve(value: connection.input) else {
         return false
       }
 
@@ -71,7 +59,7 @@ extension Array where Element == CameraSessionConnection {
         guard let deviceInput = port.input as? AVCaptureDeviceInput else {
           return false
         }
-        return input.device == deviceInput.device
+        return device == deviceInput.device
       }
       if !containsInput {
         return false

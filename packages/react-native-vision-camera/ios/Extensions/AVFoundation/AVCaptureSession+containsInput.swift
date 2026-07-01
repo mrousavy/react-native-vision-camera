@@ -9,19 +9,13 @@ import Foundation
 import NitroModules
 
 extension AVCaptureSession {
-  func containsInput(_ deviceSpec: any HybridCameraDeviceSpec) throws -> Bool {
-    guard let nativeInput = deviceSpec as? any NativeCameraDevice else {
-      throw RuntimeError.error(
-        withMessage: "Input \"\(deviceSpec)\" is not of type `NativeCameraDevice`!")
-    }
-    for input in self.inputs {
+  func containsInput(_ deviceOrPosition: CameraDeviceOrPosition) throws -> Bool {
+    let device = try AVCaptureDevice.resolve(value: deviceOrPosition)
+    return self.inputs.contains { input in
       guard let deviceInput = input as? AVCaptureDeviceInput else {
-        continue
+        return false
       }
-      if deviceInput.device == nativeInput.device {
-        return true
-      }
+      return deviceInput.device == device
     }
-    return false
   }
 }

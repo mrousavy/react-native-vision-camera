@@ -14,26 +14,23 @@ import NitroModules
 //       `NativeCameraDevice` directly, and only unwrap once in the caller?
 
 extension AVCaptureSession {
-  func findDevice(for input: any HybridCameraDeviceSpec) throws -> AVCaptureDeviceInput {
-    // 1. Downcast input
-    guard let input = input as? any NativeCameraDevice else {
-      throw RuntimeError.error(
-        withMessage: "Input \"\(input)\" is not of type `NativeCameraDevice`!")
-    }
-    // 2. Get a device-input
+  func findDevice(for input: CameraDeviceOrPosition) throws -> AVCaptureDeviceInput {
+    let device = try AVCaptureDevice.resolve(value: input)
+    return try findDevice(for: device)
+  }
+
+  func findDevice(for device: AVCaptureDevice) throws -> AVCaptureDeviceInput {
     for attachedInput in self.inputs {
       guard let attachedInput = attachedInput as? AVCaptureDeviceInput else {
         continue
       }
-      if attachedInput.device == input.device {
+      if attachedInput.device == device {
         // 3. We found it! Return
         return attachedInput
       }
     }
-    // 4. We didn't find the device because it is not attached to the `CameraSession` yet. Throw.
-    throw RuntimeError.error(
-      withMessage:
-        "The given input \"\(input)\" is not yet attached to the `CameraSession` - cannot form a connection yet!"
-    )
+
+    // We didn't find it!
+    throw RuntimeError("The given device \"\(device)\" is not yet attached to the `CameraSession` - cannot form a connection yet!")
   }
 }

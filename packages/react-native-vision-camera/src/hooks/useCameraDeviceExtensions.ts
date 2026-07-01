@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { getSupportedExtensions } from '../CameraDevices'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import type { CameraExtension } from '../specs/inputs/CameraExtension.nitro'
+import { useCameraDeviceFactory } from './internal/useCameraDeviceFactory'
 
 /**
  * Get a list of all available {@linkcode CameraExtension}s for this specific
@@ -16,16 +16,19 @@ import type { CameraExtension } from '../specs/inputs/CameraExtension.nitro'
 export function useCameraDeviceExtensions(
   device: CameraDevice | undefined,
 ): CameraExtension[] | undefined {
+  const factory = useCameraDeviceFactory()
   const [extensions, setExtensions] = useState<CameraExtension[]>([])
 
   useEffect(() => {
     if (device == null) return
+    if (factory == null) return
+
     const load = async () => {
-      const exts = await getSupportedExtensions(device)
+      const exts = await factory.getSupportedExtensions(device)
       setExtensions(exts)
     }
     load()
-  }, [device])
+  }, [device, factory])
 
   return extensions
 }

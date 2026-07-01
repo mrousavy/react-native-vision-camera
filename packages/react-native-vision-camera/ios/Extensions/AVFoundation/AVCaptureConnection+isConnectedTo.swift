@@ -22,4 +22,13 @@ extension AVCaptureConnection {
       return false
     }
   }
+
+  func isConnectedTo(output: ResolvedCameraSessionConnection.Output) -> Bool {
+    switch output {
+    case .output(let output):
+      return self.output == output.output
+    case .preview(let preview):
+      return self.videoPreviewLayer == preview.previewLayer
+    }
+  }
 }

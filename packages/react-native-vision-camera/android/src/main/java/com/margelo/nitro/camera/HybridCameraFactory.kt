@@ -78,7 +78,7 @@ class VisionCamera : HybridCameraFactorySpec() {
         device as? NativeCameraDevice
           ?: throw Error("The given `device` was not of type `NativeCameraDevice`!")
       val config = ConstraintResolver.resolveConstraints(device.cameraInfo, outputConfigurations, constraints)
-      return@async HybridCameraSessionConfig(device.cameraInfo, config.sessionConfig, config.resolvedConfig)
+      return@async HybridCameraSessionConfig(config.sessionConfig, config.resolvedConfig)
     }
   }
 

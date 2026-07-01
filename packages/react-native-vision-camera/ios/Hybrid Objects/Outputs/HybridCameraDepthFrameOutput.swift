@@ -66,7 +66,7 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
     }
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     // TODO: Somehow attach this to `connection`, so we dont have race conditions
     //       where we read `self.mirrorMode` for an old Frame in `getMediaSampleMetadata`
     self.mirrorMode = config.mirrorMode
