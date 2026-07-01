@@ -30,6 +30,7 @@ import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
 import magicplanIcon from '../../public/img/production-apps/magicplan.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
+import momoIcon from '../../public/img/production-apps/momo.jpg'
 import musescoreIcon from '../../public/img/production-apps/musescore.jpg'
 import mybuickIcon from '../../public/img/production-apps/mybuick.jpg'
 import mycadillacIcon from '../../public/img/production-apps/mycadillac.jpg'
@@ -55,6 +56,7 @@ import snapcalorieIcon from '../../public/img/production-apps/snapcalorie.jpg'
 import sonicDriveInIcon from '../../public/img/production-apps/sonic-drive-in.jpg'
 import spacesByWixIcon from '../../public/img/production-apps/spaces-by-wix.jpg'
 import starlinkIcon from '../../public/img/production-apps/starlink.jpg'
+import sunocoIcon from '../../public/img/production-apps/sunoco.jpg'
 import sushIcon from '../../public/img/production-apps/sush.jpg'
 import tactacamRevealIcon from '../../public/img/production-apps/tactacam-reveal.jpg'
 import tattooAiIcon from '../../public/img/production-apps/tattoo-ai.jpg'
@@ -742,6 +744,22 @@ const productionApps: ProductionApp[] = [
       'https://play.google.com/store/apps/details?id=com.hubx.tattoo',
   },
   {
+    name: 'Momo',
+    company: 'ScaleUp',
+    installMetrics: [
+      {
+        label: '5M+ Play Store downloads',
+        value: 5_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: momoIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/momo-ai-photo-video-maker/id1658822260',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.scaleup.dreame',
+  },
+  {
     name: 'Ledger Live',
     company: 'Ledger',
     installMetrics: [
@@ -1079,6 +1097,21 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/tactacam-reveal/id1515339989',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.tactacam.reveal',
+  },
+  {
+    name: 'Sunoco',
+    company: 'Sunoco',
+    installMetrics: [
+      {
+        label: '500K+ Play Store downloads',
+        value: 500_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: sunocoIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/sunoco/id1145943301',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.sunoco.sunoco',
   },
   {
     name: 'myCadillac',
