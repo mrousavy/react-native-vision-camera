@@ -16,6 +16,7 @@ import boldvoiceIcon from '../../public/img/production-apps/boldvoice.jpg'
 import buffaloWildWingsIcon from '../../public/img/production-apps/buffalo-wild-wings.jpg'
 import connecteamIcon from '../../public/img/production-apps/connecteam.jpg'
 import dailyAstrologyHoroscopeIcon from '../../public/img/production-apps/daily-astrology-horoscope.jpg'
+import evernoteIcon from '../../public/img/production-apps/evernote.jpg'
 import expensifyIcon from '../../public/img/production-apps/expensify.jpg'
 import gasbuddyIcon from '../../public/img/production-apps/gasbuddy.jpg'
 import iAmSoberIcon from '../../public/img/production-apps/i-am-sober.jpg'
@@ -25,6 +26,7 @@ import kompanionIcon from '../../public/img/production-apps/kompanion.jpg'
 import ledgerLiveIcon from '../../public/img/production-apps/ledger-live.jpg'
 import lingvanoIcon from '../../public/img/production-apps/lingvano.jpg'
 import locketIcon from '../../public/img/production-apps/locket.jpg'
+import magicplanIcon from '../../public/img/production-apps/magicplan.jpg'
 import metamaskIcon from '../../public/img/production-apps/metamask.jpg'
 import musescoreIcon from '../../public/img/production-apps/musescore.jpg'
 import mybuickIcon from '../../public/img/production-apps/mybuick.jpg'
@@ -137,6 +139,21 @@ const productionApps: ProductionApp[] = [
     appStoreUrl: 'https://apps.apple.com/us/app/xbox/id736179781',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass',
+  },
+  {
+    name: 'Evernote',
+    company: 'Bending Spoons',
+    installMetrics: [
+      {
+        label: '100M+ Play Store downloads',
+        value: 100_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: evernoteIcon,
+    appStoreUrl:
+      'https://apps.apple.com/us/app/evernote-notes-organizer/id281796108',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.evernote',
   },
   {
     name: 'Klarna',
@@ -516,6 +533,21 @@ const productionApps: ProductionApp[] = [
       'https://apps.apple.com/us/app/musescore-sheet-music-chords/id835731296',
     playStoreUrl:
       'https://play.google.com/store/apps/details?id=com.musescore.playerlite',
+  },
+  {
+    name: 'magicplan',
+    company: 'magicplan',
+    installMetrics: [
+      {
+        label: '10M+ Play Store downloads',
+        value: 10_000_000,
+        kind: 'lifetime-installs',
+      },
+    ],
+    iconSrc: magicplanIcon,
+    appStoreUrl: 'https://apps.apple.com/us/app/magicplan/id427424432',
+    playStoreUrl:
+      'https://play.google.com/store/apps/details?id=com.sensopia.magicplan',
   },
   {
     name: 'OnePay',
