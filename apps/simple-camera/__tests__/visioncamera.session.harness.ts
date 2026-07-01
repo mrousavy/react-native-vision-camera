@@ -77,6 +77,13 @@ describe('VisionCamera - Session', () => {
   it('configures a session directly from each target camera position', async () => {
     const positions: TargetCameraPosition[] = ['back', 'front', 'external']
     const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const photoOutput = VisionCamera.createPhotoOutput({
+      containerFormat: 'native',
+      quality: 1,
+      qualityPrioritization: 'balanced',
+      targetResolution: CommonResolutions.HD_4_3,
+    })
 
     try {
       for (const position of positions) {
@@ -86,7 +93,13 @@ describe('VisionCamera - Session', () => {
         const configurePromise = session.configure([
           {
             input: position,
-            outputs: [],
+            outputs: [
+              {
+                output: previewOutput,
+                mirrorMode: position === 'front' ? 'on' : 'auto',
+              },
+              { output: photoOutput, mirrorMode: 'auto' },
+            ],
             constraints: [],
           },
         ])
