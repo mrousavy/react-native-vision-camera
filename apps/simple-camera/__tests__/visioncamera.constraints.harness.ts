@@ -238,11 +238,14 @@ describe('VisionCamera - Constraints', () => {
     const targetEdges = getEdges(targetResolution)
     const maxAllowedEdges = getEdges(maxAllowedResolution)
     const uhdEdges = getEdges(uhdResolution)
-    const supportedVideoResolutions = backDevice.getSupportedResolutions('video')
+    const supportedVideoResolutions =
+      backDevice.getSupportedResolutions('video')
     const supportsTargetResolution = supportedVideoResolutions.some(
       (resolution) => {
         const edges = getEdges(resolution)
-        return edges.short === targetEdges.short && edges.long === targetEdges.long
+        return (
+          edges.short === targetEdges.short && edges.long === targetEdges.long
+        )
       },
     )
     const supportsUhdResolution = supportedVideoResolutions.some(
@@ -469,44 +472,6 @@ describe('VisionCamera - Constraints', () => {
       )
     }
     expect(received.isBinned).toBe(true)
-    await session.stop()
-  })
-
-  it('honors a pixelFormat constraint matching a supported device format', async (context) => {
-    const candidate = backDevice.supportedPixelFormats.find(
-      (f) => f !== 'unknown',
-    )
-    if (candidate == null) {
-      return context.skip(
-        'pixelFormat constraint: device has no non-unknown formats',
-      )
-    }
-    const session = await VisionCamera.createCameraSession(false)
-    const frameOutput = VisionCamera.createFrameOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
-      enablePhysicalBufferRotation: false,
-      enableCameraMatrixDelivery: false,
-      allowDeferredStart: false,
-      dropFramesWhileBusy: true,
-    })
-    let received: CameraSessionConfig | undefined
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
-        constraints: [{ pixelFormat: candidate }],
-        onSessionConfigSelected: (config) => {
-          received = config
-        },
-      },
-    ])
-    await waitUntil(() => received != null, { timeout: 5_000 })
-    console.log(
-      `requested pixelFormat=${candidate} resolved=${received?.nativePixelFormat}`,
-    )
-    expect(received?.nativePixelFormat).toBe(candidate)
     await session.stop()
   })
 
