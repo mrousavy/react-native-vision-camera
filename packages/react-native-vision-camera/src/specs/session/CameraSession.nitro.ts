@@ -37,7 +37,17 @@ export type InterruptionReason =
  * per output, or multi-cam {@linkcode CameraSession}s.
  *
  * @example
- * Create a Camera Session using the hooks:
+ * Create a Camera Session with the default 'back' CameraDevice using the hooks API:
+ * ```ts
+ * const photoOutput = ...
+ * const camera = useCamera({
+ *   isActive: true,
+ *   input: 'back',
+ *   outputs: [photoOutput]
+ * })
+ * ```
+ * @example
+ * Create a Camera Session with a custom CameraDevice using the hooks API:
  * ```ts
  * const device = ...
  * const photoOutput = ...
@@ -142,7 +152,22 @@ export interface CameraSession
    * be used together - see {@linkcode CameraDeviceFactory.supportedMultiCamDeviceCombinations}
    *
    * @example
-   * Creating a simple Preview + Photo connection:
+   * Creating a simple Preview + Photo connection for the default 'back' CameraDevice:
+   * ```ts
+   * const session = ...
+   * const [controller] = await session.configure([
+   *   {
+   *     input: 'back',
+   *     outputs: [
+   *       { output: previewOutput, mirrorMode: 'auto' },
+   *       { output: photoOutput, mirrorMode: 'auto' },
+   *     ],
+   *     constraints: []
+   *   }
+   * ])
+   * ```
+   * @example
+   * Creating a simple Preview + Photo connection with a custom CameraDevice:
    * ```ts
    * const session = ...
    * const device = ...
