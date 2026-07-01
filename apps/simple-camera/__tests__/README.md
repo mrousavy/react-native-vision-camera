@@ -31,6 +31,7 @@ Tests are split by domain. Each file tests one slice of the imperative `VisionCa
 | [visioncamera.coordinates.harness.ts](visioncamera.coordinates.harness.ts) | `Frame.convertFramePointToCameraPoint` / `convertCameraPointToFramePoint`, `PreviewView.convertViewPointToCameraPoint` / `convertCameraPointToViewPoint`, `PreviewView.createMeteringPoint`, `convertScannedObjectCoordinatesToViewCoordinates`, end-to-end Frame → Camera → View round-trip |
 | [visioncamera.nativepreviewview.harness.tsx](visioncamera.nativepreviewview.harness.tsx) | Bare `NativePreviewView` lifecycle, layout-sensitive preview regression coverage, `resizeMode`, Android `implementationMode`, gesture controllers, multi-preview mounting, `PreviewView` ref methods, Android `takeSnapshot()` dimensions |
 | [visioncamera.camera-view.harness.tsx](visioncamera.camera-view.harness.tsx) | High-level `<Camera>` preview lifecycle, photo output integration, controller props, native gestures, `CameraRef` methods, `isActive`, mount / unmount / replacement behavior |
+| [visioncamera.start-crash.harness.tsx](visioncamera.start-crash.harness.tsx) | iOS AVFoundation output attach/detach stress repro for issue #3773, including photo -> video -> photo output topology and the Skia frame-preview path |
 
 Pick the file that best matches what you're testing. If you're reproducing a bug that spans multiple outputs, put it in the file most central to the failure. If nothing fits, open a new `visioncamera.<domain>.harness.ts` — Jest picks up anything matching `__tests__/**/*.harness.{ts,tsx}`.
 
