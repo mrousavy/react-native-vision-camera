@@ -95,6 +95,37 @@ describe('VisionCamera - Devices', () => {
     subscription.remove()
   })
 
+  it('does not expose unknown fallback values in enumerated device capabilities', () => {
+    for (const device of factory.cameraDevices) {
+      for (const inspectedDevice of [device, ...device.physicalDevices]) {
+        const label = `${inspectedDevice.position}:${inspectedDevice.id}`
+
+        console.log(
+          `known values ${label}: type=${inspectedDevice.type} ` +
+            `mediaTypes=${inspectedDevice.mediaTypes.join(',')} ` +
+            `pixelFormats=${inspectedDevice.supportedPixelFormats.join(',')} ` +
+            `dynamicRanges=${inspectedDevice.supportedVideoDynamicRanges
+              .map(
+                (range) =>
+                  `${range.bitDepth}/${range.colorSpace}/${range.colorRange}`,
+              )
+              .join(',')}`,
+        )
+
+        expect(inspectedDevice.position).not.toBe('unspecified')
+        expect(inspectedDevice.type).not.toBe('unknown')
+        expect(inspectedDevice.mediaTypes).not.toContain('other')
+        expect(inspectedDevice.supportedPixelFormats).not.toContain('unknown')
+
+        for (const dynamicRange of inspectedDevice.supportedVideoDynamicRanges) {
+          expect(dynamicRange.bitDepth).not.toBe('unknown')
+          expect(dynamicRange.colorSpace).not.toBe('unknown')
+          expect(dynamicRange.colorRange).not.toBe('unknown')
+        }
+      }
+    }
+  })
+
   it('reports sane capability invariants for each device', () => {
     for (const device of factory.cameraDevices) {
       const label = `${device.position}:${device.id}`

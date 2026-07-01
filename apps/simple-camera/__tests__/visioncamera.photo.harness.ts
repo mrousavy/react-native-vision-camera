@@ -182,6 +182,7 @@ describe('VisionCamera - Photo', () => {
       try {
         expect(photo.width).toBeGreaterThan(0)
         expect(photo.height).toBeGreaterThan(0)
+        expect(photo.containerFormat).not.toBe('unknown')
         if (!photo.hasPixelBuffer) {
           return context.skip(
             'Photo pixel buffer: captured native photo has no pixel buffer',
