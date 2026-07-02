@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "FlashMode" and the the Kotlin enum "FlashMode".
+   * The C++ JNI bridge between the C++ enum "FlashMode" and the Kotlin enum "FlashMode".
    */
   struct JFlashMode final: public jni::JavaClass<JFlashMode> {
   public:

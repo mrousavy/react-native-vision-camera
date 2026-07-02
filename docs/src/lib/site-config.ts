@@ -3,8 +3,12 @@ const DEFAULT_BRANCH = 'main'
 
 export const siteConfig = {
   name: 'VisionCamera',
+  description:
+    'The most powerful Camera library for React Native. Supports Photo and Video capture, QR/Barcode scanning, Frame Processors, and more.',
+  alternateNames: ['React Native Vision Camera', 'react-native-vision-camera'],
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL),
   repositoryUrl: 'https://github.com/mrousavy/react-native-vision-camera',
+  packageUrl: 'https://www.npmjs.com/package/react-native-vision-camera',
   repositoryBranch: DEFAULT_BRANCH,
   contentRoots: {
     docs: 'docs/content/docs',

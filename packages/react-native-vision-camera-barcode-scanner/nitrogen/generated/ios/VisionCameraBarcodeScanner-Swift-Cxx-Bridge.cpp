@@ -12,6 +12,7 @@
 #include "HybridBarcodeScannerSpecSwift.hpp"
 #include "HybridBarcodeSpecSwift.hpp"
 #include "VisionCameraBarcodeScanner-Swift-Cxx-Umbrella.hpp"
+#include <NitroImage/NitroImage-Swift-Cxx-Bridge.hpp>
 #include <NitroModules/NitroDefines.hpp>
 #include <VisionCamera/VisionCamera-Swift-Cxx-Bridge.hpp>
 
@@ -57,6 +58,16 @@ namespace margelo::nitro::camera::barcodescanner::bridge::swift {
     return [swiftClosure = std::move(swiftClosure)](const std::exception_ptr& error) mutable -> void {
       swiftClosure.call(error);
     };
+  }
+  
+  // pragma MARK: std::shared_ptr<margelo::nitro::image::HybridImageSpec>
+  std::shared_ptr<margelo::nitro::image::HybridImageSpec> create_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(void* NON_NULL swiftUnsafePointer) noexcept {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::create_std__shared_ptr_HybridImageSpec_(swiftUnsafePointer);
+  }
+  void* NON_NULL get_std__shared_ptr_margelo__nitro__image__HybridImageSpec_(std__shared_ptr_margelo__nitro__image__HybridImageSpec_ cppType) {
+    // Implemented in NitroImage
+    return margelo::nitro::image::bridge::swift::get_std__shared_ptr_HybridImageSpec_(cppType);
   }
   
   // pragma MARK: std::shared_ptr<HybridBarcodeScannerSpec>

@@ -20,7 +20,7 @@ import java.util.Objects
 data class CameraSessionConnection(
   @DoNotStrip
   @Keep
-  val input: HybridCameraDeviceSpec,
+  val input: CameraDeviceOrPosition,
   @DoNotStrip
   @Keep
   val outputs: Array<CameraOutputConfiguration>,
@@ -40,7 +40,7 @@ data class CameraSessionConnection(
   /**
    * Create a new instance of CameraSessionConnection from Kotlin
    */
-  constructor(input: HybridCameraDeviceSpec, outputs: Array<CameraOutputConfiguration>, constraints: Array<Constraint>, initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: ((config: HybridCameraSessionConfigSpec) -> Unit)?):
+  constructor(input: CameraDeviceOrPosition, outputs: Array<CameraOutputConfiguration>, constraints: Array<Constraint>, initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: ((config: HybridCameraSessionConfigSpec) -> Unit)?):
          this(input, outputs, constraints, initialZoom, initialExposureBias, onSessionConfigSelected?.let { Func_void_std__shared_ptr_HybridCameraSessionConfigSpec__java(it) })
 
   override fun equals(other: Any?): Boolean {
@@ -73,7 +73,7 @@ data class CameraSessionConnection(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(input: HybridCameraDeviceSpec, outputs: Array<CameraOutputConfiguration>, constraints: Array<Constraint>, initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: Func_void_std__shared_ptr_HybridCameraSessionConfigSpec_?): CameraSessionConnection {
+    private fun fromCpp(input: CameraDeviceOrPosition, outputs: Array<CameraOutputConfiguration>, constraints: Array<Constraint>, initialZoom: Double?, initialExposureBias: Double?, onSessionConfigSelected: Func_void_std__shared_ptr_HybridCameraSessionConfigSpec_?): CameraSessionConnection {
       return CameraSessionConnection(input, outputs, constraints, initialZoom, initialExposureBias, onSessionConfigSelected)
     }
   }

@@ -3,16 +3,19 @@ package com.margelo.nitro.camera
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalLensFacing
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.edit
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.camera.extensions.getDefaultCamera
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.hybrids.inputs.HybridCameraDevice
 import com.margelo.nitro.camera.hybrids.inputs.HybridCameraExtension
@@ -108,15 +111,10 @@ class HybridCameraDeviceFactory(
     }
   }
 
-  override fun getDefaultCamera(position: CameraPosition): HybridCameraDeviceSpec? {
-    val selector =
-      when (position) {
-        CameraPosition.FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
-        CameraPosition.BACK -> CameraSelector.DEFAULT_BACK_CAMERA
-        else -> return null
-      }
+  @OptIn(ExperimentalLensFacing::class)
+  override fun getDefaultCamera(position: TargetCameraPosition): HybridCameraDeviceSpec? {
     try {
-      val defaultCamera = cameraProvider.getCameraInfo(selector)
+      val defaultCamera = cameraProvider.getDefaultCamera(position)
       return HybridCameraDevice(defaultCamera)
     } catch (e: Throwable) {
       Log.e(TAG, "No default ${position.name} Camera found!", e)

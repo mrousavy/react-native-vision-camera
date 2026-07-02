@@ -680,6 +680,7 @@ describe('VisionCamera - Video', () => {
     ])
     const codecs = videoOutput.getSupportedVideoCodecs()
     expect(codecs.length).toBeGreaterThan(0)
+    expect(codecs).not.toContain('unknown')
     console.log(`supported video codecs: ${codecs.join(', ')}`)
     await session.stop()
   })

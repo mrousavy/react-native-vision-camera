@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "CameraOrientation" and the the Kotlin enum "CameraOrientation".
+   * The C++ JNI bridge between the C++ enum "CameraOrientation" and the Kotlin enum "CameraOrientation".
    */
   struct JCameraOrientation final: public jni::JavaClass<JCameraOrientation> {
   public:

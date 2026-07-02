@@ -1,6 +1,7 @@
-import type { CameraPosition } from '../specs/common-types/CameraPosition'
+import type { TargetCameraPosition } from '../specs/common-types/CameraPosition'
 import type { DeviceType } from '../specs/common-types/DeviceType'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
+import type { CameraDeviceFactory } from '../specs/inputs/CameraDeviceFactory.nitro'
 
 export type PhysicalDeviceType = Extract<
   DeviceType,
@@ -29,9 +30,9 @@ export interface DeviceFilter {
    * @example
    * ```ts
    * // This device is simpler, so it starts up faster.
-   * getCameraDevice({ physicalDevices: ['wide-angle'] })
+   * getCameraDevice(devices, 'back', { physicalDevices: ['wide-angle'] })
    * // This device is more complex, so it starts up slower, but you can switch between devices on 0.5x, 1x and 2x zoom.
-   * getCameraDevice({ physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto'] })
+   * getCameraDevice(devices, 'back', { physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto'] })
    * ```
    */
   physicalDevices?: PhysicalDeviceType[]
@@ -55,10 +56,20 @@ export interface DeviceFilter {
  * ```
  */
 export function getCameraDevice(
-  devices: CameraDevice[],
-  position: CameraPosition,
+  deviceFactory: CameraDeviceFactory,
+  position: TargetCameraPosition,
   filter: DeviceFilter = {},
 ): CameraDevice | undefined {
+  if (Object.values(filter).length === 0) {
+    // No `filter` was passed, so let's just get the default Camera Device at that position!
+    const defaultCamera = deviceFactory.getDefaultCamera(position)
+    if (defaultCamera != null) {
+      return defaultCamera
+    }
+  }
+
+  // We have a `filter`, or there is no default Camera Device - so let's get all devices and rank
+  const devices = deviceFactory.cameraDevices
   return devices
     .filter((d) => d.position === position)
     .reduce<CameraDevice | undefined>((prev, curr) => {

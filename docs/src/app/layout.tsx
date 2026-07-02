@@ -22,13 +22,16 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: siteConfig.metadataBase,
+  applicationName: siteConfig.name,
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
   },
+  description: siteConfig.description,
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
     ],
@@ -36,6 +39,9 @@ export const metadata: Metadata = {
   },
   openGraph: {
     siteName: siteConfig.name,
+  },
+  appleWebApp: {
+    title: siteConfig.name,
   },
   twitter: {
     card: 'summary_large_image',

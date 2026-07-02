@@ -78,7 +78,7 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
     }
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     // TODO: Set orientation via video metadata flags to avoid physically rotating buffers.
     //       The problem with that is that we need to support switching Camera devices on the fly,
     //       which rotates buffer later on somehow.

@@ -72,7 +72,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - NitroModules (0.35.9):
+  - NitroModules (0.36.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2322,7 +2322,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCamera (5.0.11):
+  - VisionCamera (5.1.0):
     - hermes-engine
     - NitroImage
     - NitroModules
@@ -2347,9 +2347,10 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCameraBarcodeScanner (5.0.11):
+  - VisionCameraBarcodeScanner (5.1.0):
     - GoogleMLKit/BarcodeScanning (= 9.0.0)
     - hermes-engine
+    - NitroImage
     - NitroModules
     - RCTRequired
     - RCTTypeSafety
@@ -2373,7 +2374,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraLocation (5.0.11):
+  - VisionCameraLocation (5.1.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2398,7 +2399,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraResizer (5.0.11):
+  - VisionCameraResizer (5.1.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2423,7 +2424,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraWorklets (5.0.11):
+  - VisionCameraWorklets (5.1.0):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2761,7 +2762,7 @@ SPEC CHECKSUMS:
   MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroImage: 33c4698f86b081bd3d0245223f34ea561b0934ea
-  NitroModules: 16bc17a076b12304d608f7c915b9d321f56dfc19
+  NitroModules: b4174dd303728e16ad1afb79f64c1a5c69a3b373
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
@@ -2845,11 +2846,11 @@ SPEC CHECKSUMS:
   RNScreens: 991cc417cd396602a6cf59a42139e5a9d91462a9
   RNVectorIcons: 97f26211c07d69e45b189f9dd0dbbe5e2d2b0b92
   RNWorklets: 04a35c45bd72d24914cbaf24bdfa4e30e1eab2df
-  VisionCamera: 204d37d39a6a59b31bc48c777094be3096594810
-  VisionCameraBarcodeScanner: 5de8b7612ba93bf3a7fa2164938898d231c386fe
-  VisionCameraLocation: a0289fd95ebd3317f60f52416319c5ac182bba21
-  VisionCameraResizer: a35ea21e06bfb8f1e652dc5d1b7b20cb0fddc7a4
-  VisionCameraWorklets: 38e14b319413d2caa6d9fa85062a003a821cf417
+  VisionCamera: 2d364657571d6b6404830269d05b1de244586a40
+  VisionCameraBarcodeScanner: 5deed2a6831998ce8c1962be37131f5fd8c3c33f
+  VisionCameraLocation: 4d148829e9a9c85c10a9fbe2c57eeb04cadf2e2d
+  VisionCameraResizer: cde0b17a6201859b64b7a6637d7b77cde0629e6a
+  VisionCameraWorklets: 8393549fac54f37a4cf6a7b1088688cf9b309b7f
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
 PODFILE CHECKSUM: 225e4ff5bb6719c47fa66724251c4ad2098c76da

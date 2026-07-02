@@ -73,12 +73,8 @@ final class HybridCameraDeviceFactory: HybridCameraDeviceFactorySpec {
     return HybridCameraDevice(device: device)
   }
 
-  func getDefaultCamera(position: CameraPosition) throws -> (any HybridCameraDeviceSpec)? {
-    let device = AVCaptureDevice.default(
-      .builtInWideAngleCamera,
-      for: .video,
-      position: position.toAVCaptureDevicePosition())
-    guard let device else {
+  func getDefaultCamera(position: TargetCameraPosition) throws -> (any HybridCameraDeviceSpec)? {
+    guard let device = AVCaptureDevice.default(for: position) else {
       return nil
     }
     return HybridCameraDevice(device: device)

@@ -55,5 +55,5 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant 
    * The `NativeCameraOutput` is expected to apply all configs
    * such as orientation or mirroring settings in here.
    */
-  func configure(config: CameraOutputConfiguration)
+  func configure(config: OutputConfiguration)
 }

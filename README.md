@@ -1,4 +1,4 @@
-<a href="https://margelo.com">
+<a href="https://visioncamera.margelo.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./images/banner-dark.webp" />
     <source media="(prefers-color-scheme: light)" srcset="./images/banner-light.webp" />
@@ -7,12 +7,11 @@
 </a>
 
 <br />
+<br />
 
 <div>
   <img align="right" width="35%" src="images/demo_app.png">
 </div>
-
-### Features
 
 VisionCamera is a powerful, high-performance Camera library for React Native. It features:
 
@@ -39,8 +38,8 @@ cd ios && pod install
 
 ### Links
 
-- [Documentation Website](https://visioncamera.margelo.com)
-- [Documentation LLMs.txt](https://visioncamera.margelo.com/llms.txt)
+- [VisionCamera Documentation](https://visioncamera.margelo.com)
+- [VisionCamera LLMs.txt](https://visioncamera.margelo.com/llms.txt)
 - [Community Discord](https://margelo.com/discord)
 - [Example App](./apps/simple-camera/)
 - [AWS Device Farm Tests](https://us-west-2.console.aws.amazon.com/devicefarm/home#/mobile/projects/210b1942-012b-4653-9673-f3ff91c5e649/runs) (sign in via the [AWS Access Portal](https://d-9267d6576e.awsapps.com/start) first)

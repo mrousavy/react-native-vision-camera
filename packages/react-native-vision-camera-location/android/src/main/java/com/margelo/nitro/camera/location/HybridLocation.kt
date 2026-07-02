@@ -18,12 +18,7 @@ class HybridLocation(
   override val horizontalAccuracy: Double
     get() = location.accuracy.toDouble()
   override val verticalAccuracy: Double
-    get() =
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        location.verticalAccuracyMeters.toDouble()
-      } else {
-        -1.0
-      }
+    get() = location.verticalAccuracyMeters.toDouble()
   override val timestamp: Double
     get() = location.time.toDouble()
   override val isMock: Boolean

@@ -19,7 +19,7 @@ namespace margelo::nitro::camera::location {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "ListenerSubscription" and the the Kotlin data class "ListenerSubscription".
+   * The C++ JNI bridge between the C++ struct "ListenerSubscription" and the Kotlin data class "ListenerSubscription".
    */
   struct JListenerSubscription final: public jni::JavaClass<JListenerSubscription> {
   public:

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "PixelFormat" and the the Kotlin enum "PixelFormat".
+   * The C++ JNI bridge between the C++ enum "PixelFormat" and the Kotlin enum "PixelFormat".
    */
   struct JPixelFormat final: public jni::JavaClass<JPixelFormat> {
   public:
@@ -72,6 +72,9 @@ namespace margelo::nitro::camera {
         case PixelFormat::YUV_444_8_BIT_VIDEO:
           static const auto fieldYUV_444_8_BIT_VIDEO = clazz->getStaticField<JPixelFormat>("YUV_444_8_BIT_VIDEO");
           return clazz->getStaticFieldValue(fieldYUV_444_8_BIT_VIDEO);
+        case PixelFormat::YUV_444_8_BIT_FULL:
+          static const auto fieldYUV_444_8_BIT_FULL = clazz->getStaticField<JPixelFormat>("YUV_444_8_BIT_FULL");
+          return clazz->getStaticFieldValue(fieldYUV_444_8_BIT_FULL);
         case PixelFormat::RGB_BGRA_8_BIT:
           static const auto fieldRGB_BGRA_8_BIT = clazz->getStaticField<JPixelFormat>("RGB_BGRA_8_BIT");
           return clazz->getStaticFieldValue(fieldRGB_BGRA_8_BIT);

@@ -1,0 +1,65 @@
+---
+title: VisionCamera vs Data Scanner
+description: Choosing between VisionCamera and react-native-data-scanner for QR and barcode scanning
+icon: GitCompareArrows
+---
+
+Both VisionCamera and [react-native-data-scanner](https://github.com/mrousavy/react-native-data-scanner) support scanning QR/Barcodes using the Camera.
+
+- [react-native-data-scanner](https://github.com/mrousavy/react-native-data-scanner) is a one-shot QR/Barcode scanner using [VisionKit](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller) on iOS, and [Google's Code Scanner](https://developers.google.com/ml-kit/vision/barcode-scanning/code-scanner) on Android. Pick it for simple scanning flows.
+- VisionCamera ([react-native-vision-camera](/api/react-native-vision-camera)) is a fully featured Camera framework built with Nitro, and ships two Barcode scanning flows: [The Object Output](object-output), and [The Barcode Scanner](barcode-scanner). Pick it for camera-first apps, more advanced scanning flows, custom overlays, custom QR/Barcode processing, and more.
+
+### Feature Comparison
+
+| Feature                                                                | VisionCamera  | react-native-data-scanner |
+| -----------------------------------------------------------------------| ------------- | ------------------------- |
+| Zero-config one-shot scan a QR/Barcode                                 | ❌            | ✅                        |
+| Uses the platform/OS native scanner UI                                 | ❌            | ✅                        |
+| Works without Camera permission (on Android)                           | ❌            | ✅                        |
+| Render your own in-app Camera UI                                       | ✅            | ❌                        |
+| Keep scanning multiple QR/Barcodes at once                             | ✅            | ❌                        |
+| Validate scanned codes in JS before closing the Camera                 | ✅            | ❌                        |
+| Draw a custom overlay, reticle, mask, or instructions over the Camera  | ✅            | ❌                        |
+| Capture photos/videos, stream frames, use zoom, focus, HDR, ...        | ✅            | ❌                        |
+
+### Data Scanner
+
+[react-native-data-scanner](https://github.com/mrousavy/react-native-data-scanner) is optimized for the simplest scanning flow:
+
+```tsx
+import { DataScanner } from 'react-native-data-scanner'
+
+async function scanBarcode() {
+  const barcode = await DataScanner.scanBarcode({
+    targetFormats: ['qr', 'ean-13'],
+    enableAutoZoom: true,
+  })
+
+  console.log(barcode.format, barcode.value)
+}
+```
+
+On Android, it uses [Google's Code Scanner](https://developers.google.com/ml-kit/vision/barcode-scanning/code-scanner) through Google Play Services.
+That scanner is presented in a separate Activity, so your app does not need `android.permission.CAMERA` permission for this flow.
+
+On iOS, it uses VisionKit's [`DataScannerViewController`](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller).
+This requires iOS 16.0 or later.
+Your app still needs an `NSCameraUsageDescription`, but the library presents the native scanner UI and keeps the integration close to zero-config.
+
+### VisionCamera
+
+VisionCamera is the better choice when scanning is part of a custom Camera flow.
+The Camera view itself stays inside your app, which means you can draw your own overlay, use custom zoom/focus controls, scan multiple codes, convert coordinates, and decide in JS when a scanned code should actually be accepted.
+
+For barcode scanning in VisionCamera, there are two main options:
+
+- [The Barcode Scanner](barcode-scanner) uses [MLKit](https://developers.google.com/ml-kit/vision/barcode-scanning) through [react-native-vision-camera-barcode-scanner](/api/react-native-vision-camera-barcode-scanner), and works on both iOS and Android.
+- [The Object Output](object-output) uses iOS' native [`AVCaptureMetadataOutput`](https://developer.apple.com/documentation/avfoundation/avcapturemetadataoutput), which is lightweight and platform-native, but iOS only.
+
+The Barcode Scanner is the simplest cross-platform VisionCamera setup.
+On iOS, it adds the third-party `GoogleMLKit/BarcodeScanning` dependency and its ML model to your binary, which is device-only, so it does not ship iOS Simulator binaries.
+
+For the leanest in-app scanner, you can use [the Barcode Scanner](barcode-scanner) on Android and [the Object Output](object-output) on iOS.
+That avoids MLKit on iOS and uses Apple's native metadata output, but it means splitting the implementation by platform and excluding `react-native-vision-camera-barcode-scanner` from iOS autolinking.
+For a plain one-shot scan, [react-native-data-scanner](https://github.com/mrousavy/react-native-data-scanner) is much easier.
+

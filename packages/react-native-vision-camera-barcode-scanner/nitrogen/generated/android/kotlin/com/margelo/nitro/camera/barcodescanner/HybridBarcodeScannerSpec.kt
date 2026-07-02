@@ -12,6 +12,7 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.HybridFrameSpec
 import com.margelo.nitro.core.Promise
+import com.margelo.nitro.image.HybridImageSpec
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -37,6 +38,10 @@ abstract class HybridBarcodeScannerSpec: HybridObject() {
   @DoNotStrip
   @Keep
   abstract fun scanCodesAsync(frame: com.margelo.nitro.camera.HybridFrameSpec): Promise<Array<HybridBarcodeSpec>>
+  
+  @DoNotStrip
+  @Keep
+  abstract fun scanCodesInImageAsync(image: com.margelo.nitro.image.HybridImageSpec): Promise<Array<HybridBarcodeSpec>>
 
   // Default implementation of `HybridObject.toString()`
   override fun toString(): String {

@@ -1,8 +1,5 @@
 import { absoluteUrl, siteConfig } from './site-config'
 
-const SITE_DESCRIPTION =
-  'The most powerful Camera library for React Native. Supports Photo and Video capture, QR/Barcode scanning, Frame Processors, and more.'
-
 const AUTHOR = {
   name: 'Marc Rousavy',
   url: 'https://mrousavy.com',
@@ -33,7 +30,8 @@ export function getSiteStructuredData() {
         '@id': websiteId,
         url: siteUrl,
         name: siteConfig.name,
-        description: SITE_DESCRIPTION,
+        alternateName: [...siteConfig.alternateNames],
+        description: siteConfig.description,
         inLanguage: 'en',
         publisher: { '@id': projectId },
         about: { '@id': softwareId },
@@ -42,6 +40,7 @@ export function getSiteStructuredData() {
         '@type': 'Organization',
         '@id': projectId,
         name: siteConfig.name,
+        alternateName: [...siteConfig.alternateNames],
         url: siteUrl,
         logo: {
           '@type': 'ImageObject',
@@ -49,7 +48,7 @@ export function getSiteStructuredData() {
           width: 1024,
           height: 1024,
         },
-        sameAs: [siteConfig.repositoryUrl],
+        sameAs: [siteConfig.repositoryUrl, siteConfig.packageUrl],
         founder: { '@id': personId },
         parentOrganization: { '@id': COMPANY.id },
       },
@@ -73,8 +72,9 @@ export function getSiteStructuredData() {
         '@type': 'SoftwareSourceCode',
         '@id': softwareId,
         name: 'react-native-vision-camera',
-        description: SITE_DESCRIPTION,
+        description: siteConfig.description,
         codeRepository: siteConfig.repositoryUrl,
+        sameAs: [siteConfig.repositoryUrl, siteConfig.packageUrl],
         programmingLanguage: ['TypeScript', 'Swift', 'Kotlin', 'C++'],
         runtimePlatform: 'React Native',
         license: 'https://opensource.org/licenses/MIT',

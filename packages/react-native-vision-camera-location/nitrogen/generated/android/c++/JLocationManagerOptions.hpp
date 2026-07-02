@@ -18,7 +18,7 @@ namespace margelo::nitro::camera::location {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "LocationManagerOptions" and the the Kotlin data class "LocationManagerOptions".
+   * The C++ JNI bridge between the C++ struct "LocationManagerOptions" and the Kotlin data class "LocationManagerOptions".
    */
   struct JLocationManagerOptions final: public jni::JavaClass<JLocationManagerOptions> {
   public:

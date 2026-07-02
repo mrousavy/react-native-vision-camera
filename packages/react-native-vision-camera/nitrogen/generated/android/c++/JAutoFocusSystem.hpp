@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "AutoFocusSystem" and the the Kotlin enum "AutoFocusSystem".
+   * The C++ JNI bridge between the C++ enum "AutoFocusSystem" and the Kotlin enum "AutoFocusSystem".
    */
   struct JAutoFocusSystem final: public jni::JavaClass<JAutoFocusSystem> {
   public:

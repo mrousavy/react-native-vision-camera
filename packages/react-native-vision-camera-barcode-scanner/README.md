@@ -3,14 +3,16 @@
 This is VisionCamera Barcode Scanner. Install it through npm:
 
 ```sh
-npm install react-native-vision-camera-barcode-scanner
+npm install react-native-vision-camera-barcode-scanner react-native-nitro-image
 ```
 
-VisionCamera Barcode Scanner depends on VisionCamera Core.
+VisionCamera Barcode Scanner depends on VisionCamera Core and Nitro Image.
 
 ```sh
-# Make sure VisionCamera Core is installed.
+# Make sure VisionCamera Core is installed as well.
 ```
+
+You can scan live camera frames, attach a Barcode Scanner output, or scan an existing Nitro Image with `BarcodeScanner.scanCodesInImageAsync(...)`.
 
 ## Minimum Requirements
 

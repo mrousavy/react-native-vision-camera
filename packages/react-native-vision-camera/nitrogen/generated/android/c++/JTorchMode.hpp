@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "TorchMode" and the the Kotlin enum "TorchMode".
+   * The C++ JNI bridge between the C++ enum "TorchMode" and the Kotlin enum "TorchMode".
    */
   struct JTorchMode final: public jni::JavaClass<JTorchMode> {
   public:

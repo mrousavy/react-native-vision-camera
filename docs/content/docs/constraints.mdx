@@ -61,11 +61,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:4]
     constraints: [
@@ -136,11 +135,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:4]
     constraints: [
@@ -217,11 +215,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:3]
     constraints: [
@@ -296,12 +293,12 @@ await session.start()
 
 ### Manually resolve Constraints
 
-To manually resolve given [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s to a populated [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig) without starting a Camera session, use [`CameraFactory.resolveConstraints(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#resolveconstraints):
+To manually resolve given [`Constraint`](/api/react-native-vision-camera/type-aliases/Constraint)s to a populated [`CameraSessionConfig`](/api/react-native-vision-camera/hybrid-objects/CameraSessionConfig) without starting a Camera session, use [`resolveConstraints(...)`](/api/react-native-vision-camera/hybrid-objects/CameraFactory#resolveconstraints):
 
 ```ts
 const device = ...
 const videoOutput = ...
-const config = await resolveConstraints(
+const config = await VisionCamera.resolveConstraints(
   device,
   [
     { output: videoOutput, mirrorMode: 'auto' }

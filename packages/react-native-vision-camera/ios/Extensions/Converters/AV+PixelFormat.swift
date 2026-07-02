@@ -42,6 +42,8 @@ extension PixelFormat {
       self = .yuv42210BitFull
     case .yuv4448BitVideo:
       self = .yuv4448BitVideo
+    case .yuv4448BitFull:
+      self = .yuv4448BitFull
     case .rgbBgra8Bit:
       self = .rgbBgra8Bit
     case .rgbRgba8Bit:

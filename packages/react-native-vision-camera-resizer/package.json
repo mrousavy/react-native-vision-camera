@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera-resizer",
-  "version": "5.0.11",
+  "version": "5.1.0",
   "description": "High-performance image and frame resizing plugin using Metal/Vulkan for react-native-vision-camera.",
   "main": "lib/index",
   "module": "lib/index",
@@ -70,10 +70,10 @@
   },
   "devDependencies": {
     "@types/react": "19.2.15",
-    "nitrogen": "0.35.9",
+    "nitrogen": "0.36.1",
     "react": "19.2.3",
     "react-native": "0.85.3",
-    "react-native-nitro-modules": "0.35.9",
+    "react-native-nitro-modules": "0.36.1",
     "react-native-vision-camera": "*",
     "typescript": "6.0.3"
   },

@@ -149,4 +149,7 @@ dependencies {
 
   // Add a dependency on VisionCamera (for HybridFrameSpec and HybridCameraOutputSpec)
   implementation project(":react-native-vision-camera")
+
+  // Add a dependency on NitroImage (for HybridImageSpec)
+  implementation project(":react-native-nitro-image")
 }

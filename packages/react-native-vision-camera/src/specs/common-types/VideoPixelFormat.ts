@@ -7,23 +7,24 @@ import type { PixelFormat } from './PixelFormat'
  * Video Formats are either **YUV** or **RGB**.
  * The most commonly used format is `yuv-420-8-bit-video`.
  *
- * | Format                      | Colorspace | Sampling | Bit depth | Color Range  | Layout              |
- * |-----------------------------|------------|----------|-----------|--------------|---------------------|
- * | `yuv-420-8-bit-video`       | YUV        | 4:2:0    | 8-bit     | Video        | Planar              |
- * | `yuv-420-8-bit-full`        | YUV        | 4:2:0    | 8-bit     | Full         | Planar              |
- * | `yuv-420-10-bit-video`      | YUV        | 4:2:0    | 10-bit    | Video        | Planar              |
- * | `yuv-420-10-bit-full`       | YUV        | 4:2:0    | 10-bit    | Full         | Planar              |
- * | `yuv-422-8-bit-video`       | YUV        | 4:2:2    | 8-bit     | Video        | Planar              |
- * | `yuv-422-8-bit-full`        | YUV        | 4:2:2    | 8-bit     | Full         | Planar              |
- * | `yuv-422-10-bit-video`      | YUV        | 4:2:2    | 10-bit    | Video        | Planar              |
- * | `yuv-422-10-bit-full`       | YUV        | 4:2:2    | 10-bit    | Full         | Planar              |
- * | `yuv-444-8-bit-video`       | YUV        | 4:4:4    | 8-bit     | Video        | Planar              |
- * | `rgb-bgra-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved BGRA    |
- * | `rgb-rgba-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGBA    |
- * | `rgb-rgb-8-bit`             | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGB     |
- * | `raw-bayer-packed96-12-bit` | RAW Bayer  | Mosaic   | 12-bit    | Sensor       | Packed96 Bayer      |
- * | `raw-bayer-unpacked-16-bit` | RAW Bayer  | Mosaic   | 16-bit    | Sensor       | Unpacked 16-bit     |
- * | `unknown`                   | —          | —        | —         | —            | Unknown             |
+ * | Format                      | Colorspace | Sampling | Bit depth | Color Range  | Layout               |
+ * |-----------------------------|------------|----------|-----------|--------------|----------------------|
+ * | `yuv-420-8-bit-video`       | YUV        | 4:2:0    | 8-bit     | Video        | Planar               |
+ * | `yuv-420-8-bit-full`        | YUV        | 4:2:0    | 8-bit     | Full         | Planar               |
+ * | `yuv-420-10-bit-video`      | YUV        | 4:2:0    | 10-bit    | Video        | Planar               |
+ * | `yuv-420-10-bit-full`       | YUV        | 4:2:0    | 10-bit    | Full         | Planar               |
+ * | `yuv-422-8-bit-video`       | YUV        | 4:2:2    | 8-bit     | Video        | Planar               |
+ * | `yuv-422-8-bit-full`        | YUV        | 4:2:2    | 8-bit     | Full         | Planar               |
+ * | `yuv-422-10-bit-video`      | YUV        | 4:2:2    | 10-bit    | Video        | Planar               |
+ * | `yuv-422-10-bit-full`       | YUV        | 4:2:2    | 10-bit    | Full         | Planar               |
+ * | `yuv-444-8-bit-video`       | YUV        | 4:4:4    | 8-bit     | Video        | Planar               |
+ * | `yuv-444-8-bit-full`        | YUV        | 4:4:4    | 8-bit     | Full         | Planar               |
+ * | `rgb-bgra-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved BGRA     |
+ * | `rgb-rgba-8-bit`            | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGBA     |
+ * | `rgb-rgb-8-bit`             | RGB        | 4:4:4    | 8-bit     | Full         | Interleaved RGB/RGBX |
+ * | `raw-bayer-packed96-12-bit` | RAW Bayer  | Mosaic   | 12-bit    | Sensor       | Packed96 Bayer       |
+ * | `raw-bayer-unpacked-16-bit` | RAW Bayer  | Mosaic   | 16-bit    | Sensor       | Unpacked 16-bit      |
+ * | `unknown`                   | —          | —        | —         | —            | Unknown              |
  */
 export type VideoPixelFormat =
   | 'yuv-420-8-bit-video'
@@ -35,6 +36,7 @@ export type VideoPixelFormat =
   | 'yuv-422-10-bit-video'
   | 'yuv-422-10-bit-full'
   | 'yuv-444-8-bit-video'
+  | 'yuv-444-8-bit-full'
   | 'rgb-bgra-8-bit'
   | 'rgb-rgba-8-bit'
   | 'rgb-rgb-8-bit'

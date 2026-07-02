@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "QualityPrioritization" and the the Kotlin enum "QualityPrioritization".
+   * The C++ JNI bridge between the C++ enum "QualityPrioritization" and the Kotlin enum "QualityPrioritization".
    */
   struct JQualityPrioritization final: public jni::JavaClass<JQualityPrioritization> {
   public:

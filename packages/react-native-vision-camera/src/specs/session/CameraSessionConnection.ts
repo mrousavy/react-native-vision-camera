@@ -1,8 +1,11 @@
 import type { CameraFactory } from '../CameraFactory.nitro'
+import type { TargetCameraPosition } from '../common-types/CameraPosition'
 import type { Constraint } from '../common-types/Constraint'
 import type { CameraDevice } from '../inputs/CameraDevice.nitro'
 import type { CameraOutputConfiguration } from './CameraOutputConfiguration'
 import type { CameraSessionConfig } from './CameraSessionConfig.nitro'
+
+type CameraDeviceOrPosition = CameraDevice | TargetCameraPosition
 
 /**
  * Specifies a single Camera input stream connection
@@ -13,8 +16,12 @@ export interface CameraSessionConnection {
    * The input device of this {@linkcode CameraSessionConnection}.
    * This {@linkcode CameraDevice} will stream into all given
    * {@linkcode outputs}.
+   *
+   * Pass a {@linkcode TargetCameraPosition} to automatically
+   * select the default {@linkcode CameraDevice} at the given
+   * position.
    */
-  input: CameraDevice
+  input: CameraDeviceOrPosition
   /**
    * All output configurations that the given {@linkcode input}
    * device will stream into.

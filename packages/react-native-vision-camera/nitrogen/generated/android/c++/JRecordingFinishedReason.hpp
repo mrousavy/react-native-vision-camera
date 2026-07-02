@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "RecordingFinishedReason" and the the Kotlin enum "RecordingFinishedReason".
+   * The C++ JNI bridge between the C++ enum "RecordingFinishedReason" and the Kotlin enum "RecordingFinishedReason".
    */
   struct JRecordingFinishedReason final: public jni::JavaClass<JRecordingFinishedReason> {
   public:

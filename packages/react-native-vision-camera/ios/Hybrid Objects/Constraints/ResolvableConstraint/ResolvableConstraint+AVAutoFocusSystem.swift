@@ -9,19 +9,6 @@ import AVFoundation
 extension AVCaptureDevice.Format.AutoFocusSystem: ResolvableConstraint {
   typealias ResolvedValue = Void
 
-  private var rank: Int {
-    switch self {
-    case .none:
-      return 0
-    case .contrastDetection:
-      return 1
-    case .phaseDetection:
-      return 2
-    @unknown default:
-      return 3
-    }
-  }
-
   func resolve(for format: AVCaptureDevice.Format) -> ConstraintResolution<Void> {
     let targetAutoFocusSystem = self
     let actualAutoFocusSystem = format.autoFocusSystem

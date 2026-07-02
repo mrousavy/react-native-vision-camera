@@ -1,18 +1,20 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home'
 import type { Metadata } from 'next'
 import { homeOptions } from '@/lib/layout.shared'
-import { getOgImage } from '@/lib/site-config'
+import { absoluteUrl, getOgImage, siteConfig } from '@/lib/site-config'
 
 const image = getOgImage('/')
+const url = absoluteUrl('/')
 
 export const metadata: Metadata = {
   title: 'VisionCamera - The most powerful React Native Camera library',
-  description:
-    'The most powerful Camera library for React Native. Supports Photo and Video capture, QR/Barcode scanning, Frame Processors, and more.',
+  description: siteConfig.description,
   alternates: {
-    canonical: '/',
+    canonical: url,
   },
   openGraph: {
+    siteName: siteConfig.name,
+    url,
     images: [image],
   },
   twitter: {

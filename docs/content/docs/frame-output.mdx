@@ -1,11 +1,14 @@
 ---
 title: The Frame Output
-description: Streaming Frames using the Frame Output
+description: Streaming Frames using the Frame Output (formerly known as Frame Processors)
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
 The [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) allows streaming [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame)s in realtime, making them accessible via a JS worklet function.
+
+> [!NOTE]
+> In VisionCamera V1-V4, this feature was called "Frame Processors" - the `useFrameProcessor` hook is now [`useFrameOutput`](/api/react-native-vision-camera/functions/useFrameOutput).
 
 ### Creating a Frame Output
 
@@ -62,7 +65,6 @@ function App() {
 <Tab value="CameraSession (imperative)">
 ```tsx
 const session = await VisionCamera.createCameraSession(false)
-const device = await getDefaultCameraDevice('back')
 // [!code ++:9]
 const frameOutput = VisionCamera.createFrameOutput({ /* options */ })
 const workletRuntime = createWorkletRuntimeForThread(frameOutput.thread)
@@ -76,7 +78,7 @@ scheduleOnRuntime(workletRuntime, () => {
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [
       // [!code ++]
       { output: frameOutput, mirrorMode: 'auto' }

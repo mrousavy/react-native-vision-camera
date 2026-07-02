@@ -127,7 +127,7 @@ final class HybridCameraDevice: HybridCameraDeviceSpec, NativeCameraDevice {
   var position: CameraPosition {
     if #available(iOS 17.0, *) {
       // On iOS, Position "external" is for some reason reflected on the .deviceType, not on .position.
-      if device.deviceType == .external {
+      if device.deviceType == .external || device.deviceType == .continuityCamera {
         return .external
       }
     }

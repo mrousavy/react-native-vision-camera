@@ -28,6 +28,8 @@ namespace margelo::nitro::camera::barcodescanner { class HybridBarcodeSpec; }
 namespace margelo::nitro::camera { class HybridCameraOutputSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `HybridImageSpec` to properly resolve imports.
+namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `Point` to properly resolve imports.
 namespace margelo::nitro::camera::barcodescanner { struct Point; }
 // Forward declaration of `Rect` to properly resolve imports.
@@ -47,6 +49,7 @@ namespace margelo::nitro::camera::barcodescanner { enum class TargetBarcodeForma
 #include "Point.hpp"
 #include "Rect.hpp"
 #include "TargetBarcodeFormat.hpp"
+#include <NitroImage/HybridImageSpec.hpp>
 #include <NitroModules/ArrayBuffer.hpp>
 #include <NitroModules/Promise.hpp>
 #include <NitroModules/Result.hpp>
@@ -79,6 +82,8 @@ namespace VisionCameraBarcodeScanner { class HybridBarcodeSpec_cxx; }
 namespace VisionCamera { class HybridCameraOutputSpec_cxx; }
 // Forward declaration of `HybridFrameSpec_cxx` to properly resolve imports.
 namespace VisionCamera { class HybridFrameSpec_cxx; }
+// Forward declaration of `HybridImageSpec_cxx` to properly resolve imports.
+namespace NitroImage { class HybridImageSpec_cxx; }
 
 // Include Swift defined types
 #if __has_include("VisionCameraBarcodeScanner-Swift.h")

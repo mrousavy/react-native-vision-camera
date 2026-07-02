@@ -188,9 +188,8 @@ class HybridPhoto(
     if (isMirrored) {
       exif.flipHorizontally()
     }
-    if (orientation != CameraOrientation.UP) {
-      exif.rotate(orientation.degrees)
-    }
+    // JPEG buffers already carry imageInfo.rotationDegrees in EXIF. Exif.rotate(...)
+    // composes with the existing orientation tag, so rotating here would apply it twice.
     if (location != null) {
       exif.attachLocation(location)
     }
