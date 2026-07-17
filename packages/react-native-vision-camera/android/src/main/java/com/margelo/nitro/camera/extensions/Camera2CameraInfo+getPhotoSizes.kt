@@ -17,7 +17,3 @@ fun Camera2CameraInfo.getPhotoSizes(): Array<Size> {
   val combined = (sizes + highResSizes).distinct()
   return combined.toTypedArray()
 }
-
-private fun Array<Size>?.toListOrEmpty(): List<Size> {
-  return this?.toList() ?: emptyList()
-}

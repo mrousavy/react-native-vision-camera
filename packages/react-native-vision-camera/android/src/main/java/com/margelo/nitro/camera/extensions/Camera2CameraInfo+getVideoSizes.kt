@@ -13,6 +13,6 @@ fun Camera2CameraInfo.getVideoSizes(): Array<Size> {
     this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
       ?: return emptyArray()
   val videoFormats = streams.outputFormats.filter { ImageFormatUtils.isVideoFormat(it) }
-  val sizes = videoFormats.flatMap { streams.getOutputSizes(it).toList() }
+  val sizes = videoFormats.flatMap { streams.getOutputSizes(it).toListOrEmpty() }
   return sizes.distinct().toTypedArray()
 }
