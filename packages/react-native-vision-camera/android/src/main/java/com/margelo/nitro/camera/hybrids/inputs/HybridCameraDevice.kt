@@ -210,7 +210,7 @@ class HybridCameraDevice(
     val sizes =
       when (outputStreamType) {
         OutputStreamType.PHOTO -> camera2Info.getPhotoSizes()
-        OutputStreamType.VIDEO -> camera2Info.getVideoSizes()
+        OutputStreamType.VIDEO -> cameraInfo.getVideoSizes()
         OutputStreamType.STREAM -> camera2Info.getStreamSizes()
         OutputStreamType.DEPTH_PHOTO, OutputStreamType.DEPTH_STREAM -> camera2Info.getDepthSizes()
       }
