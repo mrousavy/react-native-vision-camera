@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
-  CameraController,
   CameraDevice,
   CameraDeviceFactory,
   MeteringMode,
@@ -19,28 +18,6 @@ const getSupportedMeteringModes = (device: CameraDevice): MeteringMode[] => {
     modes.push('AWB')
   }
   return modes
-}
-
-const expectMeteringModes = (
-  controller: CameraController,
-  modes: MeteringMode[],
-  expected: 'continuous' | 'locked',
-) => {
-  if (modes.includes('AF')) {
-    expect(controller.focusMode).toBe(
-      expected === 'locked' ? 'locked' : 'continuous-auto-focus',
-    )
-  }
-  if (modes.includes('AE')) {
-    expect(controller.exposureMode).toBe(
-      expected === 'locked' ? 'locked' : 'continuous-auto-exposure',
-    )
-  }
-  if (modes.includes('AWB')) {
-    expect(controller.whiteBalanceMode).toBe(
-      expected === 'locked' ? 'locked' : 'continuous-auto-white-balance',
-    )
-  }
 }
 
 describe('VisionCamera - Controller', () => {
@@ -556,10 +533,28 @@ describe('VisionCamera - Controller', () => {
         autoResetAfter: null,
       })
 
-      expectMeteringModes(controller, modes, 'locked')
+      if (modes.includes('AF')) {
+        expect(controller.focusMode).toBe('locked')
+      }
+      if (modes.includes('AE')) {
+        expect(controller.exposureMode).toBe('locked')
+      }
+      if (modes.includes('AWB')) {
+        expect(controller.whiteBalanceMode).toBe('locked')
+      }
 
       await controller.resetFocus()
-      expectMeteringModes(controller, modes, 'continuous')
+      if (modes.includes('AF')) {
+        expect(controller.focusMode).toBe('continuous-auto-focus')
+      }
+      if (modes.includes('AE')) {
+        expect(controller.exposureMode).toBe('continuous-auto-exposure')
+      }
+      if (modes.includes('AWB')) {
+        expect(controller.whiteBalanceMode).toBe(
+          'continuous-auto-white-balance',
+        )
+      }
     } finally {
       await session.stop()
     }
