@@ -1,9 +1,47 @@
 import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
+  CameraController,
   CameraDevice,
   CameraDeviceFactory,
+  MeteringMode,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+
+const getSupportedMeteringModes = (device: CameraDevice): MeteringMode[] => {
+  const modes: MeteringMode[] = []
+  if (device.supportsExposureMetering) {
+    modes.push('AE')
+  }
+  if (device.supportsFocusMetering) {
+    modes.push('AF')
+  }
+  if (device.supportsWhiteBalanceMetering) {
+    modes.push('AWB')
+  }
+  return modes
+}
+
+const expectMeteringModes = (
+  controller: CameraController,
+  modes: MeteringMode[],
+  expected: 'continuous' | 'locked',
+) => {
+  if (modes.includes('AF')) {
+    expect(controller.focusMode).toBe(
+      expected === 'locked' ? 'locked' : 'continuous-auto-focus',
+    )
+  }
+  if (modes.includes('AE')) {
+    expect(controller.exposureMode).toBe(
+      expected === 'locked' ? 'locked' : 'continuous-auto-exposure',
+    )
+  }
+  if (modes.includes('AWB')) {
+    expect(controller.whiteBalanceMode).toBe(
+      expected === 'locked' ? 'locked' : 'continuous-auto-white-balance',
+    )
+  }
+}
 
 describe('VisionCamera - Controller', () => {
   let factory: CameraDeviceFactory
@@ -482,6 +520,46 @@ describe('VisionCamera - Controller', () => {
         responsiveness: 'snappy',
       })
       await controller.resetFocus()
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('locks metering modes after focusTo with locked adaptiveness', async (context) => {
+    const modes = getSupportedMeteringModes(backDevice)
+    if (modes.length === 0) {
+      return context.skip('focusTo locked: no supported metering modes')
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+    await session.start()
+
+    try {
+      const point = VisionCamera.createNormalizedMeteringPoint(0.5, 0.5)
+      await controller.focusTo(point, {
+        modes,
+        responsiveness: 'snappy',
+        adaptiveness: 'locked',
+        autoResetAfter: null,
+      })
+
+      expectMeteringModes(controller, modes, 'locked')
+
+      await controller.resetFocus()
+      expectMeteringModes(controller, modes, 'continuous')
     } finally {
       await session.stop()
     }
