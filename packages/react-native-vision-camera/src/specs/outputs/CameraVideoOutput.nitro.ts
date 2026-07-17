@@ -71,7 +71,7 @@ export interface VideoOutputOptions {
    * also higher bit-rate and higher frame rate) media codecs
    * to encode video frames to the video container.
    *
-   * On Android, this binds to [`VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE`](https://developer.android.com/reference/kotlin/androidx/camera/video/Recorder#VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE())
+   * On Android, this binds to [`VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES`](https://developer.android.com/reference/kotlin/androidx/camera/video/Recorder#VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES())
    * if `true`, and [`VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE`](https://developer.android.com/reference/kotlin/androidx/camera/video/Recorder#VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE())
    * if set to `false`.
    *

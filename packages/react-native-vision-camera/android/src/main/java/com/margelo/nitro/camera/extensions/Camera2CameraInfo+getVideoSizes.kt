@@ -4,9 +4,10 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import com.margelo.nitro.camera.utils.ImageFormatUtils
 
-@OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
+@OptIn(ExperimentalCamera2Interop::class)
 fun Camera2CameraInfo.getVideoSizes(): Array<Size> {
   val streams =
     this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
