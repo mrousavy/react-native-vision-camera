@@ -136,15 +136,6 @@ repositories {
   google()
 }
 
-// CameraX 1.6.0 transitively pulls in media3-muxer -> media3-common -> guava:33.3.1-android,
-// which ships listenablefuture:9999.0-empty (an empty stub). Gradle's consistent resolution
-// then forces the compile classpath to match, hiding the real ListenableFuture class.
-// Force the real jar so CameraX APIs that return ListenableFuture actually compile.
-// TODO: Remove this workaround once https://issuetracker.google.com/issues/497571473 has been fixed.
-configurations.configureEach {
-  resolutionStrategy.force "com.google.guava:listenablefuture:1.0"
-}
-
 dependencies {
   // For < 0.71, this will be from the local maven repo
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
