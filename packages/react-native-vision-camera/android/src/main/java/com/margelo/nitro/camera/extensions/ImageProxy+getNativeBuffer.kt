@@ -1,31 +1,27 @@
 package com.margelo.nitro.camera.extensions
 
 import android.os.Build
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.NativeBuffer
 import com.margelo.nitro.camera.utils.NativeBufferHelper
 
 val ImageProxy.hasNativeBuffer: Boolean
-  @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
       return false
     }
-    image?.hardwareBuffer?.use {
+    hardwareBuffer?.use {
       return true
     }
     return false
   }
 
-@OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getNativeBuffer(): NativeBuffer {
   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
     throw Error("NativeBuffers are only available on API 28 or higher!")
   }
   val hardwareBuffer =
-    image?.hardwareBuffer
+    hardwareBuffer
       ?: throw Error("Frame does not have a HardwareBuffer!")
   return hardwareBuffer.use { hardwareBuffer ->
     val pointer = NativeBufferHelper.getHardwareBufferPointer(hardwareBuffer)
