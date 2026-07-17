@@ -11,6 +11,6 @@ fun Camera2CameraInfo.getStreamSizes(): Array<Size> {
   val streams =
     this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
       ?: return emptyArray()
-  val sizes = streams.getOutputSizes(ImageReader::class.java)
+  val sizes = streams.getOutputSizes(ImageReader::class.java).toListOrEmpty()
   return sizes.distinct().toTypedArray()
 }
