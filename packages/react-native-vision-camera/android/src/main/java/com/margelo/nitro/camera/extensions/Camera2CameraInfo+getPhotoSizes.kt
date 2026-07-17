@@ -12,8 +12,12 @@ fun Camera2CameraInfo.getPhotoSizes(): Array<Size> {
     this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
       ?: return emptyArray()
   val photoFormats = streams.outputFormats.filter { ImageFormatUtils.isPhotoFormat(it) }
-  val sizes = photoFormats.flatMap { streams.getOutputSizes(it).toList() }
-  val highResSizes = photoFormats.flatMap { streams.getHighResolutionOutputSizes(it).toList() }
+  val sizes = photoFormats.flatMap { streams.getOutputSizes(it).toListOrEmpty() }
+  val highResSizes = photoFormats.flatMap { streams.getHighResolutionOutputSizes(it).toListOrEmpty() }
   val combined = (sizes + highResSizes).distinct()
   return combined.toTypedArray()
+}
+
+private fun Array<Size>?.toListOrEmpty(): List<Size> {
+  return this?.toList() ?: emptyList()
 }
