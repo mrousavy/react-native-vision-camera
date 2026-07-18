@@ -37,7 +37,7 @@ extension AVCaptureSession {
 
   private func getDefaultMicrophone() throws -> AVCaptureDevice {
     // TODO: Make microphone input selectable from JS
-    if #available(iOS 18.0, *) {
+    if #available(iOS 17.0, *) {
       if let microphone = AVCaptureDevice.default(.microphone, for: .audio, position: .unspecified) {
         return microphone
       }

@@ -53,7 +53,10 @@ public protocol NativeCameraOutput: AnyObject, ResolutionNegotiationParticipant 
    * change, in a `beginConfiguration()`/`commitConfiguration()`
    * batch.
    * The `NativeCameraOutput` is expected to apply all configs
-   * such as orientation or mirroring settings in here.
+   * such as orientation or mirroring settings in here, as well
+   * as any output properties that depend on session configuration,
+   * like `isResponsiveCaptureEnabled` which depends on
+   * the `isResponsiveCaptureSupported` property.
    */
   func configure(config: OutputConfiguration)
 }
