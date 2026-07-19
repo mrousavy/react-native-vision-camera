@@ -67,6 +67,16 @@ export interface PhotoOutputOptions {
    */
   qualityPrioritization: QualityPrioritization
   /**
+   * Enables or disables responsive capture.
+   *
+   * Responsive capture can reduce shutter lag and improve capture
+   * rates, at the cost of additional memory usage.
+   *
+   * @platform iOS
+   * @default false
+   */
+  enableResponsiveCapture?: boolean
+  /**
    * When this is set to a specific {@linkcode Size},
    * a ready to display {@linkcode Image} will be delivered
    * just before the resulting {@linkcode Photo} is available.

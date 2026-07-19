@@ -32,6 +32,9 @@ data class PhotoOutputOptions(
   val qualityPrioritization: QualityPrioritization,
   @DoNotStrip
   @Keep
+  val enableResponsiveCapture: Boolean?,
+  @DoNotStrip
+  @Keep
   val previewImageTargetSize: Size?
 ) {
   /* primary constructor */
@@ -43,6 +46,7 @@ data class PhotoOutputOptions(
       && Objects.deepEquals(this.containerFormat, other.containerFormat)
       && Objects.deepEquals(this.quality, other.quality)
       && Objects.deepEquals(this.qualityPrioritization, other.qualityPrioritization)
+      && Objects.deepEquals(this.enableResponsiveCapture, other.enableResponsiveCapture)
       && Objects.deepEquals(this.previewImageTargetSize, other.previewImageTargetSize)
   }
 
@@ -52,6 +56,7 @@ data class PhotoOutputOptions(
       containerFormat,
       quality,
       qualityPrioritization,
+      enableResponsiveCapture,
       previewImageTargetSize
     ).contentDeepHashCode()
   }
@@ -64,8 +69,8 @@ data class PhotoOutputOptions(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(targetResolution: Size, containerFormat: TargetPhotoContainerFormat, quality: Double, qualityPrioritization: QualityPrioritization, previewImageTargetSize: Size?): PhotoOutputOptions {
-      return PhotoOutputOptions(targetResolution, containerFormat, quality, qualityPrioritization, previewImageTargetSize)
+    private fun fromCpp(targetResolution: Size, containerFormat: TargetPhotoContainerFormat, quality: Double, qualityPrioritization: QualityPrioritization, enableResponsiveCapture: Boolean?, previewImageTargetSize: Size?): PhotoOutputOptions {
+      return PhotoOutputOptions(targetResolution, containerFormat, quality, qualityPrioritization, enableResponsiveCapture, previewImageTargetSize)
     }
   }
 }
