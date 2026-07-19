@@ -1,5 +1,12 @@
+import { screen } from '@react-native-harness/ui'
 import { createRef } from 'react'
-import { type LayoutChangeEvent, StyleSheet } from 'react-native'
+import {
+  type LayoutChangeEvent,
+  PixelRatio,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native'
 import {
   afterEach,
   beforeAll,
@@ -56,6 +63,8 @@ function expectPreviewGeometry(camera: CameraRef, layout: Layout) {
   expect(meteringPoint.normalizedY).toBeLessThanOrEqual(1)
 }
 
+const SPACER_HEIGHT = 200
+
 describe('VisionCamera - Camera View', () => {
   let backDevice: CameraDevice
   let frontDevice: CameraDevice
@@ -76,6 +85,80 @@ describe('VisionCamera - Camera View', () => {
 
   afterEach(() => {
     cleanup()
+  })
+
+  it('preserves preview position when laid out below a sibling spacer (issue #3897)', async (context) => {
+    if (Platform.OS !== 'android') {
+      return context.skip(
+        'Preview spacer-positioned layout: Android-only regression',
+      )
+    }
+
+    const started = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    const onError = (error: Error) => {
+      sessionError = error
+      started.reject(error)
+      previewStarted.reject(error)
+    }
+
+    await render(
+      <View style={styles.spacerRoot}>
+        <View style={styles.redSpacer} />
+        <Camera
+          device={backDevice}
+          isActive={true}
+          style={styles.spacerCamera}
+          onStarted={started.resolve}
+          onPreviewStarted={previewStarted.resolve}
+          onError={onError}
+        />
+      </View>,
+    )
+
+    await withTimeout(started.promise, 15_000, 'spacer Camera onStarted')
+    await withTimeout(
+      previewStarted.promise,
+      15_000,
+      'spacer Camera onPreviewStarted',
+    )
+    expect(sessionError).toBe(undefined)
+
+    // Yield two frames so the fitter's layout commit reaches the render
+    // pipeline before we snapshot. Matches the harness's own
+    // waitForNativeViewHierarchy pattern.
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    )
+
+    const png = await screen.screenshot()
+    if (png == null) throw new Error('screen.screenshot returned null')
+    // ScreenshotResult.width/height come back as 0, so parse the PNG IHDR
+    // (width @ byte 16, height @ byte 20, big-endian).
+    const dv = new DataView(
+      png.data.buffer,
+      png.data.byteOffset,
+      png.data.byteLength,
+    )
+    const fileW = dv.getUint32(16, false)
+    const fileH = dv.getUint32(20, false)
+
+    // Compare only the spacer's pixel band; the rest is live camera feed
+    // that legitimately varies between runs.
+    const spacerPx = SPACER_HEIGHT * PixelRatio.get()
+    await expect({
+      data: png.data,
+      width: fileW,
+      height: fileH,
+    }).toMatchImageSnapshot({
+      name: 'spacer-region-stays-red',
+      failureThresholdType: 'percent',
+      failureThreshold: 0.02,
+      ignoreRegions: [
+        { x: 0, y: spacerPx, width: fileW, height: fileH - spacerPx },
+      ],
+    })
   })
 
   it('starts the high-level Camera preview and exposes preview/controller ref methods', async () => {
@@ -588,4 +671,18 @@ describe('VisionCamera - Camera View', () => {
     await withTimeout(frontStopped.promise, 10_000, 'front Camera onStopped')
     expect(sessionError).toBe(undefined)
   })
+})
+
+const styles = StyleSheet.create({
+  spacerRoot: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  redSpacer: {
+    height: SPACER_HEIGHT,
+    backgroundColor: 'red',
+  },
+  spacerCamera: {
+    flex: 1,
+  },
 })
