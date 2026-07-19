@@ -88,7 +88,11 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
             "Cannot set output settings when VideoOutput is not yet connected to the CameraSession!"
         )
       }
-      var currentSettings = self.output.outputSettings(for: connection)
+      guard connection.isActive else {
+        throw RuntimeError.error(
+          withMessage:
+            "Cannot set output settings - the video connection is not active (yet)!")
+      }
       if let codec = settings.codec {
         if codec.isRawCodec {
           guard self.options.targetBitRate == nil else {
@@ -97,9 +101,26 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
                 "Cannot set bit-rate when recording in a RAW codec! (\(codec.stringValue))")
           }
         }
-        currentSettings[AVVideoCodecKey] = try codec.toAVVideoCodecType()
+        let avCodec = try codec.toAVVideoCodecType()
+        guard self.output.availableVideoCodecTypes.contains(avCodec) else {
+          throw RuntimeError.error(
+            withMessage:
+              "Video codec \(codec.stringValue) is not supported by this device! "
+              + "Supported codecs: \(self.output.availableVideoCodecTypes.map(\.rawValue))")
+        }
+        // supportedOutputSettingsKeys(for:) only allows AVVideoCodecKey and
+        // AVVideoCompressionPropertiesKey, but the fully-resolved dict returned by
+        // outputSettings(for:) also contains AVVideoWidth/HeightKey - passing those
+        // back throws an NSException that Swift cannot catch (app crash). Only pass
+        // the codec (and bit-rate) and let AVFoundation fill in the rest.
+        var newSettings: [String: Any] = [AVVideoCodecKey: avCodec]
+        if let targetBitRate = self.options.targetBitRate {
+          newSettings[AVVideoCompressionPropertiesKey] = [
+            AVVideoAverageBitRateKey: Int(targetBitRate)
+          ]
+        }
+        self.output.setOutputSettings(newSettings, for: connection)
       }
-      self.output.setOutputSettings(currentSettings, for: connection)
     }
   }
 
