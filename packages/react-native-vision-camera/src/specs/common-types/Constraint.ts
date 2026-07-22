@@ -63,9 +63,14 @@ export interface PreviewStabilizationModeConstraint {
  * good "middle-ground" will be chosen.
  *
  * @discussion
- * Resolution negotiation prefers aspect ratio matches
+ * For outputs with an explicit target resolution (e.g.
+ * {@linkcode CameraVideoOutput} or {@linkcode CameraPhotoOutput}),
+ * resolution negotiation prefers aspect ratio matches
  * over raw pixel count differences first, then uses a
  * logarithmic scale to compare resolution differences.
+ * A {@linkcode CameraPreviewOutput} instead only prefers
+ * Formats at least as large as the screen, ignoring
+ * aspect ratio (it fills the screen either way).
  *
  * @example
  * If Photo is more important than Video:

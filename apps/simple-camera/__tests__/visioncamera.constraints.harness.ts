@@ -327,6 +327,175 @@ describe('VisionCamera - Constraints', () => {
     expect(previewEdges.long).toBeLessThanOrEqual(maxAllowedEdges.long)
   })
 
+  // Regression test for https://github.com/mrousavy/react-native-vision-camera/issues/4073:
+  // an explicitly listed resolutionBias for a recording output has a higher
+  // priority than the auto-appended preview bias, so an app requesting
+  // 1080p must record 1080p - not silently upgrade to 4k because the
+  // preview prefers a >= screen-sized format.
+  it('records the explicitly biased video resolution when a preview output is attached', async (context) => {
+    const targetResolution = CommonResolutions.FHD_16_9
+    const getEdges = (resolution: { width: number; height: number }) => ({
+      short: Math.min(resolution.width, resolution.height),
+      long: Math.max(resolution.width, resolution.height),
+    })
+    const targetEdges = getEdges(targetResolution)
+    const supportsTargetResolution = backDevice
+      .getSupportedResolutions('video')
+      .some((resolution) => {
+        const edges = getEdges(resolution)
+        return (
+          edges.short === targetEdges.short && edges.long === targetEdges.long
+        )
+      })
+    if (!supportsTargetResolution) {
+      return context.skip('1080p video resolution not supported on this device')
+    }
+
+    async function resolveExplicitBiasSession(includePreview: boolean) {
+      const session = await VisionCamera.createCameraSession(false)
+      const videoOutput = VisionCamera.createVideoOutput({
+        targetResolution,
+        enableAudio: false,
+      })
+      const previewOutput = includePreview
+        ? VisionCamera.createPreviewOutput()
+        : undefined
+      let selectedConfig: CameraSessionConfig | undefined
+
+      // The same constraints list `useCameraController` builds: the user's
+      // explicit constraints first, then one auto-appended resolutionBias
+      // per output (preview is listed as the first output by <Camera>).
+      await session.configure([
+        {
+          input: backDevice,
+          outputs:
+            previewOutput == null
+              ? [{ output: videoOutput, mirrorMode: 'auto' }]
+              : [
+                  { output: previewOutput, mirrorMode: 'auto' },
+                  { output: videoOutput, mirrorMode: 'auto' },
+                ],
+          constraints:
+            previewOutput == null
+              ? [{ fps: 30 }, { resolutionBias: videoOutput }]
+              : [
+                  { fps: 30 },
+                  { resolutionBias: videoOutput },
+                  { resolutionBias: previewOutput },
+                  { resolutionBias: videoOutput },
+                ],
+          onSessionConfigSelected: (config) => {
+            selectedConfig = config
+          },
+        },
+      ])
+      await waitUntil(() => selectedConfig != null, { timeout: 5_000 })
+
+      await session.start()
+      try {
+        await waitUntil(() => videoOutput.currentResolution != null, {
+          timeout: 10_000,
+        })
+        const currentResolution = videoOutput.currentResolution
+        if (selectedConfig == null) throw new Error('no selected config')
+        if (currentResolution == null) throw new Error('no video resolution')
+        return {
+          selectedFPS: selectedConfig.selectedFPS,
+          resolution: currentResolution,
+        }
+      } finally {
+        await session.stop()
+      }
+    }
+
+    const videoOnly = await resolveExplicitBiasSession(false)
+    const videoOnlyEdges = getEdges(videoOnly.resolution)
+    if (
+      videoOnly.selectedFPS !== 30 ||
+      videoOnlyEdges.short !== targetEdges.short ||
+      videoOnlyEdges.long !== targetEdges.long
+    ) {
+      return context.skip(
+        `device resolves video-only 1080p@30 to ${videoOnly.resolution.width}x${videoOnly.resolution.height}@${videoOnly.selectedFPS ?? 'default'}fps`,
+      )
+    }
+
+    const withPreview = await resolveExplicitBiasSession(true)
+    const withPreviewEdges = getEdges(withPreview.resolution)
+    console.log(
+      `1080p@30 explicit bias video-only=${videoOnly.resolution.width}x${videoOnly.resolution.height} ` +
+        `with-preview=${withPreview.resolution.width}x${withPreview.resolution.height}`,
+    )
+
+    expect(withPreview.selectedFPS).toBe(30)
+    expect(withPreviewEdges.short).toBe(targetEdges.short)
+    expect(withPreviewEdges.long).toBe(targetEdges.long)
+  })
+
+  it('keeps the photo target resolution when a preview output is attached', async () => {
+    const getEdges = (resolution: { width: number; height: number }) => ({
+      short: Math.min(resolution.width, resolution.height),
+      long: Math.max(resolution.width, resolution.height),
+    })
+
+    async function resolvePhotoSession(includePreview: boolean) {
+      const session = await VisionCamera.createCameraSession(false)
+      const photoOutput = VisionCamera.createPhotoOutput({
+        targetResolution: CommonResolutions.UHD_4_3,
+        containerFormat: 'jpeg',
+        quality: 0.8,
+        qualityPrioritization: 'balanced',
+      })
+      const previewOutput = includePreview
+        ? VisionCamera.createPreviewOutput()
+        : undefined
+
+      await session.configure([
+        {
+          input: backDevice,
+          outputs:
+            previewOutput == null
+              ? [{ output: photoOutput, mirrorMode: 'auto' }]
+              : [
+                  { output: previewOutput, mirrorMode: 'auto' },
+                  { output: photoOutput, mirrorMode: 'auto' },
+                ],
+          constraints:
+            previewOutput == null
+              ? [{ resolutionBias: photoOutput }]
+              : [
+                  { resolutionBias: photoOutput },
+                  { resolutionBias: previewOutput },
+                ],
+        },
+      ])
+
+      await session.start()
+      try {
+        await waitUntil(() => photoOutput.currentResolution != null, {
+          timeout: 10_000,
+        })
+        const currentResolution = photoOutput.currentResolution
+        if (currentResolution == null) throw new Error('no photo resolution')
+        return currentResolution
+      } finally {
+        await session.stop()
+      }
+    }
+
+    const photoOnly = await resolvePhotoSession(false)
+    const withPreview = await resolvePhotoSession(true)
+    const photoOnlyEdges = getEdges(photoOnly)
+    const withPreviewEdges = getEdges(withPreview)
+    console.log(
+      `photo target photo-only=${photoOnly.width}x${photoOnly.height} ` +
+        `with-preview=${withPreview.width}x${withPreview.height}`,
+    )
+
+    expect(withPreviewEdges.short).toBe(photoOnlyEdges.short)
+    expect(withPreviewEdges.long).toBe(photoOnlyEdges.long)
+  })
+
   it('resolves photoHDR: true when the device supports photo HDR', async (context) => {
     if (!backDevice.supportsPhotoHDR) {
       return context.skip('photoHDR: not supported on this device')
