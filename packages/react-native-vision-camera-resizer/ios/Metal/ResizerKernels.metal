@@ -72,11 +72,10 @@ inline float3 sampleRgb(
       return float3(0.0f);
   }
 
-  // Apply mirror first, then inverse rotation transform to map output->input.
-  if (uniforms.isMirrored != 0u) {
-    coordinate.x = 1.0f - coordinate.x;
-  }
-
+  // Apply the inverse rotation first, then the mirror, to map output->input.
+  // `isMirrored` mirrors the rotated buffer (matching UIImage orientation
+  // flag semantics, e.g. `.rightMirrored`), so when mapping backwards from
+  // the upright output the mirror has to be undone after the rotation.
   int normalizedRotation = uniforms.rotationDegrees % 360;
   if (normalizedRotation < 0) {
     normalizedRotation += 360;
@@ -95,6 +94,10 @@ inline float3 sampleRgb(
       break;
     default:  // 0°
       break;
+  }
+
+  if (uniforms.isMirrored != 0u) {
+    coordinate.x = 1.0f - coordinate.x;
   }
 
   float y = yTexture.sample(resizeSampler, coordinate).r;
