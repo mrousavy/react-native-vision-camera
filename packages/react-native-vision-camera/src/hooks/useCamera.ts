@@ -279,6 +279,10 @@ export function useCamera({
   const controller = useCameraController(session, input, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
+    // Route session-configure failures to the same onError the runtime
+    // session errors use - a swallowed configure() rejection otherwise
+    // leaves a permanent black preview with no error surfaced at all.
+    onConfigureError: onError,
     getInitialExposureBias: getInitialExposureBias,
     getInitialZoom: getInitialZoom,
     constraints: constraints,

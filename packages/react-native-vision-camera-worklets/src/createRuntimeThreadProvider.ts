@@ -73,7 +73,17 @@ export function createRuntimeThreadProvider(): RuntimeThreadProvider {
       scheduleOnUI(() => {
         'worklet'
         value.addListener(id, (v) => {
-          controller[funcName](v)
+          // Controller setters return Promises; a rejection (e.g. CameraX
+          // OperationCanceledException while the session is re-configuring,
+          // like a pinch-zoom during an fps/constraints change) must not
+          // surface as an unhandled rejection on the UI runtime.
+          controller[funcName](v).catch((e) => {
+            const message =
+              typeof e === 'object' && e != null && 'message' in e
+                ? String(e.message)
+                : `${e}`
+            console.error(message, e)
+          })
         })
       })
       return {

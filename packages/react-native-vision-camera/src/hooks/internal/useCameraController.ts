@@ -16,6 +16,7 @@ interface Config {
   onSessionConfigSelected?: (config: CameraSessionConfig) => void
 
   onConfigured?: () => void
+  onConfigureError?: (error: Error) => void
   getInitialZoom?: () => number | undefined
   getInitialExposureBias?: () => number | undefined
 }
@@ -38,6 +39,7 @@ export function useCameraController(
     allowBackgroundAudioPlayback,
     getInitialExposureBias,
     onConfigured,
+    onConfigureError,
     getInitialZoom,
   }: Config = {},
 ): CameraController | undefined {
@@ -52,6 +54,7 @@ export function useCameraController(
     getInitialZoom ?? (() => undefined),
   )
   const stableOnConfigured = useStableCallback(onConfigured ?? (() => {}))
+  const stableOnConfigureError = useStableCallback(onConfigureError ?? (() => {}))
   const stableOnSessionConfigSelected = useStableCallback(
     onSessionConfigSelected ?? (() => {}),
   )
@@ -83,23 +86,38 @@ export function useCameraController(
         session.configure([], {})
         setController(undefined)
       } else {
+        // Build the connection before the try - a throw from a user-supplied
+        // getter here is a caller bug, not a configure failure, and must not
+        // be misreported through onConfigureError.
+        const connection = {
+          input: device,
+          outputs: stableOutputs.map((o) => ({
+            output: o,
+            mirrorMode: mirrorMode,
+          })),
+          constraints: stableConstraints,
+          initialExposureBias: stableGetInitialExposureBias?.(),
+          initialZoom: stableGetInitialZoom?.(),
+          onSessionConfigSelected: stableOnSessionConfigSelected,
+        }
         // Device + outputs - configure session
-        const controllers = await session.configure(
-          [
-            {
-              input: device,
-              outputs: stableOutputs.map((o) => ({
-                output: o,
-                mirrorMode: mirrorMode,
-              })),
-              constraints: stableConstraints,
-              initialExposureBias: stableGetInitialExposureBias?.(),
-              initialZoom: stableGetInitialZoom?.(),
-              onSessionConfigSelected: stableOnSessionConfigSelected,
-            },
-          ],
-          { allowBackgroundAudioPlayback: allowBackgroundAudioPlayback },
-        )
+        let controllers: CameraController[]
+        try {
+          controllers = await session.configure([connection], {
+            allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
+          })
+        } catch (e) {
+          // A rejected configure() means the session could never be built
+          // (e.g. the device rejected the use-case combination). Without this
+          // handler the rejection is silently swallowed: no controller, no
+          // onError, and the preview stays black forever. Surface it to the
+          // user's onError.
+          if (isCanceled) return
+          setController(undefined)
+          const error = e instanceof Error ? e : new Error(String(e))
+          stableOnConfigureError(error)
+          return
+        }
         if (isCanceled) {
           controllers.forEach((c) => {
             c.dispose()
@@ -121,6 +139,7 @@ export function useCameraController(
     allowBackgroundAudioPlayback,
     stableOutputs,
     stableOnConfigured,
+    stableOnConfigureError,
     stableGetInitialExposureBias,
     stableGetInitialZoom,
     stableOnSessionConfigSelected,
