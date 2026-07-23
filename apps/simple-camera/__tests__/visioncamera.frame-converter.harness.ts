@@ -1,3 +1,4 @@
+import { Platform } from 'react-native'
 import { describe, expect, it } from 'react-native-harness'
 import type { Image as NitroImage } from 'react-native-nitro-image'
 import { Images } from 'react-native-nitro-image'
@@ -25,6 +26,13 @@ const orientationDegrees: Record<CameraOrientation, number> = {
   down: 180,
   left: 270,
 }
+
+// The test buffers below are always R,G,B,A byte order. react-native-nitro-image's
+// Android `loadFromRawPixelData` currently R/B-swaps 4-byte formats (it packs
+// ColorInt-ordered ints but raw-copies them into the RGBA-laid-out Bitmap memory) -
+// its 'BGRA' fast path raw-copies bytes 1:1 instead, so labeling our R,G,B,A bytes
+// as 'BGRA' on Android yields a byte-exact Bitmap. Remove once nitro-image is fixed.
+const RAW_PIXEL_FORMAT = Platform.OS === 'android' ? 'BGRA' : 'RGBA'
 
 // The test image is 32x48 with four luma quadrants:
 //   30  | 90
@@ -56,7 +64,7 @@ function createQuadrantImage(): NitroImage {
     buffer: buffer,
     width: IMAGE_WIDTH,
     height: IMAGE_HEIGHT,
-    pixelFormat: 'RGBA',
+    pixelFormat: RAW_PIXEL_FORMAT,
   })
 }
 
@@ -286,7 +294,7 @@ describe('VisionCamera - Frame Converter', () => {
       buffer: buffer,
       width: width,
       height: height,
-      pixelFormat: 'RGBA',
+      pixelFormat: RAW_PIXEL_FORMAT,
     })
     try {
       const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
@@ -308,7 +316,11 @@ describe('VisionCamera - Frame Converter', () => {
           ABGR: [3, 1],
           XBGR: [3, 1],
         }
-        const offsets = channelOffsets[pixelFormat]
+        // nitro-image labels Android's RGBA-laid-out Bitmap memory as 'BGRA'
+        // (same ColorInt/byte-order confusion as above) - the raw bytes are
+        // actually R,G,B,A. Remove once nitro-image is fixed.
+        const offsets: [number, number] | undefined =
+          Platform.OS === 'android' ? [0, 2] : channelOffsets[pixelFormat]
         if (offsets == null) {
           throw new Error(`Unexpected roundtripped pixelFormat: ${pixelFormat}`)
         }

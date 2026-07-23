@@ -1,3 +1,4 @@
+import { Platform } from 'react-native'
 import { describe, expect, it } from 'react-native-harness'
 import type { Image as NitroImage } from 'react-native-nitro-image'
 import { Images } from 'react-native-nitro-image'
@@ -11,6 +12,13 @@ import {
 import { withTimeout } from './test-utils'
 
 type Rgb = [number, number, number]
+
+// The test buffers below are always R,G,B,A byte order. react-native-nitro-image's
+// Android `loadFromRawPixelData` currently R/B-swaps 4-byte formats (it packs
+// ColorInt-ordered ints but raw-copies them into the RGBA-laid-out Bitmap memory) -
+// its 'BGRA' fast path raw-copies bytes 1:1 instead, so labeling our R,G,B,A bytes
+// as 'BGRA' on Android yields a byte-exact Bitmap. Remove once nitro-image is fixed.
+const RAW_PIXEL_FORMAT = Platform.OS === 'android' ? 'BGRA' : 'RGBA'
 
 const RED: Rgb = [255, 0, 0]
 const GREEN: Rgb = [0, 255, 0]
@@ -39,7 +47,7 @@ function createImage(
     buffer: buffer,
     width: width,
     height: height,
-    pixelFormat: 'RGBA',
+    pixelFormat: RAW_PIXEL_FORMAT,
   })
 }
 
