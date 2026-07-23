@@ -248,9 +248,11 @@ function CameraImpl({
   )
 
   // 6. Update CameraController props
-  useZoomUpdater(controller, zoom)
-  useExposureUpdater(controller, exposure)
-  useTorchModeUpdater(controller, torchMode)
+  // Controller setter rejections are routed to the same `onError` the
+  // session's runtime errors use.
+  useZoomUpdater(controller, zoom, props.onError)
+  useExposureUpdater(controller, exposure, props.onError)
+  useTorchModeUpdater(controller, torchMode, props.onError)
 
   // 7. Attach any native gesture controllers
   if (enableNativeZoomGesture && zoom != null) {
