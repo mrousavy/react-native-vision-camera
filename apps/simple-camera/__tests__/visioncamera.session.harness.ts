@@ -519,6 +519,272 @@ describe('VisionCamera - Session', () => {
     }
   })
 
+  it('switches a running session to a different camera device', async (context) => {
+    const backDevice = factory.getDefaultCamera('back')
+    expect(backDevice).toBeDefined()
+    if (backDevice == null) throw new Error('no back camera')
+    const frontDevice = factory.getDefaultCamera('front')
+    if (frontDevice == null) {
+      return context.skip('device switch: no front camera on this device')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      // Reconfiguring to a different device removes the back camera input from
+      // the running session and adds the front camera input in a single
+      // configure call.
+      const controllers = await session.configure([
+        {
+          input: frontDevice,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      expect(controllers).toHaveLength(1)
+      expect(controllers[0]?.device.position).toBe('front')
+
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+
+      expect(sessionError).toBe(undefined)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('removes multiple outputs from a running session in a single reconfigure', async () => {
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    await session.configure([
+      {
+        input: device,
+        outputs: [
+          { output: previewOutput, mirrorMode: 'auto' },
+          { output: firstPhotoOutput, mirrorMode: 'auto' },
+          { output: videoOutput, mirrorMode: 'auto' },
+        ],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      // Dropping the preview, photo and video outputs at once removes multiple
+      // outputs (and the preview connection) from the running session in a
+      // single configure call.
+      const secondPhotoOutput = VisionCamera.createPhotoOutput({
+        targetResolution: CommonResolutions.HD_4_3,
+        containerFormat: 'jpeg',
+        quality: 0.8,
+        qualityPrioritization: 'balanced',
+      })
+      await session.configure([
+        {
+          input: device,
+          outputs: [{ output: secondPhotoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+
+      const photo = await secondPhotoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+
+      expect(sessionError).toBe(undefined)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('removes the camera and audio inputs in a single reconfigure while running', async (context) => {
+    const backDevice = factory.getDefaultCamera('back')
+    expect(backDevice).toBeDefined()
+    if (backDevice == null) throw new Error('no back camera')
+    const frontDevice = factory.getDefaultCamera('front')
+    if (frontDevice == null) {
+      return context.skip('input removal: no front camera on this device')
+    }
+    await VisionCamera.requestMicrophonePermission()
+    if (VisionCamera.microphonePermissionStatus !== 'authorized') {
+      return context.skip('input removal: no microphone permission')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: true,
+    })
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      // Switching to the front camera without audio removes both the back
+      // camera input and the microphone input in a single configure call.
+      const photoOutput = VisionCamera.createPhotoOutput({
+        targetResolution: CommonResolutions.HD_4_3,
+        containerFormat: 'jpeg',
+        quality: 0.8,
+        qualityPrioritization: 'balanced',
+      })
+      const controllers = await session.configure([
+        {
+          input: frontDevice,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      expect(controllers).toHaveLength(1)
+      expect(controllers[0]?.device.position).toBe('front')
+
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+
+      expect(sessionError).toBe(undefined)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('tears down a running session with configure([]) and reconfigures it afterwards', async () => {
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    await session.configure([
+      {
+        input: device,
+        outputs: [
+          { output: previewOutput, mirrorMode: 'auto' },
+          { output: firstPhotoOutput, mirrorMode: 'auto' },
+        ],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      // This is the `useCameraSession` unmount path: a single configure([])
+      // on a running session that removes the input, all outputs and all
+      // connections at once.
+      const controllers = await session.configure([])
+      expect(controllers).toHaveLength(0)
+      expect(sessionError).toBe(undefined)
+
+      // The same session must be fully usable again afterwards.
+      const secondPhotoOutput = VisionCamera.createPhotoOutput({
+        targetResolution: CommonResolutions.HD_4_3,
+        containerFormat: 'jpeg',
+        quality: 0.8,
+        qualityPrioritization: 'balanced',
+      })
+      await session.configure([
+        {
+          input: device,
+          outputs: [{ output: secondPhotoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      await session.start()
+
+      const photo = await secondPhotoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+
+      expect(sessionError).toBe(undefined)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
   it('supports a multi-cam session when the platform allows it', async (context) => {
     if (!VisionCamera.supportsMultiCamSessions) {
       return context.skip('multi-cam session: not supported on this platform')
