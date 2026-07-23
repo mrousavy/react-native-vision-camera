@@ -107,6 +107,8 @@ uint32_t ShaderSpecializationData::getScaleModeOrdinal(ScaleMode scaleMode) {
       return 0u;
     case ScaleMode::CONTAIN:
       return 1u;
+    case ScaleMode::STRETCH:
+      return 2u;
   }
 
   throw std::runtime_error("Unsupported Resizer ScaleMode.");
