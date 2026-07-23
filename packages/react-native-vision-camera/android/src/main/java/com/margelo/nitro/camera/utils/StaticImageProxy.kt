@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.media.Image
+import android.media.ImageReader
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.FlashState
 import androidx.camera.core.ImageInfo
@@ -13,25 +14,26 @@ import androidx.camera.core.impl.TagBundle
 import com.margelo.nitro.camera.extensions.mapToArray
 
 /**
- * An implementation of [ImageProxy] that holds an [Image]
- * in [android.graphics.ImageFormat.DEPTH16].
+ * An implementation of [ImageProxy] that holds a static [Image]
+ * which was created from an [ImageReader] outside of a Camera pipeline,
+ * for example by converting a Bitmap to a camera-like YUV [Image].
+ *
+ * Closing this [ImageProxy] closes both the [Image] and its owning [ImageReader].
  */
-class DepthImageProxy(
+class StaticImageProxy(
   private val image: Image,
+  private val imageReader: ImageReader,
+  rotationDegrees: Int,
 ) : ImageProxy {
   private val imageInfo: ImageInfo
 
   init {
-    // rotationDegrees and transformMatrix are placeholder values here.
-    // CameraX's ImageAnalysis wraps this proxy in a SettableImageProxy
-    // with the correct relative rotation and sensor-to-buffer transform
-    // before delivering it to the analyzer callback.
     @SuppressLint("RestrictedApi")
     imageInfo =
       ImmutableImageInfo.create(
         TagBundle.emptyBundle(),
         image.timestamp,
-        0,
+        rotationDegrees,
         Matrix(),
         FlashState.NOT_FIRED,
       )
@@ -39,6 +41,7 @@ class DepthImageProxy(
 
   override fun close() {
     image.close()
+    imageReader.close()
   }
 
   override fun getCropRect(): Rect {

@@ -7,7 +7,7 @@ import type { FrameConverter } from '../specs/utils/FrameConverter.nitro'
 /**
  * The {@linkcode HybridFrameConverter} can be used to convert
  * {@linkcode Frame}s and {@linkcode Depth} frames to
- * {@linkcode Image}s.
+ * {@linkcode Image}s, and {@linkcode Image}s back to {@linkcode Frame}s.
  */
 export const HybridFrameConverter =
   NitroModules.createHybridObject<FrameConverter>('FrameConverter')

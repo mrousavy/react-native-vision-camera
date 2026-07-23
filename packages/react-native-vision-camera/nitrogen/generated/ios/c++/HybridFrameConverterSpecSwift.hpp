@@ -16,6 +16,8 @@ namespace VisionCamera { class HybridFrameConverterSpec_cxx; }
 namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
 
@@ -23,6 +25,7 @@ namespace margelo::nitro::camera { class HybridDepthSpec; }
 #include <NitroImage/HybridImageSpec.hpp>
 #include "HybridFrameSpec.hpp"
 #include <NitroModules/Promise.hpp>
+#include "CameraOrientation.hpp"
 #include "HybridDepthSpec.hpp"
 
 #include "VisionCamera-Swift-Cxx-Umbrella.hpp"
@@ -85,6 +88,22 @@ namespace margelo::nitro::camera {
     }
     inline std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> convertFrameToImageAsync(const std::shared_ptr<HybridFrameSpec>& frame) override {
       auto __result = _swiftPart.convertFrameToImageAsync(frame);
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<HybridFrameSpec> convertImageToFrame(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) override {
+      auto __result = _swiftPart.convertImageToFrame(image, static_cast<int>(orientation), std::forward<decltype(isMirrored)>(isMirrored));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
+    inline std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> convertImageToFrameAsync(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) override {
+      auto __result = _swiftPart.convertImageToFrameAsync(image, static_cast<int>(orientation), std::forward<decltype(isMirrored)>(isMirrored));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

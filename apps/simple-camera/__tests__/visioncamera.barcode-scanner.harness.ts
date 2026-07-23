@@ -2,6 +2,8 @@ import { Image as RNImage } from 'react-native'
 import { describe, expect, it } from 'react-native-harness'
 import type { Image as NitroImage } from 'react-native-nitro-image'
 import { loadImage } from 'react-native-nitro-image'
+import type { CameraOrientation } from 'react-native-vision-camera'
+import { HybridFrameConverter } from 'react-native-vision-camera'
 import {
   type Barcode,
   createBarcodeScanner,
@@ -38,6 +40,91 @@ describe('VisionCamera - Barcode Scanner', () => {
     expect(allFormatBarcodes[0]?.format).toBe('code-128')
     expect(allFormatBarcodes[0]?.rawValue).toBe('https://mrousavy.com')
   })
+
+  // The Frame-based scanning path is what Frame Processors use - create
+  // camera-like Frames from the bundled assets via the FrameConverter to
+  // exercise it without a physical code in front of the camera.
+  for (const orientation of [
+    'up',
+    'right',
+    'down',
+    'left',
+  ] satisfies CameraOrientation[]) {
+    it(`scans a QR code from a Frame in orientation=${orientation}`, async () => {
+      const image = await loadNitroImageFromAsset(qrCodeAsset)
+      try {
+        const frame = HybridFrameConverter.convertImageToFrame(
+          image,
+          orientation,
+          false,
+        )
+        const scanner = createBarcodeScanner({ barcodeFormats: ['qr-code'] })
+        try {
+          const barcodes = await withTimeout(
+            scanner.scanCodesAsync(frame),
+            15_000,
+            `scan QR code from ${orientation} Frame`,
+          )
+          expect(barcodes).toHaveLength(1)
+          expect(barcodes[0]?.format).toBe('qr-code')
+          expect(barcodes[0]?.rawValue).toBe('https://margelo.com')
+        } finally {
+          scanner.dispose()
+          frame.dispose()
+        }
+      } finally {
+        image.dispose()
+      }
+    })
+  }
+
+  it('scans a QR code synchronously from a Frame', async () => {
+    const image = await loadNitroImageFromAsset(qrCodeAsset)
+    try {
+      const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
+      const scanner = createBarcodeScanner({ barcodeFormats: ['qr-code'] })
+      try {
+        const barcodes = scanner.scanCodes(frame)
+        expect(barcodes).toHaveLength(1)
+        expect(barcodes[0]?.format).toBe('qr-code')
+        expect(barcodes[0]?.rawValue).toBe('https://margelo.com')
+      } finally {
+        scanner.dispose()
+        frame.dispose()
+      }
+    } finally {
+      image.dispose()
+    }
+  })
+
+  for (const orientation of ['up', 'right'] satisfies CameraOrientation[]) {
+    it(`scans a Code 128 barcode from a Frame in orientation=${orientation}`, async () => {
+      const image = await loadNitroImageFromAsset(code128Asset)
+      try {
+        const frame = HybridFrameConverter.convertImageToFrame(
+          image,
+          orientation,
+          false,
+        )
+        const scanner = createBarcodeScanner({ barcodeFormats: ['code-128'] })
+        try {
+          const barcodes = await withTimeout(
+            scanner.scanCodesAsync(frame),
+            15_000,
+            `scan Code 128 from ${orientation} Frame`,
+          )
+          expect(barcodes).toHaveLength(1)
+          expect(barcodes[0]?.format).toBe('code-128')
+          expect(barcodes[0]?.rawValue).toBe('https://mrousavy.com')
+        } finally {
+          scanner.dispose()
+          frame.dispose()
+        }
+      } finally {
+        image.dispose()
+      }
+    })
+  }
 })
 
 async function scanCodesInAssetImage(
