@@ -16,10 +16,29 @@ struct PlaneTexture {
   let texture: MTLTexture
 }
 
+/// The input layout sampled by the resizer shader.
+/// Each format has its own set of `resize_<format>_*` kernels in `ResizerKernels.metal`.
+enum MetalResizerInputFormat {
+  case yuvBiplanar
+  case bgra
+}
+
 /// Holds the sampled camera textures for one resizer dispatch.
-struct MetalResizerInputTextures {
-  let yPlane: PlaneTexture
-  let uvPlane: PlaneTexture
+enum MetalResizerInputTextures {
+  /// A YUV 4:2:0 bi-planar input: a full-resolution Y plane and a
+  /// half-resolution interleaved CbCr plane.
+  case yuvBiplanar(yPlane: PlaneTexture, uvPlane: PlaneTexture)
+  /// A full-resolution interleaved BGRA input.
+  case bgra(texture: PlaneTexture)
+
+  var format: MetalResizerInputFormat {
+    switch self {
+    case .yuvBiplanar:
+      return .yuvBiplanar
+    case .bgra:
+      return .bgra
+    }
+  }
 
   /**
    * Wraps the current input pixel buffer into the Metal textures expected by the resizer shader.
@@ -41,12 +60,19 @@ struct MetalResizerInputTextures {
         textureCache: textureCache,
         pixelFormat: .rg8Unorm,
         planeIndex: 1)
-      return MetalResizerInputTextures(yPlane: yPlane, uvPlane: uvPlane)
+      return .yuvBiplanar(yPlane: yPlane, uvPlane: uvPlane)
+    case kCVPixelFormatType_32BGRA:
+      let bgra = try makePlaneTexture(
+        pixelBuffer: pixelBuffer,
+        textureCache: textureCache,
+        pixelFormat: .bgra8Unorm,
+        planeIndex: 0)
+      return .bgra(texture: bgra)
     default:
       throw RuntimeError.error(
         withMessage:
           "Unsupported input pixel format \(pixelFormat). "
-          + "Expected kCVPixelFormatType_420YpCbCr8BiPlanarFullRange.")
+          + "Expected kCVPixelFormatType_420YpCbCr8BiPlanarFullRange or kCVPixelFormatType_32BGRA.")
     }
   }
 

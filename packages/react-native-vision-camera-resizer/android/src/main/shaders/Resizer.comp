@@ -53,6 +53,19 @@ vec2 outputToInputCoordinate(uvec2 gid) {
   vec2 sourceSize = vec2(textureSize(inputImage, 0));
   vec2 outputCoordinate = (vec2(gid) + vec2(0.5)) / outputSize;
 
+  int normalizedRotation = pushConstants.rotationDegrees % 360;
+  if (normalizedRotation < 0) {
+    normalizedRotation += 360;
+  }
+
+  // The scale mode fits the UPRIGHT content into the output - for 90°/270°
+  // rotated buffers the upright content's aspect ratio is the buffer's
+  // aspect ratio flipped.
+  bool isSideways = normalizedRotation == 90 || normalizedRotation == 270;
+  if (isSideways) {
+    sourceSize = sourceSize.yx;
+  }
+
   vec2 coordinate;
   switch (kScaleMode) {
     case 0u: { // 0u == ScaleMode::COVER
@@ -85,14 +98,10 @@ vec2 outputToInputCoordinate(uvec2 gid) {
       return vec2(-1.0);
   }
 
-  if (pushConstants.isMirrored == 1u) {
-    coordinate.x = 1.0 - coordinate.x;
-  }
-
-  int normalizedRotation = pushConstants.rotationDegrees % 360;
-  if (normalizedRotation < 0) {
-    normalizedRotation += 360;
-  }
+  // Apply the inverse rotation first, then the mirror, to map output->input.
+  // `isMirrored` mirrors the rotated buffer (matching UIImage orientation
+  // flag semantics, e.g. `.rightMirrored`), so when mapping backwards from
+  // the upright output the mirror has to be undone after the rotation.
   int inverseRotation = (360 - normalizedRotation) % 360;
 
   switch (inverseRotation) {
@@ -107,6 +116,10 @@ vec2 outputToInputCoordinate(uvec2 gid) {
       break;
     default:
       break;
+  }
+
+  if (pushConstants.isMirrored == 1u) {
+    coordinate.x = 1.0 - coordinate.x;
   }
 
   return coordinate;

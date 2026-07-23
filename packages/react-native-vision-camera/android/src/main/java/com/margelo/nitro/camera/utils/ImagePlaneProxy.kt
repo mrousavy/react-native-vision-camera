@@ -6,7 +6,7 @@ import androidx.camera.core.ImageProxy
 import java.nio.ByteBuffer
 
 @ExperimentalGetImage
-class DepthImagePlaneProxy(
+class ImagePlaneProxy(
   private val plane: Image.Plane,
 ) : ImageProxy.PlaneProxy {
   override fun getRowStride(): Int {
