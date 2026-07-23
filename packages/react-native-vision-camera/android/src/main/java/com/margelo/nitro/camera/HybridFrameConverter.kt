@@ -67,17 +67,6 @@ class HybridFrameConverter : HybridFrameConverterSpec() {
         advanceTo(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false))
       }
 
-      // iOS Frames are YUV 4:2:0, which requires even dimensions - crop off
-      // the last row/column here too so both platforms report the same size.
-      val evenWidth = bitmap.width and 1.inv()
-      val evenHeight = bitmap.height and 1.inv()
-      if (evenWidth <= 0 || evenHeight <= 0) {
-        throw Error("The given `Image` (${bitmap.width}x${bitmap.height}) is too small to be converted to a Frame!")
-      }
-      if (evenWidth != bitmap.width || evenHeight != bitmap.height) {
-        advanceTo(Bitmap.createBitmap(bitmap, 0, 0, evenWidth, evenHeight))
-      }
-
       val imageProxy = bitmap.toRgbaImageProxy(orientation.degrees)
       return HybridFrame(imageProxy, orientation, isMirrored)
     } finally {

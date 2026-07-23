@@ -14,9 +14,9 @@ extension UIImage {
   private static let context = CIContext(options: [.useSoftwareRenderer: false])
 
   /**
-   * Converts this `UIImage` to a YUV 4:2:0 full-range `CMSampleBuffer`
-   * (the same format the Camera streams Frames in), physically rotating
-   * and mirroring the pixel data so that interpreting the resulting buffer
+   * Converts this `UIImage` to a BGRA `CMSampleBuffer` (a camera-like RGB
+   * format, so the conversion is lossless), physically rotating and
+   * mirroring the pixel data so that interpreting the resulting buffer
    * with the given `orientation` and `isMirrored` flags yields this
    * (upright) `UIImage` again.
    */
@@ -49,18 +49,15 @@ extension UIImage {
         translationX: -ciImage.extent.origin.x,
         y: -ciImage.extent.origin.y))
 
-    // 4. YUV 4:2:0 requires even dimensions - crop off the last row/column if needed.
-    let width = Int(ciImage.extent.width.rounded()) & ~1
-    let height = Int(ciImage.extent.height.rounded()) & ~1
+    // 4. Render into a BGRA CVPixelBuffer.
+    let width = Int(ciImage.extent.width.rounded())
+    let height = Int(ciImage.extent.height.rounded())
     guard width > 0, height > 0 else {
       throw RuntimeError.error(
         withMessage:
           "The given Image (\(ciImage.extent.width)x\(ciImage.extent.height)) is too small "
-          + "to be converted to a YUV 4:2:0 Frame!")
+          + "to be converted to a Frame!")
     }
-    ciImage = ciImage.cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
-
-    // 5. Render into a YUV 4:2:0 full-range CVPixelBuffer.
     let attributes: [CFString: Any] = [
       kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary
     ]
@@ -69,21 +66,16 @@ extension UIImage {
       kCFAllocatorDefault,
       width,
       height,
-      kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+      kCVPixelFormatType_32BGRA,
       attributes as CFDictionary,
       &pixelBuffer)
     guard result == kCVReturnSuccess, let pixelBuffer else {
       throw RuntimeError.error(
-        withMessage: "Failed to create a \(width)x\(height) YUV 4:2:0 CVPixelBuffer! Status: \(result)")
+        withMessage: "Failed to create a \(width)x\(height) BGRA CVPixelBuffer! Status: \(result)")
     }
-    CVBufferSetAttachment(
-      pixelBuffer,
-      kCVImageBufferYCbCrMatrixKey,
-      kCVImageBufferYCbCrMatrix_ITU_R_601_4,
-      .shouldPropagate)
     Self.context.render(ciImage, to: pixelBuffer)
 
-    // 6. Wrap the CVPixelBuffer in a CMSampleBuffer.
+    // 5. Wrap the CVPixelBuffer in a CMSampleBuffer.
     let format = try CMFormatDescription(imageBuffer: pixelBuffer)
     let timing = CMSampleTimingInfo(
       duration: .zero,

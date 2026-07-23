@@ -43,18 +43,14 @@ export interface FrameConverter
    *
    * This performs a CPU copy.
    * The resulting {@linkcode Frame} is in a CPU-accessible, camera-like
-   * {@linkcode PixelFormat} - a 4:2:0 YUV format
-   * ({@linkcode PixelFormat | 'yuv-420-8-bit-full'}) on iOS, and RGBA
-   * ({@linkcode PixelFormat | 'rgb-rgba-8-bit'}) on Android.
-   * The RGB -> YUV conversion on iOS is lossy - expect pixel values
-   * to be off by a small amount.
+   * RGB {@linkcode PixelFormat} ({@linkcode PixelFormat | 'rgb-bgra-8-bit'}
+   * on iOS, {@linkcode PixelFormat | 'rgb-rgba-8-bit'} on Android),
+   * so the conversion is lossless.
    *
    * @note Since the pixel data is physically rotated, the resulting
    * {@linkcode Frame}'s {@linkcode Frame.width | width} and
    * {@linkcode Frame.height | height} are flipped if {@linkcode orientation}
    * is {@linkcode CameraOrientation | 'left'} or {@linkcode CameraOrientation | 'right'}.
-   * @note Since YUV 4:2:0 requires even dimensions, odd {@linkcode Image}
-   * dimensions are rounded down to the nearest even number.
    * @note The resulting {@linkcode Frame} has to be disposed
    * (see {@linkcode Frame.dispose | dispose()}) again to free up its memory.
    *

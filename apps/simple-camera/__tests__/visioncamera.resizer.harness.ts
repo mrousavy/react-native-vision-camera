@@ -77,8 +77,8 @@ function readPixel(gpuFrame: GPUFrame, x: number, y: number): Rgb {
   return [r, g, b]
 }
 
-// Classifies a sampled color into one of the test colors, tolerating the
-// small shifts introduced by the RGB -> YUV -> RGB conversion roundtrip.
+// Classifies a sampled color into one of the test colors, tolerating
+// small shifts from GPU sampling/quantization.
 function classifyColor([r, g, b]: Rgb): string {
   const isHigh = (value: number) => value > 155
   const isLow = (value: number) => value < 100

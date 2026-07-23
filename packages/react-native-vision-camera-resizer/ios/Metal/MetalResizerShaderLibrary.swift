@@ -15,6 +15,7 @@ struct MetalResizerUniforms {
   var outputHeight: UInt32
   var rotationDegrees: Int32
   var isMirrored: UInt32
+  var inputFormat: UInt32
 }
 
 /// Loads the precompiled Metal shader bundle and resolves the compute pipeline used by the resizer.

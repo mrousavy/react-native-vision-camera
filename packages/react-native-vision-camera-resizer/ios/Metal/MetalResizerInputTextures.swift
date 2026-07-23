@@ -16,10 +16,20 @@ struct PlaneTexture {
   let texture: MTLTexture
 }
 
+/// The input layout sampled by the resizer shader.
+/// The raw values match the `inputFormat` uniform in `ResizerKernels.metal`.
+enum MetalResizerInputFormat: UInt32 {
+  /// primary = Y plane, secondary = interleaved CbCr plane
+  case yuvBiplanar = 0
+  /// primary = full-resolution BGRA texture, secondary unused
+  case bgra = 1
+}
+
 /// Holds the sampled camera textures for one resizer dispatch.
 struct MetalResizerInputTextures {
-  let yPlane: PlaneTexture
-  let uvPlane: PlaneTexture
+  let primary: PlaneTexture
+  let secondary: PlaneTexture
+  let format: MetalResizerInputFormat
 
   /**
    * Wraps the current input pixel buffer into the Metal textures expected by the resizer shader.
@@ -41,12 +51,22 @@ struct MetalResizerInputTextures {
         textureCache: textureCache,
         pixelFormat: .rg8Unorm,
         planeIndex: 1)
-      return MetalResizerInputTextures(yPlane: yPlane, uvPlane: uvPlane)
+      return MetalResizerInputTextures(primary: yPlane, secondary: uvPlane, format: .yuvBiplanar)
+    case kCVPixelFormatType_32BGRA:
+      let bgra = try makePlaneTexture(
+        pixelBuffer: pixelBuffer,
+        textureCache: textureCache,
+        pixelFormat: .bgra8Unorm,
+        planeIndex: 0)
+      // The secondary texture slot is never sampled for BGRA inputs, but
+      // Metal requires every statically-reachable argument to be bound -
+      // bind the same texture again as a placeholder.
+      return MetalResizerInputTextures(primary: bgra, secondary: bgra, format: .bgra)
     default:
       throw RuntimeError.error(
         withMessage:
           "Unsupported input pixel format \(pixelFormat). "
-          + "Expected kCVPixelFormatType_420YpCbCr8BiPlanarFullRange.")
+          + "Expected kCVPixelFormatType_420YpCbCr8BiPlanarFullRange or kCVPixelFormatType_32BGRA.")
     }
   }
 
