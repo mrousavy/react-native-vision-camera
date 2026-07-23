@@ -51,17 +51,26 @@ function createImage(
   })
 }
 
+function createOrientedFrame(
+  width: number,
+  height: number,
+  colorAt: (x: number, y: number) => Rgb,
+  orientation: CameraOrientation,
+): Frame {
+  const image = createImage(width, height, colorAt)
+  try {
+    return HybridFrameConverter.convertImageToFrame(image, orientation, false)
+  } finally {
+    image.dispose()
+  }
+}
+
 function createUprightFrame(
   width: number,
   height: number,
   colorAt: (x: number, y: number) => Rgb,
 ): Frame {
-  const image = createImage(width, height, colorAt)
-  try {
-    return HybridFrameConverter.convertImageToFrame(image, 'up', false)
-  } finally {
-    image.dispose()
-  }
+  return createOrientedFrame(width, height, colorAt, 'up')
 }
 
 // Reads the RGB value at the given pixel of an interleaved uint8 GPUFrame.
@@ -192,118 +201,125 @@ describe('VisionCamera - Resizer', () => {
     }
   })
 
-  it('center-crops the Frame with scaleMode=cover', async (context) => {
-    if (!isResizerAvailable()) {
-      return context.skip(
-        'resizer: GPU resizing is not available on this device',
-      )
-    }
-    const frame = createUprightFrame(96, 48, stripeColorAt)
-    const resizer = await withTimeout(
-      createResizer({
-        width: 48,
-        height: 48,
-        channelOrder: 'rgb',
-        dataType: 'uint8',
-        scaleMode: 'cover',
-        pixelLayout: 'interleaved',
-      }),
-      15_000,
-      'create resizer',
-    )
-    try {
-      const resized = resizer.resize(frame)
-      try {
-        // The 96x48 input is cropped to its centered 48x48 region
-        // (input x 24..72), so parts of all three stripes are visible:
-        // red covers output x < 8, green x 8..40, blue x >= 40.
-        expectColorAt(resized, 3, 24, 'red')
-        expectColorAt(resized, 24, 24, 'green')
-        expectColorAt(resized, 44, 24, 'blue')
-      } finally {
-        resized.dispose()
-      }
-    } finally {
-      resizer.dispose()
-      frame.dispose()
-    }
-  })
+  // Each scale mode fits the UPRIGHT content into the output, no matter
+  // which orientation the Frame's buffer is in - a 'right'-rotated Frame of
+  // the same (non-square!) content must produce the exact same output.
+  const scaleModeOrientations = ['up', 'right'] satisfies CameraOrientation[]
 
-  it('letterboxes the Frame with scaleMode=contain', async (context) => {
-    if (!isResizerAvailable()) {
-      return context.skip(
-        'resizer: GPU resizing is not available on this device',
-      )
-    }
-    const frame = createUprightFrame(96, 48, stripeColorAt)
-    const resizer = await withTimeout(
-      createResizer({
-        width: 48,
-        height: 48,
-        channelOrder: 'rgb',
-        dataType: 'uint8',
-        scaleMode: 'contain',
-        pixelLayout: 'interleaved',
-      }),
-      15_000,
-      'create resizer',
-    )
-    try {
-      const resized = resizer.resize(frame)
-      try {
-        // The 96x48 input is scaled by 0.5 to 48x24 and centered vertically
-        // (output y 12..36) - the areas above and below are black bars.
-        expectColorAt(resized, 24, 4, 'black')
-        expectColorAt(resized, 24, 44, 'black')
-        expectColorAt(resized, 8, 24, 'red')
-        expectColorAt(resized, 24, 24, 'green')
-        expectColorAt(resized, 40, 24, 'blue')
-      } finally {
-        resized.dispose()
+  for (const orientation of scaleModeOrientations) {
+    it(`center-crops the ${orientation} Frame with scaleMode=cover`, async (context) => {
+      if (!isResizerAvailable()) {
+        return context.skip(
+          'resizer: GPU resizing is not available on this device',
+        )
       }
-    } finally {
-      resizer.dispose()
-      frame.dispose()
-    }
-  })
+      const frame = createOrientedFrame(96, 48, stripeColorAt, orientation)
+      const resizer = await withTimeout(
+        createResizer({
+          width: 48,
+          height: 48,
+          channelOrder: 'rgb',
+          dataType: 'uint8',
+          scaleMode: 'cover',
+          pixelLayout: 'interleaved',
+        }),
+        15_000,
+        'create resizer',
+      )
+      try {
+        const resized = resizer.resize(frame)
+        try {
+          // The 96x48 content is cropped to its centered 48x48 region
+          // (content x 24..72), so parts of all three stripes are visible:
+          // red covers output x < 8, green x 8..40, blue x >= 40.
+          expectColorAt(resized, 3, 24, 'red')
+          expectColorAt(resized, 24, 24, 'green')
+          expectColorAt(resized, 44, 24, 'blue')
+        } finally {
+          resized.dispose()
+        }
+      } finally {
+        resizer.dispose()
+        frame.dispose()
+      }
+    })
 
-  it('stretches the Frame with scaleMode=stretch', async (context) => {
-    if (!isResizerAvailable()) {
-      return context.skip(
-        'resizer: GPU resizing is not available on this device',
-      )
-    }
-    const frame = createUprightFrame(96, 48, stripeColorAt)
-    const resizer = await withTimeout(
-      createResizer({
-        width: 48,
-        height: 48,
-        channelOrder: 'rgb',
-        dataType: 'uint8',
-        scaleMode: 'stretch',
-        pixelLayout: 'interleaved',
-      }),
-      15_000,
-      'create resizer',
-    )
-    try {
-      const resized = resizer.resize(frame)
-      try {
-        // The input is squashed horizontally to exactly fill the output -
-        // all three stripes are fully visible, and there are no black bars.
-        expectColorAt(resized, 8, 24, 'red')
-        expectColorAt(resized, 24, 24, 'green')
-        expectColorAt(resized, 40, 24, 'blue')
-        expectColorAt(resized, 24, 4, 'green')
-        expectColorAt(resized, 24, 44, 'green')
-      } finally {
-        resized.dispose()
+    it(`letterboxes the ${orientation} Frame with scaleMode=contain`, async (context) => {
+      if (!isResizerAvailable()) {
+        return context.skip(
+          'resizer: GPU resizing is not available on this device',
+        )
       }
-    } finally {
-      resizer.dispose()
-      frame.dispose()
-    }
-  })
+      const frame = createOrientedFrame(96, 48, stripeColorAt, orientation)
+      const resizer = await withTimeout(
+        createResizer({
+          width: 48,
+          height: 48,
+          channelOrder: 'rgb',
+          dataType: 'uint8',
+          scaleMode: 'contain',
+          pixelLayout: 'interleaved',
+        }),
+        15_000,
+        'create resizer',
+      )
+      try {
+        const resized = resizer.resize(frame)
+        try {
+          // The 96x48 content is scaled by 0.5 to 48x24 and centered
+          // vertically (output y 12..36) - above and below are black bars.
+          expectColorAt(resized, 24, 4, 'black')
+          expectColorAt(resized, 24, 44, 'black')
+          expectColorAt(resized, 8, 24, 'red')
+          expectColorAt(resized, 24, 24, 'green')
+          expectColorAt(resized, 40, 24, 'blue')
+        } finally {
+          resized.dispose()
+        }
+      } finally {
+        resizer.dispose()
+        frame.dispose()
+      }
+    })
+
+    it(`stretches the ${orientation} Frame with scaleMode=stretch`, async (context) => {
+      if (!isResizerAvailable()) {
+        return context.skip(
+          'resizer: GPU resizing is not available on this device',
+        )
+      }
+      const frame = createOrientedFrame(96, 48, stripeColorAt, orientation)
+      const resizer = await withTimeout(
+        createResizer({
+          width: 48,
+          height: 48,
+          channelOrder: 'rgb',
+          dataType: 'uint8',
+          scaleMode: 'stretch',
+          pixelLayout: 'interleaved',
+        }),
+        15_000,
+        'create resizer',
+      )
+      try {
+        const resized = resizer.resize(frame)
+        try {
+          // The content is squashed horizontally to exactly fill the output -
+          // all three stripes are fully visible, and there are no black bars.
+          expectColorAt(resized, 8, 24, 'red')
+          expectColorAt(resized, 24, 24, 'green')
+          expectColorAt(resized, 40, 24, 'blue')
+          expectColorAt(resized, 24, 4, 'green')
+          expectColorAt(resized, 24, 44, 'green')
+        } finally {
+          resized.dispose()
+        }
+      } finally {
+        resizer.dispose()
+        frame.dispose()
+      }
+    })
+  }
 
   it('writes pixels in bgr channel order', async (context) => {
     if (!isResizerAvailable()) {

@@ -35,6 +35,19 @@ inline float2 outputToInputCoordinate(
   float2 outputSize = float2(uniforms.outputWidth, uniforms.outputHeight);
   float2 outputCoordinate = (float2(gid) + 0.5f) / outputSize;
 
+  int normalizedRotation = uniforms.rotationDegrees % 360;
+  if (normalizedRotation < 0) {
+    normalizedRotation += 360;
+  }
+
+  // The scale mode fits the UPRIGHT content into the output - for 90°/270°
+  // rotated buffers the upright content's aspect ratio is the buffer's
+  // aspect ratio flipped.
+  bool isSideways = normalizedRotation == 90 || normalizedRotation == 270;
+  if (isSideways) {
+    sourceSize = sourceSize.yx;
+  }
+
   float2 coordinate;
   switch (kScaleMode) {
     case 0u: { // 0u == ScaleMode::COVER
@@ -71,10 +84,6 @@ inline float2 outputToInputCoordinate(
   // `isMirrored` mirrors the rotated buffer (matching UIImage orientation
   // flag semantics, e.g. `.rightMirrored`), so when mapping backwards from
   // the upright output the mirror has to be undone after the rotation.
-  int normalizedRotation = uniforms.rotationDegrees % 360;
-  if (normalizedRotation < 0) {
-    normalizedRotation += 360;
-  }
   int inverseRotation = (360 - normalizedRotation) % 360;
 
   switch (inverseRotation) {
