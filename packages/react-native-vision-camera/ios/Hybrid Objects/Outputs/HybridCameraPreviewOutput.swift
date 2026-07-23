@@ -27,6 +27,16 @@ final class HybridCameraPreviewOutput: HybridCameraPreviewOutputSpec, NativePrev
   }
 
   var streamType: StreamType = .video
+  /// The Preview can never display more pixels than the screen has,
+  /// so any Format at least as large as the screen (`>=`) is a perfect
+  /// match - hence `.min`. This is only a _bias_; a slightly smaller
+  /// Format only gets a small penalty (it is upscaled on-screen), so
+  /// other outputs (e.g. a video recording with an explicit
+  /// `targetResolution`) can still win the resolution negotiation.
+  ///
+  /// We use the screen size instead of the actual view size here
+  /// because the view might not even be laid out yet at the time
+  /// the resolution negotiation runs.
   var targetResolution: ResolutionRule {
     let screenSizeDp = UIScreen.main.bounds.size
     let pixelRatio = UIScreen.main.scale
