@@ -19,6 +19,7 @@ final class HybridBarcodeScannerOutput: HybridCameraOutputSpec, NativeCameraOutp
   private var delegate: BarcodeScannerDelegate? = nil
   private let queue: DispatchQueue
   let output: AVCaptureVideoDataOutput
+  weak var attachedSession: AVCaptureSession?
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   let mediaType: MediaType = .video

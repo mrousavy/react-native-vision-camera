@@ -14,6 +14,7 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
   private let fileType: RecorderFileType
   let mediaType: MediaType = .video
   let output: AVCaptureMovieFileOutput
+  weak var attachedSession: AVCaptureSession?
   var requiresAudioInput: Bool {
     return options.enableAudio == true
   }

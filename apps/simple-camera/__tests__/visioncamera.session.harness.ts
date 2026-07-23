@@ -5,6 +5,7 @@ import {
   it,
   waitUntil,
 } from 'react-native-harness'
+import { Platform } from 'react-native'
 import type {
   CameraDeviceFactory,
   TargetCameraPosition,
@@ -888,6 +889,151 @@ describe('VisionCamera - Session', () => {
     } finally {
       await session.stop()
       await session.configure([])
+    }
+  })
+
+  it('re-uses the same outputs across re-created sessions (#3773)', async () => {
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    // Outputs are created ONCE and re-used across all sessions - exactly like
+    // hook-created outputs surviving a <Camera> re-mount (e.g. a review screen
+    // that unmounts the Camera and re-mounts it on "Retake").
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+    const outputs = [
+      { output: photoOutput, mirrorMode: 'auto' as const },
+      { output: videoOutput, mirrorMode: 'auto' as const },
+    ]
+
+    // Cycle quickly: each iteration tears its session down exactly like
+    // `useCameraSession`'s unmount cleanup does (fire-and-forget stop +
+    // configure([]) + dispose), and the next iteration immediately attaches
+    // the same outputs to a brand-new session. The dispose() is what makes
+    // this safe: releasing the native session detaches its outputs at the
+    // CoreMedia level synchronously, before the next session's configure runs
+    // on the same native queue. Without it, the outputs could still be
+    // attached to the previous session at the CoreMedia level, which crashes
+    // in `attachToFigCaptureSession:` with a SIGABRT assertion (#3773).
+    for (let i = 0; i < 8; i++) {
+      const session = await VisionCamera.createCameraSession(false)
+      const started = deferred()
+      const startSub = session.addOnStartedListener(started.resolve)
+      const errorSub = session.addOnErrorListener(started.reject)
+      try {
+        await session.configure([{ input: device, outputs, constraints: [] }])
+        await session.start()
+        // Wait until the outputs are actually attached & streaming before
+        // tearing down - a stale attachment needs a live session to exist.
+        await withTimeout(started.promise, 10_000, `session #${i} start`)
+      } finally {
+        startSub.remove()
+        errorSub.remove()
+        session.stop().catch(() => {})
+        session.configure([]).catch(() => {})
+        session.dispose()
+      }
+    }
+
+    // After all those cross-session moves, the outputs must still be fully
+    // functional: configure them into one final session and take a photo.
+    const session = await VisionCamera.createCameraSession(false)
+    const started = deferred()
+    const startSub = session.addOnStartedListener(started.resolve)
+    const errorSub = session.addOnErrorListener(started.reject)
+    try {
+      await session.configure([{ input: device, outputs, constraints: [] }])
+      await session.start()
+      await withTimeout(started.promise, 10_000, 'final session start')
+
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      expect(photo.height).toBeGreaterThan(0)
+      photo.dispose()
+    } finally {
+      startSub.remove()
+      errorSub.remove()
+      await session.stop()
+      await session.configure([])
+    }
+  })
+
+  it('rejects re-using outputs while their previous session is still alive (iOS)', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip(
+        'output re-use guard: AVFoundation-specific, iOS only',
+      )
+    }
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+
+    // Attach the output to session A...
+    const sessionA = await VisionCamera.createCameraSession(false)
+    await sessionA.configure([
+      {
+        input: device,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    // ...then try to attach the same output to session B while A is still
+    // alive. AVFoundation detaches outputs asynchronously, so this is not
+    // provably safe and must fail deterministically instead of racing.
+    const sessionB = await VisionCamera.createCameraSession(false)
+    await expect(
+      sessionB.configure([
+        {
+          input: device,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ]),
+    ).rejects.toThrow()
+
+    // Once A is released, its native teardown has detached the output
+    // synchronously - now B may use it.
+    await sessionA.configure([])
+    sessionA.dispose()
+    const controllers = await sessionB.configure([
+      {
+        input: device,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    expect(controllers).toHaveLength(1)
+
+    try {
+      await sessionB.start()
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photo.width).toBeGreaterThan(0)
+      photo.dispose()
+    } finally {
+      await sessionB.stop()
     }
   })
 })

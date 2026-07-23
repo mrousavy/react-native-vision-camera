@@ -31,9 +31,18 @@ export function useCameraSession({
   // session teardown
   useEffect(() => {
     return () => {
-      // remove all connections
-      session?.stop()
-      session?.configure([])
+      if (session == null) return
+      // stop the session and remove all connections.
+      // failures during teardown are not actionable, so ignore them.
+      session.stop().catch(() => {})
+      session.configure([]).catch(() => {})
+      // ...then release the native session deterministically instead of waiting
+      // for GC. The native session's destructor is what fully detaches outputs
+      // at the CoreMedia level - a re-mounted <Camera> re-uses output objects in
+      // a new session, and attaching them while they are still attached to this
+      // session crashes (see #3773). All three calls run in order on the native
+      // session queue; the native object stays alive until they completed.
+      session.dispose()
     }
   }, [session])
 

@@ -299,9 +299,15 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     for connection in targetConnections {
       // 2.1. Loop through each output
       for output in connection.outputs {
+        if case .output(let nativeOutput) = output.output {
+          // 2.2. An `AVCaptureOutput` may still be attached to a previous session at the
+          //      CoreMedia level (attach/detach is asynchronous) - only allow attaching
+          //      it here if it isn't owned by a different, still-alive session (#3773).
+          try nativeOutput.prepareForAttaching(to: self.session)
+        }
         let containsOutput = self.session.containsOutput(output.output)
         if !containsOutput {
-          // 2.2. It doesn't exist yet - add it to the session..
+          // 2.3. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output.output)
         }
       }

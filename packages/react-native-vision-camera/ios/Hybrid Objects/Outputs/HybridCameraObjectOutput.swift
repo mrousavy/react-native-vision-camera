@@ -14,6 +14,7 @@ final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCamera
   private let options: ObjectOutputOptions
   let mediaType: MediaType = .metadata
   let output: AVCaptureMetadataOutput
+  weak var attachedSession: AVCaptureSession?
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   var outputOrientation: CameraOrientation = .up {
