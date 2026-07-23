@@ -49,9 +49,18 @@ extension UIImage {
         translationX: -ciImage.extent.origin.x,
         y: -ciImage.extent.origin.y))
 
-    // 4. Render into a YUV 4:2:0 full-range CVPixelBuffer.
-    let width = Int(ciImage.extent.width.rounded())
-    let height = Int(ciImage.extent.height.rounded())
+    // 4. YUV 4:2:0 requires even dimensions - crop off the last row/column if needed.
+    let width = Int(ciImage.extent.width.rounded()) & ~1
+    let height = Int(ciImage.extent.height.rounded()) & ~1
+    guard width > 0, height > 0 else {
+      throw RuntimeError.error(
+        withMessage:
+          "The given Image (\(ciImage.extent.width)x\(ciImage.extent.height)) is too small "
+          + "to be converted to a YUV 4:2:0 Frame!")
+    }
+    ciImage = ciImage.cropped(to: CGRect(x: 0, y: 0, width: width, height: height))
+
+    // 5. Render into a YUV 4:2:0 full-range CVPixelBuffer.
     let attributes: [CFString: Any] = [
       kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary
     ]
@@ -74,7 +83,7 @@ extension UIImage {
       .shouldPropagate)
     Self.context.render(ciImage, to: pixelBuffer)
 
-    // 5. Wrap the CVPixelBuffer in a CMSampleBuffer.
+    // 6. Wrap the CVPixelBuffer in a CMSampleBuffer.
     let format = try CMFormatDescription(imageBuffer: pixelBuffer)
     let timing = CMSampleTimingInfo(
       duration: .zero,

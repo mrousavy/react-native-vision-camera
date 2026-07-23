@@ -39,35 +39,49 @@ class HybridFrameConverter : HybridFrameConverterSpec() {
     val hybridImage =
       image as? HybridImage
         ?: throw Error("The given `Image` is not of type `HybridImage`!")
+    val original = hybridImage.bitmap
     // The bitmap might be GPU-backed (HARDWARE) - copy it to a CPU-accessible one if needed.
-    val upright = hybridImage.bitmap.toCpuAccessible()
-    // Physically rotate/mirror the pixels so that interpreting the resulting
-    // buffer with `orientation` and `isMirrored` yields the upright Image again.
-    val matrix =
-      Matrix().apply {
-        if (orientation != CameraOrientation.UP) {
-          postRotate(-orientation.degrees.toFloat())
-        }
-        if (isMirrored) {
-          postScale(-1f, 1f)
-        }
+    var bitmap = original.toCpuAccessible()
+
+    // Only recycle the intermediate Bitmaps we create - not the Image's own Bitmap.
+    fun advanceTo(next: Bitmap) {
+      if (next !== bitmap && bitmap !== original) {
+        bitmap.recycle()
       }
-    val buffer =
-      if (matrix.isIdentity) {
-        upright
-      } else {
-        Bitmap.createBitmap(upright, 0, 0, upright.width, upright.height, matrix, false)
-      }
+      bitmap = next
+    }
+
     try {
-      val imageProxy = buffer.toYuv420ImageProxy(orientation.degrees)
+      // Physically rotate/mirror the pixels so that interpreting the resulting
+      // buffer with `orientation` and `isMirrored` yields the upright Image again.
+      val matrix =
+        Matrix().apply {
+          if (orientation != CameraOrientation.UP) {
+            postRotate(-orientation.degrees.toFloat())
+          }
+          if (isMirrored) {
+            postScale(-1f, 1f)
+          }
+        }
+      if (!matrix.isIdentity) {
+        advanceTo(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false))
+      }
+
+      // YUV 4:2:0 requires even dimensions - crop off the last row/column if needed.
+      val evenWidth = bitmap.width and 1.inv()
+      val evenHeight = bitmap.height and 1.inv()
+      if (evenWidth <= 0 || evenHeight <= 0) {
+        throw Error("The given `Image` (${bitmap.width}x${bitmap.height}) is too small to be converted to a YUV 4:2:0 Frame!")
+      }
+      if (evenWidth != bitmap.width || evenHeight != bitmap.height) {
+        advanceTo(Bitmap.createBitmap(bitmap, 0, 0, evenWidth, evenHeight))
+      }
+
+      val imageProxy = bitmap.toYuv420ImageProxy(orientation.degrees)
       return HybridFrame(imageProxy, orientation, isMirrored)
     } finally {
-      // Only recycle the intermediate Bitmaps we created - not the Image's own Bitmap.
-      if (buffer !== upright && buffer !== hybridImage.bitmap) {
-        buffer.recycle()
-      }
-      if (upright !== hybridImage.bitmap) {
-        upright.recycle()
+      if (bitmap !== original) {
+        bitmap.recycle()
       }
     }
   }
