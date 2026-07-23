@@ -18,6 +18,14 @@ import { deferred, withTimeout } from './test-utils'
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
 
+const isSimCamHarnessRun =
+  (
+    globalThis as {
+      process?: { env?: { HARNESS_SIMCAM?: string } }
+    }
+  ).process?.env?.HARNESS_SIMCAM?.trim() === '1'
+const itWithAudio = isSimCamHarnessRun ? it.skip : it
+
 describe('VisionCamera - Video', () => {
   let factory: CameraDeviceFactory
   let backDevice: CameraDevice
@@ -75,7 +83,7 @@ describe('VisionCamera - Video', () => {
     }
   })
 
-  it('records with audio enabled', async () => {
+  itWithAudio('records with audio enabled', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.HD_16_9,
