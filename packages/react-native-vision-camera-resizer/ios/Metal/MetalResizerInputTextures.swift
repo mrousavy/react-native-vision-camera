@@ -17,19 +17,28 @@ struct PlaneTexture {
 }
 
 /// The input layout sampled by the resizer shader.
-/// The raw values match the `inputFormat` uniform in `ResizerKernels.metal`.
-enum MetalResizerInputFormat: UInt32 {
-  /// primary = Y plane, secondary = interleaved CbCr plane
-  case yuvBiplanar = 0
-  /// primary = full-resolution BGRA texture, secondary unused
-  case bgra = 1
+/// Each format has its own set of `resize_<format>_*` kernels in `ResizerKernels.metal`.
+enum MetalResizerInputFormat {
+  case yuvBiplanar
+  case bgra
 }
 
 /// Holds the sampled camera textures for one resizer dispatch.
-struct MetalResizerInputTextures {
-  let primary: PlaneTexture
-  let secondary: PlaneTexture
-  let format: MetalResizerInputFormat
+enum MetalResizerInputTextures {
+  /// A YUV 4:2:0 bi-planar input: a full-resolution Y plane and a
+  /// half-resolution interleaved CbCr plane.
+  case yuvBiplanar(yPlane: PlaneTexture, uvPlane: PlaneTexture)
+  /// A full-resolution interleaved BGRA input.
+  case bgra(texture: PlaneTexture)
+
+  var format: MetalResizerInputFormat {
+    switch self {
+    case .yuvBiplanar:
+      return .yuvBiplanar
+    case .bgra:
+      return .bgra
+    }
+  }
 
   /**
    * Wraps the current input pixel buffer into the Metal textures expected by the resizer shader.
@@ -51,17 +60,14 @@ struct MetalResizerInputTextures {
         textureCache: textureCache,
         pixelFormat: .rg8Unorm,
         planeIndex: 1)
-      return MetalResizerInputTextures(primary: yPlane, secondary: uvPlane, format: .yuvBiplanar)
+      return .yuvBiplanar(yPlane: yPlane, uvPlane: uvPlane)
     case kCVPixelFormatType_32BGRA:
       let bgra = try makePlaneTexture(
         pixelBuffer: pixelBuffer,
         textureCache: textureCache,
         pixelFormat: .bgra8Unorm,
         planeIndex: 0)
-      // The secondary texture slot is never sampled for BGRA inputs, but
-      // Metal requires every statically-reachable argument to be bound -
-      // bind the same texture again as a placeholder.
-      return MetalResizerInputTextures(primary: bgra, secondary: bgra, format: .bgra)
+      return .bgra(texture: bgra)
     default:
       throw RuntimeError.error(
         withMessage:

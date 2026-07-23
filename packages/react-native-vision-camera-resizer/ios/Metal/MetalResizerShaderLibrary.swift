@@ -15,7 +15,6 @@ struct MetalResizerUniforms {
   var outputHeight: UInt32
   var rotationDegrees: Int32
   var isMirrored: UInt32
-  var inputFormat: UInt32
 }
 
 /// Loads the precompiled Metal shader bundle and resolves the compute pipeline used by the resizer.
@@ -29,13 +28,15 @@ enum MetalResizerShaderLibrary {
   }
 
   /**
-   * Creates a compute pipeline state for one fixed output configuration.
+   * Creates a compute pipeline state for one fixed output configuration
+   * and one input format.
    */
   static func createPipelineState(
     device: MTLDevice,
-    options: ResizerOptions
+    options: ResizerOptions,
+    inputFormat: MetalResizerInputFormat
   ) throws -> MTLComputePipelineState {
-    let functionName = functionName(for: options.dataType)
+    let functionName = functionName(for: options.dataType, inputFormat: inputFormat)
     let functionConstantValues = makeFunctionConstantValues(options: options)
     do {
       let library = try loadPrecompiledLibrary(device: device)
@@ -106,18 +107,29 @@ enum MetalResizerShaderLibrary {
   }
 
   /**
-   * Resolves the precompiled Metal function name for one output data type.
+   * Resolves the precompiled Metal function name for one input format
+   * and one output data type.
    */
-  private static func functionName(for dataType: DataType) -> String {
+  private static func functionName(
+    for dataType: DataType,
+    inputFormat: MetalResizerInputFormat
+  ) -> String {
+    let inputName: String
+    switch inputFormat {
+    case .yuvBiplanar:
+      inputName = "yuv"
+    case .bgra:
+      inputName = "bgra"
+    }
     switch dataType {
     case .int8:
-      return "resize_int8"
+      return "resize_\(inputName)_int8"
     case .uint8:
-      return "resize_uint8"
+      return "resize_\(inputName)_uint8"
     case .float16:
-      return "resize_float16"
+      return "resize_\(inputName)_float16"
     case .float32:
-      return "resize_float32"
+      return "resize_\(inputName)_float32"
     }
   }
 
