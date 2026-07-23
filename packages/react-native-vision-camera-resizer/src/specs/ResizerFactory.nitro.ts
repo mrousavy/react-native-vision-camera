@@ -12,8 +12,12 @@ import type { Resizer } from './Resizer.nitro'
  *   This performs a centered crop on the longer source axis.
  * - `'contain'`: Keep the full source image visible and preserve aspect ratio.
  *   This adds black bars (letterboxing/pillarboxing) where needed.
+ * - `'stretch'`: Fill the whole output by stretching the input independently
+ *   on each axis. The aspect ratio is NOT preserved — the input is squashed
+ *   or stretched as needed to exactly match the output dimensions. No bars,
+ *   no cropping.
  */
-export type ScaleMode = 'cover' | 'contain'
+export type ScaleMode = 'cover' | 'contain' | 'stretch'
 
 /**
  * Configures options for a {@linkcode Resizer}.
@@ -46,6 +50,8 @@ export interface ResizerOptions {
    * - `'cover'`: Perform a centered crop to fill the full output.
    * - `'contain'`: Keep the full source image and pad remaining output
    *   areas with black bars.
+   * - `'stretch'`: Stretch the input independently on each axis to exactly
+   *   fill the output. Does NOT preserve aspect ratio.
    */
   scaleMode: ScaleMode
   /**

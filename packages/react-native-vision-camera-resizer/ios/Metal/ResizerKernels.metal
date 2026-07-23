@@ -16,7 +16,7 @@ constant uint kChannelOrder [[function_constant(0)]];
 constant uint kPixelLayout [[function_constant(1)]];
 // Number of channels per pixel. e.g. for RGB/BGR, this is 3u.
 constant uint kChannelCount [[function_constant(2)]];
-// 0u == ScaleMode::COVER, 1u == ScaleMode::CONTAIN
+// 0u == ScaleMode::COVER, 1u == ScaleMode::CONTAIN, 2u == ScaleMode::STRETCH
 constant uint kScaleMode [[function_constant(3)]];
 
 inline float3 yuvToRgb(float y, float2 uv) {
@@ -40,29 +40,36 @@ inline float3 sampleRgb(
   float2 sourceSize = float2(yTexture.get_width(), yTexture.get_height());
   float2 outputCoordinate = (float2(gid) + 0.5f) / outputSize;
 
-  float scale = 0.0f;
+  float2 coordinate;
   switch (kScaleMode) {
-    case 0u: // 0u == ScaleMode::COVER
-      scale = max(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+    case 0u: { // 0u == ScaleMode::COVER
+      float scale = max(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      float2 renderedSourceSizeInOutput = sourceSize * scale;
+      float2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5f;
+      coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
       break;
-    case 1u: // 1u == ScaleMode::CONTAIN
-      scale = min(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+    }
+    case 1u: { // 1u == ScaleMode::CONTAIN
+      float scale = min(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      float2 renderedSourceSizeInOutput = sourceSize * scale;
+      float2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5f;
+      coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
+      // Contain mode pads outside the rendered source with black bars.
+      bool isOutsideSource = coordinate.x < 0.0f || coordinate.x > 1.0f || coordinate.y < 0.0f || coordinate.y > 1.0f;
+      if (isOutsideSource) {
+        return float3(0.0f);
+      }
       break;
+    }
+    case 2u: { // 2u == ScaleMode::STRETCH
+      // Independent per-axis stretching: the entire source [0,1]^2 maps to the
+      // entire output [0,1]^2. Aspect ratio is NOT preserved.
+      coordinate = outputCoordinate;
+      break;
+    }
     default:
       // Unsupported ScaleMode ordinal. Return black so broken modes fail visibly at runtime.
       return float3(0.0f);
-  }
-
-  float2 renderedSourceSizeInOutput = sourceSize * scale;
-  float2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5f;
-  float2 coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
-
-  if (kScaleMode == 1u) {
-    // Contain mode pads outside the rendered source with black bars.
-    bool isOutsideSource = coordinate.x < 0.0f || coordinate.x > 1.0f || coordinate.y < 0.0f || coordinate.y > 1.0f;
-    if (isOutsideSource) {
-      return float3(0.0f);
-    }
   }
 
   // Apply mirror first, then inverse rotation transform to map output->input.

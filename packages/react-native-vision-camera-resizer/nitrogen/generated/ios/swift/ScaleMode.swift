@@ -21,6 +21,8 @@ public extension ScaleMode {
         self = .cover
       case "contain":
         self = .contain
+      case "stretch":
+        self = .stretch
       default:
         return nil
     }
@@ -35,6 +37,8 @@ public extension ScaleMode {
         return "cover"
       case .contain:
         return "contain"
+      case .stretch:
+        return "stretch"
     }
   }
 }
