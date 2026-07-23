@@ -16,6 +16,7 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
   // TODO: If depth data delivery is configured, we probably should return `true` here
   let requiresDepthFormat: Bool = false
   let output: AVCapturePhotoOutput
+  weak var attachedSession: AVCaptureSession?
 
   var supportsDepthDataDelivery: Bool {
     return output.isDepthDataDeliverySupported

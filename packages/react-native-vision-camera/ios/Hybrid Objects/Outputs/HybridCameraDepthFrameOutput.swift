@@ -18,6 +18,7 @@ final class HybridCameraDepthFrameOutput: HybridCameraDepthFrameOutputSpec, Nati
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = true
   let output: AVCaptureDepthDataOutput
+  weak var attachedSession: AVCaptureSession?
   lazy var thread: any HybridNativeThreadSpec = {
     return HybridNativeThread(queue: queue)
   }()

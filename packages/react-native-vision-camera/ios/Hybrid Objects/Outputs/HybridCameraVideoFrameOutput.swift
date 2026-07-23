@@ -18,6 +18,7 @@ final class HybridCameraVideoFrameOutput: HybridCameraVideoOutputSpec, NativeCam
   let requiresAudioInput: Bool = false
   let requiresDepthFormat: Bool = false
   let output: AVCaptureVideoDataOutput
+  weak var attachedSession: AVCaptureSession?
   private var recorders = WeakArray<HybridFrameRecorder>()
   private let fileType: RecorderFileType
 

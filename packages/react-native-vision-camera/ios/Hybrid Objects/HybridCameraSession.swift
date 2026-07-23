@@ -228,26 +228,22 @@ final class HybridCameraSession: HybridCameraSessionSpec {
   private func updateInputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
     let requiresAudioInput = targetConnections.contains { $0.requiresAudioInput }
 
-    // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it
-    for currentlyAttachedInput in self.session.inputs {
+    // 1. Loop through all existing inputs in the session - if it's not in our `connections` array, we remove it.
+    //    Collect and remove in two separate steps so we never remove from the collection we are iterating over.
+    let inputsToRemove = self.session.inputs.filter { currentlyAttachedInput in
       if currentlyAttachedInput.isMicrophone {
-        // It's a microphone/audio input - let's check if we want audio in any connection.
-        if !requiresAudioInput {
-          // 1.1.a. We don't want any audio input - remove it!
-          logger.info("Removing audio input \(currentlyAttachedInput)...")
-          self.session.removeInput(currentlyAttachedInput)
-        }
+        // 1.1.a. It's a microphone/audio input - remove it if no connection wants audio.
+        return !requiresAudioInput
       } else {
-        // It's a normal camera device - let's check if we want it in connections.
-        let containsCurrentlyAttachedInput = targetConnections.contains { connection in
+        // 1.1.b. It's a normal camera device - remove it if it's not in `connections`.
+        return !targetConnections.contains { connection in
           return connection.isConnectedTo(input: currentlyAttachedInput)
         }
-        if !containsCurrentlyAttachedInput {
-          // 1.1.b. We don't want this input - remove it!
-          logger.info("Removing input \(currentlyAttachedInput)...")
-          self.session.removeInput(currentlyAttachedInput)
-        }
       }
+    }
+    for inputToRemove in inputsToRemove {
+      logger.info("Removing input \(inputToRemove)...")
+      self.session.removeInput(inputToRemove)
     }
     // 2. Loop through all connection inputs - if it's not yet attached to the session, add it
     for connection in targetConnections {
@@ -288,24 +284,30 @@ final class HybridCameraSession: HybridCameraSessionSpec {
    * This includes special handling for `NativePreviewViewOutput`.
    */
   private func updateOutputs(_ targetConnections: [ResolvedCameraSessionConnection]) throws {
-    // 1. Loop through all current CameraSession outputs - if it's not in our array, we remove it
-    for currentlyAttachedOutput in self.session.outputs {
-      let containsAttachedOutput = targetConnections.contains { connection in
+    // 1. Loop through all current CameraSession outputs - if it's not in our array, we remove it.
+    //    Collect and remove in two separate steps so we never remove from the collection we are iterating over.
+    let outputsToRemove = self.session.outputs.filter { currentlyAttachedOutput in
+      return !targetConnections.contains { connection in
         return connection.isConnectedTo(output: currentlyAttachedOutput)
       }
-      if !containsAttachedOutput {
-        // 1.1. We don't want this output - remove it!
-        logger.info("Removing output \(currentlyAttachedOutput)...")
-        self.session.removeOutput(currentlyAttachedOutput)
-      }
+    }
+    for outputToRemove in outputsToRemove {
+      logger.info("Removing output \(outputToRemove)...")
+      self.session.removeOutput(outputToRemove)
     }
     // 2. Loop through all connections
     for connection in targetConnections {
       // 2.1. Loop through each output
       for output in connection.outputs {
+        if case .output(let nativeOutput) = output.output {
+          // 2.2. An `AVCaptureOutput` may still be attached to a previous session at the
+          //      CoreMedia level (attach/detach is asynchronous) - only allow attaching
+          //      it here if it isn't owned by a different, still-alive session (#3773).
+          try nativeOutput.prepareForAttaching(to: self.session)
+        }
         let containsOutput = self.session.containsOutput(output.output)
         if !containsOutput {
-          // 2.2. It doesn't exist yet - add it to the session..
+          // 2.3. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output.output)
         }
       }
@@ -318,14 +320,14 @@ final class HybridCameraSession: HybridCameraSessionSpec {
     // or output is removed from the session, the connection will also automatically be removed.
     // So we only need to worry about removing preview layer connections.
 
-    // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it
-    for currentConnection in self.session.connections {
-      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
-      if !containsConnection {
-        // 1.1. We don't want this connection - remove it!
-        logger.info("Removing connection \(currentConnection)...")
-        self.session.removeConnection(currentConnection)
-      }
+    // 1. Loop through all current CameraSession connections - if it's not in our array, we remove it.
+    //    Collect and remove in two separate steps so we never remove from the collection we are iterating over.
+    let connectionsToRemove = self.session.connections.filter { currentConnection in
+      return !targetConnections.contains { $0.contains(connection: currentConnection) }
+    }
+    for connectionToRemove in connectionsToRemove {
+      logger.info("Removing connection \(connectionToRemove)...")
+      self.session.removeConnection(connectionToRemove)
     }
 
     // 2. Add all new connections that we don't have yet:
