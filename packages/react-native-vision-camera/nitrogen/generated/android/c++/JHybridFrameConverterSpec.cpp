@@ -11,6 +11,8 @@
 namespace margelo::nitro::image { class HybridImageSpec; }
 // Forward declaration of `HybridFrameSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridFrameSpec; }
+// Forward declaration of `CameraOrientation` to properly resolve imports.
+namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `HybridDepthSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridDepthSpec; }
 
@@ -21,6 +23,8 @@ namespace margelo::nitro::camera { class HybridDepthSpec; }
 #include <NitroModules/JPromise.hpp>
 #include "HybridFrameSpec.hpp"
 #include "JHybridFrameSpec.hpp"
+#include "CameraOrientation.hpp"
+#include "JCameraOrientation.hpp"
 #include "HybridDepthSpec.hpp"
 #include "JHybridDepthSpec.hpp"
 
@@ -70,6 +74,27 @@ namespace margelo::nitro::camera {
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
         auto __result = jni::static_ref_cast<margelo::nitro::image::JHybridImageSpec::JavaPart>(__boxedResult);
         __promise->resolve(__result->getJHybridImageSpec());
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
+  std::shared_ptr<HybridFrameSpec> JHybridFrameConverterSpec::convertImageToFrame(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridFrameSpec::JavaPart>(jni::alias_ref<margelo::nitro::image::JHybridImageSpec::JavaPart> /* image */, jni::alias_ref<JCameraOrientation> /* orientation */, jboolean /* isMirrored */)>("convertImageToFrame");
+    auto __result = method(_javaPart, std::dynamic_pointer_cast<margelo::nitro::image::JHybridImageSpec>(image)->getJavaPart(), JCameraOrientation::fromCpp(orientation), isMirrored);
+    return __result->getJHybridFrameSpec();
+  }
+  std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> JHybridFrameConverterSpec::convertImageToFrameAsync(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<margelo::nitro::image::JHybridImageSpec::JavaPart> /* image */, jni::alias_ref<JCameraOrientation> /* orientation */, jboolean /* isMirrored */)>("convertImageToFrameAsync");
+    auto __result = method(_javaPart, std::dynamic_pointer_cast<margelo::nitro::image::JHybridImageSpec>(image)->getJavaPart(), JCameraOrientation::fromCpp(orientation), isMirrored);
+    return [&]() {
+      auto __promise = Promise<std::shared_ptr<HybridFrameSpec>>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {
+        auto __result = jni::static_ref_cast<JHybridFrameSpec::JavaPart>(__boxedResult);
+        __promise->resolve(__result->getJHybridFrameSpec());
       });
       __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
         jni::JniException __jniError(__throwable);

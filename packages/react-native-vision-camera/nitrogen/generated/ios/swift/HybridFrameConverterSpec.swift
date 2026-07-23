@@ -16,6 +16,8 @@ public protocol HybridFrameConverterSpec_protocol: HybridObject {
   // Methods
   func convertFrameToImage(frame: (any HybridFrameSpec)) throws -> (any HybridImageSpec)
   func convertFrameToImageAsync(frame: (any HybridFrameSpec)) throws -> Promise<(any HybridImageSpec)>
+  func convertImageToFrame(image: (any HybridImageSpec), orientation: CameraOrientation, isMirrored: Bool) throws -> (any HybridFrameSpec)
+  func convertImageToFrameAsync(image: (any HybridImageSpec), orientation: CameraOrientation, isMirrored: Bool) throws -> Promise<(any HybridFrameSpec)>
   func convertDepthToImage(depth: (any HybridDepthSpec)) throws -> (any HybridImageSpec)
   func convertDepthToImageAsync(depth: (any HybridDepthSpec)) throws -> Promise<(any HybridImageSpec)>
 }

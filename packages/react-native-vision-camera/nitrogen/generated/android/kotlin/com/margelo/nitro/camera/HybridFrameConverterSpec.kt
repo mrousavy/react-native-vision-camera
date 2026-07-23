@@ -40,6 +40,14 @@ abstract class HybridFrameConverterSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
+  abstract fun convertImageToFrame(image: com.margelo.nitro.image.HybridImageSpec, orientation: CameraOrientation, isMirrored: Boolean): HybridFrameSpec
+  
+  @DoNotStrip
+  @Keep
+  abstract fun convertImageToFrameAsync(image: com.margelo.nitro.image.HybridImageSpec, orientation: CameraOrientation, isMirrored: Boolean): Promise<HybridFrameSpec>
+  
+  @DoNotStrip
+  @Keep
   abstract fun convertDepthToImage(depth: HybridDepthSpec): com.margelo.nitro.image.HybridImageSpec
   
   @DoNotStrip

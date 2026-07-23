@@ -16,6 +16,8 @@ namespace margelo::nitro::camera {
     registerHybrids(this, [](Prototype& prototype) {
       prototype.registerHybridMethod("convertFrameToImage", &HybridFrameConverterSpec::convertFrameToImage);
       prototype.registerHybridMethod("convertFrameToImageAsync", &HybridFrameConverterSpec::convertFrameToImageAsync);
+      prototype.registerHybridMethod("convertImageToFrame", &HybridFrameConverterSpec::convertImageToFrame);
+      prototype.registerHybridMethod("convertImageToFrameAsync", &HybridFrameConverterSpec::convertImageToFrameAsync);
       prototype.registerHybridMethod("convertDepthToImage", &HybridFrameConverterSpec::convertDepthToImage);
       prototype.registerHybridMethod("convertDepthToImageAsync", &HybridFrameConverterSpec::convertDepthToImageAsync);
     });

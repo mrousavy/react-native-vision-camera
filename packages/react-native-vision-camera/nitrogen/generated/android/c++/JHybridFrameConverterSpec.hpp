@@ -56,6 +56,8 @@ namespace margelo::nitro::camera {
     // Methods
     std::shared_ptr<margelo::nitro::image::HybridImageSpec> convertFrameToImage(const std::shared_ptr<HybridFrameSpec>& frame) override;
     std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> convertFrameToImageAsync(const std::shared_ptr<HybridFrameSpec>& frame) override;
+    std::shared_ptr<HybridFrameSpec> convertImageToFrame(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) override;
+    std::shared_ptr<Promise<std::shared_ptr<HybridFrameSpec>>> convertImageToFrameAsync(const std::shared_ptr<margelo::nitro::image::HybridImageSpec>& image, CameraOrientation orientation, bool isMirrored) override;
     std::shared_ptr<margelo::nitro::image::HybridImageSpec> convertDepthToImage(const std::shared_ptr<HybridDepthSpec>& depth) override;
     std::shared_ptr<Promise<std::shared_ptr<margelo::nitro::image::HybridImageSpec>>> convertDepthToImageAsync(const std::shared_ptr<HybridDepthSpec>& depth) override;
 

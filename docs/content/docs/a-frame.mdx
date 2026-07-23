@@ -142,6 +142,21 @@ if (frame.isPlanar) {
 > [!NOTE]
 > If [`Frame.isPlanar`](/api/react-native-vision-camera/hybrid-objects/Frame#isplanar) is `false`, [`Frame.getPlanes()`](/api/react-native-vision-camera/hybrid-objects/Frame#getplanes) may return an empty array.
 
+### Converting between Frames and Images
+
+The [`HybridFrameConverter`](/api/react-native-vision-camera/variables/HybridFrameConverter) converts a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) to an [`Image`](https://github.com/mrousavy/react-native-nitro-image) (from [react-native-nitro-image](https://github.com/mrousavy/react-native-nitro-image)), and an [`Image`](https://github.com/mrousavy/react-native-nitro-image) back to a [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame):
+
+```ts
+import { HybridFrameConverter } from 'react-native-vision-camera'
+
+const image = await HybridFrameConverter.convertFrameToImageAsync(frame)
+// ...or create a camera-like Frame from any Image:
+const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
+```
+
+[`convertImageToFrame(...)`](/api/react-native-vision-camera/hybrid-objects/FrameConverter#convertimagetoframe) creates a YUV 4:2:0 [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) as if the Camera had streamed it in the given [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) mode - the pixel data is physically rotated and mirrored accordingly.
+This is useful for running Frame-based APIs (like a Barcode Scanner or the [Resizer](/docs/resizer)) on still images, or for testing Frame-processing code without a physical Camera.
+
 ### Is a Frame still valid?
 
 A [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) is a large GPU-buffer of raw pixel data. A 4k RGB Frame is roughly ~34MB in memory, so if a [`CameraFrameOutput`](/api/react-native-vision-camera/hybrid-objects/CameraFrameOutput) streams at 60 FPS, it uses over 2GB/s of bandwidth.
