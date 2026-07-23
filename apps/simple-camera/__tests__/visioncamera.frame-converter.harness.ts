@@ -111,13 +111,16 @@ function rotateCounterClockwise<T>(grid: T[][]): T[][] {
 // Android) - for a grayscale pattern, the first channel is the luma
 // either way.
 function readLumaQuadrants(frame: Frame): number[][] {
-  // Read bytesPerRow (which maps the Image's planes) before getPixelBuffer()
-  // (which may CPU-lock the HardwareBuffer) - some devices (e.g. emulators)
-  // do not allow mapping the planes while the HardwareBuffer is locked.
   const width = frame.width
   const height = frame.height
-  const bytesPerRow = frame.bytesPerRow
-  const buffer = new Uint8Array(frame.getPixelBuffer())
+  // Android RGBA Frames expose their (stride-sized) pixel data via a single
+  // plane, iOS BGRA Frames are non-planar and expose it via getPixelBuffer().
+  const planes = frame.getPlanes()
+  const plane = planes[0]
+  const bytesPerRow = plane?.bytesPerRow ?? frame.bytesPerRow
+  const buffer = new Uint8Array(
+    plane != null ? plane.getPixelBuffer() : frame.getPixelBuffer(),
+  )
   const readAt = (x: number, y: number): number => {
     const value = buffer[y * bytesPerRow + x * 4]
     if (value == null) throw new Error(`no luma value at ${x},${y}`)
