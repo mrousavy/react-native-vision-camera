@@ -3,8 +3,10 @@ package com.margelo.nitro.camera.utils
 import android.annotation.SuppressLint
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.hardware.HardwareBuffer
 import android.media.Image
 import android.media.ImageReader
+import android.os.Build
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.FlashState
 import androidx.camera.core.ImageInfo
@@ -76,5 +78,15 @@ class StaticImageProxy(
   @ExperimentalGetImage
   override fun getImage(): Image {
     return image
+  }
+
+  // The default ImageProxy implementation just returns null here -
+  // forward the actual Image's HardwareBuffer so GPU pipelines
+  // (e.g. the Resizer) can import this Frame.
+  override fun getHardwareBuffer(): HardwareBuffer? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+      return null
+    }
+    return image.hardwareBuffer
   }
 }

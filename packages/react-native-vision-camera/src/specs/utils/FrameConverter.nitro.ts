@@ -50,6 +50,8 @@ export interface FrameConverter
    * {@linkcode Frame}'s {@linkcode Frame.width | width} and
    * {@linkcode Frame.height | height} are flipped if {@linkcode orientation}
    * is {@linkcode CameraOrientation | 'left'} or {@linkcode CameraOrientation | 'right'}.
+   * @note Since YUV 4:2:0 requires even dimensions, odd {@linkcode Image}
+   * dimensions are rounded down to the nearest even number.
    * @note The resulting {@linkcode Frame} has to be disposed
    * (see {@linkcode Frame.dispose | dispose()}) again to free up its memory.
    *

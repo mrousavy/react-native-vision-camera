@@ -88,9 +88,10 @@ function expectColorAt(
   x: number,
   y: number,
   expectedColor: string,
+  label = '',
 ): void {
-  expect(`${x},${y}: ${classifyColor(readPixel(gpuFrame, x, y))}`).toBe(
-    `${x},${y}: ${expectedColor}`,
+  expect(`${label}${x},${y}: ${classifyColor(readPixel(gpuFrame, x, y))}`).toBe(
+    `${label}${x},${y}: ${expectedColor}`,
   )
 }
 
@@ -167,10 +168,11 @@ describe('VisionCamera - Resizer', () => {
           // The Resizer automatically counter-rotates and un-mirrors the
           // Frame - the output is always upright, no matter which
           // orientation the Frame was in.
-          expectColorAt(resized, 12, 12, 'red')
-          expectColorAt(resized, 36, 12, 'green')
-          expectColorAt(resized, 12, 36, 'blue')
-          expectColorAt(resized, 36, 36, 'yellow')
+          const label = `${orientation}/${isMirrored ? 'mirrored' : 'unmirrored'} `
+          expectColorAt(resized, 12, 12, 'red', label)
+          expectColorAt(resized, 36, 12, 'green', label)
+          expectColorAt(resized, 12, 36, 'blue', label)
+          expectColorAt(resized, 36, 36, 'yellow', label)
         } finally {
           resized.dispose()
           frame.dispose()
@@ -477,9 +479,9 @@ describe('VisionCamera - Resizer', () => {
       // previous GPUFrame is still alive throws.
       expect(() => resizer.resize(frame)).toThrow()
       resized.dispose()
-      // After disposing the GPUFrame, its properties are cleared...
-      expect(resized.width).toBe(0)
-      expect(resized.dataType).toBeUndefined()
+      // After disposing the GPUFrame, its native state is gone - any
+      // property access throws...
+      expect(() => resized.width).toThrow()
       // ...and resizing works again.
       const secondResized = resizer.resize(frame)
       expect(secondResized.width).toBe(16)

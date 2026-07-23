@@ -172,7 +172,9 @@ describe('VisionCamera - Frame Converter', () => {
       } finally {
         frame.dispose()
       }
-      expect(frame.isValid).toBe(false)
+      // After dispose(), the Frame's native state is gone - any
+      // property access throws.
+      expect(() => frame.isValid).toThrow()
     } finally {
       image.dispose()
     }
