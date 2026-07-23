@@ -98,7 +98,10 @@ function rotateCounterClockwise<T>(grid: T[][]): T[][] {
   return result
 }
 
-// Reads the luma (Y) values at the four quadrant centers of a YUV Frame.
+// Reads the luma values at the four quadrant centers of a Frame.
+// - For YUV Frames (iOS), planes[0] is the luma plane (1 byte per pixel).
+// - For RGBA Frames (Android), planes[0] is interleaved RGBA (4 bytes per
+//   pixel) - for a grayscale pattern, the R channel also is the luma.
 function readLumaQuadrants(frame: Frame): number[][] {
   const planes = frame.getPlanes()
   const lumaPlane = planes[0]
@@ -108,8 +111,9 @@ function readLumaQuadrants(frame: Frame): number[][] {
   const width = frame.width
   const height = frame.height
   const bytesPerRow = lumaPlane.bytesPerRow
+  const bytesPerPixel = frame.pixelFormat.startsWith('rgb') ? 4 : 1
   const readAt = (x: number, y: number): number => {
-    const value = buffer[y * bytesPerRow + x]
+    const value = buffer[y * bytesPerRow + x * bytesPerPixel]
     if (value == null) throw new Error(`no luma value at ${x},${y}`)
     return value
   }
@@ -142,7 +146,7 @@ function expectLumasToMatch(
 }
 
 describe('VisionCamera - Frame Converter', () => {
-  it('creates a camera-like YUV Frame from an Image', () => {
+  it('creates a camera-like Frame from an Image', () => {
     const image = createQuadrantImage()
     try {
       const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
@@ -153,15 +157,22 @@ describe('VisionCamera - Frame Converter', () => {
         expect(frame.orientation).toBe('up')
         expect(frame.isMirrored).toBe(false)
         expect(frame.timestamp).toBeGreaterThan(0)
-        expect(frame.pixelFormat).toMatch(/^yuv-420-8-bit/)
-        expect(frame.isPlanar).toBe(true)
+        // iOS converts to YUV 4:2:0 (like the camera streams),
+        // Android converts to RGBA.
+        expect([
+          'yuv-420-8-bit-full',
+          'yuv-420-8-bit-video',
+          'rgb-rgba-8-bit',
+        ]).toContain(frame.pixelFormat)
+        const isYuv = frame.pixelFormat.startsWith('yuv')
+        expect(frame.isPlanar).toBe(isYuv)
         expect(frame.hasPixelBuffer).toBe(true)
         expect(frame.getPixelBuffer().byteLength).toBeGreaterThan(0)
 
         // iOS YUV Frames are bi-planar (Y + interleaved CbCr),
-        // Android YUV Frames have three planes (Y + U + V).
+        // Android RGBA Frames have a single interleaved plane.
         const planes = frame.getPlanes()
-        expect(planes.length).toBeGreaterThanOrEqual(2)
+        expect(planes.length).toBeGreaterThanOrEqual(1)
         expect(planes.length).toBeLessThanOrEqual(3)
         // The luma plane's row stride may be padded beyond the image width
         // (and on Android, plane width/height are derived from the stride).
@@ -258,6 +269,63 @@ describe('VisionCamera - Frame Converter', () => {
       }
     })
   }
+
+  // Chroma is the part YUV compresses - make sure colors survive the
+  // conversion without e.g. swapping the U/V (Cb/Cr) planes.
+  it('preserves chroma through an Image -> Frame -> Image roundtrip', () => {
+    const width = 32
+    const height = 32
+    const buffer = new ArrayBuffer(width * height * 4)
+    const view = new Uint8Array(buffer)
+    for (let i = 0; i < width * height; i++) {
+      // solid red
+      view[i * 4] = 255
+      view[i * 4 + 3] = 255
+    }
+    const image = Images.loadFromRawPixelData({
+      buffer: buffer,
+      width: width,
+      height: height,
+      pixelFormat: 'RGBA',
+    })
+    try {
+      const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
+      const roundtrippedImage = HybridFrameConverter.convertFrameToImage(frame)
+      frame.dispose()
+      try {
+        const rawPixelData = roundtrippedImage.toRawPixelData()
+        const pixels = new Uint8Array(rawPixelData.buffer)
+        const pixelFormat = rawPixelData.pixelFormat
+        const centerIndex = ((height / 2) * width + width / 2) * 4
+        // [redOffset, blueOffset] within one 4-byte pixel, per format:
+        const channelOffsets: Record<string, [number, number]> = {
+          RGBA: [0, 2],
+          RGBX: [0, 2],
+          BGRA: [2, 0],
+          BGRX: [2, 0],
+          ARGB: [1, 3],
+          XRGB: [1, 3],
+          ABGR: [3, 1],
+          XBGR: [3, 1],
+        }
+        const offsets = channelOffsets[pixelFormat]
+        if (offsets == null) {
+          throw new Error(`Unexpected roundtripped pixelFormat: ${pixelFormat}`)
+        }
+        const red = pixels[centerIndex + offsets[0]]
+        const blue = pixels[centerIndex + offsets[1]]
+        if (red == null || blue == null) throw new Error('no pixel data')
+        // red stays dominant, blue stays low - if the chroma planes were
+        // swapped somewhere, this would be inverted.
+        expect(red).toBeGreaterThan(195)
+        expect(blue).toBeLessThan(60)
+      } finally {
+        roundtrippedImage.dispose()
+      }
+    } finally {
+      image.dispose()
+    }
+  })
 
   it('converts an Image to a Frame asynchronously', async () => {
     const image = createQuadrantImage()

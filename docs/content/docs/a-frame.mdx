@@ -154,7 +154,7 @@ const image = await HybridFrameConverter.convertFrameToImageAsync(frame)
 const frame = HybridFrameConverter.convertImageToFrame(image, 'up', false)
 ```
 
-[`convertImageToFrame(...)`](/api/react-native-vision-camera/hybrid-objects/FrameConverter#convertimagetoframe) creates a YUV 4:2:0 [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) as if the Camera had streamed it in the given [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) mode - the pixel data is physically rotated and mirrored accordingly.
+[`convertImageToFrame(...)`](/api/react-native-vision-camera/hybrid-objects/FrameConverter#convertimagetoframe) creates a camera-like [`Frame`](/api/react-native-vision-camera/hybrid-objects/Frame) (YUV 4:2:0 on iOS, RGBA on Android) as if the Camera had streamed it in the given [`orientation`](/api/react-native-vision-camera/hybrid-objects/Frame#orientation) and [`isMirrored`](/api/react-native-vision-camera/hybrid-objects/Frame#ismirrored) mode - the pixel data is physically rotated and mirrored accordingly.
 This is useful for running Frame-based APIs (like a Barcode Scanner or the [Resizer](/docs/resizer)) on still images, or for testing Frame-processing code without a physical Camera.
 
 ### Is a Frame still valid?

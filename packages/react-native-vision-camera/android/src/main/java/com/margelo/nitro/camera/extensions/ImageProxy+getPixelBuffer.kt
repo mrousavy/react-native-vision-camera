@@ -53,10 +53,18 @@ fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
     hardwareBuffer?.use { hardwareBuffer ->
       if (hardwareBuffer.isCpuReadable) {
-        // Fast Path: We have a CPU-readable HardwareBuffer.
-        val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
-        return DisposableArrayBuffer(arrayBuffer) {
-          // no release
+        try {
+          // Fast Path: We have a CPU-readable HardwareBuffer.
+          val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)
+          // The HardwareBuffer is locked lazily on first read - probe it once
+          // eagerly, since some devices (e.g. emulators) fail to lock buffers
+          // for CPU reads even though they are flagged as CPU-readable.
+          arrayBuffer.getBuffer(false)
+          return DisposableArrayBuffer(arrayBuffer) {
+            // no release
+          }
+        } catch (_: Throwable) {
+          // Locking failed - fall through to the plane-based paths below.
         }
       }
     }
