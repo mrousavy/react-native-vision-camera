@@ -41,10 +41,13 @@ export interface FrameConverter
    * {@linkcode Frame.isMirrored | isMirrored} flags yields the original
    * upright {@linkcode Image} again.
    *
-   * This performs a CPU copy, and a RGB -> YUV conversion.
-   * The resulting {@linkcode Frame} is in a 4:2:0 YUV {@linkcode PixelFormat}
-   * (like Frames streamed from the Camera), which is a lossy conversion -
-   * expect pixel values to be off by a small amount.
+   * This performs a CPU copy.
+   * The resulting {@linkcode Frame} is in a CPU-accessible, camera-like
+   * {@linkcode PixelFormat} - a 4:2:0 YUV format
+   * ({@linkcode PixelFormat | 'yuv-420-8-bit-full'}) on iOS, and RGBA
+   * ({@linkcode PixelFormat | 'rgb-rgba-8-bit'}) on Android.
+   * The RGB -> YUV conversion on iOS is lossy - expect pixel values
+   * to be off by a small amount.
    *
    * @note Since the pixel data is physically rotated, the resulting
    * {@linkcode Frame}'s {@linkcode Frame.width | width} and
@@ -76,7 +79,7 @@ export interface FrameConverter
    * {@linkcode Frame}, as if the Camera had streamed it in the
    * given {@linkcode orientation} and {@linkcode isMirrored} mode.
    *
-   * This performs a CPU copy, and a RGB -> YUV conversion.
+   * This performs a CPU copy.
    *
    * @see {@linkcode convertImageToFrame | convertImageToFrame(...)}
    * @throws If the Image has already been disposed, or its pixel data cannot be accessed.

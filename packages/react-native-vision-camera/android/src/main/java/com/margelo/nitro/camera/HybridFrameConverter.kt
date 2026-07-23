@@ -6,7 +6,7 @@ import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip
 import com.margelo.nitro.camera.extensions.degrees
 import com.margelo.nitro.camera.extensions.toBitmap
-import com.margelo.nitro.camera.extensions.toYuv420ImageProxy
+import com.margelo.nitro.camera.extensions.toRgbaImageProxy
 import com.margelo.nitro.camera.hybrids.instances.HybridFrame
 import com.margelo.nitro.camera.public.NativeFrame
 import com.margelo.nitro.core.Promise
@@ -67,17 +67,18 @@ class HybridFrameConverter : HybridFrameConverterSpec() {
         advanceTo(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false))
       }
 
-      // YUV 4:2:0 requires even dimensions - crop off the last row/column if needed.
+      // iOS Frames are YUV 4:2:0, which requires even dimensions - crop off
+      // the last row/column here too so both platforms report the same size.
       val evenWidth = bitmap.width and 1.inv()
       val evenHeight = bitmap.height and 1.inv()
       if (evenWidth <= 0 || evenHeight <= 0) {
-        throw Error("The given `Image` (${bitmap.width}x${bitmap.height}) is too small to be converted to a YUV 4:2:0 Frame!")
+        throw Error("The given `Image` (${bitmap.width}x${bitmap.height}) is too small to be converted to a Frame!")
       }
       if (evenWidth != bitmap.width || evenHeight != bitmap.height) {
         advanceTo(Bitmap.createBitmap(bitmap, 0, 0, evenWidth, evenHeight))
       }
 
-      val imageProxy = bitmap.toYuv420ImageProxy(orientation.degrees)
+      val imageProxy = bitmap.toRgbaImageProxy(orientation.degrees)
       return HybridFrame(imageProxy, orientation, isMirrored)
     } finally {
       if (bitmap !== original) {
