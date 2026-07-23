@@ -14,8 +14,8 @@ final class MetalResizerPipeline {
   private let options: ResizerOptions
   private let commandQueue: MTLCommandQueue
   private let textureCache: CVMetalTextureCache
-  private let pipelineState: MTLComputePipelineState
-  private let threadsPerThreadgroup: MTLSize
+  private let yuvPipelineState: MTLComputePipelineState
+  private let bgraPipelineState: MTLComputePipelineState
   private let outputBuffer: MetalReusableBuffer
 
   /**
@@ -37,9 +37,12 @@ final class MetalResizerPipeline {
       dataType: options.dataType,
       width: outputWidth,
       height: outputHeight)
-    let pipelineState = try MetalResizerShaderLibrary.createPipelineState(
-      device: device, options: options)
-    let threadsPerThreadgroup = MetalResizerShaderLibrary.optimalThreadgroupSize(for: pipelineState)
+    // Each supported input format has its own specialized kernel - the right
+    // one is picked per frame based on the input Frame's pixel format.
+    let yuvPipelineState = try MetalResizerShaderLibrary.createPipelineState(
+      device: device, options: options, inputFormat: .yuvBiplanar)
+    let bgraPipelineState = try MetalResizerShaderLibrary.createPipelineState(
+      device: device, options: options, inputFormat: .bgra)
 
     var textureCache: CVMetalTextureCache?
     let cacheStatus = CVMetalTextureCacheCreate(
@@ -54,8 +57,8 @@ final class MetalResizerPipeline {
     self.options = options
     self.commandQueue = commandQueue
     self.textureCache = textureCache
-    self.pipelineState = pipelineState
-    self.threadsPerThreadgroup = threadsPerThreadgroup
+    self.yuvPipelineState = yuvPipelineState
+    self.bgraPipelineState = bgraPipelineState
     self.outputBuffer = outputBuffer
   }
 
@@ -107,8 +110,7 @@ final class MetalResizerPipeline {
       textureCache: textureCache)
     let uniforms = makeUniforms(
       rotationDegrees: rotationDegrees,
-      isMirrored: isMirrored,
-      inputFormat: inputTextures.format)
+      isMirrored: isMirrored)
     try encodeAndRun(
       inputTextures: inputTextures,
       outputBuffer: outputBufferView.buffer,
@@ -119,17 +121,24 @@ final class MetalResizerPipeline {
   /**
    * Builds the shader uniforms for one dispatch.
    */
-  private func makeUniforms(
-    rotationDegrees: Int32,
-    isMirrored: Bool,
-    inputFormat: MetalResizerInputFormat
-  ) -> MetalResizerUniforms {
+  private func makeUniforms(rotationDegrees: Int32, isMirrored: Bool) -> MetalResizerUniforms {
     return MetalResizerUniforms(
       outputWidth: UInt32(outputWidth),
       outputHeight: UInt32(outputHeight),
       rotationDegrees: rotationDegrees,
-      isMirrored: isMirrored ? 1 : 0,
-      inputFormat: inputFormat.rawValue)
+      isMirrored: isMirrored ? 1 : 0)
+  }
+
+  /**
+   * The specialized pipeline for one input format.
+   */
+  private func pipelineState(for inputFormat: MetalResizerInputFormat) -> MTLComputePipelineState {
+    switch inputFormat {
+    case .yuvBiplanar:
+      return yuvPipelineState
+    case .bgra:
+      return bgraPipelineState
+    }
   }
 
   /**
@@ -152,11 +161,18 @@ final class MetalResizerPipeline {
     }
     var uniforms = uniforms
 
+    let pipelineState = pipelineState(for: inputTextures.format)
     encoder.setComputePipelineState(pipelineState)
-    encoder.setTexture(inputTextures.primary.texture, index: 0)
-    encoder.setTexture(inputTextures.secondary.texture, index: 1)
+    switch inputTextures {
+    case .yuvBiplanar(let yPlane, let uvPlane):
+      encoder.setTexture(yPlane.texture, index: 0)
+      encoder.setTexture(uvPlane.texture, index: 1)
+    case .bgra(let texture):
+      encoder.setTexture(texture.texture, index: 0)
+    }
     encoder.setBuffer(outputBuffer, offset: 0, index: 0)
     encoder.setBytes(&uniforms, length: MemoryLayout<MetalResizerUniforms>.stride, index: 1)
+    let threadsPerThreadgroup = MetalResizerShaderLibrary.optimalThreadgroupSize(for: pipelineState)
     encoder.dispatchThreads(self.threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
     encoder.endEncoding()
 
