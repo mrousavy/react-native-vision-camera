@@ -106,22 +106,20 @@ function rotateCounterClockwise<T>(grid: T[][]): T[][] {
   return result
 }
 
-// Reads the luma values at the four quadrant centers of a Frame.
-// - For YUV Frames (iOS), planes[0] is the luma plane (1 byte per pixel).
-// - For RGBA Frames (Android), planes[0] is interleaved RGBA (4 bytes per
-//   pixel) - for a grayscale pattern, the R channel also is the luma.
+// Reads the luma values at the four quadrant centers of an RGB Frame.
+// The Frame's buffer is interleaved 4-byte RGB (BGRA on iOS, RGBA on
+// Android) - for a grayscale pattern, the first channel is the luma
+// either way.
 function readLumaQuadrants(frame: Frame): number[][] {
-  const planes = frame.getPlanes()
-  const lumaPlane = planes[0]
-  expect(lumaPlane).toBeDefined()
-  if (lumaPlane == null) throw new Error('Frame has no luma plane')
-  const buffer = new Uint8Array(lumaPlane.getPixelBuffer())
+  // Read bytesPerRow (which maps the Image's planes) before getPixelBuffer()
+  // (which may CPU-lock the HardwareBuffer) - some devices (e.g. emulators)
+  // do not allow mapping the planes while the HardwareBuffer is locked.
   const width = frame.width
   const height = frame.height
-  const bytesPerRow = lumaPlane.bytesPerRow
-  const bytesPerPixel = frame.pixelFormat.startsWith('rgb') ? 4 : 1
+  const bytesPerRow = frame.bytesPerRow
+  const buffer = new Uint8Array(frame.getPixelBuffer())
   const readAt = (x: number, y: number): number => {
-    const value = buffer[y * bytesPerRow + x * bytesPerPixel]
+    const value = buffer[y * bytesPerRow + x * 4]
     if (value == null) throw new Error(`no luma value at ${x},${y}`)
     return value
   }
@@ -165,29 +163,22 @@ describe('VisionCamera - Frame Converter', () => {
         expect(frame.orientation).toBe('up')
         expect(frame.isMirrored).toBe(false)
         expect(frame.timestamp).toBeGreaterThan(0)
-        // iOS converts to YUV 4:2:0 (like the camera streams),
-        // Android converts to RGBA.
-        expect([
-          'yuv-420-8-bit-full',
-          'yuv-420-8-bit-video',
-          'rgb-rgba-8-bit',
-        ]).toContain(frame.pixelFormat)
-        const isYuv = frame.pixelFormat.startsWith('yuv')
-        expect(frame.isPlanar).toBe(isYuv)
+        // Both platforms convert to a camera-like interleaved RGB format.
+        expect(['rgb-bgra-8-bit', 'rgb-rgba-8-bit']).toContain(
+          frame.pixelFormat,
+        )
+        expect(frame.isPlanar).toBe(false)
         expect(frame.hasPixelBuffer).toBe(true)
-        expect(frame.getPixelBuffer().byteLength).toBeGreaterThan(0)
 
-        // iOS YUV Frames are bi-planar (Y + interleaved CbCr),
-        // Android RGBA Frames have a single interleaved plane.
+        // iOS BGRA Frames are non-planar (no planes), Android RGBA Frames
+        // report a single interleaved plane. Check the planes before
+        // getPixelBuffer() - some devices (e.g. emulators) do not allow
+        // mapping the planes while the HardwareBuffer is CPU-locked.
         const planes = frame.getPlanes()
-        expect(planes.length).toBeGreaterThanOrEqual(1)
-        expect(planes.length).toBeLessThanOrEqual(3)
-        // The luma plane's row stride may be padded beyond the image width
-        // (and on Android, plane width/height are derived from the stride).
-        const lumaPlane = planes[0]
-        expect(lumaPlane?.width).toBeGreaterThanOrEqual(IMAGE_WIDTH)
-        expect(lumaPlane?.height).toBeGreaterThanOrEqual(IMAGE_HEIGHT - 1)
-        expect(lumaPlane?.bytesPerRow).toBeGreaterThanOrEqual(IMAGE_WIDTH)
+        expect(planes.length).toBeLessThanOrEqual(1)
+        // The row stride may be padded beyond width * 4 bytes.
+        expect(frame.bytesPerRow).toBeGreaterThanOrEqual(IMAGE_WIDTH * 4)
+        expect(frame.getPixelBuffer().byteLength).toBeGreaterThan(0)
       } finally {
         frame.dispose()
       }
@@ -262,10 +253,7 @@ describe('VisionCamera - Frame Converter', () => {
           )
           try {
             const actual = readLumaQuadrants(uprightFrame)
-            // Wider tolerance: this roundtrip goes through two lossy
-            // YUV conversions, and the platform's YUV -> RGB step may use
-            // slightly different range coefficients.
-            expectLumasToMatch(actual, QUADRANT_LUMAS, 20)
+            expectLumasToMatch(actual, QUADRANT_LUMAS)
           } finally {
             uprightFrame.dispose()
           }
@@ -278,8 +266,8 @@ describe('VisionCamera - Frame Converter', () => {
     })
   }
 
-  // Chroma is the part YUV compresses - make sure colors survive the
-  // conversion without e.g. swapping the U/V (Cb/Cr) planes.
+  // Guards against channel-order mixups (e.g. R/B swaps) - the grayscale
+  // tests above are blind to those.
   it('preserves chroma through an Image -> Frame -> Image roundtrip', () => {
     const width = 32
     const height = 32

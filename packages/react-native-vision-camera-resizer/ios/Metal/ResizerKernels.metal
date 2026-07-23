@@ -6,6 +6,9 @@ struct ResizeUniforms {
   uint outputHeight;
   int rotationDegrees;
   uint isMirrored;
+  // 0u == YUV 4:2:0 bi-planar (primary = Y plane, secondary = interleaved CbCr plane),
+  // 1u == BGRA (primary = full-resolution BGRA texture, secondary unused)
+  uint inputFormat;
 };
 
 constexpr sampler resizeSampler(coord::normalized, address::clamp_to_edge, filter::linear);
@@ -31,13 +34,13 @@ inline float3 yuvToRgb(float y, float2 uv) {
 }
 
 inline float3 sampleRgb(
-  texture2d<float, access::sample> yTexture,
-  texture2d<float, access::sample> uvTexture,
+  texture2d<float, access::sample> primaryTexture,
+  texture2d<float, access::sample> secondaryTexture,
   uint2 gid,
   constant ResizeUniforms& uniforms
 ) {
   float2 outputSize = float2(uniforms.outputWidth, uniforms.outputHeight);
-  float2 sourceSize = float2(yTexture.get_width(), yTexture.get_height());
+  float2 sourceSize = float2(primaryTexture.get_width(), primaryTexture.get_height());
   float2 outputCoordinate = (float2(gid) + 0.5f) / outputSize;
 
   float2 coordinate;
@@ -100,8 +103,14 @@ inline float3 sampleRgb(
     coordinate.x = 1.0f - coordinate.x;
   }
 
-  float y = yTexture.sample(resizeSampler, coordinate).r;
-  float2 uv = uvTexture.sample(resizeSampler, coordinate).rg;
+  if (uniforms.inputFormat == 1u) {
+    // BGRA: Metal returns sampled channels semantically, so `.rgb`
+    // already is (r, g, b) - no swizzle or conversion needed.
+    return clamp(primaryTexture.sample(resizeSampler, coordinate).rgb, 0.0f, 1.0f);
+  }
+
+  float y = primaryTexture.sample(resizeSampler, coordinate).r;
+  float2 uv = secondaryTexture.sample(resizeSampler, coordinate).rg;
   return yuvToRgb(y, uv);
 }
 
@@ -149,8 +158,8 @@ inline char quantizeInt8(float value) {
 }
 
 kernel void resize_uint8(
-  texture2d<float, access::sample> yTexture [[texture(0)]],
-  texture2d<float, access::sample> uvTexture [[texture(1)]],
+  texture2d<float, access::sample> primaryTexture [[texture(0)]],
+  texture2d<float, access::sample> secondaryTexture [[texture(1)]],
   device uchar* output [[buffer(0)]],
   constant ResizeUniforms& uniforms [[buffer(1)]],
   uint2 gid [[thread_position_in_grid]]
@@ -159,7 +168,7 @@ kernel void resize_uint8(
     return;
   }
 
-  float3 rgb = sampleRgb(yTexture, uvTexture, gid, uniforms);
+  float3 rgb = sampleRgb(primaryTexture, secondaryTexture, gid, uniforms);
   float3 ordered = orderedColor(rgb);
 
   for (uint channelIndex = 0u; channelIndex < kChannelCount; channelIndex++) {
@@ -169,8 +178,8 @@ kernel void resize_uint8(
 }
 
 kernel void resize_int8(
-  texture2d<float, access::sample> yTexture [[texture(0)]],
-  texture2d<float, access::sample> uvTexture [[texture(1)]],
+  texture2d<float, access::sample> primaryTexture [[texture(0)]],
+  texture2d<float, access::sample> secondaryTexture [[texture(1)]],
   device char* output [[buffer(0)]],
   constant ResizeUniforms& uniforms [[buffer(1)]],
   uint2 gid [[thread_position_in_grid]]
@@ -179,7 +188,7 @@ kernel void resize_int8(
     return;
   }
 
-  float3 rgb = sampleRgb(yTexture, uvTexture, gid, uniforms);
+  float3 rgb = sampleRgb(primaryTexture, secondaryTexture, gid, uniforms);
   float3 ordered = orderedColor(rgb);
 
   for (uint channelIndex = 0u; channelIndex < kChannelCount; channelIndex++) {
@@ -189,8 +198,8 @@ kernel void resize_int8(
 }
 
 kernel void resize_float16(
-  texture2d<float, access::sample> yTexture [[texture(0)]],
-  texture2d<float, access::sample> uvTexture [[texture(1)]],
+  texture2d<float, access::sample> primaryTexture [[texture(0)]],
+  texture2d<float, access::sample> secondaryTexture [[texture(1)]],
   device half* output [[buffer(0)]],
   constant ResizeUniforms& uniforms [[buffer(1)]],
   uint2 gid [[thread_position_in_grid]]
@@ -199,7 +208,7 @@ kernel void resize_float16(
     return;
   }
 
-  float3 rgb = sampleRgb(yTexture, uvTexture, gid, uniforms);
+  float3 rgb = sampleRgb(primaryTexture, secondaryTexture, gid, uniforms);
   float3 ordered = orderedColor(rgb);
 
   for (uint channelIndex = 0u; channelIndex < kChannelCount; channelIndex++) {
@@ -209,8 +218,8 @@ kernel void resize_float16(
 }
 
 kernel void resize_float32(
-  texture2d<float, access::sample> yTexture [[texture(0)]],
-  texture2d<float, access::sample> uvTexture [[texture(1)]],
+  texture2d<float, access::sample> primaryTexture [[texture(0)]],
+  texture2d<float, access::sample> secondaryTexture [[texture(1)]],
   device float* output [[buffer(0)]],
   constant ResizeUniforms& uniforms [[buffer(1)]],
   uint2 gid [[thread_position_in_grid]]
@@ -219,7 +228,7 @@ kernel void resize_float32(
     return;
   }
 
-  float3 rgb = sampleRgb(yTexture, uvTexture, gid, uniforms);
+  float3 rgb = sampleRgb(primaryTexture, secondaryTexture, gid, uniforms);
   float3 ordered = orderedColor(rgb);
 
   for (uint channelIndex = 0u; channelIndex < kChannelCount; channelIndex++) {

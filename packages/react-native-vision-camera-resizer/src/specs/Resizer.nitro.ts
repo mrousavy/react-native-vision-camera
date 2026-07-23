@@ -32,10 +32,11 @@ export interface Resizer
    *
    * @discussion
    * - On iOS, the input {@linkcode Frame}'s {@linkcode Frame.pixelFormat | pixelFormat}
-   *   has to be {@linkcode VideoPixelFormat | 'yuv-420-8-bit-full'}, which
+   *   has to be {@linkcode VideoPixelFormat | 'yuv-420-8-bit-full'} (which
    *   is configured on the {@linkcode CameraFrameOutput} by setting
    *   {@linkcode FrameOutputOptions.pixelFormat} to
-   *   {@linkcode TargetVideoPixelFormat | 'yuv'}.
+   *   {@linkcode TargetVideoPixelFormat | 'yuv'}), or
+   *   {@linkcode VideoPixelFormat | 'rgb-bgra-8-bit'}.
    * - On Android, the input {@linkcode Frame}'s {@linkcode Frame.pixelFormat | pixelFormat}
    *   can be any pixel format - even {@linkcode PixelFormat | 'private'}.
    *

@@ -102,12 +102,13 @@ final class MetalResizerPipeline {
       channelOrder: options.channelOrder,
       dataType: options.dataType,
       pixelLayout: options.pixelLayout)
-    let uniforms = makeUniforms(
-      rotationDegrees: rotationDegrees,
-      isMirrored: isMirrored)
     let inputTextures = try MetalResizerInputTextures.make(
       from: pixelBuffer,
       textureCache: textureCache)
+    let uniforms = makeUniforms(
+      rotationDegrees: rotationDegrees,
+      isMirrored: isMirrored,
+      inputFormat: inputTextures.format)
     try encodeAndRun(
       inputTextures: inputTextures,
       outputBuffer: outputBufferView.buffer,
@@ -118,12 +119,17 @@ final class MetalResizerPipeline {
   /**
    * Builds the shader uniforms for one dispatch.
    */
-  private func makeUniforms(rotationDegrees: Int32, isMirrored: Bool) -> MetalResizerUniforms {
+  private func makeUniforms(
+    rotationDegrees: Int32,
+    isMirrored: Bool,
+    inputFormat: MetalResizerInputFormat
+  ) -> MetalResizerUniforms {
     return MetalResizerUniforms(
       outputWidth: UInt32(outputWidth),
       outputHeight: UInt32(outputHeight),
       rotationDegrees: rotationDegrees,
-      isMirrored: isMirrored ? 1 : 0)
+      isMirrored: isMirrored ? 1 : 0,
+      inputFormat: inputFormat.rawValue)
   }
 
   /**
@@ -147,8 +153,8 @@ final class MetalResizerPipeline {
     var uniforms = uniforms
 
     encoder.setComputePipelineState(pipelineState)
-    encoder.setTexture(inputTextures.yPlane.texture, index: 0)
-    encoder.setTexture(inputTextures.uvPlane.texture, index: 1)
+    encoder.setTexture(inputTextures.primary.texture, index: 0)
+    encoder.setTexture(inputTextures.secondary.texture, index: 1)
     encoder.setBuffer(outputBuffer, offset: 0, index: 0)
     encoder.setBytes(&uniforms, length: MemoryLayout<MetalResizerUniforms>.stride, index: 1)
     encoder.dispatchThreads(self.threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
