@@ -11,11 +11,30 @@ import NitroModules
 
 /// Owns the Metal runtime objects needed to run the resize kernel for one fixed output layout.
 final class MetalResizerPipeline {
+  /// One specialized compute pipeline for one input format, with its
+  /// precomputed threadgroup size.
+  private struct Pipeline {
+    let state: MTLComputePipelineState
+    let threadsPerThreadgroup: MTLSize
+
+    init(
+      device: MTLDevice,
+      library: MTLLibrary,
+      options: ResizerOptions,
+      inputFormat: MetalResizerInputFormat
+    ) throws {
+      let state = try MetalResizerShaderLibrary.createPipelineState(
+        device: device, library: library, options: options, inputFormat: inputFormat)
+      self.state = state
+      self.threadsPerThreadgroup = MetalResizerShaderLibrary.optimalThreadgroupSize(for: state)
+    }
+  }
+
   private let options: ResizerOptions
   private let commandQueue: MTLCommandQueue
   private let textureCache: CVMetalTextureCache
-  private let yuvPipelineState: MTLComputePipelineState
-  private let bgraPipelineState: MTLComputePipelineState
+  private let yuvPipeline: Pipeline
+  private let bgraPipeline: Pipeline
   private let outputBuffer: MetalReusableBuffer
 
   /**
@@ -39,10 +58,11 @@ final class MetalResizerPipeline {
       height: outputHeight)
     // Each supported input format has its own specialized kernel - the right
     // one is picked per frame based on the input Frame's pixel format.
-    let yuvPipelineState = try MetalResizerShaderLibrary.createPipelineState(
-      device: device, options: options, inputFormat: .yuvBiplanar)
-    let bgraPipelineState = try MetalResizerShaderLibrary.createPipelineState(
-      device: device, options: options, inputFormat: .bgra)
+    let library = try MetalResizerShaderLibrary.loadPrecompiledLibrary(device: device)
+    let yuvPipeline = try Pipeline(
+      device: device, library: library, options: options, inputFormat: .yuvBiplanar)
+    let bgraPipeline = try Pipeline(
+      device: device, library: library, options: options, inputFormat: .bgra)
 
     var textureCache: CVMetalTextureCache?
     let cacheStatus = CVMetalTextureCacheCreate(
@@ -57,8 +77,8 @@ final class MetalResizerPipeline {
     self.options = options
     self.commandQueue = commandQueue
     self.textureCache = textureCache
-    self.yuvPipelineState = yuvPipelineState
-    self.bgraPipelineState = bgraPipelineState
+    self.yuvPipeline = yuvPipeline
+    self.bgraPipeline = bgraPipeline
     self.outputBuffer = outputBuffer
   }
 
@@ -132,20 +152,25 @@ final class MetalResizerPipeline {
   /**
    * The specialized pipeline for one input format.
    */
-  private func pipelineState(for inputFormat: MetalResizerInputFormat) -> MTLComputePipelineState {
+  private func pipeline(for inputFormat: MetalResizerInputFormat) -> Pipeline {
     switch inputFormat {
     case .yuvBiplanar:
-      return yuvPipelineState
+      return yuvPipeline
     case .bgra:
-      return bgraPipelineState
+      return bgraPipeline
     }
   }
 
   /**
-   * The dispatch grid that covers the full output image.
+   * The threadgroup grid that covers the full output image, rounded up.
+   * The kernels bounds-check `gid` themselves, so unlike `dispatchThreads`
+   * this also works on GPUs without non-uniform threadgroup support (< A11).
    */
-  private var threadsPerGrid: MTLSize {
-    return MTLSize(width: outputWidth, height: outputHeight, depth: 1)
+  private func threadgroupsPerGrid(threadsPerThreadgroup: MTLSize) -> MTLSize {
+    return MTLSize(
+      width: (outputWidth + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
+      height: (outputHeight + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
+      depth: 1)
   }
 
   private func encodeAndRun(
@@ -161,8 +186,8 @@ final class MetalResizerPipeline {
     }
     var uniforms = uniforms
 
-    let pipelineState = pipelineState(for: inputTextures.format)
-    encoder.setComputePipelineState(pipelineState)
+    let pipeline = pipeline(for: inputTextures.format)
+    encoder.setComputePipelineState(pipeline.state)
     switch inputTextures {
     case .yuvBiplanar(let yPlane, let uvPlane):
       encoder.setTexture(yPlane.texture, index: 0)
@@ -172,8 +197,9 @@ final class MetalResizerPipeline {
     }
     encoder.setBuffer(outputBuffer, offset: 0, index: 0)
     encoder.setBytes(&uniforms, length: MemoryLayout<MetalResizerUniforms>.stride, index: 1)
-    let threadsPerThreadgroup = MetalResizerShaderLibrary.optimalThreadgroupSize(for: pipelineState)
-    encoder.dispatchThreads(self.threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+    encoder.dispatchThreadgroups(
+      threadgroupsPerGrid(threadsPerThreadgroup: pipeline.threadsPerThreadgroup),
+      threadsPerThreadgroup: pipeline.threadsPerThreadgroup)
     encoder.endEncoding()
 
     commandBuffer.commit()
