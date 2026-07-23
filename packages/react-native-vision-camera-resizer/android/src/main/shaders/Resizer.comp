@@ -85,10 +85,10 @@ vec2 outputToInputCoordinate(uvec2 gid) {
       return vec2(-1.0);
   }
 
-  if (pushConstants.isMirrored == 1u) {
-    coordinate.x = 1.0 - coordinate.x;
-  }
-
+  // Apply the inverse rotation first, then the mirror, to map output->input.
+  // `isMirrored` mirrors the rotated buffer (matching UIImage orientation
+  // flag semantics, e.g. `.rightMirrored`), so when mapping backwards from
+  // the upright output the mirror has to be undone after the rotation.
   int normalizedRotation = pushConstants.rotationDegrees % 360;
   if (normalizedRotation < 0) {
     normalizedRotation += 360;
@@ -107,6 +107,10 @@ vec2 outputToInputCoordinate(uvec2 gid) {
       break;
     default:
       break;
+  }
+
+  if (pushConstants.isMirrored == 1u) {
+    coordinate.x = 1.0 - coordinate.x;
   }
 
   return coordinate;
