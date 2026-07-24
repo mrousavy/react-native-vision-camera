@@ -12,7 +12,11 @@ import React, {
   useMemo,
 } from 'react'
 import { Platform } from 'react-native'
-import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
+import {
+  type SharedValue,
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated'
 import {
   type CameraController,
   type CameraFrameOutput,
@@ -29,9 +33,13 @@ import {
   type Point,
   type ResolutionBiasConstraint,
   type TargetVideoPixelFormat,
+  type TorchMode,
   useCamera,
+  useExposureUpdater,
   useFrameOutput,
   useOrientation,
+  useTorchModeUpdater,
+  useZoomUpdater,
   type VideoPixelFormat,
   VisionCamera,
 } from 'react-native-vision-camera'
@@ -101,6 +109,19 @@ export interface SkiaCameraRef extends Pick<CameraController, 'resetFocus'> {
    * a normalized {@linkcode Point} with values ranging from `0...1`.
    */
   convertViewPointToNormalizedPoint(viewPoint: Point): Point
+
+  /**
+   * The current {@linkcode CameraController}, or `undefined` if the
+   * Camera has not been configured yet.
+   *
+   * Use this to imperatively control the Camera - e.g. to set
+   * {@linkcode CameraController.setZoom | zoom},
+   * {@linkcode CameraController.setExposureBias | exposureBias} or
+   * {@linkcode CameraController.setTorchMode | torchMode}, or to run a
+   * zoom animation via
+   * {@linkcode CameraController.startZoomAnimation | startZoomAnimation(...)}.
+   */
+  controller: CameraController | undefined
 }
 
 /**
@@ -195,12 +216,48 @@ export interface SkiaCameraProps
    * @default false
    */
   enablePreviewSizedOutputBuffers?: boolean
+
+  // Controller props
+  /**
+   * Sets the {@linkcode CameraController.zoom | zoom} value.
+   *
+   * You can also manually set zoom via the {@linkcode SkiaCameraRef.controller | controller}
+   * ref and {@linkcode CameraController.setZoom | setZoom(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 1
+   */
+  zoom?: number | SharedValue<number>
+  /**
+   * Sets the {@linkcode CameraController.exposureBias | exposureBias} value.
+   *
+   * You can also manually set the exposure bias via the
+   * {@linkcode SkiaCameraRef.controller | controller} ref and
+   * {@linkcode CameraController.setExposureBias | setExposureBias(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 0
+   */
+  exposure?: number | SharedValue<number>
+  /**
+   * Sets the {@linkcode CameraController.torchMode | torchMode} value.
+   * @default 'off'
+   */
+  torchMode?: TorchMode
 }
 
 const DEFAULT_PIXEL_FORMAT = Platform.select<TargetVideoPixelFormat>({
   ios: 'yuv',
   android: 'native',
 })
+
+function getAnimatableNumberInitialValue(
+  value: number | SharedValue<number> | undefined,
+): number | undefined {
+  if (value == null) return undefined
+  else if (typeof value === 'number') return value
+  else return value.get()
+}
 
 function SkiaCameraImpl({
   ref,
@@ -213,6 +270,9 @@ function SkiaCameraImpl({
   device,
   orientationSource,
   warnIfRenderSkipped = true,
+  zoom,
+  exposure,
+  torchMode,
   ...props
 }: SkiaCameraProps): React.ReactElement {
   const texture = useSharedValue<SkImage | null>(null)
@@ -309,7 +369,14 @@ function SkiaCameraImpl({
     outputs: [...outputs, frameOutput],
     device: device,
     mirrorMode: isFront ? 'on' : 'auto',
+    getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
+    getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
   })
+
+  // Update CameraController props declaratively (same as <Camera />)
+  useZoomUpdater(camera, zoom)
+  useExposureUpdater(camera, exposure)
+  useTorchModeUpdater(camera, torchMode)
 
   // Update output orientations (skia frame output is treated differently)
   const orientationSourceOrUndefined =
@@ -372,6 +439,9 @@ function SkiaCameraImpl({
       const cpuImage = snapshot?.makeNonTextureImage()
       if (cpuImage == null) return undefined
       return cpuImage
+    },
+    get controller(): CameraController | undefined {
+      return camera
     },
   }))
 

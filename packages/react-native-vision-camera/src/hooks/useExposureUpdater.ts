@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import type { SharedValue } from 'react-native-reanimated'
-import type { CameraController } from '../../specs/CameraController.nitro'
-import { VisionCameraWorkletsProxy } from '../../third-party/VisionCameraWorkletsProxy'
+import type { CameraController } from '../specs/CameraController.nitro'
+import { VisionCameraWorkletsProxy } from '../third-party/VisionCameraWorkletsProxy'
 
 export function useExposureUpdater(
   controller: CameraController | undefined,

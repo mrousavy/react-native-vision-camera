@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import type { CameraController } from '../../specs/CameraController.nitro'
-import type { TorchMode } from '../../specs/common-types/TorchMode'
+import type { CameraController } from '../specs/CameraController.nitro'
+import type { TorchMode } from '../specs/common-types/TorchMode'
 
 export function useTorchModeUpdater(
   controller: CameraController | undefined,
