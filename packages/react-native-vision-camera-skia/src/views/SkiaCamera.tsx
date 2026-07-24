@@ -28,6 +28,7 @@ import {
   type PixelFormat,
   type Point,
   type ResolutionBiasConstraint,
+  type Size,
   type TargetVideoPixelFormat,
   useCamera,
   useFrameOutput,
@@ -195,6 +196,23 @@ export interface SkiaCameraProps
    * @default false
    */
   enablePreviewSizedOutputBuffers?: boolean
+  /**
+   * The target Frame Resolution to use.
+   *
+   * @discussion
+   * The {@linkcode CameraSession} will negotiate all
+   * output {@linkcode targetResolution}s and constraints (such
+   * as HDR, FPS, etc) in a {@linkcode CameraSessionConfig} to
+   * finalize the Resolution used for the Output.
+   * This is therefore merely a resolution _target_, and may
+   * not be exactly met.
+   *
+   * If the given {@linkcode targetResolution} cannot be met
+   * exactly, its aspect ratio (computed by
+   * {@linkcode Size.width} / {@linkcode Size.height}) will
+   * be prioritized over pixel count.
+   */
+  targetResolution?: Size
 }
 
 const DEFAULT_PIXEL_FORMAT = Platform.select<TargetVideoPixelFormat>({
@@ -210,6 +228,7 @@ function SkiaCameraImpl({
   pixelFormat = DEFAULT_PIXEL_FORMAT,
   enablePhysicalBufferRotation,
   enablePreviewSizedOutputBuffers,
+  targetResolution,
   device,
   orientationSource,
   warnIfRenderSkipped = true,
@@ -253,6 +272,7 @@ function SkiaCameraImpl({
     allowDeferredStart: false,
     enablePhysicalBufferRotation: enablePhysicalBufferRotation,
     enablePreviewSizedOutputBuffers: enablePreviewSizedOutputBuffers,
+    targetResolution: targetResolution,
     onFrame: (frame) => {
       'worklet'
       let renderCount = 0
