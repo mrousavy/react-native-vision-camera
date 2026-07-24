@@ -10,7 +10,9 @@ import NitroModules
 
 extension AVCaptureSession {
   func addAudioInput() throws {
-    let microphone = try getDefaultMicrophone()
+    guard let microphone = AVCaptureDevice.default(for: .audio) else {
+      throw RuntimeError.error(withMessage: "This device does not have a microphone!")
+    }
     let input = try AVCaptureDeviceInput(device: microphone)
     logger.info("Adding microphone \(input)...")
     self.addInputWithNoConnections(input)
@@ -33,23 +35,5 @@ extension AVCaptureSession {
         withMessage: "Audio Connection \"\(connection)\" cannot be added to Camera Session!")
     }
     self.addConnection(connection)
-  }
-
-  private func getDefaultMicrophone() throws -> AVCaptureDevice {
-    // TODO: Make microphone input selectable from JS
-    if #available(iOS 18.0, *) {
-      if let microphone = AVCaptureDevice.default(.microphone, for: .audio, position: .unspecified) {
-        return microphone
-      }
-    }
-    if let microphone = AVCaptureDevice.default(
-      .builtInMicrophone, for: .audio, position: .unspecified)
-    {
-      return microphone
-    }
-    if let microphone = AVCaptureDevice.default(for: .audio) {
-      return microphone
-    }
-    throw RuntimeError.error(withMessage: "This device does not have a microphone!")
   }
 }
