@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { SharedValue } from 'react-native-reanimated'
 import type { CameraController } from '../../specs/CameraController.nitro'
 import { VisionCameraWorkletsProxy } from '../../third-party/VisionCameraWorkletsProxy'
+import { ignoreCameraCancellation } from './ignoreCameraCancellation'
 
 export function useExposureUpdater(
   controller: CameraController | undefined,
@@ -13,11 +14,11 @@ export function useExposureUpdater(
 
     if (typeof exposure === 'number') {
       // number
-      controller.setExposureBias(exposure)
+      ignoreCameraCancellation(controller.setExposureBias(exposure))
       return
     } else {
       // SharedValue<number>
-      controller.setExposureBias(exposure.get())
+      ignoreCameraCancellation(controller.setExposureBias(exposure.get()))
       const listener = VisionCameraWorkletsProxy.bindUIUpdatesToController(
         exposure,
         controller,

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { CameraController } from '../../specs/CameraController.nitro'
 import type { TorchMode } from '../../specs/common-types/TorchMode'
+import { ignoreCameraCancellation } from './ignoreCameraCancellation'
 
 export function useTorchModeUpdater(
   controller: CameraController | undefined,
@@ -10,6 +11,6 @@ export function useTorchModeUpdater(
     if (controller == null) return
     if (torchMode == null) return
 
-    controller.setTorchMode(torchMode)
+    ignoreCameraCancellation(controller.setTorchMode(torchMode))
   }, [controller, torchMode])
 }

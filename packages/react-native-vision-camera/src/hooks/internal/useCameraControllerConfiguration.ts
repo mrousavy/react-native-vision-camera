@@ -3,6 +3,7 @@ import type {
   CameraController,
   CameraControllerConfiguration,
 } from '../../specs/CameraController.nitro'
+import { ignoreCameraCancellation } from './ignoreCameraCancellation'
 
 export function useCameraControllerConfiguration(
   controller: CameraController | undefined,
@@ -30,6 +31,6 @@ export function useCameraControllerConfiguration(
     const load = async () => {
       await controller.configure(memoizedConfig)
     }
-    load()
+    ignoreCameraCancellation(load())
   }, [memoizedConfig, controller])
 }
