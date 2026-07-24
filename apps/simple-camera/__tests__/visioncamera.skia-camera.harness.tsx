@@ -150,7 +150,9 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
   it('streams Frames at the requested targetResolution', async (context) => {
     const targetResolution = CommonResolutions.FHD_4_3
     if (!supportsResolution(backDevice, targetResolution)) {
-      return context.skip('FHD 4:3 video resolution not supported on this device')
+      return context.skip(
+        'FHD 4:3 video resolution not supported on this device',
+      )
     }
 
     const streamed = await streamFrameSize(backDevice, targetResolution)
@@ -164,7 +166,9 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
   it('falls back to the useFrameOutput default when targetResolution is omitted', async (context) => {
     const defaultResolution = CommonResolutions.HD_16_9
     if (!supportsResolution(backDevice, defaultResolution)) {
-      return context.skip('HD 16:9 video resolution not supported on this device')
+      return context.skip(
+        'HD 16:9 video resolution not supported on this device',
+      )
     }
 
     const streamed = await streamFrameSize(backDevice, undefined)
@@ -178,7 +182,9 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
   it('negotiates the same resolution as a bare CameraFrameOutput', async (context) => {
     const targetResolution = CommonResolutions.FHD_4_3
     if (!supportsResolution(backDevice, targetResolution)) {
-      return context.skip('FHD 4:3 video resolution not supported on this device')
+      return context.skip(
+        'FHD 4:3 video resolution not supported on this device',
+      )
     }
 
     const skia = await streamFrameSize(backDevice, targetResolution)
