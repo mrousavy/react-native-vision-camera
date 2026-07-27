@@ -197,20 +197,24 @@ export interface SkiaCameraProps
    */
   enablePreviewSizedOutputBuffers?: boolean
   /**
-   * The target Frame Resolution to use.
+   * The target Resolution to use for the
+   * {@linkcode CameraFrameOutput} driving the Skia
+   * Camera.
    *
    * @discussion
-   * The {@linkcode CameraSession} will negotiate all
-   * output {@linkcode targetResolution}s and constraints (such
-   * as HDR, FPS, etc) in a {@linkcode CameraSessionConfig} to
-   * finalize the Resolution used for the Output.
-   * This is therefore merely a resolution _target_, and may
-   * not be exactly met.
+   * The Skia Camera's Preview is driven by a Skia Canvas
+   * that renders {@linkcode Frame}s from a {@linkcode CameraFrameOutput}.
    *
-   * If the given {@linkcode targetResolution} cannot be met
-   * exactly, its aspect ratio (computed by
-   * {@linkcode Size.width} / {@linkcode Size.height}) will
-   * be prioritized over pixel count.
+   * The {@linkcode targetResolution} therefore affects both the
+   * {@linkcode Frame}'s size (via {@linkcode onFrame | onFrame(...)}),
+   * as well as the Preview's resolution at the same time.
+   *
+   * If {@linkcode enablePreviewSizedOutputBuffers} is enabled,
+   * resolution is capped to the screen's size.
+   *
+   * As with all target resolutions, actual resolutions are
+   * negotiated across Constraints and outputs, and may not be
+   * an exact match with the specified target resolution.
    */
   targetResolution?: Size
 }
