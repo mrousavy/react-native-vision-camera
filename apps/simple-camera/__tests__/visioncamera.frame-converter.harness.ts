@@ -40,6 +40,9 @@ const RAW_PIXEL_FORMAT = Platform.OS === 'android' ? 'BGRA' : 'RGBA'
 //  150  | 210
 const IMAGE_WIDTH = 32
 const IMAGE_HEIGHT = 48
+// Hardware-backed RGB rows may be aligned, but should not require more than
+// the next 256-byte boundary for these test buffers.
+const MAX_RGB_ROW_ALIGNMENT_BYTES = 256
 const QUADRANT_LUMAS = [
   [30, 90],
   [150, 210],
@@ -107,20 +110,14 @@ function rotateCounterClockwise<T>(grid: T[][]): T[][] {
 }
 
 // Reads the luma values at the four quadrant centers of an RGB Frame.
-// The Frame's buffer is interleaved 4-byte RGB (BGRA on iOS, RGBA on
-// Android) - for a grayscale pattern, the first channel is the luma
-// either way.
+// The Frame's pixel buffer is interleaved 4-byte RGB (BGRA on iOS,
+// RGBA on Android) - for a grayscale pattern, the first channel is
+// the luma either way.
 function readLumaQuadrants(frame: Frame): number[][] {
   const width = frame.width
   const height = frame.height
-  // Android RGBA Frames expose their (stride-sized) pixel data via a single
-  // plane, iOS BGRA Frames are non-planar and expose it via getPixelBuffer().
-  const planes = frame.getPlanes()
-  const plane = planes[0]
-  const bytesPerRow = plane?.bytesPerRow ?? frame.bytesPerRow
-  const buffer = new Uint8Array(
-    plane != null ? plane.getPixelBuffer() : frame.getPixelBuffer(),
-  )
+  const buffer = new Uint8Array(frame.getPixelBuffer())
+  const bytesPerRow = frame.bytesPerRow
   const readAt = (x: number, y: number): number => {
     const value = buffer[y * bytesPerRow + x * 4]
     if (value == null) throw new Error(`no luma value at ${x},${y}`)
@@ -173,15 +170,14 @@ describe('VisionCamera - Frame Converter', () => {
         expect(frame.isPlanar).toBe(false)
         expect(frame.hasPixelBuffer).toBe(true)
 
-        // iOS BGRA Frames are non-planar (no planes), Android RGBA Frames
-        // report a single interleaved plane. Check the planes before
-        // getPixelBuffer() - some devices (e.g. emulators) do not allow
-        // mapping the planes while the HardwareBuffer is CPU-locked.
-        const planes = frame.getPlanes()
-        expect(planes.length).toBeLessThanOrEqual(1)
-        // The row stride may be padded beyond width * 4 bytes.
-        expect(frame.bytesPerRow).toBeGreaterThanOrEqual(IMAGE_WIDTH * 4)
-        expect(frame.getPixelBuffer().byteLength).toBeGreaterThan(0)
+        const pixelBuffer = frame.getPixelBuffer()
+        const packedBytesPerRow = IMAGE_WIDTH * 4
+        const maximumAlignedBytesPerRow =
+          Math.ceil(packedBytesPerRow / MAX_RGB_ROW_ALIGNMENT_BYTES) *
+          MAX_RGB_ROW_ALIGNMENT_BYTES
+        expect(frame.bytesPerRow).toBeGreaterThanOrEqual(packedBytesPerRow)
+        expect(frame.bytesPerRow).toBeLessThanOrEqual(maximumAlignedBytesPerRow)
+        expect(pixelBuffer.byteLength).toBe(frame.bytesPerRow * IMAGE_HEIGHT)
       } finally {
         frame.dispose()
       }

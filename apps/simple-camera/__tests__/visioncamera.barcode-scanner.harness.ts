@@ -13,6 +13,9 @@ import { withTimeout } from './test-utils'
 
 const qrCodeAsset = require('../src/assets/qr-code-margelo.png')
 const code128Asset = require('../src/assets/code-128-mrousavy.png')
+// Hardware-backed RGB rows may be aligned, but should not require more than
+// the next 256-byte boundary for these test buffers.
+const MAX_RGB_ROW_ALIGNMENT_BYTES = 256
 
 describe('VisionCamera - Barcode Scanner', () => {
   it('scans a QR code from a Nitro Image', async () => {
@@ -108,6 +111,17 @@ describe('VisionCamera - Barcode Scanner', () => {
         )
         const scanner = createBarcodeScanner({ barcodeFormats: ['code-128'] })
         try {
+          expect(['rgb-bgra-8-bit', 'rgb-rgba-8-bit']).toContain(
+            frame.pixelFormat,
+          )
+          const packedBytesPerRow = frame.width * 4
+          const maximumAlignedBytesPerRow =
+            Math.ceil(packedBytesPerRow / MAX_RGB_ROW_ALIGNMENT_BYTES) *
+            MAX_RGB_ROW_ALIGNMENT_BYTES
+          expect(frame.bytesPerRow).toBeGreaterThanOrEqual(packedBytesPerRow)
+          expect(frame.bytesPerRow).toBeLessThanOrEqual(
+            maximumAlignedBytesPerRow,
+          )
           const barcodes = await withTimeout(
             scanner.scanCodesAsync(frame),
             15_000,
