@@ -50,18 +50,18 @@ export interface CameraRef
   focusTo(viewPoint: Point, options?: FocusOptions): Promise<void>
 
   /**
+   * Get the current {@linkcode CameraController}.
+   * This property will be set after `onStarted`
+   * has been called, and may change over time.
+   */
+  controller: CameraController | undefined
+  /**
    * Get a ref to the {@linkcode PreviewView},
    * or `undefined` if it has not yet been set.
    * This value is set after the first
    * mount, and usually won't change.
    */
   preview: PreviewView | undefined
-  /**
-   * Get the current {@linkcode CameraController}.
-   * This property will be set after `onStarted`
-   * has been called, and may change over time.
-   */
-  controller: CameraController | undefined
 }
 
 /**
@@ -192,11 +192,11 @@ function CameraImpl({
           scannedObject,
         )
       },
-      get preview(): PreviewView | undefined {
-        return previewViewRef.current ?? undefined
-      },
       get controller(): CameraController | undefined {
         return controller
+      },
+      get preview(): PreviewView | undefined {
+        return previewViewRef.current ?? undefined
       },
     }),
     [controller],
