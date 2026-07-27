@@ -1,10 +1,10 @@
 package com.margelo.nitro.camera.barcodescanner.extensions
 
-import android.graphics.ImageFormat
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import com.google.mlkit.vision.common.InputImage
 import com.margelo.nitro.camera.HybridFrameSpec
+import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.public.NativeFrame
 
 @OptIn(ExperimentalGetImage::class)
@@ -17,13 +17,20 @@ fun HybridFrameSpec.toInputImage(): InputImage {
     frame.image.image
       ?: throw Error("Frame does not have an underlying `Image`!")
   val rotationDegrees = frame.image.imageInfo.rotationDegrees
-  if (mediaImage.format == ImageFormat.YUV_420_888) {
-    return InputImage.fromMediaImage(mediaImage, rotationDegrees)
+  return when (pixelFormat) {
+    PixelFormat.RGB_BGRA_8_BIT,
+    PixelFormat.RGB_RGBA_8_BIT,
+    PixelFormat.RGB_RGB_8_BIT,
+    -> {
+      // Slow path: `InputImage` does not work with RGB `Image`s,
+      // so we need to use the `Bitmap` constructor.
+      val bitmap = frame.image.toBitmap()
+      InputImage.fromBitmap(bitmap, rotationDegrees)
+    }
+    else -> {
+      // Fast path: We can wrap the `Image` as an `InputImage` directly
+      // if it's a compatible format (e.g. YUV_420_888)
+      InputImage.fromMediaImage(mediaImage, rotationDegrees)
+    }
   }
-
-  // MLKit only supports YUV media Images - for other formats (e.g. RGBA
-  // Frames), convert the raw buffer to a Bitmap. `toBitmap()` does not
-  // rotate, so the rotation still has to be passed alongside.
-  val bitmap = frame.image.toBitmap()
-  return InputImage.fromBitmap(bitmap, rotationDegrees)
 }
