@@ -59,7 +59,7 @@ class Func_bool_std__shared_ptr_HybridDepthSpec__cxx: Func_bool_std__shared_ptr_
   override fun invoke(depth: HybridDepthSpec): Boolean
     = invoke_cxx(depth)
 
-  @FastNative
+  
   private external fun invoke_cxx(depth: HybridDepthSpec): Boolean
 }
 
