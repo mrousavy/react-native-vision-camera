@@ -130,7 +130,6 @@ export interface CameraProps {
    * {@linkcode CameraController.setZoom | setZoom(...)}.
    *
    * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
-   * @throws If this property is set and {@linkcode enableNativeZoomGesture} is enabled.
    * @default 1
    */
   zoom?: number | SharedValue<number>
