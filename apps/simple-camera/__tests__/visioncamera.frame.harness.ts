@@ -60,14 +60,33 @@ describe('VisionCamera - Frame', () => {
   })
 
   // Regression test for https://github.com/mrousavy/react-native-vision-camera/issues/4096.
-  // Compare the same sensor corners before and after CameraX physically rotates
-  // the buffer. This distinguishes LEFT from RIGHT without relying on a visual
-  // camera fixture or assuming a specific sensor orientation.
-  it('describes the physical rotation needed to make a Frame upright', async () => {
+  //
+  // `Frame.orientation` is a promise about pixels: rotate the buffer clockwise
+  // by that orientation's degrees (`up` 0°, `right` 90°, `down` 180°, `left`
+  // 270° - the mapping `CameraOrientation.degrees` uses on both platforms, and
+  // the one EXIF/`UIImage.Orientation` use) and the Frame is upright.
+  // `enablePhysicalBufferRotation` makes the Camera pipeline perform exactly
+  // that rotation itself, which is what makes the promise measurable: capture
+  // the same Frames once without and once with physical rotation, express both
+  // buffers' axes in Camera coordinates, and the angle between them *is* the
+  // rotation the pipeline applied to upright the Frame. It must equal the
+  // rotation the un-rotated Frame announced - `left` and `right` are both a
+  // quarter turn, so nothing but the direction distinguishes them, and every
+  // consumer that counter-rotates by `orientation` (MLKit, the Resizer, Skia)
+  // ends up 180° off when the two are swapped.
+  it('physically rotates a Frame by exactly the rotation its orientation announced', async () => {
     type FrameReport = {
       orientation: CameraOrientation
+      width: number
+      height: number
       xAxis: Point
       yAxis: Point
+    }
+    const clockwiseDegrees: Record<CameraOrientation, number> = {
+      up: 0,
+      right: 90,
+      down: 180,
+      left: 270,
     }
 
     const session = await VisionCamera.createCameraSession(false)
@@ -88,7 +107,12 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
+    // A Frame only announces a rotation while the sensor is mounted sideways
+    // relative to the target output orientation. Which output orientation that
+    // is depends on the hardware, so ask for one and then for a quarter turn
+    // away from it - one of the two must come back rotated.
     const candidateOrientations: CameraOrientation[] = ['up', 'right']
+    const observedOrientations: string[] = []
     let outputOrientation: CameraOrientation | undefined
     let rawReport: FrameReport | undefined
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
@@ -114,6 +138,8 @@ describe('VisionCamera - Frame', () => {
         })
         scheduleOnRN(report, {
           orientation: frame.orientation,
+          width: frame.width,
+          height: frame.height,
           xAxis: {
             x: xAxisEnd.x - origin.x,
             y: xAxisEnd.y - origin.y,
@@ -140,20 +166,20 @@ describe('VisionCamera - Frame', () => {
         await session.stop()
       }
 
-      if (
-        frameReport.orientation === 'left' ||
-        frameReport.orientation === 'right'
-      ) {
+      observedOrientations.push(
+        `${candidateOrientation} -> ${frameReport.orientation}`,
+      )
+      if (frameReport.orientation !== 'up') {
         outputOrientation = candidateOrientation
         rawReport = frameReport
         break
       }
     }
 
-    expect(outputOrientation).toBeDefined()
-    expect(rawReport).toBeDefined()
     if (outputOrientation == null || rawReport == null) {
-      throw new Error('no horizontal Frame orientation')
+      throw new Error(
+        `Frames never announced a rotation (${observedOrientations.join(', ')})`,
+      )
     }
 
     const rotatedSession = await VisionCamera.createCameraSession(false)
@@ -198,6 +224,8 @@ describe('VisionCamera - Frame', () => {
       })
       scheduleOnRN(reportRotated, {
         orientation: frame.orientation,
+        width: frame.width,
+        height: frame.height,
         xAxis: {
           x: xAxisEnd.x - origin.x,
           y: xAxisEnd.y - origin.y,
@@ -224,23 +252,54 @@ describe('VisionCamera - Frame', () => {
       await rotatedSession.stop()
     }
 
+    // The pipeline consumed the orientation by rotating the pixels instead of
+    // handing it to us as metadata.
     expect(rotatedReport.orientation).toBe('up')
-    const expectedRotatedXAxis =
-      rawReport.orientation === 'left'
-        ? { x: -rawReport.yAxis.x, y: -rawReport.yAxis.y }
-        : rawReport.yAxis
-    const expectedRotatedYAxis =
-      rawReport.orientation === 'left'
-        ? rawReport.xAxis
-        : { x: -rawReport.xAxis.x, y: -rawReport.xAxis.y }
+
+    const announcedRotation = clockwiseDegrees[rawReport.orientation]
+    const rawAspectRatio = rawReport.width / rawReport.height
+    const rotatedAspectRatio = rotatedReport.width / rotatedReport.height
+    if (announcedRotation === 90 || announcedRotation === 270) {
+      // A quarter turn transposes the buffer, whichever way it turned.
+      expect(rotatedAspectRatio).toBeCloseTo(1 / rawAspectRatio, 1)
+    }
+
+    // Both buffers' axes are expressed in the same Camera coordinate system,
+    // so the angle from the un-rotated axes to the physically rotated ones is
+    // the rotation the pipeline applied. Angles are measured from the
+    // un-rotated x axis towards the un-rotated y axis, which is clockwise in
+    // image coordinates because y points down.
+    const toUnitVector = (vector: Point): Point => {
+      const length = Math.hypot(vector.x, vector.y)
+      return { x: vector.x / length, y: vector.y / length }
+    }
+    const rawXAxis = toUnitVector(rawReport.xAxis)
+    const rawYAxis = toUnitVector(rawReport.yAxis)
+    const measureClockwiseRotation = (
+      rotatedAxis: Point,
+      axisDegrees: number,
+    ): number => {
+      const axis = toUnitVector(rotatedAxis)
+      const alongRawXAxis = axis.x * rawXAxis.x + axis.y * rawXAxis.y
+      const alongRawYAxis = axis.x * rawYAxis.x + axis.y * rawYAxis.y
+      const radians = Math.atan2(alongRawYAxis, alongRawXAxis)
+      const degrees = axisDegrees - radians * (180 / Math.PI)
+      const quarterTurns = Math.round(degrees / 90)
+      return (((quarterTurns * 90) % 360) + 360) % 360
+    }
+    // Both axes are measured because a single axis cannot tell a rotation
+    // apart from a rotation that also mirrored the buffer.
+    const xAxisRotation = measureClockwiseRotation(rotatedReport.xAxis, 0)
+    const yAxisRotation = measureClockwiseRotation(rotatedReport.yAxis, 90)
 
     console.log(
-      `output=${outputOrientation} raw=${JSON.stringify(rawReport)} rotated=${JSON.stringify(rotatedReport)}`,
+      `outputOrientation=${outputOrientation} announced=${rawReport.orientation} (${announcedRotation}°) ` +
+        `measured=${xAxisRotation}°/${yAxisRotation}° ` +
+        `raw=${rawReport.width}x${rawReport.height} rotated=${rotatedReport.width}x${rotatedReport.height}`,
     )
-    expect(rotatedReport.xAxis.x).toBeCloseTo(expectedRotatedXAxis.x, 0)
-    expect(rotatedReport.xAxis.y).toBeCloseTo(expectedRotatedXAxis.y, 0)
-    expect(rotatedReport.yAxis.x).toBeCloseTo(expectedRotatedYAxis.x, 0)
-    expect(rotatedReport.yAxis.y).toBeCloseTo(expectedRotatedYAxis.y, 0)
+
+    expect(xAxisRotation).toBe(announcedRotation)
+    expect(yAxisRotation).toBe(announcedRotation)
   })
 
   it('delivers frames to a worklet and posts back via scheduleOnRN', async () => {
