@@ -43,14 +43,6 @@ class HybridFrameConverter : HybridFrameConverterSpec() {
     // The bitmap might be GPU-backed (HARDWARE) - copy it to a CPU-accessible one if needed.
     var bitmap = original.toCpuAccessible()
 
-    // Only recycle the intermediate Bitmaps we create - not the Image's own Bitmap.
-    fun advanceTo(next: Bitmap) {
-      if (next !== bitmap && bitmap !== original) {
-        bitmap.recycle()
-      }
-      bitmap = next
-    }
-
     try {
       // Physically rotate/mirror the pixels so that interpreting the resulting
       // buffer with `orientation` and `isMirrored` yields the upright Image again.
@@ -64,7 +56,12 @@ class HybridFrameConverter : HybridFrameConverterSpec() {
           }
         }
       if (!matrix.isIdentity) {
-        advanceTo(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false))
+        // Replace our bitmap with a new rotated one.
+        val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
+        if (bitmap !== original) {
+          bitmap.recycle()
+        }
+        bitmap = rotated
       }
 
       val imageProxy = bitmap.toRgbaImageProxy(orientation.degrees)
