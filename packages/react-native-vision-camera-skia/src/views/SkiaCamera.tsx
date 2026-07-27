@@ -1,6 +1,7 @@
 import {
   Canvas,
   type CanvasProps,
+  type CanvasRef,
   Image,
   type SkCanvas,
   type SkImage,
@@ -10,6 +11,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
 } from 'react'
 import { Platform } from 'react-native'
 import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
@@ -102,6 +104,19 @@ export interface SkiaCameraRef extends Pick<CameraController, 'resetFocus'> {
    * a normalized {@linkcode Point} with values ranging from `0...1`.
    */
   convertViewPointToNormalizedPoint(viewPoint: Point): Point
+  /**
+   * Get the current {@linkcode CameraController}.
+   * This property will be set after `onStarted`
+   * has been called, and may change over time.
+   */
+  controller: CameraController | undefined
+  /**
+   * Get a ref to the Skia {@linkcode Canvas},
+   * or `undefined` if it has not yet been set.
+   * This value is set after the first
+   * mount, and usually won't change.
+   */
+  canvas: CanvasRef | undefined
 }
 
 /**
@@ -238,6 +253,7 @@ function SkiaCameraImpl({
   warnIfRenderSkipped = true,
   ...props
 }: SkiaCameraProps): React.ReactElement {
+  const canvas = useRef<CanvasRef>(null)
   const texture = useSharedValue<SkImage | null>(null)
 
   const lastFrameOrientation = useMemo(
@@ -397,6 +413,12 @@ function SkiaCameraImpl({
       if (cpuImage == null) return undefined
       return cpuImage
     },
+    get controller() {
+      return camera
+    },
+    get canvas() {
+      return canvas.current ?? undefined
+    },
   }))
 
   useEffect(() => {
@@ -407,7 +429,7 @@ function SkiaCameraImpl({
   }, [])
 
   return (
-    <Canvas style={style} onSize={canvasSize}>
+    <Canvas ref={canvas} style={style} onSize={canvasSize}>
       <Image image={texture} rect={canvasRect} fit="cover" />
     </Canvas>
   )

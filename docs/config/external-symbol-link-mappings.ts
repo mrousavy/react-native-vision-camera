@@ -25,6 +25,7 @@ export const externalSymbolLinkMappings = {
   '@shopify/react-native-skia': {
     SkCanvas:
       'https://shopify.github.io/react-native-skia/docs/canvas/overview/',
+    Canvas: 'https://shopify.github.io/react-native-skia/docs/canvas/overview/',
     SkImage: 'https://shopify.github.io/react-native-skia/docs/images/',
   },
 } satisfies ExternalSymbolLinkMappings
