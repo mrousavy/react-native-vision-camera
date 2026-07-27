@@ -8,8 +8,10 @@ import {
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraOrientation,
   FrameDroppedReason,
   PixelFormat,
+  Point,
   TargetVideoPixelFormat,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
@@ -55,6 +57,190 @@ describe('VisionCamera - Frame', () => {
     expect(back).toBeDefined()
     if (back == null) throw new Error('no back camera')
     backDevice = back
+  })
+
+  // Regression test for https://github.com/mrousavy/react-native-vision-camera/issues/4096.
+  // Compare the same sensor corners before and after CameraX physically rotates
+  // the buffer. This distinguishes LEFT from RIGHT without relying on a visual
+  // camera fixture or assuming a specific sensor orientation.
+  it('describes the physical rotation needed to make a Frame upright', async () => {
+    type FrameReport = {
+      orientation: CameraOrientation
+      xAxis: Point
+      yAxis: Point
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'yuv',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: frameOutput, mirrorMode: 'off' }],
+        constraints: [],
+      },
+    ])
+
+    const candidateOrientations: CameraOrientation[] = ['up', 'right']
+    let outputOrientation: CameraOrientation | undefined
+    let rawReport: FrameReport | undefined
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+
+    for (const candidateOrientation of candidateOrientations) {
+      frameOutput.outputOrientation = candidateOrientation
+      const receivedReport = deferred<FrameReport>()
+      const report = (frameReport: FrameReport) => {
+        receivedReport.resolve(frameReport)
+      }
+      const errorSub = session.addOnErrorListener(receivedReport.reject)
+
+      runtime.setOnFrameCallback(frameOutput, (frame) => {
+        'worklet'
+        const origin = frame.convertFramePointToCameraPoint({ x: 0, y: 0 })
+        const xAxisEnd = frame.convertFramePointToCameraPoint({
+          x: frame.width,
+          y: 0,
+        })
+        const yAxisEnd = frame.convertFramePointToCameraPoint({
+          x: 0,
+          y: frame.height,
+        })
+        scheduleOnRN(report, {
+          orientation: frame.orientation,
+          xAxis: {
+            x: xAxisEnd.x - origin.x,
+            y: xAxisEnd.y - origin.y,
+          },
+          yAxis: {
+            x: yAxisEnd.x - origin.x,
+            y: yAxisEnd.y - origin.y,
+          },
+        })
+        frame.dispose()
+      })
+
+      await session.start()
+      let frameReport: FrameReport
+      try {
+        frameReport = await withTimeout(
+          receivedReport.promise,
+          15_000,
+          `receive frame for output orientation ${candidateOrientation}`,
+        )
+      } finally {
+        runtime.setOnFrameCallback(frameOutput, undefined)
+        errorSub.remove()
+        await session.stop()
+      }
+
+      if (
+        frameReport.orientation === 'left' ||
+        frameReport.orientation === 'right'
+      ) {
+        outputOrientation = candidateOrientation
+        rawReport = frameReport
+        break
+      }
+    }
+
+    expect(outputOrientation).toBeDefined()
+    expect(rawReport).toBeDefined()
+    if (outputOrientation == null || rawReport == null) {
+      throw new Error('no horizontal Frame orientation')
+    }
+
+    const rotatedSession = await VisionCamera.createCameraSession(false)
+    const rotatedFrameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'yuv',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: true,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    rotatedFrameOutput.outputOrientation = outputOrientation
+    await rotatedSession.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: rotatedFrameOutput, mirrorMode: 'off' }],
+        constraints: [],
+      },
+    ])
+
+    const receivedRotatedReport = deferred<FrameReport>()
+    const reportRotated = (frameReport: FrameReport) => {
+      receivedRotatedReport.resolve(frameReport)
+    }
+    const rotatedErrorSub = rotatedSession.addOnErrorListener(
+      receivedRotatedReport.reject,
+    )
+    const rotatedRuntime = workletsProvider.createRuntimeForThread(
+      rotatedFrameOutput.thread,
+    )
+    rotatedRuntime.setOnFrameCallback(rotatedFrameOutput, (frame) => {
+      'worklet'
+      const origin = frame.convertFramePointToCameraPoint({ x: 0, y: 0 })
+      const xAxisEnd = frame.convertFramePointToCameraPoint({
+        x: frame.width,
+        y: 0,
+      })
+      const yAxisEnd = frame.convertFramePointToCameraPoint({
+        x: 0,
+        y: frame.height,
+      })
+      scheduleOnRN(reportRotated, {
+        orientation: frame.orientation,
+        xAxis: {
+          x: xAxisEnd.x - origin.x,
+          y: xAxisEnd.y - origin.y,
+        },
+        yAxis: {
+          x: yAxisEnd.x - origin.x,
+          y: yAxisEnd.y - origin.y,
+        },
+      })
+      frame.dispose()
+    })
+
+    await rotatedSession.start()
+    let rotatedReport: FrameReport
+    try {
+      rotatedReport = await withTimeout(
+        receivedRotatedReport.promise,
+        15_000,
+        `receive physically rotated frame for ${outputOrientation}`,
+      )
+    } finally {
+      rotatedRuntime.setOnFrameCallback(rotatedFrameOutput, undefined)
+      rotatedErrorSub.remove()
+      await rotatedSession.stop()
+    }
+
+    expect(rotatedReport.orientation).toBe('up')
+    const expectedRotatedXAxis =
+      rawReport.orientation === 'left'
+        ? { x: -rawReport.yAxis.x, y: -rawReport.yAxis.y }
+        : rawReport.yAxis
+    const expectedRotatedYAxis =
+      rawReport.orientation === 'left'
+        ? rawReport.xAxis
+        : { x: -rawReport.xAxis.x, y: -rawReport.xAxis.y }
+
+    console.log(
+      `output=${outputOrientation} raw=${JSON.stringify(rawReport)} rotated=${JSON.stringify(rotatedReport)}`,
+    )
+    expect(rotatedReport.xAxis.x).toBeCloseTo(expectedRotatedXAxis.x, 0)
+    expect(rotatedReport.xAxis.y).toBeCloseTo(expectedRotatedXAxis.y, 0)
+    expect(rotatedReport.yAxis.x).toBeCloseTo(expectedRotatedYAxis.x, 0)
+    expect(rotatedReport.yAxis.y).toBeCloseTo(expectedRotatedYAxis.y, 0)
   })
 
   it('delivers frames to a worklet and posts back via scheduleOnRN', async () => {
