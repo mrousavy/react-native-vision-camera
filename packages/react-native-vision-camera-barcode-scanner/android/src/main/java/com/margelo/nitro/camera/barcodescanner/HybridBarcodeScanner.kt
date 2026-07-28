@@ -6,11 +6,11 @@ import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.margelo.nitro.camera.HybridFrameSpec
+import com.margelo.nitro.camera.barcodescanner.extensions.await
 import com.margelo.nitro.camera.barcodescanner.extensions.toInputImage
 import com.margelo.nitro.camera.barcodescanner.extensions.toMLBarcodeScannerOptions
 import com.margelo.nitro.core.Promise
 import com.margelo.nitro.image.HybridImageSpec
-import java.util.concurrent.CancellationException
 
 class HybridBarcodeScanner(
   options: BarcodeScannerOptions,
@@ -38,28 +38,10 @@ class HybridBarcodeScanner(
   }
 
   private fun process(inputImage: InputImage): Promise<Array<HybridBarcodeSpec>> {
-    val promise = Promise<Array<HybridBarcodeSpec>>()
-
-    scanner
-      .process(inputImage)
-      .addOnSuccessListener { barcodes ->
-        val hybridBarcodes =
-          try {
-            barcodes
-              .map { HybridBarcode(it) }
-              .toTypedArray<HybridBarcodeSpec>()
-          } catch (error: Throwable) {
-            promise.reject(error)
-            return@addOnSuccessListener
-          }
-        promise.resolve(hybridBarcodes)
-      }.addOnFailureListener { error ->
-        promise.reject(error)
-      }.addOnCanceledListener {
-        promise.reject(CancellationException("Barcode scan was cancelled."))
-      }
-
-    return promise
+    return Promise.async {
+      val barcodes = scanner.process(inputImage).await()
+      return@async barcodes.map { HybridBarcode(it) }.toTypedArray<HybridBarcodeSpec>()
+    }
   }
 
   override fun dispose() {
