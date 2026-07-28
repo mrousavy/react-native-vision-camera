@@ -1,6 +1,6 @@
 # VisionCamera Harness Tests
 
-This folder contains the on-device test suite for the VisionCamera imperative API. Tests run on a real phone (local `adb` device or an AWS Device Farm device) through [react-native-harness](https://www.react-native-harness.dev), which embeds a Jest-compatible runner in the `simple-camera` app and talks to it over a Metro-driven bridge. Deterministic comparison code used by complex Harness tests lives in `*-test-utils.ts` files and has ordinary Bun `*.test.ts` unit tests.
+This folder contains the on-device test suite for the VisionCamera imperative API. Tests run on a real phone (local `adb` device or an AWS Device Farm device) through [react-native-harness](https://www.react-native-harness.dev), which embeds a Jest-compatible runner in the `simple-camera` app and talks to it over a Metro-driven bridge.
 
 For LLMs, ensure you understand [Harness' llms.txt file](https://www.react-native-harness.dev/llms-full.txt) before hallucinating APIs.
 
@@ -44,7 +44,7 @@ The contract is deliberately strict so that the tests read exactly like VisionCa
 
 Every test builds up its session inline, end-to-end, from `VisionCamera` up. Do **not** extract helpers like `createSession()` or `configureAndStart()` — the API should read in tests exactly as users would write it in their app.
 
-Pure expected-value code is different: if a test needs non-trivial sampling, transforms, or statistics, extract that deterministic math into a local `*-test-utils.ts` file and unit-test its positive and negative cases. The Harness test should remain responsible for acquiring the real Camera Frame and asserting the public API behavior.
+Pure expected-value code is different: if a test needs non-trivial sampling, transforms, or statistics, it can live in a local `*-test-utils.ts` file so the Harness test remains focused on acquiring the real Camera Frame and asserting the public API behavior.
 
 ```ts
 it('captures a JPEG Photo in-memory', async () => {
@@ -163,9 +163,6 @@ Tests should read like a small executable spec for one behavior. A few patterns 
 ## Running the tests
 
 ```sh
-# Run deterministic comparison/unit tests
-bun run --cwd apps/simple-camera test:unit
-
 # Build the debug APK once
 cd apps/simple-camera && bun run build:android
 
@@ -207,7 +204,7 @@ If you hit another case where you can't write a test because an API is missing, 
 
 ## CI
 
-Unit and Harness tests run on every push and PR that touches this folder, the VisionCamera library, or the harness workflow config — see [.github/workflows/harness-aws-device.yml](../../../.github/workflows/harness-aws-device.yml) and [.github/workflows/harness-android-emulator.yml](../../../.github/workflows/harness-android-emulator.yml).
+Harness tests run on every push and PR that touches this folder, the VisionCamera library, or the harness workflow config — see [.github/workflows/harness-aws-device.yml](../../../.github/workflows/harness-aws-device.yml) and [.github/workflows/harness-android-emulator.yml](../../../.github/workflows/harness-android-emulator.yml).
 
 The AWS Device Farm run is the source of truth: it's a real phone, a real SoC, a real camera pipeline. The emulator run is best-effort and may skip hardware-dependent tests.
 
