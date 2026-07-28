@@ -619,11 +619,6 @@ describe('VisionCamera - Controller', () => {
       expect(controller.minZoom).toBeLessThanOrEqual(controller.maxZoom)
       expect(controller.zoom).toBeGreaterThanOrEqual(controller.minZoom)
       expect(controller.zoom).toBeLessThanOrEqual(controller.maxZoom)
-      console.log(
-        `controller: zoom=${controller.zoom} displayable=${controller.displayableZoomFactor} ` +
-          `focusMode=${controller.focusMode} exposureMode=${controller.exposureMode} wbMode=${controller.whiteBalanceMode} ` +
-          `isConnected=${controller.isConnected}`,
-      )
     } finally {
       await session.stop()
     }

@@ -286,9 +286,6 @@ describe('VisionCamera - Photo', () => {
           const savedData = await response.arrayBuffer()
           const savedOrientation = readJpegExifOrientation(savedData)
 
-          console.log(
-            `outputOrientation=${outputOrientation} photo.orientation=${photo.orientation} in-memory EXIF=${inMemoryOrientation} saved EXIF=${savedOrientation}`,
-          )
           expect(savedOrientation).toBe(inMemoryOrientation)
         } finally {
           photo.dispose()
@@ -452,9 +449,6 @@ describe('VisionCamera - Photo', () => {
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      console.log(
-        `target=${targetResolution.width}x${targetResolution.height} => resolved=${photo.width}x${photo.height}`,
-      )
       expect(photo.width).toBeGreaterThan(0)
       expect(photo.height).toBeGreaterThan(0)
       photo.dispose()
@@ -527,9 +521,6 @@ describe('VisionCamera - Photo', () => {
       )
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
-      console.log(
-        `max device res=${maxPhotoResolution.width}x${maxPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
-      )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
       photo.dispose()
@@ -585,9 +576,6 @@ describe('VisionCamera - Photo', () => {
       )
       const capturedShortEdge = Math.min(photo.width, photo.height)
       const capturedLongEdge = Math.max(photo.width, photo.height)
-      console.log(
-        `min device res=${minPhotoResolution.width}x${minPhotoResolution.height} reported=${reported.width}x${reported.height} captured=${photo.width}x${photo.height}`,
-      )
       expect(capturedShortEdge).toBe(requestedShortEdge)
       expect(capturedLongEdge).toBe(requestedLongEdge)
       photo.dispose()
@@ -757,8 +745,6 @@ describe('VisionCamera - Photo', () => {
     const preparedFlashModes: FlashMode[] = ['off', 'auto']
     if (backDevice.hasFlash) {
       preparedFlashModes.push('on')
-    } else {
-      console.log('[SKIP] prepareSettings flashMode on: device has no flash')
     }
 
     const session = await VisionCamera.createCameraSession(false)
@@ -883,9 +869,6 @@ describe('VisionCamera - Photo', () => {
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      console.log(
-        `mirrorMode=${mirrorMode} => photo.isMirrored=${photo.isMirrored}`,
-      )
       switch (mirrorMode) {
         case 'off':
           expect(photo.isMirrored).toBe(false)
@@ -1000,9 +983,6 @@ describe('VisionCamera - Photo', () => {
       },
     ])
     try {
-      console.log(
-        `photoOutput support flags: depthData=${photoOutput.supportsDepthDataDelivery} calibrationData=${photoOutput.supportsCameraCalibrationDataDelivery}`,
-      )
       expect(photoOutput.supportsDepthDataDelivery).toBe(true)
     } finally {
       await session.stop()

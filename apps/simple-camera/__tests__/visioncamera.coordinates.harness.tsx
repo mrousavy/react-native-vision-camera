@@ -123,9 +123,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(roundTripped.x).toBeCloseTo(input.x, 0)
         expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
-      console.log(
-        `frame ${r.width}x${r.height} round-trip points: ${JSON.stringify(r.points)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -191,9 +188,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(s.x).toBeCloseTo(first.x, 0)
         expect(s.y).toBeCloseTo(first.y, 0)
       }
-      console.log(
-        `frame center camera point samples: ${JSON.stringify(samples)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -271,7 +265,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(roundTripped.x).toBeCloseTo(input.x, 0)
         expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
-      console.log(`preview round-trip ok on ${w}x${h}`)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -336,9 +329,6 @@ describe('VisionCamera - Coordinates', () => {
       const back = previewRef.convertCameraPointToViewPoint(cameraPoint)
       expect(back.x).toBeCloseTo(viewCenter.x, 0)
       expect(back.y).toBeCloseTo(viewCenter.y, 0)
-      console.log(
-        `preview center round-trip: ${JSON.stringify(viewCenter)} -> ${JSON.stringify(cameraPoint)} -> ${JSON.stringify(back)}`,
-      )
     } finally {
       errorSub.remove()
       await session.stop()
@@ -418,9 +408,6 @@ describe('VisionCamera - Coordinates', () => {
       // symmetric around the center. numDigits=1 tolerates |x - 0.5| < 0.05.
       expect(mp.normalizedX).toBeCloseTo(0.5, 1)
       expect(mp.normalizedY).toBeCloseTo(0.5, 1)
-      console.log(
-        `metering point at view center: relative=(${mp.relativeX}, ${mp.relativeY}) normalized=(${mp.normalizedX}, ${mp.normalizedY})`,
-      )
     } finally {
       errorSub.remove()
       await session.stop()
@@ -481,10 +468,8 @@ describe('VisionCamera - Coordinates', () => {
     )
 
     let frameCenterCamera: Point | undefined
-    let observedOrientation: string | undefined
-    const onSample = (cameraPoint: Point, orientation: string) => {
+    const onSample = (cameraPoint: Point) => {
       frameCenterCamera = cameraPoint
-      observedOrientation = orientation
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
@@ -492,7 +477,7 @@ describe('VisionCamera - Coordinates', () => {
       'worklet'
       const center = { x: frame.width / 2, y: frame.height / 2 }
       const cameraPoint = frame.convertFramePointToCameraPoint(center)
-      scheduleOnRN(onSample, cameraPoint, frame.orientation)
+      scheduleOnRN(onSample, cameraPoint)
       frame.dispose()
     })
 
@@ -520,9 +505,6 @@ describe('VisionCamera - Coordinates', () => {
       // view dimension or more.
       expect(projected.x).toBeCloseTo(viewCenter.x, -2)
       expect(projected.y).toBeCloseTo(viewCenter.y, -2)
-      console.log(
-        `frame.orientation=${observedOrientation} frame-center camera=${JSON.stringify(frameCenterCamera)} -> view=${JSON.stringify(projected)} (view center ${JSON.stringify(viewCenter)})`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -652,10 +634,6 @@ describe('VisionCamera - Coordinates', () => {
       for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
         expect(r.reported[edge]).toBeCloseTo(r.expected[edge], 0)
       }
-
-      console.log(
-        `oriented rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()

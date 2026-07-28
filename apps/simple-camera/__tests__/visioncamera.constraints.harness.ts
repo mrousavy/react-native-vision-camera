@@ -56,7 +56,6 @@ describe('VisionCamera - Constraints', () => {
     const config = received
     if (config == null) throw new Error('no config')
     expect(backDevice.supportedPixelFormats).toContain(config.nativePixelFormat)
-    console.log(`baseline config: ${config.toString()}`)
     await session.stop()
   })
 
@@ -215,10 +214,6 @@ describe('VisionCamera - Constraints', () => {
       withPreview.resolution.width,
       withPreview.resolution.height,
     )
-    console.log(
-      `4k@60 video-only=${videoOnly.resolution.width}x${videoOnly.resolution.height}@${videoOnly.selectedFPS ?? 'default'}fps ` +
-        `with-preview=${withPreview.resolution.width}x${withPreview.resolution.height}@${withPreview.selectedFPS ?? 'default'}fps`,
-    )
 
     expect(withPreview.selectedFPS).toBe(60)
     expect(previewShortEdge).toBe(targetShortEdge)
@@ -318,10 +313,6 @@ describe('VisionCamera - Constraints', () => {
 
     const withPreview = await resolveLowTargetSession(true)
     const previewEdges = getEdges(withPreview)
-    console.log(
-      `720p target video-only=${videoOnly.width}x${videoOnly.height} ` +
-        `with-preview=${withPreview.width}x${withPreview.height}`,
-    )
 
     expect(previewEdges.short).toBeLessThanOrEqual(maxAllowedEdges.short)
     expect(previewEdges.long).toBeLessThanOrEqual(maxAllowedEdges.long)
@@ -422,10 +413,6 @@ describe('VisionCamera - Constraints', () => {
 
     const withPreview = await resolveExplicitBiasSession(true)
     const withPreviewEdges = getEdges(withPreview.resolution)
-    console.log(
-      `1080p@30 explicit bias video-only=${videoOnly.resolution.width}x${videoOnly.resolution.height} ` +
-        `with-preview=${withPreview.resolution.width}x${withPreview.resolution.height}`,
-    )
 
     expect(withPreview.selectedFPS).toBe(30)
     expect(withPreviewEdges.short).toBe(targetEdges.short)
@@ -487,10 +474,6 @@ describe('VisionCamera - Constraints', () => {
     const withPreview = await resolvePhotoSession(true)
     const photoOnlyEdges = getEdges(photoOnly)
     const withPreviewEdges = getEdges(withPreview)
-    console.log(
-      `photo target photo-only=${photoOnly.width}x${photoOnly.height} ` +
-        `with-preview=${withPreview.width}x${withPreview.height}`,
-    )
 
     expect(withPreviewEdges.short).toBe(photoOnlyEdges.short)
     expect(withPreviewEdges.long).toBe(photoOnlyEdges.long)
@@ -684,47 +667,11 @@ describe('VisionCamera - Constraints', () => {
     await session.stop()
   })
 
-  it('applies constraint priority ordering for resolutionBias', async () => {
-    const photoOutput = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HIGHEST_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const videoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.VGA_16_9,
-      enableAudio: false,
-    })
-
-    const photoFirst = await VisionCamera.resolveConstraints(
-      backDevice,
-      [
-        { output: photoOutput, mirrorMode: 'auto' },
-        { output: videoOutput, mirrorMode: 'auto' },
-      ],
-      [{ resolutionBias: photoOutput }, { resolutionBias: videoOutput }],
-    )
-    const videoFirst = await VisionCamera.resolveConstraints(
-      backDevice,
-      [
-        { output: photoOutput, mirrorMode: 'auto' },
-        { output: videoOutput, mirrorMode: 'auto' },
-      ],
-      [{ resolutionBias: videoOutput }, { resolutionBias: photoOutput }],
-    )
-    console.log(
-      `resolutionBias photo-first: nativePixelFormat=${photoFirst.nativePixelFormat} binned=${photoFirst.isBinned}`,
-    )
-    console.log(
-      `resolutionBias video-first: nativePixelFormat=${videoFirst.nativePixelFormat} binned=${videoFirst.isBinned}`,
-    )
-  })
-
   // Verifies the resolver's priority mechanism by running the same pair of
   // constraints in both orderings and asserting that the first-listed (= highest
   // priority) one wins in each direction. The lower-priority constraint may or
   // may not survive depending on device combination support — that's a hardware
-  // capability question, not a priority-ordering question, so we only log it.
+  // capability question, not a priority-ordering question, so it is not asserted.
   //
   // This catches regressions like "resolver always drops the first constraint
   // instead of the last" or "priority order is silently reversed", without
@@ -767,10 +714,6 @@ describe('VisionCamera - Constraints', () => {
     expect(stabFirst.selectedVideoStabilizationMode).toBe(
       chosenStabilizationMode,
     )
-    console.log(
-      `priority [stab, HDR]: stab=${stabFirst.selectedVideoStabilizationMode} ` +
-        `hdr=${stabFirst.selectedVideoDynamicRange?.bitDepth}`,
-    )
 
     // [HDR, stab] — HDR has higher priority and must be honored. Stabilization
     // may legitimately fall back to off/auto if the device can't combine them.
@@ -783,10 +726,6 @@ describe('VisionCamera - Constraints', () => {
       ],
     )
     expect(hdrFirst.selectedVideoDynamicRange?.bitDepth).toBe('hdr-10-bit')
-    console.log(
-      `priority [HDR, stab]: stab=${hdrFirst.selectedVideoStabilizationMode} ` +
-        `hdr=${hdrFirst.selectedVideoDynamicRange?.bitDepth}`,
-    )
   })
 
   it('reconfigures the running session with a different constraint set', async (context) => {

@@ -154,7 +154,7 @@ Tests should read like a small executable spec for one behavior. A few patterns 
 - **Use matcher assertions instead of boolean arithmetic.** Prefer `toBeCloseTo`, `toHaveLength`, `toContain`, `toEqual`, and `rejects.toThrow` over manually computing booleans inline and asserting on those - this makes it easier to read tests, especially when they fail in CI outputs. This is especially important for Harness/Vitest logs from AWS Device Farm: rich matchers preserve the received and expected values, while aggregate checks such as max/min deltas usually only show the derived number.
 - **Loop over repeated dimensions or cases.** For edges, axes, formats, or corner points, a tiny inline array plus one expectation is clearer than four copy-pasted assertions that can drift.
 - **Keep local math behind local names.** Small functions inside an `it` block are fine when they name a one-off transform or assertion, such as `getBounds(...)`. Do not put arithmetic, boolean expressions, `map(...)`, or other transformations directly inside `expect(...)`; assign them to descriptive local names first. Do not collapse multiple facts into one computed assertion like `expect(a + b).toBeGreaterThan(0)` — assert `a` and `b` separately so CI failures identify the broken value. Do not extract shared setup helpers; the camera session still needs to be built inline.
-- **Log the facts needed to debug a CI failure.** One final `console.log` with orientation, resolution, or compared values is useful. Per-frame or per-step logs usually make Harness output harder to read.
+- **Keep Harness output quiet.** Do not add `console.log` calls to tests. Use focused matcher assertions so failures report the relevant received and expected values.
 
 ## Running the tests
 

@@ -185,9 +185,6 @@ describe('VisionCamera - Video', () => {
         finished.reject,
       )
       const reason = await withTimeout(finished.promise, 30_000, 'maxFileSize')
-      console.log(
-        `maxFileSize duration=${recorder.recordedDuration}s, size=${recorder.recordedFileSize}B`,
-      )
       expect(reason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
@@ -305,9 +302,6 @@ describe('VisionCamera - Video', () => {
       const midSize = recorder.recordedFileSize
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
-      console.log(
-        `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
-      )
       expect(midDuration).toBeGreaterThan(0)
       expect(midSize).toBeGreaterThan(0)
     } finally {
@@ -609,9 +603,6 @@ describe('VisionCamera - Video', () => {
       const requestedLongEdge = Math.max(max.width, max.height)
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
-      console.log(
-        `max device video res=${max.width}x${max.height} reported=${reported.width}x${reported.height}`,
-      )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -652,9 +643,6 @@ describe('VisionCamera - Video', () => {
       const requestedLongEdge = Math.max(min.width, min.height)
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
-      console.log(
-        `min device video res=${min.width}x${min.height} reported=${reported.width}x${reported.height}`,
-      )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -681,7 +669,6 @@ describe('VisionCamera - Video', () => {
     const codecs = videoOutput.getSupportedVideoCodecs()
     expect(codecs.length).toBeGreaterThan(0)
     expect(codecs).not.toContain('unknown')
-    console.log(`supported video codecs: ${codecs.join(', ')}`)
     await session.stop()
   })
 })

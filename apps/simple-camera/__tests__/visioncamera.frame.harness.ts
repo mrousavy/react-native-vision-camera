@@ -163,7 +163,6 @@ describe('VisionCamera - Frame', () => {
           15_000,
           `receive ${targetPixelFormat} frame pixel format`,
         )
-        console.log(`${targetPixelFormat} frame pixel format: ${pixelFormat}`)
         expect(expectedPixelFormats).toContain(pixelFormat)
       } finally {
         runtime.setOnFrameCallback(frameOutput, undefined)
@@ -443,9 +442,6 @@ describe('VisionCamera - Frame', () => {
       errorSub.remove()
       await session.stop()
     }
-    console.log(
-      `yuv frame reported ${reportedWidth}x${reportedHeight} planes=${reportedPlanes} pixelFormat=${reportedPixelFormat}`,
-    )
     expect(reportedWidth).toBeGreaterThan(0)
     expect(reportedHeight).toBeGreaterThan(0)
     expect(reportedPlanes).toBeGreaterThanOrEqual(1)
@@ -621,9 +617,6 @@ describe('VisionCamera - Frame', () => {
       expect(reportedShortEdge).toBe(streamedShortEdge)
       expect(reportedLongEdge).toBe(streamedLongEdge)
 
-      console.log(
-        `max device stream res=${max.width}x${max.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,
-      )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -698,9 +691,6 @@ describe('VisionCamera - Frame', () => {
       expect(reportedShortEdge).toBe(streamedShortEdge)
       expect(reportedLongEdge).toBe(streamedLongEdge)
 
-      console.log(
-        `min device stream res=${min.width}x${min.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,
-      )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -752,7 +742,6 @@ describe('VisionCamera - Frame', () => {
     await session.start()
     try {
       await waitUntil(() => droppedReason != null, { timeout: 15_000 })
-      console.log(`frame dropped reason: ${droppedReason}`)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       frameOutput.setOnFrameDroppedCallback(undefined)
@@ -807,9 +796,6 @@ describe('VisionCamera - Frame', () => {
       runtime.setOnFrameCallback(frameOutput, undefined)
       await session.stop()
     }
-    console.log(
-      `preview-sized frame: ${reportedWidth}x${reportedHeight} (requested target ${CommonResolutions.UHD_16_9.width}x${CommonResolutions.UHD_16_9.height})`,
-    )
     const requestedPixels =
       CommonResolutions.UHD_16_9.width * CommonResolutions.UHD_16_9.height
     const actualPixels = reportedWidth * reportedHeight
