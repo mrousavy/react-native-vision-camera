@@ -25,6 +25,10 @@ export interface BarcodeScanner
    * All coordinates in the {@linkcode Barcode} are
    * relative to the {@linkcode Frame}'s coordinate system.
    *
+   * On Android, use a YUV Frame (`pixelFormat: 'yuv'`). Frame formats that
+   * cannot be wrapped by ML Kit's `InputImage.fromMediaImage(...)` are not
+   * converted implicitly.
+   *
    * You can convert {@linkcode Barcode} coordinates to Camera coordinates using
    * {@linkcode Frame.convertFramePointToCameraPoint | Frame.convertFramePointToCameraPoint(...)},
    * and then convert the Camera coordinates to Preview View coordinates using
@@ -51,6 +55,9 @@ export interface BarcodeScanner
   /**
    * Asynchronously detects {@linkcode Barcode}s in the
    * given {@linkcode Frame}.
+   *
+   * The Frame must remain valid until the returned Promise settles. Do not
+   * call {@linkcode Frame.dispose | Frame.dispose()} before awaiting it.
    *
    * @see {@linkcode scanCodes}
    */

@@ -26,7 +26,7 @@ Tests are split by domain. Each file tests one slice of the imperative `VisionCa
 | [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `enablePreviewSizedOutputBuffers` |
 | [visioncamera.frame-converter.harness.ts](visioncamera.frame-converter.harness.ts) | Real Camera Frame conversion, orientation/mirroring, raw-Y spatial alignment, sync/async parity |
 | [visioncamera.resizer.harness.ts](visioncamera.resizer.harness.ts) | Real Camera Frame resizing, scale modes, orientation/mirroring, output layouts and numeric formats |
-| [visioncamera.barcode-scanner.harness.ts](visioncamera.barcode-scanner.harness.ts) | Static barcode decoding and real YUV/RGB Camera Frame format acceptance |
+| [visioncamera.barcode-scanner.harness.ts](visioncamera.barcode-scanner.harness.ts) | Static barcode decoding and real YUV Camera Frame format acceptance |
 | [visioncamera.multi-output.harness.ts](visioncamera.multi-output.harness.ts) | Multi-output sessions that combine photo, video, and frame outputs, output replacement while other outputs stay attached, persistent recording across session restarts |
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
