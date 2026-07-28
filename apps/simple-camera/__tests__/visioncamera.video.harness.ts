@@ -684,4 +684,34 @@ describe('VisionCamera - Video', () => {
     console.log(`supported video codecs: ${codecs.join(', ')}`)
     await session.stop()
   })
+
+  it('applies video output settings on iOS after the output is attached', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip('setOutputSettings: iOS only')
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    try {
+      await videoOutput.setOutputSettings({})
+
+      const codecs = videoOutput.getSupportedVideoCodecs()
+      expect(codecs.length).toBeGreaterThan(0)
+      for (const codec of codecs) {
+        await videoOutput.setOutputSettings({ codec })
+      }
+    } finally {
+      await session.stop()
+    }
+  })
 })
