@@ -1,4 +1,3 @@
-import { Platform } from 'react-native'
 import { afterAll, beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
   CameraDevice,
@@ -178,7 +177,7 @@ describe('VisionCamera - Resizer', () => {
             await session.start()
             didStart = true
             let uprightPixels:
-              | ReturnType<typeof convertFrameToUprightPixels>
+              | ReturnType<typeof rasterizePresentedFramePixels>
               | undefined
             let references: ScaleReferences | undefined
             let lastSignal:
@@ -200,7 +199,7 @@ describe('VisionCamera - Resizer', () => {
                 )
               }
 
-              const candidatePixels = convertFrameToUprightPixels(frame)
+              const candidatePixels = rasterizePresentedFramePixels(frame)
               const candidateReferences = createScaleReferences(
                 candidatePixels,
                 REFERENCE_WIDTH,
@@ -448,7 +447,7 @@ describe('VisionCamera - Resizer', () => {
 
           rgbFrame = rgbResizer.resize(frame)
           rgbPixels = copyUint8Pixels(rgbFrame)
-          const uprightPixels = convertFrameToUprightPixels(frame)
+          const uprightPixels = rasterizePresentedFramePixels(frame)
           const referencePixels = createScaleReferences(
             uprightPixels,
             FORMAT_WIDTH,
@@ -589,23 +588,17 @@ async function createTestResizers(
   }
 }
 
-function convertFrameToUprightPixels(frame: Frame) {
+function rasterizePresentedFramePixels(frame: Frame) {
   const convertedImage = HybridFrameConverter.convertFrameToImage(frame)
   try {
-    if (Platform.OS !== 'ios') {
-      return convertedImage.toRawPixelData()
-    }
-
-    // UIImage keeps orientation/mirroring as metadata. Drawing it once makes
-    // the presented pixels observable to the CPU reference implementation.
-    const uprightImage = convertedImage.resize(
+    const presentedImage = convertedImage.resize(
       convertedImage.width,
       convertedImage.height,
     )
     try {
-      return uprightImage.toRawPixelData()
+      return presentedImage.toRawPixelData()
     } finally {
-      uprightImage.dispose()
+      presentedImage.dispose()
     }
   } finally {
     convertedImage.dispose()
