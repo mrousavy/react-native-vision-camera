@@ -88,11 +88,6 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
             "Cannot set output settings when VideoOutput is not yet connected to the CameraSession!"
         )
       }
-      guard connection.isActive else {
-        throw RuntimeError.error(
-          withMessage:
-            "Cannot set output settings - the video connection is not active (yet)!")
-      }
       if let codec = settings.codec {
         if codec.isRawCodec {
           guard self.options.targetBitRate == nil else {
