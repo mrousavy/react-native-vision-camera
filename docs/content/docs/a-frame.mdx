@@ -132,7 +132,7 @@ if (frame.isPlanar) {
     const uvBuffer = planes[1].getPixelBuffer()
     const yPixels = new Uint8Array(yBuffer)
     const uvPixels = new Uint8Array(uvBuffer)
-    const firstPixel = { y: yPixels[0], u: uvPixels[0], v: uvPixels[0] }
+    const firstPixel = { y: yPixels[0], u: uvPixels[0], v: uvPixels[1] }
   }
 } else {
   // regular pixel buffer access
