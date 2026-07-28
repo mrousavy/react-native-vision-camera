@@ -114,7 +114,10 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
         // back throws an NSException that Swift cannot catch (app crash). Only pass
         // the codec (and bit-rate) and let AVFoundation fill in the rest.
         var newSettings: [String: Any] = [AVVideoCodecKey: avCodec]
-        if let targetBitRate = self.options.targetBitRate {
+        let supportedKeys = self.output.supportedOutputSettingsKeys(for: connection)
+        if let targetBitRate = self.options.targetBitRate,
+          supportedKeys.contains(AVVideoCompressionPropertiesKey)
+        {
           newSettings[AVVideoCompressionPropertiesKey] = [
             AVVideoAverageBitRateKey: Int(targetBitRate)
           ]
