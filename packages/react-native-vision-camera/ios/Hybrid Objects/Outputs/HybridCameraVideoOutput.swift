@@ -88,7 +88,7 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
             "Cannot set output settings when VideoOutput is not yet connected to the CameraSession!"
         )
       }
-      var currentSettings = self.output.outputSettings(for: connection)
+
       if let codec = settings.codec {
         if codec.isRawCodec {
           guard self.options.targetBitRate == nil else {
@@ -97,9 +97,26 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
                 "Cannot set bit-rate when recording in a RAW codec! (\(codec.stringValue))")
           }
         }
-        currentSettings[AVVideoCodecKey] = try codec.toAVVideoCodecType()
+
+        let avCodec = try codec.toAVVideoCodecType()
+        guard self.output.availableVideoCodecTypes.contains(avCodec) else {
+          throw RuntimeError.error(
+            withMessage:
+              "Video codec \(codec.stringValue) is not supported by this device! "
+              + "Supported codecs: \(self.output.availableVideoCodecTypes.map(\.rawValue))")
+        }
+
+        if let bitRate = self.options.targetBitRate {
+          self.setOutputSettings(
+            bitRate: Int(bitRate),
+            codec: avCodec,
+            for: connection)
+        } else {
+          self.setOutputSettings(
+            codec: avCodec,
+            for: connection)
+        }
       }
-      self.output.setOutputSettings(currentSettings, for: connection)
     }
   }
 
@@ -121,6 +138,13 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
   }
 
   private func setBitRate(bitRate: Int, for connection: AVCaptureConnection) {
+    let currentSettings = output.outputSettings(for: connection)
+    let currentCodec = currentSettings[AVVideoCodecKey] as? AVVideoCodecType ?? AVVideoCodecType.hevc
+
+    setOutputSettings(bitRate: bitRate, codec: currentCodec, for: connection)
+  }
+
+  private func setOutputSettings(bitRate: Int, codec: AVVideoCodecType, for connection: AVCaptureConnection) {
     let supportedKeys = output.supportedOutputSettingsKeys(for: connection)
     guard supportedKeys.contains(AVVideoCompressionPropertiesKey) else {
       logger.error(
@@ -128,15 +152,18 @@ final class HybridCameraVideoOutput: HybridCameraVideoOutputSpec, NativeCameraOu
       return
     }
 
-    let currentSettings = output.outputSettings(for: connection)
-    let currentCodec = currentSettings[AVVideoCodecKey] ?? AVVideoCodecType.hevc
     let settings: [String: Any] = [
-      AVVideoCodecKey: currentCodec,
+      AVVideoCodecKey: codec,
       AVVideoCompressionPropertiesKey: [
         AVVideoAverageBitRateKey: bitRate
           // ..the remaining AVVideoCompressionPropertiesKey values will be filled by AVFoundation
       ],
     ]
+    output.setOutputSettings(settings, for: connection)
+  }
+
+  private func setOutputSettings(codec: AVVideoCodecType, for connection: AVCaptureConnection) {
+    let settings: [String: Any] = [AVVideoCodecKey: codec]
     output.setOutputSettings(settings, for: connection)
   }
 }
