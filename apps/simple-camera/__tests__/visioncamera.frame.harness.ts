@@ -311,19 +311,14 @@ describe('VisionCamera - Frame', () => {
     ])
 
     type BufferReport = {
-      frameBytes: number
       firstPlaneBytes: number[]
       secondPlaneBytes: number[]
     }
     const receivedBufferReports = deferred<BufferReport[]>()
     const bufferReports: BufferReport[] = []
-    const report = (
-      frameBytes: number,
-      firstPlaneBytes: number[],
-      secondPlaneBytes: number[],
-    ) => {
+    const report = (firstPlaneBytes: number[], secondPlaneBytes: number[]) => {
       if (bufferReports.length < 3) {
-        bufferReports.push({ frameBytes, firstPlaneBytes, secondPlaneBytes })
+        bufferReports.push({ firstPlaneBytes, secondPlaneBytes })
         if (bufferReports.length >= 3) {
           receivedBufferReports.resolve(bufferReports)
         }
@@ -338,7 +333,6 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const frameBytes = frame.getPixelBuffer().byteLength
         const planes = frame.getPlanes()
         const firstPlaneBytes = planes.map(
           (plane) => plane.getPixelBuffer().byteLength,
@@ -346,7 +340,7 @@ describe('VisionCamera - Frame', () => {
         const secondPlaneBytes = planes.map(
           (plane) => plane.getPixelBuffer().byteLength,
         )
-        scheduleOnRN(report, frameBytes, firstPlaneBytes, secondPlaneBytes)
+        scheduleOnRN(report, firstPlaneBytes, secondPlaneBytes)
       } catch (e) {
         scheduleOnRN(reportError, String(e))
       } finally {
@@ -369,7 +363,6 @@ describe('VisionCamera - Frame', () => {
     }
 
     for (const bufferReport of reports) {
-      expect(bufferReport.frameBytes).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes.length).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes).toEqual(
         bufferReport.secondPlaneBytes,

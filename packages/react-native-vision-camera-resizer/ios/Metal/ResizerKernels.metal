@@ -40,6 +40,18 @@ inline float3 sampleRgb(
   float2 sourceSize = float2(yTexture.get_width(), yTexture.get_height());
   float2 outputCoordinate = (float2(gid) + 0.5f) / outputSize;
 
+  int normalizedRotation = uniforms.rotationDegrees % 360;
+  if (normalizedRotation < 0) {
+    normalizedRotation += 360;
+  }
+
+  // Scale modes fit the upright content into the output. For buffers that
+  // need a 90°/270° rotation, the upright dimensions are swapped.
+  bool isSideways = normalizedRotation == 90 || normalizedRotation == 270;
+  if (isSideways) {
+    sourceSize = sourceSize.yx;
+  }
+
   float2 coordinate;
   switch (kScaleMode) {
     case 0u: { // 0u == ScaleMode::COVER
@@ -72,15 +84,8 @@ inline float3 sampleRgb(
       return float3(0.0f);
   }
 
-  // Apply mirror first, then inverse rotation transform to map output->input.
-  if (uniforms.isMirrored != 0u) {
-    coordinate.x = 1.0f - coordinate.x;
-  }
-
-  int normalizedRotation = uniforms.rotationDegrees % 360;
-  if (normalizedRotation < 0) {
-    normalizedRotation += 360;
-  }
+  // Map output -> input by undoing rotation before undoing mirroring.
+  // Mirroring is relative to the already-rotated, upright presentation.
   int inverseRotation = (360 - normalizedRotation) % 360;
 
   switch (inverseRotation) {
@@ -95,6 +100,10 @@ inline float3 sampleRgb(
       break;
     default:  // 0°
       break;
+  }
+
+  if (uniforms.isMirrored != 0u) {
+    coordinate.x = 1.0f - coordinate.x;
   }
 
   float y = yTexture.sample(resizeSampler, coordinate).r;
