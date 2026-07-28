@@ -2,7 +2,6 @@ package com.margelo.nitro.camera.barcodescanner
 
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -22,7 +21,7 @@ class HybridBarcodeScanner(
   override fun scanCodes(frame: HybridFrameSpec): Array<HybridBarcodeSpec> {
     val inputImage = frame.toInputImage()
     val task = scanner.process(inputImage)
-    val barcodes = awaitUninterruptibly(task)
+    val barcodes = Tasks.await(task)
     return barcodes
       .map { HybridBarcode(it) }
       .toTypedArray<HybridBarcodeSpec>()
@@ -66,26 +65,5 @@ class HybridBarcodeScanner(
   override fun dispose() {
     super.dispose()
     scanner.close()
-  }
-
-  /**
-   * ML Kit still owns the Frame-backed InputImage while its Task is running.
-   * Finish that Task before returning, but preserve interruption for callers.
-   */
-  private fun <T> awaitUninterruptibly(task: Task<T>): T {
-    var wasInterrupted = false
-    try {
-      while (true) {
-        try {
-          return Tasks.await(task)
-        } catch (_: InterruptedException) {
-          wasInterrupted = true
-        }
-      }
-    } finally {
-      if (wasInterrupted) {
-        Thread.currentThread().interrupt()
-      }
-    }
   }
 }
