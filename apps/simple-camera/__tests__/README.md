@@ -1,6 +1,6 @@
 # VisionCamera Harness Tests
 
-This folder contains the on-device test suite for the VisionCamera imperative API. Tests run on a real phone (local `adb` device or an AWS Device Farm device) through [react-native-harness](https://www.react-native-harness.dev), which embeds a Jest-compatible runner in the `simple-camera` app and talks to it over a Metro-driven bridge.
+This folder contains the on-device test suite for the VisionCamera imperative API. Tests run on a real phone (local `adb` device or an AWS Device Farm device) through [react-native-harness](https://www.react-native-harness.dev), which embeds a Jest-compatible runner in the `simple-camera` app and talks to it over a Metro-driven bridge. Deterministic comparison code used by complex Harness tests lives in `*-test-utils.ts` files and has ordinary Bun `*.test.ts` unit tests.
 
 For LLMs, ensure you understand [Harness' llms.txt file](https://www.react-native-harness.dev/llms-full.txt) before hallucinating APIs.
 
@@ -24,6 +24,9 @@ Tests are split by domain. Each file tests one slice of the imperative `VisionCa
 | [visioncamera.photo.harness.ts](visioncamera.photo.harness.ts) | `createPhotoOutput`, `capturePhoto` / `capturePhotoToFile`, container formats (JPEG, HEIC, DNG), flash / mirror / quality / resolution options, capture lifecycle callbacks, preview images |
 | [visioncamera.video.harness.ts](visioncamera.video.harness.ts) | `createVideoOutput`, `Recorder` lifecycle, audio, `maxDuration` / `maxFileSize` stops, pause / resume / cancel, persistent recorder, higher-resolution codecs |
 | [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `enablePreviewSizedOutputBuffers` |
+| [visioncamera.frame-converter.harness.ts](visioncamera.frame-converter.harness.ts) | Real Camera Frame conversion, orientation/mirroring, raw-Y spatial alignment, sync/async parity |
+| [visioncamera.resizer.harness.ts](visioncamera.resizer.harness.ts) | Real Camera Frame resizing, scale modes, orientation/mirroring, output layouts and numeric formats |
+| [visioncamera.barcode-scanner.harness.ts](visioncamera.barcode-scanner.harness.ts) | Static barcode decoding and real YUV/RGB Camera Frame format acceptance |
 | [visioncamera.multi-output.harness.ts](visioncamera.multi-output.harness.ts) | Multi-output sessions that combine photo, video, and frame outputs, output replacement while other outputs stay attached, persistent recording across session restarts |
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
@@ -38,9 +41,11 @@ Pick the file that best matches what you're testing. If you're reproducing a bug
 
 The contract is deliberately strict so that the tests read exactly like VisionCamera user code — contributors and LLMs should be able to drop in a reproduction without having to learn framework-specific helpers.
 
-### 1. Use the `VisionCamera` API as-is. **No helpers.**
+### 1. Use the `VisionCamera` API as-is. **No camera setup helpers.**
 
 Every test builds up its session inline, end-to-end, from `VisionCamera` up. Do **not** extract helpers like `createSession()` or `configureAndStart()` — the API should read in tests exactly as users would write it in their app.
+
+Pure expected-value code is different: if a test needs non-trivial sampling, transforms, or statistics, extract that deterministic math into a local `*-test-utils.ts` file and unit-test its positive and negative cases. The Harness test should remain responsible for acquiring the real Camera Frame and asserting the public API behavior.
 
 ```ts
 it('captures a JPEG Photo in-memory', async () => {
@@ -159,6 +164,9 @@ Tests should read like a small executable spec for one behavior. A few patterns 
 ## Running the tests
 
 ```sh
+# Run deterministic comparison/unit tests
+bun run --cwd apps/simple-camera test:unit
+
 # Build the debug APK once
 cd apps/simple-camera && bun run build:android
 
@@ -200,7 +208,7 @@ If you hit another case where you can't write a test because an API is missing, 
 
 ## CI
 
-Harness tests run on every push and PR that touches this folder, the VisionCamera library, or the harness workflow config — see [.github/workflows/harness-aws-device.yml](../../../.github/workflows/harness-aws-device.yml) and [.github/workflows/harness-android-emulator.yml](../../../.github/workflows/harness-android-emulator.yml).
+Unit and Harness tests run on every push and PR that touches this folder, the VisionCamera library, or the harness workflow config — see [.github/workflows/harness-aws-device.yml](../../../.github/workflows/harness-aws-device.yml) and [.github/workflows/harness-android-emulator.yml](../../../.github/workflows/harness-android-emulator.yml).
 
 The AWS Device Farm run is the source of truth: it's a real phone, a real SoC, a real camera pipeline. The emulator run is best-effort and may skip hardware-dependent tests.
 

@@ -10,6 +10,7 @@
     "pods": "cd ios && bundle exec pod install",
     "start": "react-native start --client-logs",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain",
+    "test:unit": "bun test",
     "test:harness": "react-native-harness",
     "test:harness:android": "react-native-harness --harnessRunner android",
     "test:harness:ios": "HARNESS_METRO_BIND_HOST=:: react-native-harness --harnessRunner ios"
