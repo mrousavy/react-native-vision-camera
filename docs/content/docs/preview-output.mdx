@@ -51,6 +51,18 @@ await session.start()
 </Tab>
 </Tabs>
 
+### Preview Resolution
+
+A [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) does not have a configurable target resolution - since it can never display more pixels than the screen has, it simply prefers any Camera Format that is at least as large as the screen.
+
+This preference is only a small _bias_ in [resolution negotiation](constraints) - a Preview can be upscaled cheaply, whereas a recording's resolution cannot be recovered after capture. If you list a [`{ resolutionBias: ... }`](/api/react-native-vision-camera/interfaces/ResolutionBiasConstraint) constraint for a recording output (e.g. a [`CameraVideoOutput`](/api/react-native-vision-camera/hybrid-objects/CameraVideoOutput) targeting 1080p), it takes priority over the Preview's preference and the session streams at your requested resolution:
+
+```tsx
+const constraints = [
+  { resolutionBias: videoOutput }
+]
+```
+
 ### Connecting the Preview Output to a View
 
 To display the Camera feed to the user, you must connect the [`CameraPreviewOutput`](/api/react-native-vision-camera/hybrid-objects/CameraPreviewOutput) to a [`<NativePreviewView />`](/api/react-native-vision-camera/views/NativePreviewView):

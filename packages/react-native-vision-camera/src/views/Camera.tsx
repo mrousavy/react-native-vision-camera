@@ -2,10 +2,7 @@ import React, { type Ref, useImperativeHandle, useMemo, useRef } from 'react'
 import type { ViewProps } from 'react-native'
 import { callback } from 'react-native-nitro-modules'
 import type { SharedValue } from 'react-native-reanimated'
-import { useExposureUpdater } from '../hooks/internal/useExposureUpdater'
 import { useGestureControllers } from '../hooks/internal/useGestureControllers'
-import { useTorchModeUpdater } from '../hooks/internal/useTorchModeUpdater'
-import { useZoomUpdater } from '../hooks/internal/useZoomUpdater'
 import { type CameraProps, useCamera } from '../hooks/useCamera'
 import { usePreviewOutput } from '../hooks/usePreviewOutput'
 import type { CameraController } from '../specs/CameraController.nitro'
@@ -14,7 +11,6 @@ import type {
   MeteringMode,
 } from '../specs/common-types/FocusOptions'
 import type { Point } from '../specs/common-types/Point'
-import type { TorchMode } from '../specs/common-types/TorchMode'
 import type {
   PreviewView,
   PreviewViewMethods,
@@ -54,18 +50,18 @@ export interface CameraRef
   focusTo(viewPoint: Point, options?: FocusOptions): Promise<void>
 
   /**
+   * Get the current {@linkcode CameraController}.
+   * This property will be set after `onStarted`
+   * has been called, and may change over time.
+   */
+  controller: CameraController | undefined
+  /**
    * Get a ref to the {@linkcode PreviewView},
    * or `undefined` if it has not yet been set.
    * This value is set after the first
    * mount, and usually won't change.
    */
   preview: PreviewView | undefined
-  /**
-   * Get the current {@linkcode CameraController}.
-   * This property will be set after `onStarted`
-   * has been called, and may change over time.
-   */
-  controller: CameraController | undefined
 }
 
 /**
@@ -106,47 +102,11 @@ export interface CameraViewProps
    */
   enableNativeTapToFocusGesture?: boolean
 
-  // Controller props
-  /**
-   * Sets the {@linkcode CameraController.zoom | zoom} value.
-   *
-   * You can also manually set zoom via
-   * {@linkcode CameraController.setZoom | setZoom(...)}.
-   *
-   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
-   * @throws If this property is set and {@linkcode enableNativeZoomGesture} is enabled.
-   * @default 1
-   */
-  zoom?: number | SharedValue<number>
-  /**
-   * Sets the {@linkcode CameraController.exposureBias | exposureBias} value.
-   *
-   * You can also manually set the exposure bias via
-   * {@linkcode CameraController.setExposureBias | setExposureBias(...)}.
-   *
-   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
-   * @default 0
-   */
-  exposure?: number | SharedValue<number>
-  /**
-   * Sets the {@linkcode CameraController.torchMode | torchMode} value.
-   * @default 'off'
-   */
-  torchMode?: TorchMode
-
   // Ref Wrapper
   /**
    * @see {@linkcode CameraRef}
    */
   ref?: Ref<CameraRef>
-}
-
-function getAnimatableNumberInitialValue(
-  value: number | SharedValue<number> | undefined,
-): number | undefined {
-  if (value == null) return undefined
-  else if (typeof value === 'number') return value
-  else return value.get()
 }
 
 function CameraImpl({
@@ -155,9 +115,6 @@ function CameraImpl({
   onPreviewStarted,
   onPreviewStopped,
   outputs = [],
-  zoom,
-  exposure,
-  torchMode,
   enableNativeZoomGesture = false,
   enableNativeTapToFocusGesture = false,
   ref,
@@ -170,8 +127,6 @@ function CameraImpl({
   const controller = useCamera({
     ...props,
     outputs: [previewOutput, ...outputs],
-    getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
-    getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
   })
 
   // 4. Create `ref` for `PreviewView`
@@ -237,23 +192,18 @@ function CameraImpl({
           scannedObject,
         )
       },
-      get preview(): PreviewView | undefined {
-        return previewViewRef.current ?? undefined
-      },
       get controller(): CameraController | undefined {
         return controller
+      },
+      get preview(): PreviewView | undefined {
+        return previewViewRef.current ?? undefined
       },
     }),
     [controller],
   )
 
-  // 6. Update CameraController props
-  useZoomUpdater(controller, zoom)
-  useExposureUpdater(controller, exposure)
-  useTorchModeUpdater(controller, torchMode)
-
   // 7. Attach any native gesture controllers
-  if (enableNativeZoomGesture && zoom != null) {
+  if (enableNativeZoomGesture && props.zoom != null) {
     throw new Error(
       `\`zoom\` must not be set if \`enableNativeZoomGesture\` is enabled!`,
     )

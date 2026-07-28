@@ -36,6 +36,24 @@ extension CMVideoDimensions {
 
     return aspectRatioPenalty + logPixelDistance
   }
+
+  /// Computes a comparable penalty score for using `self` when at least
+  /// `minimum` pixels are desired in both dimensions.
+  ///
+  /// Any size covering `minimum` entirely (`>=` in both dimensions) is a
+  /// perfect match (`0.0`) — a minimum rule does not care how much larger
+  /// a size is. A smaller size is penalized by the factor it needs to be
+  /// upscaled with to cover `minimum` (aspect-fill), on the same logarithmic
+  /// pixel-count scale as `penalty(_:)`. Aspect ratio is irrelevant here,
+  /// as any size covering `minimum` can simply be center-cropped to it.
+  func penalty(coveringAtLeast minimum: CMVideoDimensions) -> Double {
+    let requiredUpscaleFactor = Swift.max(
+      Double(minimum.long) / Double(self.long),
+      Double(minimum.short) / Double(self.short),
+      1.0)
+    // The upscale factor applies to both dimensions, so the pixel-count deficit is its square.
+    return log(requiredUpscaleFactor * requiredUpscaleFactor)
+  }
 }
 
 extension Array where Element == CMVideoDimensions {

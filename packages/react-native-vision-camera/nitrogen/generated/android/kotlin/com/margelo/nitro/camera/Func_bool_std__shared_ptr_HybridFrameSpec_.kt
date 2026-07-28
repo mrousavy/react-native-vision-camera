@@ -59,7 +59,7 @@ class Func_bool_std__shared_ptr_HybridFrameSpec__cxx: Func_bool_std__shared_ptr_
   override fun invoke(frame: HybridFrameSpec): Boolean
     = invoke_cxx(frame)
 
-  @FastNative
+  
   private external fun invoke_cxx(frame: HybridFrameSpec): Boolean
 }
 

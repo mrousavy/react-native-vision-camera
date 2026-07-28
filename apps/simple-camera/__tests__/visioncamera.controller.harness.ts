@@ -2,8 +2,23 @@ import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  MeteringMode,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+
+const getSupportedMeteringModes = (device: CameraDevice): MeteringMode[] => {
+  const modes: MeteringMode[] = []
+  if (device.supportsExposureMetering) {
+    modes.push('AE')
+  }
+  if (device.supportsFocusMetering) {
+    modes.push('AF')
+  }
+  if (device.supportsWhiteBalanceMetering) {
+    modes.push('AWB')
+  }
+  return modes
+}
 
 describe('VisionCamera - Controller', () => {
   let factory: CameraDeviceFactory
@@ -482,6 +497,64 @@ describe('VisionCamera - Controller', () => {
         responsiveness: 'snappy',
       })
       await controller.resetFocus()
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('locks metering modes after focusTo with locked adaptiveness', async (context) => {
+    const modes = getSupportedMeteringModes(backDevice)
+    if (modes.length === 0) {
+      return context.skip('focusTo locked: no supported metering modes')
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const [controller] = await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    if (controller == null) throw new Error('no controller')
+    await session.start()
+
+    try {
+      const point = VisionCamera.createNormalizedMeteringPoint(0.5, 0.5)
+      await controller.focusTo(point, {
+        modes,
+        responsiveness: 'snappy',
+        adaptiveness: 'locked',
+        autoResetAfter: null,
+      })
+
+      if (modes.includes('AF')) {
+        expect(controller.focusMode).toBe('locked')
+      }
+      if (modes.includes('AE')) {
+        expect(controller.exposureMode).toBe('locked')
+      }
+      if (modes.includes('AWB')) {
+        expect(controller.whiteBalanceMode).toBe('locked')
+      }
+
+      await controller.resetFocus()
+      if (modes.includes('AF')) {
+        expect(controller.focusMode).toBe('continuous-auto-focus')
+      }
+      if (modes.includes('AE')) {
+        expect(controller.exposureMode).toBe('continuous-auto-exposure')
+      }
+      if (modes.includes('AWB')) {
+        expect(controller.whiteBalanceMode).toBe(
+          'continuous-auto-white-balance',
+        )
+      }
     } finally {
       await session.stop()
     }

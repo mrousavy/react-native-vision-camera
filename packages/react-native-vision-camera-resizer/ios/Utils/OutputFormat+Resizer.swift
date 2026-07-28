@@ -65,6 +65,8 @@ extension ScaleMode {
       return 0
     case .contain:
       return 1
+    case .stretch:
+      return 2
     }
   }
 }

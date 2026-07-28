@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
 import { getCameraDevice } from '../devices/getCameraDevice'
 import type {
   CameraController,
@@ -9,6 +10,7 @@ import type { CameraPosition } from '../specs/common-types/CameraPosition'
 import type { Constraint } from '../specs/common-types/Constraint'
 import type { MirrorMode } from '../specs/common-types/MirrorMode'
 import type { OrientationSource } from '../specs/common-types/OrientationSource'
+import type { TorchMode } from '../specs/common-types/TorchMode'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import type { CameraOutput } from '../specs/outputs/CameraOutput.nitro'
 import type { CameraVideoOutput } from '../specs/outputs/CameraVideoOutput.nitro'
@@ -23,7 +25,10 @@ import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
+import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
+import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
+import { useZoomUpdater } from './internal/useZoomUpdater'
 import { useCameraDevices } from './useCameraDevices'
 import { useOrientation } from './useOrientation'
 
@@ -117,6 +122,35 @@ export interface CameraProps {
    */
   enableDistortionCorrection?: boolean
 
+  // Declarative props
+  /**
+   * Sets the {@linkcode CameraController.zoom | zoom} value declaratively.
+   *
+   * You can also imperatively set zoom via
+   * {@linkcode CameraController.setZoom | setZoom(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 1
+   */
+  zoom?: number | SharedValue<number>
+  /**
+   * Sets the {@linkcode CameraController.exposureBias | exposureBias} value
+   * declaratively.
+   *
+   * You can also imperatively set the exposure bias via
+   * {@linkcode CameraController.setExposureBias | setExposureBias(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 0
+   */
+  exposure?: number | SharedValue<number>
+  /**
+   * Sets the {@linkcode CameraController.torchMode | torchMode} value
+   * declaratively.
+   * @default 'off'
+   */
+  torchMode?: TorchMode
+
   // Initial Props for Controller
   /**
    * A getter for the initial zoom value to apply when the
@@ -202,6 +236,14 @@ function defaultOnErrorHandler(error: Error) {
   console.error(error)
 }
 
+function getAnimatableNumberInitialValue(
+  value: number | SharedValue<number> | undefined,
+): number | undefined {
+  if (value == null) return undefined
+  else if (typeof value === 'number') return value
+  else return value.get()
+}
+
 /**
  * Use the Camera.
  *
@@ -237,8 +279,9 @@ export function useCamera({
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
-  getInitialExposureBias,
-  getInitialZoom,
+  zoom,
+  exposure,
+  torchMode,
 }: CameraProps): CameraController | undefined {
   // 1. Create session
   const session = useCameraSession({ enableMultiCamSupport: false })
@@ -279,8 +322,8 @@ export function useCamera({
   const controller = useCameraController(session, input, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
-    getInitialExposureBias: getInitialExposureBias,
-    getInitialZoom: getInitialZoom,
+    getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
+    getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
     constraints: constraints,
     onSessionConfigSelected: onSessionConfigSelected,
   })
@@ -316,6 +359,11 @@ export function useCamera({
     onSubjectAreaChanged,
   )
 
-  // 8. Give the user the controller
+  // 8. Update CameraController props
+  useZoomUpdater(controller, zoom, onError)
+  useExposureUpdater(controller, exposure, onError)
+  useTorchModeUpdater(controller, torchMode, onError)
+
+  // 9. Give the user the controller
   return controller
 }

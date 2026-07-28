@@ -12,7 +12,7 @@ layout(constant_id = 1) const uint kChannelOrder = 0u;
 layout(constant_id = 2) const uint kPixelLayout = 0u;
 // Number of channels per pixel. e.g. for RGB/BGR, this is 3u.
 layout(constant_id = 3) const uint kChannelCount = 0u;
-// 0u == ScaleMode::COVER, 1u == ScaleMode::CONTAIN
+// 0u == ScaleMode::COVER, 1u == ScaleMode::CONTAIN, 2u == ScaleMode::STRETCH
 layout(constant_id = 4) const uint kScaleMode = 0u;
 
 // The output buffer is addressed as 32-bit words. It must be pre-zeroed before dispatch
@@ -53,29 +53,36 @@ vec2 outputToInputCoordinate(uvec2 gid) {
   vec2 sourceSize = vec2(textureSize(inputImage, 0));
   vec2 outputCoordinate = (vec2(gid) + vec2(0.5)) / outputSize;
 
-  float scale = 0.0;
+  vec2 coordinate;
   switch (kScaleMode) {
-    case 0u: // 0u == ScaleMode::COVER
-      scale = max(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+    case 0u: { // 0u == ScaleMode::COVER
+      float scale = max(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      vec2 renderedSourceSizeInOutput = sourceSize * scale;
+      vec2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5;
+      coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
       break;
-    case 1u: // 1u == ScaleMode::CONTAIN
-      scale = min(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+    }
+    case 1u: { // 1u == ScaleMode::CONTAIN
+      float scale = min(outputSize.x / sourceSize.x, outputSize.y / sourceSize.y);
+      vec2 renderedSourceSizeInOutput = sourceSize * scale;
+      vec2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5;
+      coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
+      // Contain mode pads outside the rendered source with black bars.
+      bool isOutsideSource = coordinate.x < 0.0 || coordinate.x > 1.0 || coordinate.y < 0.0 || coordinate.y > 1.0;
+      if (isOutsideSource) {
+        return vec2(-1.0);
+      }
       break;
+    }
+    case 2u: { // 2u == ScaleMode::STRETCH
+      // Independent per-axis stretching: the entire source [0,1]^2 maps to the
+      // entire output [0,1]^2. Aspect ratio is NOT preserved.
+      coordinate = outputCoordinate;
+      break;
+    }
     default:
       // Unsupported ScaleMode specialization. Force out-of-bounds so the caller gets black.
       return vec2(-1.0);
-  }
-
-  vec2 renderedSourceSizeInOutput = sourceSize * scale;
-  vec2 renderedSourceOffsetInOutput = (outputSize - renderedSourceSizeInOutput) * 0.5;
-  vec2 coordinate = ((outputCoordinate * outputSize) - renderedSourceOffsetInOutput) / renderedSourceSizeInOutput;
-
-  if (kScaleMode == 1u) {
-    // Contain mode pads outside the rendered source with black bars.
-    bool isOutsideSource = coordinate.x < 0.0 || coordinate.x > 1.0 || coordinate.y < 0.0 || coordinate.y > 1.0;
-    if (isOutsideSource) {
-      return vec2(-1.0);
-    }
   }
 
   if (pushConstants.isMirrored == 1u) {

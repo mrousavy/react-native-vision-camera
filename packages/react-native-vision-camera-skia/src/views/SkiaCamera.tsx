@@ -1,6 +1,7 @@
 import {
   Canvas,
   type CanvasProps,
+  type CanvasRef,
   Image,
   type SkCanvas,
   type SkImage,
@@ -10,6 +11,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
 } from 'react'
 import { Platform } from 'react-native'
 import { useDerivedValue, useSharedValue } from 'react-native-reanimated'
@@ -28,6 +30,7 @@ import {
   type PixelFormat,
   type Point,
   type ResolutionBiasConstraint,
+  type Size,
   type TargetVideoPixelFormat,
   useCamera,
   useFrameOutput,
@@ -101,6 +104,19 @@ export interface SkiaCameraRef extends Pick<CameraController, 'resetFocus'> {
    * a normalized {@linkcode Point} with values ranging from `0...1`.
    */
   convertViewPointToNormalizedPoint(viewPoint: Point): Point
+  /**
+   * Get the current {@linkcode CameraController}.
+   * This property will be set after `onStarted`
+   * has been called, and may change over time.
+   */
+  controller: CameraController | undefined
+  /**
+   * Get a ref to the Skia {@linkcode Canvas},
+   * or `undefined` if it has not yet been set.
+   * This value is set after the first
+   * mount, and usually won't change.
+   */
+  canvas: CanvasRef | undefined
 }
 
 /**
@@ -195,6 +211,27 @@ export interface SkiaCameraProps
    * @default false
    */
   enablePreviewSizedOutputBuffers?: boolean
+  /**
+   * The target Resolution to use for the
+   * {@linkcode CameraFrameOutput} driving the Skia
+   * Camera.
+   *
+   * @discussion
+   * The Skia Camera's Preview is driven by a Skia Canvas
+   * that renders {@linkcode Frame}s from a {@linkcode CameraFrameOutput}.
+   *
+   * The {@linkcode targetResolution} therefore affects both the
+   * {@linkcode Frame}'s size (via {@linkcode onFrame | onFrame(...)}),
+   * as well as the Preview's resolution at the same time.
+   *
+   * If {@linkcode enablePreviewSizedOutputBuffers} is enabled,
+   * resolution is capped to the screen's size.
+   *
+   * As with all target resolutions, actual resolutions are
+   * negotiated across Constraints and outputs, and may not be
+   * an exact match with the specified target resolution.
+   */
+  targetResolution?: Size
 }
 
 const DEFAULT_PIXEL_FORMAT = Platform.select<TargetVideoPixelFormat>({
@@ -210,11 +247,13 @@ function SkiaCameraImpl({
   pixelFormat = DEFAULT_PIXEL_FORMAT,
   enablePhysicalBufferRotation,
   enablePreviewSizedOutputBuffers,
+  targetResolution,
   device,
   orientationSource,
   warnIfRenderSkipped = true,
   ...props
 }: SkiaCameraProps): React.ReactElement {
+  const canvas = useRef<CanvasRef>(null)
   const texture = useSharedValue<SkImage | null>(null)
 
   const lastFrameOrientation = useMemo(
@@ -253,6 +292,7 @@ function SkiaCameraImpl({
     allowDeferredStart: false,
     enablePhysicalBufferRotation: enablePhysicalBufferRotation,
     enablePreviewSizedOutputBuffers: enablePreviewSizedOutputBuffers,
+    targetResolution: targetResolution,
     onFrame: (frame) => {
       'worklet'
       let renderCount = 0
@@ -373,6 +413,12 @@ function SkiaCameraImpl({
       if (cpuImage == null) return undefined
       return cpuImage
     },
+    get controller() {
+      return camera
+    },
+    get canvas() {
+      return canvas.current ?? undefined
+    },
   }))
 
   useEffect(() => {
@@ -383,7 +429,7 @@ function SkiaCameraImpl({
   }, [])
 
   return (
-    <Canvas style={style} onSize={canvasSize}>
+    <Canvas ref={canvas} style={style} onSize={canvasSize}>
       <Image image={texture} rect={canvasRect} fit="cover" />
     </Canvas>
   )

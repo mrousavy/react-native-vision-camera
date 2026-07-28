@@ -87,14 +87,10 @@ class HybridBarcodeScannerOutput(
         return
       }
 
-      val mediaImage = imageProxy.image
-      if (mediaImage == null) {
-        // media image is null - error & return.
-        imageProxy.close()
-        isBusy.set(false)
-        options.onError(Error("`ImageProxy` does not have an `Image`!"))
-        return
-      }
+      val mediaImage =
+        imageProxy.image
+          ?: throw Error("`ImageProxy` does not have an `Image`!")
+
       // TODO: Support MirrorMode?
       val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
       scanner
