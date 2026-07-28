@@ -256,10 +256,6 @@ describe('VisionCamera - Resizer', () => {
                 resized.dispose()
               }
             }
-
-            console.log(
-              `Resizer: target=${outputOrientation}, frame=${frame.orientation}, mirrored=${frame.isMirrored}`,
-            )
           } finally {
             isWaitingForFrame = false
             runtime.setOnFrameCallback(frameOutput, undefined)

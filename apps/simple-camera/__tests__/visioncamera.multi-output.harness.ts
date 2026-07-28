@@ -225,7 +225,7 @@ describe('VisionCamera - Multi-Output', () => {
     }
   })
 
-  it('replaces the photo output while a video + frame output are also attached', async () => {
+  it('sequentially replaces photo, video, and frame outputs without disrupting untouched outputs', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const firstPhotoOutput = VisionCamera.createPhotoOutput({
       targetResolution: CommonResolutions.HD_4_3,
@@ -233,215 +233,7 @@ describe('VisionCamera - Multi-Output', () => {
       quality: 0.8,
       qualityPrioritization: 'balanced',
     })
-    const videoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      enableAudio: false,
-    })
-    const frameOutput = VisionCamera.createFrameOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
-      enablePhysicalBufferRotation: false,
-      enableCameraMatrixDelivery: false,
-      allowDeferredStart: false,
-      dropFramesWhileBusy: true,
-    })
-
-    let framesReceived = 0
-    let sessionError: Error | undefined
-    const onFrameReceived = () => {
-      framesReceived++
-    }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
-
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [
-          { output: firstPhotoOutput, mirrorMode: 'auto' },
-          { output: videoOutput, mirrorMode: 'auto' },
-          { output: frameOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-
-    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
-      'worklet'
-      scheduleOnRN(onFrameReceived)
-      frame.dispose()
-    })
-
-    await session.start()
-
-    try {
-      const secondPhotoOutput = VisionCamera.createPhotoOutput({
-        targetResolution: CommonResolutions.FHD_4_3,
-        containerFormat: 'jpeg',
-        quality: 0.5,
-        qualityPrioritization: 'quality',
-      })
-
-      await session.configure([
-        {
-          input: backDevice,
-          outputs: [
-            { output: secondPhotoOutput, mirrorMode: 'auto' },
-            { output: videoOutput, mirrorMode: 'auto' },
-            { output: frameOutput, mirrorMode: 'auto' },
-          ],
-          constraints: [],
-        },
-      ])
-
-      // The replacement photo output captures.
-      const photo = await secondPhotoOutput.capturePhoto(
-        { flashMode: 'off', enableShutterSound: false },
-        {},
-      )
-      expect(photo.width).toBeGreaterThan(0)
-      expect(photo.height).toBeGreaterThan(0)
-      photo.dispose()
-
-      // The untouched video output still records.
-      const recorder = await videoOutput.createRecorder({})
-      const finished = deferred()
-      await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
-      await recorder.stopRecording()
-      await withTimeout(finished.promise, 15_000, 'finish')
-
-      // The untouched frame output still streams.
-      const framesAtCheck = framesReceived
-      await waitUntil(
-        () => framesReceived > framesAtCheck + 2 || sessionError != null,
-        { timeout: 15_000 },
-      )
-      expect(framesReceived).toBeGreaterThan(framesAtCheck)
-
-      expect(sessionError).toBe(undefined)
-    } finally {
-      runtime.setOnFrameCallback(frameOutput, undefined)
-      errorSub.remove()
-      await session.stop()
-    }
-  })
-
-  it('replaces the video output while a photo + frame output are also attached', async () => {
-    const session = await VisionCamera.createCameraSession(false)
-    const photoOutput = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
     const firstVideoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      enableAudio: false,
-    })
-    const frameOutput = VisionCamera.createFrameOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      pixelFormat: 'native',
-      enablePreviewSizedOutputBuffers: false,
-      enablePhysicalBufferRotation: false,
-      enableCameraMatrixDelivery: false,
-      allowDeferredStart: false,
-      dropFramesWhileBusy: true,
-    })
-
-    let framesReceived = 0
-    let sessionError: Error | undefined
-    const onFrameReceived = () => {
-      framesReceived++
-    }
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
-
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [
-          { output: photoOutput, mirrorMode: 'auto' },
-          { output: firstVideoOutput, mirrorMode: 'auto' },
-          { output: frameOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-
-    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
-      'worklet'
-      scheduleOnRN(onFrameReceived)
-      frame.dispose()
-    })
-
-    await session.start()
-
-    try {
-      const secondVideoOutput = VisionCamera.createVideoOutput({
-        targetResolution: CommonResolutions.FHD_16_9,
-        enableAudio: false,
-      })
-
-      await session.configure([
-        {
-          input: backDevice,
-          outputs: [
-            { output: photoOutput, mirrorMode: 'auto' },
-            { output: secondVideoOutput, mirrorMode: 'auto' },
-            { output: frameOutput, mirrorMode: 'auto' },
-          ],
-          constraints: [],
-        },
-      ])
-
-      // The replacement video output records.
-      const recorder = await secondVideoOutput.createRecorder({})
-      const finished = deferred()
-      await recorder.startRecording(() => finished.resolve(), finished.reject)
-      await sleep(500)
-      await recorder.stopRecording()
-      await withTimeout(finished.promise, 15_000, 'finish')
-
-      // The untouched photo output still captures.
-      const photo = await photoOutput.capturePhoto(
-        { flashMode: 'off', enableShutterSound: false },
-        {},
-      )
-      expect(photo.width).toBeGreaterThan(0)
-      expect(photo.height).toBeGreaterThan(0)
-      photo.dispose()
-
-      // The untouched frame output still streams.
-      const framesAtCheck = framesReceived
-      await waitUntil(
-        () => framesReceived > framesAtCheck + 2 || sessionError != null,
-        { timeout: 15_000 },
-      )
-      expect(framesReceived).toBeGreaterThan(framesAtCheck)
-
-      expect(sessionError).toBe(undefined)
-    } finally {
-      runtime.setOnFrameCallback(frameOutput, undefined)
-      errorSub.remove()
-      await session.stop()
-    }
-  })
-
-  it('replaces the frame output with a different pixel format while a photo + video output are also attached', async () => {
-    const session = await VisionCamera.createCameraSession(false)
-    const photoOutput = VisionCamera.createPhotoOutput({
-      targetResolution: CommonResolutions.HD_4_3,
-      containerFormat: 'jpeg',
-      quality: 0.8,
-      qualityPrioritization: 'balanced',
-    })
-    const videoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
@@ -455,7 +247,13 @@ describe('VisionCamera - Multi-Output', () => {
       dropFramesWhileBusy: true,
     })
 
+    let yuvFramesReceived = 0
+    let yuvIsPlanar: boolean | undefined
     let sessionError: Error | undefined
+    const reportYuvFrame = (isPlanar: boolean) => {
+      yuvFramesReceived++
+      yuvIsPlanar = isPlanar
+    }
     const errorSub = session.addOnErrorListener((error) => {
       sessionError = error
     })
@@ -464,24 +262,20 @@ describe('VisionCamera - Multi-Output', () => {
       {
         input: backDevice,
         outputs: [
-          { output: photoOutput, mirrorMode: 'auto' },
-          { output: videoOutput, mirrorMode: 'auto' },
+          { output: firstPhotoOutput, mirrorMode: 'auto' },
+          { output: firstVideoOutput, mirrorMode: 'auto' },
           { output: yuvFrameOutput, mirrorMode: 'auto' },
         ],
         constraints: [],
       },
     ])
 
-    let yuvIsPlanar: boolean | undefined
-    const reportYuv = (planar: boolean) => {
-      yuvIsPlanar = planar
-    }
     const yuvRuntime = workletsProvider.createRuntimeForThread(
       yuvFrameOutput.thread,
     )
     yuvRuntime.setOnFrameCallback(yuvFrameOutput, (frame) => {
       'worklet'
-      scheduleOnRN(reportYuv, frame.isPlanar)
+      scheduleOnRN(reportYuvFrame, frame.isPlanar)
       frame.dispose()
     })
 
@@ -494,6 +288,97 @@ describe('VisionCamera - Multi-Output', () => {
       expect(sessionError).toBe(undefined)
       expect(yuvIsPlanar).toBe(true)
 
+      const waitForMoreYuvFrames = async () => {
+        const framesBefore = yuvFramesReceived
+        await waitUntil(
+          () => yuvFramesReceived > framesBefore + 2 || sessionError != null,
+          { timeout: 15_000 },
+        )
+        expect(sessionError).toBe(undefined)
+        expect(yuvFramesReceived).toBeGreaterThan(framesBefore)
+      }
+
+      const secondPhotoOutput = VisionCamera.createPhotoOutput({
+        targetResolution: CommonResolutions.FHD_4_3,
+        containerFormat: 'jpeg',
+        quality: 0.5,
+        qualityPrioritization: 'quality',
+      })
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: secondPhotoOutput, mirrorMode: 'auto' },
+            { output: firstVideoOutput, mirrorMode: 'auto' },
+            { output: yuvFrameOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+
+      const photoAfterPhotoReplacement = await secondPhotoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photoAfterPhotoReplacement.width).toBeGreaterThan(0)
+      expect(photoAfterPhotoReplacement.height).toBeGreaterThan(0)
+      photoAfterPhotoReplacement.dispose()
+
+      const firstRecorder = await firstVideoOutput.createRecorder({})
+      const firstRecordingFinished = deferred()
+      await firstRecorder.startRecording(
+        () => firstRecordingFinished.resolve(),
+        firstRecordingFinished.reject,
+      )
+      await sleep(500)
+      await firstRecorder.stopRecording()
+      await withTimeout(
+        firstRecordingFinished.promise,
+        15_000,
+        'recording after photo replacement',
+      )
+      await waitForMoreYuvFrames()
+
+      const secondVideoOutput = VisionCamera.createVideoOutput({
+        targetResolution: CommonResolutions.FHD_16_9,
+        enableAudio: false,
+      })
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: secondPhotoOutput, mirrorMode: 'auto' },
+            { output: secondVideoOutput, mirrorMode: 'auto' },
+            { output: yuvFrameOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+
+      const photoAfterVideoReplacement = await secondPhotoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      expect(photoAfterVideoReplacement.width).toBeGreaterThan(0)
+      expect(photoAfterVideoReplacement.height).toBeGreaterThan(0)
+      photoAfterVideoReplacement.dispose()
+
+      const recorderAfterVideoReplacement =
+        await secondVideoOutput.createRecorder({})
+      const recordingAfterVideoReplacement = deferred()
+      await recorderAfterVideoReplacement.startRecording(
+        () => recordingAfterVideoReplacement.resolve(),
+        recordingAfterVideoReplacement.reject,
+      )
+      await sleep(500)
+      await recorderAfterVideoReplacement.stopRecording()
+      await withTimeout(
+        recordingAfterVideoReplacement.promise,
+        15_000,
+        'recording after video replacement',
+      )
+      await waitForMoreYuvFrames()
+
       yuvRuntime.setOnFrameCallback(yuvFrameOutput, undefined)
 
       const rgbFrameOutput = VisionCamera.createFrameOutput({
@@ -505,13 +390,12 @@ describe('VisionCamera - Multi-Output', () => {
         allowDeferredStart: false,
         dropFramesWhileBusy: true,
       })
-
       await session.configure([
         {
           input: backDevice,
           outputs: [
-            { output: photoOutput, mirrorMode: 'auto' },
-            { output: videoOutput, mirrorMode: 'auto' },
+            { output: secondPhotoOutput, mirrorMode: 'auto' },
+            { output: secondVideoOutput, mirrorMode: 'auto' },
             { output: rgbFrameOutput, mirrorMode: 'auto' },
           ],
           constraints: [],
@@ -519,8 +403,8 @@ describe('VisionCamera - Multi-Output', () => {
       ])
 
       let rgbIsPlanar: boolean | undefined
-      const reportRgb = (planar: boolean) => {
-        rgbIsPlanar = planar
+      const reportRgb = (isPlanar: boolean) => {
+        rgbIsPlanar = isPlanar
       }
       const rgbRuntime = workletsProvider.createRuntimeForThread(
         rgbFrameOutput.thread,
@@ -530,7 +414,6 @@ describe('VisionCamera - Multi-Output', () => {
         scheduleOnRN(reportRgb, frame.isPlanar)
         frame.dispose()
       })
-
       try {
         await waitUntil(() => rgbIsPlanar != null || sessionError != null, {
           timeout: 15_000,
@@ -538,26 +421,33 @@ describe('VisionCamera - Multi-Output', () => {
         expect(sessionError).toBe(undefined)
         expect(rgbIsPlanar).toBe(false)
 
-        // The untouched photo output still captures.
-        const photo = await photoOutput.capturePhoto(
+        const photoAfterFrameReplacement = await secondPhotoOutput.capturePhoto(
           { flashMode: 'off', enableShutterSound: false },
           {},
         )
-        expect(photo.width).toBeGreaterThan(0)
-        expect(photo.height).toBeGreaterThan(0)
-        photo.dispose()
+        expect(photoAfterFrameReplacement.width).toBeGreaterThan(0)
+        expect(photoAfterFrameReplacement.height).toBeGreaterThan(0)
+        photoAfterFrameReplacement.dispose()
 
-        // The untouched video output still records.
-        const recorder = await videoOutput.createRecorder({})
-        const finished = deferred()
-        await recorder.startRecording(() => finished.resolve(), finished.reject)
+        const secondRecorder = await secondVideoOutput.createRecorder({})
+        const secondRecordingFinished = deferred()
+        await secondRecorder.startRecording(
+          () => secondRecordingFinished.resolve(),
+          secondRecordingFinished.reject,
+        )
         await sleep(500)
-        await recorder.stopRecording()
-        await withTimeout(finished.promise, 15_000, 'finish')
+        await secondRecorder.stopRecording()
+        await withTimeout(
+          secondRecordingFinished.promise,
+          15_000,
+          'recording after frame replacement',
+        )
+        expect(sessionError).toBe(undefined)
       } finally {
         rgbRuntime.setOnFrameCallback(rgbFrameOutput, undefined)
       }
     } finally {
+      yuvRuntime.setOnFrameCallback(yuvFrameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }
