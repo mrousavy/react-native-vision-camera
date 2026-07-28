@@ -68,9 +68,6 @@ describe('VisionCamera - Session', () => {
         stopSub.remove()
         errorSub.remove()
       }
-      console.log(
-        `session ok: ${device.position}:${device.id} (${device.localizedName})`,
-      )
     }
   })
 
@@ -613,11 +610,6 @@ describe('VisionCamera - Session', () => {
         )
         const expectedDeviceIds = combination.map((device) => device.id)
         expect(controllerDeviceIds).toEqual(expectedDeviceIds)
-
-        const description = combination
-          .map((device) => `${device.position}:${device.id}`)
-          .join(', ')
-        console.log(`multi-cam combination configured: [${description}]`)
       }
     } finally {
       await session.stop()

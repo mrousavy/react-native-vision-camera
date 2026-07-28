@@ -157,9 +157,6 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
 
     const streamed = await streamFrameSize(backDevice, targetResolution)
 
-    console.log(
-      `SkiaCamera requested=${targetResolution.width}x${targetResolution.height} streamed=${streamed.width}x${streamed.height}`,
-    )
     expect(getEdges(streamed)).toEqual(getEdges(targetResolution))
   })
 
@@ -173,9 +170,6 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
 
     const streamed = await streamFrameSize(backDevice, undefined)
 
-    console.log(
-      `SkiaCamera (no targetResolution) streamed=${streamed.width}x${streamed.height}`,
-    )
     expect(getEdges(streamed)).toEqual(getEdges(defaultResolution))
   })
 
@@ -190,9 +184,6 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
     const skia = await streamFrameSize(backDevice, targetResolution)
     const native = await nativeFrameOutputSize(backDevice, targetResolution)
 
-    console.log(
-      `parity requested=${targetResolution.width}x${targetResolution.height} skia=${skia.width}x${skia.height} native=${native.width}x${native.height}`,
-    )
     expect(getEdges(skia)).toEqual(getEdges(native))
   })
 })

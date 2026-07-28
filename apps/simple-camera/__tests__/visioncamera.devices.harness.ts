@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
-  CameraDevice,
   CameraDeviceFactory,
   TargetCameraPosition,
 } from 'react-native-vision-camera'
@@ -48,20 +47,6 @@ describe('VisionCamera - Devices', () => {
     }
   })
 
-  it('logs external cameras when present (optional)', (context) => {
-    const external = factory.cameraDevices.filter(
-      (d) => d.position === 'external',
-    )
-    if (external.length === 0) {
-      return context.skip('external cameras: none available on this device')
-    }
-    for (const device of external) {
-      console.log(
-        `external camera: id=${device.id} name=${device.localizedName}`,
-      )
-    }
-  })
-
   it('returns the same device when calling getCameraForId with a known id', () => {
     const first = factory.cameraDevices[0]
     expect(first).toBeDefined()
@@ -84,9 +69,7 @@ describe('VisionCamera - Devices', () => {
     expect(device).toBeDefined()
     if (device == null) throw new Error('no back camera')
     const extensions = await factory.getSupportedExtensions(device)
-    console.log(
-      `back camera extensions: ${extensions.map((e) => e.type).join(', ') || '(none)'}`,
-    )
+    expect(extensions).toBeInstanceOf(Array)
   })
 
   it('subscribes and unsubscribes a devices-changed listener', () => {
@@ -98,20 +81,6 @@ describe('VisionCamera - Devices', () => {
   it('does not expose unknown fallback values in enumerated device capabilities', () => {
     for (const device of factory.cameraDevices) {
       for (const inspectedDevice of [device, ...device.physicalDevices]) {
-        const label = `${inspectedDevice.position}:${inspectedDevice.id}`
-
-        console.log(
-          `known values ${label}: type=${inspectedDevice.type} ` +
-            `mediaTypes=${inspectedDevice.mediaTypes.join(',')} ` +
-            `pixelFormats=${inspectedDevice.supportedPixelFormats.join(',')} ` +
-            `dynamicRanges=${inspectedDevice.supportedVideoDynamicRanges
-              .map(
-                (range) =>
-                  `${range.bitDepth}/${range.colorSpace}/${range.colorRange}`,
-              )
-              .join(',')}`,
-        )
-
         expect(inspectedDevice.position).not.toBe('unspecified')
         expect(inspectedDevice.type).not.toBe('unknown')
         expect(inspectedDevice.mediaTypes).not.toContain('other')
@@ -128,8 +97,6 @@ describe('VisionCamera - Devices', () => {
 
   it('reports sane capability invariants for each device', () => {
     for (const device of factory.cameraDevices) {
-      const label = `${device.position}:${device.id}`
-
       expect(device.minZoom).toBeLessThanOrEqual(device.maxZoom)
 
       if (device.supportsExposureBias) {
@@ -145,42 +112,6 @@ describe('VisionCamera - Devices', () => {
           expect(range.min).toBeLessThanOrEqual(range.max)
         }
       }
-
-      console.log(
-        `device ${label}: type=${device.type} virtual=${device.isVirtualDevice} ` +
-          `zoom=${device.minZoom}-${device.maxZoom} fpsRanges=${device.supportedFPSRanges
-            .map((r) => `${r.min}-${r.max}`)
-            .join(',')}`,
-      )
-    }
-  })
-
-  it('logs optional hardware capabilities per device', () => {
-    const capabilities: Array<{
-      device: CameraDevice
-      caps: Record<string, boolean | number | string>
-    }> = factory.cameraDevices.map((device) => ({
-      device,
-      caps: {
-        hasFlash: device.hasFlash,
-        hasTorch: device.hasTorch,
-        supportsPhotoHDR: device.supportsPhotoHDR,
-        supportsLowLightBoost: device.supportsLowLightBoost,
-        supportsFocusMetering: device.supportsFocusMetering,
-        supportsExposureBias: device.supportsExposureBias,
-        supports60fps: device.supportsFPS(60),
-        supports120fps: device.supportsFPS(120),
-        supportsCinematicStab:
-          device.supportsVideoStabilizationMode('cinematic'),
-        supportsPreviewImage: device.supportsPreviewImage,
-        hdrRanges: device.supportedVideoDynamicRanges.length,
-      },
-    }))
-
-    for (const { device, caps } of capabilities) {
-      console.log(
-        `caps ${device.position}:${device.id}: ${JSON.stringify(caps)}`,
-      )
     }
   })
 
@@ -227,19 +158,6 @@ describe('VisionCamera - Devices', () => {
       for (const device of combination) {
         expect(knownIds).toContain(device.id)
       }
-    }
-  })
-
-  it('logs every supported multi-cam device combination', () => {
-    const combinations = factory.supportedMultiCamDeviceCombinations
-    console.log(
-      `supportedMultiCamDeviceCombinations: ${combinations.length} combinations`,
-    )
-    for (const [index, combination] of combinations.entries()) {
-      const description = combination
-        .map((d) => `${d.position}:${d.id}`)
-        .join(', ')
-      console.log(`  [${index}] ${description}`)
     }
   })
 })
