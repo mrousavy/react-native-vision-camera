@@ -18,8 +18,14 @@ public extension CameraSessionConfiguration {
   /**
    * Create a new instance of `CameraSessionConfiguration`.
    */
-  init(allowBackgroundAudioPlayback: Bool?) {
+  init(allowHapticsAndSystemSoundsPlayback: Bool?, allowBackgroundAudioPlayback: Bool?) {
     self.init({ () -> bridge.std__optional_bool_ in
+      if let __unwrappedValue = allowHapticsAndSystemSoundsPlayback {
+        return bridge.create_std__optional_bool_(__unwrappedValue)
+      } else {
+        return .init()
+      }
+    }(), { () -> bridge.std__optional_bool_ in
       if let __unwrappedValue = allowBackgroundAudioPlayback {
         return bridge.create_std__optional_bool_(__unwrappedValue)
       } else {
@@ -28,6 +34,18 @@ public extension CameraSessionConfiguration {
     }())
   }
 
+  @inline(__always)
+  var allowHapticsAndSystemSoundsPlayback: Bool? {
+    return { () -> Bool? in
+      if bridge.has_value_std__optional_bool_(self.__allowHapticsAndSystemSoundsPlayback) {
+        let __unwrapped = bridge.get_std__optional_bool_(self.__allowHapticsAndSystemSoundsPlayback)
+        return __unwrapped
+      } else {
+        return nil
+      }
+    }()
+  }
+  
   @inline(__always)
   var allowBackgroundAudioPlayback: Bool? {
     return { () -> Bool? in
