@@ -1,9 +1,5 @@
-import {
-  beforeAll,
-  describe,
-  expect,
-  it,
-} from 'react-native-harness'
+import { Platform } from 'react-native'
+import { beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
   CameraDeviceFactory,
   TargetCameraPosition,
@@ -229,6 +225,114 @@ describe('VisionCamera - Session', () => {
     a.remove()
     b.remove()
     await session.stop()
+  })
+
+  it('starts and reconfigures a session with haptics and system sounds playback enabled', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip('allowHapticsAndSystemSoundsPlayback: iOS only')
+    }
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const connection = {
+      input: device,
+      outputs: [{ output: photoOutput, mirrorMode: 'auto' as const }],
+      constraints: [],
+    }
+
+    const started = deferred()
+    const stopped = deferred()
+    const startSub = session.addOnStartedListener(started.resolve)
+    const stopSub = session.addOnStoppedListener(stopped.resolve)
+    const errorSub = session.addOnErrorListener((error) => {
+      started.reject(error)
+      stopped.reject(error)
+    })
+
+    try {
+      const controllers = await session.configure([connection], {
+        allowHapticsAndSystemSoundsPlayback: true,
+      })
+      expect(controllers).toHaveLength(1)
+
+      await session.start()
+      await withTimeout(started.promise, 10_000, 'session start')
+
+      const reconfiguredControllers = await session.configure([connection], {
+        allowHapticsAndSystemSoundsPlayback: false,
+      })
+      expect(reconfiguredControllers).toHaveLength(1)
+
+      await session.stop()
+      await withTimeout(stopped.promise, 10_000, 'session stop')
+    } finally {
+      await session.stop()
+      startSub.remove()
+      stopSub.remove()
+      errorSub.remove()
+    }
+  })
+
+  it('starts and reconfigures a session with background audio playback enabled', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip('allowBackgroundAudioPlayback: iOS only')
+    }
+    const device = factory.getDefaultCamera('back')
+    expect(device).toBeDefined()
+    if (device == null) throw new Error('no back camera')
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const connection = {
+      input: device,
+      outputs: [{ output: photoOutput, mirrorMode: 'auto' as const }],
+      constraints: [],
+    }
+
+    const started = deferred()
+    const stopped = deferred()
+    const startSub = session.addOnStartedListener(started.resolve)
+    const stopSub = session.addOnStoppedListener(stopped.resolve)
+    const errorSub = session.addOnErrorListener((error) => {
+      started.reject(error)
+      stopped.reject(error)
+    })
+
+    try {
+      const controllers = await session.configure([connection], {
+        allowBackgroundAudioPlayback: true,
+      })
+      expect(controllers).toHaveLength(1)
+
+      await session.start()
+      await withTimeout(started.promise, 10_000, 'session start')
+
+      const reconfiguredControllers = await session.configure([connection], {
+        allowBackgroundAudioPlayback: false,
+      })
+      expect(reconfiguredControllers).toHaveLength(1)
+
+      await session.stop()
+      await withTimeout(stopped.promise, 10_000, 'session stop')
+    } finally {
+      await session.stop()
+      startSub.remove()
+      stopSub.remove()
+      errorSub.remove()
+    }
   })
 
   it('reconfigures a running session with a new output set', async () => {

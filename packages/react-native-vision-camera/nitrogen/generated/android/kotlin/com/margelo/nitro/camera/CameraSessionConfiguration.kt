@@ -20,6 +20,9 @@ import java.util.Objects
 data class CameraSessionConfiguration(
   @DoNotStrip
   @Keep
+  val allowHapticsAndSystemSoundsPlayback: Boolean?,
+  @DoNotStrip
+  @Keep
   val allowBackgroundAudioPlayback: Boolean?
 ) {
   /* primary constructor */
@@ -27,11 +30,13 @@ data class CameraSessionConfiguration(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is CameraSessionConfiguration) return false
-    return Objects.deepEquals(this.allowBackgroundAudioPlayback, other.allowBackgroundAudioPlayback)
+    return Objects.deepEquals(this.allowHapticsAndSystemSoundsPlayback, other.allowHapticsAndSystemSoundsPlayback)
+      && Objects.deepEquals(this.allowBackgroundAudioPlayback, other.allowBackgroundAudioPlayback)
   }
 
   override fun hashCode(): Int {
     return arrayOf<Any?>(
+      allowHapticsAndSystemSoundsPlayback,
       allowBackgroundAudioPlayback
     ).contentDeepHashCode()
   }
@@ -44,8 +49,8 @@ data class CameraSessionConfiguration(
     @Keep
     @Suppress("unused")
     @JvmStatic
-    private fun fromCpp(allowBackgroundAudioPlayback: Boolean?): CameraSessionConfiguration {
-      return CameraSessionConfiguration(allowBackgroundAudioPlayback)
+    private fun fromCpp(allowHapticsAndSystemSoundsPlayback: Boolean?, allowBackgroundAudioPlayback: Boolean?): CameraSessionConfiguration {
+      return CameraSessionConfiguration(allowHapticsAndSystemSoundsPlayback, allowBackgroundAudioPlayback)
     }
   }
 }

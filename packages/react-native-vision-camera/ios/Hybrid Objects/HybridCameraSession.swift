@@ -90,6 +90,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
       self.session.automaticallyConfiguresCaptureDeviceForWideColor = !hasCustomDynamicRangeConstraint
 
+      // Haptics and System Sounds Playback
+      if let allowHapticsAndSystemSoundsPlayback = config?.allowHapticsAndSystemSoundsPlayback {
+        let audioSession = AVAudioSession.sharedInstance()
+        if audioSession.allowHapticsAndSystemSoundsDuringRecording != allowHapticsAndSystemSoundsPlayback {
+          try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(allowHapticsAndSystemSoundsPlayback)
+        }
+      }
       // Background Audio Playback
       if #available(iOS 18.0, *) {
         if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
