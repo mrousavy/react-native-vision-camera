@@ -24,8 +24,6 @@ Tests are split by domain. Each file tests one slice of the imperative `VisionCa
 | [visioncamera.photo.harness.ts](visioncamera.photo.harness.ts) | `createPhotoOutput`, `capturePhoto` / `capturePhotoToFile`, container formats (JPEG, HEIC, DNG), flash / mirror / quality / resolution options, capture lifecycle callbacks, preview images |
 | [visioncamera.video.harness.ts](visioncamera.video.harness.ts) | `createVideoOutput`, `Recorder` lifecycle, audio, `maxDuration` / `maxFileSize` stops, pause / resume / cancel, persistent recorder, higher-resolution codecs |
 | [visioncamera.frame.harness.ts](visioncamera.frame.harness.ts) | `createFrameOutput`, worklet install via `react-native-vision-camera-worklets`, YUV / RGB / native pixel formats, `scheduleOnRN`, `createSynchronizable`, `setOnFrameDroppedCallback`, `enablePreviewSizedOutputBuffers` |
-| [visioncamera.resizer.harness.ts](visioncamera.resizer.harness.ts) | Real Camera Frame resizing, scale modes, orientation/mirroring, output layouts and numeric formats |
-| [visioncamera.barcode-scanner.harness.ts](visioncamera.barcode-scanner.harness.ts) | Static barcode decoding and real YUV Camera Frame format acceptance |
 | [visioncamera.multi-output.harness.ts](visioncamera.multi-output.harness.ts) | Multi-output sessions that combine photo, video, and frame outputs, output replacement while other outputs stay attached, persistent recording across session restarts |
 | [visioncamera.constraints.harness.ts](visioncamera.constraints.harness.ts) | `VisionCamera.resolveConstraints` + `onSessionConfigSelected`, FPS / HDR / stabilization / binned / pixelFormat / resolutionBias constraints |
 | [visioncamera.controller.harness.ts](visioncamera.controller.harness.ts) | `CameraController` — zoom, torch, exposure bias, focus metering, low-light boost, subject area listener |
@@ -40,11 +38,9 @@ Pick the file that best matches what you're testing. If you're reproducing a bug
 
 The contract is deliberately strict so that the tests read exactly like VisionCamera user code — contributors and LLMs should be able to drop in a reproduction without having to learn framework-specific helpers.
 
-### 1. Use the `VisionCamera` API as-is. **No camera setup helpers.**
+### 1. Use the `VisionCamera` API as-is. **No helpers.**
 
 Every test builds up its session inline, end-to-end, from `VisionCamera` up. Do **not** extract helpers like `createSession()` or `configureAndStart()` — the API should read in tests exactly as users would write it in their app.
-
-Pure expected-value code is different: if a test needs non-trivial sampling, transforms, or statistics, it can live in a local `*-test-utils.ts` file so the Harness test remains focused on acquiring the real Camera Frame and asserting the public API behavior.
 
 ```ts
 it('captures a JPEG Photo in-memory', async () => {

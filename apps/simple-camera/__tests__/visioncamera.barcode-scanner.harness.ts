@@ -6,6 +6,7 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
   Frame,
+  TargetVideoPixelFormat,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import {
@@ -60,96 +61,102 @@ describe('VisionCamera - Barcode Scanner', () => {
     expect(allFormatBarcodes[0]?.rawValue).toBe('https://mrousavy.com')
   })
 
-  it('accepts a real YUV Camera Frame in sync and async scans', async () => {
-    const session = await VisionCamera.createCameraSession(false)
-    const frameOutput = VisionCamera.createFrameOutput({
-      targetResolution: CommonResolutions.VGA_4_3,
-      pixelFormat: 'yuv',
-      enablePreviewSizedOutputBuffers: false,
-      enablePhysicalBufferRotation: false,
-      enableCameraMatrixDelivery: false,
-      allowDeferredStart: false,
-      dropFramesWhileBusy: true,
-    })
-    frameOutput.outputOrientation = 'up'
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: frameOutput, mirrorMode: 'off' }],
-        constraints: [],
-      },
-    ])
-
-    const receivedFrame = deferred<Frame>()
-    const sessionFailed = deferred<never>()
-    const errorSubscription = session.addOnErrorListener(sessionFailed.reject)
-    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
-    const didCapture = createSynchronizable(false)
-    const framesSeen = createSynchronizable(0)
-    let isWaitingForFrame = true
-    const receiveFrame = (frame: Frame) => {
-      if (isWaitingForFrame) {
-        isWaitingForFrame = false
-        receivedFrame.resolve(frame)
-      } else {
-        frame.dispose()
-      }
-    }
-    const reportFrameError = (message: string) => {
-      receivedFrame.reject(new Error(message))
-    }
-    runtime.setOnFrameCallback(frameOutput, (frame) => {
-      'worklet'
-      const frameNumber = framesSeen.getBlocking()
-      framesSeen.setBlocking(frameNumber + 1)
-      if (frameNumber < 2) {
-        frame.dispose()
-        return
-      }
-      if (didCapture.getBlocking()) {
-        frame.dispose()
-        return
-      }
-      didCapture.setBlocking(true)
-      try {
-        scheduleOnRN(receiveFrame, frame)
-      } catch (error) {
-        frame.dispose()
-        scheduleOnRN(reportFrameError, String(error))
-      }
-    })
-
-    const scanner = createBarcodeScanner({
-      barcodeFormats: ['all-formats'],
-    })
-    let didStart = false
-    let frame: Frame | undefined
-    try {
-      await session.start()
-      didStart = true
-      frame = await Promise.race([
-        withTimeout(receivedFrame.promise, 15_000, 'receive YUV Camera Frame'),
-        sessionFailed.promise,
+  for (const pixelFormat of ['yuv', 'rgb'] satisfies TargetVideoPixelFormat[]) {
+    it(`accepts a real ${pixelFormat.toUpperCase()} Camera Frame in sync and async scans`, async () => {
+      const session = await VisionCamera.createCameraSession(false)
+      const frameOutput = VisionCamera.createFrameOutput({
+        targetResolution: CommonResolutions.VGA_4_3,
+        pixelFormat,
+        enablePreviewSizedOutputBuffers: false,
+        enablePhysicalBufferRotation: false,
+        enableCameraMatrixDelivery: false,
+        allowDeferredStart: false,
+        dropFramesWhileBusy: true,
+      })
+      frameOutput.outputOrientation = 'up'
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: frameOutput, mirrorMode: 'off' }],
+          constraints: [],
+        },
       ])
-      runtime.setOnFrameCallback(frameOutput, undefined)
 
-      expect(frame.pixelFormat).toMatch(/^yuv-/)
-
-      // The live scene does not need to contain a barcode. Returning from both
-      // production paths proves ML Kit accepted the real YUV media Image.
-      scanner.scanCodes(frame)
-      await scanner.scanCodesAsync(frame)
-    } finally {
-      isWaitingForFrame = false
-      runtime.setOnFrameCallback(frameOutput, undefined)
-      frame?.dispose()
-      scanner.dispose()
-      errorSubscription.remove()
-      if (didStart) {
-        await session.stop()
+      const receivedFrame = deferred<Frame>()
+      const sessionFailed = deferred<never>()
+      const errorSubscription = session.addOnErrorListener(sessionFailed.reject)
+      const runtime = workletsProvider.createRuntimeForThread(
+        frameOutput.thread,
+      )
+      const didCapture = createSynchronizable(false)
+      const framesSeen = createSynchronizable(0)
+      let isWaitingForFrame = true
+      const receiveFrame = (frame: Frame) => {
+        if (isWaitingForFrame) {
+          isWaitingForFrame = false
+          receivedFrame.resolve(frame)
+        } else {
+          frame.dispose()
+        }
       }
-    }
-  })
+      const reportFrameError = (message: string) => {
+        receivedFrame.reject(new Error(message))
+      }
+      runtime.setOnFrameCallback(frameOutput, (frame) => {
+        'worklet'
+        const frameNumber = framesSeen.getBlocking()
+        framesSeen.setBlocking(frameNumber + 1)
+        if (frameNumber < 2) {
+          frame.dispose()
+          return
+        }
+        if (didCapture.getBlocking()) {
+          frame.dispose()
+          return
+        }
+        didCapture.setBlocking(true)
+        try {
+          scheduleOnRN(receiveFrame, frame)
+        } catch (error) {
+          frame.dispose()
+          scheduleOnRN(reportFrameError, String(error))
+        }
+      })
+
+      const scanner = createBarcodeScanner({
+        barcodeFormats: ['all-formats'],
+      })
+      let didStart = false
+      let frame: Frame | undefined
+      try {
+        await session.start()
+        didStart = true
+        frame = await Promise.race([
+          withTimeout(
+            receivedFrame.promise,
+            15_000,
+            `receive ${pixelFormat} Camera Frame`,
+          ),
+          sessionFailed.promise,
+        ])
+        runtime.setOnFrameCallback(frameOutput, undefined)
+
+        // The live scene does not need to contain a barcode. Returning from
+        // both production paths proves ML Kit accepted the Frame.
+        scanner.scanCodes(frame)
+        await scanner.scanCodesAsync(frame)
+      } finally {
+        isWaitingForFrame = false
+        runtime.setOnFrameCallback(frameOutput, undefined)
+        frame?.dispose()
+        scanner.dispose()
+        errorSubscription.remove()
+        if (didStart) {
+          await session.stop()
+        }
+      }
+    })
+  }
 })
 
 async function scanCodesInAssetImage(
