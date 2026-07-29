@@ -52,6 +52,9 @@ export interface BarcodeScanner
    * Asynchronously detects {@linkcode Barcode}s in the
    * given {@linkcode Frame}.
    *
+   * The Frame must remain valid until the returned Promise settles. Do not
+   * call {@linkcode Frame.dispose | Frame.dispose()} before awaiting it.
+   *
    * @see {@linkcode scanCodes}
    */
   scanCodesAsync(frame: Frame): Promise<Barcode[]>

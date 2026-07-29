@@ -62,7 +62,7 @@ describe('VisionCamera - Barcode Scanner', () => {
   })
 
   for (const pixelFormat of ['yuv', 'rgb'] satisfies TargetVideoPixelFormat[]) {
-    it(`accepts a real ${pixelFormat.toUpperCase()} Camera Frame`, async () => {
+    it(`accepts a real ${pixelFormat.toUpperCase()} Camera Frame in sync and async scans`, async () => {
       const session = await VisionCamera.createCameraSession(false)
       const frameOutput = VisionCamera.createFrameOutput({
         targetResolution: CommonResolutions.VGA_4_3,
@@ -142,8 +142,9 @@ describe('VisionCamera - Barcode Scanner', () => {
         runtime.setOnFrameCallback(frameOutput, undefined)
 
         // The live scene does not need to contain a barcode. Returning from
-        // the synchronous production path proves ML Kit accepted the Frame.
+        // both production paths proves ML Kit accepted the Frame.
         scanner.scanCodes(frame)
+        await scanner.scanCodesAsync(frame)
       } finally {
         isWaitingForFrame = false
         runtime.setOnFrameCallback(frameOutput, undefined)
@@ -187,11 +188,7 @@ async function scanLoadedImage(
 ): Promise<Barcode[]> {
   const scanner = createBarcodeScanner({ barcodeFormats })
   try {
-    return await withTimeout(
-      scanner.scanCodesInImageAsync(image),
-      15_000,
-      `scan ${barcodeFormats.join(', ')} from image`,
-    )
+    return await scanner.scanCodesInImageAsync(image)
   } finally {
     scanner.dispose()
     image.dispose()
