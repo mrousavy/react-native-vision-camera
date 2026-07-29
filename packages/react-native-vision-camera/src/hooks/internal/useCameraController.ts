@@ -6,12 +6,12 @@ import type { CameraDevice } from '../../specs/inputs/CameraDevice.nitro'
 import type { CameraOutput } from '../../specs/outputs/CameraOutput.nitro'
 import type { CameraSession } from '../../specs/session/CameraSession.nitro'
 import type { CameraSessionConfig } from '../../specs/session/CameraSessionConfig.nitro'
+import type { CameraSessionConfiguration } from '../../specs/session/CameraSessionConfiguration'
 import { useMemoizedArray } from './useMemoizedArray'
 import { useStableCallback } from './useStableCallback'
 
-interface Config {
+interface Config extends CameraSessionConfiguration {
   mirrorMode?: MirrorMode
-  allowBackgroundAudioPlayback?: boolean
   constraints?: Constraint[]
   onSessionConfigSelected?: (config: CameraSessionConfig) => void
 
@@ -36,6 +36,7 @@ export function useCameraController(
     constraints = [],
     onSessionConfigSelected,
     allowBackgroundAudioPlayback,
+    allowHapticsAndSystemSoundsPlayback,
     getInitialExposureBias,
     onConfigured,
     getInitialZoom,
@@ -98,7 +99,11 @@ export function useCameraController(
               onSessionConfigSelected: stableOnSessionConfigSelected,
             },
           ],
-          { allowBackgroundAudioPlayback: allowBackgroundAudioPlayback },
+          {
+            allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
+            allowHapticsAndSystemSoundsPlayback:
+              allowHapticsAndSystemSoundsPlayback,
+          },
         )
         if (isCanceled) {
           controllers.forEach((c) => {
@@ -119,6 +124,7 @@ export function useCameraController(
     mirrorMode,
     session,
     allowBackgroundAudioPlayback,
+    allowHapticsAndSystemSoundsPlayback,
     stableOutputs,
     stableOnConfigured,
     stableGetInitialExposureBias,
