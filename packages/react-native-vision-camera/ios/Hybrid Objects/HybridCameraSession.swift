@@ -94,7 +94,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       if let allowHapticsAndSystemSoundsPlayback = config?.allowHapticsAndSystemSoundsPlayback {
         let audioSession = AVAudioSession.sharedInstance()
         if audioSession.allowHapticsAndSystemSoundsDuringRecording != allowHapticsAndSystemSoundsPlayback {
-          audioSession.setAllowHapticsAndSystemSoundsDuringRecording(allowHapticsAndSystemSoundsPlayback)
+          try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(allowHapticsAndSystemSoundsPlayback)
         }
       }
       // Background Audio Playback
