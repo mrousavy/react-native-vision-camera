@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.image.HybridImageSpec
 
 /**
@@ -59,7 +58,6 @@ class Func_void_std__shared_ptr_margelo__nitro__image__HybridImageSpec__cxx: Fun
   override fun invoke(previewImage: com.margelo.nitro.image.HybridImageSpec): Unit
     = invoke_cxx(previewImage)
 
-  @FastNative
   private external fun invoke_cxx(previewImage: com.margelo.nitro.image.HybridImageSpec): Unit
 }
 

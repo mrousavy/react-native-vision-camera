@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_bool_std__shared_ptr_HybridDepthSpec__cxx: Func_bool_std__shared_ptr_
   override fun invoke(depth: HybridDepthSpec): Boolean
     = invoke_cxx(depth)
 
-  
   private external fun invoke_cxx(depth: HybridDepthSpec): Boolean
 }
 

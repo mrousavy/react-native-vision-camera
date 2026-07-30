@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec___cxx: Func_v
   override fun invoke(newDevices: Array<HybridCameraDeviceSpec>): Unit
     = invoke_cxx(newDevices)
 
-  @FastNative
   private external fun invoke_cxx(newDevices: Array<HybridCameraDeviceSpec>): Unit
 }
 
