@@ -10,7 +10,6 @@ package com.margelo.nitro.camera.location
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.camera.HybridLocationSpec
 
 /**
@@ -59,7 +58,6 @@ class Func_void_std__shared_ptr_margelo__nitro__camera__HybridLocationSpec__cxx:
   override fun invoke(location: com.margelo.nitro.camera.HybridLocationSpec): Unit
     = invoke_cxx(location)
 
-  @FastNative
   private external fun invoke_cxx(location: com.margelo.nitro.camera.HybridLocationSpec): Unit
 }
 

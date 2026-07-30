@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_bool_std__vector_std__variant_std__shared_ptr_HybridFrameSpec___std__
   override fun invoke(frames: Array<Variant_HybridFrameSpec_HybridDepthSpec>): Boolean
     = invoke_cxx(frames)
 
-  
   private external fun invoke_cxx(frames: Array<Variant_HybridFrameSpec_HybridDepthSpec>): Boolean
 }
 

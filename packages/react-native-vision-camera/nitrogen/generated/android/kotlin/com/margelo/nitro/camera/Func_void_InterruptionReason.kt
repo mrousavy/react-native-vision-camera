@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_void_InterruptionReason_cxx: Func_void_InterruptionReason {
   override fun invoke(reason: InterruptionReason): Unit
     = invoke_cxx(reason)
 
-  @FastNative
   private external fun invoke_cxx(reason: InterruptionReason): Unit
 }
 

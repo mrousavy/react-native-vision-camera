@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_void_CameraOrientation_cxx: Func_void_CameraOrientation {
   override fun invoke(orientation: CameraOrientation): Unit
     = invoke_cxx(orientation)
 
-  @FastNative
   private external fun invoke_cxx(orientation: CameraOrientation): Unit
 }
 
