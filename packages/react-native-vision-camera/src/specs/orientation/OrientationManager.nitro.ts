@@ -20,7 +20,11 @@ export interface OrientationManager
    */
   readonly currentOrientation: CameraOrientation | undefined
   /**
-   * Starts listening to orientation changes.
+   * Starts listening to orientation updates.
+   *
+   * If an orientation is already known, {@linkcode onChanged} is immediately
+   * called with the current orientation. It is then called whenever the
+   * orientation changes.
    */
   startOrientationUpdates(
     onChanged: (orientation: CameraOrientation) => void,

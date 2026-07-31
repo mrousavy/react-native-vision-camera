@@ -32,6 +32,7 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
 
   override fun startOrientationUpdates(onChanged: (orientation: CameraOrientation) -> Unit) {
     orientationListener?.disable()
+    currentOrientation?.let(onChanged)
     orientationListener =
       object : OrientationEventListener(context) {
         override fun onOrientationChanged(rotationDegrees: Int) {

@@ -29,6 +29,9 @@ final class HybridDeviceOrientationManager: HybridOrientationManagerSpec {
     if motionManager.isAccelerometerActive {
       motionManager.stopAccelerometerUpdates()
     }
+    if let currentOrientation {
+      onChanged(currentOrientation)
+    }
 
     if motionManager.isAccelerometerAvailable {
       motionManager.startAccelerometerUpdates(to: operationQueue) {

@@ -22,12 +22,14 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
+import { getUIRotation } from '../utils/getUIRotation'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
 import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
+import { useStableCallback } from './internal/useStableCallback'
 import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
 import { useZoomUpdater } from './internal/useZoomUpdater'
 import { useCameraDevices } from './useCameraDevices'
@@ -205,6 +207,19 @@ export interface CameraProps
    * @platform iOS
    */
   onSubjectAreaChanged?: () => void
+  /**
+   * Called whenever the rotation that UI controls should apply changes.
+   *
+   * The value is the shortest signed rotation in degrees that keeps
+   * controls aligned with the automatically selected output orientation,
+   * relative to the app's interface orientation.
+   *
+   * This callback is not called when {@linkcode orientationSource} is
+   * `'custom'`, because individual outputs can use different orientations.
+   *
+   * @see {@linkcode CameraProps.orientationSource}
+   */
+  onUIRotationChanged?: (rotationDegrees: number) => void
 }
 
 function defaultOnErrorHandler(error: Error) {
@@ -253,6 +268,7 @@ export function useCamera({
   onInterruptionStarted,
   onInterruptionEnded,
   onSubjectAreaChanged,
+  onUIRotationChanged,
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
@@ -274,11 +290,31 @@ export function useCamera({
     }
   }, [orientation, outputs])
 
+  // 3. Update UI rotation
+  const interfaceOrientation = useOrientation(
+    orientationSource === 'device' && onUIRotationChanged != null
+      ? 'interface'
+      : undefined,
+  )
+  const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
+  const uiRotation =
+    orientationSource === 'interface'
+      ? 0
+      : orientationSource === 'device' &&
+          orientation != null &&
+          interfaceOrientation != null
+        ? getUIRotation(orientation, interfaceOrientation)
+        : undefined
+  useEffect(() => {
+    if (uiRotation == null) return
+    stableOnUIRotationChanged?.(uiRotation)
+  }, [stableOnUIRotationChanged, uiRotation])
+
   // TODO: Make `CameraSessionConnection.input` also accept
   //       a `TargetCameraPosition` so we don't need to do `useCameraDevices()` here
   //       so we don't need to always re-render, and we can actually use `getDefaultCamera(position)`
   //       on the native side for better selection!
-  // 3. Get the input - either find one via position, or use the user provided one
+  // 4. Get the input - either find one via position, or use the user provided one
   const devices = useCameraDevices()
   const input = useMemo(() => {
     if (typeof device === 'string') {
@@ -295,7 +331,7 @@ export function useCamera({
     }
   }, [device, devices])
 
-  // 4. Configure the session with the input + outputs to create a `CameraController`
+  // 5. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, input, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
@@ -307,18 +343,18 @@ export function useCamera({
     allowHapticsAndSystemSoundsPlayback: allowHapticsAndSystemSoundsPlayback,
   })
 
-  // 5. Configure the Controller with some settings
+  // 6. Configure the Controller with some settings
   useCameraControllerConfiguration(controller, {
     enableSmoothAutoFocus: enableSmoothAutoFocus,
     enableDistortionCorrection: enableDistortionCorrection,
     enableLowLightBoost: enableLowLightBoost,
   })
 
-  // 6. Start (or stop) the Session if we have a Controller and `isActive` is true.
+  // 7. Start (or stop) the Session if we have a Controller and `isActive` is true.
   const hasController = controller != null
   useCameraSessionIsRunning(session, isActive && hasController)
 
-  // 7. Set up listeners and delegate to JS
+  // 8. Set up listeners and delegate to JS
   useListenerSubscription(session, 'addOnStartedListener', onStarted)
   useListenerSubscription(session, 'addOnStoppedListener', onStopped)
   useListenerSubscription(session, 'addOnErrorListener', onError)
@@ -338,11 +374,11 @@ export function useCamera({
     onSubjectAreaChanged,
   )
 
-  // 8. Update CameraController props
+  // 9. Update CameraController props
   useZoomUpdater(controller, zoom, onError)
   useExposureUpdater(controller, exposure, onError)
   useTorchModeUpdater(controller, torchMode, onError)
 
-  // 9. Give the user the controller
+  // 10. Give the user the controller
   return controller
 }
