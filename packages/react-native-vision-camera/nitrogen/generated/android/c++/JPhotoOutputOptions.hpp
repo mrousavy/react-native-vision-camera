@@ -45,6 +45,8 @@ namespace margelo::nitro::camera {
       double quality = this->getFieldValue(fieldQuality);
       static const auto fieldQualityPrioritization = clazz->getField<JQualityPrioritization>("qualityPrioritization");
       jni::local_ref<JQualityPrioritization> qualityPrioritization = this->getFieldValue(fieldQualityPrioritization);
+      static const auto fieldEnableResponsiveCapture = clazz->getField<jni::JBoolean>("enableResponsiveCapture");
+      jni::local_ref<jni::JBoolean> enableResponsiveCapture = this->getFieldValue(fieldEnableResponsiveCapture);
       static const auto fieldPreviewImageTargetSize = clazz->getField<JSize>("previewImageTargetSize");
       jni::local_ref<JSize> previewImageTargetSize = this->getFieldValue(fieldPreviewImageTargetSize);
       return PhotoOutputOptions(
@@ -52,6 +54,7 @@ namespace margelo::nitro::camera {
         containerFormat->toCpp(),
         quality,
         qualityPrioritization->toCpp(),
+        enableResponsiveCapture != nullptr ? std::make_optional(static_cast<bool>(enableResponsiveCapture->value())) : std::nullopt,
         previewImageTargetSize != nullptr ? std::make_optional(previewImageTargetSize->toCpp()) : std::nullopt
       );
     }
@@ -62,7 +65,7 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JPhotoOutputOptions::javaobject> fromCpp(const PhotoOutputOptions& value) {
-      using JSignature = JPhotoOutputOptions(jni::alias_ref<JSize>, jni::alias_ref<JTargetPhotoContainerFormat>, double, jni::alias_ref<JQualityPrioritization>, jni::alias_ref<JSize>);
+      using JSignature = JPhotoOutputOptions(jni::alias_ref<JSize>, jni::alias_ref<JTargetPhotoContainerFormat>, double, jni::alias_ref<JQualityPrioritization>, jni::alias_ref<jni::JBoolean>, jni::alias_ref<JSize>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
@@ -71,6 +74,7 @@ namespace margelo::nitro::camera {
         JTargetPhotoContainerFormat::fromCpp(value.containerFormat),
         value.quality,
         JQualityPrioritization::fromCpp(value.qualityPrioritization),
+        value.enableResponsiveCapture.has_value() ? jni::JBoolean::valueOf(value.enableResponsiveCapture.value()) : nullptr,
         value.previewImageTargetSize.has_value() ? JSize::fromCpp(value.previewImageTargetSize.value()) : nullptr
       );
     }
