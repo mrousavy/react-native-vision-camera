@@ -20,6 +20,7 @@ export function useOrientation(
 ): CameraOrientation | undefined {
   const orientationManager = useOrientationManager(source)
   const currentOrientation = useRef(orientationManager?.currentOrientation)
+  currentOrientation.current = orientationManager?.currentOrientation
 
   const subscribe = useCallback(
     (onStoreChange: () => void) => {

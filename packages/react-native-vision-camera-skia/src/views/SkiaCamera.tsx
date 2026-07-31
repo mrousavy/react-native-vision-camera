@@ -25,6 +25,7 @@ import {
   type CameraVideoOutput,
   type FocusOptions,
   type Frame,
+  getUIRotation,
   type MeteringMode,
   type MirrorMode,
   type PixelFormat,
@@ -249,7 +250,8 @@ function SkiaCameraImpl({
   enablePreviewSizedOutputBuffers,
   targetResolution,
   device,
-  orientationSource,
+  orientationSource = 'device',
+  onUIRotationChanged,
   warnIfRenderSkipped = true,
   ...props
 }: SkiaCameraProps): React.ReactElement {
@@ -357,6 +359,13 @@ function SkiaCameraImpl({
   const otherOutputsOrientation =
     useOrientation(orientationSourceOrUndefined) ?? 'up'
   const skiaFrameOutputOrientation = useOrientation('interface') ?? 'up'
+  const onUIRotationChangedRef = useRef(onUIRotationChanged)
+  onUIRotationChangedRef.current = onUIRotationChanged
+  const hasOnUIRotationChanged = onUIRotationChanged != null
+  const uiRotation =
+    orientationSource === 'custom'
+      ? undefined
+      : getUIRotation(otherOutputsOrientation, skiaFrameOutputOrientation)
   useEffect(() => {
     for (const output of outputs) {
       output.outputOrientation = otherOutputsOrientation
@@ -368,6 +377,10 @@ function SkiaCameraImpl({
     otherOutputsOrientation,
     outputs,
   ])
+  useEffect(() => {
+    if (!hasOnUIRotationChanged || uiRotation == null) return
+    onUIRotationChangedRef.current?.(uiRotation)
+  }, [hasOnUIRotationChanged, uiRotation])
 
   useImperativeHandle(ref, () => ({
     convertViewPointToNormalizedPoint(viewPoint) {

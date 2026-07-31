@@ -61,6 +61,32 @@ output.outputOrientation = orientationManager.currentOrientation
 </Tab>
 </Tabs>
 
+### Rotate UI controls
+
+When the [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) is [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource), the Camera's outputs can rotate while the App's interface stays locked.
+Use [`onUIRotationChanged`](/api/react-native-vision-camera/interfaces/CameraProps#onuirotationchanged) to keep controls such as the shutter button aligned with the output orientation:
+
+```tsx
+const [uiRotation, setUIRotation] = useState(0)
+
+return (
+  <View>
+    <Camera
+      {...props}
+      orientationSource="device"
+      onUIRotationChanged={setUIRotation}
+    />
+    <CaptureButton
+      style={{ transform: [{ rotate: `${uiRotation}deg` }] }}
+    />
+  </View>
+)
+```
+
+The callback reports the shortest signed rotation in degrees relative to the current interface orientation.
+Animate changes to this value for a smooth transition.
+It is not called when `orientationSource="custom"`, because each output can have a different custom orientation.
+
 ### Manually set Orientation
 
 For full manual control over orientation, set [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) to [`'custom'`](/api/react-native-vision-camera/type-aliases/OrientationSource) (if you are using `<Camera />` or `useCamera(...)`), and set a custom [`CameraOutput.outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraOutput#outputorientation) for your outputs.

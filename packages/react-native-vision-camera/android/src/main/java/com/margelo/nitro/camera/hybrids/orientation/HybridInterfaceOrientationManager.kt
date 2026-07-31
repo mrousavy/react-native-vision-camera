@@ -32,6 +32,7 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
     listener?.let { listener ->
       displayManager.unregisterDisplayListener(listener)
     }
+    currentOrientation?.let(onChanged)
     val listener =
       object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = Unit
