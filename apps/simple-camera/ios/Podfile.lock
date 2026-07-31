@@ -2322,7 +2322,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCamera (5.2.0):
+  - VisionCamera (5.2.1):
     - hermes-engine
     - NitroImage
     - NitroModules
@@ -2347,7 +2347,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - VisionCameraBarcodeScanner (5.2.0):
+  - VisionCameraBarcodeScanner (5.2.1):
     - GoogleMLKit/BarcodeScanning (= 9.0.0)
     - hermes-engine
     - NitroImage
@@ -2374,7 +2374,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraLocation (5.2.0):
+  - VisionCameraLocation (5.2.1):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2399,7 +2399,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraResizer (5.2.0):
+  - VisionCameraResizer (5.2.1):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2424,7 +2424,7 @@ PODS:
     - ReactNativeDependencies
     - VisionCamera
     - Yoga
-  - VisionCameraWorklets (5.2.0):
+  - VisionCameraWorklets (5.2.1):
     - hermes-engine
     - NitroModules
     - RCTRequired
@@ -2846,11 +2846,11 @@ SPEC CHECKSUMS:
   RNScreens: 991cc417cd396602a6cf59a42139e5a9d91462a9
   RNVectorIcons: 97f26211c07d69e45b189f9dd0dbbe5e2d2b0b92
   RNWorklets: 04a35c45bd72d24914cbaf24bdfa4e30e1eab2df
-  VisionCamera: fee2d5cfbc39eae6cd7c1ecf2165873a544e7ecd
-  VisionCameraBarcodeScanner: e562ae3604ca2d66d5dc6d83b5d421fcb6f1ee6d
-  VisionCameraLocation: ad71136013b83faa8ef2636e0fca37cc799548c7
-  VisionCameraResizer: fc85706f46b24669b4f7d5cc6833cebef317873c
-  VisionCameraWorklets: d7658e2935db2dbb6c25a6929b13a93414697aef
+  VisionCamera: a2f97735cfe961d937ca50bc7134c0ae91de2638
+  VisionCameraBarcodeScanner: 02a7e7cb2f1b7de0ec76aa550faf51c47816167b
+  VisionCameraLocation: 3dc9443e459c4aa3d303164a6622a612d4ebc26a
+  VisionCameraResizer: 7b1e80a784d7e1c00c1c7b5be1b14b6abcbc077f
+  VisionCameraWorklets: d3428ffae610f9e6fa6ade7a74c1e1fde37aed6c
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
 PODFILE CHECKSUM: 225e4ff5bb6719c47fa66724251c4ad2098c76da
