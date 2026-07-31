@@ -12,6 +12,6 @@ fun Camera2CameraInfo.getDepthSizes(): Array<Size> {
     this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
       ?: return emptyArray()
   val depthFormats = streams.outputFormats.filter { ImageFormatUtils.isDepthFormat(it) }
-  val sizes = depthFormats.flatMap { streams.getOutputSizes(it).toList() }
+  val sizes = depthFormats.flatMap { streams.getOutputSizes(it).toListOrEmpty() }
   return sizes.distinct().toTypedArray()
 }

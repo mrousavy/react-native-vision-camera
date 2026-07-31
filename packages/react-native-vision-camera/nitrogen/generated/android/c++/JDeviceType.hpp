@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "DeviceType" and the the Kotlin enum "DeviceType".
+   * The C++ JNI bridge between the C++ enum "DeviceType" and the Kotlin enum "DeviceType".
    */
   struct JDeviceType final: public jni::JavaClass<JDeviceType> {
   public:

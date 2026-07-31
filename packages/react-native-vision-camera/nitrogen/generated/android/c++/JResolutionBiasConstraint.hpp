@@ -19,7 +19,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "ResolutionBiasConstraint" and the the Kotlin data class "ResolutionBiasConstraint".
+   * The C++ JNI bridge between the C++ struct "ResolutionBiasConstraint" and the Kotlin data class "ResolutionBiasConstraint".
    */
   struct JResolutionBiasConstraint final: public jni::JavaClass<JResolutionBiasConstraint> {
   public:

@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "BoundingBox" and the the Kotlin data class "BoundingBox".
+   * The C++ JNI bridge between the C++ struct "BoundingBox" and the Kotlin data class "BoundingBox".
    */
   struct JBoundingBox final: public jni::JavaClass<JBoundingBox> {
   public:

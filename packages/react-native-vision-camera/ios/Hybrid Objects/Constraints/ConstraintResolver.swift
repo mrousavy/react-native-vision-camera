@@ -14,15 +14,41 @@ import NitroModules
 
 enum ConstraintResolver {
   static func resolveConstraints(
+    for device: CameraDeviceOrPosition,
+    constraints: [Constraint],
+    outputs: [any HybridCameraOutputSpec],
+    isMultiCam: Bool
+  ) throws -> ResolvedConstraints {
+    let device = try AVCaptureDevice.resolve(value: device)
+    return try resolveConstraints(
+      for: device,
+      constraints: constraints,
+      outputs: outputs,
+      isMultiCam: isMultiCam)
+  }
+
+  static func resolveConstraints(
     for device: any HybridCameraDeviceSpec,
     constraints: [Constraint],
     outputs: [any HybridCameraOutputSpec],
     isMultiCam: Bool
   ) throws -> ResolvedConstraints {
     guard let device = device as? any NativeCameraDevice else {
-      throw RuntimeError.error(
-        withMessage: "The given `device` is not of type `NativeCameraDevice`!")
+      throw RuntimeError("The given `device` is not of type `NativeCameraDevice`!")
     }
+    return try resolveConstraints(
+      for: device.device,
+      constraints: constraints,
+      outputs: outputs,
+      isMultiCam: isMultiCam)
+  }
+
+  static func resolveConstraints(
+    for device: AVCaptureDevice,
+    constraints: [Constraint],
+    outputs: [any HybridCameraOutputSpec],
+    isMultiCam: Bool
+  ) throws -> ResolvedConstraints {
     let outputs = try outputs.compactMap { output in
       switch output {
       case let output as any NativeCameraOutput:
@@ -37,7 +63,7 @@ enum ConstraintResolver {
       }
     }
     return try resolveConstraints(
-      for: device.device,
+      for: device,
       constraints: constraints,
       outputs: outputs,
       isMultiCam: isMultiCam)

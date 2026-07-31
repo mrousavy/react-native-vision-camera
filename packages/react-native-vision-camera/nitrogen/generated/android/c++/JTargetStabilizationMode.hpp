@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "TargetStabilizationMode" and the the Kotlin enum "TargetStabilizationMode".
+   * The C++ JNI bridge between the C++ enum "TargetStabilizationMode" and the Kotlin enum "TargetStabilizationMode".
    */
   struct JTargetStabilizationMode final: public jni::JavaClass<JTargetStabilizationMode> {
   public:

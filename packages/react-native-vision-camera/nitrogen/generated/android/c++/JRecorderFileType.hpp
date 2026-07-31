@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "RecorderFileType" and the the Kotlin enum "RecorderFileType".
+   * The C++ JNI bridge between the C++ enum "RecorderFileType" and the Kotlin enum "RecorderFileType".
    */
   struct JRecorderFileType final: public jni::JavaClass<JRecorderFileType> {
   public:

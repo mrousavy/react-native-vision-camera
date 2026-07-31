@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "InterruptionReason" and the the Kotlin enum "InterruptionReason".
+   * The C++ JNI bridge between the C++ enum "InterruptionReason" and the Kotlin enum "InterruptionReason".
    */
   struct JInterruptionReason final: public jni::JavaClass<JInterruptionReason> {
   public:

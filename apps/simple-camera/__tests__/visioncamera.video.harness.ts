@@ -313,9 +313,6 @@ describe('VisionCamera - Video', () => {
         finished.reject,
       )
       const reason = await withTimeout(finished.promise, 30_000, 'maxFileSize')
-      console.log(
-        `maxFileSize duration=${recorder.recordedDuration}s, size=${recorder.recordedFileSize}B`,
-      )
       expect(reason).toBe('max-file-size-reached')
     } finally {
       await session.stop()
@@ -433,9 +430,6 @@ describe('VisionCamera - Video', () => {
       const midSize = recorder.recordedFileSize
       await recorder.stopRecording()
       await withTimeout(finished.promise, 10_000, 'finish')
-      console.log(
-        `recorded mid duration=${midDuration}s mid size=${midSize}B, final size=${recorder.recordedFileSize}B`,
-      )
       expect(midDuration).toBeGreaterThan(0)
       expect(midSize).toBeGreaterThan(0)
     } finally {
@@ -737,9 +731,6 @@ describe('VisionCamera - Video', () => {
       const requestedLongEdge = Math.max(max.width, max.height)
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
-      console.log(
-        `max device video res=${max.width}x${max.height} reported=${reported.width}x${reported.height}`,
-      )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -780,9 +771,6 @@ describe('VisionCamera - Video', () => {
       const requestedLongEdge = Math.max(min.width, min.height)
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
-      console.log(
-        `min device video res=${min.width}x${min.height} reported=${reported.width}x${reported.height}`,
-      )
       expect(reportedShortEdge).toBe(requestedShortEdge)
       expect(reportedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -808,7 +796,37 @@ describe('VisionCamera - Video', () => {
     ])
     const codecs = videoOutput.getSupportedVideoCodecs()
     expect(codecs.length).toBeGreaterThan(0)
-    console.log(`supported video codecs: ${codecs.join(', ')}`)
+    expect(codecs).not.toContain('unknown')
     await session.stop()
+  })
+
+  it('applies video output settings on iOS after the output is attached', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip('setOutputSettings: iOS only')
+    }
+    const session = await VisionCamera.createCameraSession(false)
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    try {
+      await videoOutput.setOutputSettings({})
+
+      const codecs = videoOutput.getSupportedVideoCodecs()
+      expect(codecs.length).toBeGreaterThan(0)
+      for (const codec of codecs) {
+        await videoOutput.setOutputSettings({ codec })
+      }
+    } finally {
+      await session.stop()
+    }
   })
 })

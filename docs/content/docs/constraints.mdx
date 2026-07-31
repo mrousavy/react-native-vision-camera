@@ -61,11 +61,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:4]
     constraints: [
@@ -136,11 +135,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:4]
     constraints: [
@@ -217,11 +215,10 @@ const session = await VisionCamera.createCameraSession(false)
 const videoOutput = createVideoOutput({
   targetResolution: CommonResolutions.UHD_16_9
 })
-const device = await getDefaultCameraDevice('back')
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [videoOutput],
     // [!code ++:3]
     constraints: [

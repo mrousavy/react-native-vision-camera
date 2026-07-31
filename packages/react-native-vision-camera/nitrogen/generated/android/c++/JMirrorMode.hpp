@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "MirrorMode" and the the Kotlin enum "MirrorMode".
+   * The C++ JNI bridge between the C++ enum "MirrorMode" and the Kotlin enum "MirrorMode".
    */
   struct JMirrorMode final: public jni::JavaClass<JMirrorMode> {
   public:

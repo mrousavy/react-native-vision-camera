@@ -1,6 +1,5 @@
 package com.margelo.nitro.camera.hybrids.outputs
 
-import android.annotation.SuppressLint
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import com.margelo.nitro.camera.CameraOrientation
@@ -22,7 +21,6 @@ import com.margelo.nitro.camera.hybrids.HybridNativeThread
 import com.margelo.nitro.camera.hybrids.instances.HybridFrame
 import com.margelo.nitro.camera.public.NativeCameraOutput
 import com.margelo.nitro.camera.utils.IdentifiableExecutor
-import com.margelo.nitro.camera.utils.PrivateImageReaderProxy
 
 class HybridFrameOutput(
   private val options: FrameOutputOptions,
@@ -97,10 +95,7 @@ class HybridFrameOutput(
                     "Set `enablePhysicalBufferRotation={false}` to use GPU buffers, or disable GPU buffers if physical buffer rotation is necessary.",
                 )
               }
-              @SuppressLint("RestrictedApi")
-              setImageReaderProxyProvider { width, height, format, queueDepth, _ ->
-                PrivateImageReaderProxy(width, height, queueDepth)
-              }
+              setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_PRIVATE)
             }
           }
         }.build()

@@ -62,7 +62,6 @@ function App() {
 <Tab value="CameraSession (imperative)">
 ```tsx
 const session = await VisionCamera.createCameraSession(false)
-const device = await getDefaultCameraDevice('back')
 // [!code ++:9]
 const depthOutput = VisionCamera.createDepthFrameOutput({ /* options */ })
 const workletRuntime = createWorkletRuntimeForThread(depthOutput.thread)
@@ -76,7 +75,7 @@ scheduleOnRuntime(workletRuntime, () => {
 
 await session.configure([
   {
-    input: device,
+    input: 'back',
     outputs: [
       // [!code ++]
       { output: depthOutput, mirrorMode: 'auto' }

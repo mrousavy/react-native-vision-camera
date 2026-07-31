@@ -15,7 +15,7 @@ namespace margelo::nitro::camera::barcodescanner {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "BarcodeScannerOutputResolution" and the the Kotlin enum "BarcodeScannerOutputResolution".
+   * The C++ JNI bridge between the C++ enum "BarcodeScannerOutputResolution" and the Kotlin enum "BarcodeScannerOutputResolution".
    */
   struct JBarcodeScannerOutputResolution final: public jni::JavaClass<JBarcodeScannerOutputResolution> {
   public:

@@ -75,7 +75,7 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
     try? prepareDefaultPhotoSettings()
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     guard let connection = output.connection(with: .video) else {
       return
     }

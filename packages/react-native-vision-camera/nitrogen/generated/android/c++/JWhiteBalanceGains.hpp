@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "WhiteBalanceGains" and the the Kotlin data class "WhiteBalanceGains".
+   * The C++ JNI bridge between the C++ struct "WhiteBalanceGains" and the Kotlin data class "WhiteBalanceGains".
    */
   struct JWhiteBalanceGains final: public jni::JavaClass<JWhiteBalanceGains> {
   public:

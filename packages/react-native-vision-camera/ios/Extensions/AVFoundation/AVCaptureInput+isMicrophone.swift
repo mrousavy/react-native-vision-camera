@@ -13,10 +13,6 @@ extension AVCaptureInput {
     guard let self = self as? AVCaptureDeviceInput else {
       return false
     }
-    if #available(iOS 17.0, *) {
-      return self.device.deviceType == .microphone
-    } else {
-      return self.device.deviceType == .builtInMicrophone
-    }
+    return self.device.hasMediaType(.audio)
   }
 }

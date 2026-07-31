@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.margelo.nitro.camera.HybridFrameSpec
+import com.margelo.nitro.camera.barcodescanner.extensions.await
 import com.margelo.nitro.camera.barcodescanner.extensions.toInputImage
 import com.margelo.nitro.camera.barcodescanner.extensions.toMLBarcodeScannerOptions
 import com.margelo.nitro.core.Promise
@@ -37,20 +38,14 @@ class HybridBarcodeScanner(
   }
 
   private fun process(inputImage: InputImage): Promise<Array<HybridBarcodeSpec>> {
-    val promise = Promise<Array<HybridBarcodeSpec>>()
+    return Promise.async {
+      val barcodes = scanner.process(inputImage).await()
+      return@async barcodes.map { HybridBarcode(it) }.toTypedArray<HybridBarcodeSpec>()
+    }
+  }
 
-    scanner
-      .process(inputImage)
-      .addOnSuccessListener { barcodes ->
-        promise.resolve(
-          barcodes
-            .map { HybridBarcode(it) }
-            .toTypedArray<HybridBarcodeSpec>(),
-        )
-      }.addOnFailureListener { error ->
-        promise.reject(error)
-      }
-
-    return promise
+  override fun dispose() {
+    super.dispose()
+    scanner.close()
   }
 }

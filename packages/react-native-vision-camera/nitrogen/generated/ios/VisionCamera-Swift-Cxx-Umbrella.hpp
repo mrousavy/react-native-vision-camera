@@ -198,6 +198,8 @@ namespace margelo::nitro::camera { enum class ScannedObjectType; }
 namespace margelo::nitro::camera { enum class SceneAdaptiveness; }
 // Forward declaration of `Size` to properly resolve imports.
 namespace margelo::nitro::camera { struct Size; }
+// Forward declaration of `TargetCameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetCameraPosition; }
 // Forward declaration of `TargetColorRange` to properly resolve imports.
 namespace margelo::nitro::camera { enum class TargetColorRange; }
 // Forward declaration of `TargetColorSpace` to properly resolve imports.
@@ -326,6 +328,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "ScannedObjectType.hpp"
 #include "SceneAdaptiveness.hpp"
 #include "Size.hpp"
+#include "TargetCameraPosition.hpp"
 #include "TargetColorRange.hpp"
 #include "TargetColorSpace.hpp"
 #include "TargetDynamicRange.hpp"

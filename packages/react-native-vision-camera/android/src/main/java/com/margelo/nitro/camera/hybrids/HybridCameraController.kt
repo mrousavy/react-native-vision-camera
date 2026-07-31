@@ -18,6 +18,7 @@ import com.margelo.nitro.camera.HybridCameraDeviceSpec
 import com.margelo.nitro.camera.HybridMeteringPointSpec
 import com.margelo.nitro.camera.ListenerSubscription
 import com.margelo.nitro.camera.MeteringMode
+import com.margelo.nitro.camera.SceneAdaptiveness
 import com.margelo.nitro.camera.TorchMode
 import com.margelo.nitro.camera.Variant_NullType_Double
 import com.margelo.nitro.camera.WhiteBalanceGains
@@ -145,11 +146,19 @@ class HybridCameraController(
         point as? HybridMeteringPoint
           ?: throw Error("Point is not of type `HybridMeteringPoint`!")
       val meteringPoint = point.meteringPoint
-      val meteringMode = (options.modes ?: getAllSupportedMeteringModes(meteringPoint)).toMeteringMode()
+      val meteringModes = options.modes ?: getAllSupportedMeteringModes(meteringPoint)
+      val meteringMode = meteringModes.toMeteringMode()
+      val adaptiveness = options.adaptiveness ?: SceneAdaptiveness.CONTINUOUS
       val autoResetAfter = options.autoResetAfter ?: Variant_NullType_Double.create(5.0)
 
       val focusAction =
         FocusMeteringAction.Builder(meteringPoint, meteringMode).also { action ->
+          // Lock the focus after it completed if desired
+          when (adaptiveness) {
+            SceneAdaptiveness.LOCKED -> action.setLockingMode(meteringMode)
+            SceneAdaptiveness.CONTINUOUS -> action.setLockingMode(0)
+          }
+          // Disable auto reset, or set it to a fixed duration (seconds)
           autoResetAfter.match(
             { _ -> action.disableAutoCancel() },
             { duration -> action.setAutoCancelDuration(duration.toLong(), TimeUnit.SECONDS) },
@@ -280,14 +289,14 @@ class HybridCameraController(
   override fun setFocusLocked(lensPosition: Double): Promise<Unit> {
     throw Error(
       "Setting Focus Lens Position is not yet supported on Android! " +
-        "You can use AF focus (`focusTo(..., ['AF'])`) instead.",
+        "You can use AF metering locks (`focusTo(point, { modes: ['AF'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
   override fun lockCurrentFocus(): Promise<Unit> {
     throw Error(
       "Setting Focus Lens Position is not yet supported on Android! " +
-        "You can use AF focus (`focusTo(..., ['AF'])`) instead.",
+        "You can use AF metering locks (`focusTo(point, { modes: ['AF'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
@@ -311,14 +320,14 @@ class HybridCameraController(
   ): Promise<Unit> {
     throw Error(
       "Locking Exposure to manual duration/ISO values is not yet supported on Android! " +
-        "You can use Exposure Bias (`setExposureBias(...)`) or AE focus (`focusTo(..., ['AE'])`) instead.",
+        "You can use Exposure Bias (`setExposureBias(...)`) or AE metering locks (`focusTo(point, { modes: ['AE'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
   override fun lockCurrentExposure(): Promise<Unit> {
     throw Error(
       "Locking Exposure to manual duration/ISO values is not yet supported on Android! " +
-        "You can use Exposure Bias (`setExposureBias(...)`) or AE focus (`focusTo(..., ['AE'])`) instead.",
+        "You can use Exposure Bias (`setExposureBias(...)`) or AE metering locks (`focusTo(point, { modes: ['AE'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
@@ -329,21 +338,21 @@ class HybridCameraController(
   override fun convertWhiteBalanceTemperatureAndTintValues(whiteBalanceTemperatureAndTint: WhiteBalanceTemperatureAndTint): WhiteBalanceGains {
     throw Error(
       "Locking White Balance Gains is not yet supported on Android! " +
-        "You can use AWB focus (`focusTo(..., ['AWB'])`) instead.",
+        "You can use AWB metering locks (`focusTo(point, { modes: ['AWB'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
   override fun setWhiteBalanceLocked(whiteBalanceGains: WhiteBalanceGains): Promise<Unit> {
     throw Error(
       "Locking White Balance Gains is not yet supported on Android! " +
-        "You can use AWB focus (`focusTo(..., ['AWB'])`) instead.",
+        "You can use AWB metering locks (`focusTo(point, { modes: ['AWB'], adaptiveness: 'locked' })`) instead.",
     )
   }
 
   override fun lockCurrentWhiteBalance(): Promise<Unit> {
     throw Error(
       "Locking White Balance Gains is not yet supported on Android! " +
-        "You can use AWB focus (`focusTo(..., ['AWB'])`) instead.",
+        "You can use AWB metering locks (`focusTo(point, { modes: ['AWB'], adaptiveness: 'locked' })`) instead.",
     )
   }
 }

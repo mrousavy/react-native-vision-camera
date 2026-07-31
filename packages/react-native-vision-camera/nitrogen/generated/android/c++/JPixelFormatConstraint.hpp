@@ -18,7 +18,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "PixelFormatConstraint" and the the Kotlin data class "PixelFormatConstraint".
+   * The C++ JNI bridge between the C++ struct "PixelFormatConstraint" and the Kotlin data class "PixelFormatConstraint".
    */
   struct JPixelFormatConstraint final: public jni::JavaClass<JPixelFormatConstraint> {
   public:

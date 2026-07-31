@@ -2,26 +2,21 @@ package com.margelo.nitro.camera.extensions
 
 import android.hardware.HardwareBuffer
 import android.os.Build
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import com.margelo.nitro.camera.utils.DirectByteBufferPool
 import com.margelo.nitro.core.ArrayBuffer
 import java.nio.ByteBuffer
 
 val HardwareBuffer.isCpuReadable: Boolean
-  @RequiresApi(Build.VERSION_CODES.O)
   get() {
     val readableUsageFlags = HardwareBuffer.USAGE_CPU_READ_RARELY or HardwareBuffer.USAGE_CPU_READ_OFTEN
     return (usage and readableUsageFlags) != 0L
   }
 
 val ImageProxy.hasPixelBuffer: Boolean
-  @OptIn(ExperimentalGetImage::class)
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      image?.hardwareBuffer?.use { hardwareBuffer ->
+      hardwareBuffer?.use { hardwareBuffer ->
         if (hardwareBuffer.isCpuReadable) {
           // We have CPU-readable GPU-backed Pixel Data.
           return true
@@ -54,10 +49,9 @@ private fun ByteBuffer.wrapOrCopyIntoArrayBuffer(): DisposableArrayBuffer {
   }
 }
 
-@OptIn(ExperimentalGetImage::class)
 fun ImageProxy.getPixelBuffer(): DisposableArrayBuffer {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    image?.hardwareBuffer?.use { hardwareBuffer ->
+    hardwareBuffer?.use { hardwareBuffer ->
       if (hardwareBuffer.isCpuReadable) {
         // Fast Path: We have a CPU-readable HardwareBuffer.
         val arrayBuffer = ArrayBuffer.wrap(hardwareBuffer)

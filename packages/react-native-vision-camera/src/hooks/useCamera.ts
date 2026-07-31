@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import type { SharedValue } from 'react-native-reanimated'
 import { getCameraDevice } from '../devices/getCameraDevice'
 import type {
   CameraController,
@@ -9,6 +10,7 @@ import type { CameraPosition } from '../specs/common-types/CameraPosition'
 import type { Constraint } from '../specs/common-types/Constraint'
 import type { MirrorMode } from '../specs/common-types/MirrorMode'
 import type { OrientationSource } from '../specs/common-types/OrientationSource'
+import type { TorchMode } from '../specs/common-types/TorchMode'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
 import type { CameraOutput } from '../specs/outputs/CameraOutput.nitro'
 import type { CameraVideoOutput } from '../specs/outputs/CameraVideoOutput.nitro'
@@ -18,16 +20,22 @@ import type {
   InterruptionReason,
 } from '../specs/session/CameraSession.nitro'
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
+import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
+import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
+import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
+import { useZoomUpdater } from './internal/useZoomUpdater'
 import { useCameraDevices } from './useCameraDevices'
 import { useOrientation } from './useOrientation'
 
-export interface CameraProps {
+export interface CameraProps
+  extends CameraSessionConfiguration,
+    CameraControllerConfiguration {
   // Session Configuration
   /**
    * Starts the {@linkcode CameraSession} when set to `true`, and stops it
@@ -89,33 +97,34 @@ export interface CameraProps {
    */
   mirrorMode?: MirrorMode
 
-  // Camera Controller Configuration
+  // Declarative props
   /**
-   * If `true`, auto-focus transitions are performed slower and smoother
-   * to appear less intrusive in video recordings.
+   * Sets the {@linkcode CameraController.zoom | zoom} value declaratively.
    *
-   * @see {@linkcode CameraControllerConfiguration.enableSmoothAutoFocus}
-   * @platform iOS
-   * @default false
+   * You can also imperatively set zoom via
+   * {@linkcode CameraController.setZoom | setZoom(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 1
    */
-  enableSmoothAutoFocus?: boolean
+  zoom?: number | SharedValue<number>
   /**
-   * If `true`, the Camera pipeline may extend exposure times (effectively
-   * dropping frame rate) in low-light scenes to receive more light.
+   * Sets the {@linkcode CameraController.exposureBias | exposureBias} value
+   * declaratively.
    *
-   * @see {@linkcode CameraControllerConfiguration.enableLowLightBoost}
-   * @default false
+   * You can also imperatively set the exposure bias via
+   * {@linkcode CameraController.setExposureBias | setExposureBias(...)}.
+   *
+   * @note This property can be animated via Reanimated by passing a {@linkcode SharedValue}.
+   * @default 0
    */
-  enableLowLightBoost?: boolean
+  exposure?: number | SharedValue<number>
   /**
-   * If `true`, geometric distortion at the edges (e.g. on ultra-wide-angle
-   * cameras) is corrected, at the cost of a small amount of field of view.
-   *
-   * @see {@linkcode CameraControllerConfiguration.enableDistortionCorrection}
-   * @platform iOS
-   * @default true
+   * Sets the {@linkcode CameraController.torchMode | torchMode} value
+   * declaratively.
+   * @default 'off'
    */
-  enableDistortionCorrection?: boolean
+  torchMode?: TorchMode
 
   // Initial Props for Controller
   /**
@@ -202,6 +211,14 @@ function defaultOnErrorHandler(error: Error) {
   console.error(error)
 }
 
+function getAnimatableNumberInitialValue(
+  value: number | SharedValue<number> | undefined,
+): number | undefined {
+  if (value == null) return undefined
+  else if (typeof value === 'number') return value
+  else return value.get()
+}
+
 /**
  * Use the Camera.
  *
@@ -227,6 +244,8 @@ export function useCamera({
   onSessionConfigSelected,
   mirrorMode,
   onConfigured,
+  allowBackgroundAudioPlayback,
+  allowHapticsAndSystemSoundsPlayback,
   orientationSource = 'device',
   onStarted,
   onStopped,
@@ -237,8 +256,9 @@ export function useCamera({
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
-  getInitialExposureBias,
-  getInitialZoom,
+  zoom,
+  exposure,
+  torchMode,
 }: CameraProps): CameraController | undefined {
   // 1. Create session
   const session = useCameraSession({ enableMultiCamSupport: false })
@@ -254,13 +274,17 @@ export function useCamera({
     }
   }, [orientation, outputs])
 
+  // TODO: Make `CameraSessionConnection.input` also accept
+  //       a `TargetCameraPosition` so we don't need to do `useCameraDevices()` here
+  //       so we don't need to always re-render, and we can actually use `getDefaultCamera(position)`
+  //       on the native side for better selection!
   // 3. Get the input - either find one via position, or use the user provided one
   const devices = useCameraDevices()
   const input = useMemo(() => {
     if (typeof device === 'string') {
       // The user passed a `CameraPosition` (e.g. "back") - try to find a device ourselves
       const position = device
-      const foundDevice = getCameraDevice(devices, position)
+      const foundDevice = devices.find((d) => d.position === position)
       if (foundDevice == null) {
         throw new Error(`This device does not have any "${position}" Cameras!`)
       }
@@ -275,10 +299,12 @@ export function useCamera({
   const controller = useCameraController(session, input, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
-    getInitialExposureBias: getInitialExposureBias,
-    getInitialZoom: getInitialZoom,
+    getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
+    getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
     constraints: constraints,
     onSessionConfigSelected: onSessionConfigSelected,
+    allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
+    allowHapticsAndSystemSoundsPlayback: allowHapticsAndSystemSoundsPlayback,
   })
 
   // 5. Configure the Controller with some settings
@@ -312,6 +338,11 @@ export function useCamera({
     onSubjectAreaChanged,
   )
 
-  // 8. Give the user the controller
+  // 8. Update CameraController props
+  useZoomUpdater(controller, zoom, onError)
+  useExposureUpdater(controller, exposure, onError)
+  useTorchModeUpdater(controller, torchMode, onError)
+
+  // 9. Give the user the controller
   return controller
 }

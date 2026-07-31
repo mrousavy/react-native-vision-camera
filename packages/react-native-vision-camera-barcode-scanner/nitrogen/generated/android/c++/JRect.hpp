@@ -17,7 +17,7 @@ namespace margelo::nitro::camera::barcodescanner {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "Rect" and the the Kotlin data class "Rect".
+   * The C++ JNI bridge between the C++ struct "Rect" and the Kotlin data class "Rect".
    */
   struct JRect final: public jni::JavaClass<JRect> {
   public:

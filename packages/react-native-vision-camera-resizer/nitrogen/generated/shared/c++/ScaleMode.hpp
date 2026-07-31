@@ -31,6 +31,7 @@ namespace margelo::nitro::camera::resizer {
   enum class ScaleMode {
     COVER      SWIFT_NAME(cover) = 0,
     CONTAIN      SWIFT_NAME(contain) = 1,
+    STRETCH      SWIFT_NAME(stretch) = 2,
   } CLOSED_ENUM;
 
 } // namespace margelo::nitro::camera::resizer
@@ -45,6 +46,7 @@ namespace margelo::nitro {
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("cover"): return margelo::nitro::camera::resizer::ScaleMode::COVER;
         case hashString("contain"): return margelo::nitro::camera::resizer::ScaleMode::CONTAIN;
+        case hashString("stretch"): return margelo::nitro::camera::resizer::ScaleMode::STRETCH;
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert \"" + unionValue + "\" to enum ScaleMode - invalid value!");
       }
@@ -53,6 +55,7 @@ namespace margelo::nitro {
       switch (arg) {
         case margelo::nitro::camera::resizer::ScaleMode::COVER: return JSIConverter<std::string>::toJSI(runtime, "cover");
         case margelo::nitro::camera::resizer::ScaleMode::CONTAIN: return JSIConverter<std::string>::toJSI(runtime, "contain");
+        case margelo::nitro::camera::resizer::ScaleMode::STRETCH: return JSIConverter<std::string>::toJSI(runtime, "stretch");
         default: [[unlikely]]
           throw std::invalid_argument("Cannot convert ScaleMode to JS - invalid value: "
                                     + std::to_string(static_cast<int>(arg)) + "!");
@@ -66,6 +69,7 @@ namespace margelo::nitro {
       switch (hashString(unionValue.c_str(), unionValue.size())) {
         case hashString("cover"):
         case hashString("contain"):
+        case hashString("stretch"):
           return true;
         default:
           return false;

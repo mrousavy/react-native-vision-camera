@@ -17,7 +17,8 @@ const device = useCameraDevice("back")
 </Tab>
 <Tab value="Imperative">
 ```ts
-const device = await getDefaultCameraDevice("back")
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const device = deviceFactory.getDefaultCamera("back")
 ```
 </Tab>
 </Tabs>
@@ -79,8 +80,8 @@ const device = useCameraDevice("back", {
 </Tab>
 <Tab value="Imperative">
 ```ts
-const devices = getAllCameraDevices()
-const device = getCameraDevice(devices, "back", {
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const device = getCameraDevice(deviceFactory, "back", {
   physicalDevices: ['ultra-wide-angle', 'wide-angle', 'telephoto']
 })
 ```
@@ -111,8 +112,9 @@ const devices = useCameraDevices()
 </Tab>
 <Tab value="Imperative">
 ```ts
-let devices = getAllCameraDevices()
-addOnCameraDevicesChangedListener((d) => {
+const deviceFactory = await VisionCamera.createDeviceFactory()
+let devices = deviceFactory.cameraDevices
+deviceFactory.addOnCameraDevicesChangedListener((d) => {
   devices = d
 })
 ```
@@ -134,14 +136,14 @@ As an external Camera is plugged in or plugged out from the device, the [`useCam
 </Tab>
 <Tab value="Imperative">
 ```ts
-const devices = getAllCameraDevices()
-let device = getCameraDevice(devices, "external")
-addOnCameraDevicesChangedListener((d) => {
-  device = getCameraDevice(d, "external")
+const deviceFactory = await VisionCamera.createDeviceFactory()
+let device = getCameraDevice(deviceFactory, "external")
+deviceFactory.addOnCameraDevicesChangedListener(() => {
+  device = getCameraDevice(deviceFactory, "external")
 })
 ```
 
-As an external Camera is plugged in or plugged out from the device, the [`addOnCameraDevicesChangedListener(...)`](/api/react-native-vision-camera/functions/addOnCameraDevicesChangedListener) listener fires and you can call [`getCameraDevice(...)`](/api/react-native-vision-camera/functions/getCameraDevice) again to possibly detect new devices, or avoid using removed devices.
+As an external Camera is plugged in or plugged out from the device, the [`CameraDeviceFactory.addOnCameraDevicesChangedListener(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDeviceFactory#addoncameradeviceschangedlistener) listener fires and you can call [`getCameraDevice(...)`](/api/react-native-vision-camera/functions/getCameraDevice) again to possibly detect new devices, or avoid using removed devices.
 </Tab>
 </Tabs>
 
@@ -182,7 +184,7 @@ function App() {
 <Tab value="CameraSession (imperative)">
 ```tsx
 const session = await VisionCamera.createCameraSession(false)
-const device = await getDefaultCameraDevice('back')
+const device = ...
 await session.configure([
   {
     // [!code ++]

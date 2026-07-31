@@ -10,7 +10,6 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_void_MediaType_FrameDroppedReason_cxx: Func_void_MediaType_FrameDropp
   override fun invoke(frameType: MediaType, reason: FrameDroppedReason): Unit
     = invoke_cxx(frameType,reason)
 
-  @FastNative
   private external fun invoke_cxx(frameType: MediaType, reason: FrameDroppedReason): Unit
 }
 

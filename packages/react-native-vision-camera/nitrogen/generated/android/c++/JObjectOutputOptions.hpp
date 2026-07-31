@@ -19,7 +19,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "ObjectOutputOptions" and the the Kotlin data class "ObjectOutputOptions".
+   * The C++ JNI bridge between the C++ struct "ObjectOutputOptions" and the Kotlin data class "ObjectOutputOptions".
    */
   struct JObjectOutputOptions final: public jni::JavaClass<JObjectOutputOptions> {
   public:

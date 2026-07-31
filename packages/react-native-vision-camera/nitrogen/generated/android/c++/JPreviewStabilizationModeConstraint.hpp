@@ -18,7 +18,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "PreviewStabilizationModeConstraint" and the the Kotlin data class "PreviewStabilizationModeConstraint".
+   * The C++ JNI bridge between the C++ struct "PreviewStabilizationModeConstraint" and the Kotlin data class "PreviewStabilizationModeConstraint".
    */
   struct JPreviewStabilizationModeConstraint final: public jni::JavaClass<JPreviewStabilizationModeConstraint> {
   public:

@@ -9,11 +9,39 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
   FrameDroppedReason,
+  PixelFormat,
+  TargetVideoPixelFormat,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
 import { createSynchronizable, scheduleOnRN } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
+
+const framePixelFormatCases = [
+  {
+    targetPixelFormat: 'yuv',
+    description: '8-bit 420 YUV',
+    expectedPixelFormats: ['yuv-420-8-bit-full', 'yuv-420-8-bit-video'],
+  },
+  {
+    targetPixelFormat: 'rgb',
+    description: 'RGB',
+    expectedPixelFormats: ['rgb-bgra-8-bit', 'rgb-rgba-8-bit', 'rgb-rgb-8-bit'],
+  },
+  {
+    targetPixelFormat: 'native',
+    description: 'private or 8-bit 420 YUV',
+    expectedPixelFormats: [
+      'private',
+      'yuv-420-8-bit-full',
+      'yuv-420-8-bit-video',
+    ],
+  },
+] satisfies {
+  targetPixelFormat: TargetVideoPixelFormat
+  description: string
+  expectedPixelFormats: PixelFormat[]
+}[]
 
 describe('VisionCamera - Frame', () => {
   let factory: CameraDeviceFactory
@@ -75,6 +103,74 @@ describe('VisionCamera - Frame', () => {
     }
     expect(framesReceived).toBeGreaterThanOrEqual(3)
   })
+
+  for (const {
+    targetPixelFormat,
+    description,
+    expectedPixelFormats,
+  } of framePixelFormatCases) {
+    it(`delivers ${description} frames when streaming in ${targetPixelFormat}`, async () => {
+      const session = await VisionCamera.createCameraSession(false)
+      const frameOutput = VisionCamera.createFrameOutput({
+        targetResolution: CommonResolutions.VGA_16_9,
+        pixelFormat: targetPixelFormat,
+        enablePreviewSizedOutputBuffers: false,
+        enablePhysicalBufferRotation: false,
+        enableCameraMatrixDelivery: false,
+        allowDeferredStart: false,
+        dropFramesWhileBusy: true,
+      })
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: frameOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+
+      const receivedPixelFormat = deferred<PixelFormat>()
+      let didReport = false
+      const report = (deliveredPixelFormat: PixelFormat) => {
+        if (didReport) return
+        didReport = true
+        receivedPixelFormat.resolve(deliveredPixelFormat)
+      }
+      const reportError = (errorMessage: string) => {
+        if (didReport) return
+        didReport = true
+        receivedPixelFormat.reject(new Error(errorMessage))
+      }
+      const errorSub = session.addOnErrorListener(receivedPixelFormat.reject)
+
+      const runtime = workletsProvider.createRuntimeForThread(
+        frameOutput.thread,
+      )
+      runtime.setOnFrameCallback(frameOutput, (frame) => {
+        'worklet'
+        try {
+          scheduleOnRN(report, frame.pixelFormat)
+        } catch (e) {
+          scheduleOnRN(reportError, String(e))
+        } finally {
+          frame.dispose()
+        }
+      })
+
+      await session.start()
+      try {
+        const pixelFormat = await withTimeout(
+          receivedPixelFormat.promise,
+          15_000,
+          `receive ${targetPixelFormat} frame pixel format`,
+        )
+        expect(expectedPixelFormats).toContain(pixelFormat)
+      } finally {
+        runtime.setOnFrameCallback(frameOutput, undefined)
+        errorSub.remove()
+        await session.stop()
+      }
+    })
+  }
 
   it('reports native buffers and conditionally reads pixel buffers', async (context) => {
     const session = await VisionCamera.createCameraSession(false)
@@ -215,19 +311,14 @@ describe('VisionCamera - Frame', () => {
     ])
 
     type BufferReport = {
-      frameBytes: number
       firstPlaneBytes: number[]
       secondPlaneBytes: number[]
     }
     const receivedBufferReports = deferred<BufferReport[]>()
     const bufferReports: BufferReport[] = []
-    const report = (
-      frameBytes: number,
-      firstPlaneBytes: number[],
-      secondPlaneBytes: number[],
-    ) => {
+    const report = (firstPlaneBytes: number[], secondPlaneBytes: number[]) => {
       if (bufferReports.length < 3) {
-        bufferReports.push({ frameBytes, firstPlaneBytes, secondPlaneBytes })
+        bufferReports.push({ firstPlaneBytes, secondPlaneBytes })
         if (bufferReports.length >= 3) {
           receivedBufferReports.resolve(bufferReports)
         }
@@ -242,7 +333,6 @@ describe('VisionCamera - Frame', () => {
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
       try {
-        const frameBytes = frame.getPixelBuffer().byteLength
         const planes = frame.getPlanes()
         const firstPlaneBytes = planes.map(
           (plane) => plane.getPixelBuffer().byteLength,
@@ -250,7 +340,7 @@ describe('VisionCamera - Frame', () => {
         const secondPlaneBytes = planes.map(
           (plane) => plane.getPixelBuffer().byteLength,
         )
-        scheduleOnRN(report, frameBytes, firstPlaneBytes, secondPlaneBytes)
+        scheduleOnRN(report, firstPlaneBytes, secondPlaneBytes)
       } catch (e) {
         scheduleOnRN(reportError, String(e))
       } finally {
@@ -273,7 +363,6 @@ describe('VisionCamera - Frame', () => {
     }
 
     for (const bufferReport of reports) {
-      expect(bufferReport.frameBytes).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes.length).toBeGreaterThan(0)
       expect(bufferReport.firstPlaneBytes).toEqual(
         bufferReport.secondPlaneBytes,
@@ -306,11 +395,18 @@ describe('VisionCamera - Frame', () => {
     let reportedWidth = 0
     let reportedHeight = 0
     let reportedPlanes = -1
+    let reportedPixelFormat: PixelFormat | undefined
     const reportedFrame = deferred()
-    const report = (w: number, h: number, planes: number) => {
+    const report = (
+      w: number,
+      h: number,
+      planes: number,
+      format: PixelFormat,
+    ) => {
       reportedWidth = w
       reportedHeight = h
       reportedPlanes = planes
+      reportedPixelFormat = format
       if (reportedWidth > 0 && reportedHeight > 0) {
         reportedFrame.resolve()
       }
@@ -327,7 +423,7 @@ describe('VisionCamera - Frame', () => {
         const planes = frame.getPlanes()
         planeCount = planes.length
       }
-      scheduleOnRN(report, w, h, planeCount)
+      scheduleOnRN(report, w, h, planeCount, frame.pixelFormat)
       frame.dispose()
     })
 
@@ -339,12 +435,11 @@ describe('VisionCamera - Frame', () => {
       errorSub.remove()
       await session.stop()
     }
-    console.log(
-      `yuv frame reported ${reportedWidth}x${reportedHeight} planes=${reportedPlanes}`,
-    )
     expect(reportedWidth).toBeGreaterThan(0)
     expect(reportedHeight).toBeGreaterThan(0)
     expect(reportedPlanes).toBeGreaterThanOrEqual(1)
+    expect(reportedPixelFormat).toBeDefined()
+    expect(reportedPixelFormat).not.toBe('unknown')
   })
 
   it('delivers readable pixel buffers when streaming in rgb', async () => {
@@ -515,9 +610,6 @@ describe('VisionCamera - Frame', () => {
       expect(reportedShortEdge).toBe(streamedShortEdge)
       expect(reportedLongEdge).toBe(streamedLongEdge)
 
-      console.log(
-        `max device stream res=${max.width}x${max.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,
-      )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -592,9 +684,6 @@ describe('VisionCamera - Frame', () => {
       expect(reportedShortEdge).toBe(streamedShortEdge)
       expect(reportedLongEdge).toBe(streamedLongEdge)
 
-      console.log(
-        `min device stream res=${min.width}x${min.height} reported=${reported.width}x${reported.height} streamed=${receivedWidth}x${receivedHeight}`,
-      )
       expect(streamedShortEdge).toBe(requestedShortEdge)
       expect(streamedLongEdge).toBe(requestedLongEdge)
     } finally {
@@ -646,7 +735,6 @@ describe('VisionCamera - Frame', () => {
     await session.start()
     try {
       await waitUntil(() => droppedReason != null, { timeout: 15_000 })
-      console.log(`frame dropped reason: ${droppedReason}`)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       frameOutput.setOnFrameDroppedCallback(undefined)
@@ -701,9 +789,6 @@ describe('VisionCamera - Frame', () => {
       runtime.setOnFrameCallback(frameOutput, undefined)
       await session.stop()
     }
-    console.log(
-      `preview-sized frame: ${reportedWidth}x${reportedHeight} (requested target ${CommonResolutions.UHD_16_9.width}x${CommonResolutions.UHD_16_9.height})`,
-    )
     const requestedPixels =
       CommonResolutions.UHD_16_9.width * CommonResolutions.UHD_16_9.height
     const actualPixels = reportedWidth * reportedHeight

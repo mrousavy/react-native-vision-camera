@@ -34,3 +34,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Temporary local work
+.tmp

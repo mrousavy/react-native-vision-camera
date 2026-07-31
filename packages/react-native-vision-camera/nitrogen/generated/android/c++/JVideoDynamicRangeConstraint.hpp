@@ -24,7 +24,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "VideoDynamicRangeConstraint" and the the Kotlin data class "VideoDynamicRangeConstraint".
+   * The C++ JNI bridge between the C++ struct "VideoDynamicRangeConstraint" and the Kotlin data class "VideoDynamicRangeConstraint".
    */
   struct JVideoDynamicRangeConstraint final: public jni::JavaClass<JVideoDynamicRangeConstraint> {
   public:

@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "Range" and the the Kotlin data class "Range".
+   * The C++ JNI bridge between the C++ struct "Range" and the Kotlin data class "Range".
    */
   struct JRange final: public jni::JavaClass<JRange> {
   public:

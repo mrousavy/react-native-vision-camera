@@ -57,7 +57,7 @@ namespace margelo::nitro::camera::views {
 
   HybridFrameRendererViewComponentDescriptor::HybridFrameRendererViewComponentDescriptor(const react::ComponentDescriptorParameters& parameters)
     : ConcreteComponentDescriptor(parameters,
-                                  react::RawPropsParser(/* enableJsiParser */ true)) {}
+                                  react::RawPropsParser()) {}
 
   std::shared_ptr<const react::Props> HybridFrameRendererViewComponentDescriptor::cloneProps(const react::PropsParserContext& context,
                                                                                              const std::shared_ptr<const react::Props>& props,

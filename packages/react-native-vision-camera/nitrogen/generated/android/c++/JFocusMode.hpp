@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "FocusMode" and the the Kotlin enum "FocusMode".
+   * The C++ JNI bridge between the C++ enum "FocusMode" and the Kotlin enum "FocusMode".
    */
   struct JFocusMode final: public jni::JavaClass<JFocusMode> {
   public:

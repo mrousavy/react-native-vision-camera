@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "PhotoContainerFormat" and the the Kotlin enum "PhotoContainerFormat".
+   * The C++ JNI bridge between the C++ enum "PhotoContainerFormat" and the Kotlin enum "PhotoContainerFormat".
    */
   struct JPhotoContainerFormat final: public jni::JavaClass<JPhotoContainerFormat> {
   public:

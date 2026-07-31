@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "VideoCodec" and the the Kotlin enum "VideoCodec".
+   * The C++ JNI bridge between the C++ enum "VideoCodec" and the Kotlin enum "VideoCodec".
    */
   struct JVideoCodec final: public jni::JavaClass<JVideoCodec> {
   public:

@@ -22,18 +22,4 @@ extension CameraPosition {
       self = .unspecified
     }
   }
-
-  func toAVCaptureDevicePosition() -> AVCaptureDevice.Position {
-    switch self {
-    case .back:
-      return .back
-    case .front:
-      return .front
-    case .unspecified:
-      return .unspecified
-    case .external:
-      // External is not supported on iOS
-      return .unspecified
-    }
-  }
 }

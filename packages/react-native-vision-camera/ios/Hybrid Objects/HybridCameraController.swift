@@ -14,13 +14,10 @@ final class HybridCameraController: HybridCameraControllerSpec, NativeCameraCont
   let captureDevice: AVCaptureDevice
   private var activeMeteringTask: MeteringTask? = nil
 
-  init(device: any HybridCameraDeviceSpec, queue: DispatchQueue) throws {
-    guard let hybridDevice = device as? HybridCameraDevice else {
-      throw RuntimeError.error(
-        withMessage: "Device \"\(device)\" is not of type `HybridCameraDevice`!")
-    }
-    self.captureDevice = hybridDevice.device
+  init(device: any HybridCameraDeviceSpec & NativeCameraDevice, queue: DispatchQueue) throws {
     self.device = device
+    self.captureDevice = device.device
+
     // TODO: Is it best practice to use the same `queue` as our HybridCameraSession?
     self.queue = queue
   }

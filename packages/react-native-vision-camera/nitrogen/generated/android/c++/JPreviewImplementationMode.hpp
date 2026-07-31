@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "PreviewImplementationMode" and the the Kotlin enum "PreviewImplementationMode".
+   * The C++ JNI bridge between the C++ enum "PreviewImplementationMode" and the Kotlin enum "PreviewImplementationMode".
    */
   struct JPreviewImplementationMode final: public jni::JavaClass<JPreviewImplementationMode> {
   public:

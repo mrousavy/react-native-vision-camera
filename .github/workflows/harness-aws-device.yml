@@ -295,6 +295,9 @@ jobs:
               "projectArn": "${{ env.HARNESS_DEVICE_FARM_PROJECT_ARN }}",
               "appArn": "${{ steps.upload-apk.outputs['upload-arn'] }}",
               "devicePoolArn": "${{ env.HARNESS_DEVICE_FARM_ANDROID_DEVICE_POOL_ARN }}",
+              "configuration": {
+                "billingMethod": "UNMETERED"
+              },
               "test": {
                 "type": "APPIUM_NODE",
                 "testPackageArn": "${{ steps.upload-android-test-package.outputs['upload-arn'] }}",

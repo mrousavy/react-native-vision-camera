@@ -30,17 +30,10 @@ extension ResolutionBiasConstraint: ResolvableConstraint {
       penalty = closestSupportedResolution.penalty(targetResolution)
     case .min(let minimumResolution):
       let minimumResolution = minimumResolution.toCMVideoDimensions()
-      let hasFulfilling = supportedResolutions.contains {
-        $0.long >= minimumResolution.long && $0.short >= minimumResolution.short
+      guard let smallestPenalty = supportedResolutions.map({ $0.penalty(coveringAtLeast: minimumResolution) }).min() else {
+        throw RuntimeError("Format \(format) does not have any available resolutions for stream type \"\(streamType)\"!")
       }
-      if hasFulfilling {
-        penalty = 0.0
-      } else {
-        guard let best = supportedResolutions.nearest(to: minimumResolution) else {
-          throw RuntimeError("Format \(format) does not have any available resolutions for stream type \"\(streamType)\"!")
-        }
-        penalty = best.penalty(minimumResolution)
-      }
+      penalty = smallestPenalty
     case .any:
       penalty = 0.0
     }

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "MediaType" and the the Kotlin enum "MediaType".
+   * The C++ JNI bridge between the C++ enum "MediaType" and the Kotlin enum "MediaType".
    */
   struct JMediaType final: public jni::JavaClass<JMediaType> {
   public:

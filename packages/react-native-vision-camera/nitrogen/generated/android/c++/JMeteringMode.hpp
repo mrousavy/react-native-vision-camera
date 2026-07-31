@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "MeteringMode" and the the Kotlin enum "MeteringMode".
+   * The C++ JNI bridge between the C++ enum "MeteringMode" and the Kotlin enum "MeteringMode".
    */
   struct JMeteringMode final: public jni::JavaClass<JMeteringMode> {
   public:

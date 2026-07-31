@@ -1,33 +1,40 @@
-import { useSyncExternalStore } from 'react'
-import {
-  addOnCameraDevicesChangedListener,
-  getAllCameraDevices,
-} from '../CameraDevices'
+import { useCallback, useRef, useSyncExternalStore } from 'react'
 import type { CameraDevice } from '../specs/inputs/CameraDevice.nitro'
-
-function subscribe(onStoreChange: () => void): () => void {
-  const listener = addOnCameraDevicesChangedListener(() => onStoreChange())
-  return () => listener.remove()
-}
-
-function getSnapshot(): CameraDevice[] {
-  return getAllCameraDevices()
-}
+import { useCameraDeviceFactory } from './internal/useCameraDeviceFactory'
+import { useCameraDevice } from './useCameraDevice'
 
 /**
- * Use a list of all {@linkcode CameraDevice}s on this phone.
+ * Get a list of all {@linkcode CameraDevice}s.
  *
- * The hook automatically updates with the new devices as
- * devices get added or removed to the phone - e.g. USB Cameras.
- *
- * @see {@linkcode useCameraDevice}
- * @see {@linkcode getCameraDevice}
- * @example
- * ```ts
- * const devices = useCameraDevices()
- * const backDevice = devices.find((d) => d.position === 'back')
- * ```
+ * @note It is recommended to use {@linkcode useCameraDevice | useCameraDevice(...)} if
+ * you only need a single {@linkcode CameraDevice}, as a full list of available devices
+ * can be heavy.
  */
 export function useCameraDevices(): CameraDevice[] {
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const deviceFactory = useCameraDeviceFactory()
+
+  const cachedDevices = useRef<CameraDevice[]>([])
+  if (deviceFactory != null && cachedDevices.current.length === 0) {
+    // Initialize `cachedDevices`
+    cachedDevices.current = deviceFactory.cameraDevices
+  }
+  const subscribe = useCallback(
+    (onStoreChange: () => void): (() => void) => {
+      if (deviceFactory == null) {
+        // CameraDeviceFactory still loading
+        return () => {}
+      }
+      const listener = deviceFactory.addOnCameraDevicesChangedListener(
+        (newDevices) => {
+          cachedDevices.current = newDevices
+          onStoreChange()
+        },
+      )
+      return () => listener.remove()
+    },
+    [deviceFactory],
+  )
+  const getSnapshot = useCallback(() => cachedDevices.current, [])
+
+  return useSyncExternalStore(subscribe, getSnapshot)
 }

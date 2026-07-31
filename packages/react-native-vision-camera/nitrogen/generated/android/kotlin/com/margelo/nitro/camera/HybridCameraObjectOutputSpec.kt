@@ -10,6 +10,7 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -47,6 +48,7 @@ abstract class HybridCameraObjectOutputSpec: HybridCameraOutputSpec() {
   @Keep
   protected open class CxxPart(javaPart: HybridCameraObjectOutputSpec): HybridCameraOutputSpec.CxxPart(javaPart) {
     // C++ JHybridCameraObjectOutputSpec::CxxPart::initHybrid(...)
+    @FastNative
     external override fun initHybrid(): HybridData
   }
   override fun createCxxPart(): CxxPart {

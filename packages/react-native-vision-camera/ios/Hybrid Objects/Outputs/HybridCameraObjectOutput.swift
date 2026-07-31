@@ -39,7 +39,7 @@ final class HybridCameraObjectOutput: HybridCameraObjectOutputSpec, NativeCamera
     output.setMetadataObjectsDelegate(delegate, queue: queue)
   }
 
-  func configure(config: CameraOutputConfiguration) {
+  func configure(config: OutputConfiguration) {
     guard let connection = output.connection(with: .metadataObject) else {
       return
     }

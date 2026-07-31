@@ -1,6 +1,9 @@
 import type { HybridObject } from 'react-native-nitro-modules'
 import type { CameraFactory } from '../CameraFactory.nitro'
-import type { CameraPosition } from '../common-types/CameraPosition'
+import type {
+  CameraPosition,
+  TargetCameraPosition,
+} from '../common-types/CameraPosition'
 import type { ListenerSubscription } from '../common-types/ListenerSubscription'
 import type { CameraSession } from '../session/CameraSession.nitro'
 import type { CameraDevice } from './CameraDevice.nitro'
@@ -126,7 +129,7 @@ export interface CameraDeviceFactory
 
   /**
    * Get the platform's default {@linkcode CameraDevice}
-   * at the given {@linkcode CameraPosition}.
+   * at the given {@linkcode TargetCameraPosition}.
    */
-  getDefaultCamera(position: CameraPosition): CameraDevice | undefined
+  getDefaultCamera(position: TargetCameraPosition): CameraDevice | undefined
 }

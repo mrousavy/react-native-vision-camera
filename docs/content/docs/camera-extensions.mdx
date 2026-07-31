@@ -10,7 +10,7 @@ Some [`CameraDevice`](/api/react-native-vision-camera/hybrid-objects/CameraDevic
 
 ### Getting available Extensions
 
-To get all available [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s, use [`getSupportedExtensions(...)`](/api/react-native-vision-camera/functions/getSupportedExtensions):
+To get all available [`CameraExtension`](/api/react-native-vision-camera/hybrid-objects/CameraExtension)s, use [`useCameraDeviceExtensions(...)`](/api/react-native-vision-camera/functions/useCameraDeviceExtensions) or [`CameraDeviceFactory.getSupportedExtensions(...)`](/api/react-native-vision-camera/hybrid-objects/CameraDeviceFactory#getsupportedextensions):
 
 <Tabs items={["Hooks", "Imperative"]} groupId="hooks-or-imperative" persist>
 <Tab value="Hooks">
@@ -22,7 +22,8 @@ const extensions = useCameraDeviceExtensions(device)
 <Tab value="Imperative">
 ```ts
 const device = ...
-const extensions = await getSupportedExtensions(device)
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const extensions = await deviceFactory.getSupportedExtensions(device)
 ```
 </Tab>
 </Tabs>
@@ -71,7 +72,8 @@ function App() {
 ```tsx
 const device = ...
 const session = ...
-const extensions = await getSupportedExtensions(device)
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const extensions = await deviceFactory.getSupportedExtensions(device)
 const extension = extensions.find((e) => e.type === 'night')
 
 const controllers = await session.configure([

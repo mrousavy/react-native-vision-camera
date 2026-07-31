@@ -10,6 +10,7 @@ package com.margelo.nitro.camera
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.core.HybridObject
 
 /**
@@ -40,6 +41,7 @@ abstract class HybridTapToFocusGestureControllerSpec: HybridGestureControllerSpe
   @Keep
   protected open class CxxPart(javaPart: HybridTapToFocusGestureControllerSpec): HybridGestureControllerSpec.CxxPart(javaPart) {
     // C++ JHybridTapToFocusGestureControllerSpec::CxxPart::initHybrid(...)
+    @FastNative
     external override fun initHybrid(): HybridData
   }
   override fun createCxxPart(): CxxPart {

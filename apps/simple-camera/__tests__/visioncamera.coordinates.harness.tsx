@@ -123,9 +123,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(roundTripped.x).toBeCloseTo(input.x, 0)
         expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
-      console.log(
-        `frame ${r.width}x${r.height} round-trip points: ${JSON.stringify(r.points)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -191,9 +188,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(s.x).toBeCloseTo(first.x, 0)
         expect(s.y).toBeCloseTo(first.y, 0)
       }
-      console.log(
-        `frame center camera point samples: ${JSON.stringify(samples)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -271,7 +265,6 @@ describe('VisionCamera - Coordinates', () => {
         expect(roundTripped.x).toBeCloseTo(input.x, 0)
         expect(roundTripped.y).toBeCloseTo(input.y, 0)
       }
-      console.log(`preview round-trip ok on ${w}x${h}`)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -336,9 +329,6 @@ describe('VisionCamera - Coordinates', () => {
       const back = previewRef.convertCameraPointToViewPoint(cameraPoint)
       expect(back.x).toBeCloseTo(viewCenter.x, 0)
       expect(back.y).toBeCloseTo(viewCenter.y, 0)
-      console.log(
-        `preview center round-trip: ${JSON.stringify(viewCenter)} -> ${JSON.stringify(cameraPoint)} -> ${JSON.stringify(back)}`,
-      )
     } finally {
       errorSub.remove()
       await session.stop()
@@ -418,9 +408,6 @@ describe('VisionCamera - Coordinates', () => {
       // symmetric around the center. numDigits=1 tolerates |x - 0.5| < 0.05.
       expect(mp.normalizedX).toBeCloseTo(0.5, 1)
       expect(mp.normalizedY).toBeCloseTo(0.5, 1)
-      console.log(
-        `metering point at view center: relative=(${mp.relativeX}, ${mp.relativeY}) normalized=(${mp.normalizedX}, ${mp.normalizedY})`,
-      )
     } finally {
       errorSub.remove()
       await session.stop()
@@ -481,10 +468,8 @@ describe('VisionCamera - Coordinates', () => {
     )
 
     let frameCenterCamera: Point | undefined
-    let observedOrientation: string | undefined
-    const onSample = (cameraPoint: Point, orientation: string) => {
+    const onSample = (cameraPoint: Point) => {
       frameCenterCamera = cameraPoint
-      observedOrientation = orientation
     }
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
@@ -492,7 +477,7 @@ describe('VisionCamera - Coordinates', () => {
       'worklet'
       const center = { x: frame.width / 2, y: frame.height / 2 }
       const cameraPoint = frame.convertFramePointToCameraPoint(center)
-      scheduleOnRN(onSample, cameraPoint, frame.orientation)
+      scheduleOnRN(onSample, cameraPoint)
       frame.dispose()
     })
 
@@ -520,9 +505,146 @@ describe('VisionCamera - Coordinates', () => {
       // view dimension or more.
       expect(projected.x).toBeCloseTo(viewCenter.x, -2)
       expect(projected.y).toBeCloseTo(viewCenter.y, -2)
-      console.log(
-        `frame.orientation=${observedOrientation} frame-center camera=${JSON.stringify(frameCenterCamera)} -> view=${JSON.stringify(projected)} (view center ${JSON.stringify(viewCenter)})`,
-      )
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  // The end-to-end test above projects a single point, and the frame center
+  // is a fixed point of any axis-scaling error — an anisotropic Frame ->
+  // View mapping still lands the center on the center. Projecting a region
+  // catches what a point cannot: a square in Frame space must stay square
+  // in View space, because every transform between them (sensor scale,
+  // orientation, the preview's aspect-preserving crop) preserves aspect.
+  //
+  // Camera space itself is allowed to be anisotropic — iOS normalizes
+  // per-axis to [0, 1], so a square is not square there — but that is an
+  // intermediate representation, and converting out of it must undo the
+  // same per-axis scaling it applied. Composing the two public conversions
+  // is exactly how callers map a region of interest (a scan guide, a
+  // detection box) between the preview and the pixels, so the composition
+  // is the contract under test, not either half alone.
+  it('maps a square Frame region onto a square View region', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [
+          { output: previewOutput, mirrorMode: 'auto' },
+          { output: frameOutput, mirrorMode: 'auto' },
+        ],
+        constraints: [],
+      },
+    ])
+
+    let previewRef: PreviewView | undefined
+    const previewStarted = deferred()
+    const layout = deferred<{ width: number; height: number }>()
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+      previewStarted.reject(error)
+      layout.reject(error)
+    })
+
+    await render(
+      <NativePreviewView
+        style={StyleSheet.absoluteFill}
+        previewOutput={previewOutput}
+        hybridRef={callback((r: PreviewView) => {
+          previewRef = r
+        })}
+        onPreviewStarted={callback(() => {
+          previewStarted.resolve()
+        })}
+        onLayout={(e: LayoutChangeEvent) => {
+          layout.resolve({
+            width: e.nativeEvent.layout.width,
+            height: e.nativeEvent.layout.height,
+          })
+        }}
+      />,
+    )
+
+    // Three corners are enough to measure two adjacent edges of the square.
+    type SquareCorners = {
+      topLeft: Point
+      topRight: Point
+      bottomLeft: Point
+    }
+    let cameraCorners: SquareCorners | undefined
+    const onCorners = (corners: SquareCorners) => {
+      cameraCorners = corners
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      // A square centered in the frame, kept small so it stays inside the
+      // preview's `resizeMode='cover'` crop on any view aspect ratio.
+      const side = Math.min(frame.width, frame.height) / 4
+      const left = frame.width / 2 - side / 2
+      const right = frame.width / 2 + side / 2
+      const top = frame.height / 2 - side / 2
+      const bottom = frame.height / 2 + side / 2
+      scheduleOnRN(onCorners, {
+        topLeft: frame.convertFramePointToCameraPoint({ x: left, y: top }),
+        topRight: frame.convertFramePointToCameraPoint({ x: right, y: top }),
+        bottomLeft: frame.convertFramePointToCameraPoint({
+          x: left,
+          y: bottom,
+        }),
+      })
+      frame.dispose()
+    })
+
+    await session.start()
+    try {
+      await withTimeout(layout.promise, 10_000, 'preview view onLayout')
+      await withTimeout(previewStarted.promise, 15_000, 'preview started')
+      await waitUntil(() => cameraCorners != null || sessionError != null, {
+        timeout: 15_000,
+      })
+      expect(sessionError).toBe(undefined)
+      if (previewRef == null) throw new Error('no preview ref')
+      const corners = cameraCorners
+      if (corners == null) throw new Error('no square corner samples')
+
+      const view = {
+        topLeft: previewRef.convertCameraPointToViewPoint(corners.topLeft),
+        topRight: previewRef.convertCameraPointToViewPoint(corners.topRight),
+        bottomLeft: previewRef.convertCameraPointToViewPoint(
+          corners.bottomLeft,
+        ),
+      }
+
+      // Edge *lengths*, not per-axis deltas: the orientation counter-rotation
+      // is free to map the frame's x edge onto the view's y axis, so only the
+      // distances are comparable across the two spaces.
+      const distance = (a: Point, b: Point) => Math.hypot(b.x - a.x, b.y - a.y)
+      const topEdge = distance(view.topLeft, view.topRight)
+      const leftEdge = distance(view.topLeft, view.bottomLeft)
+      expect(topEdge).toBeGreaterThan(0)
+      expect(leftEdge).toBeGreaterThan(0)
+
+      // A ratio rather than absolute lengths: the frame resolution and the
+      // view size differ per device, but a square is square everywhere.
+      // toBeCloseTo(1, 1) tolerates |ratio - 1| < 0.05, which absorbs dp /
+      // pixel rounding while still catching an axis-scaling regression.
+      const edgeRatio = leftEdge / topEdge
+      expect(edgeRatio).toBeCloseTo(1, 1)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -652,10 +774,6 @@ describe('VisionCamera - Coordinates', () => {
       for (const edge of ['left', 'top', 'right', 'bottom'] as const) {
         expect(r.reported[edge]).toBeCloseTo(r.expected[edge], 0)
       }
-
-      console.log(
-        `oriented rectangle projection orientation=${r.orientation} expected=${JSON.stringify(r.expected)} reported=${JSON.stringify(r.reported)}`,
-      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()

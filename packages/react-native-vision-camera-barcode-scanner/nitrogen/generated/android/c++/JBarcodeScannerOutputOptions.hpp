@@ -30,7 +30,7 @@ namespace margelo::nitro::camera::barcodescanner {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "BarcodeScannerOutputOptions" and the the Kotlin data class "BarcodeScannerOutputOptions".
+   * The C++ JNI bridge between the C++ struct "BarcodeScannerOutputOptions" and the Kotlin data class "BarcodeScannerOutputOptions".
    */
   struct JBarcodeScannerOutputOptions final: public jni::JavaClass<JBarcodeScannerOutputOptions> {
   public:

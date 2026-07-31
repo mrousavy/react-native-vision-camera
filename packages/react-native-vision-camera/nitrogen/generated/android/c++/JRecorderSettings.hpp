@@ -21,7 +21,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "RecorderSettings" and the the Kotlin data class "RecorderSettings".
+   * The C++ JNI bridge between the C++ struct "RecorderSettings" and the Kotlin data class "RecorderSettings".
    */
   struct JRecorderSettings final: public jni::JavaClass<JRecorderSettings> {
   public:

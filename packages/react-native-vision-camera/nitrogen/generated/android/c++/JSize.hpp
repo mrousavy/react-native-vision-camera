@@ -17,7 +17,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "Size" and the the Kotlin data class "Size".
+   * The C++ JNI bridge between the C++ struct "Size" and the Kotlin data class "Size".
    */
   struct JSize final: public jni::JavaClass<JSize> {
   public:

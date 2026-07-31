@@ -11,7 +11,6 @@ import VisionCamera
 final class HybridLocationManager: HybridLocationManagerSpec {
   private let manager = CLLocationManager()
   private let delegate = LocationDelegate()
-  private var permissionPromises: [Promise<Bool>] = []
   var lastKnownLocation: (any HybridLocationSpec)? {
     guard let location = manager.location else {
       return nil

@@ -10,6 +10,7 @@ package com.margelo.nitro.camera.barcodescanner
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import dalvik.annotation.optimization.FastNative
 import com.margelo.nitro.camera.HybridCameraOutputSpec
 import com.margelo.nitro.core.HybridObject
 
@@ -47,6 +48,7 @@ abstract class HybridBarcodeScannerFactorySpec: HybridObject() {
   @Keep
   protected open class CxxPart(javaPart: HybridBarcodeScannerFactorySpec): HybridObject.CxxPart(javaPart) {
     // C++ JHybridBarcodeScannerFactorySpec::CxxPart::initHybrid(...)
+    @FastNative
     external override fun initHybrid(): HybridData
   }
   override fun createCxxPart(): CxxPart {

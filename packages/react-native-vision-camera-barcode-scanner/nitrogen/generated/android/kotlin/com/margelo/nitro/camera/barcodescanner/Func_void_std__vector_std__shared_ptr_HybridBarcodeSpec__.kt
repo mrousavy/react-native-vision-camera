@@ -10,7 +10,6 @@ package com.margelo.nitro.camera.barcodescanner
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import dalvik.annotation.optimization.FastNative
 
 
 /**
@@ -59,7 +58,6 @@ class Func_void_std__vector_std__shared_ptr_HybridBarcodeSpec___cxx: Func_void_s
   override fun invoke(barcodes: Array<HybridBarcodeSpec>): Unit
     = invoke_cxx(barcodes)
 
-  @FastNative
   private external fun invoke_cxx(barcodes: Array<HybridBarcodeSpec>): Unit
 }
 

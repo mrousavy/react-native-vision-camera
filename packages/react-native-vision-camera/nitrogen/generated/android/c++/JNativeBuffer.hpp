@@ -19,7 +19,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "NativeBuffer" and the the Kotlin data class "NativeBuffer".
+   * The C++ JNI bridge between the C++ struct "NativeBuffer" and the Kotlin data class "NativeBuffer".
    */
   struct JNativeBuffer final: public jni::JavaClass<JNativeBuffer> {
   public:

@@ -5,7 +5,7 @@ import type { Frame } from '../instances/Frame.nitro'
 
 /**
  * The {@linkcode FrameConverter} can convert {@linkcode Frame}s
- * and {@linkcode Depth} to {@linkcode Image}s, and back.
+ * and {@linkcode Depth} to {@linkcode Image}s.
  */
 export interface FrameConverter
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {

@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "ScannedObjectType" and the the Kotlin enum "ScannedObjectType".
+   * The C++ JNI bridge between the C++ enum "ScannedObjectType" and the Kotlin enum "ScannedObjectType".
    */
   struct JScannedObjectType final: public jni::JavaClass<JScannedObjectType> {
   public:

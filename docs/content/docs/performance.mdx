@@ -29,11 +29,11 @@ const slowerDevice = useCameraDevice('back', {
 <Tab value="Imperative API">
 
 ```ts
-const devices = getAllCameraDevices()
-const fasterDevice = getCameraDevice(devices, 'back', {
+const deviceFactory = await VisionCamera.createDeviceFactory()
+const fasterDevice = getCameraDevice(deviceFactory, 'back', {
   physicalDevices: ['wide-angle-camera'],
 })
-const slowerDevice = getCameraDevice(devices, 'back', {
+const slowerDevice = getCameraDevice(deviceFactory, 'back', {
   physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
 })
 ```

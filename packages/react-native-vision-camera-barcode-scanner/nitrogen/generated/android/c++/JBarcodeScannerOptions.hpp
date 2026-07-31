@@ -19,7 +19,7 @@ namespace margelo::nitro::camera::barcodescanner {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ struct "BarcodeScannerOptions" and the the Kotlin data class "BarcodeScannerOptions".
+   * The C++ JNI bridge between the C++ struct "BarcodeScannerOptions" and the Kotlin data class "BarcodeScannerOptions".
    */
   struct JBarcodeScannerOptions final: public jni::JavaClass<JBarcodeScannerOptions> {
   public:

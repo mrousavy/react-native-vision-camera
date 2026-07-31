@@ -60,7 +60,7 @@ namespace margelo::nitro::camera {
     ListenerSubscription addOnCameraDevicesChangedListener(const std::function<void(const std::vector<std::shared_ptr<HybridCameraDeviceSpec>>& /* newDevices */)>& listener) override;
     std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getCameraForId(const std::string& id) override;
     std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraExtensionSpec>>>> getSupportedExtensions(const std::shared_ptr<HybridCameraDeviceSpec>& camera) override;
-    std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(CameraPosition position) override;
+    std::optional<std::shared_ptr<HybridCameraDeviceSpec>> getDefaultCamera(TargetCameraPosition position) override;
 
   private:
     jni::global_ref<JHybridCameraDeviceFactorySpec::JavaPart> _javaPart;

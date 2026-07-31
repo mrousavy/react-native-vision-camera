@@ -15,7 +15,7 @@ namespace margelo::nitro::camera {
   using namespace facebook;
 
   /**
-   * The C++ JNI bridge between the C++ enum "SceneAdaptiveness" and the the Kotlin enum "SceneAdaptiveness".
+   * The C++ JNI bridge between the C++ enum "SceneAdaptiveness" and the Kotlin enum "SceneAdaptiveness".
    */
   struct JSceneAdaptiveness final: public jni::JavaClass<JSceneAdaptiveness> {
   public:

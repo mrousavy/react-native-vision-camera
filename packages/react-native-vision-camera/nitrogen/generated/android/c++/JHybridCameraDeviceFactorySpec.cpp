@@ -13,8 +13,8 @@ namespace margelo::nitro::camera { class HybridCameraDeviceSpec; }
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `HybridCameraExtensionSpec` to properly resolve imports.
 namespace margelo::nitro::camera { class HybridCameraExtensionSpec; }
-// Forward declaration of `CameraPosition` to properly resolve imports.
-namespace margelo::nitro::camera { enum class CameraPosition; }
+// Forward declaration of `TargetCameraPosition` to properly resolve imports.
+namespace margelo::nitro::camera { enum class TargetCameraPosition; }
 
 #include <memory>
 #include "HybridCameraDeviceSpec.hpp"
@@ -32,8 +32,8 @@ namespace margelo::nitro::camera { enum class CameraPosition; }
 #include "JHybridCameraExtensionSpec.hpp"
 #include "JFunc_void_std__vector_std__shared_ptr_HybridCameraDeviceSpec__.hpp"
 #include <string>
-#include "CameraPosition.hpp"
-#include "JCameraPosition.hpp"
+#include "TargetCameraPosition.hpp"
+#include "JTargetCameraPosition.hpp"
 
 namespace margelo::nitro::camera {
 
@@ -148,9 +148,9 @@ namespace margelo::nitro::camera {
       return __promise;
     }();
   }
-  std::optional<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceFactorySpec::getDefaultCamera(CameraPosition position) {
-    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::JavaPart>(jni::alias_ref<JCameraPosition> /* position */)>("getDefaultCamera");
-    auto __result = method(_javaPart, JCameraPosition::fromCpp(position));
+  std::optional<std::shared_ptr<HybridCameraDeviceSpec>> JHybridCameraDeviceFactorySpec::getDefaultCamera(TargetCameraPosition position) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JHybridCameraDeviceSpec::JavaPart>(jni::alias_ref<JTargetCameraPosition> /* position */)>("getDefaultCamera");
+    auto __result = method(_javaPart, JTargetCameraPosition::fromCpp(position));
     return __result != nullptr ? std::make_optional(__result->getJHybridCameraDeviceSpec()) : std::nullopt;
   }
 

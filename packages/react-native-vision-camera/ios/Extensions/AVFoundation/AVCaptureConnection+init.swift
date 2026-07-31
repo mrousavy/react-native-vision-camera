@@ -9,7 +9,7 @@ import Foundation
 import NitroModules
 
 extension AVCaptureConnection {
-  convenience init(input: AVCaptureDeviceInput, output: any HybridCameraOutputSpec) throws {
+  convenience init(input: AVCaptureDeviceInput, output: ResolvedCameraSessionConnection.Output) throws {
     let mediaType = output.mediaType.toAVMediaType()
     let targetPorts = input.ports.filter { $0.mediaType == mediaType }
     guard !targetPorts.isEmpty else {
@@ -20,19 +20,13 @@ extension AVCaptureConnection {
     }
 
     switch output {
-    case let hybridOutput as any NativeCameraOutput:
+    case .output(let output):
       // a) It's a normal AVCaptureSessionOutput - connect it to all its desired ports
-      self.init(inputPorts: targetPorts, output: hybridOutput.output)
-    case let hybridPreview as any NativePreviewViewOutput:
+      self.init(inputPorts: targetPorts, output: output.output)
+    case .preview(let preview):
       // b) It's a preview AVCapturePreviewLayer
       let port = targetPorts.first!
-      self.init(inputPort: port, videoPreviewLayer: hybridPreview.previewLayer)
-    default:
-      // c) It's a bird? It's a plane? no idea
-      throw RuntimeError.error(
-        withMessage:
-          "Connection output \"\(output)\" is not of type `NativeCameraOutput` or `NativePreviewViewOutput`!"
-      )
+      self.init(inputPort: port, videoPreviewLayer: preview.previewLayer)
     }
   }
 }

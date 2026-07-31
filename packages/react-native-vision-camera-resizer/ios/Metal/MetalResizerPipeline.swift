@@ -127,10 +127,15 @@ final class MetalResizerPipeline {
   }
 
   /**
-   * The dispatch grid that covers the full output image.
+   * The threadgroup grid that covers the full output image, rounded up.
+   * The kernels bounds-check `gid`, so this also works on GPUs that do not
+   * support non-uniform threadgroups.
    */
-  private var threadsPerGrid: MTLSize {
-    return MTLSize(width: outputWidth, height: outputHeight, depth: 1)
+  private func threadgroupsPerGrid(threadsPerThreadgroup: MTLSize) -> MTLSize {
+    return MTLSize(
+      width: (outputWidth + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
+      height: (outputHeight + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
+      depth: 1)
   }
 
   private func encodeAndRun(
@@ -151,7 +156,9 @@ final class MetalResizerPipeline {
     encoder.setTexture(inputTextures.uvPlane.texture, index: 1)
     encoder.setBuffer(outputBuffer, offset: 0, index: 0)
     encoder.setBytes(&uniforms, length: MemoryLayout<MetalResizerUniforms>.stride, index: 1)
-    encoder.dispatchThreads(self.threadsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+    encoder.dispatchThreadgroups(
+      threadgroupsPerGrid(threadsPerThreadgroup: threadsPerThreadgroup),
+      threadsPerThreadgroup: threadsPerThreadgroup)
     encoder.endEncoding()
 
     commandBuffer.commit()
