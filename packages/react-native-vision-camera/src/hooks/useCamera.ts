@@ -299,6 +299,9 @@ export function useCamera({
   const controller = useCameraController(session, input, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
+    // Route CameraSession configuration failures to the same `onError` the
+    // runtime session errors already use.
+    onError: onError,
     getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
     getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
     constraints: constraints,

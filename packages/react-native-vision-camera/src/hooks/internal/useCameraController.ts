@@ -16,6 +16,7 @@ interface Config extends CameraSessionConfiguration {
   onSessionConfigSelected?: (config: CameraSessionConfig) => void
 
   onConfigured?: () => void
+  onError?: (error: Error) => void
   getInitialZoom?: () => number | undefined
   getInitialExposureBias?: () => number | undefined
 }
@@ -39,6 +40,7 @@ export function useCameraController(
     allowHapticsAndSystemSoundsPlayback,
     getInitialExposureBias,
     onConfigured,
+    onError,
     getInitialZoom,
   }: Config = {},
 ): CameraController | undefined {
@@ -53,6 +55,7 @@ export function useCameraController(
     getInitialZoom ?? (() => undefined),
   )
   const stableOnConfigured = useStableCallback(onConfigured ?? (() => {}))
+  const stableOnError = useStableCallback(onError ?? (() => {}))
   const stableOnSessionConfigSelected = useStableCallback(
     onSessionConfigSelected ?? (() => {}),
   )
@@ -85,26 +88,44 @@ export function useCameraController(
         setController(undefined)
       } else {
         // Device + outputs - configure session
-        const controllers = await session.configure(
-          [
+        const controllers = await session
+          .configure(
+            [
+              {
+                input: device,
+                outputs: stableOutputs.map((o) => ({
+                  output: o,
+                  mirrorMode: mirrorMode,
+                })),
+                constraints: stableConstraints,
+                initialExposureBias: stableGetInitialExposureBias?.(),
+                initialZoom: stableGetInitialZoom?.(),
+                onSessionConfigSelected: stableOnSessionConfigSelected,
+              },
+            ],
             {
-              input: device,
-              outputs: stableOutputs.map((o) => ({
-                output: o,
-                mirrorMode: mirrorMode,
-              })),
-              constraints: stableConstraints,
-              initialExposureBias: stableGetInitialExposureBias?.(),
-              initialZoom: stableGetInitialZoom?.(),
-              onSessionConfigSelected: stableOnSessionConfigSelected,
+              allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
+              allowHapticsAndSystemSoundsPlayback:
+                allowHapticsAndSystemSoundsPlayback,
             },
-          ],
-          {
-            allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
-            allowHapticsAndSystemSoundsPlayback:
-              allowHapticsAndSystemSoundsPlayback,
-          },
-        )
+          )
+          .catch((error: Error) => {
+            // A rejected `configure()` means the CameraSession could never be
+            // built - e.g. the device rejected the requested use-case
+            // combination, or Camera permission was not granted (yet).
+            // Without this handler the rejection is unhandled: no controller
+            // is ever set, nothing reaches `onError`, and the preview stays
+            // black forever with no way for the user to react to it.
+            if (!isCanceled) {
+              setController(undefined)
+              stableOnError(error)
+            }
+            return undefined
+          })
+        if (controllers == null) {
+          // `configure(..)` rejected (and was already reported above).
+          return
+        }
         if (isCanceled) {
           controllers.forEach((c) => {
             c.dispose()
@@ -127,6 +148,7 @@ export function useCameraController(
     allowHapticsAndSystemSoundsPlayback,
     stableOutputs,
     stableOnConfigured,
+    stableOnError,
     stableGetInitialExposureBias,
     stableGetInitialZoom,
     stableOnSessionConfigSelected,
