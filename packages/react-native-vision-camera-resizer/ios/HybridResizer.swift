@@ -12,6 +12,20 @@ import VisionCamera
 
 /// High-level iOS resizer that turns camera frames into GPU-backed JS-visible output frames.
 final class HybridResizer: HybridResizerSpec {
+  /// Serializes `resize()` against `dispose()` - the same lifecycle guard as the Android
+  /// `HybridResizer`'s `_lifecycleMutex`.
+  ///
+  /// `pipeline` is read on the Frame Processor Thread (`resize`, and `memorySize` via Nitro's
+  /// `toObject`) while `dispose()` can clear it from JS. A Swift stored-property load/store of a
+  /// class reference is not atomic, so an unguarded `pipeline = nil` racing the `guard let` load is
+  /// a data race on the possibly-last reference. Holding the lock across `run()` also means a
+  /// dispose landing mid-Frame waits for that resize to return, and every later call throws the
+  /// catchable "already been disposed" error instead.
+  ///
+  /// A `GPUFrame` that is still checked out is unaffected: its `MetalBufferView`'s `onRelease`
+  /// closure strongly captures the `MetalReusableBuffer`, so ARC keeps the output buffer alive
+  /// independently of the pipeline.
+  private let lifecycleLock = NSLock()
   private var pipeline: MetalResizerPipeline?
 
   init(options: ResizerOptions) throws {
@@ -20,14 +34,20 @@ final class HybridResizer: HybridResizerSpec {
   }
 
   var memorySize: Int {
+    lifecycleLock.lock()
+    defer { lifecycleLock.unlock() }
     return pipeline?.outputByteCount ?? 0
   }
 
   func dispose() {
+    lifecycleLock.lock()
+    defer { lifecycleLock.unlock() }
     pipeline = nil
   }
 
   func resize(frame: any HybridFrameSpec) throws -> any HybridGPUFrameSpec {
+    lifecycleLock.lock()
+    defer { lifecycleLock.unlock() }
     guard let pipeline else {
       throw RuntimeError.error(withMessage: "This Resizer has already been disposed!")
     }

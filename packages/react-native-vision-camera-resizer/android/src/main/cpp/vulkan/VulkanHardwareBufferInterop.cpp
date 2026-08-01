@@ -54,6 +54,7 @@ const VulkanHardwareBufferInterop::ImportedImage& VulkanHardwareBufferInterop::i
 
   // Camera streaming tends to recycle a small set of AHardwareBuffer objects, so cache their Vulkan wrappers by
   // buffer address and reuse them across frames instead of recreating the import/image-view state every time.
+  // The cache is LRU-ordered (front = most recently used) and bounded by kMaxCachedImages - see there for why.
   for (auto iterator = _cachedImages.begin(); iterator != _cachedImages.end();) {
     if (iterator->hardwareBuffer != hardwareBuffer) {
       // Different AHardwareBuffer* - look into next cached image...
@@ -65,12 +66,25 @@ const VulkanHardwareBufferInterop::ImportedImage& VulkanHardwareBufferInterop::i
                                iterator->width == description.width && iterator->height == description.height && iterator->format == description.format;
     if (canReuseImage) {
       // We can re-use this Vulkan ImportedImage because it's the same AHardwareBuffer + config as before!
-      return iterator->importedImage;
+      // Promote it to the front so the LRU eviction below never drops a hot buffer. `splice(..)` moves the
+      // node itself, so the returned reference stays valid.
+      _cachedImages.splice(_cachedImages.begin(), _cachedImages, iterator);
+      return _cachedImages.front().importedImage;
     }
 
     // We can not re-use this Vulkan ImportedImage because the config has changed. Destroy it from cache.
     destroyImportedImage(iterator->importedImage);
     iterator = _cachedImages.erase(iterator);
+  }
+
+  // Evict least-recently-used entries before inserting, so the cache converges onto the current camera session's
+  // working set and releases the previous session's buffers.
+  //
+  // Safe to destroy here: `VulkanResizerPipeline::run(..)` holds `_stateMutex` across import -> dispatch ->
+  // submit-and-wait, so no other imported image is in flight on the GPU at this point.
+  while (_cachedImages.size() >= kMaxCachedImages) {
+    destroyImportedImage(_cachedImages.back().importedImage);
+    _cachedImages.pop_back();
   }
 
   // No suitable ImportedImage was found in our cache - we have to create a new one.
@@ -83,8 +97,8 @@ const VulkanHardwareBufferInterop::ImportedImage& VulkanHardwareBufferInterop::i
       .format = description.format,
       .importedImage = createImportedImage(hardwareBuffer, description, properties, conversion),
   };
-  _cachedImages.push_back(std::move(cachedImage));
-  return _cachedImages.back().importedImage;
+  _cachedImages.push_front(std::move(cachedImage));
+  return _cachedImages.front().importedImage;
 }
 
 void VulkanHardwareBufferInterop::clearCachedImages() noexcept {
