@@ -14,8 +14,11 @@ import type { CameraDevice, CameraRef, Point } from 'react-native-vision-camera'
 import {
   Camera,
   CommonResolutions,
+  NativeFrameRendererView,
   VisionCamera,
 } from 'react-native-vision-camera'
+import { provider as workletsProvider } from 'react-native-vision-camera-worklets'
+import { scheduleOnRN } from 'react-native-worklets'
 import { deferred, withTimeout } from './test-utils'
 
 interface Layout {
@@ -217,6 +220,198 @@ describe('VisionCamera - Camera View', () => {
       />,
     )
     await withTimeout(stopped.promise, 10_000, 'photo Camera onStopped')
+  })
+
+  it('survives rapid photo -> video -> photo output changes with a frame-rendered preview', async () => {
+    const cameraRef = createRef<CameraRef>()
+    const firstPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+    const secondPhotoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const frameOutput = VisionCamera.createFrameOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      pixelFormat: 'native',
+      enablePreviewSizedOutputBuffers: false,
+      enablePhysicalBufferRotation: false,
+      enableCameraMatrixDelivery: false,
+      allowDeferredStart: false,
+      dropFramesWhileBusy: true,
+    })
+    const frameRenderer = VisionCamera.createFrameRenderer()
+
+    const layout = deferred<Layout>()
+    const started = deferred()
+    const previewStarted = deferred()
+    let sessionError: Error | undefined
+    let frameRenderError: Error | undefined
+    let framesRendered = 0
+
+    const onError = (error: Error) => {
+      sessionError = error
+      layout.reject(error)
+      started.reject(error)
+      previewStarted.reject(error)
+    }
+    const onFrameRendered = () => {
+      framesRendered++
+    }
+    const onFrameRenderError = (message: string) => {
+      frameRenderError = new Error(message)
+    }
+
+    const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
+    runtime.setOnFrameCallback(frameOutput, (frame) => {
+      'worklet'
+      try {
+        frameRenderer.renderFrame(frame)
+        scheduleOnRN(onFrameRendered)
+      } catch (error) {
+        scheduleOnRN(onFrameRenderError, String(error))
+      } finally {
+        frame.dispose()
+      }
+    })
+
+    try {
+      const { rerender } = await render(
+        <>
+          <Camera
+            ref={cameraRef}
+            device={backDevice}
+            isActive={true}
+            outputs={[firstPhotoOutput, frameOutput]}
+            style={StyleSheet.absoluteFill}
+            onLayout={(event) => {
+              layout.resolve(toLayout(event))
+            }}
+            onStarted={started.resolve}
+            onPreviewStarted={previewStarted.resolve}
+            onError={onError}
+          />
+          <NativeFrameRendererView
+            renderer={frameRenderer}
+            style={StyleSheet.absoluteFill}
+          />
+        </>,
+      )
+
+      const cameraLayout = await withTimeout(
+        layout.promise,
+        10_000,
+        'rapid output Camera onLayout',
+      )
+      await withTimeout(
+        started.promise,
+        15_000,
+        'rapid output Camera onStarted',
+      )
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'rapid output Camera onPreviewStarted',
+      )
+
+      const camera = cameraRef.current
+      if (camera == null) throw new Error('no Camera ref')
+      expectPreviewGeometry(camera, cameraLayout)
+
+      await waitUntil(
+        () =>
+          framesRendered > 0 ||
+          sessionError != null ||
+          frameRenderError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(frameRenderError).toBe(undefined)
+      expect(framesRendered).toBeGreaterThan(0)
+
+      await rerender(
+        <>
+          <Camera
+            ref={cameraRef}
+            device={backDevice}
+            isActive={true}
+            outputs={[videoOutput, frameOutput]}
+            style={StyleSheet.absoluteFill}
+            onStarted={started.resolve}
+            onPreviewStarted={previewStarted.resolve}
+            onError={onError}
+          />
+          <NativeFrameRendererView
+            renderer={frameRenderer}
+            style={StyleSheet.absoluteFill}
+          />
+        </>,
+      )
+
+      await rerender(
+        <>
+          <Camera
+            ref={cameraRef}
+            device={backDevice}
+            isActive={true}
+            outputs={[secondPhotoOutput, frameOutput]}
+            style={StyleSheet.absoluteFill}
+            onStarted={started.resolve}
+            onPreviewStarted={previewStarted.resolve}
+            onError={onError}
+          />
+          <NativeFrameRendererView
+            renderer={frameRenderer}
+            style={StyleSheet.absoluteFill}
+          />
+        </>,
+      )
+
+      await waitUntil(
+        () =>
+          secondPhotoOutput.currentResolution != null ||
+          sessionError != null ||
+          frameRenderError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(frameRenderError).toBe(undefined)
+      expect(secondPhotoOutput.currentResolution).toBeDefined()
+
+      const photo = await secondPhotoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      try {
+        expect(photo.width).toBeGreaterThan(0)
+        expect(photo.height).toBeGreaterThan(0)
+      } finally {
+        photo.dispose()
+      }
+
+      const framesBeforeFinalCheck = framesRendered
+      await waitUntil(
+        () =>
+          framesRendered > framesBeforeFinalCheck + 2 ||
+          sessionError != null ||
+          frameRenderError != null,
+        { timeout: 15_000 },
+      )
+      expect(sessionError).toBe(undefined)
+      expect(frameRenderError).toBe(undefined)
+      expect(framesRendered).toBeGreaterThan(framesBeforeFinalCheck)
+    } finally {
+      runtime.setOnFrameCallback(frameOutput, undefined)
+    }
   })
 
   it('mounts with native tap-to-focus and zoom gestures enabled', async () => {
