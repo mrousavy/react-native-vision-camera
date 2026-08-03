@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import { assert, beforeAll, describe, expect, it } from 'react-native-harness'
 import type {
   CameraDeviceFactory,
   TargetCameraPosition,
@@ -19,10 +19,9 @@ describe('VisionCamera - Devices', () => {
     expect(back).toBeDefined()
     expect(front).toBeDefined()
 
-    const hasBack = factory.cameraDevices.some((d) => d.position === 'back')
-    const hasFront = factory.cameraDevices.some((d) => d.position === 'front')
-    expect(hasBack).toBe(true)
-    expect(hasFront).toBe(true)
+    const cameraPositions = factory.cameraDevices.map((d) => d.position)
+    expect(cameraPositions).toContain('back')
+    expect(cameraPositions).toContain('front')
   })
 
   it('returns the default camera for each available target position', () => {
@@ -35,39 +34,36 @@ describe('VisionCamera - Devices', () => {
       )
 
       if (devicesAtPosition.length === 0) {
-        expect(defaultCamera).toBe(undefined)
+        expect(defaultCamera).toBeUndefined()
         continue
       }
 
-      expect(defaultCamera).toBeDefined()
-      expect(defaultCamera?.position).toBe(position)
-      expect(devicesAtPosition.some((d) => d.id === defaultCamera?.id)).toBe(
-        true,
-      )
+      assert.exists(defaultCamera, `no default camera for ${position}`)
+      expect(defaultCamera.position).toBe(position)
+      const deviceIdsAtPosition = devicesAtPosition.map((d) => d.id)
+      expect(deviceIdsAtPosition).toContain(defaultCamera.id)
     }
   })
 
   it('returns the same device when calling getCameraForId with a known id', () => {
     const first = factory.cameraDevices[0]
-    expect(first).toBeDefined()
-    if (first == null) throw new Error('no cameras')
+    assert.exists(first, 'no cameras')
 
     const looked = factory.getCameraForId(first.id)
-    expect(looked).toBeDefined()
-    expect(looked?.id).toBe(first.id)
+    assert.exists(looked, `camera not found for id ${first.id}`)
+    expect(looked.id).toBe(first.id)
   })
 
   it('returns undefined when calling getCameraForId with an unknown id', () => {
     const looked = factory.getCameraForId(
       `definitely-not-a-real-camera-id-${Date.now()}`,
     )
-    expect(looked).toBe(undefined)
+    expect(looked).toBeUndefined()
   })
 
   it('returns an array from getSupportedExtensions for the default back camera', async () => {
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
     const extensions = await factory.getSupportedExtensions(device)
     expect(extensions).toBeInstanceOf(Array)
   })
@@ -106,8 +102,8 @@ describe('VisionCamera - Devices', () => {
       }
 
       if (device.mediaTypes.includes('video')) {
-        expect(device.supportedPixelFormats.length).toBeGreaterThan(0)
-        expect(device.supportedFPSRanges.length).toBeGreaterThan(0)
+        expect(device.supportedPixelFormats).not.toHaveLength(0)
+        expect(device.supportedFPSRanges).not.toHaveLength(0)
         for (const range of device.supportedFPSRanges) {
           expect(range.min).toBeLessThanOrEqual(range.max)
         }
@@ -117,29 +113,27 @@ describe('VisionCamera - Devices', () => {
 
   it('returns non-empty getSupportedResolutions for photo/video streams on a back device', () => {
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
     const photoResolutions = device.getSupportedResolutions('photo')
     const videoResolutions = device.getSupportedResolutions('video')
-    expect(photoResolutions.length).toBeGreaterThan(0)
-    expect(videoResolutions.length).toBeGreaterThan(0)
+    expect(photoResolutions).not.toHaveLength(0)
+    expect(videoResolutions).not.toHaveLength(0)
   })
 
-  it('gets and sets userPreferredCamera', () => {
+  it('gets and sets userPreferredCamera', (context) => {
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     const previous = factory.userPreferredCamera
+    context.onTestFinished(() => {
+      factory.userPreferredCamera = previous
+    })
     factory.userPreferredCamera = back
     expect(factory.userPreferredCamera?.id).toBe(back.id)
-    factory.userPreferredCamera = previous
   })
 
   it('exposes supportedMultiCamDeviceCombinations consistently with supportsMultiCamSessions', () => {
     if (VisionCamera.supportsMultiCamSessions) {
-      expect(
-        factory.supportedMultiCamDeviceCombinations.length,
-      ).toBeGreaterThanOrEqual(1)
+      expect(factory.supportedMultiCamDeviceCombinations).not.toHaveLength(0)
     } else {
       expect(factory.supportedMultiCamDeviceCombinations).toHaveLength(0)
     }
@@ -154,7 +148,7 @@ describe('VisionCamera - Devices', () => {
     }
     const knownIds = factory.cameraDevices.map((d) => d.id)
     for (const combination of combinations) {
-      expect(combination.length).toBeGreaterThan(0)
+      expect(combination).not.toHaveLength(0)
       for (const device of combination) {
         expect(knownIds).toContain(device.id)
       }

@@ -7,11 +7,11 @@ import {
   View,
 } from 'react-native'
 import {
-  afterEach,
+  assert,
   beforeAll,
-  cleanup,
   describe,
   expect,
+  fn,
   it,
   render,
 } from 'react-native-harness'
@@ -72,13 +72,8 @@ describe('VisionCamera - NativePreviewView', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   it('starts a bare NativePreviewView and exposes ref methods', async () => {
@@ -418,15 +413,17 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
+      let unmount: (() => void) | undefined
 
       try {
-        const { rerender } = await render(
+        const renderResult = await render(
           <View style={styles.issuePaddedContainer}>
             <View style={styles.placeholder} />
           </View>,
         )
+        unmount = renderResult.unmount
 
-        await rerender(
+        await renderResult.rerender(
           <View style={styles.issuePaddedContainer}>
             <NativePreviewView
               style={styles.issueFlexPreview}
@@ -466,7 +463,7 @@ describe('VisionCamera - NativePreviewView', () => {
       } finally {
         errorSub.remove()
         await session.stop()
-        cleanup()
+        unmount?.()
       }
     }
   })
@@ -680,9 +677,10 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
+      let unmount: (() => void) | undefined
 
       try {
-        await render(
+        const renderResult = await render(
           <NativePreviewView
             style={StyleSheet.absoluteFill}
             previewOutput={previewOutput}
@@ -695,6 +693,7 @@ describe('VisionCamera - NativePreviewView', () => {
             onPreviewStarted={callback(previewStarted.resolve)}
           />,
         )
+        unmount = renderResult.unmount
 
         const preview = await withTimeout(
           previewRef.promise,
@@ -715,11 +714,10 @@ describe('VisionCamera - NativePreviewView', () => {
         )
 
         expectPreviewGeometry(preview, previewLayout)
-        cleanup()
       } finally {
+        unmount?.()
         errorSub.remove()
         await session.stop()
-        cleanup()
       }
     }
   })
@@ -1041,9 +1039,10 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
+      let unmount: (() => void) | undefined
 
       try {
-        await render(
+        const renderResult = await render(
           <View style={styles.centeredRoot}>
             <View style={styles.fixedPreviewWrapper}>
               <NativePreviewView
@@ -1061,6 +1060,7 @@ describe('VisionCamera - NativePreviewView', () => {
             </View>
           </View>,
         )
+        unmount = renderResult.unmount
 
         const preview = await withTimeout(
           previewRef.promise,
@@ -1087,7 +1087,7 @@ describe('VisionCamera - NativePreviewView', () => {
       } finally {
         errorSub.remove()
         await session.stop()
-        cleanup()
+        unmount?.()
       }
     }
 
@@ -1134,9 +1134,10 @@ describe('VisionCamera - NativePreviewView', () => {
         layout.reject(error)
         previewStarted.reject(error)
       })
+      let unmount: (() => void) | undefined
 
       try {
-        await render(
+        const renderResult = await render(
           <NativePreviewView
             style={StyleSheet.absoluteFill}
             previewOutput={previewOutput}
@@ -1150,6 +1151,7 @@ describe('VisionCamera - NativePreviewView', () => {
             onPreviewStarted={callback(previewStarted.resolve)}
           />,
         )
+        unmount = renderResult.unmount
 
         const preview = await withTimeout(
           previewRef.promise,
@@ -1173,7 +1175,7 @@ describe('VisionCamera - NativePreviewView', () => {
       } finally {
         errorSub.remove()
         await session.stop()
-        cleanup()
+        unmount?.()
       }
     }
   })
@@ -1193,6 +1195,8 @@ describe('VisionCamera - NativePreviewView', () => {
     const layout = deferred<Layout>()
     const previewStarted = deferred()
     const previewStopped = deferred()
+    const onPreviewStarted = fn(() => previewStarted.resolve())
+    const onPreviewStopped = fn(() => previewStopped.resolve())
     const errorSub = session.addOnErrorListener((error) => {
       previewRef.reject(error)
       layout.reject(error)
@@ -1211,8 +1215,8 @@ describe('VisionCamera - NativePreviewView', () => {
           onLayout={(event) => {
             layout.resolve(toLayout(event))
           }}
-          onPreviewStarted={callback(previewStarted.resolve)}
-          onPreviewStopped={callback(previewStopped.resolve)}
+          onPreviewStarted={callback(onPreviewStarted)}
+          onPreviewStopped={callback(onPreviewStopped)}
         />,
       )
 
@@ -1233,6 +1237,7 @@ describe('VisionCamera - NativePreviewView', () => {
         15_000,
         'callback NativePreviewView onPreviewStarted',
       )
+      expect(onPreviewStarted).toHaveBeenCalledOnce()
 
       await session.stop()
       await withTimeout(
@@ -1240,6 +1245,7 @@ describe('VisionCamera - NativePreviewView', () => {
         10_000,
         'callback NativePreviewView onPreviewStopped',
       )
+      expect(onPreviewStopped).toHaveBeenCalledOnce()
     } finally {
       errorSub.remove()
       await session.stop()

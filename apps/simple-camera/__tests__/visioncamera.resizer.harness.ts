@@ -1,4 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from 'react-native-harness'
+import {
+  afterAll,
+  assert,
+  beforeAll,
+  describe,
+  expect,
+  it,
+} from 'react-native-harness'
 import type { Image } from 'react-native-nitro-image'
 import type {
   CameraDevice,
@@ -56,26 +63,23 @@ describe('VisionCamera - Resizer', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
   afterAll(() => {
     if (!isResizerAvailable()) return
-    expect([...observedOrientations].sort()).toEqual(
-      [...outputOrientations].sort(),
-    )
-    expect([...observedMirrorStates].sort()).toEqual([false, true])
+    expect(observedOrientations).toEqual(new Set(outputOrientations))
+    expect(observedMirrorStates).toEqual(new Set([false, true]))
   })
 
   it('reports GPU resizing availability', (context) => {
-    if (!isResizerAvailable()) {
+    const isAvailable = isResizerAvailable()
+    if (!isAvailable) {
       return context.skip(
         'resizer: GPU resizing is not available on this device',
       )
     }
-    expect(isResizerAvailable()).toBe(true)
   })
 
   for (const outputOrientation of outputOrientations) {
@@ -256,10 +260,6 @@ describe('VisionCamera - Resizer', () => {
                 resized.dispose()
               }
             }
-
-            console.log(
-              `Resizer: target=${outputOrientation}, frame=${frame.orientation}, mirrored=${frame.isMirrored}`,
-            )
           } finally {
             isWaitingForFrame = false
             runtime.setOnFrameCallback(frameOutput, undefined)
@@ -466,12 +466,12 @@ describe('VisionCamera - Resizer', () => {
         const float32Pixels = resizeToFloat32(float32Resizer, capturedFrame)
 
         const pixelCount = FORMAT_WIDTH * FORMAT_HEIGHT
-        expect(rgbPixels.length).toBe(pixelCount * 3)
-        expect(bgrPixels.length).toBe(pixelCount * 3)
-        expect(planarPixels.length).toBe(pixelCount * 3)
-        expect(int8Pixels.length).toBe(pixelCount * 3)
-        expect(float16Pixels.length).toBe(pixelCount * 3)
-        expect(float32Pixels.length).toBe(pixelCount * 3)
+        expect(rgbPixels).toHaveLength(pixelCount * 3)
+        expect(bgrPixels).toHaveLength(pixelCount * 3)
+        expect(planarPixels).toHaveLength(pixelCount * 3)
+        expect(int8Pixels).toHaveLength(pixelCount * 3)
+        expect(float16Pixels).toHaveLength(pixelCount * 3)
+        expect(float32Pixels).toHaveLength(pixelCount * 3)
 
         for (let pixel = 0; pixel < pixelCount; pixel++) {
           for (let channel = 0; channel < 3; channel++) {

@@ -1,10 +1,10 @@
 import { type LayoutChangeEvent, Platform, StyleSheet } from 'react-native'
 import {
-  afterEach,
+  assert,
   beforeAll,
-  cleanup,
   describe,
   expect,
+  fn,
   it,
   render,
   waitUntil,
@@ -34,16 +34,8 @@ describe('VisionCamera - Coordinates', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
-  })
-
-  // Every test that renders a view must unmount it so the next test starts
-  // from a clean overlay. (cleanup() is a no-op for the worklet-only tests
-  // that never called render().)
-  afterEach(() => {
-    cleanup()
   })
 
   // ---------------------------------------------------------------------------
@@ -82,10 +74,8 @@ describe('VisionCamera - Coordinates', () => {
     const onReport = (r: Report) => {
       report = r
     }
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const onError = fn<(error: Error) => void>()
+    const errorSub = session.addOnErrorListener(onError)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -110,10 +100,10 @@ describe('VisionCamera - Coordinates', () => {
 
     await session.start()
     try {
-      await waitUntil(() => report != null || sessionError != null, {
+      await waitUntil(() => report != null || onError.mock.calls.length > 0, {
         timeout: 15_000,
       })
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
       const r = report
       if (r == null) throw new Error('no report')
       for (const { input, roundTripped } of r.points) {
@@ -158,10 +148,8 @@ describe('VisionCamera - Coordinates', () => {
     const onSample = (p: Point) => {
       samples.push(p)
     }
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const onError = fn<(error: Error) => void>()
+    const errorSub = session.addOnErrorListener(onError)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -174,10 +162,13 @@ describe('VisionCamera - Coordinates', () => {
 
     await session.start()
     try {
-      await waitUntil(() => samples.length >= 5 || sessionError != null, {
-        timeout: 15_000,
-      })
-      expect(sessionError).toBe(undefined)
+      await waitUntil(
+        () => samples.length >= 5 || onError.mock.calls.length > 0,
+        {
+          timeout: 15_000,
+        },
+      )
+      expect(onError).not.toHaveBeenCalled()
       expect(samples.length).toBeGreaterThanOrEqual(5)
       const first = samples[0]
       if (first == null) throw new Error('no samples')
@@ -217,12 +208,11 @@ describe('VisionCamera - Coordinates', () => {
     let previewRef: PreviewView | undefined
     const previewStarted = deferred()
     const layout = deferred<{ width: number; height: number }>()
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       previewStarted.reject(error)
       layout.reject(error)
     })
+    const errorSub = session.addOnErrorListener(onError)
 
     await render(
       <NativePreviewView
@@ -247,7 +237,7 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
       if (previewRef == null) throw new Error('no preview ref')
 
       const { width: w, height: h } = await layout.promise
@@ -290,12 +280,11 @@ describe('VisionCamera - Coordinates', () => {
     let previewRef: PreviewView | undefined
     const previewStarted = deferred()
     const layout = deferred<{ width: number; height: number }>()
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       previewStarted.reject(error)
       layout.reject(error)
     })
+    const errorSub = session.addOnErrorListener(onError)
 
     await render(
       <NativePreviewView
@@ -320,7 +309,7 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
       if (previewRef == null) throw new Error('no preview ref')
 
       const { width: w, height: h } = await layout.promise
@@ -354,12 +343,11 @@ describe('VisionCamera - Coordinates', () => {
     let previewRef: PreviewView | undefined
     const previewStarted = deferred()
     const layout = deferred<{ width: number; height: number }>()
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       previewStarted.reject(error)
       layout.reject(error)
     })
+    const errorSub = session.addOnErrorListener(onError)
 
     await render(
       <NativePreviewView
@@ -384,7 +372,7 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
       if (previewRef == null) throw new Error('no preview ref')
 
       const { width: w, height: h } = await layout.promise
@@ -441,12 +429,11 @@ describe('VisionCamera - Coordinates', () => {
     let previewRef: PreviewView | undefined
     const previewStarted = deferred()
     const layout = deferred<{ width: number; height: number }>()
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       previewStarted.reject(error)
       layout.reject(error)
     })
+    const errorSub = session.addOnErrorListener(onError)
 
     await render(
       <NativePreviewView
@@ -485,10 +472,11 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      await waitUntil(() => frameCenterCamera != null || sessionError != null, {
-        timeout: 15_000,
-      })
-      expect(sessionError).toBe(undefined)
+      await waitUntil(
+        () => frameCenterCamera != null || onError.mock.calls.length > 0,
+        { timeout: 15_000 },
+      )
+      expect(onError).not.toHaveBeenCalled()
       if (previewRef == null) throw new Error('no preview ref')
       if (frameCenterCamera == null) throw new Error('no frame center sample')
 
@@ -552,12 +540,11 @@ describe('VisionCamera - Coordinates', () => {
     let previewRef: PreviewView | undefined
     const previewStarted = deferred()
     const layout = deferred<{ width: number; height: number }>()
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       previewStarted.reject(error)
       layout.reject(error)
     })
+    const errorSub = session.addOnErrorListener(onError)
 
     await render(
       <NativePreviewView
@@ -614,10 +601,11 @@ describe('VisionCamera - Coordinates', () => {
     try {
       await withTimeout(layout.promise, 10_000, 'preview view onLayout')
       await withTimeout(previewStarted.promise, 15_000, 'preview started')
-      await waitUntil(() => cameraCorners != null || sessionError != null, {
-        timeout: 15_000,
-      })
-      expect(sessionError).toBe(undefined)
+      await waitUntil(
+        () => cameraCorners != null || onError.mock.calls.length > 0,
+        { timeout: 15_000 },
+      )
+      expect(onError).not.toHaveBeenCalled()
       if (previewRef == null) throw new Error('no preview ref')
       const corners = cameraCorners
       if (corners == null) throw new Error('no square corner samples')
@@ -692,10 +680,8 @@ describe('VisionCamera - Coordinates', () => {
       report = r
     }
 
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const onError = fn<(error: Error) => void>()
+    const errorSub = session.addOnErrorListener(onError)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -758,10 +744,10 @@ describe('VisionCamera - Coordinates', () => {
 
     await session.start()
     try {
-      await waitUntil(() => report != null || sessionError != null, {
+      await waitUntil(() => report != null || onError.mock.calls.length > 0, {
         timeout: 15_000,
       })
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
       const r = report
       if (r == null) throw new Error('no rectangle projection report')
 

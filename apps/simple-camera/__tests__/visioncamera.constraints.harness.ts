@@ -1,8 +1,11 @@
 import {
+  assert,
   beforeAll,
   describe,
   expect,
+  fn,
   it,
+  waitFor,
   waitUntil,
 } from 'react-native-harness'
 import type {
@@ -26,8 +29,7 @@ describe('VisionCamera - Constraints', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
@@ -137,18 +139,20 @@ describe('VisionCamera - Constraints', () => {
           },
         },
       ])
-      await waitUntil(() => selectedConfig != null, { timeout: 5_000 })
+      const resolvedConfig = await waitUntil(() => selectedConfig, {
+        timeout: 5_000,
+      })
 
       await session.start()
       try {
-        await waitUntil(() => videoOutput.currentResolution != null, {
-          timeout: 10_000,
-        })
-        const currentResolution = videoOutput.currentResolution
-        if (selectedConfig == null) throw new Error('no selected config')
-        if (currentResolution == null) throw new Error('no video resolution')
+        const currentResolution = await waitUntil(
+          () => videoOutput.currentResolution,
+          {
+            timeout: 10_000,
+          },
+        )
         return {
-          selectedFPS: selectedConfig.selectedFPS,
+          selectedFPS: resolvedConfig.selectedFPS,
           resolution: currentResolution,
         }
       } finally {
@@ -259,12 +263,9 @@ describe('VisionCamera - Constraints', () => {
 
       await session.start()
       try {
-        await waitUntil(() => videoOutput.currentResolution != null, {
+        return await waitUntil(() => videoOutput.currentResolution, {
           timeout: 10_000,
         })
-        const currentResolution = videoOutput.currentResolution
-        if (currentResolution == null) throw new Error('no video resolution')
-        return currentResolution
       } finally {
         await session.stop()
       }
@@ -350,18 +351,20 @@ describe('VisionCamera - Constraints', () => {
           },
         },
       ])
-      await waitUntil(() => selectedConfig != null, { timeout: 5_000 })
+      const resolvedConfig = await waitUntil(() => selectedConfig, {
+        timeout: 5_000,
+      })
 
       await session.start()
       try {
-        await waitUntil(() => videoOutput.currentResolution != null, {
-          timeout: 10_000,
-        })
-        const currentResolution = videoOutput.currentResolution
-        if (selectedConfig == null) throw new Error('no selected config')
-        if (currentResolution == null) throw new Error('no video resolution')
+        const currentResolution = await waitUntil(
+          () => videoOutput.currentResolution,
+          {
+            timeout: 10_000,
+          },
+        )
         return {
-          selectedFPS: selectedConfig.selectedFPS,
+          selectedFPS: resolvedConfig.selectedFPS,
           resolution: currentResolution,
         }
       } finally {
@@ -429,12 +432,9 @@ describe('VisionCamera - Constraints', () => {
 
       await session.start()
       try {
-        await waitUntil(() => photoOutput.currentResolution != null, {
+        return await waitUntil(() => photoOutput.currentResolution, {
           timeout: 10_000,
         })
-        const currentResolution = photoOutput.currentResolution
-        if (currentResolution == null) throw new Error('no photo resolution')
-        return currentResolution
       } finally {
         await session.stop()
       }
@@ -548,7 +548,6 @@ describe('VisionCamera - Constraints', () => {
         `binned: true: device resolved to isBinned=${config.isBinned}`,
       )
     }
-    expect(config.isBinned).toBe(true)
   })
 
   it('resolves the same config via VisionCamera.resolveConstraints and session.configure', async () => {
@@ -571,22 +570,28 @@ describe('VisionCamera - Constraints', () => {
     )
 
     const session = await VisionCamera.createCameraSession(false)
-    let sessionConfig: CameraSessionConfig | undefined
+    const onSessionConfigSelected = fn<(config: CameraSessionConfig) => void>()
     await session.configure([
       {
         input: backDevice,
         outputs: [outputConfig],
         constraints,
-        onSessionConfigSelected: (config) => {
-          sessionConfig = config
-        },
+        onSessionConfigSelected,
       },
     ])
-    await waitUntil(() => sessionConfig != null, { timeout: 5_000 })
-    expect(sessionConfig?.selectedFPS).toBe(standalone.selectedFPS)
-    expect(sessionConfig?.nativePixelFormat).toBe(standalone.nativePixelFormat)
-    expect(sessionConfig?.isPhotoHDREnabled).toBe(standalone.isPhotoHDREnabled)
-    expect(sessionConfig?.isBinned).toBe(standalone.isBinned)
+    await waitFor(
+      () => {
+        expect(onSessionConfigSelected).toHaveBeenCalledWith(
+          expect.objectContaining({
+            selectedFPS: standalone.selectedFPS,
+            nativePixelFormat: standalone.nativePixelFormat,
+            isPhotoHDREnabled: standalone.isPhotoHDREnabled,
+            isBinned: standalone.isBinned,
+          }),
+        )
+      },
+      { timeout: 5_000 },
+    )
 
     await session.stop()
   })
@@ -665,43 +670,49 @@ describe('VisionCamera - Constraints', () => {
       enableAudio: false,
     })
 
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const onSessionError = fn<(error: Error) => void>()
+    const errorSub = session.addOnErrorListener(onSessionError)
 
-    let firstConfig: CameraSessionConfig | undefined
+    const onFirstConfigSelected = fn<(config: CameraSessionConfig) => void>()
     await session.configure([
       {
         input: backDevice,
         outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
         constraints: [{ fps: 30 }],
-        onSessionConfigSelected: (config) => {
-          firstConfig = config
-        },
+        onSessionConfigSelected: onFirstConfigSelected,
       },
     ])
-    await waitUntil(() => firstConfig != null, { timeout: 5_000 })
-    expect(firstConfig?.selectedFPS).toBe(30)
+    await waitFor(
+      () => {
+        expect(onFirstConfigSelected).toHaveBeenCalledWith(
+          expect.objectContaining({ selectedFPS: 30 }),
+        )
+      },
+      { timeout: 5_000 },
+    )
 
     await session.start()
 
     try {
-      let secondConfig: CameraSessionConfig | undefined
+      const onSecondConfigSelected = fn<(config: CameraSessionConfig) => void>()
       await session.configure([
         {
           input: backDevice,
           outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
           constraints: [{ fps: 60 }],
-          onSessionConfigSelected: (config) => {
-            secondConfig = config
-          },
+          onSessionConfigSelected: onSecondConfigSelected,
         },
       ])
-      await waitUntil(() => secondConfig != null, { timeout: 5_000 })
-      expect(secondConfig?.selectedFPS).toBe(60)
+      await waitFor(
+        () => {
+          expect(onSecondConfigSelected).toHaveBeenCalledWith(
+            expect.objectContaining({ selectedFPS: 60 }),
+          )
+        },
+        { timeout: 5_000 },
+      )
 
-      expect(sessionError).toBe(undefined)
+      expect(onSessionError).not.toHaveBeenCalled()
     } finally {
       errorSub.remove()
       await session.stop()

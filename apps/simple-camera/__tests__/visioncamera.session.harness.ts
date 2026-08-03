@@ -1,5 +1,12 @@
 import { Platform } from 'react-native'
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import {
+  assert,
+  beforeAll,
+  describe,
+  expect,
+  fn,
+  it,
+} from 'react-native-harness'
 import type {
   CameraDeviceFactory,
   TargetCameraPosition,
@@ -18,7 +25,7 @@ describe('VisionCamera - Session', () => {
 
   it('configures, starts and stops a session for every listed device', async () => {
     const devices = factory.cameraDevices
-    expect(devices.length).toBeGreaterThan(0)
+    expect(devices).not.toHaveLength(0)
 
     for (const device of devices) {
       const session = await VisionCamera.createCameraSession(false)
@@ -46,8 +53,8 @@ describe('VisionCamera - Session', () => {
             constraints: [],
           },
         ])
-        expect(controllers.length).toBe(1)
-        expect(controllers[0]?.device.id).toBe(device.id)
+        expect(controllers).toHaveLength(1)
+        expect(controllers[0]).toHaveProperty('device.id', device.id)
 
         await session.start()
         await withTimeout(started.promise, 10_000, 'session start')
@@ -98,7 +105,7 @@ describe('VisionCamera - Session', () => {
 
         const controllers = await configurePromise
         expect(controllers).toHaveLength(1)
-        expect(controllers[0]?.device.position).toBe(position)
+        expect(controllers[0]).toHaveProperty('device.position', position)
       }
     } finally {
       await session.stop()
@@ -107,8 +114,7 @@ describe('VisionCamera - Session', () => {
 
   it('fires onStarted/onStopped exactly once per lifecycle', async () => {
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -118,18 +124,16 @@ describe('VisionCamera - Session', () => {
       qualityPrioritization: 'balanced',
     })
 
-    let startedCount = 0
-    let stoppedCount = 0
     const started = deferred()
     const stopped = deferred()
-    const startSub = session.addOnStartedListener(() => {
-      startedCount++
+    const onStarted = fn(() => {
       started.resolve()
     })
-    const stopSub = session.addOnStoppedListener(() => {
-      stoppedCount++
+    const onStopped = fn(() => {
       stopped.resolve()
     })
+    const startSub = session.addOnStartedListener(onStarted)
+    const stopSub = session.addOnStoppedListener(onStopped)
     const errorSub = session.addOnErrorListener((error) => {
       started.reject(error)
       stopped.reject(error)
@@ -150,8 +154,8 @@ describe('VisionCamera - Session', () => {
       await session.stop()
       await withTimeout(stopped.promise, 10_000, 'session stop')
 
-      expect(startedCount).toBe(1)
-      expect(stoppedCount).toBe(1)
+      expect(onStarted).toHaveBeenCalledTimes(1)
+      expect(onStopped).toHaveBeenCalledTimes(1)
     } finally {
       startSub.remove()
       stopSub.remove()
@@ -161,8 +165,7 @@ describe('VisionCamera - Session', () => {
 
   it('stops delivering events after a listener subscription is removed', async () => {
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -180,10 +183,8 @@ describe('VisionCamera - Session', () => {
       },
     ])
 
-    let startedAfterRemove = 0
-    const startSub = session.addOnStartedListener(() => {
-      startedAfterRemove++
-    })
+    const removedStartListener = fn()
+    const startSub = session.addOnStartedListener(removedStartListener)
     startSub.remove()
 
     // Second listener we keep attached so we can observe that the session
@@ -203,7 +204,7 @@ describe('VisionCamera - Session', () => {
       await session.stop()
       await withTimeout(stopped.promise, 10_000, 'session stop')
 
-      expect(startedAfterRemove).toBe(0)
+      expect(removedStartListener).not.toHaveBeenCalled()
     } finally {
       secondStartSub.remove()
       stopSub.remove()
@@ -232,8 +233,7 @@ describe('VisionCamera - Session', () => {
       return context.skip('allowHapticsAndSystemSoundsPlayback: iOS only')
     }
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -286,8 +286,7 @@ describe('VisionCamera - Session', () => {
       return context.skip('allowBackgroundAudioPlayback: iOS only')
     }
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -337,8 +336,7 @@ describe('VisionCamera - Session', () => {
 
   it('reconfigures a running session with a new output set', async () => {
     const device = factory.getDefaultCamera('back')
-    expect(device).toBeDefined()
-    if (device == null) throw new Error('no back camera')
+    assert.exists(device, 'no back camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -449,7 +447,7 @@ describe('VisionCamera - Session', () => {
       for (const combination of combinations) {
         // iOS can report a singleton virtual camera (for example a Dual- or
         // Triple-Camera) as a supported multi-cam device set.
-        expect(combination.length).toBeGreaterThan(0)
+        expect(combination).not.toHaveLength(0)
         const connections = combination.map((device) => ({
           input: device,
           outputs: [
