@@ -261,7 +261,10 @@ export function useCamera({
   torchMode,
 }: CameraProps): CameraController | undefined {
   // 1. Create session
-  const session = useCameraSession({ enableMultiCamSupport: false })
+  const session = useCameraSession({
+    enableMultiCamSupport: false,
+    onError: onError,
+  })
 
   // 2. Update output orientations
   const orientationSourceOrUndefined =
@@ -305,18 +308,23 @@ export function useCamera({
     onSessionConfigSelected: onSessionConfigSelected,
     allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
     allowHapticsAndSystemSoundsPlayback: allowHapticsAndSystemSoundsPlayback,
+    onError: onError,
   })
 
   // 5. Configure the Controller with some settings
-  useCameraControllerConfiguration(controller, {
-    enableSmoothAutoFocus: enableSmoothAutoFocus,
-    enableDistortionCorrection: enableDistortionCorrection,
-    enableLowLightBoost: enableLowLightBoost,
-  })
+  useCameraControllerConfiguration(
+    controller,
+    {
+      enableSmoothAutoFocus: enableSmoothAutoFocus,
+      enableDistortionCorrection: enableDistortionCorrection,
+      enableLowLightBoost: enableLowLightBoost,
+    },
+    onError,
+  )
 
   // 6. Start (or stop) the Session if we have a Controller and `isActive` is true.
   const hasController = controller != null
-  useCameraSessionIsRunning(session, isActive && hasController)
+  useCameraSessionIsRunning(session, isActive && hasController, onError)
 
   // 7. Set up listeners and delegate to JS
   useListenerSubscription(session, 'addOnStartedListener', onStarted)

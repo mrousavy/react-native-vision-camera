@@ -3,10 +3,12 @@ import type {
   CameraController,
   CameraControllerConfiguration,
 } from '../../specs/CameraController.nitro'
+import { useStableCallback } from './useStableCallback'
 
 export function useCameraControllerConfiguration(
   controller: CameraController | undefined,
   config: CameraControllerConfiguration,
+  onError: (error: Error) => void,
 ): void {
   const memoizedConfig = useMemo<CameraControllerConfiguration>(
     () => ({
@@ -20,6 +22,7 @@ export function useCameraControllerConfiguration(
       config.enableSmoothAutoFocus,
     ],
   )
+  const stableOnError = useStableCallback(onError)
 
   useEffect(() => {
     if (controller == null) return
@@ -28,8 +31,12 @@ export function useCameraControllerConfiguration(
       return
     }
     const load = async () => {
-      await controller.configure(memoizedConfig)
+      try {
+        await controller.configure(memoizedConfig)
+      } catch (error) {
+        stableOnError(error as Error)
+      }
     }
     load()
-  }, [memoizedConfig, controller])
+  }, [memoizedConfig, controller, stableOnError])
 }
