@@ -489,10 +489,7 @@ describe('VisionCamera - Constraints', () => {
     expect(config.selectedVideoDynamicRange?.bitDepth).toBe('hdr-10-bit')
   })
 
-  it('resolves a video stabilization constraint when supported', async (context) => {
-    // The resolver downgrades stabilization modes (cinematic → standard → off)
-    // when the requested one isn't supported, so picking the most demanding
-    // mode the device exposes gives the test the most coverage.
+  it('configures and starts cinematic video stabilization when supported', async (context) => {
     const stabDevice = factory.cameraDevices.find((d) =>
       d.supportsVideoStabilizationMode('cinematic'),
     )
@@ -505,12 +502,47 @@ describe('VisionCamera - Constraints', () => {
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
-    const config = await VisionCamera.resolveConstraints(
-      stabDevice,
-      [{ output: videoOutput, mirrorMode: 'auto' }],
-      [{ videoStabilizationMode: 'cinematic' }],
-    )
-    expect(config.selectedVideoStabilizationMode).toBe('cinematic')
+    const session = await VisionCamera.createCameraSession(false)
+    let selectedConfig: CameraSessionConfig | undefined
+    let didStart = false
+    let sessionError: Error | undefined
+    const startSub = session.addOnStartedListener(() => {
+      didStart = true
+    })
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
+
+    try {
+      await session.configure([
+        {
+          input: stabDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [{ videoStabilizationMode: 'cinematic' }],
+          onSessionConfigSelected: (config) => {
+            selectedConfig = config
+          },
+        },
+      ])
+      await session.start()
+      await waitUntil(
+        () => {
+          if (sessionError != null) throw sessionError
+          return (
+            selectedConfig != null &&
+            didStart &&
+            videoOutput.currentResolution != null
+          )
+        },
+        { timeout: 10_000 },
+      )
+
+      expect(selectedConfig?.selectedVideoStabilizationMode).toBe('cinematic')
+    } finally {
+      startSub.remove()
+      errorSub.remove()
+      await session.stop()
+    }
   })
 
   it('resolves a preview stabilization constraint when supported', async (context) => {
@@ -572,23 +604,49 @@ describe('VisionCamera - Constraints', () => {
 
     const session = await VisionCamera.createCameraSession(false)
     let sessionConfig: CameraSessionConfig | undefined
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [outputConfig],
-        constraints,
-        onSessionConfigSelected: (config) => {
-          sessionConfig = config
-        },
-      },
-    ])
-    await waitUntil(() => sessionConfig != null, { timeout: 5_000 })
-    expect(sessionConfig?.selectedFPS).toBe(standalone.selectedFPS)
-    expect(sessionConfig?.nativePixelFormat).toBe(standalone.nativePixelFormat)
-    expect(sessionConfig?.isPhotoHDREnabled).toBe(standalone.isPhotoHDREnabled)
-    expect(sessionConfig?.isBinned).toBe(standalone.isBinned)
+    let sessionError: Error | undefined
+    const errorSub = session.addOnErrorListener((error) => {
+      sessionError = error
+    })
 
-    await session.stop()
+    try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [outputConfig],
+          constraints,
+          onSessionConfigSelected: (config) => {
+            sessionConfig = config
+          },
+        },
+      ])
+      await waitUntil(
+        () => {
+          if (sessionError != null) throw sessionError
+          return sessionConfig != null
+        },
+        { timeout: 5_000 },
+      )
+      if (sessionConfig == null) throw new Error('no selected config')
+
+      expect(sessionConfig.selectedFPS).toBe(standalone.selectedFPS)
+      expect(sessionConfig.selectedVideoStabilizationMode).toBe(
+        standalone.selectedVideoStabilizationMode,
+      )
+      expect(sessionConfig.selectedPreviewStabilizationMode).toBe(
+        standalone.selectedPreviewStabilizationMode,
+      )
+      expect(sessionConfig.selectedVideoDynamicRange).toEqual(
+        standalone.selectedVideoDynamicRange,
+      )
+      expect(sessionConfig.isPhotoHDREnabled).toBe(standalone.isPhotoHDREnabled)
+      expect(sessionConfig.nativePixelFormat).toBe(standalone.nativePixelFormat)
+      expect(sessionConfig.autoFocusSystem).toBe(standalone.autoFocusSystem)
+      expect(sessionConfig.isBinned).toBe(standalone.isBinned)
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
   })
 
   // Verifies the resolver's priority mechanism by running the same pair of
@@ -652,7 +710,7 @@ describe('VisionCamera - Constraints', () => {
     expect(hdrFirst.selectedVideoDynamicRange?.bitDepth).toBe('hdr-10-bit')
   })
 
-  it('reconfigures the running session with a different constraint set', async (context) => {
+  it('selects 60 fps while reconfiguring a running session', async (context) => {
     if (!backDevice.supportsFPS(60)) {
       return context.skip(
         'reconfigure with new constraints: fps: 60 not supported',
@@ -665,28 +723,41 @@ describe('VisionCamera - Constraints', () => {
       enableAudio: false,
     })
 
+    let didStart = false
     let sessionError: Error | undefined
+    const startSub = session.addOnStartedListener(() => {
+      didStart = true
+    })
     const errorSub = session.addOnErrorListener((error) => {
       sessionError = error
     })
 
-    let firstConfig: CameraSessionConfig | undefined
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
-        constraints: [{ fps: 30 }],
-        onSessionConfigSelected: (config) => {
-          firstConfig = config
-        },
-      },
-    ])
-    await waitUntil(() => firstConfig != null, { timeout: 5_000 })
-    expect(firstConfig?.selectedFPS).toBe(30)
-
-    await session.start()
-
     try {
+      let firstConfig: CameraSessionConfig | undefined
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [{ fps: 30 }],
+          onSessionConfigSelected: (config) => {
+            firstConfig = config
+          },
+        },
+      ])
+      await session.start()
+      await waitUntil(
+        () => {
+          if (sessionError != null) throw sessionError
+          return (
+            firstConfig != null &&
+            didStart &&
+            videoOutput.currentResolution != null
+          )
+        },
+        { timeout: 10_000 },
+      )
+      expect(firstConfig?.selectedFPS).toBe(30)
+
       let secondConfig: CameraSessionConfig | undefined
       await session.configure([
         {
@@ -698,11 +769,16 @@ describe('VisionCamera - Constraints', () => {
           },
         },
       ])
-      await waitUntil(() => secondConfig != null, { timeout: 5_000 })
+      await waitUntil(
+        () => {
+          if (sessionError != null) throw sessionError
+          return secondConfig != null
+        },
+        { timeout: 5_000 },
+      )
       expect(secondConfig?.selectedFPS).toBe(60)
-
-      expect(sessionError).toBe(undefined)
     } finally {
+      startSub.remove()
       errorSub.remove()
       await session.stop()
     }

@@ -650,50 +650,30 @@ describe('VisionCamera - Video', () => {
     }
   })
 
-  it('returns supported video codecs on iOS after the output is attached', async (context) => {
+  it('accepts advertised video output settings on iOS', async (context) => {
     if (Platform.OS !== 'ios') {
-      return context.skip('getSupportedVideoCodecs: iOS only')
+      return context.skip('video output settings: iOS only')
     }
     const session = await VisionCamera.createCameraSession(false)
     const videoOutput = VisionCamera.createVideoOutput({
       targetResolution: CommonResolutions.HD_16_9,
       enableAudio: false,
     })
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
-        constraints: [],
-      },
-    ])
-    const codecs = videoOutput.getSupportedVideoCodecs()
-    expect(codecs.length).toBeGreaterThan(0)
-    expect(codecs).not.toContain('unknown')
-    await session.stop()
-  })
-
-  it('applies video output settings on iOS after the output is attached', async (context) => {
-    if (Platform.OS !== 'ios') {
-      return context.skip('setOutputSettings: iOS only')
-    }
-    const session = await VisionCamera.createCameraSession(false)
-    const videoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      enableAudio: false,
-    })
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
-        constraints: [],
-      },
-    ])
 
     try {
-      await videoOutput.setOutputSettings({})
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
 
       const codecs = videoOutput.getSupportedVideoCodecs()
       expect(codecs.length).toBeGreaterThan(0)
+      expect(codecs).not.toContain('unknown')
+
+      await videoOutput.setOutputSettings({})
       for (const codec of codecs) {
         await videoOutput.setOutputSettings({ codec })
       }

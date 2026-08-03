@@ -163,9 +163,6 @@ describe('VisionCamera - Frame Converter', () => {
         }
 
         expectRawPixelsToBeEqual(syncPixels, asyncPixels)
-        console.log(
-          `Frame Converter: target=${outputOrientation}, frame=${frame.orientation}, mirrored=${frame.isMirrored}, size=${syncPixels.width}x${syncPixels.height}`,
-        )
       } finally {
         isWaitingForFrame = false
         runtime.setOnFrameCallback(frameOutput, undefined)

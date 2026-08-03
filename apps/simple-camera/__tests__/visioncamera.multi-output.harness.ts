@@ -256,18 +256,6 @@ describe('VisionCamera - Multi-Output', () => {
       sessionError = error
     })
 
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [
-          { output: firstPhotoOutput, mirrorMode: 'auto' },
-          { output: videoOutput, mirrorMode: 'auto' },
-          { output: frameOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
@@ -275,9 +263,20 @@ describe('VisionCamera - Multi-Output', () => {
       frame.dispose()
     })
 
-    await session.start()
-
     try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: firstPhotoOutput, mirrorMode: 'auto' },
+            { output: videoOutput, mirrorMode: 'auto' },
+            { output: frameOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+      await session.start()
+
       const secondPhotoOutput = VisionCamera.createPhotoOutput({
         targetResolution: CommonResolutions.FHD_4_3,
         containerFormat: 'jpeg',
@@ -314,15 +313,14 @@ describe('VisionCamera - Multi-Output', () => {
       await recorder.stopRecording()
       await withTimeout(finished.promise, 15_000, 'finish')
 
-      // The untouched frame output still streams.
+      // The untouched native frame output still streams.
       const framesAtCheck = framesReceived
       await waitUntil(
         () => framesReceived > framesAtCheck + 2 || sessionError != null,
         { timeout: 15_000 },
       )
-      expect(framesReceived).toBeGreaterThan(framesAtCheck)
-
       expect(sessionError).toBe(undefined)
+      expect(framesReceived).toBeGreaterThan(framesAtCheck)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -361,18 +359,6 @@ describe('VisionCamera - Multi-Output', () => {
       sessionError = error
     })
 
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [
-          { output: photoOutput, mirrorMode: 'auto' },
-          { output: firstVideoOutput, mirrorMode: 'auto' },
-          { output: frameOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
       'worklet'
@@ -380,9 +366,20 @@ describe('VisionCamera - Multi-Output', () => {
       frame.dispose()
     })
 
-    await session.start()
-
     try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: photoOutput, mirrorMode: 'auto' },
+            { output: firstVideoOutput, mirrorMode: 'auto' },
+            { output: frameOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+      await session.start()
+
       const secondVideoOutput = VisionCamera.createVideoOutput({
         targetResolution: CommonResolutions.FHD_16_9,
         enableAudio: false,
@@ -417,15 +414,14 @@ describe('VisionCamera - Multi-Output', () => {
       expect(photo.height).toBeGreaterThan(0)
       photo.dispose()
 
-      // The untouched frame output still streams.
+      // The untouched native frame output still streams.
       const framesAtCheck = framesReceived
       await waitUntil(
         () => framesReceived > framesAtCheck + 2 || sessionError != null,
         { timeout: 15_000 },
       )
-      expect(framesReceived).toBeGreaterThan(framesAtCheck)
-
       expect(sessionError).toBe(undefined)
+      expect(framesReceived).toBeGreaterThan(framesAtCheck)
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       errorSub.remove()
@@ -460,18 +456,6 @@ describe('VisionCamera - Multi-Output', () => {
       sessionError = error
     })
 
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [
-          { output: photoOutput, mirrorMode: 'auto' },
-          { output: videoOutput, mirrorMode: 'auto' },
-          { output: yuvFrameOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-
     let yuvIsPlanar: boolean | undefined
     const reportYuv = (planar: boolean) => {
       yuvIsPlanar = planar
@@ -485,9 +469,20 @@ describe('VisionCamera - Multi-Output', () => {
       frame.dispose()
     })
 
-    await session.start()
-
     try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: photoOutput, mirrorMode: 'auto' },
+            { output: videoOutput, mirrorMode: 'auto' },
+            { output: yuvFrameOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+      await session.start()
+
       await waitUntil(() => yuvIsPlanar != null || sessionError != null, {
         timeout: 15_000,
       })
@@ -530,7 +525,6 @@ describe('VisionCamera - Multi-Output', () => {
         scheduleOnRN(reportRgb, frame.isPlanar)
         frame.dispose()
       })
-
       try {
         await waitUntil(() => rgbIsPlanar != null || sessionError != null, {
           timeout: 15_000,
@@ -554,10 +548,12 @@ describe('VisionCamera - Multi-Output', () => {
         await sleep(500)
         await recorder.stopRecording()
         await withTimeout(finished.promise, 15_000, 'finish')
+        expect(sessionError).toBe(undefined)
       } finally {
         rgbRuntime.setOnFrameCallback(rgbFrameOutput, undefined)
       }
     } finally {
+      yuvRuntime.setOnFrameCallback(yuvFrameOutput, undefined)
       errorSub.remove()
       await session.stop()
     }

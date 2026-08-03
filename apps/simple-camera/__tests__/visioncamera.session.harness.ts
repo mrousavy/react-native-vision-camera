@@ -348,33 +348,35 @@ describe('VisionCamera - Session', () => {
       qualityPrioritization: 'balanced',
     })
 
-    await session.configure([
-      {
-        input: device,
-        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
-        constraints: [],
-      },
-    ])
-    await session.start()
+    try {
+      await session.configure([
+        {
+          input: device,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      await session.start()
 
-    const videoOutput = VisionCamera.createVideoOutput({
-      targetResolution: CommonResolutions.HD_16_9,
-      enableAudio: false,
-    })
+      const videoOutput = VisionCamera.createVideoOutput({
+        targetResolution: CommonResolutions.HD_16_9,
+        enableAudio: false,
+      })
 
-    const controllers = await session.configure([
-      {
-        input: device,
-        outputs: [
-          { output: photoOutput, mirrorMode: 'auto' },
-          { output: videoOutput, mirrorMode: 'auto' },
-        ],
-        constraints: [],
-      },
-    ])
-    expect(controllers).toHaveLength(1)
-
-    await session.stop()
+      const controllers = await session.configure([
+        {
+          input: device,
+          outputs: [
+            { output: photoOutput, mirrorMode: 'auto' },
+            { output: videoOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+      expect(controllers).toHaveLength(1)
+    } finally {
+      await session.stop()
+    }
   })
 
   it('supports a multi-cam session when the platform allows it', async (context) => {
