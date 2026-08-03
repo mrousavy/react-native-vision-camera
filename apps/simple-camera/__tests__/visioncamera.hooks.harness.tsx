@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import {
-  afterEach,
   beforeAll,
-  cleanup,
   describe,
   expect,
+  fn,
   it,
+  type Mock,
   render,
-  waitUntil,
+  waitFor,
 } from 'react-native-harness'
 import type {
   CameraDevice,
@@ -37,12 +37,6 @@ const tripleCameraFilter = {
 const wideCameraFilter = {
   physicalDevices: ['wide-angle'],
 } satisfies DeviceFilter
-
-function latestSnapshot(
-  snapshots: DeviceSnapshot[],
-): DeviceSnapshot | undefined {
-  return snapshots[snapshots.length - 1]
-}
 
 function getExpectedCameraDevice(
   factory: CameraDeviceFactory,
@@ -100,25 +94,20 @@ function CameraDeviceProbe({
 }
 
 async function expectLatestDeviceSnapshot(
-  snapshots: DeviceSnapshot[],
+  onSnapshot: Mock<(snapshot: DeviceSnapshot) => void>,
   position: TargetCameraPosition,
   expectedDevice: CameraDevice | undefined,
 ): Promise<void> {
-  await waitUntil(
+  await waitFor(
     () => {
-      const latest = latestSnapshot(snapshots)
-      return (
-        latest?.requestedPosition === position &&
-        latest.deviceId === expectedDevice?.id
-      )
+      expect(onSnapshot).toHaveBeenLastCalledWith({
+        requestedPosition: position,
+        deviceId: expectedDevice?.id,
+        devicePosition: expectedDevice?.position,
+      })
     },
     { timeout: 10_000 },
   )
-
-  const latest = latestSnapshot(snapshots)
-  expect(latest?.requestedPosition).toBe(position)
-  expect(latest?.deviceId).toBe(expectedDevice?.id)
-  expect(latest?.devicePosition).toBe(expectedDevice?.position)
 }
 
 describe('VisionCamera - Hooks', () => {
@@ -130,15 +119,8 @@ describe('VisionCamera - Hooks', () => {
     factory = await VisionCamera.createDeviceFactory()
   })
 
-  afterEach(() => {
-    cleanup()
-  })
-
   it('updates useCameraDevice when the requested position changes', async () => {
-    const snapshots: DeviceSnapshot[] = []
-    const onSnapshot = (snapshot: DeviceSnapshot) => {
-      snapshots.push(snapshot)
-    }
+    const onSnapshot = fn<(snapshot: DeviceSnapshot) => void>()
 
     const { rerender } = await render(
       <CameraDeviceProbe position="back" onSnapshot={onSnapshot} />,
@@ -152,7 +134,7 @@ describe('VisionCamera - Hooks', () => {
       }
 
       await expectLatestDeviceSnapshot(
-        snapshots,
+        onSnapshot,
         position,
         getExpectedCameraDevice(factory, position),
       )
@@ -160,10 +142,7 @@ describe('VisionCamera - Hooks', () => {
   })
 
   it('updates useCameraDevice when the requested position changes with a physical-device filter', async () => {
-    const snapshots: DeviceSnapshot[] = []
-    const onSnapshot = (snapshot: DeviceSnapshot) => {
-      snapshots.push(snapshot)
-    }
+    const onSnapshot = fn<(snapshot: DeviceSnapshot) => void>()
 
     const { rerender } = await render(
       <CameraDeviceProbe
@@ -185,7 +164,7 @@ describe('VisionCamera - Hooks', () => {
       }
 
       await expectLatestDeviceSnapshot(
-        snapshots,
+        onSnapshot,
         position,
         getExpectedCameraDevice(factory, position, tripleCameraFilter),
       )
@@ -215,10 +194,7 @@ describe('VisionCamera - Hooks', () => {
       )
     }
 
-    const snapshots: DeviceSnapshot[] = []
-    const onSnapshot = (snapshot: DeviceSnapshot) => {
-      snapshots.push(snapshot)
-    }
+    const onSnapshot = fn<(snapshot: DeviceSnapshot) => void>()
 
     const { rerender } = await render(
       <CameraDeviceProbe
@@ -227,7 +203,7 @@ describe('VisionCamera - Hooks', () => {
         onSnapshot={onSnapshot}
       />,
     )
-    await expectLatestDeviceSnapshot(snapshots, 'back', wideDevice)
+    await expectLatestDeviceSnapshot(onSnapshot, 'back', wideDevice)
 
     await rerender(
       <CameraDeviceProbe
@@ -236,6 +212,6 @@ describe('VisionCamera - Hooks', () => {
         onSnapshot={onSnapshot}
       />,
     )
-    await expectLatestDeviceSnapshot(snapshots, 'back', tripleDevice)
+    await expectLatestDeviceSnapshot(onSnapshot, 'back', tripleDevice)
   })
 })

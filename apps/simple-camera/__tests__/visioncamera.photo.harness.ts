@@ -1,10 +1,14 @@
 import {
+  assert,
   beforeAll,
   describe,
   expect,
+  fn,
   it,
+  waitFor,
   waitUntil,
 } from 'react-native-harness'
+import type { Image } from 'react-native-nitro-image'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -118,8 +122,7 @@ describe('VisionCamera - Photo', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
@@ -191,8 +194,6 @@ describe('VisionCamera - Photo', () => {
 
         const pixelBuffer = photo.getPixelBuffer()
         expect(pixelBuffer.byteLength).toBeGreaterThan(0)
-        const view = new Uint8Array(pixelBuffer)
-        expect(view[0]).toBeGreaterThanOrEqual(0)
       } finally {
         photo.dispose()
       }
@@ -238,7 +239,6 @@ describe('VisionCamera - Photo', () => {
     image.dispose()
 
     const path = await photo.saveToTemporaryFileAsync()
-    expect(path.length).toBeGreaterThan(0)
     // File paths must start with "/" and end with ".jpeg" or ".jpg".
     expect(path).toMatch(/^\/.*\.(jpeg|jpg)$/)
     photo.dispose()
@@ -357,7 +357,7 @@ describe('VisionCamera - Photo', () => {
         { flashMode: 'off', enableShutterSound: false },
         {},
       )
-      expect(file.filePath.length).toBeGreaterThan(0)
+      expect(file.filePath).not.toHaveLength(0)
     } finally {
       await session.stop()
     }
@@ -462,7 +462,7 @@ describe('VisionCamera - Photo', () => {
   it("captures at the device's maximum supported photo resolution", async () => {
     const supportedPhotoResolutions =
       backDevice.getSupportedResolutions('photo')
-    expect(supportedPhotoResolutions.length).toBeGreaterThan(0)
+    expect(supportedPhotoResolutions).not.toHaveLength(0)
     const maxPhotoResolution = supportedPhotoResolutions.reduce((a, b) =>
       a.width * a.height > b.width * b.height ? a : b,
     )
@@ -497,8 +497,7 @@ describe('VisionCamera - Photo', () => {
       // currentResolution must reflect the resolved output size before we
       // even take the picture.
       const reported = photoOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported photo resolution')
+      assert.exists(reported, 'no reported photo resolution')
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
       expect(reportedShortEdge).toBe(requestedShortEdge)
@@ -532,7 +531,7 @@ describe('VisionCamera - Photo', () => {
   it("captures at the device's minimum supported photo resolution", async () => {
     const supportedPhotoResolutions =
       backDevice.getSupportedResolutions('photo')
-    expect(supportedPhotoResolutions.length).toBeGreaterThan(0)
+    expect(supportedPhotoResolutions).not.toHaveLength(0)
     const minPhotoResolution = supportedPhotoResolutions.reduce((a, b) =>
       a.width * a.height < b.width * b.height ? a : b,
     )
@@ -563,8 +562,7 @@ describe('VisionCamera - Photo', () => {
       )
 
       const reported = photoOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported photo resolution')
+      assert.exists(reported, 'no reported photo resolution')
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
       expect(reportedShortEdge).toBe(requestedShortEdge)
@@ -601,47 +599,48 @@ describe('VisionCamera - Photo', () => {
     ])
     await session.start()
 
-    let willBegin = 0
-    let willCapture = 0
-    let didCapture = 0
-    let sessionError: Error | undefined
-    const errorSub = session.addOnErrorListener((error) => {
-      sessionError = error
-    })
+    const onWillBeginCapture = fn()
+    const onWillCapturePhoto = fn()
+    const onDidCapturePhoto = fn()
+    const onSessionError = fn<(error: Error) => void>()
+    const errorSub = session.addOnErrorListener(onSessionError)
 
     try {
       const photo = await photoOutput.capturePhoto(
         { flashMode: 'off', enableShutterSound: false },
         {
-          onWillBeginCapture: () => {
-            willBegin++
-          },
-          onWillCapturePhoto: () => {
-            willCapture++
-          },
-          onDidCapturePhoto: () => {
-            didCapture++
-          },
+          onWillBeginCapture,
+          onWillCapturePhoto,
+          onDidCapturePhoto,
         },
       )
-      // Wait for the callbacks to drain BEFORE we stop the session, otherwise
-      // pending callback invocations can be dropped.
-      await waitUntil(
-        () =>
-          (willBegin >= 1 && willCapture >= 1 && didCapture >= 1) ||
-          sessionError != null,
-        { timeout: 5_000 },
-      )
-      expect(sessionError).toBe(undefined)
-      photo.dispose()
+      try {
+        // Wait for the callbacks to drain BEFORE we stop the session, otherwise
+        // pending callback invocations can be dropped.
+        await waitUntil(
+          () => {
+            const error = onSessionError.mock.lastCall?.[0]
+            if (error != null) throw error
+            return (
+              onWillBeginCapture.mock.calls.length >= 1 &&
+              onWillCapturePhoto.mock.calls.length >= 1 &&
+              onDidCapturePhoto.mock.calls.length >= 1
+            )
+          },
+          { timeout: 5_000 },
+        )
+      } finally {
+        photo.dispose()
+      }
     } finally {
       errorSub.remove()
       await session.stop()
     }
 
-    expect(willBegin).toBe(1)
-    expect(willCapture).toBe(1)
-    expect(didCapture).toBe(1)
+    expect(onSessionError).not.toHaveBeenCalled()
+    expect(onWillBeginCapture).toHaveBeenCalledTimes(1)
+    expect(onWillCapturePhoto).toHaveBeenCalledTimes(1)
+    expect(onDidCapturePhoto).toHaveBeenCalledTimes(1)
   })
 
   it('delivers a preview image when previewImageTargetSize is set and the device supports it', async (context) => {
@@ -667,20 +666,26 @@ describe('VisionCamera - Photo', () => {
     ])
     await session.start()
 
-    let previewImageFired = false
-    const photo = await photoOutput.capturePhoto(
-      { flashMode: 'off', enableShutterSound: false },
-      {
-        onPreviewImageAvailable: (image) => {
-          previewImageFired = true
-          image.dispose()
-        },
-      },
-    )
-    photo.dispose()
-    await session.stop()
-
-    await waitUntil(() => previewImageFired, { timeout: 5_000 })
+    const onPreviewImageAvailable = fn((image: Image) => image.dispose())
+    try {
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        { onPreviewImageAvailable },
+      )
+      try {
+        await waitFor(
+          () => {
+            expect(onPreviewImageAvailable).toHaveBeenCalled()
+          },
+          { timeout: 5_000 },
+        )
+      } finally {
+        photo.dispose()
+      }
+    } finally {
+      await session.stop()
+    }
+    expect(onPreviewImageAvailable).toHaveBeenCalledTimes(1)
   })
 
   it('captures with each flashMode the device supports', async () => {
@@ -889,8 +894,7 @@ describe('VisionCamera - Photo', () => {
 
   it('captures a Photo from the default front camera', async () => {
     const front = factory.getDefaultCamera('front')
-    expect(front).toBeDefined()
-    if (front == null) throw new Error('no front camera')
+    assert.exists(front, 'no front camera')
 
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
@@ -941,8 +945,6 @@ describe('VisionCamera - Photo', () => {
       { flashMode: 'off', enableShutterSound: false },
       {},
     )
-    expect(file1.filePath.length).toBeGreaterThan(0)
-    expect(file2.filePath.length).toBeGreaterThan(0)
     // File paths must start with "/" and end with ".jpeg" or ".jpg".
     expect(file1.filePath).toMatch(/^\/.*\.(jpeg|jpg)$/)
     expect(file2.filePath).toMatch(/^\/.*\.(jpeg|jpg)$/)

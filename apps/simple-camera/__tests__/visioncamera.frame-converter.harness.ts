@@ -1,4 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from 'react-native-harness'
+import {
+  afterAll,
+  assert,
+  beforeAll,
+  describe,
+  expect,
+  it,
+} from 'react-native-harness'
 import type { Image } from 'react-native-nitro-image'
 import type {
   CameraDevice,
@@ -39,16 +46,19 @@ describe('VisionCamera - Frame Converter', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
   afterAll(() => {
-    expect([...observedOrientations].sort()).toEqual(
-      ['up', 'right', 'down', 'left'].sort(),
+    const expectedOrientations = new Set(
+      conversionCases.map(({ outputOrientation }) => outputOrientation),
     )
-    expect([...observedMirrorStates].sort()).toEqual([false, true])
+    const expectedMirrorStates = new Set(
+      conversionCases.map(({ mirrorMode }) => mirrorMode === 'on'),
+    )
+    expect(observedOrientations).toEqual(expectedOrientations)
+    expect(observedMirrorStates).toEqual(expectedMirrorStates)
   })
 
   for (const { outputOrientation, mirrorMode } of conversionCases) {
@@ -163,9 +173,6 @@ describe('VisionCamera - Frame Converter', () => {
         }
 
         expectRawPixelsToBeEqual(syncPixels, asyncPixels)
-        console.log(
-          `Frame Converter: target=${outputOrientation}, frame=${frame.orientation}, mirrored=${frame.isMirrored}, size=${syncPixels.width}x${syncPixels.height}`,
-        )
       } finally {
         isWaitingForFrame = false
         runtime.setOnFrameCallback(frameOutput, undefined)

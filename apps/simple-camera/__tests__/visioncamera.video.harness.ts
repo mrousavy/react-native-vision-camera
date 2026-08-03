@@ -1,9 +1,12 @@
 import { Platform } from 'react-native'
 import {
+  assert,
   beforeAll,
   describe,
   expect,
+  fn,
   it,
+  waitFor,
   waitUntil,
 } from 'react-native-harness'
 import type {
@@ -29,8 +32,7 @@ describe('VisionCamera - Video', () => {
     expect(VisionCamera.microphonePermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
@@ -67,7 +69,6 @@ describe('VisionCamera - Video', () => {
       const result = await withTimeout(finished.promise, 10_000, 'finish')
 
       expect(result.reason).toBe('stopped')
-      expect(result.path.length).toBeGreaterThan(0)
       // File paths must start with "/" and end with ".mov" or ".mp4".
       expect(result.path).toMatch(/^\/.*\.(mov|mp4)$/)
     } finally {
@@ -253,22 +254,16 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    let finishedCount = 0
-    let errorCount = 0
+    const onRecordingFinished =
+      fn<(path: string, reason: RecordingFinishedReason) => void>()
+    const onRecordingError = fn<(error: Error) => void>()
     try {
-      await recorder.startRecording(
-        () => {
-          finishedCount++
-        },
-        () => {
-          errorCount++
-        },
-      )
+      await recorder.startRecording(onRecordingFinished, onRecordingError)
       await sleep(500)
       await recorder.cancelRecording()
       await sleep(500)
-      expect(finishedCount).toBe(0)
-      expect(errorCount).toBe(0)
+      expect(onRecordingFinished).not.toHaveBeenCalled()
+      expect(onRecordingError).not.toHaveBeenCalled()
     } finally {
       await session.stop()
     }
@@ -290,21 +285,39 @@ describe('VisionCamera - Video', () => {
     await session.start()
 
     const recorder = await videoOutput.createRecorder({})
-    const finished = deferred()
+    const recordingResult = deferred<Error | undefined>()
+    const onRecordingFinished = fn(() => recordingResult.resolve(undefined))
+    const onRecordingError = fn((error: Error) =>
+      recordingResult.resolve(error),
+    )
     try {
-      await recorder.startRecording(() => finished.resolve(), finished.reject)
-      expect(recorder.filePath.length).toBeGreaterThan(0)
-      await waitUntil(
-        () => recorder.recordedDuration > 0 && recorder.recordedFileSize > 0,
-        { timeout: 10_000 },
-      )
-      const midDuration = recorder.recordedDuration
-      const midSize = recorder.recordedFileSize
+      await recorder.startRecording(onRecordingFinished, onRecordingError)
+      expect(recorder.filePath).toMatch(/^\/.*\.(mov|mp4)$/)
+      const recordingEnded = recordingResult.promise.then((error) => {
+        if (error != null) throw error
+        throw new Error('Recording finished before reporting progress')
+      })
+      await Promise.race([
+        waitFor(
+          () => {
+            expect(recorder.recordedDuration).toBeGreaterThan(0)
+            expect(recorder.recordedFileSize).toBeGreaterThan(0)
+          },
+          { timeout: 10_000 },
+        ),
+        recordingEnded,
+      ])
       await recorder.stopRecording()
-      await withTimeout(finished.promise, 10_000, 'finish')
-      expect(midDuration).toBeGreaterThan(0)
-      expect(midSize).toBeGreaterThan(0)
+      const recordingError = await withTimeout(
+        recordingResult.promise,
+        10_000,
+        'finish',
+      )
+      if (recordingError != null) throw recordingError
+      expect(onRecordingFinished).toHaveBeenCalledTimes(1)
+      expect(onRecordingError).not.toHaveBeenCalled()
     } finally {
+      if (recorder.isRecording) await recorder.cancelRecording()
       await session.stop()
     }
   })
@@ -448,7 +461,7 @@ describe('VisionCamera - Video', () => {
     const customPath = `${tempDir}/visioncamera-custom-${Date.now()}.${ext}`
 
     const recorder = await videoOutput.createRecorder({ filePath: customPath })
-    expect(recorder.filePath).toContain(customPath)
+    expect(recorder.filePath).toBe(customPath)
 
     const finished = deferred<string>()
     try {
@@ -460,7 +473,7 @@ describe('VisionCamera - Video', () => {
       await recorder.stopRecording()
       const path = await withTimeout(finished.promise, 10_000, 'finish')
 
-      expect(path).toContain(customPath)
+      expect(path).toBe(customPath)
     } finally {
       await session.stop()
     }
@@ -490,7 +503,7 @@ describe('VisionCamera - Video', () => {
     const customPath = `${tempDir}/visioncamera-nested-${Date.now()}/sub/dir/recording.${ext}`
 
     const recorder = await videoOutput.createRecorder({ filePath: customPath })
-    expect(recorder.filePath).toContain(customPath)
+    expect(recorder.filePath).toBe(customPath)
 
     const finished = deferred<string>()
     try {
@@ -504,7 +517,7 @@ describe('VisionCamera - Video', () => {
       // had to be created on the fly - otherwise the encoder couldn't
       // have written any bytes.
       const path = await withTimeout(finished.promise, 10_000, 'finish')
-      expect(path).toContain(customPath)
+      expect(path).toBe(customPath)
     } finally {
       await session.stop()
     }
@@ -561,7 +574,7 @@ describe('VisionCamera - Video', () => {
     }
 
     const recordingFailure = createError ?? startError ?? recordingError
-    expect(recordingFailure).toBeDefined()
+    expect(recordingFailure).toBeInstanceOf(Error)
   })
 
   // Verifies that `targetResolution` actually drives the video pipeline.
@@ -570,7 +583,7 @@ describe('VisionCamera - Video', () => {
   // bound to the configured session.
   it("records at the device's maximum supported video resolution", async () => {
     const supported = backDevice.getSupportedResolutions('video')
-    expect(supported.length).toBeGreaterThan(0)
+    expect(supported).not.toHaveLength(0)
     const max = supported.reduce((a, b) =>
       a.width * a.height > b.width * b.height ? a : b,
     )
@@ -591,13 +604,9 @@ describe('VisionCamera - Video', () => {
     try {
       // iOS only populates the connection's format description once the
       // session is actually streaming, so wait briefly.
-      await waitUntil(() => videoOutput.currentResolution != null, {
+      const reported = await waitUntil(() => videoOutput.currentResolution, {
         timeout: 10_000,
       })
-
-      const reported = videoOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(max.width, max.height)
       const requestedLongEdge = Math.max(max.width, max.height)
@@ -612,7 +621,7 @@ describe('VisionCamera - Video', () => {
 
   it("records at the device's minimum supported video resolution", async () => {
     const supported = backDevice.getSupportedResolutions('video')
-    expect(supported.length).toBeGreaterThan(0)
+    expect(supported).not.toHaveLength(0)
     const min = supported.reduce((a, b) =>
       a.width * a.height < b.width * b.height ? a : b,
     )
@@ -631,13 +640,9 @@ describe('VisionCamera - Video', () => {
     ])
     await session.start()
     try {
-      await waitUntil(() => videoOutput.currentResolution != null, {
+      const reported = await waitUntil(() => videoOutput.currentResolution, {
         timeout: 10_000,
       })
-
-      const reported = videoOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported video resolution')
 
       const requestedShortEdge = Math.min(min.width, min.height)
       const requestedLongEdge = Math.max(min.width, min.height)
@@ -667,7 +672,7 @@ describe('VisionCamera - Video', () => {
       },
     ])
     const codecs = videoOutput.getSupportedVideoCodecs()
-    expect(codecs.length).toBeGreaterThan(0)
+    expect(codecs).not.toHaveLength(0)
     expect(codecs).not.toContain('unknown')
     await session.stop()
   })
@@ -693,7 +698,7 @@ describe('VisionCamera - Video', () => {
       await videoOutput.setOutputSettings({})
 
       const codecs = videoOutput.getSupportedVideoCodecs()
-      expect(codecs.length).toBeGreaterThan(0)
+      expect(codecs).not.toHaveLength(0)
       for (const codec of codecs) {
         await videoOutput.setOutputSettings({ codec })
       }

@@ -1,13 +1,5 @@
 import { StyleSheet } from 'react-native'
-import {
-  afterEach,
-  beforeAll,
-  cleanup,
-  describe,
-  expect,
-  it,
-  render,
-} from 'react-native-harness'
+import { beforeAll, describe, expect, it, render } from 'react-native-harness'
 import type { CameraDevice, Size } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
 import { SkiaCamera } from 'react-native-vision-camera-skia'
@@ -48,7 +40,7 @@ async function streamFrameSize(
     if (width > 0 && height > 0) received.resolve({ width, height })
   }
 
-  await render(
+  const { unmount } = await render(
     <SkiaCamera
       device={device}
       isActive={true}
@@ -74,7 +66,7 @@ async function streamFrameSize(
       `SkiaCamera Frame at ${targetResolution?.width}x${targetResolution?.height}`,
     )
   } finally {
-    cleanup()
+    unmount()
   }
 }
 
@@ -141,10 +133,6 @@ describe('VisionCamera - SkiaCamera targetResolution', () => {
     const back = factory.getDefaultCamera('back')
     if (back == null) throw new Error('no back camera')
     backDevice = back
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   it('streams Frames at the requested targetResolution', async (context) => {

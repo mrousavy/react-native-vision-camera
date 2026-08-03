@@ -1,8 +1,11 @@
 import {
+  assert,
   beforeAll,
   describe,
   expect,
+  fn,
   it,
+  waitFor,
   waitUntil,
 } from 'react-native-harness'
 import type {
@@ -52,8 +55,7 @@ describe('VisionCamera - Frame', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
@@ -363,7 +365,7 @@ describe('VisionCamera - Frame', () => {
     }
 
     for (const bufferReport of reports) {
-      expect(bufferReport.firstPlaneBytes.length).toBeGreaterThan(0)
+      expect(bufferReport.firstPlaneBytes).not.toHaveLength(0)
       expect(bufferReport.firstPlaneBytes).toEqual(
         bufferReport.secondPlaneBytes,
       )
@@ -546,7 +548,7 @@ describe('VisionCamera - Frame', () => {
   // snaps every request to a default resolution would slip through.
   it("streams frames at the device's maximum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
-    expect(supported.length).toBeGreaterThan(0)
+    expect(supported).not.toHaveLength(0)
     const max = supported.reduce((a, b) =>
       a.width * a.height > b.width * b.height ? a : b,
     )
@@ -603,8 +605,7 @@ describe('VisionCamera - Frame', () => {
 
       // currentResolution should match what's actually being streamed.
       const reported = frameOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported frame resolution')
+      assert.exists(reported, 'no reported frame resolution')
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
       expect(reportedShortEdge).toBe(streamedShortEdge)
@@ -621,7 +622,7 @@ describe('VisionCamera - Frame', () => {
 
   it("streams frames at the device's minimum supported frame resolution", async () => {
     const supported = backDevice.getSupportedResolutions('stream')
-    expect(supported.length).toBeGreaterThan(0)
+    expect(supported).not.toHaveLength(0)
     const min = supported.reduce((a, b) =>
       a.width * a.height < b.width * b.height ? a : b,
     )
@@ -677,8 +678,7 @@ describe('VisionCamera - Frame', () => {
       const streamedLongEdge = Math.max(receivedWidth, receivedHeight)
 
       const reported = frameOutput.currentResolution
-      expect(reported).toBeDefined()
-      if (reported == null) throw new Error('no reported frame resolution')
+      assert.exists(reported, 'no reported frame resolution')
       const reportedShortEdge = Math.min(reported.width, reported.height)
       const reportedLongEdge = Math.max(reported.width, reported.height)
       expect(reportedShortEdge).toBe(streamedShortEdge)
@@ -716,10 +716,8 @@ describe('VisionCamera - Frame', () => {
       },
     ])
 
-    let droppedReason: FrameDroppedReason | undefined
-    frameOutput.setOnFrameDroppedCallback((reason) => {
-      droppedReason = reason
-    })
+    const onFrameDropped = fn<(reason: FrameDroppedReason) => void>()
+    frameOutput.setOnFrameDroppedCallback(onFrameDropped)
 
     const runtime = workletsProvider.createRuntimeForThread(frameOutput.thread)
     runtime.setOnFrameCallback(frameOutput, (frame) => {
@@ -734,7 +732,12 @@ describe('VisionCamera - Frame', () => {
 
     await session.start()
     try {
-      await waitUntil(() => droppedReason != null, { timeout: 15_000 })
+      await waitFor(
+        () => {
+          expect(onFrameDropped).toHaveBeenCalled()
+        },
+        { timeout: 15_000 },
+      )
     } finally {
       runtime.setOnFrameCallback(frameOutput, undefined)
       frameOutput.setOnFrameDroppedCallback(undefined)

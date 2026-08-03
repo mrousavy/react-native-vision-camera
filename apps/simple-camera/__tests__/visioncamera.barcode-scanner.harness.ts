@@ -1,5 +1,5 @@
 import { Image as RNImage } from 'react-native'
-import { beforeAll, describe, expect, it } from 'react-native-harness'
+import { assert, beforeAll, describe, expect, it } from 'react-native-harness'
 import type { Image as NitroImage } from 'react-native-nitro-image'
 import { loadImage } from 'react-native-nitro-image'
 import type {
@@ -30,17 +30,19 @@ describe('VisionCamera - Barcode Scanner', () => {
     expect(VisionCamera.cameraPermissionStatus).toBe('authorized')
     factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
-    expect(back).toBeDefined()
-    if (back == null) throw new Error('no back camera')
+    assert.exists(back, 'no back camera')
     backDevice = back
   })
 
   it('scans a QR code from a Nitro Image', async () => {
     const barcodes = await scanCodesInAssetImage(qrCodeAsset, ['qr-code'])
 
-    expect(barcodes).toHaveLength(1)
-    expect(barcodes[0]?.format).toBe('qr-code')
-    expect(barcodes[0]?.rawValue).toBe('https://margelo.com')
+    expect(barcodes).toEqual([
+      expect.objectContaining({
+        format: 'qr-code',
+        rawValue: 'https://margelo.com',
+      }),
+    ])
   })
 
   it('scans a Code 128 barcode from a Nitro Image', async () => {
@@ -48,17 +50,23 @@ describe('VisionCamera - Barcode Scanner', () => {
       'code-128',
     ])
 
-    expect(code128Barcodes).toHaveLength(1)
-    expect(code128Barcodes[0]?.format).toBe('code-128')
-    expect(code128Barcodes[0]?.rawValue).toBe('https://mrousavy.com')
+    expect(code128Barcodes).toEqual([
+      expect.objectContaining({
+        format: 'code-128',
+        rawValue: 'https://mrousavy.com',
+      }),
+    ])
 
     const allFormatBarcodes = await scanCodesInAssetImage(code128Asset, [
       'all-formats',
     ])
 
-    expect(allFormatBarcodes).toHaveLength(1)
-    expect(allFormatBarcodes[0]?.format).toBe('code-128')
-    expect(allFormatBarcodes[0]?.rawValue).toBe('https://mrousavy.com')
+    expect(allFormatBarcodes).toEqual([
+      expect.objectContaining({
+        format: 'code-128',
+        rawValue: 'https://mrousavy.com',
+      }),
+    ])
   })
 
   for (const pixelFormat of ['yuv', 'rgb'] satisfies TargetVideoPixelFormat[]) {

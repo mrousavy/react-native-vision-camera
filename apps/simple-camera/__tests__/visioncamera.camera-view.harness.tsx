@@ -1,14 +1,14 @@
 import { createRef } from 'react'
 import { type LayoutChangeEvent, StyleSheet } from 'react-native'
 import {
-  afterEach,
+  assert,
   beforeAll,
-  cleanup,
   describe,
   expect,
+  fn,
   it,
   render,
-  waitUntil,
+  waitFor,
 } from 'react-native-harness'
 import type { CameraDevice, CameraRef, Point } from 'react-native-vision-camera'
 import {
@@ -66,16 +66,10 @@ describe('VisionCamera - Camera View', () => {
     const factory = await VisionCamera.createDeviceFactory()
     const back = factory.getDefaultCamera('back')
     const front = factory.getDefaultCamera('front')
-    expect(back).toBeDefined()
-    expect(front).toBeDefined()
-    if (back == null) throw new Error('no back camera')
-    if (front == null) throw new Error('no front camera')
+    assert.exists(back, 'no back camera')
+    assert.exists(front, 'no front camera')
     backDevice = back
     frontDevice = front
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   it('starts the high-level Camera preview and exposes preview/controller ref methods', async () => {
@@ -84,14 +78,12 @@ describe('VisionCamera - Camera View', () => {
     const started = deferred()
     const stopped = deferred()
     const previewStarted = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       layout.reject(error)
       started.reject(error)
       stopped.reject(error)
       previewStarted.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -116,7 +108,7 @@ describe('VisionCamera - Camera View', () => {
     )
     await withTimeout(started.promise, 15_000, 'Camera onStarted')
     await withTimeout(previewStarted.promise, 15_000, 'Camera onPreviewStarted')
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
@@ -148,14 +140,12 @@ describe('VisionCamera - Camera View', () => {
     const started = deferred()
     const stopped = deferred()
     const previewStarted = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       layout.reject(error)
       started.reject(error)
       stopped.reject(error)
       previewStarted.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -185,7 +175,7 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'photo Camera onPreviewStarted',
     )
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
@@ -225,14 +215,12 @@ describe('VisionCamera - Camera View', () => {
     const started = deferred()
     const stopped = deferred()
     const previewStarted = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       layout.reject(error)
       started.reject(error)
       stopped.reject(error)
       previewStarted.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -263,7 +251,7 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'gesture Camera onPreviewStarted',
     )
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     const camera = cameraRef.current
     if (camera == null) throw new Error('no Camera ref')
@@ -291,15 +279,13 @@ describe('VisionCamera - Camera View', () => {
       const layout = deferred<Layout>()
       const started = deferred()
       const previewStarted = deferred()
-      let sessionError: Error | undefined
-      const onError = (error: Error) => {
-        sessionError = error
+      const onError = fn((error: Error) => {
         layout.reject(error)
         started.reject(error)
         previewStarted.reject(error)
-      }
+      })
 
-      await render(
+      const { unmount } = await render(
         <Camera
           ref={cameraRef}
           device={backDevice}
@@ -329,13 +315,13 @@ describe('VisionCamera - Camera View', () => {
         15_000,
         `remounted Camera onPreviewStarted attempt ${attempt}`,
       )
-      expect(sessionError).toBe(undefined)
+      expect(onError).not.toHaveBeenCalled()
 
       const camera = cameraRef.current
       if (camera == null) throw new Error('no Camera ref')
       expectPreviewGeometry(camera, cameraLayout)
 
-      cleanup()
+      unmount()
     }
   })
 
@@ -348,16 +334,14 @@ describe('VisionCamera - Camera View', () => {
     const firstPreviewStarted = deferred()
     const secondStarted = deferred()
     const secondPreviewStarted = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       firstLayout.reject(error)
       secondLayout.reject(error)
       firstStarted.reject(error)
       firstPreviewStarted.reject(error)
       secondStarted.reject(error)
       secondPreviewStarted.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -390,7 +374,7 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'first replaced Camera onPreviewStarted',
     )
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     const firstCamera = firstRef.current
     if (firstCamera == null) throw new Error('no first Camera ref')
@@ -427,7 +411,7 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'second replaced Camera onPreviewStarted',
     )
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     const secondCamera = secondRef.current
     if (secondCamera == null) throw new Error('no second Camera ref')
@@ -441,15 +425,13 @@ describe('VisionCamera - Camera View', () => {
     const stopped = deferred()
     const previewStarted = deferred()
     const previewStopped = deferred()
-    let sessionError: Error | undefined
-    const onError = (error: Error) => {
-      sessionError = error
+    const onError = fn((error: Error) => {
       layout.reject(error)
       started.reject(error)
       stopped.reject(error)
       previewStarted.reject(error)
       previewStopped.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -495,7 +477,7 @@ describe('VisionCamera - Camera View', () => {
       10_000,
       'inactive Camera onPreviewStopped',
     )
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
   })
 
   it('reconfigures when the Camera device position prop changes', async () => {
@@ -506,22 +488,17 @@ describe('VisionCamera - Camera View', () => {
     const frontStarted = deferred()
     const frontStopped = deferred()
     const backPreviewStarted = deferred()
-    let configureCount = 0
-    let sessionError: Error | undefined
-    const onConfigured = () => {
-      configureCount++
-      if (configureCount === 1) configuredBack.resolve()
-      else if (configureCount === 2) configuredFront.resolve()
-    }
-    const onError = (error: Error) => {
-      sessionError = error
+    const onConfigured = fn<() => void>()
+      .mockImplementationOnce(() => configuredBack.resolve())
+      .mockImplementationOnce(() => configuredFront.resolve())
+    const onError = fn((error: Error) => {
       configuredBack.reject(error)
       configuredFront.reject(error)
       backStarted.reject(error)
       frontStarted.reject(error)
       frontStopped.reject(error)
       backPreviewStarted.reject(error)
-    }
+    })
 
     const { rerender } = await render(
       <Camera
@@ -537,18 +514,23 @@ describe('VisionCamera - Camera View', () => {
     )
 
     await withTimeout(configuredBack.promise, 15_000, 'back Camera configured')
+    expect(onConfigured).toHaveBeenCalledTimes(1)
     await withTimeout(backStarted.promise, 15_000, 'back Camera onStarted')
     await withTimeout(
       backPreviewStarted.promise,
       15_000,
       'back Camera onPreviewStarted',
     )
-    await waitUntil(
-      () => cameraRef.current?.controller?.device.id === backDevice.id,
+    await waitFor(
+      () => {
+        expect(cameraRef.current?.controller?.device).toMatchObject({
+          id: backDevice.id,
+          position: 'back',
+        })
+      },
       { timeout: 10_000 },
     )
-    expect(cameraRef.current?.controller?.device.position).toBe('back')
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     await rerender(
       <Camera
@@ -567,13 +549,18 @@ describe('VisionCamera - Camera View', () => {
       15_000,
       'front Camera configured',
     )
+    expect(onConfigured).toHaveBeenCalledTimes(2)
     await withTimeout(frontStarted.promise, 15_000, 'front Camera onStarted')
-    await waitUntil(
-      () => cameraRef.current?.controller?.device.id === frontDevice.id,
+    await waitFor(
+      () => {
+        expect(cameraRef.current?.controller?.device).toMatchObject({
+          id: frontDevice.id,
+          position: 'front',
+        })
+      },
       { timeout: 10_000 },
     )
-    expect(cameraRef.current?.controller?.device.position).toBe('front')
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
 
     await rerender(
       <Camera
@@ -586,6 +573,6 @@ describe('VisionCamera - Camera View', () => {
       />,
     )
     await withTimeout(frontStopped.promise, 10_000, 'front Camera onStopped')
-    expect(sessionError).toBe(undefined)
+    expect(onError).not.toHaveBeenCalled()
   })
 })
