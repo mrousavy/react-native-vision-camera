@@ -1,3 +1,4 @@
+import { screen, userEvent } from '@react-native-harness/ui'
 import {
   type LayoutChangeEvent,
   PixelRatio,
@@ -213,6 +214,119 @@ describe('VisionCamera - NativePreviewView', () => {
       } finally {
         snapshot.dispose()
       }
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('keeps a positioned NativePreviewView at its React layout after preview starts', async () => {
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    const previewRef = deferred<PreviewView>()
+    const rootLayout = deferred<Layout>()
+    const previewLayout = deferred<Layout>()
+    const previewStarted = deferred()
+    const errorSub = session.addOnErrorListener((error) => {
+      previewRef.reject(error)
+      rootLayout.reject(error)
+      previewLayout.reject(error)
+      previewStarted.reject(error)
+    })
+    const pressedPoints: Point[] = []
+
+    try {
+      await render(
+        <View
+          testID={POSITIONED_ROOT_TEST_ID}
+          style={styles.positionedRoot}
+          onLayout={(event) => {
+            rootLayout.resolve(toLayout(event))
+          }}
+          onStartShouldSetResponderCapture={() => true}
+          onResponderRelease={(event) => {
+            pressedPoints.push({
+              x: event.nativeEvent.pageX,
+              y: event.nativeEvent.pageY,
+            })
+          }}
+        >
+          <NativePreviewView
+            testID={POSITIONED_PREVIEW_TEST_ID}
+            style={styles.positionedPreview}
+            hybridRef={callback((preview: PreviewView) => {
+              previewRef.resolve(preview)
+            })}
+            onLayout={(event) => {
+              previewLayout.resolve(toLayout(event))
+            }}
+            onPreviewStarted={callback(previewStarted.resolve)}
+          />
+        </View>,
+      )
+
+      const preview = await withTimeout(
+        previewRef.promise,
+        10_000,
+        'positioned NativePreviewView hybridRef',
+      )
+      const rootFrame = await withTimeout(
+        rootLayout.promise,
+        10_000,
+        'positioned root onLayout',
+      )
+      const previewFrame = await withTimeout(
+        previewLayout.promise,
+        10_000,
+        'positioned NativePreviewView onLayout',
+      )
+
+      // Connect only after the initial native layout so attaching the native
+      // preview cannot race with a later React layout transaction.
+      preview.previewOutput = previewOutput
+      await session.start()
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'positioned NativePreviewView onPreviewStarted',
+      )
+
+      // Harness element references are intentionally opaque. userEvent.press
+      // taps each element's real native center, so the delta between these two
+      // public touch events reveals the preview's actual native offset while
+      // cancelling out the root's unknown screen origin.
+      const rootElement = await screen.findByTestId(POSITIONED_ROOT_TEST_ID)
+      const previewElement = await screen.findByTestId(
+        POSITIONED_PREVIEW_TEST_ID,
+      )
+      await userEvent.press(rootElement)
+      await userEvent.press(previewElement)
+
+      expect(pressedPoints).toHaveLength(2)
+      const rootCenter = pressedPoints[0]
+      const previewCenter = pressedPoints[1]
+      if (rootCenter == null || previewCenter == null) {
+        throw new Error('positioned preview touches were not received')
+      }
+
+      const actualLeft =
+        previewCenter.x -
+        rootCenter.x +
+        (rootFrame.width - previewFrame.width) / 2
+      const actualTop =
+        previewCenter.y -
+        rootCenter.y +
+        (rootFrame.height - previewFrame.height) / 2
+      expect(actualLeft).toBeCloseTo(POSITIONED_PREVIEW_LEFT, 0)
+      expect(actualTop).toBeCloseTo(POSITIONED_PREVIEW_TOP, 0)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -1134,12 +1248,30 @@ describe('VisionCamera - NativePreviewView', () => {
 })
 
 const PADDING_TOP = 82
+const POSITIONED_ROOT_TEST_ID = 'positioned-preview-root'
+const POSITIONED_PREVIEW_TEST_ID = 'positioned-preview'
+const POSITIONED_PREVIEW_LEFT = 37
+const POSITIONED_PREVIEW_TOP = 83
+const POSITIONED_PREVIEW_WIDTH = 160
+const POSITIONED_PREVIEW_HEIGHT = 240
 const FIXED_PREVIEW_WIDTH = 150
 const FIXED_PREVIEW_HEIGHT = 300
 const WIDE_PREVIEW_WIDTH = 260
 const WIDE_PREVIEW_HEIGHT = 180
 
 const styles = StyleSheet.create({
+  positionedRoot: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  positionedPreview: {
+    position: 'absolute',
+    left: POSITIONED_PREVIEW_LEFT,
+    top: POSITIONED_PREVIEW_TOP,
+    width: POSITIONED_PREVIEW_WIDTH,
+    height: POSITIONED_PREVIEW_HEIGHT,
+    backgroundColor: 'black',
+  },
   centeredRoot: {
     flex: 1,
     alignItems: 'center',
