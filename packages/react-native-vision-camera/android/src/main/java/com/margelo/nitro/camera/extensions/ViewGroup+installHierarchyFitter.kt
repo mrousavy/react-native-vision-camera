@@ -21,7 +21,7 @@ fun ViewGroup.installHierarchyFitter() {
           View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY),
           View.MeasureSpec.makeMeasureSpec(measuredHeight, View.MeasureSpec.EXACTLY),
         )
-        parent?.layout(0, 0, parent.measuredWidth, parent.measuredHeight)
+        parent?.layout(parent.left, parent.top, parent.left + parent.measuredWidth, parent.top + parent.measuredHeight)
       }
     },
   )
