@@ -1,8 +1,11 @@
+import type { ViewInfo } from '@react-native-harness/ui'
 import {
   type LayoutChangeEvent,
   PixelRatio,
   Platform,
   StyleSheet,
+  type TurboModule,
+  TurboModuleRegistry,
   View,
 } from 'react-native'
 import {
@@ -31,6 +34,10 @@ interface Layout {
   y: number
   width: number
   height: number
+}
+
+interface HarnessUISpec extends TurboModule {
+  queryByTestId(testId: string): ViewInfo | null
 }
 
 function toLayout(event: LayoutChangeEvent): Layout {
@@ -213,6 +220,102 @@ describe('VisionCamera - NativePreviewView', () => {
       } finally {
         snapshot.dispose()
       }
+    } finally {
+      errorSub.remove()
+      await session.stop()
+    }
+  })
+
+  it('preserves non-zero top and left after CameraX adds its preview child on Android', async (context) => {
+    if (Platform.OS !== 'android') {
+      return context.skip('native PreviewView position: Android only')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    const previewRef = deferred<PreviewView>()
+    const layout = deferred<Layout>()
+    const previewStarted = deferred()
+    const errorSub = session.addOnErrorListener((error) => {
+      previewRef.reject(error)
+      layout.reject(error)
+      previewStarted.reject(error)
+    })
+
+    try {
+      await render(
+        <View testID={POSITIONED_ROOT_TEST_ID} style={styles.positionedRoot}>
+          <NativePreviewView
+            testID={POSITIONED_PREVIEW_TEST_ID}
+            style={styles.positionedPreview}
+            hybridRef={callback((preview: PreviewView) => {
+              previewRef.resolve(preview)
+            })}
+            onLayout={(event) => {
+              layout.resolve(toLayout(event))
+            }}
+            onPreviewStarted={callback(previewStarted.resolve)}
+          />
+        </View>,
+      )
+
+      const preview = await withTimeout(
+        previewRef.promise,
+        10_000,
+        'positioned NativePreviewView hybridRef',
+      )
+      await withTimeout(
+        layout.promise,
+        10_000,
+        'positioned NativePreviewView onLayout',
+      )
+
+      // Fabric's onLayout/measure APIs read Yoga's shadow-tree frame, which
+      // does not reveal a later View.layout(...) mutation in the Android tree.
+      const harnessUI =
+        TurboModuleRegistry.getEnforcing<HarnessUISpec>('HarnessUI')
+      const rootBeforeChild = harnessUI.queryByTestId(POSITIONED_ROOT_TEST_ID)
+      const previewBeforeChild = harnessUI.queryByTestId(
+        POSITIONED_PREVIEW_TEST_ID,
+      )
+      if (rootBeforeChild == null) throw new Error('positioned root not found')
+      if (previewBeforeChild == null)
+        throw new Error('positioned preview not found')
+
+      const initialLeft = previewBeforeChild.x - rootBeforeChild.x
+      const initialTop = previewBeforeChild.y - rootBeforeChild.y
+      expect(initialLeft).toBeCloseTo(POSITIONED_PREVIEW_LEFT, 0)
+      expect(initialTop).toBeCloseTo(POSITIONED_PREVIEW_TOP, 0)
+
+      // Connect only after the initial native layout so CameraX's child-add
+      // callback cannot race with a later React layout transaction.
+      preview.previewOutput = previewOutput
+      await session.start()
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        'positioned NativePreviewView onPreviewStarted',
+      )
+
+      const rootBounds = harnessUI.queryByTestId(POSITIONED_ROOT_TEST_ID)
+      const previewBounds = harnessUI.queryByTestId(POSITIONED_PREVIEW_TEST_ID)
+      if (rootBounds == null) throw new Error('positioned root not found')
+      if (previewBounds == null) throw new Error('positioned preview not found')
+
+      const actualLeft = previewBounds.x - rootBounds.x
+      const actualTop = previewBounds.y - rootBounds.y
+      expect(actualLeft).toBeCloseTo(POSITIONED_PREVIEW_LEFT, 0)
+      expect(actualTop).toBeCloseTo(POSITIONED_PREVIEW_TOP, 0)
+      expect(previewBounds.width).toBeCloseTo(POSITIONED_PREVIEW_WIDTH, 0)
+      expect(previewBounds.height).toBeCloseTo(POSITIONED_PREVIEW_HEIGHT, 0)
     } finally {
       errorSub.remove()
       await session.stop()
@@ -1134,12 +1237,30 @@ describe('VisionCamera - NativePreviewView', () => {
 })
 
 const PADDING_TOP = 82
+const POSITIONED_ROOT_TEST_ID = 'positioned-preview-root'
+const POSITIONED_PREVIEW_TEST_ID = 'positioned-preview'
+const POSITIONED_PREVIEW_LEFT = 37
+const POSITIONED_PREVIEW_TOP = 83
+const POSITIONED_PREVIEW_WIDTH = 160
+const POSITIONED_PREVIEW_HEIGHT = 240
 const FIXED_PREVIEW_WIDTH = 150
 const FIXED_PREVIEW_HEIGHT = 300
 const WIDE_PREVIEW_WIDTH = 260
 const WIDE_PREVIEW_HEIGHT = 180
 
 const styles = StyleSheet.create({
+  positionedRoot: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  positionedPreview: {
+    position: 'absolute',
+    left: POSITIONED_PREVIEW_LEFT,
+    top: POSITIONED_PREVIEW_TOP,
+    width: POSITIONED_PREVIEW_WIDTH,
+    height: POSITIONED_PREVIEW_HEIGHT,
+    backgroundColor: 'black',
+  },
   centeredRoot: {
     flex: 1,
     alignItems: 'center',
