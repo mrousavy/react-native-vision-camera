@@ -261,7 +261,10 @@ export function useCamera({
   torchMode,
 }: CameraProps): CameraController | undefined {
   // 1. Create session
-  const session = useCameraSession({ enableMultiCamSupport: false })
+  const session = useCameraSession({
+    enableMultiCamSupport: false,
+    onError: onError,
+  })
 
   // 2. Update output orientations
   const orientationSourceOrUndefined =
