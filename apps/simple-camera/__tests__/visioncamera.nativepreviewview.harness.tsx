@@ -1,11 +1,9 @@
-import type { ViewInfo } from '@react-native-harness/ui'
+import { screen, userEvent } from '@react-native-harness/ui'
 import {
   type LayoutChangeEvent,
   PixelRatio,
   Platform,
   StyleSheet,
-  type TurboModule,
-  TurboModuleRegistry,
   View,
 } from 'react-native'
 import {
@@ -34,10 +32,6 @@ interface Layout {
   y: number
   width: number
   height: number
-}
-
-interface HarnessUISpec extends TurboModule {
-  queryByTestId(testId: string): ViewInfo | null
 }
 
 function toLayout(event: LayoutChangeEvent): Layout {
@@ -226,11 +220,7 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
-  it('preserves non-zero top and left after CameraX adds its preview child on Android', async (context) => {
-    if (Platform.OS !== 'android') {
-      return context.skip('native PreviewView position: Android only')
-    }
-
+  it('keeps a positioned NativePreviewView at its React layout after preview starts', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const previewOutput = VisionCamera.createPreviewOutput()
     await session.configure([
@@ -242,17 +232,33 @@ describe('VisionCamera - NativePreviewView', () => {
     ])
 
     const previewRef = deferred<PreviewView>()
-    const layout = deferred<Layout>()
+    const rootLayout = deferred<Layout>()
+    const previewLayout = deferred<Layout>()
     const previewStarted = deferred()
     const errorSub = session.addOnErrorListener((error) => {
       previewRef.reject(error)
-      layout.reject(error)
+      rootLayout.reject(error)
+      previewLayout.reject(error)
       previewStarted.reject(error)
     })
+    const pressedPoints: Point[] = []
 
     try {
       await render(
-        <View testID={POSITIONED_ROOT_TEST_ID} style={styles.positionedRoot}>
+        <View
+          testID={POSITIONED_ROOT_TEST_ID}
+          style={styles.positionedRoot}
+          onLayout={(event) => {
+            rootLayout.resolve(toLayout(event))
+          }}
+          onStartShouldSetResponderCapture={() => true}
+          onResponderRelease={(event) => {
+            pressedPoints.push({
+              x: event.nativeEvent.pageX,
+              y: event.nativeEvent.pageY,
+            })
+          }}
+        >
           <NativePreviewView
             testID={POSITIONED_PREVIEW_TEST_ID}
             style={styles.positionedPreview}
@@ -260,7 +266,7 @@ describe('VisionCamera - NativePreviewView', () => {
               previewRef.resolve(preview)
             })}
             onLayout={(event) => {
-              layout.resolve(toLayout(event))
+              previewLayout.resolve(toLayout(event))
             }}
             onPreviewStarted={callback(previewStarted.resolve)}
           />
@@ -272,31 +278,19 @@ describe('VisionCamera - NativePreviewView', () => {
         10_000,
         'positioned NativePreviewView hybridRef',
       )
-      await withTimeout(
-        layout.promise,
+      const rootFrame = await withTimeout(
+        rootLayout.promise,
+        10_000,
+        'positioned root onLayout',
+      )
+      const previewFrame = await withTimeout(
+        previewLayout.promise,
         10_000,
         'positioned NativePreviewView onLayout',
       )
 
-      // Fabric's onLayout/measure APIs read Yoga's shadow-tree frame, which
-      // does not reveal a later View.layout(...) mutation in the Android tree.
-      const harnessUI =
-        TurboModuleRegistry.getEnforcing<HarnessUISpec>('HarnessUI')
-      const rootBeforeChild = harnessUI.queryByTestId(POSITIONED_ROOT_TEST_ID)
-      const previewBeforeChild = harnessUI.queryByTestId(
-        POSITIONED_PREVIEW_TEST_ID,
-      )
-      if (rootBeforeChild == null) throw new Error('positioned root not found')
-      if (previewBeforeChild == null)
-        throw new Error('positioned preview not found')
-
-      const initialLeft = previewBeforeChild.x - rootBeforeChild.x
-      const initialTop = previewBeforeChild.y - rootBeforeChild.y
-      expect(initialLeft).toBeCloseTo(POSITIONED_PREVIEW_LEFT, 0)
-      expect(initialTop).toBeCloseTo(POSITIONED_PREVIEW_TOP, 0)
-
-      // Connect only after the initial native layout so CameraX's child-add
-      // callback cannot race with a later React layout transaction.
+      // Connect only after the initial native layout so attaching the native
+      // preview cannot race with a later React layout transaction.
       preview.previewOutput = previewOutput
       await session.start()
       await withTimeout(
@@ -305,17 +299,34 @@ describe('VisionCamera - NativePreviewView', () => {
         'positioned NativePreviewView onPreviewStarted',
       )
 
-      const rootBounds = harnessUI.queryByTestId(POSITIONED_ROOT_TEST_ID)
-      const previewBounds = harnessUI.queryByTestId(POSITIONED_PREVIEW_TEST_ID)
-      if (rootBounds == null) throw new Error('positioned root not found')
-      if (previewBounds == null) throw new Error('positioned preview not found')
+      // Harness element references are intentionally opaque. userEvent.press
+      // taps each element's real native center, so the delta between these two
+      // public touch events reveals the preview's actual native offset while
+      // cancelling out the root's unknown screen origin.
+      const rootElement = await screen.findByTestId(POSITIONED_ROOT_TEST_ID)
+      const previewElement = await screen.findByTestId(
+        POSITIONED_PREVIEW_TEST_ID,
+      )
+      await userEvent.press(rootElement)
+      await userEvent.press(previewElement)
 
-      const actualLeft = previewBounds.x - rootBounds.x
-      const actualTop = previewBounds.y - rootBounds.y
+      expect(pressedPoints).toHaveLength(2)
+      const rootCenter = pressedPoints[0]
+      const previewCenter = pressedPoints[1]
+      if (rootCenter == null || previewCenter == null) {
+        throw new Error('positioned preview touches were not received')
+      }
+
+      const actualLeft =
+        previewCenter.x -
+        rootCenter.x +
+        (rootFrame.width - previewFrame.width) / 2
+      const actualTop =
+        previewCenter.y -
+        rootCenter.y +
+        (rootFrame.height - previewFrame.height) / 2
       expect(actualLeft).toBeCloseTo(POSITIONED_PREVIEW_LEFT, 0)
       expect(actualTop).toBeCloseTo(POSITIONED_PREVIEW_TOP, 0)
-      expect(previewBounds.width).toBeCloseTo(POSITIONED_PREVIEW_WIDTH, 0)
-      expect(previewBounds.height).toBeCloseTo(POSITIONED_PREVIEW_HEIGHT, 0)
     } finally {
       errorSub.remove()
       await session.stop()
