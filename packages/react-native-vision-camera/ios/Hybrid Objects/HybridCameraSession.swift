@@ -34,7 +34,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
   }
 
   // pragma MARK: Configuration
-  func configure(connections: [CameraSessionConnection], config: CameraSessionConfiguration?)
+  func configure(connections: [CameraSessionConnection], config: CameraSessionConfiguration)
     -> Promise<[any HybridCameraControllerSpec]>
   {
     return Promise.parallel(Self.queue) {
@@ -90,19 +90,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
       self.session.automaticallyConfiguresCaptureDeviceForWideColor = !hasCustomDynamicRangeConstraint
 
-      // Haptics and System Sounds Playback
-      if let allowHapticsAndSystemSoundsPlayback = config?.allowHapticsAndSystemSoundsPlayback {
-        let audioSession = AVAudioSession.sharedInstance()
-        if audioSession.allowHapticsAndSystemSoundsDuringRecording != allowHapticsAndSystemSoundsPlayback {
-          try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(allowHapticsAndSystemSoundsPlayback)
-        }
-      }
-      // Background Audio Playback
-      if #available(iOS 18.0, *) {
-        if let allowBackgroundAudioPlayback = config?.allowBackgroundAudioPlayback {
-          self.session.configuresApplicationAudioSessionToMixWithOthers = allowBackgroundAudioPlayback
-        }
-      }
+      // Audio Session configuration
+      try self.configureAudioSession(config: config)
 
       // Return CameraControllers per connection to adjust camera settings (focus, etc)
       return try connections.map { connection in
@@ -205,6 +194,32 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       case .preview(let preview):
         preview.configure(config: outputConfig)
       }
+    }
+  }
+  
+  private func configureAudioSession(config: CameraSessionConfiguration) throws {
+    switch config.audioConfiguration {
+    case .first(let automaticConfig):
+      // Automatic
+      self.session.automaticallyConfiguresApplicationAudioSession = true
+      if #available(iOS 18.0, *) {
+        if self.session.configuresApplicationAudioSessionToMixWithOthers != automaticConfig.allowBackgroundAudioPlayback {
+          self.session.configuresApplicationAudioSessionToMixWithOthers = automaticConfig.allowBackgroundAudioPlayback
+        }
+      }
+    case .second(let manualConfig):
+      // Manual
+      self.session.automaticallyConfiguresApplicationAudioSession = false
+      let audioSession = AVAudioSession.sharedInstance()
+      let category: AVAudioSession.Category = manualConfig.allowBackgroundAudioPlayback ? .playAndRecord : .record
+      try audioSession.setCategory(category,
+                                   mode: .videoRecording,
+                                   options: [.allowAirPlay])
+      if audioSession.allowHapticsAndSystemSoundsDuringRecording != manualConfig.allowHapticsAndSystemSoundsPlayback {
+        try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(manualConfig.allowHapticsAndSystemSoundsPlayback)
+      }
+    case .none:
+      // No config set
     }
   }
 
