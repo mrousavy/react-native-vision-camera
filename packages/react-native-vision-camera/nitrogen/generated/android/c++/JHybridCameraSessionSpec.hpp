@@ -54,7 +54,7 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const std::optional<CameraSessionConfiguration>& config) override;
+    std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const CameraSessionConfiguration& config) override;
     std::shared_ptr<Promise<void>> start() override;
     std::shared_ptr<Promise<void>> stop() override;
     ListenerSubscription addOnStartedListener(const std::function<void()>& onStarted) override;

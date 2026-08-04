@@ -40,6 +40,10 @@ interface ManualAudioSessionConfiguration
   allowHapticsAndSystemSoundsPlayback: boolean
 }
 
+type AudioConfiguration =
+  | AutomaticAudioSessionConfiguration
+  | ManualAudioSessionConfiguration
+
 /**
  * Configuration for a {@linkcode CameraSession}.
  */
@@ -54,12 +58,9 @@ export interface CameraSessionConfiguration {
    * - When set to a {@linkcode ManualAudioSessionConfiguration},
    *   the Audio Session will be manually configured by
    *   VisionCamera, and requires more configuration.
-   * - When set to `null`, the Audio Session will not be configured
+   * - When left at `undefined`, the Audio Session will not be configured
    *   by VisionCamera at all. This is ideal if you want to configure
    *   your Audio Session fully yourself, for example via expo-audio.
    */
-  audioConfiguration?:
-    | AutomaticAudioSessionConfiguration
-    | ManualAudioSessionConfiguration
-    | null
+  audioConfiguration?: AudioConfiguration
 }

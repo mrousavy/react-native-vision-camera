@@ -58,6 +58,10 @@ namespace margelo::nitro::camera { enum class PixelFormat; }
 namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 // Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
+// Forward declaration of `AutomaticAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct AutomaticAudioSessionConfiguration; }
+// Forward declaration of `ManualAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct ManualAudioSessionConfiguration; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
 // Forward declaration of `InterruptionReason` to properly resolve imports.
@@ -92,6 +96,8 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "HybridCameraSessionConfigSpec.hpp"
 #include <functional>
 #include "CameraSessionConfiguration.hpp"
+#include "AutomaticAudioSessionConfiguration.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
 #include "ListenerSubscription.hpp"
 #include <exception>
 #include "InterruptionReason.hpp"
@@ -148,8 +154,8 @@ namespace margelo::nitro::camera {
 
   public:
     // Methods
-    inline std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const std::optional<CameraSessionConfiguration>& config) override {
-      auto __result = _swiftPart.configure(connections, config);
+    inline std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const CameraSessionConfiguration& config) override {
+      auto __result = _swiftPart.configure(connections, std::forward<decltype(config)>(config));
       if (__result.hasError()) [[unlikely]] {
         std::rethrow_exception(__result.error());
       }

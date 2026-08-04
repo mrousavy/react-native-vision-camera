@@ -236,7 +236,7 @@ export interface CameraSession
    */
   configure(
     connections: CameraSessionConnection[],
-    config?: CameraSessionConfiguration,
+    config: CameraSessionConfiguration,
   ): Promise<CameraController[]>
 
   /**

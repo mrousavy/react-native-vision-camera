@@ -18,16 +18,17 @@ public extension CameraSessionConfiguration {
   /**
    * Create a new instance of `CameraSessionConfiguration`.
    */
-  init(allowHapticsAndSystemSoundsPlayback: Bool?, allowBackgroundAudioPlayback: Bool?) {
-    self.init({ () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = allowHapticsAndSystemSoundsPlayback {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
-      } else {
-        return .init()
-      }
-    }(), { () -> bridge.std__optional_bool_ in
-      if let __unwrappedValue = allowBackgroundAudioPlayback {
-        return bridge.create_std__optional_bool_(__unwrappedValue)
+  init(audioConfiguration: Variant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration?) {
+    self.init({ () -> bridge.std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__ in
+      if let __unwrappedValue = audioConfiguration {
+        return bridge.create_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__({ () -> bridge.std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_ in
+          switch __unwrappedValue {
+            case .first(let __value):
+              return bridge.create_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(__value)
+            case .second(let __value):
+              return bridge.create_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(__value)
+          }
+        }().variant)
       } else {
         return .init()
       }
@@ -35,23 +36,23 @@ public extension CameraSessionConfiguration {
   }
 
   @inline(__always)
-  var allowHapticsAndSystemSoundsPlayback: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__allowHapticsAndSystemSoundsPlayback) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__allowHapticsAndSystemSoundsPlayback)
-        return __unwrapped
-      } else {
-        return nil
-      }
-    }()
-  }
-  
-  @inline(__always)
-  var allowBackgroundAudioPlayback: Bool? {
-    return { () -> Bool? in
-      if bridge.has_value_std__optional_bool_(self.__allowBackgroundAudioPlayback) {
-        let __unwrapped = bridge.get_std__optional_bool_(self.__allowBackgroundAudioPlayback)
-        return __unwrapped
+  var audioConfiguration: Variant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration? {
+    return { () -> Variant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration? in
+      if bridge.has_value_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__(self.__audioConfiguration) {
+        let __unwrapped = bridge.get_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__(self.__audioConfiguration)
+        return { () -> Variant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration in
+          let __variant = bridge.std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(__unwrapped)
+          switch __variant.index() {
+            case 0:
+              let __actual = __variant.get_0()
+              return .first(__actual)
+            case 1:
+              let __actual = __variant.get_1()
+              return .second(__actual)
+            default:
+              fatalError("Variant can never have index \(__variant.index())!")
+          }
+        }()
       } else {
         return nil
       }

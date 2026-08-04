@@ -28,8 +28,14 @@
 #error NitroModules cannot be found! Are you sure you installed NitroModules properly?
 #endif
 
+// Forward declaration of `AutomaticAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct AutomaticAudioSessionConfiguration; }
+// Forward declaration of `ManualAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct ManualAudioSessionConfiguration; }
 
-
+#include "AutomaticAudioSessionConfiguration.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
+#include <variant>
 #include <optional>
 
 namespace margelo::nitro::camera {
@@ -39,12 +45,11 @@ namespace margelo::nitro::camera {
    */
   struct CameraSessionConfiguration final {
   public:
-    std::optional<bool> allowHapticsAndSystemSoundsPlayback     SWIFT_PRIVATE;
-    std::optional<bool> allowBackgroundAudioPlayback     SWIFT_PRIVATE;
+    std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>> audioConfiguration     SWIFT_PRIVATE;
 
   public:
     CameraSessionConfiguration() = default;
-    explicit CameraSessionConfiguration(std::optional<bool> allowHapticsAndSystemSoundsPlayback, std::optional<bool> allowBackgroundAudioPlayback): allowHapticsAndSystemSoundsPlayback(allowHapticsAndSystemSoundsPlayback), allowBackgroundAudioPlayback(allowBackgroundAudioPlayback) {}
+    explicit CameraSessionConfiguration(std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>> audioConfiguration): audioConfiguration(audioConfiguration) {}
 
   public:
     friend bool operator==(const CameraSessionConfiguration& lhs, const CameraSessionConfiguration& rhs) = default;
@@ -60,14 +65,12 @@ namespace margelo::nitro {
     static inline margelo::nitro::camera::CameraSessionConfiguration fromJSI(jsi::Runtime& runtime, const jsi::Value& arg) {
       jsi::Object obj = arg.asObject(runtime);
       return margelo::nitro::camera::CameraSessionConfiguration(
-        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowHapticsAndSystemSoundsPlayback"))),
-        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback")))
+        JSIConverter<std::optional<std::variant<margelo::nitro::camera::AutomaticAudioSessionConfiguration, margelo::nitro::camera::ManualAudioSessionConfiguration>>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "audioConfiguration")))
       );
     }
     static inline jsi::Value toJSI(jsi::Runtime& runtime, const margelo::nitro::camera::CameraSessionConfiguration& arg) {
       jsi::Object obj(runtime);
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "allowHapticsAndSystemSoundsPlayback"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.allowHapticsAndSystemSoundsPlayback));
-      obj.setProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.allowBackgroundAudioPlayback));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "audioConfiguration"), JSIConverter<std::optional<std::variant<margelo::nitro::camera::AutomaticAudioSessionConfiguration, margelo::nitro::camera::ManualAudioSessionConfiguration>>>::toJSI(runtime, arg.audioConfiguration));
       return obj;
     }
     static inline bool canConvert(jsi::Runtime& runtime, const jsi::Value& value) {
@@ -78,8 +81,7 @@ namespace margelo::nitro {
       if (!nitro::isPlainObject(runtime, obj)) {
         return false;
       }
-      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowHapticsAndSystemSoundsPlayback")))) return false;
-      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "allowBackgroundAudioPlayback")))) return false;
+      if (!JSIConverter<std::optional<std::variant<margelo::nitro::camera::AutomaticAudioSessionConfiguration, margelo::nitro::camera::ManualAudioSessionConfiguration>>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "audioConfiguration")))) return false;
       return true;
     }
   };
