@@ -58,7 +58,7 @@ export interface CameraSessionConfiguration {
    *   by VisionCamera at all. This is ideal if you want to configure
    *   your Audio Session fully yourself, for example via expo-audio.
    */
-  audioConfiguration:
+  audioConfiguration?:
     | AutomaticAudioSessionConfiguration
     | ManualAudioSessionConfiguration
     | null
