@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getLLMText } from '@/lib/get-llm-text'
 import { getLLMIndex, resolveScopedPage } from '@/lib/llms'
+import { createMarkdownResponse } from '@/lib/llms-response'
 import { apiSource, docsSource } from '@/lib/source'
 
 export const revalidate = false
@@ -11,21 +12,16 @@ export async function GET(
 ) {
   const { slug } = await params
   if (!Array.isArray(slug) || slug.length === 0) {
-    return new Response(await getLLMIndex(), {
-      headers: {
-        'Content-Type': 'text/markdown',
-      },
-    })
+    return createMarkdownResponse(await getLLMIndex(), '/llms.txt')
   }
 
   const resolved = resolveScopedPage(slug)
   if (resolved == null) notFound()
 
-  return new Response(await getLLMText(resolved.page, resolved.scope), {
-    headers: {
-      'Content-Type': 'text/markdown',
-    },
-  })
+  return createMarkdownResponse(
+    await getLLMText(resolved.page, resolved.scope),
+    resolved.page.url,
+  )
 }
 
 export function generateStaticParams() {
