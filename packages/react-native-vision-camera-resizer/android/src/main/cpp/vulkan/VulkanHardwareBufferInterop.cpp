@@ -73,6 +73,14 @@ const VulkanHardwareBufferInterop::ImportedImage& VulkanHardwareBufferInterop::i
     iterator = _cachedImages.erase(iterator);
   }
 
+  // Evict the oldest entries before inserting so old camera sessions' buffers get released.
+  // Safe to destroy here: run() holds _stateMutex across import -> dispatch -> submit-and-wait,
+  // so no imported image is in flight on the GPU at this point.
+  while (_cachedImages.size() >= kMaxCachedImages) {
+    destroyImportedImage(_cachedImages.front().importedImage);
+    _cachedImages.erase(_cachedImages.begin());
+  }
+
   // No suitable ImportedImage was found in our cache - we have to create a new one.
   CachedImage cachedImage{
       .hardwareBuffer = hardwareBuffer,
