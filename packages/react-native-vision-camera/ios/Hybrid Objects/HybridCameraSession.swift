@@ -66,8 +66,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         )
       }
 
-      // Remove all unwanted preview layers before touching inputs/outputs
-      self.removeUnwantedPreviewLayers(connections)
+      // Detach all unwanted preview layers before touching inputs/outputs
+      self.detachUnwantedPreviewLayers(connections)
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(connections)
       // Remove all unwanted outputs and add all new outputs
@@ -231,11 +231,12 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
   // pragma MARK: Helpers
   /**
-   * Removes all preview layers that are not present in the [targetConnections] array.
+   * Detach all preview layers that are not present in the [targetConnections] array
+   * from this [AVCaptureSession].
    * This must run before [updateInputs] or [updateOutputs], as those methods kill
    * preview connections without unsetting the `session`.
    */
-  private func removeUnwantedPreviewLayers(_ targetConnections: [ResolvedCameraSessionConnection]) {
+  private func detachUnwantedPreviewLayers(_ targetConnections: [ResolvedCameraSessionConnection]) {
     let currentlyAttachedPreviewLayers = self.session.connections.compactMap { $0.videoPreviewLayer }
     for currentlyAttachedPreviewLayer in currentlyAttachedPreviewLayers {
       let containsAttachedPreviewLayer = targetConnections.contains { connection in
