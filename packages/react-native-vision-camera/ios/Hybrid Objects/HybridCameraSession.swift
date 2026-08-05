@@ -231,7 +231,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
   // pragma MARK: Helpers
   /**
-   * Detach all preview layers that are not present in the [targetConnections] array
+   * Detach all preview layers that are not listed in the [targetConnections] array
    * from this [AVCaptureSession].
    * This must run before [updateInputs] or [updateOutputs], as those methods kill
    * preview connections without unsetting the `session`.
