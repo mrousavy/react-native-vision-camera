@@ -306,13 +306,27 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         self.session.removeOutput(currentlyAttachedOutput)
       }
     }
-    // 2. Loop through all connections
+    // 2. As Preview Layers are not treated like Outputs, we have to now also loop over
+    //    all AVCaptureVideoPreviewLayers to remove the ones we don't have in our target array
+    let currentlyAttachedPreviewLayers = self.session.connections.compactMap { $0.videoPreviewLayer }
+    for currentlyAttachedPreviewLayer in currentlyAttachedPreviewLayers {
+      let containsAttachedPreviewLayer = targetConnections.contains { connection in
+        return connection.isConnectedTo(preview: currentlyAttachedPreviewLayer)
+      }
+      if !containsAttachedPreviewLayer {
+        // 2.1. We don't want this AVCaptureVideoPreviewLayer - remove it!
+        logger.info("Removing preview \(currentlyAttachedPreviewLayer)...")
+        currentlyAttachedPreviewLayer.session = nil
+      }
+    }
+    
+    // 3. Loop through all connections
     for connection in targetConnections {
-      // 2.1. Loop through each output
+      // 3.1. Loop through each output
       for output in connection.outputs {
         let containsOutput = self.session.containsOutput(output.output)
         if !containsOutput {
-          // 2.2. It doesn't exist yet - add it to the session..
+          // 3.2. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output.output)
         }
       }
