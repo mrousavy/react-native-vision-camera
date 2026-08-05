@@ -319,7 +319,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         currentlyAttachedPreviewLayer.session = nil
       }
     }
-    
+
     // 3. Loop through all connections
     for connection in targetConnections {
       // 3.1. Loop through each output
