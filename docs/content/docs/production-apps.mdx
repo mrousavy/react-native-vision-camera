@@ -4,9 +4,670 @@ description: Popular production apps using react-native-vision-camera
 icon: BadgeCheck
 ---
 
-import { ProductionAppsShowcase } from '@/components/production-apps-showcase'
+import {
+  InstallMetric,
+  ProductionApp,
+  ProductionAppsShowcase,
+} from '@/components/production-apps-showcase'
 
-<ProductionAppsShowcase />
+<ProductionAppsShowcase>
+  <ProductionApp
+    name="Amazon Shopping"
+    company="Amazon"
+    iconSrc="/img/production-apps/amazon-shopping.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/amazon-shopping/id297606951"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.amazon.mShop.android.shopping"
+  >
+    <InstallMetric kind="monthly-downloads" value={2_000_000}>2M/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={1_000_000_000}>1B+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="PlayStation App"
+    company="PlayStation Mobile"
+    iconSrc="/img/production-apps/playstation-app.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/playstation-app/id410896080"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.scee.psxandroid"
+  >
+    <InstallMetric kind="monthly-downloads" value={800_000}>800K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={100_000_000}>100M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Xbox"
+    company="Microsoft"
+    iconSrc="/img/production-apps/xbox.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/xbox/id736179781"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.microsoft.xboxone.smartglass"
+  >
+    <InstallMetric kind="monthly-downloads" value={600_000}>600K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={100_000_000}>100M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Evernote"
+    company="Bending Spoons"
+    iconSrc="/img/production-apps/evernote.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/evernote-notes-organizer/id281796108"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.evernote"
+  >
+    <InstallMetric kind="lifetime-installs" value={100_000_000}>100M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="AT&amp;T"
+    company="AT&amp;T Services"
+    iconSrc="/img/production-apps/att.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/at-t/id309172177"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.att.myWireless"
+  >
+    <InstallMetric kind="lifetime-installs" value={100_000_000}>100M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Klarna"
+    company="Klarna Bank"
+    iconSrc="/img/production-apps/klarna.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/klarna-smarter-everyday-money/id1115120118"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.myklarnamobile"
+  >
+    <InstallMetric kind="monthly-downloads" value={1_000_000}>1M/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={50_000_000}>50M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="OfferUp"
+    company="OfferUp"
+    iconSrc="/img/production-apps/offerup.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/offerup-buy-sell-marketplace/id468996152"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.offerup"
+  >
+    <InstallMetric kind="monthly-downloads" value={300_000}>300K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={50_000_000}>50M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Locket Widget"
+    company="Locket Labs"
+    iconSrc="/img/production-apps/locket.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/locket-widget/id1600525061"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.locket.Locket"
+  >
+    <InstallMetric kind="monthly-downloads" value={800_000}>800K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Starlink"
+    company="SpaceX"
+    iconSrc="/img/production-apps/starlink.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/starlink/id1537177988"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.starlink.mobile"
+  >
+    <InstallMetric kind="monthly-downloads" value={500_000}>500K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Remitly"
+    company="Remitly"
+    iconSrc="/img/production-apps/remitly.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/remitly-send-money-abroad/id674258465"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.remitly.androidapp"
+  >
+    <InstallMetric kind="monthly-downloads" value={500_000}>500K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Shopify"
+    company="Shopify"
+    iconSrc="/img/production-apps/shopify.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/shopify-sell-online-in-person/id371294472"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.shopify.mobile"
+  >
+    <InstallMetric kind="monthly-downloads" value={400_000}>400K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Best Buy"
+    company="Best Buy"
+    iconSrc="/img/production-apps/best-buy.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/best-buy-tech-deals-savings/id314855255"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.bestbuy.android"
+  >
+    <InstallMetric kind="monthly-downloads" value={400_000}>400K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Urban Company"
+    company="Urban Company"
+    iconSrc="/img/production-apps/urban-company.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/urban-company-home-services/id1032480595"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.urbanclap.urbanclap"
+  >
+    <InstallMetric kind="monthly-downloads" value={300_000}>300K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="SONIC"
+    company="Sonic Industries"
+    iconSrc="/img/production-apps/sonic-drive-in.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/sonic-drive-in-order-online/id867827909"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.sonic.sonicdrivein"
+  >
+    <InstallMetric kind="monthly-downloads" value={200_000}>200K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="MetaMask"
+    company="Consensys"
+    iconSrc="/img/production-apps/metamask.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/metamask-trade-crypto/id1438144202"
+    playStoreUrl="https://play.google.com/store/apps/details?id=io.metamask"
+  >
+    <InstallMetric kind="monthly-downloads" value={100_000}>100K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Spaces by Wix"
+    company="Wix.com"
+    iconSrc="/img/production-apps/spaces-by-wix.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/spaces-follow-businesses/id1099748482"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.wix.android"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="I Am Sober"
+    company="I Am Sober"
+    iconSrc="/img/production-apps/i-am-sober.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/i-am-sober/id672904239"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.thehungrywasp.iamsober"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="myChevrolet"
+    company="General Motors"
+    iconSrc="/img/production-apps/mychevrolet.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mychevrolet/id398596699"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.gm.chevrolet.nomad.ownership"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Daily Astrology Horoscope"
+    company="Appsella"
+    iconSrc="/img/production-apps/daily-astrology-horoscope.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/daily-astrology-horoscope/id1448364002"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.fortunescope"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="BodyFast"
+    company="BodyFast"
+    iconSrc="/img/production-apps/bodyfast.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/bodyfast-intermittent-fasting/id1189568780"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.bodyfast"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Kompanion"
+    company="Kompanion"
+    iconSrc="/img/production-apps/kompanion.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/kompanion-weight-loss-plan/id1576161548"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.kompanion.fasting.android"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="GasBuddy"
+    company="PDI Technologies"
+    iconSrc="/img/production-apps/gasbuddy.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/gasbuddy-find-pay-for-gas/id406719683"
+    playStoreUrl="https://play.google.com/store/apps/details?id=gbis.gbandroid"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Tellonym"
+    company="Callosum Software"
+    iconSrc="/img/production-apps/tellonym.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/tellonym-ask-me-anything/id1265133033"
+    playStoreUrl="https://play.google.com/store/apps/details?id=de.tellonym.app"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="SUSH"
+    company="Emotion Studio"
+    iconSrc="/img/production-apps/sush.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/sush-virtual-pet-grow-evolve/id1622502023"
+    playStoreUrl="https://play.google.com/store/apps/details?id=app.grotinou.sushi"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Ultimate Guitar"
+    company="Ultimate Guitar"
+    iconSrc="/img/production-apps/ultimate-guitar.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/ultimate-guitar-chords-tabs/id357828853"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.ultimateguitar.tabs"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="MuseScore"
+    company="MuseScore"
+    iconSrc="/img/production-apps/musescore.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/musescore-sheet-music-chords/id835731296"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.musescore.playerlite"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="magicplan"
+    company="magicplan"
+    iconSrc="/img/production-apps/magicplan.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/magicplan/id427424432"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.sensopia.magicplan"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Home AI"
+    company="HubX"
+    iconSrc="/img/production-apps/home-ai.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/home-ai-ai-interior-design/id6464476667"
+    playStoreUrl="https://play.google.com/store/apps/details?id=interior.home.design.ai"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Guess Up"
+    company="Cosmicode"
+    iconSrc="/img/production-apps/guess-up.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/charades-headbands-guess-up/id1160484607"
+    playStoreUrl="https://play.google.com/store/apps/details?id=pt.cosmicode.guessup"
+  >
+    <InstallMetric kind="lifetime-installs" value={10_000_000}>10M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="OnePay"
+    company="One Finance"
+    iconSrc="/img/production-apps/onepay.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/onepay-mobile-banking/id1494523953"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.onefinance.one"
+  >
+    <InstallMetric kind="monthly-downloads" value={600_000}>600K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Tesla"
+    company="Tesla"
+    iconSrc="/img/production-apps/tesla.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/tesla/id582007913"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.teslamotors.tesla"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="UnitedHealthcare"
+    company="UnitedHealthcare"
+    iconSrc="/img/production-apps/unitedhealthcare.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/unitedhealthcare/id1348316600"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.mobile.uhc"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="PUMA"
+    company="PUMA"
+    iconSrc="/img/production-apps/puma.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/puma-clothes-sneakers-app/id1563024677"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.puma.ecom.app"
+  >
+    <InstallMetric kind="monthly-downloads" value={100_000}>100K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Picnic"
+    company="Picnic"
+    iconSrc="/img/production-apps/picnic.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/picnic-order-cook-eat/id1018175041"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.picnic.android"
+  >
+    <InstallMetric kind="monthly-downloads" value={90_000}>90K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Arby's"
+    company="Arby's"
+    iconSrc="/img/production-apps/arbys.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/arbys-fast-food-sandwiches/id1348507359"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.arbys.android.arbysapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Buffalo Wild Wings"
+    company="Buffalo Wild Wings"
+    iconSrc="/img/production-apps/buffalo-wild-wings.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/buffalo-wild-wings/id1031364004"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.buffalowildwings.blazinrewards"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="BoldVoice"
+    company="Wellocution"
+    iconSrc="/img/production-apps/boldvoice.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/boldvoice-accent-training/id1567841142"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.wellocution.androidapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ downloads claimed</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Tattoo AI"
+    company="HubX"
+    iconSrc="/img/production-apps/tattoo-ai.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/tattoo-ai-tattoo-design/id6479689893"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.hubx.tattoo"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Momo"
+    company="ScaleUp"
+    iconSrc="/img/production-apps/momo.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/momo-ai-photo-video-maker/id1658822260"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.scaleup.dreame"
+  >
+    <InstallMetric kind="lifetime-installs" value={5_000_000}>5M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Ledger Live"
+    company="Ledger"
+    iconSrc="/img/production-apps/ledger-live.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/ledger-wallet-crypto-app/id1361671700"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.ledger.live"
+  >
+    <InstallMetric kind="monthly-downloads" value={30_000}>30K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Expensify"
+    company="Expensify"
+    iconSrc="/img/production-apps/expensify.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/expensify-travel-expense/id471713959"
+    playStoreUrl="https://play.google.com/store/apps/details?id=org.me.mobiexpensifyg"
+  >
+    <InstallMetric kind="monthly-downloads" value={20_000}>20K/mo App Store downloads est.</InstallMetric>
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Toyota Financial Services"
+    company="Toyota Motor Credit"
+    iconSrc="/img/production-apps/toyota-financial-services.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/toyota-financial-services/id472110881"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.tmcc.click2pay.mytfs"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Amazon Business"
+    company="Amazon"
+    iconSrc="/img/production-apps/amazon-business.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/amazon-business-b2b-shopping/id1498197033"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.amazon.mShop.android.business.shopping"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Amazon Shopper Panel"
+    company="Amazon"
+    iconSrc="/img/production-apps/amazon-shopper-panel.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/amazon-shopper-panel/id1494755014"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.amazon.shopperpanel.android.mobile.app"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="myGMC"
+    company="General Motors"
+    iconSrc="/img/production-apps/mygmc.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mygmc/id399408958"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.gm.gmc.nomad.ownership"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="B-hyve"
+    company="Orbit Irrigation"
+    iconSrc="/img/production-apps/b-hyve.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/b-hyve/id1066451939"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.orbit.orbitsmarthome"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="RISE"
+    company="Rise Science"
+    iconSrc="/img/production-apps/rise.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/rise-sleep-tracker/id1453884781"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.risesci.nyx"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="ABC Trainerize"
+    company="Trainerize"
+    iconSrc="/img/production-apps/abc-trainerize.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/fitness-app-abc-trainerize/id516851502"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.trainerize.Trainerize"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="MyWalmart"
+    company="Walmart"
+    iconSrc="/img/production-apps/mywalmart.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mywalmart/id1459898418"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.walmart.squiggly"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Connecteam"
+    company="Connecteam"
+    iconSrc="/img/production-apps/connecteam.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/connecteam-team-management-app/id1121613912"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.connecteamco.Connecteam.app"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Instawork"
+    company="Instawork"
+    iconSrc="/img/production-apps/instawork.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/instawork-work-when-you-want/id1123819773"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.instaworkmobile"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Shiftsmart"
+    company="Shiftsmart"
+    iconSrc="/img/production-apps/shiftsmart.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/shiftsmart-find-work/id1235930724"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.shiftsmart.workerapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Lingvano"
+    company="Lingvano"
+    iconSrc="/img/production-apps/lingvano.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/lingvano-learn-sign-language/id1547252782"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.lingvano.app"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Seek by iNaturalist"
+    company="iNaturalist"
+    iconSrc="/img/production-apps/seek-by-inaturalist.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/seek-by-inaturalist/id1353224144"
+    playStoreUrl="https://play.google.com/store/apps/details?id=org.inaturalist.seek"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="National Car Rental"
+    company="EAN Services"
+    iconSrc="/img/production-apps/national-car-rental.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/national-car-rental/id675304115"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.ehi.national.mobile"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000_000}>1M+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="SnapCalorie"
+    company="Perception Labs"
+    iconSrc="/img/production-apps/snapcalorie.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/snapcalorie-ai-calorie-counter/id1574239307"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.snapcalorie.alpha002"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Veho Driver"
+    company="Veho"
+    iconSrc="/img/production-apps/veho-driver.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/veho-driver/id1457078986"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.vehotechnologies.Driver"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Popl"
+    company="Popl"
+    iconSrc="/img/production-apps/popl.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/popl-ai-lead-capture/id1503939262"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.nfc.popl"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store installs</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Allē"
+    company="AbbVie"
+    iconSrc="/img/production-apps/alle.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/all%C4%93/id720207987"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.allergan.bd.bdmobileapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Tactacam REVEAL"
+    company="Tactacam"
+    iconSrc="/img/production-apps/tactacam-reveal.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/tactacam-reveal/id1515339989"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.tactacam.reveal"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Sunoco"
+    company="Sunoco"
+    iconSrc="/img/production-apps/sunoco.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/sunoco/id1145943301"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.sunoco.sunoco"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Luxer One"
+    company="Luxer One"
+    iconSrc="/img/production-apps/luxer-one.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/luxer-one/id1440094075"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.luxerone.mobile.residentapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="MyChoice Benefits"
+    company="Businessolver"
+    iconSrc="/img/production-apps/mychoice-benefits.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mychoice-benefits/id1138970986"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.businessolver.mychoice"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="HoloDex"
+    company="Mavelli"
+    iconSrc="/img/production-apps/holodex.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/holodex-tcg-scan-collect/id6747442689"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.getholodex.app"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="myCadillac"
+    company="General Motors"
+    iconSrc="/img/production-apps/mycadillac.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mycadillac/id398605251"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.gm.cadillac.nomad.ownership"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="myBuick"
+    company="General Motors"
+    iconSrc="/img/production-apps/mybuick.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/mybuick/id399409835"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.gm.buick.nomad.ownership"
+  >
+    <InstallMetric kind="lifetime-installs" value={500_000}>500K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Peeps"
+    company="ChelleStudio"
+    iconSrc="/img/production-apps/peeps.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/peeps-make-new-friends/id1531639916"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.buttergames.peeps"
+  >
+    <InstallMetric kind="lifetime-installs" value={100_000}>100K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Obico"
+    company="Obico"
+    iconSrc="/img/production-apps/obico.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/klipper-octoprint-obico/id1540646623"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.thespaghettidetective.android"
+  >
+    <InstallMetric kind="lifetime-installs" value={100_000}>100K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="Party Lab"
+    company="MindShark Games"
+    iconSrc="/img/production-apps/party-lab.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/party-lab-exposed-game/id6446330973"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.partylabapp"
+  >
+    <InstallMetric kind="lifetime-installs" value={100_000}>100K+ Play Store downloads</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="VSCO Capture"
+    company="Visual Supply Company"
+    iconSrc="/img/production-apps/vsco-capture.jpg"
+    appStoreUrl="https://apps.apple.com/us/app/vsco-capture-photo-video/id6741483219"
+  >
+    <InstallMetric kind="monthly-downloads" value={10_000}>10K/mo App Store downloads est.</InstallMetric>
+  </ProductionApp>
+  <ProductionApp
+    name="ShadowLens"
+    company="Marc Rousavy"
+    iconSrc="/img/production-apps/shadowlens.jpg"
+    appStoreUrl="https://apps.apple.com/app/shadowlens/id6471849004"
+    playStoreUrl="https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens"
+  >
+    <InstallMetric kind="lifetime-installs" value={1_000}>1K+ Play Store installs</InstallMetric>
+  </ProductionApp>
+</ProductionAppsShowcase>
 
 ### Attribution
 
