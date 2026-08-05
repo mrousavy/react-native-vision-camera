@@ -722,7 +722,7 @@ describe('VisionCamera - NativePreviewView', () => {
     }
   })
 
-  it('switches a running session between two mounted NativePreviewViews', async () => {
+  it('starts a replacement preview and stops the removed preview while running', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const firstPreviewOutput = VisionCamera.createPreviewOutput()
     const secondPreviewOutput = VisionCamera.createPreviewOutput()
@@ -739,13 +739,18 @@ describe('VisionCamera - NativePreviewView', () => {
     const firstLayout = deferred<Layout>()
     const secondLayout = deferred<Layout>()
     const firstPreviewStarted = deferred()
+    const firstPreviewStopped = deferred()
     const secondPreviewStarted = deferred()
+    const onFirstPreviewStarted = fn(() => firstPreviewStarted.resolve())
+    const onFirstPreviewStopped = fn(() => firstPreviewStopped.resolve())
+    const onSecondPreviewStarted = fn(() => secondPreviewStarted.resolve())
     const errorSub = session.addOnErrorListener((error) => {
       firstRef.reject(error)
       secondRef.reject(error)
       firstLayout.reject(error)
       secondLayout.reject(error)
       firstPreviewStarted.reject(error)
+      firstPreviewStopped.reject(error)
       secondPreviewStarted.reject(error)
     })
 
@@ -761,7 +766,8 @@ describe('VisionCamera - NativePreviewView', () => {
             onLayout={(event) => {
               firstLayout.resolve(toLayout(event))
             }}
-            onPreviewStarted={callback(firstPreviewStarted.resolve)}
+            onPreviewStarted={callback(onFirstPreviewStarted)}
+            onPreviewStopped={callback(onFirstPreviewStopped)}
           />
           <NativePreviewView
             style={styles.switchPreview}
@@ -772,7 +778,7 @@ describe('VisionCamera - NativePreviewView', () => {
             onLayout={(event) => {
               secondLayout.resolve(toLayout(event))
             }}
-            onPreviewStarted={callback(secondPreviewStarted.resolve)}
+            onPreviewStarted={callback(onSecondPreviewStarted)}
           />
         </View>,
       )
@@ -804,6 +810,9 @@ describe('VisionCamera - NativePreviewView', () => {
         15_000,
         'first NativePreviewView onPreviewStarted',
       )
+      expect(onFirstPreviewStarted).toHaveBeenCalledOnce()
+      expect(onFirstPreviewStopped).not.toHaveBeenCalled()
+      expect(onSecondPreviewStarted).not.toHaveBeenCalled()
       expectPreviewGeometry(firstPreview, firstPreviewLayout)
 
       await session.configure([
@@ -818,6 +827,13 @@ describe('VisionCamera - NativePreviewView', () => {
         15_000,
         'second NativePreviewView onPreviewStarted',
       )
+      await withTimeout(
+        firstPreviewStopped.promise,
+        10_000,
+        'first NativePreviewView onPreviewStopped',
+      )
+      expect(onSecondPreviewStarted).toHaveBeenCalledOnce()
+      expect(onFirstPreviewStopped).toHaveBeenCalledOnce()
       expectPreviewGeometry(secondPreview, secondPreviewLayout)
     } finally {
       errorSub.remove()
