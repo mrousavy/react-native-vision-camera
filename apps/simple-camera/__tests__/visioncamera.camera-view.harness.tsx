@@ -325,6 +325,79 @@ describe('VisionCamera - Camera View', () => {
     }
   })
 
+  it('captures a photo before unmounting and remounting the Camera view', async () => {
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const cameraRef = createRef<CameraRef>()
+      const layout = deferred<Layout>()
+      const started = deferred()
+      const previewStarted = deferred()
+      const onError = fn((error: Error) => {
+        layout.reject(error)
+        started.reject(error)
+        previewStarted.reject(error)
+      })
+
+      const { unmount } = await render(
+        <Camera
+          ref={cameraRef}
+          device={backDevice}
+          isActive={true}
+          outputs={[photoOutput]}
+          style={StyleSheet.absoluteFill}
+          onLayout={(event) => {
+            layout.resolve(toLayout(event))
+          }}
+          onStarted={started.resolve}
+          onPreviewStarted={previewStarted.resolve}
+          onError={onError}
+        />,
+      )
+
+      const cameraLayout = await withTimeout(
+        layout.promise,
+        10_000,
+        `photo remount Camera onLayout attempt ${attempt}`,
+      )
+      await withTimeout(
+        started.promise,
+        15_000,
+        `photo remount Camera onStarted attempt ${attempt}`,
+      )
+      await withTimeout(
+        previewStarted.promise,
+        15_000,
+        `photo remount Camera onPreviewStarted attempt ${attempt}`,
+      )
+      expect(onError).not.toHaveBeenCalled()
+
+      const camera = cameraRef.current
+      if (camera == null) throw new Error('no Camera ref')
+      expectPreviewGeometry(camera, cameraLayout)
+
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      try {
+        expect(photo.width).toBeGreaterThan(0)
+        expect(photo.height).toBeGreaterThan(0)
+      } finally {
+        photo.dispose()
+      }
+
+      // Do not wait for a timer here. This intentionally exercises the
+      // unmount/remount boundary that can race with native session teardown.
+      unmount()
+    }
+  })
+
   it('replaces an active Camera view with another active Camera view in one update', async () => {
     const firstRef = createRef<CameraRef>()
     const secondRef = createRef<CameraRef>()

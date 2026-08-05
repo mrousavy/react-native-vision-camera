@@ -66,6 +66,12 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         )
       }
 
+      // Removing an input or output can implicitly remove its AVCaptureConnection
+      // before updateConnections(...) gets a chance to inspect it. Detach preview
+      // layers first so they do not keep a stale reference to this session while
+      // the Camera view is being unmounted.
+      self.detachUnwantedPreviewLayers(connections)
+
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(connections)
       // Remove all unwanted outputs and add all new outputs
@@ -358,6 +364,17 @@ final class HybridCameraSession: HybridCameraSessionSpec {
             }
           }
         }
+      }
+    }
+  }
+
+  private func detachUnwantedPreviewLayers(
+    _ targetConnections: [ResolvedCameraSessionConnection]
+  ) {
+    for currentConnection in self.session.connections {
+      let containsConnection = targetConnections.contains { $0.contains(connection: currentConnection) }
+      if !containsConnection {
+        currentConnection.videoPreviewLayer?.session = nil
       }
     }
   }
