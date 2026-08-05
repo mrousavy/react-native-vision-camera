@@ -17,11 +17,14 @@ export const config = {
 }
 
 export default function proxy(request: NextRequest) {
-  if (!isMarkdownPreferred(request)) {
+  const pathname = request.nextUrl.pathname
+  const isExplicitMarkdownPath =
+    pathname.endsWith('.md') || pathname.endsWith('.mdx')
+
+  if (isExplicitMarkdownPath || !isMarkdownPreferred(request)) {
     return NextResponse.next()
   }
 
-  const pathname = request.nextUrl.pathname
   const result = [
     rewriteDocsRoot(pathname),
     rewriteDocsMarkdown(pathname),

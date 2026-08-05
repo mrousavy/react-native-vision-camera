@@ -32,7 +32,7 @@ async function getMarkdownContent(markdownUrl: string): Promise<string> {
 
 export function LLMCopyButton({
   /**
-   * A URL to fetch the raw Markdown/MDX content of page
+   * A URL to fetch the Markdown content of a page
    */
   markdownUrl,
 }: {
@@ -141,7 +141,7 @@ export function ViewOptions({
   githubUrl,
 }: {
   /**
-   * A URL to the raw Markdown/MDX content of page
+   * A URL to the Markdown content of a page
    */
   markdownUrl: string
 
