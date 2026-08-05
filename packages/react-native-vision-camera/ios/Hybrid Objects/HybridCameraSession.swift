@@ -66,6 +66,8 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         )
       }
 
+      // Remove all unwanted preview layers before touching inputs/outputs
+      self.removeUnwantedPreviewLayers(connections)
       // Remove all unwanted inputs and add all new inputs
       try self.updateInputs(connections)
       // Remove all unwanted outputs and add all new outputs
@@ -229,6 +231,24 @@ final class HybridCameraSession: HybridCameraSessionSpec {
 
   // pragma MARK: Helpers
   /**
+   * Removes all preview layers that are not present in the [targetConnections] array.
+   * This must run before [updateInputs] or [updateOutputs], as those methods kill
+   * preview connections without unsetting the `session`.
+   */
+  private func removeUnwantedPreviewLayers(_ targetConnections: [ResolvedCameraSessionConnection]) {
+    let currentlyAttachedPreviewLayers = self.session.connections.compactMap { $0.videoPreviewLayer }
+    for currentlyAttachedPreviewLayer in currentlyAttachedPreviewLayers {
+      let containsAttachedPreviewLayer = targetConnections.contains { connection in
+        return connection.isConnectedTo(preview: currentlyAttachedPreviewLayer)
+      }
+      if !containsAttachedPreviewLayer {
+        logger.info("Removing preview \(currentlyAttachedPreviewLayer)...")
+        currentlyAttachedPreviewLayer.session = nil
+      }
+    }
+  }
+
+  /**
    * Adds all inputs on the given [targetConnections] if they haven't been added yet,
    * and removes all current inputs that aren't listed in the [connections] array.
    */
@@ -289,6 +309,7 @@ final class HybridCameraSession: HybridCameraSessionSpec {
       }
     }
   }
+
   /**
    * Adds all outputs on the given [targetConnections] if they haven't been added yet,
    * and removes all current outputs that aren't listed in the [targetConnections] array.
@@ -306,27 +327,13 @@ final class HybridCameraSession: HybridCameraSessionSpec {
         self.session.removeOutput(currentlyAttachedOutput)
       }
     }
-    // 2. As Preview Layers are not treated like Outputs, we have to now also loop over
-    //    all AVCaptureVideoPreviewLayers to remove the ones we don't have in our target array
-    let currentlyAttachedPreviewLayers = self.session.connections.compactMap { $0.videoPreviewLayer }
-    for currentlyAttachedPreviewLayer in currentlyAttachedPreviewLayers {
-      let containsAttachedPreviewLayer = targetConnections.contains { connection in
-        return connection.isConnectedTo(preview: currentlyAttachedPreviewLayer)
-      }
-      if !containsAttachedPreviewLayer {
-        // 2.1. We don't want this AVCaptureVideoPreviewLayer - remove it!
-        logger.info("Removing preview \(currentlyAttachedPreviewLayer)...")
-        currentlyAttachedPreviewLayer.session = nil
-      }
-    }
-
-    // 3. Loop through all connections
+    // 2. Loop through all connections
     for connection in targetConnections {
-      // 3.1. Loop through each output
+      // 2.1. Loop through each output
       for output in connection.outputs {
         let containsOutput = self.session.containsOutput(output.output)
         if !containsOutput {
-          // 3.2. It doesn't exist yet - add it to the session..
+          // 2.2. It doesn't exist yet - add it to the session..
           try session.addOutputWithNoConnections(output.output)
         }
       }
