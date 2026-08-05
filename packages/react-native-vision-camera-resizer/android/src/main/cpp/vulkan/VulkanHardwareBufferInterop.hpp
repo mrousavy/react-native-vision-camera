@@ -70,6 +70,15 @@ private:
     ImportedImage importedImage{};
   };
 
+  /**
+   * Upper bound on cached imported images (oldest-inserted evicted first).
+   * Importing an AHardwareBuffer into Vulkan acquires a reference on it, so every cached entry
+   * pins a whole camera buffer - each camera session restart allocates a fresh buffer set, and
+   * an unbounded cache pins the old sets forever. A streaming session cycles through ~4-6
+   * buffers, so 12 leaves plenty of slack.
+   */
+  static inline constexpr size_t kMaxCachedImages = 12;
+
   static inline constexpr VkFormatFeatureFlags kRequiredExternalFormatFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
   static inline constexpr VkFormatFeatureFlags kLinearFilterFeatureMask =
       VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT;
