@@ -28,7 +28,7 @@ export function absoluteUrl(pathname: string): string {
 }
 
 export function getMarkdownPath(pageUrl: string): string {
-  return `${pageUrl}.mdx`
+  return `${pageUrl}.md`
 }
 
 export function getOgImageUrl(pageUrl: string): string {

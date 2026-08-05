@@ -61,7 +61,7 @@ export async function getLLMIndex(): Promise<string> {
   return [
     `# ${siteConfig.name} documentation`,
     '',
-    'Use the `.mdx` page endpoints for source-friendly markdown. Use `/llms-full.txt` for the full corpus.',
+    'Use the `.md` page endpoints for source-friendly markdown. Use `/llms-full.txt` for the full corpus.',
     '',
     formatIndexSection('docs'),
     '',
