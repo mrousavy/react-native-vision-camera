@@ -79,6 +79,69 @@ describe('VisionCamera - Multi-Output', () => {
     }
   })
 
+  it('reuses removed preview, photo, and video outputs in a new session', async () => {
+    const firstSession = await VisionCamera.createCameraSession(false)
+    const secondSession = await VisionCamera.createCameraSession(false)
+    const previewOutput = VisionCamera.createPreviewOutput()
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const videoOutput = VisionCamera.createVideoOutput({
+      targetResolution: CommonResolutions.HD_16_9,
+      enableAudio: false,
+    })
+
+    try {
+      const firstControllers = await firstSession.configure([
+        {
+          input: backDevice,
+          outputs: [
+            { output: previewOutput, mirrorMode: 'auto' },
+            { output: photoOutput, mirrorMode: 'auto' },
+            { output: videoOutput, mirrorMode: 'auto' },
+          ],
+          constraints: [],
+        },
+      ])
+      expect(firstControllers).toHaveLength(1)
+
+      await firstSession.configure([])
+
+      const photoControllers = await secondSession.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      expect(photoControllers).toHaveLength(1)
+
+      const videoControllers = await secondSession.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: videoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      expect(videoControllers).toHaveLength(1)
+
+      const previewControllers = await secondSession.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: previewOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+      expect(previewControllers).toHaveLength(1)
+    } finally {
+      await firstSession.stop()
+      await secondSession.stop()
+    }
+  })
+
   it('streams frames, captures a photo, and records video simultaneously', async () => {
     const session = await VisionCamera.createCameraSession(false)
     const photoOutput = VisionCamera.createPhotoOutput({
