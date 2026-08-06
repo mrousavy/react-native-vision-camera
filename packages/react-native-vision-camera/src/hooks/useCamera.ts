@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import type { SharedValue } from 'react-native-reanimated'
 import { getCameraDevice } from '../devices/getCameraDevice'
 import type {
@@ -6,7 +6,7 @@ import type {
   CameraControllerConfiguration,
 } from '../specs/CameraController.nitro'
 import type { CameraOrientation } from '../specs/common-types/CameraOrientation'
-import type { CameraPosition } from '../specs/common-types/CameraPosition'
+import type { TargetCameraPosition } from '../specs/common-types/CameraPosition'
 import type { Constraint } from '../specs/common-types/Constraint'
 import type { MirrorMode } from '../specs/common-types/MirrorMode'
 import type { OrientationSource } from '../specs/common-types/OrientationSource'
@@ -30,7 +30,6 @@ import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
 import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
 import { useZoomUpdater } from './internal/useZoomUpdater'
-import { useCameraDevices } from './useCameraDevices'
 import { useOrientation } from './useOrientation'
 
 export interface CameraProps
@@ -49,13 +48,13 @@ export interface CameraProps
 
   // Connection Configuration
   /**
-   * The {@linkcode CameraDevice} to open, or a {@linkcode CameraPosition}
+   * The {@linkcode CameraDevice} to open, or a {@linkcode TargetCameraPosition}
    * (e.g. `'back'`) to auto-pick a matching device via
    * {@linkcode getCameraDevice | getCameraDevice(...)}.
    *
    * @see {@linkcode CameraSessionConnection.input}
    */
-  device: CameraDevice | CameraPosition
+  device: CameraDevice | TargetCameraPosition
   /**
    * The {@linkcode CameraOutput}s the {@linkcode device} will stream into.
    *
@@ -277,29 +276,8 @@ export function useCamera({
     }
   }, [orientation, outputs])
 
-  // TODO: Make `CameraSessionConnection.input` also accept
-  //       a `TargetCameraPosition` so we don't need to do `useCameraDevices()` here
-  //       so we don't need to always re-render, and we can actually use `getDefaultCamera(position)`
-  //       on the native side for better selection!
-  // 3. Get the input - either find one via position, or use the user provided one
-  const devices = useCameraDevices()
-  const input = useMemo(() => {
-    if (typeof device === 'string') {
-      // The user passed a `CameraPosition` (e.g. "back") - try to find a device ourselves
-      const position = device
-      const foundDevice = devices.find((d) => d.position === position)
-      if (foundDevice == null) {
-        throw new Error(`This device does not have any "${position}" Cameras!`)
-      }
-      return foundDevice
-    } else {
-      // The user passed an actual device. return as-is.
-      return device
-    }
-  }, [device, devices])
-
   // 4. Configure the session with the input + outputs to create a `CameraController`
-  const controller = useCameraController(session, input, outputs, {
+  const controller = useCameraController(session, device, outputs, {
     mirrorMode: mirrorMode,
     onConfigured: onConfigured,
     getInitialExposureBias: () => getAnimatableNumberInitialValue(exposure),
