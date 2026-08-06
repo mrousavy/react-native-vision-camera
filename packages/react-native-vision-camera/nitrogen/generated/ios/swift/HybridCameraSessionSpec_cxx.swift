@@ -130,9 +130,9 @@ open class HybridCameraSessionSpec_cxx {
 
   // Methods
   @inline(__always)
-  public final func configure(connections: bridge.std__vector_CameraSessionConnection_, config: bridge.std__optional_CameraSessionConfiguration_) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraControllerSpec_____ {
+  public final func configure(connections: bridge.std__vector_CameraSessionConnection_, config: CameraSessionConfiguration) -> bridge.Result_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraControllerSpec_____ {
     do {
-      let __result = try self.__implementation.configure(connections: connections.map({ __item in __item }), config: config.value)
+      let __result = try self.__implementation.configure(connections: connections.map({ __item in __item }), config: config)
       let __resultCpp = { () -> bridge.std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraControllerSpec____ in
         let __promise = bridge.create_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraControllerSpec____()
         let __promiseHolder = bridge.wrap_std__shared_ptr_Promise_std__vector_std__shared_ptr_HybridCameraControllerSpec____(__promise)

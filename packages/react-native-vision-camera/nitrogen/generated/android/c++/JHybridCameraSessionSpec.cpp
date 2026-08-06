@@ -55,6 +55,10 @@ namespace margelo::nitro::camera { enum class PixelFormat; }
 namespace margelo::nitro::camera { class HybridCameraSessionConfigSpec; }
 // Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
+// Forward declaration of `AutomaticAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct AutomaticAudioSessionConfiguration; }
+// Forward declaration of `ManualAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct ManualAudioSessionConfiguration; }
 // Forward declaration of `InterruptionReason` to properly resolve imports.
 namespace margelo::nitro::camera { enum class InterruptionReason; }
 
@@ -119,6 +123,11 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include "JHybridCameraSessionConfigSpec.hpp"
 #include "CameraSessionConfiguration.hpp"
 #include "JCameraSessionConfiguration.hpp"
+#include "AutomaticAudioSessionConfiguration.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
+#include "JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration.hpp"
+#include "JAutomaticAudioSessionConfiguration.hpp"
+#include "JManualAudioSessionConfiguration.hpp"
 #include <exception>
 #include "JFunc_void_std__exception_ptr.hpp"
 #include "InterruptionReason.hpp"
@@ -162,7 +171,7 @@ namespace margelo::nitro::camera {
   }
 
   // Methods
-  std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> JHybridCameraSessionSpec::configure(const std::vector<CameraSessionConnection>& connections, const std::optional<CameraSessionConfiguration>& config) {
+  std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> JHybridCameraSessionSpec::configure(const std::vector<CameraSessionConnection>& connections, const CameraSessionConfiguration& config) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JArrayClass<JCameraSessionConnection>> /* connections */, jni::alias_ref<JCameraSessionConfiguration> /* config */)>("configure");
     auto __result = method(_javaPart, [&](auto&& __input) {
       size_t __size = __input.size();
@@ -173,7 +182,7 @@ namespace margelo::nitro::camera {
         __array->setElement(__i, *__elementJni);
       }
       return __array;
-    }(connections), config.has_value() ? JCameraSessionConfiguration::fromCpp(config.value()) : nullptr);
+    }(connections), JCameraSessionConfiguration::fromCpp(config));
     return [&]() {
       auto __promise = Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>::create();
       __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& __boxedResult) {

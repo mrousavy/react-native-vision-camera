@@ -10,7 +10,13 @@
 #include <fbjni/fbjni.h>
 #include "CameraSessionConfiguration.hpp"
 
+#include "AutomaticAudioSessionConfiguration.hpp"
+#include "JAutomaticAudioSessionConfiguration.hpp"
+#include "JManualAudioSessionConfiguration.hpp"
+#include "JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
 #include <optional>
+#include <variant>
 
 namespace margelo::nitro::camera {
 
@@ -31,13 +37,10 @@ namespace margelo::nitro::camera {
     [[nodiscard]]
     CameraSessionConfiguration toCpp() const {
       static const auto clazz = javaClassStatic();
-      static const auto fieldAllowHapticsAndSystemSoundsPlayback = clazz->getField<jni::JBoolean>("allowHapticsAndSystemSoundsPlayback");
-      jni::local_ref<jni::JBoolean> allowHapticsAndSystemSoundsPlayback = this->getFieldValue(fieldAllowHapticsAndSystemSoundsPlayback);
-      static const auto fieldAllowBackgroundAudioPlayback = clazz->getField<jni::JBoolean>("allowBackgroundAudioPlayback");
-      jni::local_ref<jni::JBoolean> allowBackgroundAudioPlayback = this->getFieldValue(fieldAllowBackgroundAudioPlayback);
+      static const auto fieldAudioConfiguration = clazz->getField<JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration>("audioConfiguration");
+      jni::local_ref<JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration> audioConfiguration = this->getFieldValue(fieldAudioConfiguration);
       return CameraSessionConfiguration(
-        allowHapticsAndSystemSoundsPlayback != nullptr ? std::make_optional(static_cast<bool>(allowHapticsAndSystemSoundsPlayback->value())) : std::nullopt,
-        allowBackgroundAudioPlayback != nullptr ? std::make_optional(static_cast<bool>(allowBackgroundAudioPlayback->value())) : std::nullopt
+        audioConfiguration != nullptr ? std::make_optional(audioConfiguration->toCpp()) : std::nullopt
       );
     }
 
@@ -47,13 +50,12 @@ namespace margelo::nitro::camera {
      */
     [[maybe_unused]]
     static jni::local_ref<JCameraSessionConfiguration::javaobject> fromCpp(const CameraSessionConfiguration& value) {
-      using JSignature = JCameraSessionConfiguration(jni::alias_ref<jni::JBoolean>, jni::alias_ref<jni::JBoolean>);
+      using JSignature = JCameraSessionConfiguration(jni::alias_ref<JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration>);
       static const auto clazz = javaClassStatic();
       static const auto create = clazz->getStaticMethod<JSignature>("fromCpp");
       return create(
         clazz,
-        value.allowHapticsAndSystemSoundsPlayback.has_value() ? jni::JBoolean::valueOf(value.allowHapticsAndSystemSoundsPlayback.value()) : nullptr,
-        value.allowBackgroundAudioPlayback.has_value() ? jni::JBoolean::valueOf(value.allowBackgroundAudioPlayback.value()) : nullptr
+        value.audioConfiguration.has_value() ? JVariant_AutomaticAudioSessionConfiguration_ManualAudioSessionConfiguration::fromCpp(value.audioConfiguration.value()) : nullptr
       );
     }
   };

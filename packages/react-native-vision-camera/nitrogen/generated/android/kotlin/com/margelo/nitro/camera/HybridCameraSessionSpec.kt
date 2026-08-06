@@ -34,7 +34,7 @@ abstract class HybridCameraSessionSpec: HybridObject() {
   // Methods
   @DoNotStrip
   @Keep
-  abstract fun configure(connections: Array<CameraSessionConnection>, config: CameraSessionConfiguration?): Promise<Array<HybridCameraControllerSpec>>
+  abstract fun configure(connections: Array<CameraSessionConnection>, config: CameraSessionConfiguration): Promise<Array<HybridCameraControllerSpec>>
   
   @DoNotStrip
   @Keep

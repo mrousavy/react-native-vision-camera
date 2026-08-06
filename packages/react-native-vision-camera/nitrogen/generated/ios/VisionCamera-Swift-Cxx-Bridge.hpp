@@ -10,14 +10,14 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `ArrayBufferHolder` to properly resolve imports.
 namespace NitroModules { class ArrayBufferHolder; }
+// Forward declaration of `AutomaticAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct AutomaticAudioSessionConfiguration; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
 // Forward declaration of `CameraOrientation` to properly resolve imports.
 namespace margelo::nitro::camera { enum class CameraOrientation; }
 // Forward declaration of `CameraOutputConfiguration` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraOutputConfiguration; }
-// Forward declaration of `CameraSessionConfiguration` to properly resolve imports.
-namespace margelo::nitro::camera { struct CameraSessionConfiguration; }
 // Forward declaration of `CameraSessionConnection` to properly resolve imports.
 namespace margelo::nitro::camera { struct CameraSessionConnection; }
 // Forward declaration of `CapturePhotoSettings` to properly resolve imports.
@@ -118,6 +118,8 @@ namespace margelo::nitro::camera { class HybridZoomGestureControllerSpec; }
 namespace margelo::nitro::camera { enum class InterruptionReason; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `ManualAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct ManualAudioSessionConfiguration; }
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `MeteringMode` to properly resolve imports.
@@ -254,10 +256,10 @@ namespace VisionCamera { class HybridTapToFocusGestureControllerSpec_cxx; }
 namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 
 // Include C++ defined types
+#include "AutomaticAudioSessionConfiguration.hpp"
 #include "BinnedConstraint.hpp"
 #include "CameraOrientation.hpp"
 #include "CameraOutputConfiguration.hpp"
-#include "CameraSessionConfiguration.hpp"
 #include "CameraSessionConnection.hpp"
 #include "CapturePhotoSettings.hpp"
 #include "ColorRange.hpp"
@@ -307,6 +309,7 @@ namespace VisionCamera { class HybridZoomGestureControllerSpec_cxx; }
 #include "HybridZoomGestureControllerSpec.hpp"
 #include "InterruptionReason.hpp"
 #include "ListenerSubscription.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
 #include "MediaType.hpp"
 #include "MeteringMode.hpp"
 #include "MirrorMode.hpp"
@@ -2707,18 +2710,47 @@ namespace margelo::nitro::camera::bridge::swift {
     return vector;
   }
   
-  // pragma MARK: std::optional<CameraSessionConfiguration>
+  // pragma MARK: std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>
   /**
-   * Specialized version of `std::optional<CameraSessionConfiguration>`.
+   * Wrapper struct for `std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>`.
+   * std::variant cannot be used in Swift because of a Swift bug.
+   * Not even specializing it works. So we create a wrapper struct.
    */
-  using std__optional_CameraSessionConfiguration_ = std::optional<CameraSessionConfiguration>;
-  inline std::optional<CameraSessionConfiguration> create_std__optional_CameraSessionConfiguration_(const CameraSessionConfiguration& value) noexcept {
-    return std::optional<CameraSessionConfiguration>(value);
+  struct std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_ final {
+    std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration> variant;
+    std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration> variant): variant(variant) { }
+    operator std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>() const noexcept {
+      return variant;
+    }
+    inline size_t index() const noexcept {
+      return variant.index();
+    }
+    inline AutomaticAudioSessionConfiguration get_0() const noexcept {
+      return std::get<0>(variant);
+    }
+    inline ManualAudioSessionConfiguration get_1() const noexcept {
+      return std::get<1>(variant);
+    }
+  };
+  inline std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_ create_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(const AutomaticAudioSessionConfiguration& value) noexcept {
+    return std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(value);
   }
-  inline bool has_value_std__optional_CameraSessionConfiguration_(const std::optional<CameraSessionConfiguration>& optional) noexcept {
+  inline std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_ create_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(const ManualAudioSessionConfiguration& value) noexcept {
+    return std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration_(value);
+  }
+  
+  // pragma MARK: std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>
+  /**
+   * Specialized version of `std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>`.
+   */
+  using std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__ = std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>;
+  inline std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>> create_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__(const std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>& value) noexcept {
+    return std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>(value);
+  }
+  inline bool has_value_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__(const std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>& optional) noexcept {
     return optional.has_value();
   }
-  inline CameraSessionConfiguration get_std__optional_CameraSessionConfiguration_(const std::optional<CameraSessionConfiguration>& optional) noexcept {
+  inline std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration> get_std__optional_std__variant_AutomaticAudioSessionConfiguration__ManualAudioSessionConfiguration__(const std::optional<std::variant<AutomaticAudioSessionConfiguration, ManualAudioSessionConfiguration>>& optional) noexcept {
     return optional.value();
   }
   

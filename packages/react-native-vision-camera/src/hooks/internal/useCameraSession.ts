@@ -41,7 +41,7 @@ export function useCameraSession({
     return () => {
       // remove all connections
       session?.stop()
-      session?.configure([])
+      session?.configure([], {})
     }
   }, [session])
 

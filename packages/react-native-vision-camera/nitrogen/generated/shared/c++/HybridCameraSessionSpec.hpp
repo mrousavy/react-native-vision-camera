@@ -30,7 +30,6 @@ namespace margelo::nitro::camera { enum class InterruptionReason; }
 #include <NitroModules/Promise.hpp>
 #include "CameraSessionConnection.hpp"
 #include "CameraSessionConfiguration.hpp"
-#include <optional>
 #include "ListenerSubscription.hpp"
 #include <functional>
 #include <exception>
@@ -67,7 +66,7 @@ namespace margelo::nitro::camera {
 
     public:
       // Methods
-      virtual std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const std::optional<CameraSessionConfiguration>& config) = 0;
+      virtual std::shared_ptr<Promise<std::vector<std::shared_ptr<HybridCameraControllerSpec>>>> configure(const std::vector<CameraSessionConnection>& connections, const CameraSessionConfiguration& config) = 0;
       virtual std::shared_ptr<Promise<void>> start() = 0;
       virtual std::shared_ptr<Promise<void>> stop() = 0;
       virtual ListenerSubscription addOnStartedListener(const std::function<void()>& onStarted) = 0;

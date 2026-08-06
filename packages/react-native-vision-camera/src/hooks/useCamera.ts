@@ -243,8 +243,7 @@ export function useCamera({
   onSessionConfigSelected,
   mirrorMode,
   onConfigured,
-  allowBackgroundAudioPlayback,
-  allowHapticsAndSystemSoundsPlayback,
+  audioConfiguration,
   orientationSource = 'device',
   onStarted,
   onStopped,
@@ -284,8 +283,7 @@ export function useCamera({
     getInitialZoom: () => getAnimatableNumberInitialValue(zoom),
     constraints: constraints,
     onSessionConfigSelected: onSessionConfigSelected,
-    allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
-    allowHapticsAndSystemSoundsPlayback: allowHapticsAndSystemSoundsPlayback,
+    audioConfiguration: audioConfiguration,
     onError: onError,
   })
 

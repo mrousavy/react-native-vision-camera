@@ -13,7 +13,7 @@ public protocol HybridCameraSessionSpec_protocol: HybridObject {
   var isRunning: Bool { get }
 
   // Methods
-  func configure(connections: [CameraSessionConnection], config: CameraSessionConfiguration?) throws -> Promise<[(any HybridCameraControllerSpec)]>
+  func configure(connections: [CameraSessionConnection], config: CameraSessionConfiguration) throws -> Promise<[(any HybridCameraControllerSpec)]>
   func start() throws -> Promise<Void>
   func stop() throws -> Promise<Void>
   func addOnStartedListener(onStarted: @escaping () -> Void) throws -> ListenerSubscription
