@@ -5,7 +5,7 @@ import type { CameraDevice } from '../inputs/CameraDevice.nitro'
 import type { CameraOutputConfiguration } from './CameraOutputConfiguration'
 import type { CameraSessionConfig } from './CameraSessionConfig.nitro'
 
-type CameraDeviceOrPosition = CameraDevice | TargetCameraPosition
+export type CameraDeviceOrPosition = CameraDevice | TargetCameraPosition
 
 /**
  * Specifies a single Camera input stream connection

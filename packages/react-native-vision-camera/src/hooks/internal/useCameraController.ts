@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CameraController } from '../../specs/CameraController.nitro'
+import type { TargetCameraPosition } from '../../specs/common-types/CameraPosition'
 import type { Constraint } from '../../specs/common-types/Constraint'
 import type { MirrorMode } from '../../specs/common-types/MirrorMode'
 import type { CameraDevice } from '../../specs/inputs/CameraDevice.nitro'
@@ -30,7 +31,7 @@ interface Config extends CameraSessionConfiguration {
  */
 export function useCameraController(
   session: CameraSession | undefined,
-  device: CameraDevice | undefined,
+  device: CameraDevice | TargetCameraPosition | undefined,
   outputs: CameraOutput[],
   {
     mirrorMode = 'auto',
