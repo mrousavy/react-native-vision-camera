@@ -10,7 +10,11 @@ import NitroModules
 
 final class HybridCameraSession: HybridCameraSessionSpec {
   let session: AVCaptureSession
-  private static let queue: DispatchQueue = DispatchQueue(
+  // Internal (was private) so HybridPreviewView can serialize its
+  // preview-layer attach/detach with configure()/start(). AVCaptureSession is
+  // not thread-safe; every session mutation in this module must go through
+  // this one serial queue.
+  static let queue: DispatchQueue = DispatchQueue(
     label: "com.margelo.camera.session",
     qos: .userInteractive,
     attributes: [],
