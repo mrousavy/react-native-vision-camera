@@ -9,6 +9,7 @@ import {
   waitUntil,
 } from 'react-native-harness'
 import type { Image } from 'react-native-nitro-image'
+import { Images } from 'react-native-nitro-image'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -986,6 +987,128 @@ describe('VisionCamera - Photo', () => {
     ])
     try {
       expect(photoOutput.supportsDepthDataDelivery).toBe(true)
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('renders toImage() the same way the reported orientation describes', async (context) => {
+    // Regression: `HybridPhoto.toImage()` composed the mirror with `preScale` and
+    // the rotation with `postRotate`, which applies the mirror first. A reflection
+    // conjugates a rotation into its inverse, so the two orderings differ by twice
+    // the rotation - a half turn at a quarter-turn orientation. At `up` and `down`
+    // both orderings are the same matrix, so only quarter turns expose it.
+    const frontDevice = factory.getDefaultCamera('front')
+    assert.exists(frontDevice, 'no front camera')
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 1,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: frontDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+    await session.start()
+
+    try {
+      // Taken as the pipeline reports it. Forcing `outputOrientation` does not help:
+      // CameraX then rotates the pixels itself and reports no rotation at all.
+      const photo = await photoOutput.capturePhoto(
+        { flashMode: 'off', enableShutterSound: false },
+        {},
+      )
+      try {
+        const quarterTurns = { left: 90, right: 270 } as const
+        const rotation =
+          quarterTurns[photo.orientation as keyof typeof quarterTurns]
+        if (rotation == null) {
+          return context.skip(
+            `photo.orientation is "${photo.orientation}": this device does not report a quarter turn, so the mirror and rotation never compose`,
+          )
+        }
+        if (!photo.isMirrored) {
+          return context.skip(
+            'photo.isMirrored is false: without a mirror both orderings are the same matrix',
+          )
+        }
+
+        const storedPath = await photo.saveToTemporaryFileAsync()
+        const storedImage = await Images.loadFromFileAsync(storedPath)
+        const renderedImage = await photo.toImageAsync()
+        try {
+          const stored = await storedImage.toRawPixelDataAsync(false)
+          const rendered = await renderedImage.toRawPixelDataAsync(false)
+          if (
+            stored.width !== rendered.height ||
+            stored.height !== rendered.width
+          ) {
+            return context.skip(
+              `stored ${stored.width}x${stored.height} against rendered ${rendered.width}x${rendered.height}: this platform's decoder already applied the orientation, so the two cannot be compared point by point`,
+            )
+          }
+
+          const readChannelAverage = (
+            pixels: typeof stored,
+            x: number,
+            y: number,
+          ) => {
+            const bytes = new Uint8Array(pixels.buffer)
+            const bytesPerPixel = Math.floor(
+              bytes.length / (pixels.width * pixels.height),
+            )
+            const offset = (y * pixels.width + x) * bytesPerPixel
+            let sum = 0
+            for (let channel = 0; channel < 3; channel++) {
+              sum += bytes[offset + channel] ?? 0
+            }
+            return sum / 3
+          }
+
+          // Where a rendered point came from in the stored frame, if the rotation
+          // the Photo reports is applied first and the mirror after it.
+          const toStoredPoint = (x: number, y: number): [number, number] => {
+            const mirroredX = rendered.width - 1 - x
+            return rotation === 90
+              ? [y, stored.height - 1 - mirroredX]
+              : [stored.width - 1 - y, mirroredX]
+          }
+
+          const steps = 16
+          let totalDifference = 0
+          let samples = 0
+          for (let row = 1; row < steps; row++) {
+            for (let column = 1; column < steps; column++) {
+              const x = Math.floor((column * rendered.width) / steps)
+              const y = Math.floor((row * rendered.height) / steps)
+              const [storedX, storedY] = toStoredPoint(x, y)
+              totalDifference += Math.abs(
+                readChannelAverage(rendered, x, y) -
+                  readChannelAverage(stored, storedX, storedY),
+              )
+              samples++
+            }
+          }
+
+          // Both images decode the same JPEG, so the rendering the Photo describes
+          // is pixel identical to the stored frame read through it - the scene in
+          // front of the camera does not matter. Composing the other way round
+          // lands a half turn off, on unrelated pixels.
+          const meanDifference = totalDifference / samples
+          expect(meanDifference).toBeCloseTo(0, 0)
+        } finally {
+          storedImage.dispose()
+          renderedImage.dispose()
+        }
+      } finally {
+        photo.dispose()
+      }
     } finally {
       await session.stop()
     }
