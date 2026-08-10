@@ -19,14 +19,14 @@ It works on both iOS and Android.
 #### Platform Agnostic
 
 Since [the Barcode Scanner](barcode-scanner) uses the same MLKit implementation on iOS and Android, the scanned codes are platform-agnostic.
-In previous versions of VisionCamera, there were some codes readable on iOS but not on Android (like `'upc-a'` vs `'ean-13'`) - this is solved by using [the Barcode Scanner](barcode-scanner) on iOS too.
+In previous versions of VisionCamera, there were some codes readable on iOS but not on Android (like [`'upc-a'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat) vs [`'ean-13'`](/api/react-native-vision-camera-barcode-scanner/type-aliases/BarcodeFormat)) - this is solved by using [the Barcode Scanner](barcode-scanner) on iOS too.
 
 ### Recommended Platform-Specific Setup
 
 For most apps that only need to scan QR codes and Barcodes, the leanest setup is to use [the Object Output](object-output) on iOS and [the Barcode Scanner](barcode-scanner) on Android.
 This keeps MLKit and its ~2.4 MB model out of the iOS app, and avoids iOS Simulator build failures because the MLKit Barcode Scanning dependency does not ship Simulator binaries.
 
-React Native can select the implementation automatically when you split the scanner into two platform-specific files, for example `Scanner.ios.tsx` using `useObjectOutput(...)` and `Scanner.android.tsx` using `useBarcodeScannerOutput(...)`.
+React Native can select the implementation automatically when you split the scanner into two platform-specific files, for example `Scanner.ios.tsx` using [`useObjectOutput(...)`](/api/react-native-vision-camera/functions/useObjectOutput) and `Scanner.android.tsx` using [`useBarcodeScannerOutput(...)`](/api/react-native-vision-camera-barcode-scanner/functions/useBarcodeScannerOutput).
 
 Since native dependencies are autolinked independently of JavaScript imports, also exclude `react-native-vision-camera-barcode-scanner` from iOS autolinking:
 
