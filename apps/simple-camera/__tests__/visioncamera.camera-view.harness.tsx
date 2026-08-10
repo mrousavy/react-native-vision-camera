@@ -575,4 +575,102 @@ describe('VisionCamera - Camera View', () => {
     await withTimeout(frontStopped.promise, 10_000, 'front Camera onStopped')
     expect(onError).not.toHaveBeenCalled()
   })
+
+  it('applies the initial zoom prop once the Camera has started', async (context) => {
+    if (backDevice.minZoom === backDevice.maxZoom) {
+      return context.skip('initial zoom: device exposes no zoom range')
+    }
+    const cameraRef = createRef<CameraRef>()
+    const started = deferred()
+    const stopped = deferred()
+    const onError = fn((error: Error) => {
+      started.reject(error)
+      stopped.reject(error)
+    })
+    const desiredZoom = Math.min(
+      Math.max(backDevice.minZoom, 1.5),
+      backDevice.maxZoom,
+    )
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        zoom={desiredZoom}
+        style={StyleSheet.absoluteFill}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onError={onError}
+      />,
+    )
+
+    await withTimeout(started.promise, 15_000, 'Camera onStarted')
+    await waitFor(
+      () => {
+        expect(cameraRef.current?.controller?.zoom).toBeCloseTo(desiredZoom, 2)
+      },
+      { timeout: 10_000 },
+    )
+    expect(onError).not.toHaveBeenCalled()
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        onStopped={stopped.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(stopped.promise, 10_000, 'Camera onStopped')
+  })
+
+  it('applies the initial torchMode prop once the Camera has started', async (context) => {
+    if (!backDevice.hasTorch) {
+      return context.skip('initial torchMode: device has no torch')
+    }
+    const cameraRef = createRef<CameraRef>()
+    const started = deferred()
+    const stopped = deferred()
+    const onError = fn((error: Error) => {
+      started.reject(error)
+      stopped.reject(error)
+    })
+
+    const { rerender } = await render(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={true}
+        torchMode="on"
+        style={StyleSheet.absoluteFill}
+        onStarted={started.resolve}
+        onStopped={stopped.resolve}
+        onError={onError}
+      />,
+    )
+
+    await withTimeout(started.promise, 15_000, 'Camera onStarted')
+    await waitFor(
+      () => {
+        expect(cameraRef.current?.controller?.torchMode).toBe('on')
+      },
+      { timeout: 10_000 },
+    )
+    expect(onError).not.toHaveBeenCalled()
+
+    await rerender(
+      <Camera
+        ref={cameraRef}
+        device={backDevice}
+        isActive={false}
+        style={StyleSheet.absoluteFill}
+        onStopped={stopped.resolve}
+        onError={onError}
+      />,
+    )
+    await withTimeout(stopped.promise, 10_000, 'Camera onStopped')
+  })
 })
