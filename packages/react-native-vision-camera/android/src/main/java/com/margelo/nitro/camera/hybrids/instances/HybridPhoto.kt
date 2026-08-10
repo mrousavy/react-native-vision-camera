@@ -156,12 +156,12 @@ class HybridPhoto(
 
     val matrix =
       Matrix().apply {
-        if (isMirrored) {
-          preScale(-1f, 1f)
-        }
         if (orientation != CameraOrientation.UP) {
           val orientationToApply = orientation.counterRotated()
           postRotate(orientationToApply.degrees.toFloat())
+        }
+        if (isMirrored) {
+          postScale(-1f, 1f)
         }
       }
     if (matrix.isIdentity) {
