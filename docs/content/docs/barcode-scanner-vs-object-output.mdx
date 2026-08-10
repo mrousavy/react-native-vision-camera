@@ -28,7 +28,28 @@ This keeps MLKit and its ~2.4 MB model out of the iOS app, and avoids iOS Simula
 
 React Native can select the implementation automatically when you split the scanner into two platform-specific files, for example `Scanner.ios.tsx` using `useObjectOutput(...)` and `Scanner.android.tsx` using `useBarcodeScannerOutput(...)`.
 
-Since native dependencies are autolinked independently of JavaScript imports, also exclude `react-native-vision-camera-barcode-scanner` from iOS autolinking in your app's `react-native.config.js`:
+Since native dependencies are autolinked independently of JavaScript imports, also exclude `react-native-vision-camera-barcode-scanner` from iOS autolinking:
+
+<Tabs items={["Expo", "React Native"]} groupId="framework" persist>
+<Tab value="Expo">
+On Expo SDK 54 and newer, exclude the package through [Expo Autolinking](https://docs.expo.dev/modules/autolinking/#exclude) in your app's `package.json`:
+
+```json title="package.json"
+{
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": ["react-native-vision-camera-barcode-scanner"]
+      }
+    }
+  }
+}
+```
+
+On older Expo SDK versions, use the `react-native.config.js` setup from the React Native tab instead.
+</Tab>
+<Tab value="React Native">
+Create or update `react-native.config.js` in your app's root directory:
 
 ```js title="react-native.config.js"
 module.exports = {
@@ -41,6 +62,8 @@ module.exports = {
   },
 }
 ```
+</Tab>
+</Tabs>
 
 After changing the autolinking configuration, reinstall your iOS Pods.
 This requires a little more setup than using the Barcode Scanner on both platforms, but is usually the best option when the Object Output supports all code formats and result data your app needs.
