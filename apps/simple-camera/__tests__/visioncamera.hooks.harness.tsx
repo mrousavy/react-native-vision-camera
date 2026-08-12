@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { StyleSheet } from 'react-native'
 import {
   beforeAll,
   describe,
@@ -9,14 +10,27 @@ import {
   render,
   waitFor,
 } from 'react-native-harness'
+import {
+  Screen,
+  type ScreenOrientationTypes,
+  ScreenStack,
+} from 'react-native-screens'
 import type {
   CameraDevice,
   CameraDeviceFactory,
+  CameraOrientation,
   CameraPosition,
   DeviceFilter,
   TargetCameraPosition,
 } from 'react-native-vision-camera'
-import { useCameraDevice, VisionCamera } from 'react-native-vision-camera'
+import {
+  getUIRotation,
+  useCamera,
+  useCameraDevice,
+  useOrientation,
+  usePreviewOutput,
+  VisionCamera,
+} from 'react-native-vision-camera'
 
 interface DeviceSnapshot {
   requestedPosition: TargetCameraPosition
@@ -213,5 +227,118 @@ describe('VisionCamera - Hooks', () => {
       />,
     )
     await expectLatestDeviceSnapshot(onSnapshot, 'back', tripleDevice)
+  })
+
+  it('updates onUIRotationChanged when the interface orientation changes', async () => {
+    const onConfigured = fn<() => void>()
+    const onInterfaceOrientationChanged =
+      fn<(orientation: CameraOrientation | undefined) => void>()
+    const onUIRotationChanged = fn<(rotation: number) => void>()
+    const onError = fn<(error: Error) => void>()
+
+    function TestCamera({
+      screenOrientation,
+    }: {
+      screenOrientation: ScreenOrientationTypes
+    }): React.ReactElement {
+      // CameraX requires at least one use case when configuring a session.
+      const previewOutput = usePreviewOutput()
+      const interfaceOrientation = useOrientation('interface')
+      useEffect(() => {
+        onInterfaceOrientationChanged(interfaceOrientation)
+      }, [interfaceOrientation])
+      useCamera({
+        isActive: false,
+        device: 'back',
+        outputs: [previewOutput],
+        orientationSource: 'custom',
+        onConfigured,
+        onUIRotationChanged,
+        onError,
+      })
+
+      return (
+        <ScreenStack style={StyleSheet.absoluteFill}>
+          <Screen
+            enabled={true}
+            activityState={2}
+            screenOrientation={screenOrientation}
+            style={StyleSheet.absoluteFill}
+          />
+        </ScreenStack>
+      )
+    }
+
+    const waitForRotation = async (
+      allowedOrientations: readonly CameraOrientation[],
+    ): Promise<CameraOrientation> => {
+      let receivedOrientation: CameraOrientation | undefined
+      await waitFor(
+        () => {
+          const error = onError.mock.lastCall?.[0]
+          if (error != null) throw error
+
+          const orientation = onInterfaceOrientationChanged.mock.lastCall?.[0]
+          if (orientation == null) {
+            throw new Error('No interface orientation was received yet.')
+          }
+          receivedOrientation = orientation
+          expect(allowedOrientations).toContain(orientation)
+          const expectedRotation = getUIRotation('up', orientation)
+          expect(onUIRotationChanged).toHaveBeenLastCalledWith(expectedRotation)
+        },
+        { timeout: 10_000 },
+      )
+      if (receivedOrientation == null) {
+        throw new Error('No interface orientation was received.')
+      }
+      return receivedOrientation
+    }
+
+    const { rerender } = await render(
+      <TestCamera screenOrientation="portrait_up" />,
+      {
+        timeout: 10_000,
+      },
+    )
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(1)
+      },
+      { timeout: 10_000 },
+    )
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        const expectedRotation = getUIRotation('up', 'up')
+        expect(onUIRotationChanged).toHaveBeenLastCalledWith(expectedRotation)
+      },
+      { timeout: 10_000 },
+    )
+
+    try {
+      onInterfaceOrientationChanged.mockClear()
+      onUIRotationChanged.mockClear()
+      await rerender(<TestCamera screenOrientation="landscape_left" />)
+      const firstLandscapeOrientation = await waitForRotation(['left', 'right'])
+      const oppositeLandscapeOrientation =
+        firstLandscapeOrientation === 'left' ? 'right' : 'left'
+      onInterfaceOrientationChanged.mockClear()
+      onUIRotationChanged.mockClear()
+      await rerender(<TestCamera screenOrientation="landscape_right" />)
+      await waitForRotation([oppositeLandscapeOrientation])
+
+      onInterfaceOrientationChanged.mockClear()
+      onUIRotationChanged.mockClear()
+      await rerender(<TestCamera screenOrientation="portrait_up" />)
+      await waitForRotation(['up'])
+    } finally {
+      await rerender(<TestCamera screenOrientation="portrait_up" />)
+    }
+
+    expect(onError).not.toHaveBeenCalled()
   })
 })
