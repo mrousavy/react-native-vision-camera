@@ -22,7 +22,10 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
-import { cameraOrientationToDegrees } from '../utils/orientationToDegrees'
+import {
+  cameraOrientationToDegrees,
+  rotateBy,
+} from '../utils/orientationToDegrees'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
@@ -302,7 +305,7 @@ export function useCamera({
   const interfaceDegrees = cameraOrientationToDegrees(
     interfaceOrientation ?? 'up',
   )
-  const degreesDifference = (orientationDegrees + interfaceDegrees) % 360
+  const degreesDifference = rotateBy(orientationDegrees, interfaceDegrees)
   const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
   useEffect(() => {
     if (stableOnUIRotationChanged == null) return
