@@ -1,11 +1,6 @@
 import { useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import {
-  Screen,
-  ScreenStack,
-  type ScreenOrientationTypes,
-} from 'react-native-screens'
-import {
   beforeAll,
   describe,
   expect,
@@ -15,6 +10,11 @@ import {
   render,
   waitFor,
 } from 'react-native-harness'
+import {
+  Screen,
+  type ScreenOrientationTypes,
+  ScreenStack,
+} from 'react-native-screens'
 import type {
   CameraDevice,
   CameraDeviceFactory,
@@ -28,6 +28,7 @@ import {
   useCamera,
   useCameraDevice,
   useOrientation,
+  usePreviewOutput,
   VisionCamera,
 } from 'react-native-vision-camera'
 
@@ -126,6 +127,7 @@ function CameraUIRotationProbe({
   onError,
 }: CameraUIRotationProbeProps): null {
   const interfaceOrientation = useOrientation('interface')
+  const previewOutput = usePreviewOutput()
 
   useEffect(() => {
     onInterfaceOrientationChanged(interfaceOrientation)
@@ -134,6 +136,7 @@ function CameraUIRotationProbe({
   useCamera({
     isActive: false,
     device: 'back',
+    outputs: [previewOutput],
     orientationSource,
     onUIRotationChanged,
     onError,
@@ -185,19 +188,22 @@ async function expectLatestUIRotation(
   >,
   onUIRotationChanged: Mock<(rotation: number) => void>,
   allowedOrientations: readonly CameraOrientation[],
+  previousOrientation?: CameraOrientation,
 ): Promise<CameraOrientation> {
   let observedOrientation: CameraOrientation | undefined
   await waitFor(
     () => {
-      const latestOrientation =
-        onInterfaceOrientationChanged.mock.lastCall?.[0]
+      const latestOrientation = onInterfaceOrientationChanged.mock.lastCall?.[0]
       if (latestOrientation == null) {
         throw new Error('No interface orientation was observed yet.')
       }
       observedOrientation = latestOrientation
       expect(allowedOrientations).toContain(latestOrientation)
+      if (previousOrientation != null) {
+        expect(latestOrientation).not.toBe(previousOrientation)
+      }
       expect(onUIRotationChanged).toHaveBeenLastCalledWith(
-        cameraOrientationDegrees[latestOrientation],
+        uiRotationDegrees[latestOrientation],
       )
     },
     { timeout: 10_000 },
@@ -208,11 +214,11 @@ async function expectLatestUIRotation(
   return observedOrientation
 }
 
-const cameraOrientationDegrees = {
+const uiRotationDegrees = {
   up: 0,
   right: 90,
   down: 180,
-  left: 270,
+  left: -90,
 } as const satisfies Record<CameraOrientation, number>
 
 describe('VisionCamera - Hooks', () => {
@@ -381,12 +387,12 @@ describe('VisionCamera - Hooks', () => {
     onInterfaceOrientationChanged.mockClear()
     onUIRotationChanged.mockClear()
     await rerender(renderDriver('landscape_right'))
-    const secondLandscapeOrientation = await expectLatestUIRotation(
+    await expectLatestUIRotation(
       onInterfaceOrientationChanged,
       onUIRotationChanged,
       ['left', 'right'],
+      firstLandscapeOrientation,
     )
-    expect(secondLandscapeOrientation).not.toBe(firstLandscapeOrientation)
 
     onInterfaceOrientationChanged.mockClear()
     onUIRotationChanged.mockClear()
