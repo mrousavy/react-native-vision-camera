@@ -5,17 +5,20 @@ import {
 } from '@react-native-menu/menu'
 import type React from 'react'
 import { useCallback, useMemo } from 'react'
+import { Animated } from 'react-native'
 import type { CameraDevice, CameraPosition } from 'react-native-vision-camera'
 import { IconButton } from './IconButton'
 
 interface Props {
   devices: CameraDevice[]
   setDevice: (device: CameraDevice) => void
+  uiRotation: Animated.Value
 }
 
 export function CameraSelectorButton({
   devices,
   setDevice,
+  uiRotation,
 }: Props): React.ReactElement {
   const menuActions = useMemo<MenuAction[]>(() => {
     const positions = ['back', 'front', 'external'].filter<CameraPosition>(
@@ -49,9 +52,24 @@ export function CameraSelectorButton({
     [devices, setDevice],
   )
 
+  const rotate = uiRotation.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '360deg'],
+  })
+
   return (
     <MenuView actions={menuActions} onPressAction={onMenuItemPressed}>
-      <IconButton iconName="camera" onPress={() => {}} />
+      <Animated.View
+        style={{
+          transform: [
+            {
+              rotate: rotate,
+            },
+          ],
+        }}
+      >
+        <IconButton iconName="camera" onPress={() => {}} />
+      </Animated.View>
     </MenuView>
   )
 }

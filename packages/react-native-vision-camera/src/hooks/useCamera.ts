@@ -22,12 +22,14 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
+import { getUIRotation } from '../utils/getUIRotation'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
 import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
+import { useStableCallback } from './internal/useStableCallback'
 import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
 import { useZoomUpdater } from './internal/useZoomUpdater'
 import { useOrientation } from './useOrientation'
@@ -86,6 +88,16 @@ export interface CameraProps
    * @see {@linkcode CameraOutput.outputOrientation}
    */
   orientationSource?: OrientationSource | 'custom'
+  /**
+   * Called when the Camera Output orientation (driven
+   * by {@linkcode orientationSource}) or the interface
+   * orientation changes with a {@linkcode rotation} value
+   * that specifies the degrees needed to rotate UI elements
+   * such as Camera controls (flash button, Camera flip button)
+   * so they appear upright.
+   * @param rotation The degrees that UI elements need to be rotated by to appear up-right.
+   */
+  onUIRotationChanged?: (rotation: number) => void
   /**
    * Sets whether the {@linkcode CameraOutput}s are mirrored along
    * the vertical axis. {@linkcode MirrorMode | 'auto'} mirrors
@@ -252,6 +264,7 @@ export function useCamera({
   onInterruptionStarted,
   onInterruptionEnded,
   onSubjectAreaChanged,
+  onUIRotationChanged,
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
@@ -265,6 +278,12 @@ export function useCamera({
     onError: onError,
   })
 
+  // TODO: Refactor our orientation logic here because it is problematic for multiple reasons;
+  //       1. Avoid going through re-renders/React state to change orientation (2x useOrientation(..)) (slow)
+  //       2. Avoid going through multiple setter calls here in a useEffect to set output orientation (possible race condition)
+  //       3. Avoid having a static useOrientation(...) hook - instead, have a UI element (`<NativePreviewView />`) fire interface orientation listeners (multi-display support)
+  //       4. orientationSource="custom" currently resorts back to 'up', which is not true - not sure if we just skip the callback or ignore instead?
+  //       Instead, have orientation source be native/declarative so we can use `AVCaptureDevice.RotationCoordinator` and drive orientation from a preview without re-renders.
   // 2. Update output orientations
   const orientationSourceOrUndefined =
     orientationSource === 'custom' ? undefined : orientationSource
@@ -275,6 +294,20 @@ export function useCamera({
       output.outputOrientation = orientation
     }
   }, [orientation, outputs])
+
+  // 2.1. Call onUIRotationChanged listener
+  const interfaceOrientation = useOrientation(
+    onUIRotationChanged != null ? 'interface' : undefined,
+  )
+  const uiRotation = getUIRotation(
+    orientation ?? 'up',
+    interfaceOrientation ?? 'up',
+  )
+  const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
+  useEffect(() => {
+    if (stableOnUIRotationChanged == null) return
+    stableOnUIRotationChanged(uiRotation)
+  }, [stableOnUIRotationChanged, uiRotation])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, device, outputs, {

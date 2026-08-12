@@ -1,6 +1,13 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StatusBar, StyleSheet, Text, View } from 'react-native'
+import {
+  Animated,
+  StatusBar,
+  StyleSheet,
+  Text,
+  useAnimatedValue,
+  View,
+} from 'react-native'
 import {
   type Recorder,
   useCameraDeviceExtensions,
@@ -30,6 +37,7 @@ export function CameraScreen() {
   const [enableVideo, setEnableVideo] = useState(false)
   const [enableFrameStream, setEnableFrameStream] = useState(false)
   const [enableDepthStream, setEnableDepthStream] = useState(false)
+  const uiRotation = useAnimatedValue(0, { useNativeDriver: true })
 
   const devices = useCameraDevices()
   const defaultDevice = devices[0]
@@ -234,6 +242,13 @@ export function CameraScreen() {
         device={device}
         outputs={[photoOutput]}
         mirrorMode={device.position === 'front' ? 'on' : 'off'}
+        orientationSource="device"
+        onUIRotationChanged={(rotation) => {
+          Animated.spring(uiRotation, {
+            toValue: rotation,
+            useNativeDriver: true,
+          }).start()
+        }}
         constraints={
           [
             // Session Constraints
@@ -250,6 +265,7 @@ export function CameraScreen() {
         <Row>
           <View style={styles.flex} />
           <CameraSelectorButton
+            uiRotation={uiRotation}
             devices={devices}
             setDevice={(d) => {
               setDevice(d)
