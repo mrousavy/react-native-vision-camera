@@ -278,10 +278,11 @@ export function useCamera({
     onError: onError,
   })
 
-  // TODO: Refactor our orientation logic here for three reasons;
+  // TODO: Refactor our orientation logic here because it is problematic for multiple reasons;
   //       1. Avoid going through re-renders/React state to change orientation (2x useOrientation(..)) (slow)
   //       2. Avoid going through multiple setter calls here in a useEffect to set output orientation (possible race condition)
   //       3. Avoid having a static useOrientation(...) hook - instead, have a UI element (`<NativePreviewView />`) fire interface orientation listeners (multi-display support)
+  //       4. orientationSource="custom" currently resorts back to 'up', which is not true - not sure if we just skip the callback or ignore instead?
   //       Instead, have orientation source be native/declarative so we can use `AVCaptureDevice.RotationCoordinator` and drive orientation from a preview without re-renders.
   // 2. Update output orientations
   const orientationSourceOrUndefined =

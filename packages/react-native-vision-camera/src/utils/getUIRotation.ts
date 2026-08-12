@@ -15,13 +15,29 @@ function cameraOrientationToDegrees(
   }
 }
 
+/**
+ * Gets the signed rotation needed to keep UI elements upright relative to the
+ * Camera output orientation.
+ *
+ * The result is normalized to the shortest cardinal rotation, with opposite
+ * orientations represented as `180`.
+ */
 export function getUIRotation(
   outputOrientation: CameraOrientation,
   interfaceOrientation: CameraOrientation,
 ): number {
+  // Convert to degrees
   const outputOrientationDegrees = cameraOrientationToDegrees(outputOrientation)
   const interfaceOrientationDegrees =
     cameraOrientationToDegrees(interfaceOrientation)
-  // TODO: Calculate UI Rotation here
-  return 0
+  // Calculate difference, not overshooting 360°
+  const rotation =
+    (interfaceOrientationDegrees - outputOrientationDegrees + 360) % 360
+  const normalizedRotation = rotation % 360
+  if (normalizedRotation > 180) {
+    // Converts 270° to -90°
+    return normalizedRotation - 360
+  } else {
+    return normalizedRotation
+  }
 }
