@@ -35,8 +35,7 @@ final class HybridInterfaceOrientationManager: HybridOrientationManagerSpec {
       UIDevice.current.beginGeneratingDeviceOrientationNotifications()
 
       let interfaceOrientation = UIApplication.shared.interfaceOrientation
-      if interfaceOrientation != .unknown {
-        let orientation = CameraOrientation(interfaceOrientation: interfaceOrientation)
+      if let orientation = CameraOrientation(interfaceOrientation: interfaceOrientation) {
         self.currentOrientation = orientation
         onChanged(orientation)
       }
@@ -48,11 +47,10 @@ final class HybridInterfaceOrientationManager: HybridOrientationManagerSpec {
       ) { [weak self] _ in
         guard let self else { return }
         let interfaceOrientation = UIApplication.shared.interfaceOrientation
-        guard interfaceOrientation != .unknown else {
+        guard let orientation = CameraOrientation(interfaceOrientation: interfaceOrientation) else {
           logger.warning("UIInterfaceOrientation is .unknown!")
           return
         }
-        let orientation = CameraOrientation(interfaceOrientation: interfaceOrientation)
         if self.currentOrientation != orientation {
           logger.info("Interface orientation changed: \(orientation.stringValue)")
           self.currentOrientation = orientation

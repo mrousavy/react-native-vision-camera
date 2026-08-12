@@ -12,23 +12,14 @@ val CameraOrientation.degrees: Int
     }
   }
 
-fun CameraOrientation.Companion.fromDegrees(degrees: Int): CameraOrientation {
-  val normalizedDegrees = normalizeDegrees(degrees)
-  return when (normalizedDegrees) {
-    in 45..135 -> CameraOrientation.LEFT
-    in 135..225 -> CameraOrientation.DOWN
-    in 225..315 -> CameraOrientation.RIGHT
-    else -> CameraOrientation.UP
+fun CameraOrientation.Companion.fromDegrees(degrees: Int): CameraOrientation? =
+  when (degrees) {
+    in 0 until 45, in 315 until 360 -> CameraOrientation.UP
+    in 45 until 135 -> CameraOrientation.LEFT
+    in 135 until 225 -> CameraOrientation.DOWN
+    in 225 until 315 -> CameraOrientation.RIGHT
+    else -> null
   }
-}
-
-private fun CameraOrientation.Companion.normalizeDegrees(degrees: Int): Int {
-  val normalized = degrees % 360
-  if (normalized < 0) {
-    return normalized + 360
-  }
-  return normalized
-}
 
 /**
  * Returns the logical counter-orientation

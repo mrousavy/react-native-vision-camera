@@ -7,4 +7,5 @@ val ImageProxy.orientation: CameraOrientation
   get() {
     val degrees = imageInfo.rotationDegrees
     return CameraOrientation.fromDegrees(degrees)
+      ?: throw Error("Invalid ImageProxy rotation degrees: $degrees")
   }

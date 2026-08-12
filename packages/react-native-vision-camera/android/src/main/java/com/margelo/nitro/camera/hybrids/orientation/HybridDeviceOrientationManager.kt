@@ -41,7 +41,7 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
             // phone is laying flat - orientation is unknown! Avoid sending out event.
             return
           }
-          val orientation = CameraOrientation.fromDegrees(rotationDegrees)
+          val orientation = CameraOrientation.fromDegrees(rotationDegrees) ?: return
           if (currentOrientation != orientation) {
             Log.i(TAG, "Device orientation changed! $orientation")
             currentOrientation = orientation

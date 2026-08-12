@@ -23,7 +23,7 @@ extension CameraOrientation {
       fatalError("UIImage.Orientation has unknown value: \(uiOrientation)")
     }
   }
-  init(interfaceOrientation: UIInterfaceOrientation) {
+  init?(interfaceOrientation: UIInterfaceOrientation) {
     switch interfaceOrientation {
     case .portrait:
       self = .up
@@ -34,7 +34,7 @@ extension CameraOrientation {
     case .landscapeRight:
       self = .left
     case .unknown:
-      self = .up
+      return nil
     @unknown default:
       fatalError("UIInterfaceOrientation has unknown value: \(interfaceOrientation)")
     }
