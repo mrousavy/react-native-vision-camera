@@ -32,6 +32,11 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
     listener?.let { listener ->
       displayManager.unregisterDisplayListener(listener)
     }
+    val defaultDisplay = displayManager.displays.firstOrNull()
+    if (defaultDisplay != null) {
+      currentOrientation = CameraOrientation.fromSurfaceRotation(defaultDisplay.rotation)
+    }
+    currentOrientation?.let(onChanged)
     val listener =
       object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = Unit
@@ -39,6 +44,7 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
         override fun onDisplayRemoved(displayId: Int) = Unit
 
         override fun onDisplayChanged(displayId: Int) {
+          if (this@HybridInterfaceOrientationManager.listener !== this) return
           val display = displayManager.getDisplay(displayId) ?: return
           val surfaceRotation = display.rotation
           val orientation = CameraOrientation.fromSurfaceRotation(surfaceRotation)
@@ -54,9 +60,8 @@ class HybridInterfaceOrientationManager : HybridOrientationManagerSpec() {
   }
 
   override fun stopOrientationUpdates() {
-    listener?.let { listener ->
-      displayManager.unregisterDisplayListener(listener)
-    }
+    val currentListener = listener
     listener = null
+    currentListener?.let(displayManager::unregisterDisplayListener)
   }
 }

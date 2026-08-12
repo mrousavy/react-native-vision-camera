@@ -32,9 +32,11 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
 
   override fun startOrientationUpdates(onChanged: (orientation: CameraOrientation) -> Unit) {
     orientationListener?.disable()
+    currentOrientation?.let(onChanged)
     orientationListener =
       object : OrientationEventListener(context) {
         override fun onOrientationChanged(rotationDegrees: Int) {
+          if (orientationListener !== this) return
           if (rotationDegrees == ORIENTATION_UNKNOWN) {
             // phone is laying flat - orientation is unknown! Avoid sending out event.
             return
@@ -51,6 +53,8 @@ class HybridDeviceOrientationManager : HybridOrientationManagerSpec() {
   }
 
   override fun stopOrientationUpdates() {
-    orientationListener?.disable()
+    val listener = orientationListener
+    orientationListener = null
+    listener?.disable()
   }
 }
