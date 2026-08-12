@@ -22,16 +22,14 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
-import {
-  cameraOrientationToDegrees,
-  rotateBy,
-} from '../utils/orientationToDegrees'
+import { cameraOrientationToDegrees } from '../utils/orientationToDegrees'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
 import { useCameraSessionIsRunning } from './internal/useCameraSessionIsRunning'
 import { useExposureUpdater } from './internal/useExposureUpdater'
 import { useListenerSubscription } from './internal/useListenerSubscription'
+import { useStableCallback } from './internal/useStableCallback'
 import { useTorchModeUpdater } from './internal/useTorchModeUpdater'
 import { useZoomUpdater } from './internal/useZoomUpdater'
 import { useOrientation } from './useOrientation'
@@ -280,6 +278,11 @@ export function useCamera({
     onError: onError,
   })
 
+  // TODO: Refactor our orientation logic here for three reasons;
+  //       1. Avoid going through re-renders/React state to change orientation (2x useOrientation(..)) (slow)
+  //       2. Avoid going through multiple setter calls here in a useEffect to set output orientation (possible race condition)
+  //       3. Avoid having a static useOrientation(...) hook - instead, have a UI element (`<NativePreviewView />`) fire interface orientation listeners (multi-display support)
+  //       Instead, have orientation source be native/declarative so we can use `AVCaptureDevice.RotationCoordinator` and drive orientation from a preview without re-renders.
   // 2. Update output orientations
   const orientationSourceOrUndefined =
     orientationSource === 'custom' ? undefined : orientationSource
@@ -292,17 +295,20 @@ export function useCamera({
   }, [orientation, outputs])
 
   // 2.1. Call onUIRotationChanged listener
-  const interfaceOrientation = useOrientation('interface')
+  const interfaceOrientation = useOrientation(
+    onUIRotationChanged != null ? 'interface' : undefined,
+  )
   const orientationDegrees = cameraOrientationToDegrees(orientation ?? 'up')
   const interfaceDegrees = cameraOrientationToDegrees(
     interfaceOrientation ?? 'up',
   )
   const degreesDifference = (orientationDegrees + interfaceDegrees) % 360
+  const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
   useEffect(() => {
-    if (onUIRotationChanged == null) return
+    if (stableOnUIRotationChanged == null) return
     const degreesNeededForUprightUIElements = 360 - degreesDifference
-    onUIRotationChanged(degreesNeededForUprightUIElements)
-  }, [onUIRotationChanged, degreesDifference])
+    stableOnUIRotationChanged(degreesNeededForUprightUIElements)
+  }, [stableOnUIRotationChanged, degreesDifference])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, device, outputs, {

@@ -14,8 +14,3 @@ export function cameraOrientationToDegrees(
       return 270
   }
 }
-
-export function rotateBy(degrees: number, byDegrees: number): number {
-  const rotated = degrees + byDegrees
-  return rotated % 360
-}
