@@ -8,11 +8,13 @@ import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 A Camera has a fixed sensor orientation in which Frames are streamed in.
 If you rotate your phone, the Camera doesn't physically rotate alongside with it, so rotation has to be applied to the Frames dynamically - and each [`CameraOutput`](/api/react-native-vision-camera/hybrid-objects/CameraOutput) applies orientation differently.
 
-### Automatically set Orientation
+### Set Orientation
+
+#### Automatically set Orientation
 
 In most cases, your [`Orientation`](/api/react-native-vision-camera/type-aliases/CameraOrientation) should be automatically set to either the App's Interface Orientation, or your Phone's Device Orientation:
 
-- App Interface Orientation ([`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation only when the UI rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will still stick to `portrait` ([`'up'`](/api/react-native-vision-camera/type-aliases/CameraOrientation)). This is how apps like Snapchat or Instagram work.
+- App Interface Orientation ([`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation only when the UI rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will still stick to `portrait` ([`'up'`](/api/react-native-vision-camera/type-aliases/CameraOrientation)). This is how apps like Snapchat or Instagram work - they are effectively locked to `portrait`.
 - Phone Device Orientation ([`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource)): Changes output orientation when the phone physically rotates. If the UI is locked to `portrait` and the phone is held sideways, the output orientation will change to be sideways - even if the UI doesn't rotate to `landscape`. This is how most photography apps (including the stock iOS Camera app) work.
 
 VisionCamera exposes two [`OrientationManager`](/api/react-native-vision-camera/hybrid-objects/OrientationManager)s - one for monitoring [`'interface'`](/api/react-native-vision-camera/type-aliases/OrientationSource) orientation, and one for monitoring [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource) orientation:
@@ -61,9 +63,53 @@ output.outputOrientation = orientationManager.currentOrientation
 </Tab>
 </Tabs>
 
-### Manually set Orientation
+#### Manually set Orientation
 
 For full manual control over orientation, set [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) to [`'custom'`](/api/react-native-vision-camera/type-aliases/OrientationSource) (if you are using `<Camera />` or `useCamera(...)`), and set a custom [`CameraOutput.outputOrientation`](/api/react-native-vision-camera/hybrid-objects/CameraOutput#outputorientation) for your outputs.
+
+#### Rotate UI Elements based on Camera Orientation
+
+If your Camera's [`orientationSource`](/api/react-native-vision-camera/interfaces/CameraProps#orientationsource) is set to [`'device'`](/api/react-native-vision-camera/type-aliases/OrientationSource) (or [`'custom'`](/api/react-native-vision-camera/type-aliases/OrientationSource)), your UI will not rotate alongside with the Camera pipeline.
+To then visually rotate individual Camera controls (such as the Flip Camera button, a Flash button, or other controls), listen to the [`onUIRotationChanged`](/api/react-native-vision-camera/interfaces/CameraProps#onuirotationchanged) callback and rotate accordingly:
+
+```tsx
+function App() {
+  const device = useCameraDevice('back')
+  // [!code ++]
+  const uiRotation = useAnimatedValue(0)
+  // [!code ++:4]
+  const rotate = uiRotation.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '360deg'],
+  })
+
+  return (
+    <View>
+      <Camera
+        style={StyleSheet.absoluteFill}
+        isActive={true}
+        device={device}
+        orientationSource="device"
+        // [!code ++:6]
+        onUIRotationChanged={(rotation) => {
+          Animated.spring(uiRotation, {
+            toValue: rotation,
+            useNativeDriver: true,
+          }).start()
+        }}
+      />
+      // [!code ++]
+      <Animated.View style={{ transform: [{ rotate: rotate }] }}>
+        <FlashButton />
+      // [!code ++]
+      </Animated.View>
+    </View>
+  )
+}
+```
+
+> [!TIP]
+> Use [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) for more control over animations.
 
 ### How Orientation is handled
 
