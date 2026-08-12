@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { type GestureResponderEvent, StyleSheet, View } from 'react-native'
-import { useSharedValue } from 'react-native-reanimated'
 import {
   Camera,
   type CameraRef,

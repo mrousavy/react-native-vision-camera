@@ -247,7 +247,7 @@ export function CameraScreen() {
           Animated.spring(uiRotation, {
             toValue: rotation,
             useNativeDriver: true,
-          })
+          }).start()
         }}
         constraints={
           [

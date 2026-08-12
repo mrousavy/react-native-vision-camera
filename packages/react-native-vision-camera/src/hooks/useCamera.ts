@@ -305,7 +305,7 @@ export function useCamera({
   const interfaceDegrees = cameraOrientationToDegrees(
     interfaceOrientation ?? 'up',
   )
-  const degreesDifference = rotateBy(interfaceDegrees, orientationDegrees)
+  const degreesDifference = rotateBy(360 - orientationDegrees, interfaceDegrees)
   const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
   useEffect(() => {
     if (stableOnUIRotationChanged == null) return

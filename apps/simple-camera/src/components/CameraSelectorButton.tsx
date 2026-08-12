@@ -5,7 +5,7 @@ import {
 } from '@react-native-menu/menu'
 import type React from 'react'
 import { useCallback, useMemo } from 'react'
-import type { Animated } from 'react-native'
+import { Animated } from 'react-native'
 import type { CameraDevice, CameraPosition } from 'react-native-vision-camera'
 import { IconButton } from './IconButton'
 
@@ -59,7 +59,7 @@ export function CameraSelectorButton({
 
   return (
     <MenuView actions={menuActions} onPressAction={onMenuItemPressed}>
-      <IconButton
+      <Animated.View
         style={{
           transform: [
             {
@@ -67,9 +67,9 @@ export function CameraSelectorButton({
             },
           ],
         }}
-        iconName="camera"
-        onPress={() => {}}
-      />
+      >
+        <IconButton iconName="camera" onPress={() => {}} />
+      </Animated.View>
     </MenuView>
   )
 }
