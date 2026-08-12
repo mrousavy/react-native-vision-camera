@@ -305,12 +305,11 @@ export function useCamera({
   const interfaceDegrees = cameraOrientationToDegrees(
     interfaceOrientation ?? 'up',
   )
-  const degreesDifference = rotateBy(orientationDegrees, interfaceDegrees)
+  const degreesDifference = rotateBy(interfaceDegrees, orientationDegrees)
   const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
   useEffect(() => {
     if (stableOnUIRotationChanged == null) return
-    const degreesNeededForUprightUIElements = 360 - degreesDifference
-    stableOnUIRotationChanged(degreesNeededForUprightUIElements)
+    stableOnUIRotationChanged(degreesDifference)
   }, [stableOnUIRotationChanged, degreesDifference])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`

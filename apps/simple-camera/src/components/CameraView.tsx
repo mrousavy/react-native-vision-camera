@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { type GestureResponderEvent, StyleSheet, View } from 'react-native'
+import { useSharedValue } from 'react-native-reanimated'
 import {
   Camera,
   type CameraRef,
@@ -66,9 +67,6 @@ export function CameraView({ device, constraints, ...props }: Props) {
         ref={camera}
         style={styles.camera}
         device={device}
-        onUIRotationChanged={(rotation) =>
-          console.log(`UI Rotation changed: ${rotation}`)
-        }
         constraints={constraints}
         onSubjectAreaChanged={() => {
           console.log(`Subject Area Changed! Resetting Focus...`)
