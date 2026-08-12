@@ -22,6 +22,10 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
+import {
+  cameraOrientationToDegrees,
+  rotateBy,
+} from '../utils/orientationToDegrees'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
@@ -86,6 +90,16 @@ export interface CameraProps
    * @see {@linkcode CameraOutput.outputOrientation}
    */
   orientationSource?: OrientationSource | 'custom'
+  /**
+   * Called when the Camera Output orientation (driven
+   * by {@linkcode orientationSource}) or the interface
+   * orientation changes with a {@linkcode rotation} value
+   * that specifies the degrees needed to rotate UI elements
+   * such as Camera controls (flash button, Camera flip button)
+   * so they appear upright.
+   * @param rotation The degrees that UI elements need to be rotated by to appear up-right.
+   */
+  onUIRotationChanged?: (rotation: number) => void
   /**
    * Sets whether the {@linkcode CameraOutput}s are mirrored along
    * the vertical axis. {@linkcode MirrorMode | 'auto'} mirrors
@@ -252,6 +266,7 @@ export function useCamera({
   onInterruptionStarted,
   onInterruptionEnded,
   onSubjectAreaChanged,
+  onUIRotationChanged,
   enableDistortionCorrection,
   enableLowLightBoost,
   enableSmoothAutoFocus,
@@ -275,6 +290,19 @@ export function useCamera({
       output.outputOrientation = orientation
     }
   }, [orientation, outputs])
+
+  // 2.1. Call onUIRotationChanged listener
+  const interfaceOrientation = useOrientation('interface')
+  const orientationDegrees = cameraOrientationToDegrees(orientation ?? 'up')
+  const interfaceDegrees = cameraOrientationToDegrees(
+    interfaceOrientation ?? 'up',
+  )
+  const degreesDifference = (orientationDegrees + interfaceDegrees) % 360
+  useEffect(() => {
+    if (onUIRotationChanged == null) return
+    const degreesNeededForUprightUIElements = 360 - degreesDifference
+    onUIRotationChanged(degreesNeededForUprightUIElements)
+  }, [onUIRotationChanged, degreesDifference])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, device, outputs, {
