@@ -93,6 +93,7 @@ export * from './threading/RuntimeThreadProvider'
 export * from './utils/CommonDynamicRanges'
 export * from './utils/CommonResolutions'
 export * from './utils/FrameConverter'
+export * from './utils/getUIRotation'
 // Main factory
 export * from './VisionCamera'
 // Views

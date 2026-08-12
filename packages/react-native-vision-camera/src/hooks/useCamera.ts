@@ -22,10 +22,7 @@ import type {
 import type { CameraSessionConfig } from '../specs/session/CameraSessionConfig.nitro'
 import type { CameraSessionConfiguration } from '../specs/session/CameraSessionConfiguration'
 import type { CameraSessionConnection } from '../specs/session/CameraSessionConnection'
-import {
-  cameraOrientationToDegrees,
-  rotateBy,
-} from '../utils/orientationToDegrees'
+import { getUIRotation } from '../utils/getUIRotation'
 import { useCameraController } from './internal/useCameraController'
 import { useCameraControllerConfiguration } from './internal/useCameraControllerConfiguration'
 import { useCameraSession } from './internal/useCameraSession'
@@ -301,16 +298,15 @@ export function useCamera({
   const interfaceOrientation = useOrientation(
     onUIRotationChanged != null ? 'interface' : undefined,
   )
-  const orientationDegrees = cameraOrientationToDegrees(orientation ?? 'up')
-  const interfaceDegrees = cameraOrientationToDegrees(
+  const uiRotation = getUIRotation(
+    orientation ?? 'up',
     interfaceOrientation ?? 'up',
   )
-  const degreesDifference = rotateBy(360 - orientationDegrees, interfaceDegrees)
   const stableOnUIRotationChanged = useStableCallback(onUIRotationChanged)
   useEffect(() => {
     if (stableOnUIRotationChanged == null) return
-    stableOnUIRotationChanged(degreesDifference)
-  }, [stableOnUIRotationChanged, degreesDifference])
+    stableOnUIRotationChanged(uiRotation)
+  }, [stableOnUIRotationChanged, uiRotation])
 
   // 4. Configure the session with the input + outputs to create a `CameraController`
   const controller = useCameraController(session, device, outputs, {
