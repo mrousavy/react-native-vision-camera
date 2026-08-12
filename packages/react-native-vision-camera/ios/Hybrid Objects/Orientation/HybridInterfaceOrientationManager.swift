@@ -34,6 +34,13 @@ final class HybridInterfaceOrientationManager: HybridOrientationManagerSpec {
       // Start new listener (beginGeneratingDeviceOrientationNotifications() can be nested)
       UIDevice.current.beginGeneratingDeviceOrientationNotifications()
 
+      let interfaceOrientation = UIApplication.shared.interfaceOrientation
+      if interfaceOrientation != .unknown {
+        let orientation = CameraOrientation(interfaceOrientation: interfaceOrientation)
+        self.currentOrientation = orientation
+        onChanged(orientation)
+      }
+
       self.observer = NotificationCenter.default.addObserver(
         forName: UIDevice.orientationDidChangeNotification,
         object: nil,
@@ -60,6 +67,7 @@ final class HybridInterfaceOrientationManager: HybridOrientationManagerSpec {
       if let observer = self.observer {
         logger.info("Stopping interface orientation updates...")
         NotificationCenter.default.removeObserver(observer)
+        self.observer = nil
         UIDevice.current.endGeneratingDeviceOrientationNotifications()
       }
     }
