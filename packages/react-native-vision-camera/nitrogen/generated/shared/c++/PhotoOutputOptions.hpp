@@ -51,11 +51,12 @@ namespace margelo::nitro::camera {
     TargetPhotoContainerFormat containerFormat     SWIFT_PRIVATE;
     double quality     SWIFT_PRIVATE;
     QualityPrioritization qualityPrioritization     SWIFT_PRIVATE;
+    std::optional<bool> enableResponsiveCapture     SWIFT_PRIVATE;
     std::optional<Size> previewImageTargetSize     SWIFT_PRIVATE;
 
   public:
     PhotoOutputOptions() = default;
-    explicit PhotoOutputOptions(Size targetResolution, TargetPhotoContainerFormat containerFormat, double quality, QualityPrioritization qualityPrioritization, std::optional<Size> previewImageTargetSize): targetResolution(targetResolution), containerFormat(containerFormat), quality(quality), qualityPrioritization(qualityPrioritization), previewImageTargetSize(previewImageTargetSize) {}
+    explicit PhotoOutputOptions(Size targetResolution, TargetPhotoContainerFormat containerFormat, double quality, QualityPrioritization qualityPrioritization, std::optional<bool> enableResponsiveCapture, std::optional<Size> previewImageTargetSize): targetResolution(targetResolution), containerFormat(containerFormat), quality(quality), qualityPrioritization(qualityPrioritization), enableResponsiveCapture(enableResponsiveCapture), previewImageTargetSize(previewImageTargetSize) {}
 
   public:
     friend bool operator==(const PhotoOutputOptions& lhs, const PhotoOutputOptions& rhs) = default;
@@ -75,6 +76,7 @@ namespace margelo::nitro {
         JSIConverter<margelo::nitro::camera::TargetPhotoContainerFormat>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "containerFormat"))),
         JSIConverter<double>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "quality"))),
         JSIConverter<margelo::nitro::camera::QualityPrioritization>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "qualityPrioritization"))),
+        JSIConverter<std::optional<bool>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableResponsiveCapture"))),
         JSIConverter<std::optional<margelo::nitro::camera::Size>>::fromJSI(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "previewImageTargetSize")))
       );
     }
@@ -84,6 +86,7 @@ namespace margelo::nitro {
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "containerFormat"), JSIConverter<margelo::nitro::camera::TargetPhotoContainerFormat>::toJSI(runtime, arg.containerFormat));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "quality"), JSIConverter<double>::toJSI(runtime, arg.quality));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "qualityPrioritization"), JSIConverter<margelo::nitro::camera::QualityPrioritization>::toJSI(runtime, arg.qualityPrioritization));
+      obj.setProperty(runtime, PropNameIDCache::get(runtime, "enableResponsiveCapture"), JSIConverter<std::optional<bool>>::toJSI(runtime, arg.enableResponsiveCapture));
       obj.setProperty(runtime, PropNameIDCache::get(runtime, "previewImageTargetSize"), JSIConverter<std::optional<margelo::nitro::camera::Size>>::toJSI(runtime, arg.previewImageTargetSize));
       return obj;
     }
@@ -99,6 +102,7 @@ namespace margelo::nitro {
       if (!JSIConverter<margelo::nitro::camera::TargetPhotoContainerFormat>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "containerFormat")))) return false;
       if (!JSIConverter<double>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "quality")))) return false;
       if (!JSIConverter<margelo::nitro::camera::QualityPrioritization>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "qualityPrioritization")))) return false;
+      if (!JSIConverter<std::optional<bool>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "enableResponsiveCapture")))) return false;
       if (!JSIConverter<std::optional<margelo::nitro::camera::Size>>::canConvert(runtime, obj.getProperty(runtime, PropNameIDCache::get(runtime, "previewImageTargetSize")))) return false;
       return true;
     }

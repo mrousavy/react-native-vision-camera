@@ -57,6 +57,12 @@ final class HybridCameraPhotoOutput: HybridCameraPhotoOutputSpec, NativeCameraOu
 
     output.maxPhotoQualityPrioritization = options.qualityPrioritization.toAVQualityPrioritization()
 
+    if #available(iOS 17.0, *),
+      output.isResponsiveCaptureSupported
+    {
+      output.isResponsiveCaptureEnabled = options.enableResponsiveCapture ?? false
+    }
+
     if options.containerFormat == .dng {
       // If we capture RAW photos, try using Apple ProRAW. If not, Bayer14 RAW will be used.
       output.isAppleProRAWEnabled = output.isAppleProRAWSupported
