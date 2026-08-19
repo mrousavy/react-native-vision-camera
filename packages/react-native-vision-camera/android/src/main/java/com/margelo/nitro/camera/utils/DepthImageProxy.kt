@@ -41,28 +41,24 @@ class DepthImageProxy(
     image.close()
   }
 
-  override fun getCropRect(): Rect {
-    return image.cropRect
-  }
+  override val cropRect: Rect
+    get() = image.cropRect
 
   override fun setCropRect(rect: Rect?) {
     image.cropRect = rect
   }
 
-  override fun getFormat(): Int {
-    return image.format
-  }
+  override val format: Int
+    get() = image.format
 
-  override fun getHeight(): Int {
-    return image.height
-  }
+  override val height: Int
+    get() = image.height
 
-  override fun getWidth(): Int {
-    return image.width
-  }
+  override val width: Int
+    get() = image.width
 
   @ExperimentalGetImage
-  override fun getPlanes(): Array<out ImageProxy.PlaneProxy?> {
+  override fun getPlanes(): Array<ImageProxy.PlaneProxy> {
     return image.planes.mapToArray { DepthImagePlaneProxy(it) }
   }
 

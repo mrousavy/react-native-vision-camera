@@ -2,10 +2,6 @@ package com.margelo.nitro.camera.hybrids.inputs
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.OptIn
-import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import com.margelo.nitro.camera.CameraPosition
 import com.margelo.nitro.camera.DeviceType
@@ -19,10 +15,11 @@ import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.Range
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
+import com.margelo.nitro.camera.extensions.cameraCharacteristicsOrNull
+import com.margelo.nitro.camera.extensions.cameraIdOrNull
 import com.margelo.nitro.camera.extensions.contains
 import com.margelo.nitro.camera.extensions.deviceType
 import com.margelo.nitro.camera.extensions.focalLength
-import com.margelo.nitro.camera.extensions.fromSafe
 import com.margelo.nitro.camera.extensions.getDefaultSimulatedAperture
 import com.margelo.nitro.camera.extensions.localizedName
 import com.margelo.nitro.camera.extensions.position
@@ -39,11 +36,10 @@ class HybridPhysicalCameraDevice(
   override val cameraInfo: CameraInfo,
 ) : HybridCameraDeviceSpec(),
   NativeCameraDevice {
-  @OptIn(ExperimentalCamera2Interop::class)
-  private val camera2Info = Camera2CameraInfo.fromSafe(cameraInfo)
+  private val cameraCharacteristics = cameraInfo.cameraCharacteristicsOrNull
 
   override val id: String
-    get() = cameraInfo.cameraId?.value ?: ""
+    get() = cameraInfo.cameraIdOrNull ?: ""
 
   override val modelID: String
     get() = "physical:$position:$id"
@@ -67,9 +63,9 @@ class HybridPhysicalCameraDevice(
   override val supportedVideoDynamicRanges: Array<DynamicRange> = emptyArray()
   override val supportedFPSRanges: Array<Range> = emptyArray()
   override val focalLength: Double?
-    get() = camera2Info?.focalLength?.toDouble()
+    get() = cameraCharacteristics?.focalLength?.toDouble()
   override val lensAperture: Double
-    get() = camera2Info?.getDefaultSimulatedAperture() ?: 0.0
+    get() = cameraCharacteristics?.getDefaultSimulatedAperture() ?: 0.0
 
   // TODO: CameraX should expose more information on PhysicalCameraInfoAdapter, as this info
   //       is available in Camera2. See https://issuetracker.google.com/issues/496096527.

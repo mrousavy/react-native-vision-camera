@@ -1,16 +1,12 @@
 package com.margelo.nitro.camera.extensions
 
 import android.hardware.camera2.CameraCharacteristics
-import androidx.annotation.OptIn
 import androidx.camera.camera2.adapter.PhysicalCameraInfoAdapter
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import com.margelo.nitro.camera.DeviceType
 import com.margelo.nitro.camera.utils.ImageFormatUtils
 
 val CameraInfo.deviceType: DeviceType
-  @OptIn(ExperimentalCamera2Interop::class)
   get() {
     if (this is PhysicalCameraInfoAdapter) {
       // TODO: PhysicalCameraInfoAdapter throws when accessing `intrinsicZoomRatio`,
@@ -28,8 +24,8 @@ val CameraInfo.deviceType: DeviceType
       }
     } else {
       // single camera
-      val camera2Info = Camera2CameraInfo.fromSafe(this)
-      if (camera2Info?.supportsDepthOnly == true) {
+      val cameraCharacteristics = cameraCharacteristicsOrNull
+      if (cameraCharacteristics?.supportsDepthOnly == true) {
         // If it supports only DEPTH, it's a ToF Depth Camera
         return DeviceType.TIME_OF_FLIGHT_DEPTH
       }
@@ -41,11 +37,10 @@ val CameraInfo.deviceType: DeviceType
     }
   }
 
-private val Camera2CameraInfo.supportsDepthOnly: Boolean
-  @OptIn(ExperimentalCamera2Interop::class)
+private val CameraCharacteristics.supportsDepthOnly: Boolean
   get() {
     val map =
-      this.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+      this[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
         ?: return false
     val supportedFormats = map.outputFormats
     val isAllDepthFormats = supportedFormats.all { ImageFormatUtils.isDepthFormat(it) }

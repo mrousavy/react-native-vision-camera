@@ -1,10 +1,10 @@
 package com.margelo.nitro.camera.session
 
 import android.util.Log
-import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraState
 import androidx.lifecycle.Observer
+import com.margelo.nitro.camera.extensions.cameraIdOrNull
 import com.margelo.nitro.camera.extensions.reason
 import java.io.Closeable
 
@@ -37,7 +37,7 @@ class ActiveCameraSessionSingle(
 
   private fun updateCameraState() {
     val state = camera.cameraInfo.cameraState.value
-    Log.i(TAG, "Camera #${camera.cameraInfo.cameraId} State changed! Type: ${state?.type} | Error: ${state?.error}")
+    Log.i(TAG, "Camera #${camera.cameraInfo.cameraIdOrNull} State changed! Type: ${state?.type} | Error: ${state?.error}")
     val isNowRunning = state?.type == CameraState.Type.OPEN
     if (isRunning != isNowRunning) {
       // isRunning state changed!

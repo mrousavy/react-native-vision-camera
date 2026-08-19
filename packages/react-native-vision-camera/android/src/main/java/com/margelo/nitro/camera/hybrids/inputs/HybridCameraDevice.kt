@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.annotation.OptIn
-import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ExperimentalZeroShutterLag
 import androidx.camera.core.FocusMeteringAction
@@ -27,12 +24,13 @@ import com.margelo.nitro.camera.PixelFormat
 import com.margelo.nitro.camera.Range
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
+import com.margelo.nitro.camera.extensions.cameraCharacteristicsOrNull
+import com.margelo.nitro.camera.extensions.cameraIdOrNull
 import com.margelo.nitro.camera.extensions.contains
 import com.margelo.nitro.camera.extensions.converters.from
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.extensions.deviceType
 import com.margelo.nitro.camera.extensions.focalLength
-import com.margelo.nitro.camera.extensions.fromSafe
 import com.margelo.nitro.camera.extensions.getDefaultSimulatedAperture
 import com.margelo.nitro.camera.extensions.getDepthSizes
 import com.margelo.nitro.camera.extensions.getPhotoSizes
@@ -62,9 +60,7 @@ class HybridCameraDevice(
   override val cameraInfo: CameraInfo,
 ) : HybridCameraDeviceSpec(),
   NativeCameraDevice {
-  @SuppressLint("UnsafeOptInUsageError")
-  @OptIn(ExperimentalCamera2Interop::class)
-  private val camera2Info = Camera2CameraInfo.fromSafe(cameraInfo)
+  private val cameraCharacteristics = cameraInfo.cameraCharacteristicsOrNull
   private val previewCapabilities by lazy {
     Preview.getPreviewCapabilities(cameraInfo)
   }
@@ -84,7 +80,7 @@ class HybridCameraDevice(
     get() = cameraInfo.supportedFrameRateRanges.mapToArray { Range.from(it) }
 
   override val id: String
-    get() = cameraInfo.cameraId?.value ?: cameraInfo.toString()
+    get() = cameraInfo.cameraIdOrNull ?: cameraInfo.toString()
 
   override val modelID: String
     get() = cameraInfo.modelID
@@ -108,13 +104,13 @@ class HybridCameraDevice(
   override val isVirtualDevice: Boolean
     get() = cameraInfo.isLogicalMultiCameraSupported
   override val supportedPixelFormats: Array<PixelFormat>
-    get() = camera2Info?.getPixelFormats() ?: emptyArray()
+    get() = cameraCharacteristics?.getPixelFormats() ?: emptyArray()
 
   override val focalLength: Double?
-    get() = camera2Info?.focalLength?.toDouble()
+    get() = cameraCharacteristics?.focalLength?.toDouble()
 
   override val lensAperture: Double
-    get() = camera2Info?.getDefaultSimulatedAperture() ?: 0.0
+    get() = cameraCharacteristics?.getDefaultSimulatedAperture() ?: 0.0
 
   override val isContinuityCamera: Boolean
     get() = false
@@ -202,17 +198,16 @@ class HybridCameraDevice(
     get() = cameraInfo.zoomLensSwitchFactors
 
   override val supportsDistortionCorrection: Boolean
-    get() = camera2Info?.supportsDistortionCorrection ?: false
+    get() = cameraCharacteristics?.supportsDistortionCorrection ?: false
 
-  @OptIn(ExperimentalCamera2Interop::class)
   override fun getSupportedResolutions(outputStreamType: OutputStreamType): Array<Size> {
-    val camera2Info = camera2Info ?: return emptyArray()
+    val cameraCharacteristics = cameraCharacteristics ?: return emptyArray()
     val sizes =
       when (outputStreamType) {
-        OutputStreamType.PHOTO -> camera2Info.getPhotoSizes()
-        OutputStreamType.VIDEO -> camera2Info.getVideoSizes()
-        OutputStreamType.STREAM -> camera2Info.getStreamSizes()
-        OutputStreamType.DEPTH_PHOTO, OutputStreamType.DEPTH_STREAM -> camera2Info.getDepthSizes()
+        OutputStreamType.PHOTO -> cameraCharacteristics.getPhotoSizes()
+        OutputStreamType.VIDEO -> cameraCharacteristics.getVideoSizes()
+        OutputStreamType.STREAM -> cameraCharacteristics.getStreamSizes()
+        OutputStreamType.DEPTH_PHOTO, OutputStreamType.DEPTH_STREAM -> cameraCharacteristics.getDepthSizes()
       }
     return sizes.mapToArray { it.toSize() }
   }
@@ -259,10 +254,9 @@ class HybridCameraDevice(
   }
 
   override val mediaTypes: Array<MediaType>
-    @OptIn(ExperimentalCamera2Interop::class)
     get() {
       val streamMap =
-        camera2Info?.getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        cameraCharacteristics?.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
       if (streamMap != null) {
         // Get available output formats to determine media types
         val result = arrayListOf<MediaType>()
