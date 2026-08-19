@@ -78,7 +78,7 @@ article .prose [data-rmiz] {
   min-width: 0;
 }
 
-.api-reference-layout #nd-page > article :is(h1, h2, h3, h4, h5, h6) {
+.api-reference-layout #nd-page :is(h1, h2, h3, h4, h5, h6) {
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
