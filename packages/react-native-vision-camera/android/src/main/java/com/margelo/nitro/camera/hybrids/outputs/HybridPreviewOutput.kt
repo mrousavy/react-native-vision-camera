@@ -1,8 +1,5 @@
 package com.margelo.nitro.camera.hybrids.outputs
 
-import android.util.Log
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalMirrorMode
 import androidx.camera.core.Preview
 import com.margelo.nitro.camera.CameraOrientation
 import com.margelo.nitro.camera.HybridCameraPreviewOutputSpec
@@ -10,6 +7,7 @@ import com.margelo.nitro.camera.MediaType
 import com.margelo.nitro.camera.MirrorMode
 import com.margelo.nitro.camera.Size
 import com.margelo.nitro.camera.TargetStabilizationMode
+import com.margelo.nitro.camera.extensions.converters.fromMirrorMode
 import com.margelo.nitro.camera.extensions.converters.toMirrorMode
 import com.margelo.nitro.camera.extensions.converters.toSize
 import com.margelo.nitro.camera.public.NativeCameraOutput
@@ -26,7 +24,11 @@ class HybridPreviewOutput :
       // Setting orientation in a Preview output does nothing.
       // It is controlled by the PreviewView.
     }
-  override val mirrorMode: MirrorMode = MirrorMode.AUTO
+  override val mirrorMode: MirrorMode
+    get() {
+      val preview = preview ?: return MirrorMode.AUTO
+      return MirrorMode.fromMirrorMode(preview.mirrorMode)
+    }
   override val currentResolution: Size?
     get() = preview?.resolutionInfo?.resolution?.toSize()
 
@@ -45,7 +47,6 @@ class HybridPreviewOutput :
     }
   }
 
-  @OptIn(ExperimentalMirrorMode::class)
   override fun createUseCase(
     mirrorMode: MirrorMode,
     config: NativeCameraOutput.Config,

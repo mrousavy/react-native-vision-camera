@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.camera.camera2.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
@@ -15,6 +14,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.edit
 import com.facebook.react.bridge.ReactApplicationContext
 import com.margelo.nitro.NitroModules
+import com.margelo.nitro.camera.extensions.cameraIdOrNull
 import com.margelo.nitro.camera.extensions.getDefaultCamera
 import com.margelo.nitro.camera.extensions.mapToArray
 import com.margelo.nitro.camera.hybrids.inputs.HybridCameraDevice
@@ -87,7 +87,7 @@ class HybridCameraDeviceFactory(
   override fun getCameraForId(id: String): HybridCameraDeviceSpec? {
     val cameraInfo =
       cameraProvider.availableCameraInfos.firstOrNull { cameraInfo ->
-        cameraInfo.cameraId?.value == id
+        cameraInfo.cameraIdOrNull == id
       }
     if (cameraInfo == null) {
       return null

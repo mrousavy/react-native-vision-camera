@@ -9,15 +9,12 @@ import java.nio.ByteBuffer
 class DepthImagePlaneProxy(
   private val plane: Image.Plane,
 ) : ImageProxy.PlaneProxy {
-  override fun getRowStride(): Int {
-    return plane.rowStride
-  }
+  override val rowStride: Int
+    get() = plane.rowStride
 
-  override fun getPixelStride(): Int {
-    return plane.pixelStride
-  }
+  override val pixelStride: Int
+    get() = plane.pixelStride
 
-  override fun getBuffer(): ByteBuffer {
-    return plane.buffer
-  }
+  override val buffer: ByteBuffer
+    get() = plane.buffer
 }
