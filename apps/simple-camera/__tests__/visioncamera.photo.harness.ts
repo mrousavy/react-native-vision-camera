@@ -1,3 +1,4 @@
+import { Platform } from 'react-native'
 import {
   assert,
   beforeAll,
@@ -20,6 +21,7 @@ import type {
   Size,
 } from 'react-native-vision-camera'
 import { CommonResolutions, VisionCamera } from 'react-native-vision-camera'
+import { withTimeout } from './test-utils'
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms))
@@ -784,6 +786,51 @@ describe('VisionCamera - Photo', () => {
       expect(photo.width).toBeGreaterThan(0)
       expect(photo.height).toBeGreaterThan(0)
       photo.dispose()
+    } finally {
+      await session.stop()
+    }
+  })
+
+  it('rejects a superseded Photo settings preparation', async (context) => {
+    if (Platform.OS !== 'ios') {
+      return context.skip('Photo settings preparation cancellation: iOS only')
+    }
+
+    const session = await VisionCamera.createCameraSession(false)
+    const photoOutput = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.HD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    await session.configure([
+      {
+        input: backDevice,
+        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+        constraints: [],
+      },
+    ])
+
+    try {
+      // iOS defers preparation while the session is stopped. Submitting a new
+      // request must cancel the pending request without crashing the process.
+      const firstPreparation = photoOutput.prepareSettings([{}])
+      const firstPreparationRejection = expect(
+        withTimeout(
+          firstPreparation,
+          5_000,
+          'superseded Photo settings preparation',
+        ),
+      ).rejects.toThrow('Settings preparation has been canceled!')
+      const replacementPreparation = photoOutput.prepareSettings([])
+
+      await firstPreparationRejection
+      await session.start()
+      await withTimeout(
+        replacementPreparation,
+        10_000,
+        'replacement Photo settings preparation',
+      )
     } finally {
       await session.stop()
     }
