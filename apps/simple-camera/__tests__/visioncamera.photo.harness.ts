@@ -803,15 +803,15 @@ describe('VisionCamera - Photo', () => {
       quality: 0.8,
       qualityPrioritization: 'balanced',
     })
-    await session.configure([
-      {
-        input: backDevice,
-        outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
-        constraints: [],
-      },
-    ])
-
     try {
+      await session.configure([
+        {
+          input: backDevice,
+          outputs: [{ output: photoOutput, mirrorMode: 'auto' }],
+          constraints: [],
+        },
+      ])
+
       // iOS defers preparation while the session is stopped. Submitting a new
       // request must cancel the pending request without crashing the process.
       const firstPreparation = photoOutput.prepareSettings([{}])
