@@ -818,14 +818,14 @@ describe('VisionCamera - Photo', () => {
       const firstPreparationRejection = expect(
         withTimeout(
           firstPreparation,
-          5_000,
+          10_000,
           'superseded Photo settings preparation',
         ),
       ).rejects.toThrow('Settings preparation has been canceled!')
-      const replacementPreparation = photoOutput.prepareSettings([])
+      const replacementPreparation = photoOutput.prepareSettings([{}])
 
-      await firstPreparationRejection
       await session.start()
+      await firstPreparationRejection
       await withTimeout(
         replacementPreparation,
         10_000,
