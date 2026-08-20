@@ -81,6 +81,11 @@
     "react-native-nitro-modules": "*",
     "react-native-vision-camera": "*"
   },
+  "peerDependenciesMeta": {
+    "react-native-nitro-modules": {
+      "optional": true
+    }
+  },
   "release-it": {
     "npm": {
       "publish": true

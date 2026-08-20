@@ -119,6 +119,9 @@
         "react-native-nitro-image": "*",
         "react-native-nitro-modules": "*",
       },
+      "optionalPeers": [
+        "react-native-nitro-modules",
+      ],
     },
     "packages/react-native-vision-camera-barcode-scanner": {
       "name": "react-native-vision-camera-barcode-scanner",
@@ -140,6 +143,9 @@
         "react-native-nitro-modules": "*",
         "react-native-vision-camera": "*",
       },
+      "optionalPeers": [
+        "react-native-nitro-modules",
+      ],
     },
     "packages/react-native-vision-camera-location": {
       "name": "react-native-vision-camera-location",
@@ -159,6 +165,9 @@
         "react-native-nitro-modules": "*",
         "react-native-vision-camera": "*",
       },
+      "optionalPeers": [
+        "react-native-nitro-modules",
+      ],
     },
     "packages/react-native-vision-camera-resizer": {
       "name": "react-native-vision-camera-resizer",
@@ -178,6 +187,9 @@
         "react-native-nitro-modules": "*",
         "react-native-vision-camera": "*",
       },
+      "optionalPeers": [
+        "react-native-nitro-modules",
+      ],
     },
     "packages/react-native-vision-camera-skia": {
       "name": "react-native-vision-camera-skia",
@@ -224,6 +236,9 @@
         "react-native-vision-camera": "*",
         "react-native-worklets": "*",
       },
+      "optionalPeers": [
+        "react-native-nitro-modules",
+      ],
     },
   },
   "trustedDependencies": [
