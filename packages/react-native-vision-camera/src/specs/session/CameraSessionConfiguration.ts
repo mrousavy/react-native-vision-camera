@@ -1,9 +1,25 @@
 import type { CameraSession } from './CameraSession.nitro'
 
-/**
- * Configuration for a {@linkcode CameraSession}.
- */
-export interface CameraSessionConfiguration {
+interface AutomaticAudioSessionConfiguration {
+  /**
+   * If enabled, the device may play background audio,
+   * possibly from another app (e.g. Apple Music) while
+   * the {@linkcode CameraSession} is active.
+   *
+   * If disabled (the default), any playing audio will be
+   * stopped while the {@linkcode CameraSession} is active.
+   *
+   * @note If {@linkcode allowBackgroundAudioPlayback} is true,
+   * background audio may also be captured in Video recordings.
+   *
+   * @default false
+   * @platform iOS
+   */
+  allowBackgroundAudioPlayback: boolean
+}
+
+interface ManualAudioSessionConfiguration
+  extends AutomaticAudioSessionConfiguration {
   /**
    * If enabled, the device may play haptics/vibrations
    * and system sounds during while the {@linkcode CameraSession}
@@ -21,20 +37,30 @@ export interface CameraSessionConfiguration {
    * @default false
    * @platform iOS
    */
-  allowHapticsAndSystemSoundsPlayback?: boolean
+  allowHapticsAndSystemSoundsPlayback: boolean
+}
+
+type AudioConfiguration =
+  | AutomaticAudioSessionConfiguration
+  | ManualAudioSessionConfiguration
+
+/**
+ * Configuration for a {@linkcode CameraSession}.
+ */
+export interface CameraSessionConfiguration {
   /**
-   * If enabled, the device may play background audio,
-   * possibly from another app (e.g. Apple Music) while
-   * the {@linkcode CameraSession} is active.
+   * Configures the Audio Session.
    *
-   * If disabled (the default), any playing audio will be
-   * stopped while the {@linkcode CameraSession} is active.
-   *
-   * @note If {@linkcode allowBackgroundAudioPlayback} is true,
-   * background audio may also be captured in Video recordings.
-   *
-   * @default false
-   * @platform iOS
+   * - When set to an {@linkcode AutomaticAudioSessionConfiguration},
+   *   the Audio Session will be automatically configured by the
+   *   Camera Session, and applies any flags set in
+   *   {@linkcode AutomaticAudioSessionConfiguration}.
+   * - When set to a {@linkcode ManualAudioSessionConfiguration},
+   *   the Audio Session will be manually configured by
+   *   VisionCamera, and requires more configuration.
+   * - When left at `undefined`, the Audio Session will not be configured
+   *   by VisionCamera at all. This is ideal if you want to configure
+   *   your Audio Session fully yourself, for example via expo-audio.
    */
-  allowBackgroundAudioPlayback?: boolean
+  audioConfiguration?: AudioConfiguration
 }

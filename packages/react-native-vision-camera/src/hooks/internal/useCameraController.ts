@@ -37,8 +37,7 @@ export function useCameraController(
     mirrorMode = 'auto',
     constraints = [],
     onSessionConfigSelected,
-    allowBackgroundAudioPlayback,
-    allowHapticsAndSystemSoundsPlayback,
+    audioConfiguration,
     getInitialExposureBias,
     onError,
     onConfigured,
@@ -69,6 +68,11 @@ export function useCameraController(
       ...stableOutputs.map<Constraint>((o) => ({ resolutionBias: o })),
     ]
   }, [JSON.stringify(constraints), stableOutputs])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: It's an inline object, we have to deep memo it.
+  const stableAudioConfiguration = useMemo(
+    () => audioConfiguration,
+    [JSON.stringify(audioConfiguration)],
+  )
 
   // This effect re-configures the CameraSession and returns a `controller`.
   // This is expensive and should only be done if any inputs change.
@@ -86,7 +90,9 @@ export function useCameraController(
       try {
         if (device == null) {
           // No device, configure with empty devices
-          session.configure([], {})
+          session.configure([], {
+            audioConfiguration: stableAudioConfiguration,
+          })
           setController(undefined)
         } else {
           // Device + outputs - configure session
@@ -105,9 +111,7 @@ export function useCameraController(
               },
             ],
             {
-              allowBackgroundAudioPlayback: allowBackgroundAudioPlayback,
-              allowHapticsAndSystemSoundsPlayback:
-                allowHapticsAndSystemSoundsPlayback,
+              audioConfiguration: stableAudioConfiguration,
             },
           )
           if (isCanceled) {
@@ -131,8 +135,7 @@ export function useCameraController(
     device,
     mirrorMode,
     session,
-    allowBackgroundAudioPlayback,
-    allowHapticsAndSystemSoundsPlayback,
+    stableAudioConfiguration,
     stableOutputs,
     stableOnConfigured,
     stableGetInitialExposureBias,

@@ -10,6 +10,8 @@
 // Forward declarations of C++ defined types
 // Forward declaration of `AutoFocusSystem` to properly resolve imports.
 namespace margelo::nitro::camera { enum class AutoFocusSystem; }
+// Forward declaration of `AutomaticAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct AutomaticAudioSessionConfiguration; }
 // Forward declaration of `BinnedConstraint` to properly resolve imports.
 namespace margelo::nitro::camera { struct BinnedConstraint; }
 // Forward declaration of `BoundingBox` to properly resolve imports.
@@ -144,6 +146,8 @@ namespace margelo::nitro::camera { class HybridZoomGestureControllerSpec; }
 namespace margelo::nitro::camera { enum class InterruptionReason; }
 // Forward declaration of `ListenerSubscription` to properly resolve imports.
 namespace margelo::nitro::camera { struct ListenerSubscription; }
+// Forward declaration of `ManualAudioSessionConfiguration` to properly resolve imports.
+namespace margelo::nitro::camera { struct ManualAudioSessionConfiguration; }
 // Forward declaration of `MediaType` to properly resolve imports.
 namespace margelo::nitro::camera { enum class MediaType; }
 // Forward declaration of `MeteringMode` to properly resolve imports.
@@ -235,6 +239,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 
 // Include C++ defined types
 #include "AutoFocusSystem.hpp"
+#include "AutomaticAudioSessionConfiguration.hpp"
 #include "BinnedConstraint.hpp"
 #include "BoundingBox.hpp"
 #include "CameraControllerConfiguration.hpp"
@@ -301,6 +306,7 @@ namespace margelo::nitro::camera { struct WhiteBalanceTemperatureAndTint; }
 #include "HybridZoomGestureControllerSpec.hpp"
 #include "InterruptionReason.hpp"
 #include "ListenerSubscription.hpp"
+#include "ManualAudioSessionConfiguration.hpp"
 #include "MediaType.hpp"
 #include "MeteringMode.hpp"
 #include "MirrorMode.hpp"
