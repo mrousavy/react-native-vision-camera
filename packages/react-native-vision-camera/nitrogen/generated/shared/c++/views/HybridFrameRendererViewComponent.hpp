@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <optional>
-#include <NitroModules/NitroDefines.hpp>
-#include <NitroModules/NitroHash.hpp>
 #include <NitroModules/CachedProp.hpp>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
-#include <react/renderer/core/PropsParserContext.h>
+#include <NitroModules/ViewComponentDescriptor.hpp>
+#include <NitroModules/ViewPropsHolderState.hpp>
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
+#include <react/renderer/core/PropsParserContext.h>
+#include <react/renderer/core/RawProps.h>
+
+#include <string>
 
 #include <memory>
 #include "HybridFrameRendererSpec.hpp"
@@ -42,8 +43,20 @@ namespace margelo::nitro::camera::views {
                                  const react::RawProps& rawProps);
 
   public:
-    CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>> renderer;
-    CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>> hybridRef;
+    nitro::CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>> renderer;
+    nitro::CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>> hybridRef;
+
+    [[nodiscard]]
+    bool hasSameProps(const HybridFrameRendererViewProps& other) const noexcept {
+      return renderer.hasSameValue(other.renderer) &&
+             hybridRef.hasSameValue(other.hybridRef);
+    }
+
+    [[nodiscard]]
+    bool hasAnyProvidedProps() const noexcept {
+      return renderer.isProvided() ||
+             hybridRef.isProvided();
+    }
 
   private:
     static bool filterObjectKeys(const std::string& propName);
@@ -52,32 +65,7 @@ namespace margelo::nitro::camera::views {
   /**
    * State for the "FrameRendererView" View.
    */
-  class HybridFrameRendererViewState final {
-  public:
-    HybridFrameRendererViewState() = default;
-    explicit HybridFrameRendererViewState(const std::shared_ptr<HybridFrameRendererViewProps>& props):
-      _props(props) {}
-
-  public:
-    [[nodiscard]]
-    const std::shared_ptr<HybridFrameRendererViewProps>& getProps() const {
-      return _props;
-    }
-
-  public:
-#ifdef ANDROID
-  HybridFrameRendererViewState(const HybridFrameRendererViewState& /* previousState */, folly::dynamic /* data */) {}
-  folly::dynamic getDynamic() const {
-    throw std::runtime_error("HybridFrameRendererViewState does not support folly!");
-  }
-  react::MapBuffer getMapBuffer() const {
-    throw std::runtime_error("HybridFrameRendererViewState does not support MapBuffer!");
-  };
-#endif
-
-  private:
-    std::shared_ptr<HybridFrameRendererViewProps> _props;
-  };
+  using HybridFrameRendererViewState = nitro::ViewPropsHolderState<HybridFrameRendererViewProps>;
 
   /**
    * The Shadow Node for the "FrameRendererView" View.
@@ -90,21 +78,7 @@ namespace margelo::nitro::camera::views {
   /**
    * The Component Descriptor for the "FrameRendererView" View.
    */
-  class HybridFrameRendererViewComponentDescriptor final: public react::ConcreteComponentDescriptor<HybridFrameRendererViewShadowNode> {
-  public:
-    explicit HybridFrameRendererViewComponentDescriptor(const react::ComponentDescriptorParameters& parameters);
-
-  public:
-    /**
-     * A faster path for cloning props - reuses the caching logic from `HybridFrameRendererViewProps`.
-     */
-    std::shared_ptr<const react::Props> cloneProps(const react::PropsParserContext& context,
-                                                   const std::shared_ptr<const react::Props>& props,
-                                                   react::RawProps rawProps) const override;
-#ifdef ANDROID
-    void adopt(react::ShadowNode& shadowNode) const override;
-#endif
-  };
+  using HybridFrameRendererViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridFrameRendererViewShadowNode>;
 
   /* The actual view for "FrameRendererView" needs to be implemented in platform-specific code. */
 
