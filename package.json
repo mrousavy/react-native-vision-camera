@@ -126,7 +126,7 @@
     }
   },
   "overrides": {
-    "react-native-nitro-modules": "0.37.0-beta.0"
+    "react-native-nitro-modules": "0.37.0-beta.1"
   },
   "patchedDependencies": {
     "react-native@0.85.3": "patches/react-native@0.85.3.patch"

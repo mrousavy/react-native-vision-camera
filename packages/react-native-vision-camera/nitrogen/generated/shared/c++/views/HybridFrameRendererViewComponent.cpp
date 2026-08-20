@@ -8,7 +8,7 @@
 #include "HybridFrameRendererViewComponent.hpp"
 
 #include <NitroModules/NitroHash.hpp>
-#include <NitroModules/CachedProp.hpp>
+#include <NitroModules/ReactProp.hpp>
 
 namespace margelo::nitro::camera::views {
 
@@ -20,8 +20,8 @@ namespace margelo::nitro::camera::views {
                                                              const HybridFrameRendererViewProps& sourceProps,
                                                              const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    renderer(nitro::CachedProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>>::fromRawValue("FrameRendererView", "renderer", rawProps, sourceProps.renderer)),
-    hybridRef(nitro::CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>>::fromRawValue("FrameRendererView", "hybridRef", rawProps, sourceProps.hybridRef)) { }
+    renderer(nitro::ReactProp<std::optional<std::shared_ptr<HybridFrameRendererSpec>>>::fromRawValue("FrameRendererView", "renderer", rawProps, sourceProps.renderer)),
+    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridFrameRendererViewSpec>& /* ref */)>>>::fromRawValue("FrameRendererView", "hybridRef", rawProps, sourceProps.hybridRef)) { }
 
   bool HybridFrameRendererViewProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <NitroModules/CachedProp.hpp>
+#include <NitroModules/ReactProp.hpp>
 #include <NitroModules/ViewComponentDescriptor.hpp>
 #include <NitroModules/ViewPropsHolderState.hpp>
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
@@ -47,13 +47,13 @@ namespace margelo::nitro::camera::views {
                            const react::RawProps& rawProps);
 
   public:
-    nitro::CachedProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>> previewOutput;
-    nitro::CachedProp<std::optional<PreviewResizeMode>> resizeMode;
-    nitro::CachedProp<std::optional<PreviewImplementationMode>> implementationMode;
-    nitro::CachedProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>> gestureControllers;
-    nitro::CachedProp<std::optional<std::function<void()>>> onPreviewStarted;
-    nitro::CachedProp<std::optional<std::function<void()>>> onPreviewStopped;
-    nitro::CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> hybridRef;
+    nitro::ReactProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>> previewOutput;
+    nitro::ReactProp<std::optional<PreviewResizeMode>> resizeMode;
+    nitro::ReactProp<std::optional<PreviewImplementationMode>> implementationMode;
+    nitro::ReactProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>> gestureControllers;
+    nitro::ReactProp<std::optional<std::function<void()>>> onPreviewStarted;
+    nitro::ReactProp<std::optional<std::function<void()>>> onPreviewStopped;
+    nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> hybridRef;
 
     [[nodiscard]]
     bool hasSameProps(const HybridPreviewViewProps& other) const noexcept {

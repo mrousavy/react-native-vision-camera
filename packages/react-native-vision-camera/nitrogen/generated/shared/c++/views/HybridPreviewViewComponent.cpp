@@ -8,7 +8,7 @@
 #include "HybridPreviewViewComponent.hpp"
 
 #include <NitroModules/NitroHash.hpp>
-#include <NitroModules/CachedProp.hpp>
+#include <NitroModules/ReactProp.hpp>
 
 namespace margelo::nitro::camera::views {
 
@@ -20,13 +20,13 @@ namespace margelo::nitro::camera::views {
                                                  const HybridPreviewViewProps& sourceProps,
                                                  const react::RawProps& rawProps):
     react::ViewProps(context, sourceProps, rawProps, filterObjectKeys),
-    previewOutput(nitro::CachedProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>>::fromRawValue("PreviewView", "previewOutput", rawProps, sourceProps.previewOutput)),
-    resizeMode(nitro::CachedProp<std::optional<PreviewResizeMode>>::fromRawValue("PreviewView", "resizeMode", rawProps, sourceProps.resizeMode)),
-    implementationMode(nitro::CachedProp<std::optional<PreviewImplementationMode>>::fromRawValue("PreviewView", "implementationMode", rawProps, sourceProps.implementationMode)),
-    gestureControllers(nitro::CachedProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>>::fromRawValue("PreviewView", "gestureControllers", rawProps, sourceProps.gestureControllers)),
-    onPreviewStarted(nitro::CachedProp<std::optional<std::function<void()>>>::fromRawValue("PreviewView", "onPreviewStarted", rawProps, sourceProps.onPreviewStarted)),
-    onPreviewStopped(nitro::CachedProp<std::optional<std::function<void()>>>::fromRawValue("PreviewView", "onPreviewStopped", rawProps, sourceProps.onPreviewStopped)),
-    hybridRef(nitro::CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>>::fromRawValue("PreviewView", "hybridRef", rawProps, sourceProps.hybridRef)) { }
+    previewOutput(nitro::ReactProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>>::fromRawValue("PreviewView", "previewOutput", rawProps, sourceProps.previewOutput)),
+    resizeMode(nitro::ReactProp<std::optional<PreviewResizeMode>>::fromRawValue("PreviewView", "resizeMode", rawProps, sourceProps.resizeMode)),
+    implementationMode(nitro::ReactProp<std::optional<PreviewImplementationMode>>::fromRawValue("PreviewView", "implementationMode", rawProps, sourceProps.implementationMode)),
+    gestureControllers(nitro::ReactProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>>::fromRawValue("PreviewView", "gestureControllers", rawProps, sourceProps.gestureControllers)),
+    onPreviewStarted(nitro::ReactProp<std::optional<std::function<void()>>>::fromRawValue("PreviewView", "onPreviewStarted", rawProps, sourceProps.onPreviewStarted)),
+    onPreviewStopped(nitro::ReactProp<std::optional<std::function<void()>>>::fromRawValue("PreviewView", "onPreviewStopped", rawProps, sourceProps.onPreviewStopped)),
+    hybridRef(nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>>::fromRawValue("PreviewView", "hybridRef", rawProps, sourceProps.hybridRef)) { }
 
   bool HybridPreviewViewProps::filterObjectKeys(const std::string& propName) {
     switch (hashString(propName)) {
