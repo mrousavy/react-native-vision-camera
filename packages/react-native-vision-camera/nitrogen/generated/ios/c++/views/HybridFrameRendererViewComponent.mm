@@ -37,6 +37,7 @@ using namespace margelo::nitro::camera::views;
 
 @implementation HybridFrameRendererViewComponent {
   std::shared_ptr<HybridFrameRendererViewSpecSwift> _hybridView;
+  BOOL _didDropView;
 }
 
 + (void) load {
@@ -50,6 +51,7 @@ using namespace margelo::nitro::camera::views;
 
 - (instancetype) init {
   if (self = [super init]) {
+    _props = HybridFrameRendererViewShadowNode::defaultSharedProps();
     std::shared_ptr<HybridFrameRendererViewSpec> hybridView = VisionCamera::VisionCameraAutolinking::createFrameRendererView();
     _hybridView = std::dynamic_pointer_cast<HybridFrameRendererViewSpecSwift>(hybridView);
     [self updateView];
@@ -69,35 +71,55 @@ using namespace margelo::nitro::camera::views;
   [self setContentView:view];
 }
 
+- (void) notifyOnDropView {
+  // A recycled component can later be invalidated. Notify only once per mount.
+  if (_didDropView) {
+    return;
+  }
+  VisionCamera::HybridFrameRendererViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
+  swiftPart.onDropView();
+  _didDropView = YES;
+}
+
 - (void) updateProps:(const std::shared_ptr<const react::Props>&)props
             oldProps:(const std::shared_ptr<const react::Props>&)oldProps {
+  // A props update marks a newly mounted or still-active component.
+  _didDropView = NO;
+
   // 1. Downcast props
-  const auto& newViewPropsConst = *std::static_pointer_cast<HybridFrameRendererViewProps const>(props);
-  auto& newViewProps = const_cast<HybridFrameRendererViewProps&>(newViewPropsConst);
+  const auto& newViewProps = *std::static_pointer_cast<const HybridFrameRendererViewProps>(props);
+  const auto* oldViewProps = static_cast<const HybridFrameRendererViewProps*>(oldProps.get());
   VisionCamera::HybridFrameRendererViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
 
-  // 2. Update each prop individually
-  swiftPart.beforeUpdate();
+  // 2. Update only props that differ from the previous Props snapshot.
+  const bool hasTransactionPropChanges = oldViewProps == nullptr
+      ? newViewProps.hasAnyProvidedProps()
+      : !newViewProps.hasSameProps(*oldViewProps);
+  if (hasTransactionPropChanges) {
+    swiftPart.beforeUpdate();
 
-  // renderer: optional
-  if (newViewProps.renderer.isDirty) {
-    swiftPart.setRenderer(newViewProps.renderer.value);
-    newViewProps.renderer.isDirty = false;
-  }
-
-  swiftPart.afterUpdate();
-
-  // 3. Update hybridRef if it changed
-  if (newViewProps.hybridRef.isDirty) {
-    // hybridRef changed - call it with new this
-    const auto& maybeFunc = newViewProps.hybridRef.value;
-    if (maybeFunc.has_value()) {
-      maybeFunc.value()(_hybridView);
+    // renderer: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.renderer.isProvided()
+          : !newViewProps.renderer.hasSameValue(oldViewProps->renderer)) {
+      swiftPart.setRenderer(newViewProps.renderer.get());
     }
-    newViewProps.hybridRef.isDirty = false;
+
+    // Update hybridRef if it changed
+    if (oldViewProps == nullptr
+          ? newViewProps.hybridRef.isProvided()
+          : !newViewProps.hybridRef.hasSameValue(oldViewProps->hybridRef)) {
+      // hybridRef changed - call it with new this
+      const auto& maybeFunc = newViewProps.hybridRef.get();
+      if (maybeFunc.has_value()) {
+        maybeFunc.value()(_hybridView);
+      }
+    }
+
+    swiftPart.afterUpdate();
   }
 
-  // 4. Continue in base class
+  // 3. Continue in base class
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -106,6 +128,7 @@ using namespace margelo::nitro::camera::views;
 }
 
 - (void)prepareForRecycle {
+  [self notifyOnDropView];
   [super prepareForRecycle];
   VisionCamera::HybridFrameRendererViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
   swiftPart.maybePrepareForRecycle();
@@ -113,8 +136,7 @@ using namespace margelo::nitro::camera::views;
 
 #ifdef ENABLE_RCT_COMPONENT_VIEW_INVALIDATE
 - (void)invalidate {
-  VisionCamera::HybridFrameRendererViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
-  swiftPart.onDropView();
+  [self notifyOnDropView];
   [super invalidate];
 }
 #endif

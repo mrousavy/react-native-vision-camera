@@ -37,6 +37,7 @@ using namespace margelo::nitro::camera::views;
 
 @implementation HybridPreviewViewComponent {
   std::shared_ptr<HybridPreviewViewSpecSwift> _hybridView;
+  BOOL _didDropView;
 }
 
 + (void) load {
@@ -50,6 +51,7 @@ using namespace margelo::nitro::camera::views;
 
 - (instancetype) init {
   if (self = [super init]) {
+    _props = HybridPreviewViewShadowNode::defaultSharedProps();
     std::shared_ptr<HybridPreviewViewSpec> hybridView = VisionCamera::VisionCameraAutolinking::createPreviewView();
     _hybridView = std::dynamic_pointer_cast<HybridPreviewViewSpecSwift>(hybridView);
     [self updateView];
@@ -69,60 +71,85 @@ using namespace margelo::nitro::camera::views;
   [self setContentView:view];
 }
 
+- (void) notifyOnDropView {
+  // A recycled component can later be invalidated. Notify only once per mount.
+  if (_didDropView) {
+    return;
+  }
+  VisionCamera::HybridPreviewViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
+  swiftPart.onDropView();
+  _didDropView = YES;
+}
+
 - (void) updateProps:(const std::shared_ptr<const react::Props>&)props
             oldProps:(const std::shared_ptr<const react::Props>&)oldProps {
+  // A props update marks a newly mounted or still-active component.
+  _didDropView = NO;
+
   // 1. Downcast props
-  const auto& newViewPropsConst = *std::static_pointer_cast<HybridPreviewViewProps const>(props);
-  auto& newViewProps = const_cast<HybridPreviewViewProps&>(newViewPropsConst);
+  const auto& newViewProps = *std::static_pointer_cast<const HybridPreviewViewProps>(props);
+  const auto* oldViewProps = static_cast<const HybridPreviewViewProps*>(oldProps.get());
   VisionCamera::HybridPreviewViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
 
-  // 2. Update each prop individually
-  swiftPart.beforeUpdate();
+  // 2. Update only props that differ from the previous Props snapshot.
+  const bool hasTransactionPropChanges = oldViewProps == nullptr
+      ? newViewProps.hasAnyProvidedProps()
+      : !newViewProps.hasSameProps(*oldViewProps);
+  if (hasTransactionPropChanges) {
+    swiftPart.beforeUpdate();
 
-  // previewOutput: optional
-  if (newViewProps.previewOutput.isDirty) {
-    swiftPart.setPreviewOutput(newViewProps.previewOutput.value);
-    newViewProps.previewOutput.isDirty = false;
-  }
-  // resizeMode: optional
-  if (newViewProps.resizeMode.isDirty) {
-    swiftPart.setResizeMode(newViewProps.resizeMode.value);
-    newViewProps.resizeMode.isDirty = false;
-  }
-  // implementationMode: optional
-  if (newViewProps.implementationMode.isDirty) {
-    swiftPart.setImplementationMode(newViewProps.implementationMode.value);
-    newViewProps.implementationMode.isDirty = false;
-  }
-  // gestureControllers: optional
-  if (newViewProps.gestureControllers.isDirty) {
-    swiftPart.setGestureControllers(newViewProps.gestureControllers.value);
-    newViewProps.gestureControllers.isDirty = false;
-  }
-  // onPreviewStarted: optional
-  if (newViewProps.onPreviewStarted.isDirty) {
-    swiftPart.setOnPreviewStarted(newViewProps.onPreviewStarted.value);
-    newViewProps.onPreviewStarted.isDirty = false;
-  }
-  // onPreviewStopped: optional
-  if (newViewProps.onPreviewStopped.isDirty) {
-    swiftPart.setOnPreviewStopped(newViewProps.onPreviewStopped.value);
-    newViewProps.onPreviewStopped.isDirty = false;
-  }
-
-  swiftPart.afterUpdate();
-
-  // 3. Update hybridRef if it changed
-  if (newViewProps.hybridRef.isDirty) {
-    // hybridRef changed - call it with new this
-    const auto& maybeFunc = newViewProps.hybridRef.value;
-    if (maybeFunc.has_value()) {
-      maybeFunc.value()(_hybridView);
+    // previewOutput: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.previewOutput.isProvided()
+          : !newViewProps.previewOutput.hasSameValue(oldViewProps->previewOutput)) {
+      swiftPart.setPreviewOutput(newViewProps.previewOutput.get());
     }
-    newViewProps.hybridRef.isDirty = false;
+    // resizeMode: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.resizeMode.isProvided()
+          : !newViewProps.resizeMode.hasSameValue(oldViewProps->resizeMode)) {
+      swiftPart.setResizeMode(newViewProps.resizeMode.get());
+    }
+    // implementationMode: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.implementationMode.isProvided()
+          : !newViewProps.implementationMode.hasSameValue(oldViewProps->implementationMode)) {
+      swiftPart.setImplementationMode(newViewProps.implementationMode.get());
+    }
+    // gestureControllers: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.gestureControllers.isProvided()
+          : !newViewProps.gestureControllers.hasSameValue(oldViewProps->gestureControllers)) {
+      swiftPart.setGestureControllers(newViewProps.gestureControllers.get());
+    }
+    // onPreviewStarted: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.onPreviewStarted.isProvided()
+          : !newViewProps.onPreviewStarted.hasSameValue(oldViewProps->onPreviewStarted)) {
+      swiftPart.setOnPreviewStarted(newViewProps.onPreviewStarted.get());
+    }
+    // onPreviewStopped: optional
+    if (oldViewProps == nullptr
+          ? newViewProps.onPreviewStopped.isProvided()
+          : !newViewProps.onPreviewStopped.hasSameValue(oldViewProps->onPreviewStopped)) {
+      swiftPart.setOnPreviewStopped(newViewProps.onPreviewStopped.get());
+    }
+
+    // Update hybridRef if it changed
+    if (oldViewProps == nullptr
+          ? newViewProps.hybridRef.isProvided()
+          : !newViewProps.hybridRef.hasSameValue(oldViewProps->hybridRef)) {
+      // hybridRef changed - call it with new this
+      const auto& maybeFunc = newViewProps.hybridRef.get();
+      if (maybeFunc.has_value()) {
+        maybeFunc.value()(_hybridView);
+      }
+    }
+
+    swiftPart.afterUpdate();
   }
 
-  // 4. Continue in base class
+  // 3. Continue in base class
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -131,6 +158,7 @@ using namespace margelo::nitro::camera::views;
 }
 
 - (void)prepareForRecycle {
+  [self notifyOnDropView];
   [super prepareForRecycle];
   VisionCamera::HybridPreviewViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
   swiftPart.maybePrepareForRecycle();
@@ -138,8 +166,7 @@ using namespace margelo::nitro::camera::views;
 
 #ifdef ENABLE_RCT_COMPONENT_VIEW_INVALIDATE
 - (void)invalidate {
-  VisionCamera::HybridPreviewViewSpec_cxx& swiftPart = _hybridView->getSwiftPart();
-  swiftPart.onDropView();
+  [self notifyOnDropView];
   [super invalidate];
 }
 #endif

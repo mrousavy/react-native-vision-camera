@@ -31,7 +31,12 @@ public:
 public:
   static void updateViewProps(jni::alias_ref<jni::JClass> /* class */,
                               jni::alias_ref<JHybridFrameRendererViewSpec::JavaPart> view,
-                              jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface);
+                              jni::alias_ref<JStateWrapper::javaobject> newState,
+                              jni::alias_ref<JStateWrapper::javaobject> oldState);
+
+private:
+  static std::shared_ptr<const HybridFrameRendererViewProps> getPropsFromStateWrapper(
+      jni::alias_ref<JStateWrapper::javaobject> stateWrapper);
 
 public:
   static void registerNatives() {

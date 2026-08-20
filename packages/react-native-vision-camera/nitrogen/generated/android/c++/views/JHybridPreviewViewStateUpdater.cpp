@@ -15,61 +15,84 @@ namespace margelo::nitro::camera::views {
 using namespace facebook;
 using ConcreteStateData = react::ConcreteState<HybridPreviewViewState>;
 
-void JHybridPreviewViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
-                                           jni::alias_ref<JHybridPreviewViewSpec::JavaPart> javaView,
-                                           jni::alias_ref<JStateWrapper::javaobject> stateWrapperInterface) {
-  std::shared_ptr<JHybridPreviewViewSpec> hybridView = javaView->getJHybridPreviewViewSpec();
-
-  // Get concrete StateWrapperImpl from passed StateWrapper interface object
-  jobject rawStateWrapper = stateWrapperInterface.get();
-  if (!stateWrapperInterface->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
-      throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+std::shared_ptr<const HybridPreviewViewProps> JHybridPreviewViewStateUpdater::getPropsFromStateWrapper(
+    jni::alias_ref<JStateWrapper::javaobject> stateWrapper) {
+  if (stateWrapper.get() == nullptr) {
+    return nullptr;
   }
-  auto stateWrapper = jni::alias_ref<react::StateWrapperImpl::javaobject>{
-            static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)};
-  std::shared_ptr<const react::State> state = stateWrapper->cthis()->getState();
+  // Get concrete StateWrapperImpl from passed StateWrapper interface object
+  jobject rawStateWrapper = stateWrapper.get();
+  if (!stateWrapper->isInstanceOf(react::StateWrapperImpl::javaClassStatic())) [[unlikely]] {
+    throw std::runtime_error("StateWrapper is not a StateWrapperImpl");
+  }
+  auto stateWrapperImpl = jni::alias_ref<react::StateWrapperImpl::javaobject>{
+    static_cast<react::StateWrapperImpl::javaobject>(rawStateWrapper)
+  };
+  std::shared_ptr<const react::State> state = stateWrapperImpl->cthis()->getState();
+  if (state == nullptr) {
+    return nullptr;
+  }
   auto concreteState = std::static_pointer_cast<const ConcreteStateData>(state);
   const HybridPreviewViewState& data = concreteState->getData();
-  const std::shared_ptr<HybridPreviewViewProps>& props = data.getProps();
+  const std::shared_ptr<const HybridPreviewViewProps>& props = data.getProps();
   if (props == nullptr) [[unlikely]] {
-    // Props aren't set yet!
     throw std::runtime_error("HybridPreviewViewState's data doesn't contain any props!");
   }
+  return props;
+}
 
-  // Update all props if they are dirty
-  if (props->previewOutput.isDirty) {
-    hybridView->setPreviewOutput(props->previewOutput.value);
-    props->previewOutput.isDirty = false;
+void JHybridPreviewViewStateUpdater::updateViewProps(jni::alias_ref<jni::JClass> /* class */,
+                                           jni::alias_ref<JHybridPreviewViewSpec::JavaPart> javaView,
+                                           jni::alias_ref<JStateWrapper::javaobject> newState,
+                                           jni::alias_ref<JStateWrapper::javaobject> oldState) {
+  std::shared_ptr<JHybridPreviewViewSpec> hybridView = javaView->getJHybridPreviewViewSpec();
+  std::shared_ptr<const HybridPreviewViewProps> newProps = getPropsFromStateWrapper(newState);
+  std::shared_ptr<const HybridPreviewViewProps> oldProps = getPropsFromStateWrapper(oldState);
+  if (newProps == nullptr) [[unlikely]] {
+    throw std::runtime_error("Current StateWrapper doesn't contain any props!");
   }
-  if (props->resizeMode.isDirty) {
-    hybridView->setResizeMode(props->resizeMode.value);
-    props->resizeMode.isDirty = false;
+
+  // Update only props that differ from the previous State snapshot.
+  if (oldProps == nullptr
+        ? newProps->previewOutput.isProvided()
+        : !newProps->previewOutput.hasSameValue(oldProps->previewOutput)) {
+    hybridView->setPreviewOutput(newProps->previewOutput.get());
   }
-  if (props->implementationMode.isDirty) {
-    hybridView->setImplementationMode(props->implementationMode.value);
-    props->implementationMode.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->resizeMode.isProvided()
+        : !newProps->resizeMode.hasSameValue(oldProps->resizeMode)) {
+    hybridView->setResizeMode(newProps->resizeMode.get());
   }
-  if (props->gestureControllers.isDirty) {
-    hybridView->setGestureControllers(props->gestureControllers.value);
-    props->gestureControllers.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->implementationMode.isProvided()
+        : !newProps->implementationMode.hasSameValue(oldProps->implementationMode)) {
+    hybridView->setImplementationMode(newProps->implementationMode.get());
   }
-  if (props->onPreviewStarted.isDirty) {
-    hybridView->setOnPreviewStarted(props->onPreviewStarted.value);
-    props->onPreviewStarted.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->gestureControllers.isProvided()
+        : !newProps->gestureControllers.hasSameValue(oldProps->gestureControllers)) {
+    hybridView->setGestureControllers(newProps->gestureControllers.get());
   }
-  if (props->onPreviewStopped.isDirty) {
-    hybridView->setOnPreviewStopped(props->onPreviewStopped.value);
-    props->onPreviewStopped.isDirty = false;
+  if (oldProps == nullptr
+        ? newProps->onPreviewStarted.isProvided()
+        : !newProps->onPreviewStarted.hasSameValue(oldProps->onPreviewStarted)) {
+    hybridView->setOnPreviewStarted(newProps->onPreviewStarted.get());
+  }
+  if (oldProps == nullptr
+        ? newProps->onPreviewStopped.isProvided()
+        : !newProps->onPreviewStopped.hasSameValue(oldProps->onPreviewStopped)) {
+    hybridView->setOnPreviewStopped(newProps->onPreviewStopped.get());
   }
 
   // Update hybridRef if it changed
-  if (props->hybridRef.isDirty) {
+  if (oldProps == nullptr
+        ? newProps->hybridRef.isProvided()
+        : !newProps->hybridRef.hasSameValue(oldProps->hybridRef)) {
     // hybridRef changed - call it with new this
-    const auto& maybeFunc = props->hybridRef.value;
+    const auto& maybeFunc = newProps->hybridRef.get();
     if (maybeFunc.has_value()) {
       maybeFunc.value()(hybridView);
     }
-    props->hybridRef.isDirty = false;
   }
 }
 

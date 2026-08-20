@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <optional>
-#include <NitroModules/NitroDefines.hpp>
-#include <NitroModules/NitroHash.hpp>
-#include <NitroModules/CachedProp.hpp>
-#include <react/renderer/core/ConcreteComponentDescriptor.h>
-#include <react/renderer/core/PropsParserContext.h>
+#include <NitroModules/ReactProp.hpp>
+#include <NitroModules/ViewComponentDescriptor.hpp>
+#include <NitroModules/ViewPropsHolderState.hpp>
 #include <react/renderer/components/view/ConcreteViewShadowNode.h>
 #include <react/renderer/components/view/ViewProps.h>
+#include <react/renderer/core/PropsParserContext.h>
+#include <react/renderer/core/RawProps.h>
+
+#include <string>
 
 #include <memory>
 #include "HybridCameraPreviewOutputSpec.hpp"
@@ -46,13 +47,35 @@ namespace margelo::nitro::camera::views {
                            const react::RawProps& rawProps);
 
   public:
-    CachedProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>> previewOutput;
-    CachedProp<std::optional<PreviewResizeMode>> resizeMode;
-    CachedProp<std::optional<PreviewImplementationMode>> implementationMode;
-    CachedProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>> gestureControllers;
-    CachedProp<std::optional<std::function<void()>>> onPreviewStarted;
-    CachedProp<std::optional<std::function<void()>>> onPreviewStopped;
-    CachedProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> hybridRef;
+    nitro::ReactProp<std::optional<std::shared_ptr<HybridCameraPreviewOutputSpec>>> previewOutput;
+    nitro::ReactProp<std::optional<PreviewResizeMode>> resizeMode;
+    nitro::ReactProp<std::optional<PreviewImplementationMode>> implementationMode;
+    nitro::ReactProp<std::optional<std::vector<std::shared_ptr<HybridGestureControllerSpec>>>> gestureControllers;
+    nitro::ReactProp<std::optional<std::function<void()>>> onPreviewStarted;
+    nitro::ReactProp<std::optional<std::function<void()>>> onPreviewStopped;
+    nitro::ReactProp<std::optional<std::function<void(const std::shared_ptr<HybridPreviewViewSpec>& /* ref */)>>> hybridRef;
+
+    [[nodiscard]]
+    bool hasSameProps(const HybridPreviewViewProps& other) const noexcept {
+      return previewOutput.hasSameValue(other.previewOutput) &&
+             resizeMode.hasSameValue(other.resizeMode) &&
+             implementationMode.hasSameValue(other.implementationMode) &&
+             gestureControllers.hasSameValue(other.gestureControllers) &&
+             onPreviewStarted.hasSameValue(other.onPreviewStarted) &&
+             onPreviewStopped.hasSameValue(other.onPreviewStopped) &&
+             hybridRef.hasSameValue(other.hybridRef);
+    }
+
+    [[nodiscard]]
+    bool hasAnyProvidedProps() const noexcept {
+      return previewOutput.isProvided() ||
+             resizeMode.isProvided() ||
+             implementationMode.isProvided() ||
+             gestureControllers.isProvided() ||
+             onPreviewStarted.isProvided() ||
+             onPreviewStopped.isProvided() ||
+             hybridRef.isProvided();
+    }
 
   private:
     static bool filterObjectKeys(const std::string& propName);
@@ -61,32 +84,7 @@ namespace margelo::nitro::camera::views {
   /**
    * State for the "PreviewView" View.
    */
-  class HybridPreviewViewState final {
-  public:
-    HybridPreviewViewState() = default;
-    explicit HybridPreviewViewState(const std::shared_ptr<HybridPreviewViewProps>& props):
-      _props(props) {}
-
-  public:
-    [[nodiscard]]
-    const std::shared_ptr<HybridPreviewViewProps>& getProps() const {
-      return _props;
-    }
-
-  public:
-#ifdef ANDROID
-  HybridPreviewViewState(const HybridPreviewViewState& /* previousState */, folly::dynamic /* data */) {}
-  folly::dynamic getDynamic() const {
-    throw std::runtime_error("HybridPreviewViewState does not support folly!");
-  }
-  react::MapBuffer getMapBuffer() const {
-    throw std::runtime_error("HybridPreviewViewState does not support MapBuffer!");
-  };
-#endif
-
-  private:
-    std::shared_ptr<HybridPreviewViewProps> _props;
-  };
+  using HybridPreviewViewState = nitro::ViewPropsHolderState<HybridPreviewViewProps>;
 
   /**
    * The Shadow Node for the "PreviewView" View.
@@ -99,21 +97,7 @@ namespace margelo::nitro::camera::views {
   /**
    * The Component Descriptor for the "PreviewView" View.
    */
-  class HybridPreviewViewComponentDescriptor final: public react::ConcreteComponentDescriptor<HybridPreviewViewShadowNode> {
-  public:
-    explicit HybridPreviewViewComponentDescriptor(const react::ComponentDescriptorParameters& parameters);
-
-  public:
-    /**
-     * A faster path for cloning props - reuses the caching logic from `HybridPreviewViewProps`.
-     */
-    std::shared_ptr<const react::Props> cloneProps(const react::PropsParserContext& context,
-                                                   const std::shared_ptr<const react::Props>& props,
-                                                   react::RawProps rawProps) const override;
-#ifdef ANDROID
-    void adopt(react::ShadowNode& shadowNode) const override;
-#endif
-  };
+  using HybridPreviewViewComponentDescriptor = nitro::ViewComponentDescriptor<HybridPreviewViewShadowNode>;
 
   /* The actual view for "PreviewView" needs to be implemented in platform-specific code. */
 
