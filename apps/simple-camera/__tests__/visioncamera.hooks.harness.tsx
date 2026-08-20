@@ -469,4 +469,178 @@ describe('VisionCamera - Hooks', () => {
 
     expect(onError).not.toHaveBeenCalled()
   })
+
+  it('does not re-configure the session when constraints are passed as an inline array', async () => {
+    const onConfigured = fn<() => void>()
+    const onError = fn<(error: Error) => void>()
+    const onRendered = fn<(renderIndex: number) => void>()
+
+    function TestCamera({
+      renderIndex,
+      fps,
+    }: {
+      renderIndex: number
+      fps: number
+    }): null {
+      // CameraX requires at least one use case when configuring a session.
+      const previewOutput = usePreviewOutput()
+      useCamera({
+        isActive: false,
+        device: 'back',
+        outputs: [previewOutput],
+        // An inline array of inline object literals, so `constraints` has a
+        // fresh identity on every single render even though its values never
+        // change. It must not re-configure the session.
+        constraints: [{ fps: fps }],
+        onConfigured,
+        onError,
+      })
+
+      useEffect(() => {
+        onRendered(renderIndex)
+      }, [renderIndex])
+
+      return null
+    }
+
+    const waitForRender = async (renderIndex: number): Promise<void> => {
+      await waitFor(
+        () => {
+          const error = onError.mock.lastCall?.[0]
+          if (error != null) throw error
+          expect(onRendered).toHaveBeenLastCalledWith(renderIndex)
+        },
+        { timeout: 10_000 },
+      )
+    }
+
+    const { rerender } = await render(<TestCamera renderIndex={0} fps={30} />, {
+      timeout: 10_000,
+    })
+    await waitForRender(0)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(1)
+      },
+      { timeout: 15_000 },
+    )
+
+    // Re-rendering with the same constraint values must not re-configure.
+    for (const renderIndex of [1, 2, 3]) {
+      await rerender(<TestCamera renderIndex={renderIndex} fps={30} />)
+      await waitForRender(renderIndex)
+      expect(onConfigured).toHaveBeenCalledTimes(1)
+    }
+
+    // Changing the actual constraint values must re-configure exactly once more.
+    await rerender(<TestCamera renderIndex={4} fps={24} />)
+    await waitForRender(4)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(2)
+      },
+      { timeout: 15_000 },
+    )
+
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('re-configures the session when a resolutionBias constraint points at a different output', async () => {
+    // Two outputs of the same HybridObject type. They are only used as
+    // resolution hints, so the attached `outputs` stay identical across every
+    // re-render and the `constraints` are the only thing that changes.
+    const lowResolutionBias = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.VGA_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const highResolutionBias = VisionCamera.createPhotoOutput({
+      targetResolution: CommonResolutions.UHD_4_3,
+      containerFormat: 'jpeg',
+      quality: 0.8,
+      qualityPrioritization: 'balanced',
+    })
+    const onConfigured = fn<() => void>()
+    const onError = fn<(error: Error) => void>()
+    const onRendered = fn<(renderIndex: number) => void>()
+
+    function TestCamera({
+      renderIndex,
+      resolutionBias,
+    }: {
+      renderIndex: number
+      resolutionBias: CameraPhotoOutput
+    }): null {
+      // CameraX requires at least one use case when configuring a session.
+      const previewOutput = usePreviewOutput()
+      useCamera({
+        isActive: false,
+        device: 'back',
+        outputs: [previewOutput],
+        constraints: [{ resolutionBias: resolutionBias }],
+        onConfigured,
+        onError,
+      })
+
+      useEffect(() => {
+        onRendered(renderIndex)
+      }, [renderIndex])
+
+      return null
+    }
+
+    const waitForRender = async (renderIndex: number): Promise<void> => {
+      await waitFor(
+        () => {
+          const error = onError.mock.lastCall?.[0]
+          if (error != null) throw error
+          expect(onRendered).toHaveBeenLastCalledWith(renderIndex)
+        },
+        { timeout: 10_000 },
+      )
+    }
+
+    const { rerender } = await render(
+      <TestCamera renderIndex={0} resolutionBias={lowResolutionBias} />,
+      { timeout: 10_000 },
+    )
+    await waitForRender(0)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(1)
+      },
+      { timeout: 15_000 },
+    )
+
+    // Re-rendering with the same output must not re-configure.
+    await rerender(
+      <TestCamera renderIndex={1} resolutionBias={lowResolutionBias} />,
+    )
+    await waitForRender(1)
+    expect(onConfigured).toHaveBeenCalledTimes(1)
+
+    // Pointing the bias at a different output must re-configure exactly once
+    // more, even though both outputs are the same HybridObject type.
+    await rerender(
+      <TestCamera renderIndex={2} resolutionBias={highResolutionBias} />,
+    )
+    await waitForRender(2)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(2)
+      },
+      { timeout: 15_000 },
+    )
+
+    expect(onError).not.toHaveBeenCalled()
+  })
 })
