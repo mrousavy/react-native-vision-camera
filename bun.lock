@@ -247,9 +247,6 @@
   "patchedDependencies": {
     "react-native@0.85.3": "patches/react-native@0.85.3.patch",
   },
-  "overrides": {
-    "react-native-nitro-modules": "0.37.0-beta.1",
-  },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
