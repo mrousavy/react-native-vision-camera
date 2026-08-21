@@ -19,16 +19,21 @@ import type {
   CameraDevice,
   CameraDeviceFactory,
   CameraOrientation,
+  CameraPhotoOutput,
   CameraPosition,
+  CameraVideoOutput,
   DeviceFilter,
   TargetCameraPosition,
 } from 'react-native-vision-camera'
 import {
+  CommonResolutions,
   getUIRotation,
   useCamera,
   useCameraDevice,
   useOrientation,
+  usePhotoOutput,
   usePreviewOutput,
+  useVideoOutput,
   VisionCamera,
 } from 'react-native-vision-camera'
 
@@ -338,6 +343,129 @@ describe('VisionCamera - Hooks', () => {
     } finally {
       await rerender(<TestCamera screenOrientation="portrait_up" />)
     }
+
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('keeps outputs stable when targetResolution is passed as an inline object literal', async () => {
+    const onConfigured = fn<() => void>()
+    const onError = fn<(error: Error) => void>()
+    const onRendered =
+      fn<
+        (
+          renderIndex: number,
+          photoOutput: CameraPhotoOutput,
+          videoOutput: CameraVideoOutput,
+        ) => void
+      >()
+
+    function TestCamera({
+      renderIndex,
+      width,
+      height,
+    }: {
+      renderIndex: number
+      width: number
+      height: number
+    }): null {
+      // CameraX requires at least one use case when configuring a session.
+      const previewOutput = usePreviewOutput()
+      // Both `targetResolution`s are inline object literals, so they have a
+      // fresh identity on every single render even though their values never
+      // change. They must not re-create the outputs.
+      const photoOutput = usePhotoOutput({
+        targetResolution: { width: width, height: height },
+      })
+      const videoOutput = useVideoOutput({
+        targetResolution: { width: width, height: height },
+        enableAudio: false,
+      })
+      useCamera({
+        isActive: false,
+        device: 'back',
+        outputs: [previewOutput, photoOutput, videoOutput],
+        onConfigured,
+        onError,
+      })
+
+      useEffect(() => {
+        onRendered(renderIndex, photoOutput, videoOutput)
+      }, [renderIndex, photoOutput, videoOutput])
+
+      return null
+    }
+
+    const waitForRender = async (renderIndex: number): Promise<void> => {
+      await waitFor(
+        () => {
+          const error = onError.mock.lastCall?.[0]
+          if (error != null) throw error
+          expect(onRendered.mock.lastCall?.[0]).toBe(renderIndex)
+        },
+        { timeout: 10_000 },
+      )
+    }
+
+    const stableResolution = CommonResolutions.HD_4_3
+    const changedResolution = CommonResolutions.VGA_4_3
+
+    const { rerender } = await render(
+      <TestCamera
+        renderIndex={0}
+        width={stableResolution.width}
+        height={stableResolution.height}
+      />,
+      { timeout: 10_000 },
+    )
+    await waitForRender(0)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(1)
+      },
+      { timeout: 15_000 },
+    )
+
+    const initialPhotoOutput = onRendered.mock.lastCall?.[1]
+    const initialVideoOutput = onRendered.mock.lastCall?.[2]
+    expect(initialPhotoOutput).toBeDefined()
+    expect(initialVideoOutput).toBeDefined()
+
+    // Re-rendering with the same resolution values must reuse the same outputs.
+    for (const renderIndex of [1, 2, 3]) {
+      await rerender(
+        <TestCamera
+          renderIndex={renderIndex}
+          width={stableResolution.width}
+          height={stableResolution.height}
+        />,
+      )
+      await waitForRender(renderIndex)
+      expect(onRendered.mock.lastCall?.[1]).toBe(initialPhotoOutput)
+      expect(onRendered.mock.lastCall?.[2]).toBe(initialVideoOutput)
+    }
+
+    // Changing the actual resolution values must re-create the outputs and
+    // re-configure the session exactly once more.
+    await rerender(
+      <TestCamera
+        renderIndex={4}
+        width={changedResolution.width}
+        height={changedResolution.height}
+      />,
+    )
+    await waitForRender(4)
+    expect(onRendered.mock.lastCall?.[1]).not.toBe(initialPhotoOutput)
+    expect(onRendered.mock.lastCall?.[2]).not.toBe(initialVideoOutput)
+    await waitFor(
+      () => {
+        const error = onError.mock.lastCall?.[0]
+        if (error != null) throw error
+        expect(onConfigured).toHaveBeenCalledTimes(2)
+      },
+      { timeout: 15_000 },
+    )
 
     expect(onError).not.toHaveBeenCalled()
   })
