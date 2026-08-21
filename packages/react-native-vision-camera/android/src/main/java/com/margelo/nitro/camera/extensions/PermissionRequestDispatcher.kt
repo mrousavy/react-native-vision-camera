@@ -16,8 +16,9 @@ import kotlin.coroutines.resumeWithException
  * Both React Native and Android only keep track of a single permission request at a time, so requests that overlap lose
  * their results and leave their callers suspended forever:
  * - A [PermissionAwareActivity] only remembers the [PermissionListener] of the most recent request, so a listener created
- *   per request is overwritten before its result arrives. This dispatcher registers one shared listener instead and keeps
- *   the per-request state here, keyed by request code.
+ *   per request is overwritten before its result arrives. This dispatcher registers one long-lived shared listener instead
+ *   and keeps the per-request state here, keyed by request code. Because of the [mutex] there is at most one entry in
+ *   [pendingRequests] at a time - the map is what claims and hands over that entry atomically.
  * - `Activity.requestPermissions(...)` refuses a request while another one is still in flight ("Can request only one set of
  *   permissions at a time") and cancels it with empty grant results, which would look like a denial for a permission the
  *   user was never asked about. The [mutex] makes sure Android only ever sees one request at a time.
@@ -29,13 +30,16 @@ internal object PermissionRequestDispatcher {
 
   private val listener =
     PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
-      val continuation = pendingRequests.remove(requestCode) ?: return@PermissionListener false
-      if (continuation.isActive) {
+      val continuation = pendingRequests.remove(requestCode)
+      if (continuation != null && continuation.isActive) {
         continuation.resume(grantResults)
       }
-      // Returning `true` makes React Native drop the shared listener, so only give the slot up once
-      // there is no request left that still needs its result delivered.
-      return@PermissionListener pendingRequests.isEmpty()
+      // This never returns `true`. `true` tells React Native to drop the listener again, and resuming
+      // the continuation above may already have let the next queued request register this very listener
+      // - dropping it afterwards would swallow that request's result and bring the hang back. A shared
+      // listener is never "done" anyway: it stays valid for every future request, ignores request codes
+      // it does not know, and is replaced as usual once other code registers a listener of its own.
+      return@PermissionListener false
     }
 
   /**

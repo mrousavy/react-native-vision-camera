@@ -48,13 +48,18 @@ suspend fun ReactApplicationContext.requestPermission(permission: String): Boole
 
   PermissionStateStore.setHasRequestedPermission(this, permission, true)
   val grantResults = PermissionRequestDispatcher.request(activity, permission)
-  if (grantResults.isEmpty()) {
-    // Android cancelled the request without ever asking the user, so we did not learn anything
-    // new about this permission - don't remember it as denied.
-    return false
+  val grantResult = grantResults.singleOrNull()
+  if (grantResult == null) {
+    // We asked for exactly one permission, so anything but exactly one result means the request never
+    // reached the user - Android reports a cancellation as an empty array. Roll the "has requested"
+    // marker back before bailing out: otherwise `getPermissionStatus(...)` sees a permission that has
+    // been requested, is not permanently denied, and has no rationale to show (because it was never
+    // presented), and reports it as `DENIED` instead of `NOT_DETERMINED`.
+    PermissionStateStore.setHasRequestedPermission(this, permission, false)
+    throw Error("Permission request for \"$permission\" was cancelled by Android! (got ${grantResults.size} results)")
   }
 
-  val hasPermission = grantResults.first() == PackageManager.PERMISSION_GRANTED
+  val hasPermission = grantResult == PackageManager.PERMISSION_GRANTED
   if (hasPermission) {
     PermissionStateStore.setHasRequestedPermission(this, permission, false)
     PermissionStateStore.setPermissionPermanentlyDenied(this, permission, false)
